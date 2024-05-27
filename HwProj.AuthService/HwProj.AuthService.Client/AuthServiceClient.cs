@@ -252,7 +252,7 @@ namespace HwProj.AuthService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _authServiceUri + $"api/account/api/Experts/register?lecturerId={lecturerId}")
+                _authServiceUri + $"api/Experts/register?lecturerId={lecturerId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),

@@ -15,6 +15,7 @@ import RegisterExpertModal from "./RegisterModal";
 import InviteExpertModal from "./InviteModal";
 import Chip from "@mui/material/Chip/Chip";
 import InlineTags from "./InlineTags";
+import Tooltip from '@mui/material/Tooltip';
 
 interface InviteExpertState {
     isOpen: boolean;
@@ -27,7 +28,35 @@ interface EditTagsState {
     areTagsChanged: boolean;
 }
 
-export const ControlledExpertTip: FC = () => <sup style={{color: "#2979ff", "fontWeight": "bold"}}>*</sup>
+export const ControlledExpertTip: FC = () =>
+    <Tooltip arrow placement={"top"}
+             PopperProps={{
+                 modifiers: [
+                     {
+                         name: "offset",
+                         options: {
+                             offset: [0, -10],
+                         },
+                     },
+                 ],
+             }}
+             title={<div style={{fontSize: "12px"}}>Эксперт был добавлен Вами</div>}>
+        <sup style={{color: "#2979ff", "fontWeight": "bold", fontSize: "15px", cursor: "default"}}>*</sup>
+    </Tooltip>
+
+function tagToColor(label: string) {
+    let hash = 0;
+    let i;
+
+    for (i = 0; i < label.length; i += 1) {
+        hash = label.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    const hue = Math.abs(hash % 360);
+    const lightness = 30 + Math.abs(hash % 20);
+
+    return `hsl(${hue}, 50%, ${lightness}%)`;
+}
 
 const ExpertsNotebook: FC = () => {
     const [isLoaded, setLoadedState] = useState<boolean>(false);
@@ -130,7 +159,7 @@ const ExpertsNotebook: FC = () => {
                 <TableCell align={"center"}>{expert.companyName}</TableCell>
                 <TableCell align={"center"} onClick={handleOpenTagsEditing}
                            onMouseLeave={() => handleCloseTagsEditing(expert)}
-                           style={{cursor: isExpertControlled(expert.lecturerId!) ? "pointer" : "default"}}>
+                           style={{cursor: isExpertControlled(expert.lecturerId!) ? "text" : "default"}}>
                     <Grid container spacing={1} alignItems={"center"} justifyContent={"center"}>
                         {mouseHoveredRow === expert.id && isExpertControlled(expert.lecturerId!) && tagsEditingState.isOpen ?
                             <InlineTags tags={expert.tags!} onTagsChange={(value) => handleTagsChange(expert, value)}/>
@@ -141,7 +170,12 @@ const ExpertsNotebook: FC = () => {
                                           variant={"outlined"}
                                           label={tag}
                                           size={"small"}
-                                          style={{cursor: "pointer"}}/>
+                                          style={{
+                                              cursor: isExpertControlled(expert.lecturerId!) ? "text" : "default",
+                                              backgroundColor: tagToColor(tag),
+                                              color: "white"
+                                          }}
+                                    />
                                 </Grid>)))
                         }
                     </Grid>
