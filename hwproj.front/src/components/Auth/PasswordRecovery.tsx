@@ -9,6 +9,7 @@ import {useState} from "react";
 import makeStyles from "@material-ui/styles/makeStyles";
 import Container from '@material-ui/core/Container';
 import {Alert, AlertTitle} from "@mui/material";
+import ValidationUtils from "../Utils/ValidationUtils";
 
 interface IRecoverState {
     email: string;
@@ -51,8 +52,18 @@ const PasswordRecovery: FC = () => {
         isSuccess: false,
     })
 
+    const [emailError, setEmailError] = useState<string>(""); // Состояние для ошибки электронной почты
+    const [isRecoveryButtonDisabled, setIsRecoveryButtonDisabled] = useState<boolean>(false); // Состояние для блокировки кнопки
+
+
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (!ValidationUtils.isCorrectEmail(recoverState.email)) {
+            setEmailError("Некорректный адрес электронной почты");
+            setIsRecoveryButtonDisabled(true);
+            return;
+        }
 
         try {
             const result = await ApiSingleton.accountApi.apiAccountRequestPasswordRecoveryPost({email: recoverState.email})
@@ -76,6 +87,8 @@ const PasswordRecovery: FC = () => {
             ...prevState,
             email: e.target.value
         }))
+        setEmailError("");
+        setIsRecoveryButtonDisabled(false);
     }
 
     const headerStyles: React.CSSProperties = {marginRight: "9.5rem"};
@@ -116,6 +129,8 @@ const PasswordRecovery: FC = () => {
                             margin="normal"
                             name={recoverState.email}
                             onChange={handleChangeEmail}
+                            error={emailError !== ""}
+                            helperText={emailError}
                         />
                         <div className={classes.button}>
                             <Button
@@ -123,6 +138,7 @@ const PasswordRecovery: FC = () => {
                                 variant="contained"
                                 color="primary"
                                 type="submit"
+                                disabled={isRecoveryButtonDisabled}
                             >
                                 Восстановить пароль
                             </Button>

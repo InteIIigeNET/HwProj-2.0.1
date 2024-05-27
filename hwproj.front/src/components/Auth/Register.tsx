@@ -11,6 +11,7 @@ import Grid from "@material-ui/core/Grid";
 import makeStyles from "@material-ui/styles/makeStyles";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Avatar from "@material-ui/core/Avatar";
+import ValidationUtils from "../Utils/ValidationUtils";
 
 interface  ICommonState {
     loggedIn: boolean;
@@ -57,12 +58,18 @@ const Register: FC<LoginProps> = (props) => {
         error: [],
     })
     const [passwordError, setPasswordError] = useState<string>(""); // Состояние для ошибки паролей
+    const [emailError, setEmailError] = useState<string>(""); // Состояние для ошибки электронной почты
     const [isRegisterButtonDisabled, setIsRegisterButtonDisabled] = useState<boolean>(false); // Состояние для блокировки кнопки
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
        if (registerState.password !== registerState.passwordConfirm) {
             setPasswordError("Пароли не совпадают");
+            setIsRegisterButtonDisabled(true);
+            return;
+        }
+        if (!ValidationUtils.isCorrectEmail(registerState.email)) {
+            setEmailError("Некорректный адрес электронной почты");
             setIsRegisterButtonDisabled(true);
             return;
         }
@@ -173,7 +180,11 @@ const Register: FC<LoginProps> = (props) => {
                                         ...prevState,
                                         email: e.target.value
                                     }))
+                                    setEmailError("");
+                                    setIsRegisterButtonDisabled(false);
                                 }}
+                                error={emailError !== ""}
+                                helperText={emailError}
                             />
                         </Grid>
                         <Grid item xs={12} sm={6}>
