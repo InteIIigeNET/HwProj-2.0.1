@@ -12,6 +12,7 @@ import Grid from '@material-ui/core/Grid';
 import {Autocomplete} from "@material-ui/lab";
 import {AccountDataDto} from "../api";
 import {Box} from "@material-ui/core";
+import ValidationUtils from "./Utils/ValidationUtils";
 
 
 interface InviteLecturer {
@@ -37,7 +38,7 @@ const InviteLecturerModal: FC<InviteLecturer> = (props) => {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (!ApiSingleton.authService.isCorrectEmail(lecturerState.email)) {
+        if (!ValidationUtils.isCorrectEmail(lecturerState.email)) {
             setLecturerState((prevState) => ({
                 ...prevState,
                 errors: ['Некорректный адрес электронной почты.']

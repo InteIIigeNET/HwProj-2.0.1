@@ -10,6 +10,7 @@ import {useState} from "react";
 import {LoginViewModel} from "../../api/"
 import makeStyles from "@material-ui/styles/makeStyles";
 import Container from '@material-ui/core/Container';
+import ValidationUtils from "../Utils/ValidationUtils";
 
 interface LoginProps {
     onLogin: () => void;
@@ -71,7 +72,7 @@ const Login: FC<LoginProps> = (props) => {
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (!ApiSingleton.authService.isCorrectEmail(loginState.email)) {
+        if (!ValidationUtils.isCorrectEmail(loginState.email)) {
             setEmailError("Некорректный адрес электронной почты");
             setIsLoginButtonDisabled(true);
             return;

@@ -11,6 +11,7 @@ import Grid from "@material-ui/core/Grid";
 import makeStyles from "@material-ui/styles/makeStyles";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Avatar from "@material-ui/core/Avatar";
+import ValidationUtils from "../Utils/ValidationUtils";
 
 interface  ICommonState {
     loggedIn: boolean;
@@ -67,7 +68,7 @@ const Register: FC<LoginProps> = (props) => {
             setIsRegisterButtonDisabled(true);
             return;
         }
-        if (!ApiSingleton.authService.isCorrectEmail(registerState.email)) {
+        if (!ValidationUtils.isCorrectEmail(registerState.email)) {
             setEmailError("Некорректный адрес электронной почты");
             setIsRegisterButtonDisabled(true);
             return;

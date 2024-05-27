@@ -9,6 +9,7 @@ import {useState} from "react";
 import makeStyles from "@material-ui/styles/makeStyles";
 import Container from '@material-ui/core/Container';
 import {Alert, AlertTitle} from "@mui/material";
+import ValidationUtils from "../Utils/ValidationUtils";
 
 interface IRecoverState {
     email: string;
@@ -58,7 +59,7 @@ const PasswordRecovery: FC = () => {
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (!ApiSingleton.authService.isCorrectEmail(recoverState.email)) {
+        if (!ValidationUtils.isCorrectEmail(recoverState.email)) {
             setEmailError("Некорректный адрес электронной почты");
             setIsRecoveryButtonDisabled(true);
             return;
