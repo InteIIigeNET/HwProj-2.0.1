@@ -183,7 +183,7 @@ namespace HwProj.CoursesService.API.Controllers
                         MaxRating = task.MaxRating,
                         DeadlineDate = task.DeadlineDate!.Value
                     }))
-                .Where(t => !t.Tags.Contains(HomeworkTags.Test))
+                .Where(t => !(t.Tags.Contains(HomeworkTags.Test) && t.DeadlineDate <= currentDate))
                 .OrderBy(t => t.DeadlineDate)
                 .ToArray();
 
