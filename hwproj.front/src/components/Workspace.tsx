@@ -85,7 +85,7 @@ const Workspace: FC = () => {
             homeworkId: x.homeworkId!,
             deadlineDate: x.deadlineDate!
         })) || []
-    const pastTaskDeadlines = taskDeadlines?.filter(x => x.deadlinePast).filter(x => !x.deadline!.tags!.includes(TestTag)) || []
+    const pastTaskDeadlines = taskDeadlines?.filter(x => x.deadlinePast) || []
 
     if (profileState.isLoaded) {
         const isUserProfile = userData!.userId === ApiSingleton.authService.getUserId()
