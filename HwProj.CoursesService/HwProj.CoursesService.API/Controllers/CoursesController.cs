@@ -170,7 +170,8 @@ namespace HwProj.CoursesService.API.Controllers
                     .Where(t =>
                         (t.HasDeadline ?? false)
                         && t.PublicationDate <= currentDate
-                        && (t.DeadlineDate >= currentDate || !(t.IsDeadlineStrict ?? true)))
+                        && (t.DeadlineDate >= currentDate || !(t.IsDeadlineStrict ?? true))
+                        && !(t.Tags.Contains(HomeworkTags.Test) && t.DeadlineDate <= currentDate))
                     .Select(task => new TaskDeadlineDto
                     {
                         TaskId = task.Id,
@@ -183,7 +184,6 @@ namespace HwProj.CoursesService.API.Controllers
                         MaxRating = task.MaxRating,
                         DeadlineDate = task.DeadlineDate!.Value
                     }))
-                .Where(t => !(t.Tags.Contains(HomeworkTags.Test) && t.DeadlineDate <= currentDate))
                 .OrderBy(t => t.DeadlineDate)
                 .ToArray();
 
