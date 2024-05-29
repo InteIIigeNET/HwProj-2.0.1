@@ -11,6 +11,9 @@ namespace HwProj.Utils.Authorization
     {
         public static string? GetUserIdFromHeader(this HttpRequest request) =>
             request.Headers.TryGetValue("UserId", out var id) ? id.FirstOrDefault() : null;
+        
+        public static string? GetGuestModeFromHeader(this HttpRequest request) =>
+            request.Headers.TryGetValue("GuestMode", out var isGuest) ? isGuest.FirstOrDefault() : null;
 
         public static AccountDataDto ToAccountDataDto(this User user, string role)
         {

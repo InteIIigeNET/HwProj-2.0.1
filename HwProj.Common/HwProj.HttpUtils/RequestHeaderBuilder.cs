@@ -10,5 +10,12 @@ namespace HwProj.HttpUtils
             var userId = httpContextAccessor.HttpContext.User.FindFirst("_id");
             if (userId != null) request.Headers.Add("UserId", userId.Value);
         }
+        
+        public static void TryAddGuestMode(this HttpRequestMessage request, IHttpContextAccessor httpContextAccessor)
+        {
+            var guestMode = httpContextAccessor.HttpContext.User.FindFirst("_isGuest");
+            if (guestMode != null) 
+                request.Headers.Add("GuestMode", guestMode.Value);
+        }
     }
 }

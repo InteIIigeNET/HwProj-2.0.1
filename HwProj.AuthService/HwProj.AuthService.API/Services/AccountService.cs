@@ -134,6 +134,11 @@ namespace HwProj.AuthService.API.Services
                 ? Result<TokenCredentials>.Failed("Пользователь не найден")
                 : await GetToken(user);
         }
+        
+        public TokenCredentials GetGuestToken(string courseId)
+        {
+            return _tokenService.GetGuestToken(courseId);
+        }
 
         public async Task<Result<TokenCredentials>> RegisterUserAsync(RegisterDataDTO model)
         {

@@ -12,6 +12,10 @@ namespace HwProj.Utils.Auth
     public static class AuthSchemeConstants
     {
         public const string UserIdAuthentication = "UserIdAuth";
+        public const string GuestModeAuthentication = "GuestModeAuth";
+        public const string QueryStringTokenAuthentication = "QueryStringTokenAuth";
+        public const string QueryStringTokenOrDefaultAuthentication = QueryStringTokenAuthentication + "," + "GatewayKey";
+        public const string GuestModeOrUseridAuthentication = GuestModeAuthentication + "," + UserIdAuthentication;
     }
 
     public class UserIdAuthenticationOptions : AuthenticationSchemeOptions

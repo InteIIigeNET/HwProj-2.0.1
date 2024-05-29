@@ -9,6 +9,7 @@ using HwProj.EventBus.Client.Implementations;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration.Middleware;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -179,14 +180,22 @@ namespace HwProj.Utils.Configuration
             return app;
         }
 
-        public static IServiceCollection AddUserIdAuthentication(this IServiceCollection services)
+        public static AuthenticationBuilder AddUserIdAuthentication(this AuthenticationBuilder builder)
         {
-            services
-                .AddAuthentication(AuthSchemeConstants.UserIdAuthentication)
+            builder
                 .AddScheme<UserIdAuthenticationOptions, UserIdAuthenticationHandler>(
                     AuthSchemeConstants.UserIdAuthentication, null);
 
-            return services;
+            return builder;
+        }
+        
+        public static AuthenticationBuilder AddGuestModeAuthentication(this AuthenticationBuilder builder)
+        {
+            builder
+                .AddScheme<GuestModeAuthenticationOptions, GuestModeAuthenticationHandler>(
+                    AuthSchemeConstants.GuestModeAuthentication, null);
+
+            return builder;
         }
     }
 }

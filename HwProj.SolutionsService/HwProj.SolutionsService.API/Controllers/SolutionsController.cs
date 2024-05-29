@@ -20,7 +20,6 @@ using Microsoft.EntityFrameworkCore;
 namespace HwProj.SolutionsService.API.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
     [ApiController]
     public class SolutionsController : Controller
     {
@@ -42,12 +41,14 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
         public async Task<Solution[]> GetAllSolutions()
         {
             return await _solutionsService.GetAllSolutionsAsync();
         }
 
         [HttpGet("{solutionId}")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
         public async Task<IActionResult> GetSolution(long solutionId)
         {
             var solution = await _solutionsService.GetSolutionAsync(solutionId);
@@ -57,18 +58,21 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("taskSolutions/{taskId}/{studentId}")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
         public async Task<Solution[]> GetTaskSolutionsFromStudent(long taskId, string studentId)
         {
             return await _solutionsService.GetTaskSolutionsFromStudentAsync(taskId, studentId);
         }
 
         [HttpPost("taskSolutions/{studentId}")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
         public async Task<Solution?[]> GetLastTaskSolutions([FromBody] long[] taskIds, string studentId)
         {
             return await _solutionsService.GetLastTaskSolutions(taskIds, studentId);
         }
 
         [HttpPost("{taskId}")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> PostSolution(long taskId, [FromBody] PostSolutionModel solutionModel)
         {
@@ -82,6 +86,7 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("rateSolution/{solutionId}")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
         public async Task<IActionResult> RateSolution(long solutionId,
             [FromBody] RateSolutionModel rateSolutionModel)
         {
@@ -101,6 +106,7 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("rateEmptySolution/{taskId}")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
         public async Task<IActionResult> PostEmptySolutionWithRate(long taskId,
             [FromBody] SolutionViewModel solutionViewModel)
         {
@@ -113,18 +119,21 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("markSolutionFinal/{solutionId}")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
         public async Task MarkSolutionFinal(long solutionId)
         {
             await _solutionsService.MarkSolutionFinal(solutionId);
         }
 
         [HttpDelete("delete/{solutionId}")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
         public async Task DeleteSolution(long solutionId)
         {
             await _solutionsService.DeleteSolutionAsync(solutionId);
         }
 
         [HttpPost("{groupId}/{taskId}")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
         public async Task<long> PostSolution(long groupId, long taskId, [FromBody] SolutionViewModel solutionViewModel)
         {
             var solution = _mapper.Map<Solution>(solutionViewModel);
@@ -134,12 +143,14 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("{groupId}/taskSolutions/{taskId}")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
         public async Task<Solution[]> GetTaskSolutionsFromGroup(long groupId, long taskId)
         {
             return await _solutionsService.GetTaskSolutionsFromGroupAsync(taskId, groupId);
         }
 
         [HttpGet("getLecturersStat/{courseId}")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
         [ProducesResponseType(typeof(StatisticsLecturerDTO[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetLecturersStat(long courseId)
         {
@@ -181,6 +192,7 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("getCourseStat/{courseId}")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.GuestModeOrUseridAuthentication)]
         [ProducesResponseType(typeof(StatisticsCourseMatesDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseStat(long courseId)
         {
@@ -192,7 +204,10 @@ namespace HwProj.SolutionsService.API.Controllers
                 .Select(t => t.Id)
                 .ToArray();
 
-            var userId = Request.GetUserIdFromHeader();
+            var userId = Request.GetGuestModeFromHeader() == "true"
+                ? course.MentorIds.FirstOrDefault()
+                : Request.GetUserIdFromHeader();
+            
             var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
             var courseMates = course.MentorIds.Contains(userId)
                 ? course.AcceptedStudents
@@ -212,11 +227,13 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("getBenchmarkStat/{courseId}")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.GuestModeOrUseridAuthentication)]
         [ProducesResponseType(typeof(StatisticsCourseStudentsBenchmarkDTO), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetBenchmarkStats(long courseId)
         {
             var course = await _coursesClient.GetCourseById(courseId);
-            if (course == null) return NotFound();
+            if (course == null) 
+                return NotFound();
             
             var taskIds = course.Homeworks
                 .SelectMany(t => t.Tasks)
@@ -263,6 +280,7 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("getTaskStats/{courseId}/{taskId}")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
         [ProducesResponseType(typeof(StudentSolutions[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetTaskStats(long courseId, long taskId)
         {
@@ -277,12 +295,14 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("allUnrated")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
         public async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks([FromBody] long[] taskIds)
         {
             return await _solutionsService.GetAllUnratedSolutions(taskIds);
         }
 
         [HttpGet("taskSolutionsStats")]
+        [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
         public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats([FromBody] long[] taskIds)
         {
             return await _solutionsService.GetTaskSolutionsStats(taskIds);

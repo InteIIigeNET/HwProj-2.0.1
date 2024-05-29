@@ -16,13 +16,13 @@ namespace HwProj.CoursesService.API.Filters
     {
         public override async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
+            var isGuest = context.HttpContext.Request.GetGuestModeFromHeader();
             var userId = context.HttpContext.Request.GetUserIdFromHeader();
-
-            if (userId == null)
+            if (userId == null && isGuest != "true")
             {
                 context.Result = new ForbidResult();
             }
-            else
+            else if (isGuest == null)
             {
                 var result = context.Result as ObjectResult;
                 if (result?.Value is CourseDTO courseDto && !courseDto.MentorIds.Contains(userId))

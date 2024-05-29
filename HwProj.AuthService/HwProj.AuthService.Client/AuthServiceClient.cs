@@ -99,6 +99,16 @@ namespace HwProj.AuthService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<TokenCredentials>>();
         }
+        
+        public async Task<TokenCredentials> GetGuestToken(string courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + $"api/account/getGuestToken/?courseId={courseId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<TokenCredentials>();
+        }
 
         public async Task<Result> Edit(EditAccountViewModel model, string userId)
         {

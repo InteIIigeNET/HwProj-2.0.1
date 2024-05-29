@@ -2095,6 +2095,41 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @param {string} [courseId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGetGuestTokenGet(courseId?: string, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Account/getGuestToken`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (courseId !== undefined) {
+                localVarQueryParameter['courseId'] = courseId;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2498,6 +2533,24 @@ export const AccountApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {string} [courseId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGetGuestTokenGet(courseId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<TokenCredentials> {
+            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).apiAccountGetGuestTokenGet(courseId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2711,6 +2764,15 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
         },
         /**
          * 
+         * @param {string} [courseId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiAccountGetGuestTokenGet(courseId?: string, options?: any) {
+            return AccountApiFp(configuration).apiAccountGetGuestTokenGet(courseId, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {string} userId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2837,6 +2899,17 @@ export class AccountApi extends BaseAPI {
      */
     public apiAccountGetAllStudentsGet(options?: any) {
         return AccountApiFp(this.configuration).apiAccountGetAllStudentsGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {string} [courseId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AccountApi
+     */
+    public apiAccountGetGuestTokenGet(courseId?: string, options?: any) {
+        return AccountApiFp(this.configuration).apiAccountGetGuestTokenGet(courseId, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -6356,10 +6429,11 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
         /**
          * 
          * @param {number} courseId 
+         * @param {string} [token] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiStatisticsByCourseIdChartsGet(courseId: number, options: any = {}): FetchArgs {
+        apiStatisticsByCourseIdChartsGet(courseId: number, token?: string, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
                 throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiStatisticsByCourseIdChartsGet.');
@@ -6377,6 +6451,10 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
 					? configuration.apiKey("Authorization")
 					: configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (token !== undefined) {
+                localVarQueryParameter['token'] = token;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -6473,11 +6551,12 @@ export const StatisticsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {number} courseId 
+         * @param {string} [token] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiStatisticsByCourseIdChartsGet(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AdvancedCourseStatisticsViewModel> {
-            const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsByCourseIdChartsGet(courseId, options);
+        apiStatisticsByCourseIdChartsGet(courseId: number, token?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<AdvancedCourseStatisticsViewModel> {
+            const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).apiStatisticsByCourseIdChartsGet(courseId, token, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -6536,11 +6615,12 @@ export const StatisticsApiFactory = function (configuration?: Configuration, fet
         /**
          * 
          * @param {number} courseId 
+         * @param {string} [token] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiStatisticsByCourseIdChartsGet(courseId: number, options?: any) {
-            return StatisticsApiFp(configuration).apiStatisticsByCourseIdChartsGet(courseId, options)(fetch, basePath);
+        apiStatisticsByCourseIdChartsGet(courseId: number, token?: string, options?: any) {
+            return StatisticsApiFp(configuration).apiStatisticsByCourseIdChartsGet(courseId, token, options)(fetch, basePath);
         },
         /**
          * 
@@ -6573,12 +6653,13 @@ export class StatisticsApi extends BaseAPI {
     /**
      * 
      * @param {number} courseId 
+     * @param {string} [token] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StatisticsApi
      */
-    public apiStatisticsByCourseIdChartsGet(courseId: number, options?: any) {
-        return StatisticsApiFp(this.configuration).apiStatisticsByCourseIdChartsGet(courseId, options)(this.fetch, this.basePath);
+    public apiStatisticsByCourseIdChartsGet(courseId: number, token?: string, options?: any) {
+        return StatisticsApiFp(this.configuration).apiStatisticsByCourseIdChartsGet(courseId, token, options)(this.fetch, this.basePath);
     }
 
     /**

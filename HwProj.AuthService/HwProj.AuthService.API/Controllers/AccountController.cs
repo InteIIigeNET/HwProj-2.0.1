@@ -82,6 +82,14 @@ namespace HwProj.AuthService.API.Controllers
             var tokenMeta = await _accountService.RefreshToken(userId);
             return Ok(tokenMeta);
         }
+        
+        [HttpGet("getGuestToken")]
+        [ProducesResponseType(typeof(TokenCredentials), (int)HttpStatusCode.OK)]
+        public Task<IActionResult> GetGuestToken([FromQuery] string courseId)
+        {
+            var tokenMeta = _accountService.GetGuestToken(courseId);
+            return Task.FromResult<IActionResult>(Ok(tokenMeta));
+        }
 
         [HttpPut("edit/{userId}")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
