@@ -240,6 +240,17 @@ namespace HwProj.CoursesService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
+        
+        public async Task<HomeworkTaskViewModel[]> GetAllCourseTasks(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Tasks/{courseId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<HomeworkTaskViewModel[]>();
+        }
 
         public async Task<HomeworkTaskViewModel> GetTask(long taskId)
         {

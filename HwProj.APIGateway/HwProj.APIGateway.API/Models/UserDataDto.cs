@@ -8,5 +8,6 @@ namespace HwProj.APIGateway.API.Models
         public AccountDataDto UserData { get; set; }
         public CourseEvents[] CourseEvents { get; set; }
         public TaskDeadlineView[] TaskDeadlines { get; set; }
+        public GroupTaskWithoutGroupInSolutionViewModel[] GroupWorkTasks { get; set; }
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Services;
@@ -96,6 +95,17 @@ namespace HwProj.CoursesService.API.Controllers
             await _tasksService.UpdateTaskAsync(taskId, taskViewModel.ToHomeworkTask());
 
             return Ok();
+        }
+
+        [HttpGet("{courseId}")]
+        public async Task<HomeworkTaskViewModel[]> GetAllCourseTasks(long courseId)
+        {
+            var tasks = await _tasksService.GetAllCourseTasks(courseId);
+            var result = tasks
+                .Select(t => t.ToHomeworkTaskViewModel())
+                .ToArray();
+
+            return result;
         }
     }
 }

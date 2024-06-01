@@ -10,5 +10,6 @@ namespace HwProj.CoursesService.API.Services
         Task<long> AddTaskAsync(long homeworkId, HomeworkTask task);
         Task DeleteTaskAsync(long taskId);
         Task UpdateTaskAsync(long taskId, HomeworkTask update);
+        Task<HomeworkTask[]> GetAllCourseTasks(long courseId);
     }
 }

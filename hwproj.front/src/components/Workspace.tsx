@@ -1,15 +1,15 @@
 ﻿import * as React from "react";
-import {Typography, CircularProgress, Grid, Tabs, Tab} from "@material-ui/core";
+import {Typography, CircularProgress, Grid, Tabs, Tab} from "@mui/material";
 import ApiSingleton from "api/ApiSingleton";
 import {UnratedSolutionPreviews, UserDataDto} from "../api/";
 import "./Styles/Profile.css";
 import {FC, useEffect, useState} from "react";
 import {Link as RouterLink, useParams} from "react-router-dom";
 import {makeStyles} from "@material-ui/styles";
-import EditIcon from "@material-ui/icons/Edit";
-import {TaskDeadlines} from "./Tasks/TaskDeadlines";
+import GroupWorkTasks from "./Tasks/GroupWorkTasks";
+import TaskDeadlines from "./Tasks/TaskDeadlines";
 import UnratedSolutions from "./Solutions/UnratedSolutions";
-import {Chip, Stack} from "@mui/material";
+import {Chip, Stack, Card, CardContent} from "@mui/material";
 import NewCourseEvents from "./Courses/NewCourseEvents";
 
 interface IWorkspaceState {
@@ -44,6 +44,8 @@ const Workspace: FC = () => {
     useEffect(() => {
         getUserInfo()
     }, [])
+
+    console.log(accountState)
 
     const getUserInfo = async () => {
         if (id) {
@@ -86,24 +88,38 @@ const Workspace: FC = () => {
         return (
             <div className="container" style={{marginBottom: '50px'}}>
                 <Grid container style={{marginTop: "15px"}} spacing={2}>
-                    <Grid item container className={classes.info} direction={"row"}>
-                        <Grid item direction={"row"} spacing={2} style={{display: "flex"}}>
+                    <Grid container item direction="column" spacing={2}>
+                        <Grid item container className={classes.info} direction={"row"}>
+                            <Grid item direction={"row"} spacing={2} style={{display: "flex"}}>
+                                <Grid item>
+                                    <Typography style={{fontSize: '20px'}}>
+                                        {fullName}
+                                    </Typography>
+                                </Grid>
+                            </Grid>
                             <Grid item>
-                                <Typography style={{fontSize: '20px'}}>
-                                    {fullName}
+                                <Typography style={{fontSize: '20px', color: "GrayText"}}>
+                                    {userData!.email}
                                 </Typography>
                             </Grid>
                         </Grid>
-                        <Grid item>
-                            <Typography style={{fontSize: '20px', color: "GrayText"}}>
-                                {userData!.email}
-                            </Typography>
-                        </Grid>
+                        {accountState.groupWorkTasks!.length > 0 &&
+                        <Grid item style={{width: "50%"}}>
+                            <Card variant={"outlined"} style={{borderColor: "#3f51b5"}}>
+                                <CardContent>
+                                <div style={{marginBottom: 10}}>
+                                    <Typography variant={"caption"} color={"#3f51b5"} style={{marginBottom: 10}}>
+                                        {`Командные решения без групп: ${accountState.groupWorkTasks!.length}`}
+                                    </Typography>
+                                </div>
+                                    <GroupWorkTasks tasks={accountState.groupWorkTasks!} />
+                                </CardContent>
+                            </Card>
+                        </Grid>}
                     </Grid>
                     {isUserProfile && <Grid item>
                         <Tabs
                             value={tabValue}
-                            style={{marginTop: 15}}
                             indicatorColor="primary"
                             onChange={(event, value) => {
                                 setProfileState(prevState => ({

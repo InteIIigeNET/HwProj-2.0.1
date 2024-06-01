@@ -15,21 +15,25 @@ namespace HwProj.CoursesService.API.Domains
             }
         }
 
-        public static void FillTasksInHomework(Homework homework)
+        public static Homework FillTasksInHomework(Homework homework)
         {
             foreach (var task in homework.Tasks)
             {
                 FillTask(homework, task);
             }
+
+            return homework;
         }
 
-        public static void FillTask(Homework homework, HomeworkTask task)
+        public static HomeworkTask FillTask(Homework homework, HomeworkTask task)
         {
             var hasDeadline = task.HasDeadline ?? homework.HasDeadline;
             task.HasDeadline = hasDeadline;
             task.IsDeadlineStrict ??= homework.IsDeadlineStrict;
             task.DeadlineDate ??= hasDeadline ? homework.DeadlineDate : null;
             task.PublicationDate ??= homework.PublicationDate;
+
+            return task;
         }
     }
 }
