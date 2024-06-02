@@ -53,8 +53,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
         return `hsl(${hashCode(string) % 360}, 100%, 70%)`;
     }
     const [straightAStudent, averageStudent] = ['Круглый отличник', 'Средний студент']
-    const courseHomeworks = props.homeworks.filter(hw => hw.tasks && hw.tasks.length > 0);
-    const courseTasks = courseHomeworks.map(hw => hw.tasks!)
+    const courseTasks = props.homeworks.map(hw => hw.tasks!)
         .flat().sort((x, y) => compareDates(x.publicationDate!, y.publicationDate!));
     const solutions = props.solutions.filter(solution =>
         props.selectedStudents.includes(solution.id!))
@@ -167,7 +166,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
 
     const studentChartsArray = Array.from(studentCharts.entries()).map(([_, line]) => line);
 
-    const startCourseDate = courseHomeworks.map(hw => {
+    const startCourseDate = props.homeworks.map(hw => {
         const date = new Date(hw.publicationDate!);
         date.setHours(0, 0, 0, 0);
         return date;
