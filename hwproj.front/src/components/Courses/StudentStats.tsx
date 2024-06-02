@@ -119,7 +119,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                        component="td">
                                 Студенты
                                 <IconButton onClick={() => copyAcceptedStudents()}>
-                                    <ContentCopyIcon fontSize="small" titleAccess="Скопировать список студентов" />
+                                    <ContentCopyIcon style={{ fontSize: '16' }} titleAccess="Скопировать список студентов" />
                                 </IconButton>
                             </TableCell>
                             {(hasHomeworks || hasTests) && <TableCell
