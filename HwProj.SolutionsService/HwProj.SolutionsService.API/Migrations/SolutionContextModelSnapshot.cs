@@ -53,31 +53,6 @@ namespace HwProj.SolutionsService.API.Migrations
 
                     b.ToTable("Solutions");
                 });
-
-            modelBuilder.Entity("HwProj.SolutionsService.API.Models.GithubSolutionCommit", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("CommitHash");
-
-                    b.Property<long>("SolutionId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SolutionId");
-
-                    b.ToTable("LastGithubSolutionCommits");
-                });
-
-            modelBuilder.Entity("HwProj.SolutionsService.API.Models.GithubSolutionCommit", b =>
-                {
-                    b.HasOne("HwProj.Models.SolutionsService.Solution", "Solution")
-                        .WithMany()
-                        .HasForeignKey("SolutionId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
 #pragma warning restore 612, 618
         }
     }
