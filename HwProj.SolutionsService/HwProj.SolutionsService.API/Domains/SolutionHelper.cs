@@ -8,18 +8,18 @@ using Octokit;
 
 namespace HwProj.SolutionsService.API.Domains
 {
-    public static class SolutionHelper
+    internal static class SolutionHelper
     {
-        public const string PullRequestPattern =
-            @"https:\/\/github\.com\/(?<owner>[^\/]+)\/(?<repo>[^\/]+)\/pull\/(?<number>\d+)(\/.*)?";
+        private static Regex _pullRequestRegex = new Regex(
+                @"https:\/\/github\.com\/(?<owner>[^\/]+)\/(?<repo>[^\/]+)\/pull\/(?<number>\d+)(\/.*)?",
+                RegexOptions.Compiled);
         
-        public static PullRequestDto ParsePullRequestUrl(string url)
+        public static PullRequestDto? TryParsePullRequestUrl(string url)
         {
             if (url is null)
                 throw new ArgumentNullException(nameof(url));
-        
-            var regex = new Regex(PullRequestPattern);
-            var match = regex.Match(url);
+            
+            var match = _pullRequestRegex.Match(url);
         
             if (match.Success)
             {
@@ -31,7 +31,7 @@ namespace HwProj.SolutionsService.API.Domains
                 };
             }
 
-            throw new InvalidOperationException(nameof(url));
+            return null;
         }
         
         public static SolutionActualityDto GetCommitActuality(

@@ -268,23 +268,25 @@ namespace HwProj.SolutionsService.API.Services
                 ?? throw new ArgumentException(nameof(solutionId));
             var lastSolutionCommit = await _githubSolutionCommitsRepository.TryGetLastBySolutionId(solutionId);
 
-            var commits = await GetCommitsByUrl(solution.GithubUrl);
+            var commits = await TryGetCommitsByUrl(solution.GithubUrl);
 
             return SolutionHelper.GetCommitActuality(commits, lastSolutionCommit);
         }
 
-        public async Task<long> SaveSolutionCommitsInfo(SolutionUrlDto solutionUrlDto)
+        public async Task<long?> TrySaveSolutionCommitsInfo(long solutionId, string solutionUrl)
         {
-            var lastCommitHash = (await GetCommitsByUrl(solutionUrlDto.SolutionUrl)).Last().Sha;
+            var lastCommitHash = (await TryGetCommitsByUrl(solutionUrl))?.Last().Sha;
+            if (lastCommitHash is null)
+                return null;
 
             return await _githubSolutionCommitsRepository.AddAsync(new GithubSolutionCommit
             {
-                SolutionId = solutionUrlDto.SolutionId,
+                Id = solutionId,
                 CommitHash = lastCommitHash
             });
         }
 
-        private async Task<IEnumerable<PullRequestCommit>> GetCommitsByUrl(string solutionUrl)
+        private async Task<IEnumerable<PullRequestCommit>?> TryGetCommitsByUrl(string solutionUrl)
         {
             const string productName = "Hwproj";
             var token = _configuration.GetSection("Github")["Token"];
@@ -294,12 +296,13 @@ namespace HwProj.SolutionsService.API.Services
                 Credentials = new Credentials(token)
             };
 
-            var pullRequest = SolutionHelper.ParsePullRequestUrl(solutionUrl);
-            
+            var pullRequest = SolutionHelper.TryParsePullRequestUrl(solutionUrl);
+            if (pullRequest is null)
+                return null;
+
             var commits = await client.PullRequest
                 .Commits(pullRequest.Owner, pullRequest.Name, pullRequest.Number);
-            if (commits is null)
-                throw new InvalidOperationException("У решения не найден пулл реквест");
+            
 
             return commits;
         }

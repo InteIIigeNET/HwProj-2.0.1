@@ -1,6 +1,6 @@
 namespace HwProj.SolutionsService.API.Models
 {
-    public class PullRequestDto
+    internal class PullRequestDto
     {
         public string Owner { get; set; }
 

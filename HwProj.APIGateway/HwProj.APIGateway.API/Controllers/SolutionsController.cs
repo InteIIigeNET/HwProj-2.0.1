@@ -191,16 +191,11 @@ namespace HwProj.APIGateway.API.Controllers
             var taskTags = course.Homeworks
                 .FirstOrDefault(h => h.Tasks.Select(t => t.Id).Contains(taskId))?.Tags;
 
+            solutionModel.Tags = taskTags.ToArray();
+
             if (model.GroupMateIds == null || model.GroupMateIds.Length == 0)
             {
                 var result = await _solutionsClient.PostSolution(taskId, solutionModel);
-                if (taskTags?.Contains(HomeworkTags.Test) ?? false)
-                    await _solutionsClient.SaveSolutionCommitsInfo(
-                        new SolutionUrlDto
-                        {
-                            SolutionId = result,
-                            SolutionUrl = model.GithubUrl
-                        });
                     
                 return Ok(result);
             }
@@ -224,14 +219,7 @@ namespace HwProj.APIGateway.API.Controllers
                 await _coursesServiceClient.CreateCourseGroup(new CreateGroupViewModel(arrFullStudentsGroup, course.Id),
                     taskId);
 
-            var postResult = await _solutionsClient.PostSolution(taskId, solutionModel);
-            if (taskTags?.Contains(HomeworkTags.Test) ?? false)
-                await _solutionsClient.SaveSolutionCommitsInfo(
-                    new SolutionUrlDto
-                    {
-                        SolutionId = postResult,
-                        SolutionUrl = model.GithubUrl
-                    });
+            await _solutionsClient.PostSolution(taskId, solutionModel);
 
             return Ok(solutionModel);
         }

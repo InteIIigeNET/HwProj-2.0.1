@@ -28,6 +28,6 @@ namespace HwProj.SolutionsService.API.Services
         Task<SolutionPreviewDto[]> GetAllUnratedSolutions(long[] taskIds);
         Task<TaskSolutionsStats[]> GetTaskSolutionsStats(long[] taskIds);
         Task<SolutionActualityDto> GetSolutionActuality(long solutionId);
-        Task<long> SaveSolutionCommitsInfo(SolutionUrlDto solutionUrlDto);
+        Task<long?> TrySaveSolutionCommitsInfo(long solutionId, string solutionUrl);
     }
 }

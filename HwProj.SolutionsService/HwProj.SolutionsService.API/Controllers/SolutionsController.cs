@@ -73,11 +73,16 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<IActionResult> PostSolution(long taskId, [FromBody] PostSolutionModel solutionModel)
         {
             var task = await _coursesClient.GetTask(taskId);
-            if (!task.CanSendSolution) return BadRequest();
+            if (!task.CanSendSolution) 
+                return BadRequest();
 
             var solution = _mapper.Map<Solution>(solutionModel);
             solution.TaskId = taskId;
             var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
+
+            if (solutionModel.Tags.Contains(HomeworkTags.Test))
+                await _solutionsService.TrySaveSolutionCommitsInfo(solutionId, solutionModel.GithubUrl);
+            
             return Ok(solutionId);
         }
 
@@ -294,12 +299,6 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<SolutionActualityDto> GetSolutionActuality(long solutionId)
         {
             return await _solutionsService.GetSolutionActuality(solutionId);
-        }
-
-        [HttpPost("commitsInfo")]
-        public async Task<long> SaveSolutionCommitsInfo([FromBody] SolutionUrlDto solutionUrlDto)
-        {
-            return await _solutionsService.SaveSolutionCommitsInfo(solutionUrlDto);
         }
     }
 }

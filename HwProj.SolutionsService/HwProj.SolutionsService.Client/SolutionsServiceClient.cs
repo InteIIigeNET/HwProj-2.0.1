@@ -286,23 +286,6 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<SolutionActualityDto>();
         }
 
-        public async Task<long> SaveSolutionCommitsInfo(SolutionUrlDto solutionUrlDto)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Post,
-                _solutionServiceUri + "api/Solutions/commitsInfo")
-            {
-                Content = new StringContent(
-                    JsonConvert.SerializeObject(solutionUrlDto),
-                    Encoding.UTF8,
-                    "application/json")
-            };
-            
-            httpRequest.TryAddUserId(_httpContextAccessor);
-            var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<long>();
-        }
-        
         public async Task<bool> Ping()
         {
             try
