@@ -56,9 +56,7 @@ namespace HwProj.SolutionsService.API.Migrations
 
             modelBuilder.Entity("HwProj.SolutionsService.API.Models.GithubSolutionCommit", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<long>("Id");
 
                     b.Property<string>("CommitHash");
 

@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HwProj.SolutionsService.API.Migrations
 {
@@ -11,8 +10,7 @@ namespace HwProj.SolutionsService.API.Migrations
                 name: "LastGithubSolutionCommits",
                 columns: table => new
                 {
-                    Id = table.Column<long>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Id = table.Column<long>(nullable: false),
                     CommitHash = table.Column<string>(nullable: true)
                 },
                 constraints: table =>

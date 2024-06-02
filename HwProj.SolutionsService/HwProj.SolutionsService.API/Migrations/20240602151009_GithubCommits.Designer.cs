@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HwProj.SolutionsService.API.Migrations
 {
     [DbContext(typeof(SolutionContext))]
-    [Migration("20240602133427_GithubCommits")]
+    [Migration("20240602151009_GithubCommits")]
     partial class GithubCommits
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -58,9 +58,7 @@ namespace HwProj.SolutionsService.API.Migrations
 
             modelBuilder.Entity("HwProj.SolutionsService.API.Models.GithubSolutionCommit", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<long>("Id");
 
                     b.Property<string>("CommitHash");
 
