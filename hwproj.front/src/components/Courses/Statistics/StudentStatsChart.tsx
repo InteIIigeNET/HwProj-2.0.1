@@ -2,8 +2,8 @@ import React, {useEffect, useState} from "react";
 import {Link, useParams} from 'react-router-dom';
 import {Grid, Box, Typography, Paper, CircularProgress} from "@mui/material";
 import {
-    CourseViewModel,
-    HomeworkViewModel,
+    CourseViewModel, HomeworkTaskViewModel,
+    HomeworkViewModel, StatisticsCourseHomeworksModel,
     StatisticsCourseMatesModel,
     StatisticsCourseMeasureSolutionModel
 } from "../../../api/";
@@ -18,6 +18,7 @@ interface IStudentStatsChartState {
     isSelectionMode: boolean;
     course: CourseViewModel;
     homeworks: HomeworkViewModel[];
+    tasksWithDeadline: HomeworkTaskViewModel[];
     solutions: StatisticsCourseMatesModel[];
     bestStudent: StatisticsCourseMeasureSolutionModel[];
     averageStudent: StatisticsCourseMeasureSolutionModel[];
@@ -32,17 +33,23 @@ const StudentStatsChart: React.FC = () => {
         isSelectionMode: false,
         course: {},
         homeworks: [],
+        tasksWithDeadline: [],
         solutions: [],
         bestStudent: [],
         averageStudent: []
     })
     const [sectorSizes, setSectorSizes] = useState<number[]>([]);
-    const handleStudentSelection = (studentIds: string[]) => {
+    const tasksSolutionLength = (hw :  StatisticsCourseHomeworksModel[], tasksWithDeadline : HomeworkTaskViewModel[]) =>
+        hw.flatMap(h => h.tasks!
+            .filter(task => tasksWithDeadline.find(t => t.id === task.id))
+            .map(t => t.solution!.length))
+    const handleStudentSelection = (studentIds : string[]) => {
         const newSectorSizes = sectorSizes.map((_, i) => {
             const taskSectorSizes = studentIds.map(id => {
-                const task = state.solutions.filter(s => s.id === id)[0]
-                    .homeworks!.flatMap(h => h.tasks ?? [])[i]
-                return task.solution!.length;
+                const studentHomeworks = state.solutions
+                    .find(s => s.id === id)!.homeworks!;
+
+                return tasksSolutionLength(studentHomeworks, state.tasksWithDeadline)[i];
             })
 
             return Math.max(...taskSectorSizes);
@@ -56,17 +63,19 @@ const StudentStatsChart: React.FC = () => {
         const params =
             await ApiSingleton.statisticsApi.apiStatisticsByCourseIdChartsGet(+courseId!);
 
-        if (params.studentStatistics && params.studentStatistics.length > 0) {
-            const sectorSizes = params.studentStatistics[0].homeworks!
-                .flatMap(h => h.tasks!.map(t => t.solution!.length))
-            setSectorSizes(sectorSizes)
-        }
+        const homeworks = params.homeworks!.filter(hw => hw.tasks && hw.tasks.length > 0)
+        const tasksWithDeadline = [...new Set(homeworks.map(hw => hw.tasks!).flat())]
+            .filter(t => t.hasDeadline && new Date(t.publicationDate!).getTime() < Date.now())
 
+        if (params.studentStatistics && params.studentStatistics.length > 0) {
+            setSectorSizes(tasksSolutionLength(params.studentStatistics[0].homeworks!, tasksWithDeadline))
+        }
         setState({
             isFound: true,
             isSelectionMode: params.studentStatistics!.length > 1,
             course: params.course!,
-            homeworks: params.homeworks!,
+            homeworks: homeworks,
+            tasksWithDeadline: tasksWithDeadline,
             solutions: params.studentStatistics!,
             bestStudent: params.bestStudentSolutions!,
             averageStudent: params.averageStudentSolutions!
@@ -103,7 +112,7 @@ const StudentStatsChart: React.FC = () => {
 
     const tasks = state.homeworks.flatMap(h => h.tasks ?? [])
     const tasksAmount = tasks.length
-    const tasksWithDeadlineAmount = tasks.filter(t => t.hasDeadline).length
+    const tasksWithDeadlineAmount = state.tasksWithDeadline.length
 
     if (state.isFound && tasksAmount) {
         return (
@@ -178,7 +187,7 @@ const StudentStatsChart: React.FC = () => {
                                         </Typography>
                                         <StudentPunctualityChart
                                             index={index + 1}
-                                            homeworks={state.homeworks}
+                                            tasks={state.tasksWithDeadline}
                                             solutions={state.solutions.find
                                             (solution => solution.id === studentId)!}
                                             sectorSizes={sectorSizes}

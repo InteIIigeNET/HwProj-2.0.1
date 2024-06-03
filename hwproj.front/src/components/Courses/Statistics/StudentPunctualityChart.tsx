@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
 import {Bar, ComposedChart, ReferenceLine, Scatter, Text, Tooltip, XAxis, YAxis, ZAxis} from 'recharts';
 import { Tooltip as MuiTooltip } from '@mui/material';
-import {Solution, HomeworkViewModel,  StatisticsCourseMatesModel} from '../../../api';
+import {Solution, StatisticsCourseMatesModel, HomeworkTaskViewModel} from '../../../api';
 import StudentStatsUtils from "../../../services/StudentStatsUtils";
 import Utils from "../../../services/Utils";
 import {Payload, ValueType} from "recharts/types/component/DefaultTooltipContent";
@@ -9,7 +9,7 @@ import {useState} from "react";
 
 interface IStudentPunctualityChartProps {
     index: number;
-    homeworks: HomeworkViewModel[];
+    tasks: HomeworkTaskViewModel[];
     solutions: StatisticsCourseMatesModel;
     sectorSizes: number[]
 }
@@ -125,7 +125,7 @@ const CustomTooltip: React.FC<ICustomTooltipProps> = (props) => {
             return <p style={{margin: 0}}>{deviation} <br/>{rate}</p>
         }
     }
-        
+    
     if (props.active && props.payload && props.payload.length) {
         const dateTicks = props.dates.get(props.label!);
         return (
@@ -163,17 +163,10 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
                     : differenceInDays));
     }
     
-    const homeworks = props.homeworks.filter(hw => hw.tasks && hw.tasks.length > 0);
-    const tasks = [...new Set(homeworks.map(hw => hw.tasks!).flat())]
-        .filter(t => t.hasDeadline)
-        .sort((x, y) => {
-            const [xDate, yDate] = [x.publicationDate!, y.publicationDate!];
-            return xDate > yDate ? 1 : (yDate > xDate ? -1 : 0);
-        })
-    
+    const tasks = props.tasks;
     const studentTaskSolutions = props.solutions.homeworks!.filter(hw => hw.tasks)
-        .map(hw => hw.tasks!.filter(task => 
-            tasks.find(t => t.id === task.id)?.hasDeadline ?? false)).flat();
+        .flatMap(hw => hw.tasks!.filter(task =>
+            tasks.find(t => t.id === task.id)));
     
     const referenceLinesXAxis = studentTaskSolutions.reduce((acc : number[], task, index) => {
         const prevLineIndex = index ? acc[index-1] : 0;
@@ -259,7 +252,9 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
         const deadlineFill : IStudentAttempt = {xAxisPosition: deadlineTick, yAxisPosition: null, yAxisPositionDeadline: 0};
         const sectorItems = [...attempts, deadlineFill]
             .sort((a, b) => a.xAxisPosition - b.xAxisPosition);
-        const trailingFill : IStudentAttempt[] = new Array(props.sectorSizes[i]-task.solution!.length).fill(0)
+
+        const diff = props.sectorSizes[i]-task.solution!.length
+        const trailingFill : IStudentAttempt[] = new Array(Math.max(diff, 0)).fill(0)
             .reduce<IStudentAttempt[]>((acc, _, i) => {
                 const x = leftBorder + task.solution!.length + 2 + i
                 return [...acc, {xAxisPosition: x, yAxisPosition: null}]
