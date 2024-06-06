@@ -415,7 +415,7 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                                 color="primary"
                                 type="submit"
                             >
-                                Редактировать профиль
+                                Сохранить
                             </Button>
                         </form>
                     </div>
