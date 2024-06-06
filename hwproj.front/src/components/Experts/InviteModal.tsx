@@ -64,6 +64,12 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
     const [isStudentsSelectionOpened, setIsStudentsSelectionOpened]
         = useState<boolean>(false); // Состояние для отображения поля выбора студентов
 
+    const [isLinkCopied, setIsLinkCopied] 
+        = useState<boolean>(false); // Состояние для отображения сообщения "Ссылка скопирована"
+    
+    const [isInvited, setIsInvited]
+        = useState<boolean>(false); // Состояние для скрытия кнопки "Пригласить"
+    
     useEffect(() => {
         const fetchCourses = async () => {
             const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesGet();
@@ -106,6 +112,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
 
             const isInputAllowed = state.selectedCourseId !== -1;
             setIsInviteButtonDisabled(!isInputAllowed);
+            setIsInvited(!isInputAllowed);
         }
 
         controlItemsAccessibility();
@@ -130,6 +137,13 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                 await ApiSingleton.coursesApi.apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseFilter.courseId!, props.expertEmail);
                 setIsInviteButtonDisabled(true);
                 setIsLinkAccessible(true);
+                setIsInvited(true);
+                navigator.clipboard.writeText(invitationLink).then(() => {
+                    setIsLinkCopied(true);
+                    setTimeout(() => setIsLinkCopied(false), 5000);
+                }).catch(err => {
+                    console.error('Ошибка при копировании ссылки в буфер обмена: ', err);
+                });
             }
             setState((prevState) => ({
                 ...prevState,
@@ -309,20 +323,25 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                                 Закрыть
                             </Button>
                         </Grid>
-                        <Grid item>
+                        {!isInvited && <Grid item>
                             <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={handleInvitation}
                                 disabled={isInviteButtonDisabled}
                             >
-                                Пригласить
+                                Получить ссылку для приглашения
                             </Button>
-                        </Grid>
+                        </Grid>}
                     </Grid>
                 </DialogContent>
                 <DialogActions>
                 </DialogActions>
+                {isLinkCopied && (
+                    <div style={{ position: 'fixed', bottom: '20px', right: '20px', backgroundColor: '#3F51B5', color: 'white', padding: '10px', borderRadius: '5px', zIndex: 1000 }}>
+                        Ссылка скопирована в буфер обмена
+                    </div>
+                )}
             </Dialog>
         </div>
     )
