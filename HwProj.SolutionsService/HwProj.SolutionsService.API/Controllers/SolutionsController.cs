@@ -80,9 +80,6 @@ namespace HwProj.SolutionsService.API.Controllers
             solution.TaskId = taskId;
             var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
 
-            if (solutionModel.Tags.Contains(HomeworkTags.Test))
-                await _solutionsService.TrySaveSolutionCommitsInfo(solutionId, solutionModel.GithubUrl);
-            
             return Ok(solutionId);
         }
 

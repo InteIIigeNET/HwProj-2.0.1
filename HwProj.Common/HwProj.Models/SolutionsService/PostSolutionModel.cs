@@ -31,7 +31,5 @@ namespace HwProj.Models.SolutionsService
         public string LecturerComment { get; set; }
 
         public int? Rating { get; set; }
-
-        public string[] Tags { get; set; }
-}
+    }
 }

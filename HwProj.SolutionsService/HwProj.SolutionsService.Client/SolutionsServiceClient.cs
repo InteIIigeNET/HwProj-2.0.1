@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading.Tasks;
 using HwProj.Exceptions;
 using HwProj.HttpUtils;
-using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using Microsoft.AspNetCore.Http;

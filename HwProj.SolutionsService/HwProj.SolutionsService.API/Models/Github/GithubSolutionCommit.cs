@@ -1,6 +1,4 @@
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using HwProj.Models.SolutionsService;
 using HwProj.Repositories;
 
 namespace HwProj.SolutionsService.API.Models

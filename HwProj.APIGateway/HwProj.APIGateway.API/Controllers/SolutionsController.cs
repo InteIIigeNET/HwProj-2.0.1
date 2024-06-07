@@ -8,7 +8,6 @@ using HwProj.APIGateway.API.Extensions;
 using HwProj.APIGateway.API.Models.Solutions;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
-using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
@@ -181,22 +180,14 @@ namespace HwProj.APIGateway.API.Controllers
             };
 
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
-            if (course is null) 
-                return BadRequest();
+            if (course is null) return BadRequest();
 
             var courseMate = course.AcceptedStudents.FirstOrDefault(t => t.StudentId == solutionModel.StudentId);
-            if (courseMate == null) 
-                return BadRequest($"Студента с id {solutionModel.StudentId} не существует");
-
-            var taskTags = course.Homeworks
-                .FirstOrDefault(h => h.Tasks.Select(t => t.Id).Contains(taskId))?.Tags;
-
-            solutionModel.Tags = taskTags.ToArray();
+            if (courseMate == null) return BadRequest($"Студента с id {solutionModel.StudentId} не существует");
 
             if (model.GroupMateIds == null || model.GroupMateIds.Length == 0)
             {
                 var result = await _solutionsClient.PostSolution(taskId, solutionModel);
-                    
                 return Ok(result);
             }
 
@@ -204,8 +195,8 @@ namespace HwProj.APIGateway.API.Controllers
             fullStudentsGroup.Add(solutionModel.StudentId);
             var arrFullStudentsGroup = fullStudentsGroup.Distinct().ToArray();
 
-            if (arrFullStudentsGroup.Intersect(course.CourseMates
-                    .Select(x => x.StudentId)).Count() != arrFullStudentsGroup.Length)
+            if (arrFullStudentsGroup.Intersect(course.CourseMates.Select(x => x.StudentId)).Count() !=
+                arrFullStudentsGroup.Length)
             {
                 return BadRequest();
             }
@@ -352,7 +343,7 @@ namespace HwProj.APIGateway.API.Controllers
                 .ToArray();
 
             var solution = lastRatedSolutions.FirstOrDefault(t => t!.Id == solutionId &&
-                (isMentor || t.StudentId == UserId));
+                                                                  (isMentor || t.StudentId == UserId));
             if (solution == null) return NotFound();
 
             if (lastRatedSolutions.Any(x => x!.GroupId != null))

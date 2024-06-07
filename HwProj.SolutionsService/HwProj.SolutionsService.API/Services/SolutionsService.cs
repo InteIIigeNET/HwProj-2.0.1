@@ -7,6 +7,7 @@ using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Domains;
@@ -105,8 +106,6 @@ namespace HwProj.SolutionsService.API.Services
         public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
         {
             solution.PublicationDate = DateTime.UtcNow;
-            var allSolutionsForTask = await GetTaskSolutionsFromStudentAsync(taskId, solution.StudentId);
-            var currentSolution = allSolutionsForTask.FirstOrDefault(s => s.Id == solution.Id);
             var solutionModel = _mapper.Map<SolutionViewModel>(solution);
             var task = await _coursesServiceClient.GetTask(solution.TaskId);
             var homework = await _coursesServiceClient.GetHomework(task.HomeworkId);
@@ -115,23 +114,11 @@ namespace HwProj.SolutionsService.API.Services
             var studentModel = _mapper.Map<AccountDataDto>(student);
             _eventBus.Publish(new StudentPassTaskEvent(courses, solutionModel, studentModel, task));
 
-            if (currentSolution == null)
-            {
-                solution.TaskId = taskId;
-                var id = await _solutionsRepository.AddAsync(solution);
-                return id;
-            }
-
-            await _solutionsRepository.UpdateAsync(currentSolution.Id, s => new Solution()
-                {
-                    State = SolutionState.Rated,
-                    Comment = solution.Comment,
-                    GithubUrl = solution.GithubUrl,
-                    PublicationDate = solution.PublicationDate,
-                }
-            );
-
-            return solution.Id;
+            solution.TaskId = taskId;
+            var solutionId = await _solutionsRepository.AddAsync(solution);
+            if (task.Tags.Contains(HomeworkTags.Test))
+                await TrySaveSolutionCommitsInfo(solutionId, solutionModel.GithubUrl);
+            return solutionId;
         }
 
         public async Task PostEmptySolutionWithRateAsync(long taskId, Solution solution)
@@ -142,7 +129,7 @@ namespace HwProj.SolutionsService.API.Services
 
             if (hasSolution) throw new InvalidOperationException("У студента имеются решения");
             var currentTime = DateTime.UtcNow;
-            
+
             solution.PublicationDate = currentTime;
             solution.RatingDate = currentTime;
             solution.TaskId = taskId;
@@ -169,7 +156,7 @@ namespace HwProj.SolutionsService.API.Services
         }
 
         public async Task DeleteSolutionAsync(long solutionId)
-        { 
+        {
             await _solutionsRepository.DeleteAsync(solutionId);
         }
 
@@ -264,25 +251,24 @@ namespace HwProj.SolutionsService.API.Services
 
         public async Task<SolutionActualityDto> GetSolutionActuality(long solutionId)
         {
-            var solution = await _solutionsRepository.GetAsync(solutionId)
-                ?? throw new ArgumentException(nameof(solutionId));
+            var solution = await _solutionsRepository.GetAsync(solutionId) ??
+                           throw new ArgumentException(nameof(solutionId));
             var lastSolutionCommit = await _githubSolutionCommitsRepository.TryGetLastBySolutionId(solutionId);
-
-            var commits = await TryGetCommitsByUrl(solution.GithubUrl);
+            var commits = await TryGetCommitsByUrl(solution.GithubUrl) ?? Array.Empty<PullRequestCommit>();
 
             return SolutionHelper.GetCommitActuality(commits, lastSolutionCommit);
         }
 
-        public async Task<long?> TrySaveSolutionCommitsInfo(long solutionId, string solutionUrl)
+        private async Task TrySaveSolutionCommitsInfo(long solutionId, string solutionUrl)
         {
-            var lastCommitHash = (await TryGetCommitsByUrl(solutionUrl))?.Last().Sha;
-            if (lastCommitHash is null)
-                return null;
+            var commits = await TryGetCommitsByUrl(solutionUrl);
+            var lastCommitSha = commits?.LastOrDefault()?.Sha;
+            if (lastCommitSha is null) return;
 
-            return await _githubSolutionCommitsRepository.AddAsync(new GithubSolutionCommit
+            await _githubSolutionCommitsRepository.AddAsync(new GithubSolutionCommit
             {
                 Id = solutionId,
-                CommitHash = lastCommitHash
+                CommitHash = lastCommitSha
             });
         }
 
@@ -290,7 +276,7 @@ namespace HwProj.SolutionsService.API.Services
         {
             const string productName = "Hwproj";
             var token = _configuration.GetSection("Github")["Token"];
-            
+
             var client = new GitHubClient(new ProductHeaderValue(productName))
             {
                 Credentials = new Credentials(token)
@@ -300,9 +286,7 @@ namespace HwProj.SolutionsService.API.Services
             if (pullRequest is null)
                 return null;
 
-            var commits = await client.PullRequest
-                .Commits(pullRequest.Owner, pullRequest.Name, pullRequest.Number);
-            
+            var commits = await client.PullRequest.Commits(pullRequest.Owner, pullRequest.Name, pullRequest.Number);
 
             return commits;
         }

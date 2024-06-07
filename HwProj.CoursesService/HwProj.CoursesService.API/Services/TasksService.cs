@@ -4,7 +4,6 @@ using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models;
 using HwProj.CoursesService.API.Domains;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;

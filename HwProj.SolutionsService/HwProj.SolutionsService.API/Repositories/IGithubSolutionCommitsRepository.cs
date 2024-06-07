@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using HwProj.Models.SolutionsService;
 using HwProj.Repositories;
 using HwProj.SolutionsService.API.Models;
 
