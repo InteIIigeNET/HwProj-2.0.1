@@ -73,11 +73,13 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<IActionResult> PostSolution(long taskId, [FromBody] PostSolutionModel solutionModel)
         {
             var task = await _coursesClient.GetTask(taskId);
-            if (!task.CanSendSolution) return BadRequest();
+            if (!task.CanSendSolution) 
+                return BadRequest();
 
             var solution = _mapper.Map<Solution>(solutionModel);
             solution.TaskId = taskId;
             var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
+
             return Ok(solutionId);
         }
 
@@ -108,7 +110,9 @@ namespace HwProj.SolutionsService.API.Controllers
             solution.LecturerId = Request.GetUserIdFromHeader()!;
             if (solution.LecturerId == solution.StudentId)
                 solution.LecturerId = null;
+            
             await _solutionsService.PostEmptySolutionWithRateAsync(taskId, solution);
+            
             return Ok();
         }
 
@@ -286,6 +290,12 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats([FromBody] long[] taskIds)
         {
             return await _solutionsService.GetTaskSolutionsStats(taskIds);
+        }
+
+        [HttpGet("actuality/{solutionId}")]
+        public async Task<SolutionActualityDto> GetSolutionActuality(long solutionId)
+        {
+            return await _solutionsService.GetSolutionActuality(solutionId);
         }
     }
 }

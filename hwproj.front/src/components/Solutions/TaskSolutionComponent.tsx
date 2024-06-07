@@ -3,7 +3,7 @@ import {FC, useEffect, useState} from 'react';
 import {Button, Grid, TextField, Typography} from "@material-ui/core";
 import Link from '@material-ui/core/Link'
 import './style.css'
-import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, Solution} from '../../api'
+import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, Solution, SolutionActualityDto} from '../../api'
 import ApiSingleton from "../../api/ApiSingleton";
 import {Alert, Avatar, Rating, Stack, Tooltip} from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
@@ -13,6 +13,7 @@ import {RatingStorage} from "../Storages/RatingStorage";
 import {Assignment, Edit, GradingTwoTone} from "@mui/icons-material";
 import {ReactMarkdownWithCodeHighlighting, TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import {LoadingButton} from "@mui/lab";
+import {TestTag} from "../Common/HomeworkTags";
 
 interface ISolutionProps {
     solution: GetSolutionModel | undefined,
@@ -47,12 +48,13 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const [state, setState] = useState<ISolutionState>(getDefaultState)
     const [achievement, setAchievementState] = useState<number | undefined>(undefined)
     const [rateInProgress, setRateInProgressState] = useState<boolean | undefined>(false)
+    const [solutionActuality, setSolutionActuality] = useState<SolutionActualityDto | undefined>(undefined)
 
     useEffect(() => {
         setState(getDefaultState())
         getAchievementState()
         setRateInProgressState(false)
-
+        getActuality()
     }, [props.student.userId, props.task.id, props.solution?.id, props.solution?.rating])
 
     useEffect(() => {
@@ -70,6 +72,20 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             const achievement = await ApiSingleton.solutionsApi.apiSolutionsSolutionAchievementGet(task.id, props.solution.id)
             setAchievementState(achievement)
         } else setAchievementState(undefined)
+    }
+
+    const clearUrl = (url: string) => {
+        const regex = /(https:\/\/github\.com\/[\w-]+\/[\w-]+\/pull\/\d+)\/.*/;
+        const match = url.match(regex);
+
+        return match ? match[1] : url;
+    }
+
+    const getActuality = async () => {
+        if (props.solution && props.isLastSolution && props.task.tags!.includes(TestTag) && props.solution.githubUrl) {
+            const actualityDto = await ApiSingleton.solutionsApi.apiSolutionsActualityBySolutionIdGet(props.solution.id!)
+            setSolutionActuality(actualityDto)
+        } else setSolutionActuality(undefined)
     }
 
     const rateSolution = async () => {
@@ -191,6 +207,20 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     return <Grid container direction="column" spacing={2} style={{marginTop: -16}}>
         {solution &&
             <Grid item container direction={"column"} spacing={1}>
+                {solutionActuality && !solutionActuality.isActual &&
+                    <Grid item>
+                        <Alert severity="error">
+                            {`${solutionActuality.comment ?? ""}. `}
+                            {solutionActuality.additionalData &&
+                                <a href={clearUrl(props.solution!.githubUrl!) + `/commits/${solutionActuality.additionalData}`}
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                >
+                                    Последний коммит
+                                </a>}
+                        </Alert>
+                    </Grid>
+                }
                 <Grid item>
                     <Stack direction={students.length > 1 ? "column" : "row"}
                            alignItems={students.length === 1 ? "center" : "normal"} spacing={1}>
@@ -206,9 +236,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 style={{color: 'darkblue'}}
                             >
                                 {solution.githubUrl?.startsWith("https://github.com/") &&
-                                    <GitHubIcon/>} Ссылка
-                                на
-                                решение
+                                    <GitHubIcon/>} Ссылка на решение
                             </Link>}
                             <Typography style={{color: "GrayText"}}>
                                 {postedSolutionTime}

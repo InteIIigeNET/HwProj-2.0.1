@@ -1,9 +1,4 @@
-﻿using HwProj.Models.SolutionsService;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HwProj.Models.StatisticsService
+﻿namespace HwProj.Models.StatisticsService
 {
     public class StatisticsLecturerDTO
     {

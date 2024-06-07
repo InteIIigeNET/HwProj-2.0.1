@@ -26,5 +26,6 @@ namespace HwProj.SolutionsService.API.Services
 
         Task<SolutionPreviewDto[]> GetAllUnratedSolutions(long[] taskIds);
         Task<TaskSolutionsStats[]> GetTaskSolutionsStats(long[] taskIds);
+        Task<SolutionActualityDto> GetSolutionActuality(long solutionId);
     }
 }

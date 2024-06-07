@@ -4,7 +4,6 @@ using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models;
 using HwProj.CoursesService.API.Domains;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -46,7 +45,7 @@ namespace HwProj.CoursesService.API.Services
             task.HomeworkId = homeworkId;
 
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
-            var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
+            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(homework.CourseId);
 
             var taskId = await _tasksRepository.AddAsync(task);
             var deadlineDate = task.DeadlineDate ?? homework.DeadlineDate;
@@ -67,7 +66,7 @@ namespace HwProj.CoursesService.API.Services
         {
             var task = await _tasksRepository.GetAsync(taskId);
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
-            var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
+            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(homework.CourseId);
 
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 

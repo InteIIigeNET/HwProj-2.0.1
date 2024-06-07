@@ -27,7 +27,7 @@ namespace HwProj.CoursesService.API.Services
         {
             homework.CourseId = courseId;
 
-            var course = await _coursesRepository.GetWithCourseMatesAsync(courseId);
+            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(courseId);
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
             if (DateTime.UtcNow >= homework.PublicationDate)
             {
@@ -61,7 +61,7 @@ namespace HwProj.CoursesService.API.Services
         public async Task UpdateHomeworkAsync(long homeworkId, Homework update)
         {
             var homework = await _homeworksRepository.GetAsync(homeworkId);
-            var course = await _coursesRepository.GetWithCourseMatesAsync(homework.CourseId);
+            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(homework.CourseId);
 
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 

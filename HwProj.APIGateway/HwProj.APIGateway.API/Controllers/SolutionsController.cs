@@ -195,8 +195,11 @@ namespace HwProj.APIGateway.API.Controllers
             fullStudentsGroup.Add(solutionModel.StudentId);
             var arrFullStudentsGroup = fullStudentsGroup.Distinct().ToArray();
 
-            if (arrFullStudentsGroup.Intersect(course.CourseMates.Select(x =>
-                    x.StudentId)).Count() != arrFullStudentsGroup.Length) return BadRequest();
+            if (arrFullStudentsGroup.Intersect(course.CourseMates.Select(x => x.StudentId)).Count() !=
+                arrFullStudentsGroup.Length)
+            {
+                return BadRequest();
+            }
 
             var existedGroup = course.Groups.SingleOrDefault(x =>
                 x.StudentsIds.Length == arrFullStudentsGroup.Length &&
@@ -208,6 +211,7 @@ namespace HwProj.APIGateway.API.Controllers
                     taskId);
 
             await _solutionsClient.PostSolution(taskId, solutionModel);
+
             return Ok(solutionModel);
         }
 
@@ -250,6 +254,15 @@ namespace HwProj.APIGateway.API.Controllers
         {
             await _solutionsClient.RateSolution(solutionId, rateSolutionModel);
             return Ok();
+        }
+
+        [HttpGet("actuality/{solutionId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(SolutionActualityDto), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetSolutionActuality(long solutionId)
+        {
+            var result = await _solutionsClient.GetSolutionActuality(solutionId);
+            return Ok(result);
         }
 
         [HttpPost("markSolutionFinal/{solutionId}")]
@@ -330,7 +343,7 @@ namespace HwProj.APIGateway.API.Controllers
                 .ToArray();
 
             var solution = lastRatedSolutions.FirstOrDefault(t => t!.Id == solutionId &&
-                (isMentor || t.StudentId == UserId));
+                                                                  (isMentor || t.StudentId == UserId));
             if (solution == null) return NotFound();
 
             if (lastRatedSolutions.Any(x => x!.GroupId != null))

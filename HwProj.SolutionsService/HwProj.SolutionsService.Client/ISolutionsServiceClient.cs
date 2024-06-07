@@ -23,6 +23,7 @@ namespace HwProj.SolutionsService.Client
         Task<Solution?[]> GetLastTaskSolutions(long[] taskIds, string userId);
         Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(long[] taskIds);
         Task<TaskSolutionsStats[]> GetTaskSolutionsStats(long[] taskIds);
+        Task<SolutionActualityDto> GetSolutionActuality(long solutionId);
         Task<bool> Ping();
     }
 }

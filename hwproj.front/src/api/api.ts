@@ -1319,6 +1319,32 @@ export namespace Solution {
 /**
  * 
  * @export
+ * @interface SolutionActualityDto
+ */
+export interface SolutionActualityDto {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof SolutionActualityDto
+     */
+    isActual?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof SolutionActualityDto
+     */
+    comment?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof SolutionActualityDto
+     */
+    additionalData?: string;
+}
+
+/**
+ * 
+ * @export
  * @interface SolutionPreviewView
  */
 export interface SolutionPreviewView {
@@ -5470,6 +5496,42 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        apiSolutionsActualityBySolutionIdGet(solutionId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'solutionId' is not null or undefined
+            if (solutionId === null || solutionId === undefined) {
+                throw new RequiredError('solutionId','Required parameter solutionId was null or undefined when calling apiSolutionsActualityBySolutionIdGet.');
+            }
+            const localVarPath = `/api/Solutions/actuality/{solutionId}`
+                .replace(`{${"solutionId"}}`, encodeURIComponent(String(solutionId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         apiSolutionsBySolutionIdGet(solutionId: number, options: any = {}): FetchArgs {
             // verify required parameter 'solutionId' is not null or undefined
             if (solutionId === null || solutionId === undefined) {
@@ -5899,6 +5961,24 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        apiSolutionsActualityBySolutionIdGet(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<SolutionActualityDto> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsActualityBySolutionIdGet(solutionId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         apiSolutionsBySolutionIdGet(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Solution> {
             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).apiSolutionsBySolutionIdGet(solutionId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
@@ -6111,6 +6191,15 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        apiSolutionsActualityBySolutionIdGet(solutionId: number, options?: any) {
+            return SolutionsApiFp(configuration).apiSolutionsActualityBySolutionIdGet(solutionId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {number} solutionId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         apiSolutionsBySolutionIdGet(solutionId: number, options?: any) {
             return SolutionsApiFp(configuration).apiSolutionsBySolutionIdGet(solutionId, options)(fetch, basePath);
         },
@@ -6219,6 +6308,17 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
  * @extends {BaseAPI}
  */
 export class SolutionsApi extends BaseAPI {
+    /**
+     * 
+     * @param {number} solutionId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public apiSolutionsActualityBySolutionIdGet(solutionId: number, options?: any) {
+        return SolutionsApiFp(this.configuration).apiSolutionsActualityBySolutionIdGet(solutionId, options)(this.fetch, this.basePath);
+    }
+
     /**
      * 
      * @param {number} solutionId 

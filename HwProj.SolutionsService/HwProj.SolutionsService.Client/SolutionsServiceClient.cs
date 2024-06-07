@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading.Tasks;
 using HwProj.Exceptions;
 using HwProj.HttpUtils;
-using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using Microsoft.AspNetCore.Http;
@@ -274,7 +273,18 @@ namespace HwProj.SolutionsService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<TaskSolutionsStats[]>();
         }
-        
+
+        public async Task<SolutionActualityDto> GetSolutionActuality(long solutionId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _solutionServiceUri + $"api/Solutions/actuality/{solutionId}");
+            
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<SolutionActualityDto>();
+        }
+
         public async Task<bool> Ping()
         {
             try

@@ -2,7 +2,6 @@
 using HwProj.CoursesService.API.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using System;
-using System.Collections.Generic;
 using HwProj.Models.CoursesService;
 using Microsoft.EntityFrameworkCore.Internal;
 

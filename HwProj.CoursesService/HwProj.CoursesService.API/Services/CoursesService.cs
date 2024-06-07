@@ -66,7 +66,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<CourseDTO?> GetAsync(long id)
         {
-            var course = await _coursesRepository.GetWithCourseMatesAsync(id);
+            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(id);
             if (course == null) return null;
 
             CourseDomain.FillTasksInCourses(course);

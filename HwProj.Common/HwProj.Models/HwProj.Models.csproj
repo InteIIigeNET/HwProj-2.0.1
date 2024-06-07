@@ -17,8 +17,4 @@
     <ProjectReference Include="..\HwProj.Repositories\HwProj.Repositories.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="CoursesService" />
-  </ItemGroup>
-
 </Project>
