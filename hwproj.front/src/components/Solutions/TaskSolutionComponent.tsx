@@ -216,7 +216,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                    target="_blank"
                                    rel="noopener noreferrer"
                                 >
-                                    Последний коммит
+                                    Последний коммит решения
                                 </a>}
                         </Alert>
                     </Grid>
