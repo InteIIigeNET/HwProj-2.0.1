@@ -13,7 +13,7 @@ import {RatingStorage} from "../Storages/RatingStorage";
 import {Assignment, Edit, GradingTwoTone} from "@mui/icons-material";
 import {ReactMarkdownWithCodeHighlighting, TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import {LoadingButton} from "@mui/lab";
-import {clear} from "@testing-library/user-event/dist/clear";
+import {TestTag} from "../Common/HomeworkTags";
 
 interface ISolutionProps {
     solution: GetSolutionModel | undefined,
@@ -73,20 +73,19 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             setAchievementState(achievement)
         } else setAchievementState(undefined)
     }
-    
+
     const clearUrl = (url: string) => {
         const regex = /(https:\/\/github\.com\/[\w-]+\/[\w-]+\/pull\/\d+)\/.*/;
         const match = url.match(regex);
-        
+
         return match ? match[1] : url;
     }
-    
+
     const getActuality = async () => {
-        setSolutionActuality(undefined)
-        if (props.solution && props.isLastSolution && props.solution.githubUrl) {
+        if (props.solution && props.isLastSolution && props.task.tags!.includes(TestTag) && props.solution.githubUrl) {
             const actualityDto = await ApiSingleton.solutionsApi.apiSolutionsActualityBySolutionIdGet(props.solution.id!)
             setSolutionActuality(actualityDto)
-        }
+        } else setSolutionActuality(undefined)
     }
 
     const rateSolution = async () => {
@@ -208,12 +207,12 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     return <Grid container direction="column" spacing={2} style={{marginTop: -16}}>
         {solution &&
             <Grid item container direction={"column"} spacing={1}>
-                { solutionActuality && !solutionActuality.isActual &&
+                {solutionActuality && !solutionActuality.isActual &&
                     <Grid item>
                         <Alert severity="error">
                             {`${solutionActuality?.comment ?? ""}. `}
                             <a href={clearUrl(props.solution!.githubUrl!) + `/commits/${solutionActuality?.additionalData}`}
-                               target="_blank" 
+                               target="_blank"
                                rel="noopener noreferrer"
                             >
                                 Последний коммит решения
