@@ -43,7 +43,7 @@ namespace HwProj.SolutionsService.API.Domains
             var comment = string.Empty;
 
             if (lastSolutionCommit == null)
-                comment = "Для данного решения не была сохранена информация о коммитах";
+                comment = "";
             else if (pullRequestCommitsSha.Count == 0)
                 comment = "В ветке были удалены коммиты. Возможно, был произведен force push";
             else if (!pullRequestCommitsSha.Contains(lastSolutionCommit.CommitHash))
