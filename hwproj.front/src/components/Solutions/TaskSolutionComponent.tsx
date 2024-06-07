@@ -210,13 +210,14 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 {solutionActuality && !solutionActuality.isActual &&
                     <Grid item>
                         <Alert severity="error">
-                            {`${solutionActuality?.comment ?? ""}. `}
-                            <a href={clearUrl(props.solution!.githubUrl!) + `/commits/${solutionActuality?.additionalData}`}
-                               target="_blank"
-                               rel="noopener noreferrer"
-                            >
-                                Последний коммит решения
-                            </a>
+                            {`${solutionActuality.comment ?? ""}. `}
+                            {solutionActuality.additionalData &&
+                                <a href={clearUrl(props.solution!.githubUrl!) + `/commits/${solutionActuality.additionalData}`}
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                >
+                                    Последний коммит
+                                </a>}
                         </Alert>
                     </Grid>
                 }
