@@ -82,7 +82,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     }
 
     const getActuality = async () => {
-        if (props.solution && props.isLastSolution && props.task.tags!.includes(TestTag) && props.solution.githubUrl) {
+        if (props.solution &&
+            props.isLastSolution &&
+            props.forMentor &&
+            props.task.tags!.includes(TestTag) &&
+            props.solution.githubUrl) {
             const actualityDto = await ApiSingleton.solutionsApi.apiSolutionsActualityBySolutionIdGet(props.solution.id!)
             setSolutionActuality(actualityDto)
         } else setSolutionActuality(undefined)
