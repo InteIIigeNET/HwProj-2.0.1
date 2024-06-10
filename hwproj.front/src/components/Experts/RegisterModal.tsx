@@ -88,6 +88,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                 errors: result!.errors ?? [],
                 isRegisterSuccessful: result.succeeded
             }));
+            handleClose();
         } catch (e) {
             setCommonState((prevState) => ({
                 ...prevState,
