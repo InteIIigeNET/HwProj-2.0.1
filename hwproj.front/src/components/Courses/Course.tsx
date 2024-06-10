@@ -90,9 +90,10 @@ const Course: React.FC = () => {
     const userId = ApiSingleton.authService.getUserId()
 
     const isLecturer = ApiSingleton.authService.isLecturer()
+    const isExpert = ApiSingleton.authService.isExpert()
     const isCourseMentor = mentors.some(t => t.userId === userId)
 
-    const courseHomeworks = (isCourseMentor && isReadingMode)
+    const courseHomeworks = isCourseMentor && isReadingMode
         ? getPostedHomeworks(courseState.courseHomework)
         : courseState.courseHomework
 
@@ -121,7 +122,7 @@ const Course: React.FC = () => {
         // У пользователя изменилась роль (иначе он не может стать лектором в курсе), 
         // однако он все ещё использует токен с прежней ролью
         const shouldRefreshToken =
-            !ApiSingleton.authService.isLecturer() &&
+            !isLecturer && !isExpert &&
             course &&
             course.mentors!.some(t => t.userId === userId)
         if (shouldRefreshToken) {
@@ -178,16 +179,16 @@ const Course: React.FC = () => {
                                 <AlertTitle>Курс завершен!</AlertTitle>
                                 {isAcceptedStudent
                                     ? "Вы можете отправлять решения и получать уведомления об их проверке."
-                                    : isCourseMentor
+                                    : isCourseMentor && !isExpert
                                         ? "Вы продолжите получать уведомления о новых заявках на вступление и решениях."
-                                        : !isLecturer ? "Вы можете записаться на курс и отправлять решения." : ""}
+                                        : !isLecturer && !isExpert ? "Вы можете записаться на курс и отправлять решения." : ""}
                             </Alert>
                         </Grid>}
                         <Grid item container xs={12} className={classes.info} alignItems="center" justifyContent="space-between">
                             <Grid item>
                                 <Typography style={{fontSize: '22px'}}>
                                     {`${course.name} / ${course.groupName}`} &nbsp;
-                                    {isCourseMentor &&
+                                    {isLecturer &&
                                         <IconButton
                                             size="small"
                                             onClick={() =>
@@ -207,7 +208,7 @@ const Course: React.FC = () => {
                                                 />}
                                         </IconButton>
                                     }
-                                    {isCourseMentor && !isReadingMode! && (
+                                    {isCourseMentor && isLecturer && !isReadingMode! && (
                                         <RouterLink to={`/courses/${courseId}/edit`}>
                                             <EditIcon style={{marginLeft: 5}} fontSize="small"/>
                                         </RouterLink>
@@ -219,7 +220,7 @@ const Course: React.FC = () => {
                                     <Grid item>
                                         <MentorsList mentors={mentors}/>
                                     </Grid>
-                                    {isCourseMentor && isReadingMode &&
+                                    {isCourseMentor && isLecturer && isReadingMode &&
                                         <Grid item>
                                             <IconButton size="small" style={{marginLeft: 5}} onClick={() => setLecturerStatsState(true)}>
                                                 <AssessmentIcon>
@@ -238,7 +239,7 @@ const Course: React.FC = () => {
                             </Grid>
                         </Grid>
                         <Grid item style={{width: 187}}>
-                            {!isSignedInCourse && !isLecturer && !isAcceptedStudent && (
+                            {!isSignedInCourse && !isLecturer && !isExpert && !isAcceptedStudent && (
                                 <Button
                                     fullWidth
                                     variant="contained"
@@ -259,12 +260,12 @@ const Course: React.FC = () => {
                         value={tabValue == "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
                         indicatorColor="primary"
                         onChange={(event, value) => {
-                            if (value === 0) navigate(`/courses/${courseId}/homeworks`)
+                            if (value === 0 && !isExpert) navigate(`/courses/${courseId}/homeworks`)
                             if (value === 1) navigate(`/courses/${courseId}/stats`)
-                            if (value === 2) navigate(`/courses/${courseId}/applications`)
+                            if (value === 2 && !isExpert) navigate(`/courses/${courseId}/applications`)
                         }}
                     >
-                        <Tab label="Домашние задания"/>
+                        {!isExpert && <Tab label="Домашние задания"/>}
                         {showStatsTab && <Tab label={
                             <Stack direction="row" spacing={1}>
                                 <div>Решения</div>
@@ -272,7 +273,7 @@ const Course: React.FC = () => {
                                       label={unratedSolutionsCount}/>
                             </Stack>
                         }/>}
-                        {showApplicationsTab && <Tab label={
+                        {showApplicationsTab && !isExpert && <Tab label={
                             <Stack direction="row" spacing={1}>
                                 <div>Заявки</div>
                                 <Chip size={"small"} color={"default"}
@@ -315,7 +316,7 @@ const Course: React.FC = () => {
                                             </Grid>
                                         </div>
                                     )}
-                                    {isCourseMentor && !createHomework && (
+                                    {isLecturer && !createHomework && (
                                         <div>
                                             <Grid container>
                                                 {!isReadingMode! &&

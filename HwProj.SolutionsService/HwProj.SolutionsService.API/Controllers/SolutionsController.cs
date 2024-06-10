@@ -281,9 +281,9 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpPost("allUnrated")]
-        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks([FromBody] long[] taskIds)
+        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks([FromBody] GetTasksSolutionsModel model)
         {
-            return await _solutionsService.GetAllUnratedSolutions(taskIds);
+            return await _solutionsService.GetAllUnratedSolutions(model);
         }
 
         [HttpGet("taskSolutionsStats")]

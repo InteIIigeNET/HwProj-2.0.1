@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
@@ -25,6 +26,7 @@ namespace HwProj.CoursesService.API.Services
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly ITasksRepository _tasksRepository;
         private readonly IGroupsRepository _groupsRepository;
+        private readonly ICourseFilterService _courseFilterService;
 
         public CoursesService(ICoursesRepository coursesRepository,
             ICourseMatesRepository courseMatesRepository,
@@ -32,8 +34,8 @@ namespace HwProj.CoursesService.API.Services
             IAuthServiceClient authServiceClient,
             ITasksRepository tasksRepository,
             IHomeworksRepository homeworksRepository,
-            IGroupsRepository groupsRepository
-        )
+            IGroupsRepository groupsRepository, 
+            ICourseFilterService courseFilterService)
         {
             _coursesRepository = coursesRepository;
             _courseMatesRepository = courseMatesRepository;
@@ -42,6 +44,7 @@ namespace HwProj.CoursesService.API.Services
             _homeworksRepository = homeworksRepository;
             _tasksRepository = tasksRepository;
             _groupsRepository = groupsRepository;
+            _courseFilterService = courseFilterService;
         }
 
         public async Task<Course[]> GetAllAsync()
@@ -53,7 +56,7 @@ namespace HwProj.CoursesService.API.Services
             return courses;
         }
 
-        public async Task<CourseDTO?> GetByTaskAsync(long taskId)
+        public async Task<CourseDTO?> GetByTaskAsync(long taskId, string userId)
         {
             var task = await _tasksRepository.GetAsync(taskId);
             if (task == null) return null;
@@ -61,10 +64,10 @@ namespace HwProj.CoursesService.API.Services
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
             if (homework == null) return null;
 
-            return await GetAsync(homework.CourseId);
+            return await GetAsync(homework.CourseId, userId);
         }
 
-        public async Task<CourseDTO?> GetAsync(long id)
+        public async Task<CourseDTO?> GetAsync(long id, string userId)
         {
             var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(id);
             if (course == null) return null;
@@ -72,6 +75,7 @@ namespace HwProj.CoursesService.API.Services
             CourseDomain.FillTasksInCourses(course);
 
             var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArrayAsync();
+            var filter = await _courseFilterService.GetUserFilterAsync(userId, id);
             var result = course.ToCourseDto();
             result.Groups = groups.Select(g =>
                 new GroupViewModel
@@ -79,7 +83,7 @@ namespace HwProj.CoursesService.API.Services
                     Id = g.Id,
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
-            return result;
+            return result.CourseDtoApplyFilter(filter);
         }
 
         public async Task<long> AddAsync(Course course, string mentorId)
@@ -176,18 +180,42 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<CourseDTO[]> GetUserCoursesAsync(string userId, string role)
         {
-            var courses = role == Roles.LecturerRole
-                ? _coursesRepository.FindAll(c => c.MentorIds.Contains(userId))
-                : _coursesRepository.FindAll(c => c.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId));
+            IQueryable<long> courseIds = new EnumerableQuery<long>(new List<long>());
+            if (role == Roles.ExpertRole)
+            {
+                courseIds = _courseFilterService.GetExpertCourseIds(userId);
+            }
 
-            var result = await courses
+            IQueryable<Course> courses = role switch
+            {
+                Roles.LecturerRole => _coursesRepository.FindAll(c => c.MentorIds.Contains(userId)),
+                Roles.StudentRole => _coursesRepository
+                    .FindAll(c => c.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId)),
+                Roles.ExpertRole => _coursesRepository.FindAll(c => courseIds.Contains(c.Id)),
+                _ => new EnumerableQuery<Course>(new List<Course>())
+            };
+            
+            var coursesWithValues = await courses
                 .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
                 .ToArrayAsync();
 
-            CourseDomain.FillTasksInCourses(result);
+            CourseDomain.FillTasksInCourses(coursesWithValues);
 
-            return result.Select(c => c.ToCourseDto()).ToArray();
+            var result = _courseFilterService.FilterCourses(
+                userId, coursesWithValues.Select(c => c.ToCourseDto()).ToArray());
+
+            if (role == Roles.ExpertRole)
+            {
+                foreach (var courseDto in result)
+                {
+                    courseDto.TaskId = courseDto.Homeworks
+                        .SelectMany(h => h.Tasks)
+                        .FirstOrDefault()?.Id;
+                }
+            }
+            
+            return result;
         }
 
         public async Task<bool> AcceptLecturerAsync(long courseId, string lecturerEmail, string lecturerId)

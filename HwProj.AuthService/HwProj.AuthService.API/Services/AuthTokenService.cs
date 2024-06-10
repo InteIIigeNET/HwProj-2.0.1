@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -10,6 +11,7 @@ using HwProj.Models.Roles;
 using Microsoft.Extensions.Configuration;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
+using HwProj.Models.Result;
 
 namespace HwProj.AuthService.API.Services
 {
@@ -17,11 +19,13 @@ namespace HwProj.AuthService.API.Services
     {
         private readonly UserManager<User> _userManager;
         private readonly IConfigurationSection _configuration;
+        private readonly JwtSecurityTokenHandler _tokenHandler;
 
         public AuthTokenService(UserManager<User> userManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _configuration = configuration.GetSection("AppSettings");
+            _tokenHandler = new JwtSecurityTokenHandler();
         }
 
         public async Task<TokenCredentials> GetTokenAsync(User user)
@@ -31,10 +35,14 @@ namespace HwProj.AuthService.API.Services
 
             var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
 
+            var expiresIn = userRoles.FirstOrDefault() == Roles.ExpertRole
+                ? GetExpertTokenExpiresIn(timeNow)
+                : timeNow.AddMinutes(int.Parse(_configuration["ExpiresIn"]));
+            
             var token = new JwtSecurityToken(
                 issuer: _configuration["ApiName"],
                 notBefore: timeNow,
-                expires: timeNow.AddMinutes(int.Parse(_configuration["ExpiresIn"])),
+                expires: expiresIn,
                 claims: new[]
                 {
                     new Claim("_userName", user.UserName),
@@ -46,10 +54,65 @@ namespace HwProj.AuthService.API.Services
 
             var tokenCredentials = new TokenCredentials
             {
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(token)
+                AccessToken = _tokenHandler.WriteToken(token)
             };
 
             return tokenCredentials;
+        }
+
+        public async Task<Result<TokenCredentials>> GetExpertTokenAsync(User expert)
+        {
+            var expertOptions = _configuration.GetSection("ExpertOptions");
+            var token = await _userManager.GetAuthenticationTokenAsync(expert, expertOptions["LoginProvider"],
+                expertOptions["TokenName"]);
+
+            if (token is null || _tokenHandler.ReadJwtToken(token).ValidTo <= DateTime.UtcNow)
+            {
+                if (token != null)
+                {
+                    var deletionResult = await _userManager.RemoveAuthenticationTokenAsync(expert, expertOptions["LoginProvider"],
+                        expertOptions["TokenName"]);
+                    if (!deletionResult.Succeeded)
+                        return Result<TokenCredentials>.Failed(deletionResult.Errors.Select(errors => errors.Description)
+                            .ToArray());
+                }
+                
+                var tokenCredentials = await GetTokenAsync(expert);
+                var result = await _userManager.SetAuthenticationTokenAsync(expert, expertOptions["LoginProvider"],
+                    expertOptions["TokenName"], tokenCredentials.AccessToken);
+                if (result.Succeeded) return Result<TokenCredentials>.Success(tokenCredentials);
+                
+                return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
+            }
+            
+            return Result<TokenCredentials>.Success(new TokenCredentials
+            {
+                AccessToken = token
+            });
+        }
+
+        public TokenClaims GetTokenClaims(TokenCredentials tokenCredentials)
+        {
+            var tokenClaims = _tokenHandler.ReadJwtToken(tokenCredentials.AccessToken).Claims.ToList();
+            return new TokenClaims()
+            {
+                Email = tokenClaims.FirstOrDefault(claim => claim.Type == ClaimTypes.Email)?.Value,
+                Id = tokenClaims.FirstOrDefault(claim => claim.Type == "_id")?.Value,
+                Role = tokenClaims.FirstOrDefault(claim => claim.Type == ClaimTypes.Role)?.Value,
+                UserName = tokenClaims.FirstOrDefault(claim => claim.Type == "_userName")?.Value
+            };
+        }
+
+        private DateTime GetExpertTokenExpiresIn(DateTime timeNow)
+        {
+            var expertOptions = _configuration.GetSection("ExpertOptions");
+            var firstTermDate = DateTime.ParseExact(expertOptions["ExpiresFirstTerm"],
+                expertOptions["ExpiresFormat"], CultureInfo.InvariantCulture);
+            var secondTermDate = DateTime.ParseExact(expertOptions["ExpiresSecondTerm"],
+                expertOptions["ExpiresFormat"], CultureInfo.InvariantCulture);
+            if (timeNow < firstTermDate) return firstTermDate;
+            if (timeNow >= firstTermDate && timeNow < secondTermDate) return secondTermDate;
+            return firstTermDate.AddYears(1);
         }
     }
 }

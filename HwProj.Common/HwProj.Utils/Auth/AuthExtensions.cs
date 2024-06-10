@@ -22,7 +22,9 @@ namespace HwProj.Utils.Authorization
                 role,
                 user.IsExternalAuth,
                 user.MiddleName,
-                user.GitHubId);
+                user.GitHubId,
+                user.CompanyName,
+                user.Bio);
         }
 
         public static string GetUserName(this HttpRequest request)

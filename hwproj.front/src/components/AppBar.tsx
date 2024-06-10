@@ -30,6 +30,7 @@ const styles = makeStyles(theme => ({
 interface AppBarProps {
     loggedIn: boolean;
     isLecturer: boolean;
+    isExpert: boolean;
     newNotificationsCount: number;
     onLogout: () => void;
 }
@@ -54,6 +55,9 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
     const handleClose = () => {
         setAnchorEl(null)
     }
+    
+    const isLecturer = props.isLecturer
+    const isExpert = props.isExpert
 
     return (
         <div>
@@ -68,7 +72,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                 </Typography>
                             </Link>
                         </Grid>
-                        {props.loggedIn &&
+                        {props.loggedIn && !isExpert &&
                             <Grid item>
                                 <Link to={"/notifications"}>
                                     <IconButton>
@@ -96,7 +100,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             </Grid>
                         }
                     </Grid>
-                    {props.loggedIn && props.isLecturer && <div>
+                    {props.loggedIn && isLecturer && <div>
                         <IconButton
                             edge="start"
                             color="inherit"
@@ -124,6 +128,14 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             </MenuItem>
                             <Link
                                 color={"initial"}
+                                style={{textDecoration: "none", color: "black"}}
+                                to={"/experts"}>
+                                <MenuItem>
+                                    К списку экспертов
+                                </MenuItem>
+                            </Link>
+                            <Link
+                                color={"initial"}
                                 style={{textDecoration: "none"}}
                                 to={"/create_course"}>
                                 <MenuItem>
@@ -135,7 +147,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             </MenuItem>
                         </Menu>
                     </div>}
-                    {props.loggedIn && !props.isLecturer && <div>
+                    {props.loggedIn && !isLecturer && <div>
                         <IconButton
                             edge="start"
                             color="inherit"

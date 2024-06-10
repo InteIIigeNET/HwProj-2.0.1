@@ -35,7 +35,8 @@ namespace HwProj.APIGateway.API.Controllers
                 Mentors = course.MentorIds
                     .Select(x => mentorsDict.TryGetValue(x, out var mentor) ? mentor : null)
                     .Where(x => x != null)
-                    .ToArray()!
+                    .ToArray()!,
+                TaskId = course.TaskId
             }).ToArray();
         }
     }

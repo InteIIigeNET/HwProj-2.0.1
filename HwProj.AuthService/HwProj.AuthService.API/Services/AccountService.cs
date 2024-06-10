@@ -9,6 +9,7 @@ using AutoMapper;
 using HwProj.AuthService.API.Extensions;
 using HwProj.Models.Roles;
 using HwProj.AuthService.API.Events;
+using HwProj.AuthService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
@@ -32,6 +33,7 @@ namespace HwProj.AuthService.API.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly HttpClient _client;
+        private readonly IExpertsRepository _expertsRepository;
 
         public AccountService(IUserManager userManager,
             SignInManager<User> signInManager,
@@ -40,7 +42,8 @@ namespace HwProj.AuthService.API.Services
             IMapper mapper,
             UserManager<User> aspUserManager,
             IConfiguration configuration,
-            IHttpClientFactory clientFactory)
+            IHttpClientFactory clientFactory,
+            IExpertsRepository expertsRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -50,6 +53,7 @@ namespace HwProj.AuthService.API.Services
             _aspUserManager = aspUserManager;
             _configuration = configuration;
             _client = clientFactory.CreateClient();
+            _expertsRepository = expertsRepository;
         }
 
         private async Task<AccountDataDto> GetAccountDataAsync(User user)
@@ -100,7 +104,7 @@ namespace HwProj.AuthService.API.Services
                 return Result.Failed("Пользователь не найден");
             }
 
-            var result = await ChangeUserNameTask(user, model);
+            var result = await ChangeUserDataTask(user, model);
 
             return result.Succeeded ? Result.Success() : Result.Failed();
         }
@@ -314,8 +318,13 @@ namespace HwProj.AuthService.API.Services
             return githubCredentials;
         }
 
-        private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)
+        private Task<IdentityResult> ChangeUserDataTask(User user, EditDataDTO model)
         {
+            if (!string.IsNullOrWhiteSpace(model.Email))
+            {
+                user.Email = model.Email;
+            }
+
             if (!string.IsNullOrWhiteSpace(model.Name))
             {
                 user.Name = model.Name;
@@ -329,6 +338,16 @@ namespace HwProj.AuthService.API.Services
             if (!string.IsNullOrWhiteSpace(model.MiddleName))
             {
                 user.MiddleName = model.MiddleName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.CompanyName))
+            {
+                user.CompanyName = model.CompanyName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Bio))
+            {
+                user.Bio = model.Bio;
             }
 
             return _userManager.UpdateAsync(user);

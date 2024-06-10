@@ -15,10 +15,15 @@ namespace HwProj.AuthService.API
             {
                 await roleManager.CreateAsync(Roles.Lecturer);
             }
-  
+
             if (await roleManager.FindByNameAsync(Roles.StudentRole) == null)
             {
                 await roleManager.CreateAsync(Roles.Student);
+            }
+
+            if (await roleManager.FindByNameAsync(Roles.ExpertRole) == null)
+            {
+                await roleManager.CreateAsync(Roles.Expert);
             }
 
             const string email = "admin@gmail.com";
@@ -26,7 +31,7 @@ namespace HwProj.AuthService.API
 
             if (await userManager.FindByEmailAsync(email) == null)
             {
-                var admin = new User { 
+                var admin = new User {
                     Email = email,
                     Name = "Admin",
                     UserName = "Admin"

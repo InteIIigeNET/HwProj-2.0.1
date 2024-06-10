@@ -71,7 +71,7 @@ const CreateCourse: FC = () => {
 
   const classes = useStyles()
 
-  if (!ApiSingleton.authService.isLecturer) {
+  if (!ApiSingleton.authService.isLecturer()) {
     return (
         <Typography component="h1" variant="h5">
           Страница не доступна
