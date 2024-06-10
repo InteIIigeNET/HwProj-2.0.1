@@ -330,7 +330,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                                 onClick={handleInvitation}
                                 disabled={isInviteButtonDisabled}
                             >
-                                Получить ссылку для приглашения
+                                Получить ссылку
                             </Button>
                         </Grid>}
                     </Grid>
