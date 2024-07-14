@@ -16,6 +16,7 @@ import InviteExpertModal from "./InviteModal";
 import Chip from "@mui/material/Chip/Chip";
 import InlineTags from "./InlineTags";
 import Tooltip from '@mui/material/Tooltip';
+import EditIcon from '@mui/icons-material/Edit';
 
 interface InviteExpertState {
     isOpen: boolean;
@@ -157,11 +158,9 @@ const ExpertsNotebook: FC = () => {
                 </TableCell>
                 <TableCell align={"center"}>{expert.email}</TableCell>
                 <TableCell align={"center"}>{expert.companyName}</TableCell>
-                <TableCell align={"center"} onClick={handleOpenTagsEditing}
-                           onMouseLeave={() => handleCloseTagsEditing(expert)}
-                           style={{cursor: isExpertControlled(expert.lecturerId!) ? "text" : "default"}}>
+                <TableCell align={"center"} onMouseLeave={() => handleCloseTagsEditing(expert)}>
                     <Grid container spacing={1} alignItems={"center"} justifyContent={"center"}>
-                        {mouseHoveredRow === expert.id && isExpertControlled(expert.lecturerId!) && tagsEditingState.isOpen ?
+                        {mouseHoveredRow === expert.id && tagsEditingState.isOpen ?
                             <InlineTags tags={expert.tags!} onTagsChange={(value) => handleTagsChange(expert, value)}/>
                             :
                             (expert.tags?.filter(t => t !== '').map((tag, index) => (
@@ -176,8 +175,20 @@ const ExpertsNotebook: FC = () => {
                                               color: "white"
                                           }}
                                     />
-                                </Grid>)))
-                        }
+                                </Grid>)))}
+                        {mouseHoveredRow === expert.id && !tagsEditingState.isOpen && (
+                            <Grid item>
+                                <Chip
+                                    variant={"outlined"}
+                                    label={<EditIcon fontSize={"small"} color={"action"}/>}
+                                    onClick={handleOpenTagsEditing}
+                                    size={"small"}
+                                    style={{
+                                        cursor: "pointer"
+                                    }}
+                                />
+                            </Grid>
+                        )}
                     </Grid>
                 </TableCell>
                 <TableCell align={"right"}>
