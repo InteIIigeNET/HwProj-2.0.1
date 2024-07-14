@@ -68,7 +68,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
     const handleTagsChange = (newValue: string[]) => {
         setRegisterState((prevState) => ({
             ...prevState,
-            tags: newValue
+            tags: newValue.filter(tag => !tag.includes(";"))
         }))
     };
 

@@ -140,7 +140,8 @@ const ExpertsNotebook: FC = () => {
             ...prevState,
             areTagsChanged: true
         }));
-        expert.tags = newTags
+
+        expert.tags = newTags.filter(tag => !tag.includes(";"))
     }
 
     const getExpertRows = () => {
