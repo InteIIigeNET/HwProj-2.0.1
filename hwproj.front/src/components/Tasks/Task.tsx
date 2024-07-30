@@ -14,6 +14,7 @@ import DeletionConfirmation from "../DeletionConfirmation";
 import {Chip} from "@mui/material";
 import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
 import Utils from "../../services/Utils";
+import {getTip} from "../Common/HomeworkTags";
 
 interface ITaskProp {
     task: HomeworkTaskViewModel,
@@ -63,7 +64,6 @@ const Task: FC<ITaskProp> = (props) => {
     const deadlineDate = Utils.renderReadableDate(new Date(task.deadlineDate!))
 
     const classes = useStyles()
-
     return (
         <div style={{width: '100%'}}>
             <Accordion expanded={props.isExpanded ? true : undefined}>
@@ -77,7 +77,7 @@ const Task: FC<ITaskProp> = (props) => {
                         <Grid container direction={"row"} spacing={1} alignItems={"center"}>
                             <Grid item>
                                 <Typography style={{fontSize: '18px', marginRight: 1}}>
-                                    {task.title}
+                                    {task.title}{getTip(task)}
                                 </Typography>
                             </Grid>
                             {task.isGroupWork && <Grid item><Chip color={"info"} label="Комадное"/></Grid>}
