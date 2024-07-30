@@ -6,7 +6,7 @@ import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import {CreateHomeworkViewModel, CreateTaskViewModel} from "../../api";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import CreateTask from "../Tasks/CreateTask"
-import {Checkbox, FormControlLabel} from "@mui/material";
+import {Alert, Checkbox, FormControlLabel} from "@mui/material";
 import Tags from "./HomeworkTags";
 
 interface IAddHomeworkProps {
@@ -26,6 +26,7 @@ interface IAddHomeworkState {
     isDeadlineStrict: boolean;
     isGroupWork: boolean;
     hasErrors: boolean;
+    tags?: string[];
 }
 
 interface IAddHomeworkTaskState {
@@ -55,7 +56,8 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
         deadlineDate: undefined,
         isDeadlineStrict: false,
         added: false,
-        hasErrors: false
+        hasErrors: false,
+        tags: []
     })
 
     const handleSubmit = async (e: any) => {
@@ -120,6 +122,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     }
                 />
                 <Tags tags={[]} courseId={props.id} onTagsChange={handleTagsChange}/>
+                {addHomeworkState.tags?.includes('Контрольная работа') && <Alert severity="info">Вы можете сгруппировать контрольные работы и переписывания с помощью дополнительного тега. Например, 'КР 1'</Alert>}
                 <PublicationAndDeadlineDates
                     hasDeadline={false}
                     isDeadlineStrict={false}
