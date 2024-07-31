@@ -24,7 +24,7 @@ namespace HwProj.SolutionsService.API.Services
 
         Task MarkSolutionFinal(long solutionId);
 
-        Task<SolutionPreviewDto[]> GetAllUnratedSolutions(long[] taskIds);
+        Task<SolutionPreviewDto[]> GetAllUnratedSolutions(GetTasksSolutionsModel model);
         Task<TaskSolutionsStats[]> GetTaskSolutionsStats(long[] taskIds);
         Task<SolutionActualityDto> GetSolutionActuality(long solutionId);
     }

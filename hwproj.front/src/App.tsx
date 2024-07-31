@@ -15,6 +15,7 @@ import EditCourse from "./components/Courses/EditCourse";
 import EditTask from "./components/Tasks/EditTask";
 import EditHomework from "./components/Homeworks/EditHomework";
 import Register from "./components/Auth/Register";
+import ExpertsNotebook from "./components/Experts/Notebook";
 import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
 import ApiSingleton from "./api/ApiSingleton";
@@ -23,12 +24,14 @@ import WrongPath from "./components/WrongPath";
 import ResetPassword from "components/Auth/ResetPassword";
 import PasswordRecovery from "components/Auth/PasswordRecovery";
 import AuthLayout from "./AuthLayout";
+import ExpertAuthLayout from "./components/Experts/AuthLayout";
 
 // TODO: add flux
 
 interface AppState {
     loggedIn: boolean;
     isLecturer: boolean;
+    isExpert: boolean;
     newNotificationsCount: number;
 }
 
@@ -51,6 +54,7 @@ class App extends Component<{ navigate: any }, AppState> {
         this.state = {
             loggedIn: ApiSingleton.authService.isLoggedIn(),
             isLecturer: ApiSingleton.authService.isLecturer(),
+            isExpert: ApiSingleton.authService.isExpert(),
             newNotificationsCount: 0
         };
     }
@@ -67,17 +71,23 @@ class App extends Component<{ navigate: any }, AppState> {
     }
 
     login = () => {
+        const isLecturer = ApiSingleton.authService.isLecturer();
+        const isExpert = ApiSingleton.authService.isExpert();
         this.setState({
             loggedIn: true,
-            isLecturer: ApiSingleton.authService.isLecturer()
+            isLecturer: isLecturer,
+            isExpert: isExpert
         })
-        this.props.navigate("/");
+        if (!isExpert) {
+            this.props.navigate("/");
+        }
     }
 
     logout = () => {
         ApiSingleton.authService.logout();
         this.setState({loggedIn: false});
         this.setState({isLecturer: false});
+        this.setState({isExpert: false})
         this.props.navigate("/login");
     }
 
@@ -87,22 +97,27 @@ class App extends Component<{ navigate: any }, AppState> {
                 <Header loggedIn={this.state.loggedIn}
                         newNotificationsCount={this.state.newNotificationsCount}
                         isLecturer={this.state.isLecturer}
+                        isExpert={this.state.isExpert}
                         onLogout={this.logout}/>
                 <Routes>
                     <Route element={<AuthLayout/>}>
-                        <Route path="user/edit" element={<EditProfile/>}/>
+                        <Route path="user/edit" element={<EditProfile isExpert={this.state.isExpert}/>}/>
                         <Route path="/" element={<Workspace/>}/>
                         <Route path="notifications"
                                element={<Notifications onMarkAsSeen={this.updatedNewNotificationsCount}/>}/>
-                        <Route path="courses" element={<Courses navigate={this.props.navigate}/>}/>
+                        <Route path="courses"
+                               element={<Courses navigate={this.props.navigate} isLecturer={this.state.isLecturer}
+                                                 isExpert={this.state.isExpert}/>}/>
                         <Route path="profile/:id" element={<Workspace/>}/>
+                        <Route path="experts" element={<ExpertsNotebook/>}/>
                         <Route path="create_course" element={<CreateCourse/>}/>
                         <Route path="courses/:courseId" element={<Course/>}/>
                         <Route path="courses/:courseId/:tab" element={<Course/>}/>
                         <Route path="courses/:courseId/edit" element={<EditCourse/>}/>
                         <Route path="homework/:homeworkId/edit" element={<EditHomework/>}/>
                         <Route path="task/:taskId/edit" element={<EditTask/>}/>
-                        <Route path="task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
+                        <Route path="task/:taskId/:studentId"
+                               element={<StudentSolutionsPage isExpert={this.state.isExpert}/>}/>
                         <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
                     </Route>
                     <Route path="statistics/:courseId/charts" element={<StudentStatsChart/>}/>
@@ -111,6 +126,7 @@ class App extends Component<{ navigate: any }, AppState> {
                     <Route path="register" element={<Register onLogin={this.login}/>}/>
                     <Route path="recovery" element={<PasswordRecovery/>}/>
                     <Route path="resetPassword" element={<ResetPassword/>}/>
+                    <Route path="join/:token" element={<ExpertAuthLayout onLogin={this.login}/>}/>
                     <Route path={"*"} element={<WrongPath/>}/>
                 </Routes>
                 <div style={{marginBottom: 10}}/>

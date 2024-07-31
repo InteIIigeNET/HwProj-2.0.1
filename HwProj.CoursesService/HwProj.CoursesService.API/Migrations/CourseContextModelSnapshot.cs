@@ -61,6 +61,19 @@ namespace HwProj.CoursesService.API.Migrations
                     b.ToTable("Courses");
                 });
 
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.CourseFilter", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("FilterJson");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CourseFilters");
+                });
+
             modelBuilder.Entity("HwProj.CoursesService.API.Models.CourseMate", b =>
                 {
                     b.Property<long>("Id")
@@ -188,6 +201,19 @@ namespace HwProj.CoursesService.API.Migrations
                     b.HasIndex("GroupId");
 
                     b.ToTable("TasksModels");
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.UserToCourseFilter", b =>
+                {
+                    b.Property<long>("CourseId");
+
+                    b.Property<string>("UserId");
+
+                    b.Property<long>("CourseFilterId");
+
+                    b.HasKey("CourseId", "UserId");
+
+                    b.ToTable("UserToCourseFilters");
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.Assignment", b =>

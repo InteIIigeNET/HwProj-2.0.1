@@ -240,14 +240,14 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<Solution?[]>();
         }
 
-        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(long[] taskIds)
+        public async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(GetTasksSolutionsModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _solutionServiceUri + "api/Solutions/allUnrated")
             {
                 Content = new StringContent(
-                    JsonConvert.SerializeObject(taskIds),
+                    JsonConvert.SerializeObject(model),
                     Encoding.UTF8,
                     "application/json")
             };

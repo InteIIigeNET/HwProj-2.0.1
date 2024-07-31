@@ -247,5 +247,93 @@ namespace HwProj.AuthService.Client
 
             return await response.DeserializeAsync<GithubCredentials>();
         }
+
+        public async Task<Result> RegisterExpert(RegisterExpertViewModel model, string lecturerId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + $"api/Experts/register?lecturerId={lecturerId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result>();
+        }
+
+        public async Task<Result> LoginExpert(TokenCredentials credentials)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + "api/Experts/login")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(credentials),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result>();
+        }
+
+        public async Task<Result<TokenCredentials>> GetExpertToken(string expertEmail)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + $"api/Experts/getToken?expertEmail={expertEmail}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<TokenCredentials>>();
+        }
+
+        public async Task<Result<bool>> GetIsExpertProfileEdited(string expertId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + $"api/Experts/isProfileEdited/{expertId}");
+            
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<bool>>();
+        }
+
+        public async Task<Result> SetExpertProfileIsEdited(string expertId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + $"api/Experts/setProfileIsEdited/{expertId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result>();
+        }
+
+        public async Task<ExpertDataDTO[]> GetAllExperts()
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + "api/Experts/getAll");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<ExpertDataDTO[]>().ConfigureAwait(false);
+        }
+
+        public async Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + $"api/Experts/updateTags?lecturerId={lecturerId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(updateExpertTagsDto),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result>();
+        }
     }
 }

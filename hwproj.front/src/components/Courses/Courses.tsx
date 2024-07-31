@@ -9,22 +9,32 @@ interface ICoursesState {
     myCourses: CoursePreviewView[];
     allCourses: CoursePreviewView[];
     tabValue: number;
+    isLecturer: boolean;
+    isExpert: boolean;
 }
 
-export default class Courses extends React.Component<{ navigate: any }, ICoursesState> {
-    constructor(props: { navigate: any }) {
+interface Props {
+    navigate: any,
+    isLecturer: boolean;
+    isExpert: boolean;
+}
+
+export default class Courses extends React.Component<Props, ICoursesState> {
+    constructor(props: Props) {
         super(props);
         this.state = {
             isLoaded: false,
             myCourses: [],
             allCourses: [],
             tabValue: 0,
+            isLecturer: this.props.isLecturer,
+            isExpert: this.props.isExpert
         };
     }
 
     public render() {
         const {isLoaded, allCourses, myCourses, tabValue} = this.state;
-        const {navigate} = this.props
+        const {navigate} = this.props.navigate;
 
         if (!isLoaded) {
             return (
@@ -37,7 +47,7 @@ export default class Courses extends React.Component<{ navigate: any }, ICourses
 
         const activeCourses = myCourses.filter(course => !course.isCompleted)
         const completedCourses = myCourses.filter(course => course.isCompleted)
-
+        const isExpert = this.props.isExpert 
         let activeCoursesTab = activeCourses.length > 0 ? 0 : undefined
         let allCoursesTab = activeCoursesTab === 0 ? 1 : 0
         let completedCoursesTab = completedCourses.length > 0
@@ -54,13 +64,16 @@ export default class Courses extends React.Component<{ navigate: any }, ICourses
                     }}
                 >
                     {activeCourses.length > 0 && <Tab label="Ваши курсы"/>}
-                    <Tab label="Все курсы"/>
+                    {!isExpert && <Tab label="Все курсы"/>}
                     {completedCourses.length > 0 && <Tab label="Завершенные курсы"/>}
                 </Tabs>
                 <br/>
-                {tabValue === activeCoursesTab && <CoursesList navigate={navigate} courses={activeCourses}/>}
-                {tabValue === allCoursesTab && <CoursesList navigate={navigate} courses={allCourses}/>}
-                {tabValue === completedCoursesTab && <CoursesList navigate={navigate} courses={completedCourses}/>}
+                {tabValue === activeCoursesTab &&
+                    <CoursesList navigate={navigate} courses={activeCourses} isExpert={isExpert}/>}
+                {tabValue === allCoursesTab && !isExpert
+                    && <CoursesList navigate={navigate} courses={allCourses} isExpert={isExpert}/>}
+                {tabValue === completedCoursesTab &&
+                    <CoursesList navigate={navigate} courses={completedCourses} isExpert={isExpert}/>}
             </div>
         );
     }

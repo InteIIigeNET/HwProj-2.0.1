@@ -2,9 +2,11 @@
 using System.Threading.Tasks;
 using System.Web;
 using HwProj.AuthService.API.Events;
+using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
 using HwProj.Models.NotificationsService;
+using HwProj.Models.Roles;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.Extensions.Configuration;
@@ -16,13 +18,18 @@ namespace HwProj.NotificationsService.API.EventHandlers
         private readonly IConfiguration _configuration;
         private readonly INotificationsRepository _notificationRepository;
         private readonly IEmailService _emailService;
+        private readonly IAuthServiceClient _authServiceClient;
 
-        public PasswordRecoveryEventHandler(INotificationsRepository notificationRepository, IEmailService emailService,
-            IConfiguration configuration)
+        public PasswordRecoveryEventHandler(
+            INotificationsRepository notificationRepository, 
+            IEmailService emailService,
+            IConfiguration configuration, 
+            IAuthServiceClient authServiceClient)
         {
             _notificationRepository = notificationRepository;
             _emailService = emailService;
             _configuration = configuration;
+            _authServiceClient = authServiceClient;
         }
 
         public override async Task HandleAsync(PasswordRecoveryEvent @event)
@@ -52,6 +59,12 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Owner = @event.UserId
             };
 
+            var mentor = await _authServiceClient.GetAccountData(notification.Owner);
+            if (mentor.Role == Roles.ExpertRole)
+            {
+                return;
+            }
+            
             var addNotificationTask = _notificationRepository.AddAsync(notification);
             var sendEmailTask = _emailService.SendEmailAsync(email, @event.Email, "HwProj");
 

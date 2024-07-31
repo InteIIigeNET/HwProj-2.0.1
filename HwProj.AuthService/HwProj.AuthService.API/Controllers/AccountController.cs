@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.AuthService.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using HwProj.AuthService.API.Services;
 using HwProj.Models.AuthService.DTO;
