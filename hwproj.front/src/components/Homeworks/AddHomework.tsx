@@ -8,6 +8,7 @@ import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import CreateTask from "../Tasks/CreateTask"
 import {Alert, Checkbox, FormControlLabel} from "@mui/material";
 import Tags from "./HomeworkTags";
+import { TestTag } from "components/Common/HomeworkTags";
 
 interface IAddHomeworkProps {
     id: number;
@@ -122,7 +123,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     }
                 />
                 <Tags tags={[]} courseId={props.id} onTagsChange={handleTagsChange}/>
-                {addHomeworkState.tags?.includes('Контрольная работа') && <Alert severity="info">Вы можете сгруппировать контрольные работы и переписывания с помощью дополнительного тега. Например, 'КР 1'</Alert>}
+                {addHomeworkState.tags?.includes(TestTag) && <Alert severity="info">Вы можете сгруппировать контрольные работы и переписывания с помощью дополнительного тега. Например, 'КР 1'</Alert>}
                 <PublicationAndDeadlineDates
                     hasDeadline={false}
                     isDeadlineStrict={false}
