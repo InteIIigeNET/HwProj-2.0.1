@@ -27,7 +27,7 @@ interface IAddHomeworkState {
     isDeadlineStrict: boolean;
     isGroupWork: boolean;
     hasErrors: boolean;
-    tags?: string[];
+    tags: string[];
 }
 
 interface IAddHomeworkTaskState {
@@ -123,7 +123,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     }
                 />
                 <Tags tags={[]} courseId={props.id} onTagsChange={handleTagsChange}/>
-                {addHomeworkState.tags?.includes(TestTag) && <Alert severity="info">Вы можете сгруппировать контрольные работы и переписывания с помощью дополнительного тега. Например, 'КР 1'</Alert>}
+                {addHomeworkState.tags.includes(TestTag) && <Alert severity="info">Вы можете сгруппировать контрольные работы и переписывания с помощью дополнительного тега. Например, 'КР 1'</Alert>}
                 <PublicationAndDeadlineDates
                     hasDeadline={false}
                     isDeadlineStrict={false}
