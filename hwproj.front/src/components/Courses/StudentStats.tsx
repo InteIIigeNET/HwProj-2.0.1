@@ -81,6 +81,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     const testsMaxSum = homeworks.filter(h => h.tags!.includes(TestTag))
         .filter(h => !h.tags!.includes(BonusTag))
+        .filter(h => !isRewriting(h, homeworks))
         .flatMap(homework => homework.tasks)
         .reduce((sum, task) => {
             return sum + (task!.maxRating || 0);
@@ -88,6 +89,16 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     const hasHomeworks = homeworksMaxSum > 0
     const hasTests = testsMaxSum > 0
+
+    function isRewriting(homework: HomeworkViewModel, homeworks: HomeworkViewModel[]): boolean{
+        
+        const sortedTags = homeworks.filter(h => h.tags!.includes(TestTag))
+        .filter(h => !h.tags!.includes(BonusTag))
+        .filter(h => h.publicationDate! < homework.publicationDate!)
+        .flatMap(h => h.tags!)
+        
+        return homework.tags!.some(tag => sortedTags.length > 0 && tag !== TestTag && tag !== 'Командная работа' && sortedTags.includes(tag))
+    }
 
     return (
         <div>
