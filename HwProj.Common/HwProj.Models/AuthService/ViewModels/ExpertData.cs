@@ -5,6 +5,8 @@ namespace HwProj.Models.AuthService.ViewModels
 {
     public class ExpertData : IEntity<string>
     {
+        public User User { get; set; }
+
         [Key]
         [MaxLength(450)]
         public string Id { get; set; }
