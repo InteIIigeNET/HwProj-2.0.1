@@ -19,12 +19,14 @@ namespace HwProj.AuthService.API.Services
     {
         private readonly UserManager<User> _userManager;
         private readonly IConfigurationSection _configuration;
+        private readonly IConfigurationSection _expertConfiguration;
         private readonly JwtSecurityTokenHandler _tokenHandler;
 
         public AuthTokenService(UserManager<User> userManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _configuration = configuration.GetSection("AppSettings");
+            _expertConfiguration = configuration.GetSection("ExpertOptions");
             _tokenHandler = new JwtSecurityTokenHandler();
         }
 
@@ -62,27 +64,30 @@ namespace HwProj.AuthService.API.Services
 
         public async Task<Result<TokenCredentials>> GetExpertTokenAsync(User expert)
         {
-            var expertOptions = _configuration.GetSection("ExpertOptions");
-            var token = await _userManager.GetAuthenticationTokenAsync(expert, expertOptions["LoginProvider"],
-                expertOptions["TokenName"]);
+            var loginProvider = _expertConfiguration["LoginProvider"];
+            var tokenName = _expertConfiguration["TokenName"];
+            var token = await _userManager.GetAuthenticationTokenAsync(expert, loginProvider,
+                tokenName);
 
             if (token is null || _tokenHandler.ReadJwtToken(token).ValidTo <= DateTime.UtcNow)
             {
                 if (token != null)
                 {
-                    var deletionResult = await _userManager.RemoveAuthenticationTokenAsync(expert, expertOptions["LoginProvider"],
-                        expertOptions["TokenName"]);
+                    var deletionResult = await _userManager.RemoveAuthenticationTokenAsync(expert, loginProvider,
+                        tokenName);
                     if (!deletionResult.Succeeded)
-                        return Result<TokenCredentials>.Failed(deletionResult.Errors.Select(errors => errors.Description)
+                        return Result<TokenCredentials>.Failed(deletionResult.Errors
+                            .Select(errors => errors.Description)
                             .ToArray());
                 }
                 
                 var tokenCredentials = await GetTokenAsync(expert);
-                var result = await _userManager.SetAuthenticationTokenAsync(expert, expertOptions["LoginProvider"],
-                    expertOptions["TokenName"], tokenCredentials.AccessToken);
+                var result = await _userManager.SetAuthenticationTokenAsync(expert, loginProvider,
+                    tokenName, tokenCredentials.AccessToken);
                 if (result.Succeeded) return Result<TokenCredentials>.Success(tokenCredentials);
                 
-                return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
+                return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description)
+                    .ToArray());
             }
             
             return Result<TokenCredentials>.Success(new TokenCredentials
@@ -103,13 +108,17 @@ namespace HwProj.AuthService.API.Services
             };
         }
 
+        // Дата истечения токена ——— ближайшая дата завершения семестра (первого или второго).
+        // Если сейчас находимся дальше конца второго семестра, то попадаем в первый семестр, и
+        // дата истечения токена --- дата завершения первого семестра в следующем году.
         private DateTime GetExpertTokenExpiresIn(DateTime timeNow)
         {
-            var expertOptions = _configuration.GetSection("ExpertOptions");
-            var firstTermDate = DateTime.ParseExact(expertOptions["ExpiresFirstTerm"],
-                expertOptions["ExpiresFormat"], CultureInfo.InvariantCulture);
-            var secondTermDate = DateTime.ParseExact(expertOptions["ExpiresSecondTerm"],
-                expertOptions["ExpiresFormat"], CultureInfo.InvariantCulture);
+            var expiresFormat = _expertConfiguration["ExpiresFormat"];
+            var firstTermDate = DateTime.ParseExact(_expertConfiguration["ExpiresFirstTerm"],
+                expiresFormat, CultureInfo.InvariantCulture);
+            var secondTermDate = DateTime.ParseExact(_expertConfiguration["ExpiresSecondTerm"],
+                expiresFormat, CultureInfo.InvariantCulture);
+
             if (timeNow < firstTermDate) return firstTermDate;
             if (timeNow >= firstTermDate && timeNow < secondTermDate) return secondTermDate;
             return firstTermDate.AddYears(1);

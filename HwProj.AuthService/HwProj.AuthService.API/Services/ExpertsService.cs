@@ -2,13 +2,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using HwProj.AuthService.API.Extensions;
 using HwProj.AuthService.API.Repositories;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HwProj.AuthService.API.Services
@@ -44,30 +44,33 @@ namespace HwProj.AuthService.API.Services
             var user = _mapper.Map<User>(model);
             user.UserName = user.Email;
 
-
-            var createUserTask = _userManager.CreateAsync(user);
-
-            var result = await createUserTask
-                .Then(() => _userManager.AddToRoleAsync(user, Roles.ExpertRole))
-                .Then(() =>
-                {
-                    user.EmailConfirmed = true;
-                    return _userManager.UpdateAsync(user);
-                });
-
-            if (result.Succeeded)
+            var createUserResult = await _userManager.CreateAsync(user);
+            if (!createUserResult.Succeeded)
             {
-                await _expertsRepository.AddAsync(new ExpertData
-                {
-                    Id = user.Id,
-                    LecturerId = lecturerId,
-                    Tags = model.Tags.Join(";")
-                });
-
-                return Result.Success();
+                return Result.Failed(createUserResult.Errors.Select(errors => errors.Description).ToArray());
             }
 
-            return Result.Failed(result.Errors.Select(errors => errors.Description).ToArray());
+            var addToRoleResult = await _userManager.AddToRoleAsync(user, Roles.ExpertRole);
+            if (!addToRoleResult.Succeeded)
+            {
+                return Result.Failed(addToRoleResult.Errors.Select(errors => errors.Description).ToArray());
+            }
+
+            user.EmailConfirmed = true;
+            var updateUserResult = await _userManager.UpdateAsync(user);
+            if (!updateUserResult.Succeeded)
+            {
+                return Result.Failed(updateUserResult.Errors.Select(errors => errors.Description).ToArray());
+            }
+
+            await _expertsRepository.AddAsync(new ExpertData
+            {
+                Id = user.Id,
+                LecturerId = lecturerId,
+                Tags = model.Tags.Join(";")
+            });
+
+            return Result.Success();
         }
 
         public async Task<Result<bool>> GetIsExpertProfileEdited(string expertAccountId)
@@ -138,25 +141,20 @@ namespace HwProj.AuthService.API.Services
 
         public async Task<ExpertDataDTO[]> GetAllExperts()
         {
-            var users = await _userManager.GetUsersInRoleAsync(Roles.ExpertRole);
-            var expertsFromDb = _expertsRepository.GetAll().ToArray();
+            var expertsFromDb = await _expertsRepository.GetAll().ToArrayAsync();
 
-            var result = expertsFromDb.Join(
-                    users,
-                    expertData => expertData.Id,
-                    user => user.Id,
-                    (expertData, user) => new ExpertDataDTO
-                    {
-                        Id = user.Id,
-                        Name = user.Name,
-                        Surname = user.Surname,
-                        MiddleName = user.MiddleName,
-                        Bio = user.Bio,
-                        CompanyName = user.CompanyName,
-                        Email = user.Email,
-                        Tags = expertData.Tags?.Split(';').ToList() ?? new List<string>(),
-                        LecturerId = expertData.LecturerId
-                    })
+            var result = expertsFromDb.Select(expertData => new ExpertDataDTO
+                {
+                    Id = expertData.User.Id,
+                    Name = expertData.User.Name,
+                    Surname = expertData.User.Surname,
+                    MiddleName = expertData.User.MiddleName,
+                    Bio = expertData.User.Bio,
+                    CompanyName = expertData.User.CompanyName,
+                    Email = expertData.User.Email,
+                    Tags = expertData.Tags?.Split(';').ToList() ?? new List<string>(),
+                    LecturerId = expertData.LecturerId
+                })
                 .ToArray();
 
             return result;
