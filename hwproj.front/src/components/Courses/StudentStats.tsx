@@ -78,27 +78,52 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         .reduce((sum, task) => {
             return sum + (task!.maxRating || 0);
         }, 0)
-
-    const testsMaxSum = homeworks.filter(h => h.tags!.includes(TestTag))
-        .filter(h => !h.tags!.includes(BonusTag))
-        .filter(h => !isRewriting(h, homeworks))
-        .flatMap(homework => homework.tasks)
-        .reduce((sum, task) => {
-            return sum + (task!.maxRating || 0);
-        }, 0)
+    
+    const testsMaxSum = groupTestsByTags(homeworks.filter(h => !h.tags!.includes(BonusTag)))
+    .map(h => h[0])
+    .flatMap(homework => homework.tasks)
+    .reduce((sum, task) => {
+        return sum + (task!.maxRating || 0);
+    }, 0)
 
     const hasHomeworks = homeworksMaxSum > 0
     const hasTests = testsMaxSum > 0
 
-    function isRewriting(homework: HomeworkViewModel, homeworks: HomeworkViewModel[]): boolean{
-        
-        const sortedTags = homeworks.filter(h => h.tags!.includes(TestTag))
-        .filter(h => !h.tags!.includes(BonusTag))
-        .filter(h => h.publicationDate! < homework.publicationDate!)
-        .flatMap(h => h.tags!)
-        
-        return homework.tags!.some(tag => sortedTags.length > 0 && tag !== TestTag && tag !== 'Командная работа' && sortedTags.includes(tag))
-    }
+    function groupTestsByTags(homeworks: HomeworkViewModel[]): HomeworkViewModel[][] {
+        const result: HomeworkViewModel[][] = [];
+
+        const groupedHomeworks = homeworks.filter(h => h.tags!.includes(TestTag))
+        .reduce((acc, h) => {
+            h.tags!.forEach(tag => {
+                if (tag !== TestTag && tag !== 'Командная работа'){
+                    if (!acc[tag]) {
+                    acc[tag] = []
+                    }
+                    acc[tag].push(h)
+                }
+            })
+
+            if (h.tags!.length === 1 || h.tags!.length === 2 && h.tags!.includes('Командная работа')){
+                if (!acc[TestTag]) {
+                    acc[TestTag] = []
+                    }
+                    acc[TestTag].push(h)
+            }
+          
+            return acc
+        }, {} as Record<string, HomeworkViewModel[]>)
+
+        Object.entries(groupedHomeworks).forEach(([key, value]) => {
+          if (key === TestTag) {
+            result.push(...value.map(item => [item]));
+          } else {
+            result.push(value);
+          }
+        });
+
+        return result;
+
+    }   
 
     return (
         <div>
@@ -197,16 +222,23 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         .find(h => h.id === homework.id)?.tasks!
                                         .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0) || 0
                                 )
-                                .reduce((sum, rating) => sum + rating, 0)
-                            const testsSum = homeworks
-                                .filter(h => h.tags!.includes(TestTag))
-                                .flatMap(homework =>
+                                .reduce((sum, rating) => sum + rating, 0) 
+                            const testsSum = groupTestsByTags(homeworks)
+                            .map(group => {
+                                const rating: number[] = new Array(group[0].tasks!.length).fill(0)
+                                
+                                group.forEach(homework => 
                                     solutions
                                         .find(s => s.id === cm.id)?.homeworks!
                                         .find(h => h.id === homework.id)?.tasks!
-                                        .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0) || 0
+                                        .forEach((task, index) => {
+                                            rating[index] = Math.max(rating[index], StudentStatsUtils.calculateLastRatedSolution(task.solution || [])?.rating || 0) || 0
+                                        })
                                 )
-                                .reduce((sum, rating) => sum + rating, 0)
+                                return rating
+                            })
+                            .flat()
+                            .reduce((sum, rating) => sum + rating, 0)
                             return (
                                 <TableRow key={index} hover style={{height: 50}}>
                                     <TableCell
