@@ -257,26 +257,27 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                                             }}
                                         />}
                                 </Grid>
-                                <Grid item xs={12}>
-                                    {props.isExpert &&
-                                        <TextField
-                                            fullWidth
-                                            multiline
-                                            label="Дополнительная информация (био)"
-                                            variant="outlined"
-                                            value={profile.bio}
-                                            onChange={(e) => {
-                                                e.persist()
-                                                setProfile((prevState) => ({
-                                                    ...prevState,
-                                                    bio: e.target.value
-                                                }))
-                                            }}
-                                        />}
+                                {props.isExpert && <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        multiline
+                                        label="Дополнительная информация (био)"
+                                        variant="outlined"
+                                        value={profile.bio}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setProfile((prevState) => ({
+                                                ...prevState,
+                                                bio: e.target.value
+                                            }))
+                                        }}
+                                    />
                                 </Grid>
+                                }
                             </Grid>
                             {!props.isExpert &&
-                                <Grid container direction="row" spacing={1} alignItems="center" justifyContent="center">
+                                <Grid container direction="row" spacing={1} alignItems="center"
+                                      justifyContent="center">
                                     <Grid item>
                                         <GitHubIcon/>
                                     </Grid>

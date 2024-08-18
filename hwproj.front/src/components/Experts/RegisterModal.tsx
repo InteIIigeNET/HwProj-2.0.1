@@ -1,6 +1,6 @@
 ﻿import React, {FC, useState} from "react";
 import TextField from "@material-ui/core/TextField";
-import {Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions} from "@mui/material";
+import {Dialog, DialogTitle, DialogContent, DialogActions} from "@mui/material";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../../api/ApiSingleton";
@@ -11,6 +11,7 @@ import makeStyles from "@material-ui/styles/makeStyles";
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import Avatar from "@material-ui/core/Avatar";
 import Tags from "../Common/Tags";
+import ValidationUtils from "../Utils/ValidationUtils";
 
 interface IRegisterExpertProps {
     isOpen: boolean;
@@ -41,11 +42,6 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const isCorrectEmail = (email: string) => {
-    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,5}))$/;
-    return re.test(email);
-}
-
 const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
     const classes = useStyles()
 
@@ -74,7 +70,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        if (!isCorrectEmail(registerState.email)) {
+        if (!ValidationUtils.isCorrectEmail(registerState.email)) {
             setCommonState((prevState) => ({
                 ...prevState,
                 errors: ['Некорректный адрес электронной почты']
@@ -225,7 +221,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                             </Grid>
                             <Grid item xs={12}>
                                 <Tags tags={[]} onTagsChange={handleTagsChange} isElementSmall={true}
-                                      requestTags={() => new Promise((resolve, _) => resolve([]))}/>
+                                      requestTags={() => Promise.resolve([])}/>
                             </Grid>
                             <Grid item xs={12}>
                                 <TextField

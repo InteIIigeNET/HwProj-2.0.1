@@ -1,8 +1,11 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.AuthService.Client;
+using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
+using HwProj.Models.CoursesService;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
@@ -14,11 +17,42 @@ namespace HwProj.APIGateway.API.Controllers
     [ApiController]
     public class ExpertsController : AggregationController
     {
-        public ExpertsController(
-            IAuthServiceClient authServiceClient) : base(authServiceClient)
+        private readonly ICoursesServiceClient _coursesClient;
+        private readonly IMapper _mapper;
+
+        public ExpertsController(ICoursesServiceClient coursesClient,
+            IAuthServiceClient authServiceClient,
+            IMapper mapper) : base(authServiceClient)
         {
+            _coursesClient = coursesClient;
+            _mapper = mapper;
         }
-        
+
+        [HttpPost("invite")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Invite(InviteExpertViewModel inviteExpertView)
+        {
+            var expert = await AuthServiceClient.GetAccountDataByEmail(inviteExpertView.UserEmail);
+            if (expert == null)
+                return NotFound("Эксперт с такой почтой не найден");
+
+            if (expert.Role != Roles.ExpertRole || inviteExpertView.UserId != expert.UserId)
+                return BadRequest("Пользователь с такой почтой не является экспертом");
+
+            if (inviteExpertView.UserId != expert.UserId)
+                return BadRequest("Идентификатор эксперта с такой почтой не соответствует переданному идентификатору");
+
+            var courseFilterModel = _mapper.Map<CreateCourseFilterModel>(inviteExpertView);
+
+            var courseFilterCreationResult = await _coursesClient.CreateOrUpdateExpertCourseFilter(courseFilterModel);
+            if (!courseFilterCreationResult.Succeeded) return BadRequest(courseFilterCreationResult.Errors);
+
+            var acceptanceResult = await _coursesClient.AcceptLecturer(inviteExpertView.CourseId,
+                inviteExpertView.UserEmail, inviteExpertView.UserId);
+            return Ok(acceptanceResult);
+        }
+
         [HttpPost("register")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
@@ -44,7 +78,7 @@ namespace HwProj.APIGateway.API.Controllers
             var tokenMeta = await AuthServiceClient.GetExpertToken(expertEmail);
             return Ok(tokenMeta);
         }
-        
+
         [HttpPost("setProfileIsEdited")]
         [Authorize(Roles = Roles.ExpertRole)]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
@@ -62,7 +96,7 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await AuthServiceClient.GetIsExpertProfileEdited(UserId);
             return Ok(result);
         }
-        
+
         [HttpGet("getAll")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(ExpertDataDTO[]), (int)HttpStatusCode.OK)]

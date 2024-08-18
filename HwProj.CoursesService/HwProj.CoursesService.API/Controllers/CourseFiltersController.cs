@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Services;
-using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Models.CoursesService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.CoursesService.API.Controllers
@@ -17,9 +17,9 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("createExpertFilter")]
-        public async Task<IActionResult> CreateCourseFilter([FromBody] CreateCourseFilterViewModel courseFilterViewModel)
+        public async Task<IActionResult> CreateCourseFilter([FromBody] CreateCourseFilterModel courseFilterModel)
         {
-            var result = await _courseFilterService.CreateOrUpdateExpertFilter(courseFilterViewModel);
+            var result = await _courseFilterService.CreateOrUpdateExpertFilter(courseFilterModel);
             return Ok(result);
         }
     }

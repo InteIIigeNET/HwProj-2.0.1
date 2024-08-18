@@ -33,7 +33,6 @@ namespace HwProj.AuthService.API.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly HttpClient _client;
-        private readonly IExpertsRepository _expertsRepository;
 
         public AccountService(IUserManager userManager,
             SignInManager<User> signInManager,
@@ -42,8 +41,7 @@ namespace HwProj.AuthService.API.Services
             IMapper mapper,
             UserManager<User> aspUserManager,
             IConfiguration configuration,
-            IHttpClientFactory clientFactory,
-            IExpertsRepository expertsRepository)
+            IHttpClientFactory clientFactory)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -53,7 +51,6 @@ namespace HwProj.AuthService.API.Services
             _aspUserManager = aspUserManager;
             _configuration = configuration;
             _client = clientFactory.CreateClient();
-            _expertsRepository = expertsRepository;
         }
 
         private async Task<AccountDataDto> GetAccountDataAsync(User user)

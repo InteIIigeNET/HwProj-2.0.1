@@ -11,7 +11,7 @@ import Typography from "@material-ui/core/Typography";
 import Grid from '@material-ui/core/Grid';
 import {IconButton} from "@material-ui/core";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import {CoursePreviewView, HomeworkViewModel, CreateCourseFilterViewModel, AccountDataDto} from "../../api";
+import {CoursePreviewView, HomeworkViewModel, InviteExpertViewModel, AccountDataDto} from "../../api";
 import {Select, MenuItem, InputLabel, FormControl, Autocomplete} from "@mui/material";
 
 interface IInviteExpertProps {
@@ -64,12 +64,12 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
     const [isStudentsSelectionOpened, setIsStudentsSelectionOpened]
         = useState<boolean>(false); // Состояние для отображения поля выбора студентов
 
-    const [isLinkCopied, setIsLinkCopied] 
+    const [isLinkCopied, setIsLinkCopied]
         = useState<boolean>(false); // Состояние для отображения сообщения "Ссылка скопирована"
-    
+
     const [isInvited, setIsInvited]
         = useState<boolean>(false); // Состояние для скрытия кнопки "Пригласить"
-    
+
     useEffect(() => {
         const fetchCourses = async () => {
             const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesGet();
@@ -118,11 +118,14 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
         controlItemsAccessibility();
     }, [state.selectedCourseId, state.selectedStudents, state.selectedHomeworks])
 
+    const invitationLink = `${window.location.origin}/join/${state.accessToken}`;
+
     // Если преподаватель не выбрал ни одного студента, по умолчанию регистрируем всех. Аналогично с выбором домашних работ
     const handleInvitation = async () => {
         try {
-            const courseFilter: CreateCourseFilterViewModel = {
+            const inviteExpertModel: InviteExpertViewModel = {
                 userId: props.expertId,
+                userEmail: props.expertEmail,
                 courseId: state.selectedCourseId,
                 homeworkIds: state.selectedHomeworks.length === 0 ?
                     state.courseHomeworks.map(homeworkViewModel => homeworkViewModel.id!)
@@ -132,9 +135,8 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                     : state.selectedStudents.map(accountData => accountData.userId!),
                 mentorIds: []
             }
-            const result = await ApiSingleton.courseFiltersApi.apiCourseFiltersCreateExpertFilterPost(courseFilter);
+            const result = await ApiSingleton.expertsApi.apiExpertsInvitePost(inviteExpertModel);
             if (result.succeeded) {
-                await ApiSingleton.coursesApi.apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(courseFilter.courseId!, props.expertEmail);
                 setIsInviteButtonDisabled(true);
                 setIsLinkAccessible(true);
                 setIsInvited(true);
@@ -156,8 +158,6 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
             }))
         }
     }
-
-    const invitationLink = `${window.location.origin}/join/${state.accessToken}`;
 
     return (
         <div>
@@ -338,7 +338,16 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                 <DialogActions>
                 </DialogActions>
                 {isLinkCopied && (
-                    <div style={{ position: 'fixed', bottom: '20px', right: '20px', backgroundColor: '#3F51B5', color: 'white', padding: '10px', borderRadius: '5px', zIndex: 1000 }}>
+                    <div style={{
+                        position: 'fixed',
+                        bottom: '20px',
+                        right: '20px',
+                        backgroundColor: '#3F51B5',
+                        color: 'white',
+                        padding: '10px',
+                        borderRadius: '5px',
+                        zIndex: 1000
+                    }}>
                         Ссылка скопирована в буфер обмена
                     </div>
                 )}

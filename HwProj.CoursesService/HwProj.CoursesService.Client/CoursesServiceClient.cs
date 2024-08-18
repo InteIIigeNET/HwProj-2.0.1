@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
@@ -479,7 +480,7 @@ namespace HwProj.CoursesService.Client
                 : Result<string[]>.Failed();
         }
 
-        public async Task<Result<long>> CreateOrUpdateExpertCourseFilter(CreateCourseFilterViewModel model)
+        public async Task<Result<long>> CreateOrUpdateExpertCourseFilter(CreateCourseFilterModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,

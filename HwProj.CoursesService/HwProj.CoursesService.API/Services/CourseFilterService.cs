@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
+using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
 
@@ -20,39 +21,39 @@ namespace HwProj.CoursesService.API.Services
             _userToCourseFilterRepository = userToCourseFilterRepository;
         }
         
-        public async Task<Result<long>> CreateOrUpdateExpertFilter(CreateCourseFilterViewModel courseFilterView)
+        public async Task<Result<long>> CreateOrUpdateExpertFilter(CreateCourseFilterModel courseFilterModel)
         {
             var exitingUserToCurseFilter = 
-                await _userToCourseFilterRepository.GetAsync(courseFilterView.UserId, courseFilterView.CourseId);
+                await _userToCourseFilterRepository.GetAsync(courseFilterModel.UserId, courseFilterModel.CourseId);
             if (exitingUserToCurseFilter != null)
             {
-                var areViewInvalid = courseFilterView.IsFilterParametersEmpty();
+                var areViewInvalid = courseFilterModel.IsFilterParametersEmpty();
                 if (areViewInvalid)
                 {
                     return Result<long>.Failed("Необходимо выделить эксперту хотя бы одного студента и домашнюю работу");
                 }
                 
-                var filter = CourseFilterUtils.CreateFilter(courseFilterView);
+                var filter = CourseFilterUtils.CreateFilter(courseFilterModel);
                 var exitingFilter = await _courseFilterRepository.GetAsync(exitingUserToCurseFilter.CourseFilterId);
                 await UpdateAsync(exitingFilter.Id, filter);
                 return Result<long>.Success(exitingFilter.Id);
             }
             else
             {
-                var filter = CourseFilterUtils.CreateFilter(courseFilterView);
+                var filter = CourseFilterUtils.CreateFilter(courseFilterModel);
                 var filterId = await _courseFilterRepository.AddAsync(new CourseFilter { Filter = filter });
-                await AddUserToCourseFilterRecords(courseFilterView, filterId);
+                await AddUserToCourseFilterRecords(courseFilterModel, filterId);
                 return Result<long>.Success(filterId);
             }
         }
 
-        public async Task AddUserToCourseFilterRecords(CreateCourseFilterViewModel courseFilterView, long filterId)
+        public async Task AddUserToCourseFilterRecords(CreateCourseFilterModel courseFilterModel, long filterId)
         {
             var userToCourseFilter = new UserToCourseFilter
             {
                 CourseFilterId = filterId,
-                CourseId = courseFilterView.CourseId,
-                UserId = courseFilterView.UserId
+                CourseId = courseFilterModel.CourseId,
+                UserId = courseFilterModel.UserId
             };
 
             await _userToCourseFilterRepository.AddAsync(userToCourseFilter);
