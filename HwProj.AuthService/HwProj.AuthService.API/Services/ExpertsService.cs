@@ -75,7 +75,7 @@ namespace HwProj.AuthService.API.Services
 
         public async Task<Result<bool>> GetIsExpertProfileEdited(string expertAccountId)
         {
-            var expertData = await _expertsRepository.GetAsync(expertAccountId);
+            var expertData = await _expertsRepository.GetWithUserInfoAsync(expertAccountId);
 
             if (expertData == null)
             {
@@ -87,7 +87,7 @@ namespace HwProj.AuthService.API.Services
 
         public async Task<Result> SetExpertProfileIsEdited(string expertAccountId)
         {
-            var expertData = await _expertsRepository.GetAsync(expertAccountId);
+            var expertData = await _expertsRepository.GetWithUserInfoAsync(expertAccountId);
 
             if (expertData == null)
             {
@@ -139,7 +139,7 @@ namespace HwProj.AuthService.API.Services
 
         public async Task<ExpertDataDTO[]> GetAllExperts()
         {
-            var expertsFromDb = await _expertsRepository.GetAll().ToArrayAsync();
+            var expertsFromDb = await _expertsRepository.GetAllWithUserInfoAsync();
 
             var result = expertsFromDb.Select(expertData => new ExpertDataDTO
                 {
@@ -160,7 +160,7 @@ namespace HwProj.AuthService.API.Services
 
         public async Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto)
         {
-            var expertData = await _expertsRepository.GetAsync(updateExpertTagsDto.ExpertId);
+            var expertData = await _expertsRepository.GetWithUserInfoAsync(updateExpertTagsDto.ExpertId);
 
             if (expertData.LecturerId != lecturerId)
             {

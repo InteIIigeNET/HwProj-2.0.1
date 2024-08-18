@@ -1,15 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using HwProj.Repositories;
 
 namespace HwProj.Models.AuthService.ViewModels
 {
     public class ExpertData : IEntity<string>
     {
-        public User User { get; set; }
-
-        [Key]
+        [ForeignKey("User")]
         [MaxLength(450)]
         public string Id { get; set; }
+
+        public User User { get; set; }
 
         public bool IsProfileEdited { get; set; }
 

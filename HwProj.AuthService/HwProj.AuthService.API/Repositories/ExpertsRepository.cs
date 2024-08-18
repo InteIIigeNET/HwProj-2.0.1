@@ -18,10 +18,27 @@ namespace HwProj.AuthService.API.Repositories
         public async Task<ExpertData[]> GetExpertsData(string lecturerId)
         {
             return await Context.Set<ExpertData>()
-                .AsNoTracking()
                 .Where(data => data.LecturerId == lecturerId)
+                .Include(expertData => expertData.User)
+                .AsNoTracking()
                 .ToArrayAsync()
                 .ConfigureAwait(false);
+        }
+
+        public async Task<ExpertData[]> GetAllWithUserInfoAsync()
+        {
+            return await Context.Set<ExpertData>()
+                .Include(expertData => expertData.User)
+                .AsNoTracking()
+                .ToArrayAsync();
+        }
+
+        public async Task<ExpertData> GetWithUserInfoAsync(string expertId)
+        {
+            return await Context.Set<ExpertData>()
+                .Include(expertData => expertData.User)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(expertData => expertData.Id == expertId);
         }
     }
 }
