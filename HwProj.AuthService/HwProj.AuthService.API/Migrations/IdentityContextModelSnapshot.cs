@@ -21,9 +21,7 @@ namespace HwProj.AuthService.API.Migrations
 
             modelBuilder.Entity("HwProj.Models.AuthService.ViewModels.ExpertData", b =>
                 {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(450);
+                    b.Property<string>("Id");
 
                     b.Property<bool>("IsProfileEdited");
 
@@ -210,6 +208,14 @@ namespace HwProj.AuthService.API.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("HwProj.Models.AuthService.ViewModels.ExpertData", b =>
+                {
+                    b.HasOne("HwProj.Models.AuthService.ViewModels.User", "User")
+                        .WithMany()
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

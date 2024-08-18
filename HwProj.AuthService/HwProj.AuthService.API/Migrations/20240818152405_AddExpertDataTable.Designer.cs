@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HwProj.AuthService.API.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20240504144039_AddExpertsDataTable")]
-    partial class AddExpertsDataTable
+    [Migration("20240818152405_AddExpertDataTable")]
+    partial class AddExpertDataTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,13 +23,14 @@ namespace HwProj.AuthService.API.Migrations
 
             modelBuilder.Entity("HwProj.Models.AuthService.ViewModels.ExpertData", b =>
                 {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("Id");
+
+                    b.Property<bool>("IsProfileEdited");
+
+                    b.Property<string>("LecturerId")
                         .HasMaxLength(450);
 
-                    b.Property<string>("AccessToken");
-
-                    b.Property<string>("LecturerId");
+                    b.Property<string>("Tags");
 
                     b.HasKey("Id");
 
@@ -209,6 +210,14 @@ namespace HwProj.AuthService.API.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("HwProj.Models.AuthService.ViewModels.ExpertData", b =>
+                {
+                    b.HasOne("HwProj.Models.AuthService.ViewModels.User", "User")
+                        .WithMany()
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
