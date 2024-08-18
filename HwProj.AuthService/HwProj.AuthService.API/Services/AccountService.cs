@@ -105,20 +105,6 @@ namespace HwProj.AuthService.API.Services
             }
 
             var result = await ChangeUserDataTask(user, model);
-            var result = await ChangeUserNameTask(user, model);
-
-            return result.Succeeded ? Result.Success() : Result.Failed();
-        }
-        
-        public async Task<Result> EditExpertAccountAsync(string id, EditExpertViewModel model)
-        {
-            var expert = await _userManager.FindByIdAsync(id);
-            if (expert == null)
-            {
-                return Result.Failed("Пользователь не найден");
-            }
-
-            var result = await ChangeExpertDataTask(expert, model);
 
             return result.Succeeded ? Result.Success() : Result.Failed();
         }

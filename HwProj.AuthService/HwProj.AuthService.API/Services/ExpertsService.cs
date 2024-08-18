@@ -8,7 +8,6 @@ using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HwProj.AuthService.API.Services
@@ -67,6 +66,7 @@ namespace HwProj.AuthService.API.Services
             {
                 Id = user.Id,
                 LecturerId = lecturerId,
+                IsProfileEdited = false,
                 Tags = model.Tags.Join(";")
             });
 
@@ -96,9 +96,7 @@ namespace HwProj.AuthService.API.Services
 
             await _expertsRepository.UpdateAsync(expertAccountId, ed => new ExpertData
             {
-                Id = ed.Id,
                 IsProfileEdited = true,
-                LecturerId = ed.LecturerId
             });
 
             return Result.Success();
@@ -145,7 +143,7 @@ namespace HwProj.AuthService.API.Services
 
             var result = expertsFromDb.Select(expertData => new ExpertDataDTO
                 {
-                    Id = expertData.User.Id,
+                    Id = expertData.Id,
                     Name = expertData.User.Name,
                     Surname = expertData.User.Surname,
                     MiddleName = expertData.User.MiddleName,
@@ -172,9 +170,6 @@ namespace HwProj.AuthService.API.Services
 
             await _expertsRepository.UpdateAsync(updateExpertTagsDto.ExpertId, data => new ExpertData()
             {
-                Id = data.Id,
-                IsProfileEdited = data.IsProfileEdited,
-                LecturerId = data.LecturerId,
                 Tags = updateExpertTagsDto.Tags.Join(";")
             });
 
