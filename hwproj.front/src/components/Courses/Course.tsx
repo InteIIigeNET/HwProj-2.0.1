@@ -91,6 +91,7 @@ const Course: React.FC = () => {
 
     const isLecturer = ApiSingleton.authService.isLecturer()
     const isExpert = ApiSingleton.authService.isExpert()
+    const isMentor = ApiSingleton.authService.isMentor()
     const isCourseMentor = mentors.some(t => t.userId === userId)
 
     const courseHomeworks = isCourseMentor && isReadingMode
@@ -122,7 +123,7 @@ const Course: React.FC = () => {
         // У пользователя изменилась роль (иначе он не может стать лектором в курсе), 
         // однако он все ещё использует токен с прежней ролью
         const shouldRefreshToken =
-            !isLecturer && !isExpert &&
+            !isMentor &&
             course &&
             course.mentors!.some(t => t.userId === userId)
         if (shouldRefreshToken) {
@@ -181,7 +182,7 @@ const Course: React.FC = () => {
                                     ? "Вы можете отправлять решения и получать уведомления об их проверке."
                                     : isCourseMentor && !isExpert
                                         ? "Вы продолжите получать уведомления о новых заявках на вступление и решениях."
-                                        : !isLecturer && !isExpert ? "Вы можете записаться на курс и отправлять решения." : ""}
+                                        : !isMentor ? "Вы можете записаться на курс и отправлять решения." : ""}
                             </Alert>
                         </Grid>}
                         <Grid item container xs={12} className={classes.info} alignItems="center" justifyContent="space-between">
@@ -239,7 +240,7 @@ const Course: React.FC = () => {
                             </Grid>
                         </Grid>
                         <Grid item style={{width: 187}}>
-                            {!isSignedInCourse && !isLecturer && !isExpert && !isAcceptedStudent && (
+                            {!isSignedInCourse && !isMentor && !isAcceptedStudent && (
                                 <Button
                                     fullWidth
                                     variant="contained"
