@@ -10,5 +10,6 @@
     public static class NotificationsSettingCategory
     {
         public const string NewSolutionsCategory = "newSolutions";
+        public const string OtherEventsCategory = "otherEvents";
     }
 }

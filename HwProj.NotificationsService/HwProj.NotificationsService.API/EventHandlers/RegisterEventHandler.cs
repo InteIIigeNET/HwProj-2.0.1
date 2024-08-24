@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Events;
-using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
-using HwProj.Models.Roles;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 
@@ -14,16 +12,13 @@ namespace HwProj.NotificationsService.API.EventHandlers
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly IEmailService _emailService;
-        private readonly IAuthServiceClient _authServiceClient;
 
         public RegisterEventHandler(
             INotificationsRepository notificationRepository, 
-            IEmailService emailService, 
-            IAuthServiceClient authServiceClient)
+            IEmailService emailService)
         {
             _notificationRepository = notificationRepository;
             _emailService = emailService;
-            _authServiceClient = authServiceClient;
         }
 
         public override async Task HandleAsync(StudentRegisterEvent @event)

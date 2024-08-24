@@ -222,6 +222,9 @@ namespace HwProj.AuthService.API.Services
             var user = await _aspUserManager.FindByEmailAsync(model.Email);
             if (user == null) return Result.Failed("Пользователь не найден");
 
+            var isExpert = await _aspUserManager.IsInRoleAsync(user, Roles.ExpertRole);
+            if (isExpert) return Result.Failed("Эксперт не имеет пароля");
+
             var token = await _aspUserManager.GeneratePasswordResetTokenAsync(user);
             if (token == null) return Result.Failed("Произошла внутренняя ошибка");
 

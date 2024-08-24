@@ -4,7 +4,7 @@ using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
-using HwProj.Models.Roles;
+using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.Extensions.Configuration;
@@ -14,12 +14,14 @@ namespace HwProj.NotificationsService.API.EventHandlers
     public class NewCourseMateHandler : EventHandlerBase<NewCourseMateEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
+        private readonly INotificationSettingsRepository _settingsRepository;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IConfigurationSection _configuration;
         private readonly IEmailService _emailService;
 
         public NewCourseMateHandler(
             INotificationsRepository notificationRepository,
+            INotificationSettingsRepository settingsRepository,
             IAuthServiceClient authServiceClient,
             IConfiguration configuration,
             IEmailService emailService)
@@ -27,6 +29,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _notificationRepository = notificationRepository;
             _authServiceClient = authServiceClient;
             _emailService = emailService;
+            _settingsRepository = settingsRepository;
             _configuration = configuration.GetSection("Notification");
         }
 
@@ -41,6 +44,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
             //TODO: fix
             foreach (var mentor in mentors)
             {
+                var setting = await _settingsRepository.GetAsync(mentor.UserId, NotificationsSettingCategory.OtherEventsCategory);
+                if (!setting!.IsEnabled) continue;
+
                 var notification = new Notification
                 {
                     Sender = "CourseService",
@@ -54,10 +60,6 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 };
 
                 var subject = $"Новая заявка в курс {@event.CourseName}";
-                if (mentor.Role == Roles.ExpertRole)
-                {
-                    continue;
-                }
 
                 var addNotificationTask = _notificationRepository.AddAsync(notification);
                 var sendEmailTask = _emailService.SendEmailAsync(notification, mentor.Email, subject);

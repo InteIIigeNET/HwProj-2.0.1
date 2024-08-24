@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
-using HwProj.Models.Roles;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
@@ -54,11 +53,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
                 var subject = $"Новое решение задачи {@event.Task.Title}";
                 var mentor = await _authServiceClient.GetAccountData(notification.Owner);
-                if (mentor.Role == Roles.ExpertRole)
-                {
-                    continue;
-                }
-                
+
                 await _emailService.SendEmailAsync(notification, mentor.Email, subject);
             }
         }
