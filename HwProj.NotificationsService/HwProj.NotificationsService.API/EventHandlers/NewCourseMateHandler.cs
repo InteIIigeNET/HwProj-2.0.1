@@ -35,8 +35,11 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var user = await _authServiceClient.GetAccountData(@event.StudentId);
             var url = _configuration["Url"];
 
+            var mentorIds = @event.MentorIds.Split('/');
+            var mentors = await _authServiceClient.GetAccountsData(mentorIds);
+
             //TODO: fix
-            foreach (var m in @event.MentorIds.Split('/'))
+            foreach (var mentor in mentors)
             {
                 var notification = new Notification
                 {
@@ -47,11 +50,10 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Category = CategoryState.Courses,
                     Date = DateTime.UtcNow,
                     HasSeen = false,
-                    Owner = m
+                    Owner = mentor.UserId
                 };
 
                 var subject = $"Новая заявка в курс {@event.CourseName}";
-                var mentor = await _authServiceClient.GetAccountData(notification.Owner);
                 if (mentor.Role == Roles.ExpertRole)
                 {
                     continue;

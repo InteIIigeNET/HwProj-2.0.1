@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.AuthService.API.Models;
 using HwProj.AuthService.API.Repositories;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;

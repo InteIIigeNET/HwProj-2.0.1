@@ -37,12 +37,6 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 HasSeen = false,
                 Owner = @event.UserId
             };
-            
-            var mentor = await _authServiceClient.GetAccountData(notification.Owner);
-            if (mentor.Role == Roles.ExpertRole)
-            {
-                return;
-            }
 
             var addNotificationTask = _notificationRepository.AddAsync(notification);
             var sendEmailTask = _emailService.SendEmailAsync(notification, @event.Email, "HwProj");

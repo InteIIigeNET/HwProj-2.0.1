@@ -56,7 +56,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 var mentor = await _authServiceClient.GetAccountData(notification.Owner);
                 if (mentor.Role == Roles.ExpertRole)
                 {
-                    return;
+                    continue;
                 }
                 
                 await _emailService.SendEmailAsync(notification, mentor.Email, subject);

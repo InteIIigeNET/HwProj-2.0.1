@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using HwProj.Models.AuthService.ViewModels;
 using HwProj.Repositories;
 
-namespace HwProj.Models.AuthService.ViewModels
+namespace HwProj.AuthService.API.Models
 {
     public class ExpertData : IEntity<string>
     {

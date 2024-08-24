@@ -12,6 +12,7 @@ using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.Client;
+using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -286,7 +287,8 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<UnratedSolutionPreviews> GetUnratedSolutions(long? taskId)
         {
             var mentorCourses = await _coursesServiceClient.GetAllUserCourses();
-            var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
+            var tasks = FilterTasks(mentorCourses, taskId)
+                .ToDictionary(t => t.taskId, t => t.data);
 
             var solutions = await GetAllUnratedSolutionsForTasks(mentorCourses, taskId);
 
@@ -355,11 +357,12 @@ namespace HwProj.APIGateway.API.Controllers
 
         private async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(CourseDTO[] mentorCourses, long? taskId)
         {
-            var role = (await AuthServiceClient.GetAccountData(UserId!)).Role;
+            var role = Request.GetUserRole();
 
             if (role == Roles.LecturerRole)
             {
-                var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
+                var tasks = FilterTasks(mentorCourses, taskId)
+                    .ToDictionary(t => t.taskId, t => t.data);
                 var taskIds = tasks.Select(t => t.Key).ToArray();
                 return await _solutionsClient.GetAllUnratedSolutionsForTasks(new GetTasksSolutionsModel
                 {
