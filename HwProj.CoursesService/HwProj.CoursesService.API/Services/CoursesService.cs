@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
@@ -75,15 +74,16 @@ namespace HwProj.CoursesService.API.Services
             CourseDomain.FillTasksInCourses(course);
 
             var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArrayAsync();
-            var filter = await _courseFilterService.GetUserFilterAsync(userId, id);
-            var result = course.ToCourseDto();
-            result.Groups = groups.Select(g =>
+            var courseDto = course.ToCourseDto();
+            courseDto.Groups = groups.Select(g =>
                 new GroupViewModel
                 {
                     Id = g.Id,
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
-            return result.CourseDtoApplyFilter(filter);
+
+            var result = await _courseFilterService.ApplyFilter(courseDto, userId);
+            return result;
         }
 
         public async Task<long> AddAsync(Course course, string mentorId)
@@ -180,21 +180,12 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<CourseDTO[]> GetUserCoursesAsync(string userId, string role)
         {
-            IQueryable<long> courseIds = new EnumerableQuery<long>(new List<long>());
-            if (role == Roles.ExpertRole)
-            {
-                courseIds = _courseFilterService.GetExpertCourseIds(userId);
-            }
+            var isMentor = role == Roles.LecturerRole || role == Roles.ExpertRole;
 
-            IQueryable<Course> courses = role switch
-            {
-                Roles.LecturerRole => _coursesRepository.FindAll(c => c.MentorIds.Contains(userId)),
-                Roles.StudentRole => _coursesRepository
-                    .FindAll(c => c.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId)),
-                Roles.ExpertRole => _coursesRepository.FindAll(c => courseIds.Contains(c.Id)),
-                _ => new EnumerableQuery<Course>(new List<Course>())
-            };
-            
+            var courses = isMentor
+                ? _coursesRepository.FindAll(c => c.MentorIds.Contains(userId))
+                : _coursesRepository.FindAll(c => c.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId));
+
             var coursesWithValues = await courses
                 .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
@@ -202,7 +193,7 @@ namespace HwProj.CoursesService.API.Services
 
             CourseDomain.FillTasksInCourses(coursesWithValues);
 
-            var result = _courseFilterService.FilterCourses(
+            var result = await _courseFilterService.ApplyFiltersToCourses(
                 userId, coursesWithValues.Select(c => c.ToCourseDto()).ToArray());
 
             if (role == Roles.ExpertRole)

@@ -11,75 +11,37 @@ namespace HwProj.CoursesService.API.Services
     public class CourseFilterService : ICourseFilterService
     {
         private readonly ICourseFilterRepository _courseFilterRepository;
-        private readonly IUserToCourseFilterRepository _userToCourseFilterRepository;
 
         public CourseFilterService(
-            ICourseFilterRepository courseFilterRepository, 
-            IUserToCourseFilterRepository userToCourseFilterRepository)
+            ICourseFilterRepository courseFilterRepository)
         {
             _courseFilterRepository = courseFilterRepository;
-            _userToCourseFilterRepository = userToCourseFilterRepository;
         }
         
         public async Task<Result<long>> CreateOrUpdateExpertFilter(CreateCourseFilterModel courseFilterModel)
         {
-            var exitingUserToCurseFilter = 
-                await _userToCourseFilterRepository.GetAsync(courseFilterModel.UserId, courseFilterModel.CourseId);
-            if (exitingUserToCurseFilter != null)
+            var areViewInvalid = courseFilterModel.IsFilterParametersEmpty();
+            if (areViewInvalid)
             {
-                var areViewInvalid = courseFilterModel.IsFilterParametersEmpty();
-                if (areViewInvalid)
-                {
-                    return Result<long>.Failed("Необходимо выделить эксперту хотя бы одного студента и домашнюю работу");
-                }
-                
-                var filter = CourseFilterUtils.CreateFilter(courseFilterModel);
-                var exitingFilter = await _courseFilterRepository.GetAsync(exitingUserToCurseFilter.CourseFilterId);
-                await UpdateAsync(exitingFilter.Id, filter);
-                return Result<long>.Success(exitingFilter.Id);
-            }
-            else
-            {
-                var filter = CourseFilterUtils.CreateFilter(courseFilterModel);
-                var filterId = await _courseFilterRepository.AddAsync(new CourseFilter { Filter = filter });
-                await AddUserToCourseFilterRecords(courseFilterModel, filterId);
-                return Result<long>.Success(filterId);
-            }
-        }
-
-        public async Task AddUserToCourseFilterRecords(CreateCourseFilterModel courseFilterModel, long filterId)
-        {
-            var userToCourseFilter = new UserToCourseFilter
-            {
-                CourseFilterId = filterId,
-                CourseId = courseFilterModel.CourseId,
-                UserId = courseFilterModel.UserId
-            };
-
-            await _userToCourseFilterRepository.AddAsync(userToCourseFilter);
-        }
-        
-        public async Task<Filter?> GetUserFilterAsync(string userId, long courseId)
-        {
-            var userToCourseFilter = await _userToCourseFilterRepository.GetAsync(userId, courseId);
-            if (userToCourseFilter == null)
-            {
-                return null;
+                return Result<long>.Failed("Необходимо выделить эксперту хотя бы одного студента и домашнюю работу");
             }
 
-            var courseFilter = await _courseFilterRepository.GetAsync(userToCourseFilter.CourseFilterId);
-            return courseFilter == null ? null : courseFilter.Filter;
-        }
-
-        public async Task UpdateAsync(string userId, long courseId, Filter filter)
-        {
-            var userToCourseFilter = await _userToCourseFilterRepository.GetAsync(userId, courseId);
-            if (userToCourseFilter == null)
+            var filter = CourseFilterUtils.CreateFilter(courseFilterModel);
+            
+            var existingCourseFilter = await _courseFilterRepository.GetAsync(courseFilterModel.UserId, courseFilterModel.CourseId);
+            if (existingCourseFilter != null)
             {
-                return;
+                await UpdateAsync(existingCourseFilter.Id, filter);
+                return Result<long>.Success(existingCourseFilter.Id);
             }
             
-            await UpdateAsync(userToCourseFilter.CourseFilterId, filter);
+            var filterId = await AddCourseFilter(filter, courseFilterModel.CourseId, courseFilterModel.UserId);
+            if (filterId == -1)
+            {
+                return Result<long>.Failed();
+            }
+            
+            return Result<long>.Success(filterId);
         }
 
         public async Task UpdateAsync(long courseFilterId, Filter filter)
@@ -97,32 +59,56 @@ namespace HwProj.CoursesService.API.Services
                 });
         }
 
-        public IQueryable<long> GetExpertCourseIds(string userId)
+        public async Task<CourseDTO[]> ApplyFiltersToCourses(string userId, CourseDTO[] courses)
         {
-            return _userToCourseFilterRepository
-                .FindAll(ucf => ucf.UserId == userId)
-                .Select(ucf => ucf.CourseId);
+            var tasks = courses
+                .Select(course => ApplyFilter(course, userId))
+                .ToArray();
+
+            return await Task.WhenAll(tasks);
         }
 
-        public CourseDTO[] FilterCourses(string userId, CourseDTO[] courses)
+        public async Task<CourseDTO> ApplyFilter(CourseDTO courseDto, string userId)
         {
-            var courseIds = courses.Select(c => c.Id).ToArray();
-            var userToCourseFilters = _userToCourseFilterRepository
-                .FindAll(ucf => ucf.UserId == userId && courseIds.Contains(ucf.CourseId))
-                .ToDictionary(ucf => ucf.CourseId, ucf => ucf.CourseFilterId);
-    
-            var courseFilters = _courseFilterRepository
-                .FindAll(cf => userToCourseFilters.Values.Contains(cf.Id))
-                .ToDictionary(cf => cf.Id, cf => cf.Filter);
+            var courseFilter = await _courseFilterRepository.GetAsync(userId, courseDto.Id);
+            var filter = courseFilter?.Filter;
 
-            return courses.Select(c => {
-                if (userToCourseFilters.TryGetValue(c.Id, out var filterId) &&
-                    courseFilters.TryGetValue(filterId, out var filter))
-                {
-                    return c.CourseDtoApplyFilter(filter);
-                }
-                return c;
-            }).ToArray();
+            if (filter == null)
+            {
+                return courseDto;
+            }
+            
+            return new CourseDTO
+            {
+                Id = courseDto.Id,
+                Name = courseDto.Name,
+                GroupName = courseDto.GroupName,
+                IsCompleted = courseDto.IsCompleted,
+                IsOpen = courseDto.IsOpen,
+                InviteCode = courseDto.InviteCode,
+                Groups = 
+                    courseDto.Groups.Where(gs => gs.StudentsIds.Intersect(filter.StudentIds).Any())
+                        .Select(gs => new GroupViewModel
+                        {
+                            Id = gs.Id,
+                            StudentsIds = gs.StudentsIds.Intersect(filter.StudentIds).ToArray()
+                        })
+                        .ToArray(),
+                MentorIds = !filter.MentorIds.Any()
+                    ? courseDto.MentorIds
+                    : courseDto.MentorIds.Intersect(filter.MentorIds).ToArray(),
+                CourseMates =
+                    courseDto.CourseMates.Where(mate => filter.StudentIds.Contains(mate.StudentId)).ToArray(),
+                Homeworks =
+                    courseDto.Homeworks.Where(hw => filter.HomeworkIds.Contains(hw.Id)).ToArray()
+            };
+        }
+
+        private async Task<long> AddCourseFilter(Filter filter, long courseId, string userId)
+        {
+            var courseFilterId =
+                await _courseFilterRepository.AddAsync(new CourseFilter { Filter = filter }, userId, courseId);
+            return courseFilterId;
         }
     }
 }

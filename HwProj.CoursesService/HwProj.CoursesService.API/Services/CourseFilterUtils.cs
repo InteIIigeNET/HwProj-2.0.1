@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using HwProj.CoursesService.API.Models;
 using HwProj.Models.CoursesService;
-using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -22,39 +21,6 @@ namespace HwProj.CoursesService.API.Services
         {
             return !courseFilterModel.StudentIds.Any()
                    || !courseFilterModel.HomeworkIds.Any();
-        }
-        
-        public static CourseDTO CourseDtoApplyFilter(this CourseDTO courseDto, Filter? filter)
-        {
-            if (filter == null)
-            {
-                return courseDto;
-            }
-            
-            return new CourseDTO
-            {
-                Id = courseDto.Id,
-                Name = courseDto.Name,
-                GroupName = courseDto.GroupName,
-                IsCompleted = courseDto.IsCompleted,
-                IsOpen = courseDto.IsOpen,
-                InviteCode = courseDto.InviteCode,
-                Groups = 
-                    courseDto.Groups.Where(gs => gs.StudentsIds.Intersect(filter.StudentIds).Any())
-                        .Select(gs => new GroupViewModel
-                        {
-                            Id = gs.Id,
-                            StudentsIds = gs.StudentsIds.Intersect(filter.StudentIds).ToArray()
-                        })
-                        .ToArray(),
-                MentorIds = !filter.MentorIds.Any()
-                    ? courseDto.MentorIds
-                    : courseDto.MentorIds.Intersect(filter.MentorIds).ToArray(),
-                CourseMates =
-                    courseDto.CourseMates.Where(mate => filter.StudentIds.Contains(mate.StudentId)).ToArray(),
-                Homeworks =
-                    courseDto.Homeworks.Where(hw => filter.HomeworkIds.Contains(hw.Id)).ToArray()
-            };
         }
 
         public static void FillEmptyFields(this Filter filter)

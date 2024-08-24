@@ -290,7 +290,7 @@ namespace HwProj.APIGateway.API.Controllers
             var tasks = FilterTasks(mentorCourses, taskId)
                 .ToDictionary(t => t.taskId, t => t.data);
 
-            var solutions = await GetAllUnratedSolutionsForTasks(mentorCourses, taskId);
+            var solutions = await GetAllUnratedSolutionsForTasks(mentorCourses, taskId, tasks);
 
             var studentIds = solutions.Select(t => t.StudentId).Distinct().ToArray();
             var accountsData = await AuthServiceClient.GetAccountsData(studentIds);
@@ -355,14 +355,15 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(betterThanCount * 100 / (lastRatedSolutions.Length - 1));
         }
 
-        private async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(CourseDTO[] mentorCourses, long? taskId)
+        private async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(
+            CourseDTO[] mentorCourses,
+            long? taskId,
+            Dictionary<long,(CourseDTO course, string homeworkTitle, HomeworkTaskViewModel task)>? tasks)
         {
             var role = Request.GetUserRole();
 
             if (role == Roles.LecturerRole)
             {
-                var tasks = FilterTasks(mentorCourses, taskId)
-                    .ToDictionary(t => t.taskId, t => t.data);
                 var taskIds = tasks.Select(t => t.Key).ToArray();
                 return await _solutionsClient.GetAllUnratedSolutionsForTasks(new GetTasksSolutionsModel
                 {
