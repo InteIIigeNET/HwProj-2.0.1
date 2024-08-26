@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
+using HwProj.NotificationsService.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.NotificationsService.API.Controllers
@@ -9,17 +10,17 @@ namespace HwProj.NotificationsService.API.Controllers
     [ApiController]
     public class NotificationSettingsController : ControllerBase
     {
-        private readonly INotificationSettingsRepository _settingsRepository;
+        private readonly INotificationSettingsService _settingsService;
 
-        public NotificationSettingsController(INotificationSettingsRepository settingsRepository)
+        public NotificationSettingsController(INotificationSettingsService settingsService)
         {
-            _settingsRepository = settingsRepository;
+            _settingsService = settingsService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get(string userId)
         {
-            var settings = await _settingsRepository.GetAsync(userId, "newSolutions");
+            var settings = await _settingsService.GetAsync(userId, "newSolutions");
             var settingDtos = new[]
             {
                 new NotificationsSettingDto
@@ -34,7 +35,7 @@ namespace HwProj.NotificationsService.API.Controllers
         [HttpPut]
         public async Task<IActionResult> Change(string userId, [FromBody] NotificationsSettingDto newSettingDto)
         {
-            await _settingsRepository.ChangeAsync(userId, newSettingDto.Category, newSettingDto.IsEnabled);
+            await _settingsService.ChangeAsync(userId, newSettingDto.Category, newSettingDto.IsEnabled);
             return Ok();
         }
     }

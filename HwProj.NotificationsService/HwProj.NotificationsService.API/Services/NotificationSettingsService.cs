@@ -5,20 +5,20 @@ using HwProj.Models.Roles;
 using HwProj.NotificationsService.API.Models;
 using Z.EntityFramework.Plus;
 
-namespace HwProj.NotificationsService.API.Repositories
+namespace HwProj.NotificationsService.API.Services
 {
-    public interface INotificationSettingsRepository
+    public interface INotificationSettingsService
     {
         Task<NotificationsSetting?> GetAsync(string userId, string category);
         Task ChangeAsync(string userId, string category, bool enabled);
     }
 
-    public class NotificationSettingsRepository : INotificationSettingsRepository
+    public class NotificationSettingsService : INotificationSettingsService
     {
         private readonly NotificationsContext _context;
         private readonly IAuthServiceClient _authServiceClient;
 
-        public NotificationSettingsRepository(
+        public NotificationSettingsService(
             IAuthServiceClient authServiceClient,
             NotificationsContext context)
         {

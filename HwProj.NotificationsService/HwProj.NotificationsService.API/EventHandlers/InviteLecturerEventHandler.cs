@@ -14,17 +14,17 @@ namespace HwProj.NotificationsService.API.EventHandlers
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly IEmailService _emailService;
-        private readonly INotificationSettingsRepository _settingsRepository;
+        private readonly INotificationSettingsService _settingsService;
 
         public InviteLecturerEventHandler(
             INotificationsRepository notificationRepository,
             IEmailService emailService,
             IAuthServiceClient authServiceClient,
-            INotificationSettingsRepository settingsRepository)
+            INotificationSettingsService settingsService)
         {
             _notificationRepository = notificationRepository;
             _emailService = emailService;
-            _settingsRepository = settingsRepository;
+            _settingsService = settingsService;
         }
 
         public override async Task HandleAsync(InviteLecturerEvent @event)
@@ -32,7 +32,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var mentorId = @event.UserId;
 
             var setting =
-                await _settingsRepository.GetAsync(mentorId, NotificationsSettingCategory.InviteLecturerCategory);
+                await _settingsService.GetAsync(mentorId, NotificationsSettingCategory.InviteLecturerCategory);
             if (!setting!.IsEnabled) return;
 
             var notification = new Notification

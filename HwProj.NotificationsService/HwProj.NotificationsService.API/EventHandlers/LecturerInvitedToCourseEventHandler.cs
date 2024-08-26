@@ -13,18 +13,18 @@ namespace HwProj.NotificationsService.API.EventHandlers
     public class LecturerInvitedToCourseEventHandler : EventHandlerBase<LecturerInvitedToCourseEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
-        private readonly INotificationSettingsRepository _settingsRepository;
+        private readonly INotificationSettingsService _settingsService;
         private readonly IConfigurationSection _configuration;
         private readonly IEmailService _emailService;
 
         public LecturerInvitedToCourseEventHandler(
             INotificationsRepository notificationRepository,
-            INotificationSettingsRepository settingsRepository,
+            INotificationSettingsService settingsService,
             IConfiguration configuration,
             IEmailService emailService)
         {
             _notificationRepository = notificationRepository;
-            _settingsRepository = settingsRepository;
+            _settingsService = settingsService;
             _emailService = emailService;
             _configuration = configuration.GetSection("Notification");
         }
@@ -33,7 +33,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
         {
             var mentorId = @event.MentorId;
 
-            var setting = await _settingsRepository.GetAsync(mentorId,
+            var setting = await _settingsService.GetAsync(mentorId,
                 NotificationsSettingCategory.LecturerInvitedToCourseCategory);
             if (!setting!.IsEnabled) return;
 
