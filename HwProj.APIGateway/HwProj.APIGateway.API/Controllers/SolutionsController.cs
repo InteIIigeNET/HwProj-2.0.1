@@ -109,6 +109,7 @@ namespace HwProj.APIGateway.API.Controllers
             });
         }
 
+        // Научить без конкретного taskId по courseId получать данные
         [Authorize]
         [HttpGet("tasks/{taskId}")]
         [ProducesResponseType(typeof(TaskSolutionStatisticsPageData), (int)HttpStatusCode.OK)]

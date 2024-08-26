@@ -91,7 +91,7 @@ const Course: React.FC = () => {
 
     const isLecturer = ApiSingleton.authService.isLecturer()
     const isExpert = ApiSingleton.authService.isExpert()
-    const isMentor = ApiSingleton.authService.isMentor()
+    const isMentor = isLecturer || isExpert
     const isCourseMentor = mentors.some(t => t.userId === userId)
 
     const courseHomeworks = isCourseMentor && isReadingMode

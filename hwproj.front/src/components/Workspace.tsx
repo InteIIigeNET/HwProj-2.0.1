@@ -43,7 +43,7 @@ const Workspace: FC = () => {
     const classes = useStyles()
     const isLecturer = ApiSingleton.authService.isLecturer()
     const isExpert = ApiSingleton.authService.isExpert()
-    const isMentor = ApiSingleton.authService.isMentor()
+    const isMentor = isLecturer || isExpert
 
     useEffect(() => {
         getUserInfo()
