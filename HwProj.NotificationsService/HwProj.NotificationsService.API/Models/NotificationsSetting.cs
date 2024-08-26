@@ -10,6 +10,8 @@
     public static class NotificationsSettingCategory
     {
         public const string NewSolutionsCategory = "newSolutions";
-        public const string OtherEventsCategory = "otherEvents";
+        public const string InviteLecturerCategory = "inviteLecturer";
+        public const string LecturerInvitedToCourseCategory = "lecturerInvitedToCourse";
+        public const string NewCourseMateCategory = "newCourseMate";
     }
 }

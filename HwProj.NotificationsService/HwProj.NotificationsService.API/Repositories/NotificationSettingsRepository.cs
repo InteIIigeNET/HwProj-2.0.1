@@ -29,11 +29,7 @@ namespace HwProj.NotificationsService.API.Repositories
         public async Task<NotificationsSetting?> GetAsync(string userId, string category)
         {
             var setting = await _context.Settings.FindAsync(userId, category);
-            if (setting != null) return setting;
-
-            if (category != NotificationsSettingCategory.NewSolutionsCategory
-                && category != NotificationsSettingCategory.OtherEventsCategory)
-                return setting;
+            if (setting != null || category != NotificationsSettingCategory.NewSolutionsCategory) return setting;
 
             var user = await _authServiceClient.GetAccountData(userId);
             var defaultSetting = new NotificationsSetting()

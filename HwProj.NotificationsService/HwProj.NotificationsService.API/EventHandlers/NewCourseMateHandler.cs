@@ -44,7 +44,8 @@ namespace HwProj.NotificationsService.API.EventHandlers
             //TODO: fix
             foreach (var mentor in mentors)
             {
-                var setting = await _settingsRepository.GetAsync(mentor.UserId, NotificationsSettingCategory.OtherEventsCategory);
+                var setting = await _settingsRepository.GetAsync(mentor.UserId,
+                    NotificationsSettingCategory.NewCourseMateCategory);
                 if (!setting!.IsEnabled) continue;
 
                 var notification = new Notification

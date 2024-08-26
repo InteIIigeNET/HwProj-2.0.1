@@ -32,7 +32,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
         public override async Task HandleAsync(LecturerInvitedToCourseEvent @event)
         {
             var mentorId = @event.MentorId;
-            var setting = await _settingsRepository.GetAsync(mentorId, NotificationsSettingCategory.OtherEventsCategory);
+
+            var setting = await _settingsRepository.GetAsync(mentorId,
+                NotificationsSettingCategory.LecturerInvitedToCourseCategory);
             if (!setting!.IsEnabled) return;
 
             var notification = new Notification

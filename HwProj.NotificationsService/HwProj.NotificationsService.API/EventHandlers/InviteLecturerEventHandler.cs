@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Events;
+using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Models;
@@ -12,24 +13,26 @@ namespace HwProj.NotificationsService.API.EventHandlers
     public class InviteLecturerEventHandler : EventHandlerBase<InviteLecturerEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
-        private readonly INotificationSettingsRepository _settingsRepository;
         private readonly IEmailService _emailService;
+        private readonly INotificationSettingsRepository _settingsRepository;
 
         public InviteLecturerEventHandler(
             INotificationsRepository notificationRepository,
-            INotificationSettingsRepository settingsRepository,
-            IEmailService emailService)
+            IEmailService emailService,
+            IAuthServiceClient authServiceClient,
+            INotificationSettingsRepository settingsRepository)
         {
             _notificationRepository = notificationRepository;
-            _settingsRepository = settingsRepository;
             _emailService = emailService;
+            _settingsRepository = settingsRepository;
         }
 
         public override async Task HandleAsync(InviteLecturerEvent @event)
         {
-            var userId = @event.UserId;
+            var mentorId = @event.UserId;
 
-            var setting = await _settingsRepository.GetAsync(userId, NotificationsSettingCategory.OtherEventsCategory);
+            var setting =
+                await _settingsRepository.GetAsync(mentorId, NotificationsSettingCategory.InviteLecturerCategory);
             if (!setting!.IsEnabled) return;
 
             var notification = new Notification
@@ -38,7 +41,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Body = "Вас добавили в список лекторов.",
                 Category = CategoryState.Courses,
                 Date = DateTime.UtcNow,
-                Owner = userId
+                Owner = mentorId
             };
 
             var addNotificationTask = _notificationRepository.AddAsync(notification);
