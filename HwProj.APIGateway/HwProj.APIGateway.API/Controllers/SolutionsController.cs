@@ -287,11 +287,31 @@ namespace HwProj.APIGateway.API.Controllers
         [Authorize(Roles = Roles.LecturerOrExpertRole)]
         public async Task<UnratedSolutionPreviews> GetUnratedSolutions(long? taskId)
         {
+            var role = Request.GetUserRole();
             var mentorCourses = await _coursesServiceClient.GetAllUserCourses();
-            var tasks = FilterTasks(mentorCourses, taskId)
-                .ToDictionary(t => t.taskId, t => t.data);
+            var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
 
-            var solutions = await GetAllUnratedSolutionsForTasks(mentorCourses, taskId, tasks);
+            SolutionPreviewDto[] solutions;
+            if (role == Roles.LecturerRole)
+            {
+                solutions = await _solutionsClient.GetAllUnratedSolutionsForTasks(
+                    new GetTasksSolutionsModel { TaskIds = tasks.Keys.ToArray() }
+                );
+            }
+            else
+            {
+                var studentsAndTasks = new Dictionary<long, (List<string> studentIds, List<long> taskIds)>();
+                foreach (var value in tasks.Values)
+                {
+                    studentsAndTasks.TryAdd(
+                        value.course.Id, (
+                            value.course.AcceptedStudents.Select(ast => ast.StudentId).ToList(),
+                            new List<long>()));
+                    studentsAndTasks[value.course.Id].taskIds.Add(value.task.Id);
+                }
+
+                solutions = await GetAllUnratedSolutionsForTasks(studentsAndTasks);
+            }
 
             var studentIds = solutions.Select(t => t.StudentId).Distinct().ToArray();
             var accountsData = await AuthServiceClient.GetAccountsData(studentIds);
@@ -357,46 +377,21 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         private async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(
-            CourseDTO[] mentorCourses,
-            long? taskId,
-            Dictionary<long,(CourseDTO course, string homeworkTitle, HomeworkTaskViewModel task)>? tasks)
+            Dictionary<long, (List<string> studentIds, List<long> taskIds)> tasksAndStudents)
         {
-            var role = Request.GetUserRole();
-
-            if (role == Roles.LecturerRole)
-            {
-                var taskIds = tasks.Select(t => t.Key).ToArray();
-                return await _solutionsClient.GetAllUnratedSolutionsForTasks(new GetTasksSolutionsModel
-                {
-                    TaskIds = taskIds
-                });
-            }
-
             var solutions = new List<Task<SolutionPreviewDto[]>>();
 
-            foreach (var course in mentorCourses)
+            foreach (var value in tasksAndStudents.Values)
             {
-                var studentIds = course.AcceptedStudents.Select(s => s.StudentId).ToArray();
-
-                foreach (var homework in course.Homeworks)
-                {
-                    var taskIds = homework.Tasks.Select(t => t.Id).ToArray();
-
-                    if (taskId.HasValue && taskIds.Contains(taskId.Value))
-                    {
-                        return await _solutionsClient.GetAllUnratedSolutionsForTasks(new GetTasksSolutionsModel
+                solutions.Add(
+                    _solutionsClient.GetAllUnratedSolutionsForTasks(
+                        new GetTasksSolutionsModel
                         {
-                            TaskIds = new [] { taskId.Value },
-                            StudentIds = studentIds
-                        });
-                    }
-
-                    solutions.Add(_solutionsClient.GetAllUnratedSolutionsForTasks(new GetTasksSolutionsModel
-                    {
-                        TaskIds = taskIds,
-                        StudentIds = studentIds
-                    }));
-                }
+                            TaskIds = value.taskIds.ToArray(),
+                            StudentIds = value.studentIds.ToArray()
+                        }
+                    )
+                );
             }
 
             var allSolutions = await Task.WhenAll(solutions);
