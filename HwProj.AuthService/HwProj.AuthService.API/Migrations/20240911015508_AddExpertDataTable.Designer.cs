@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HwProj.AuthService.API.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20240818152405_AddExpertDataTable")]
+    [Migration("20240911015508_AddExpertDataTable")]
     partial class AddExpertDataTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,9 +21,10 @@ namespace HwProj.AuthService.API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("HwProj.Models.AuthService.ViewModels.ExpertData", b =>
+            modelBuilder.Entity("HwProj.AuthService.API.Models.ExpertData", b =>
                 {
-                    b.Property<string>("Id");
+                    b.Property<string>("Id")
+                        .HasMaxLength(450);
 
                     b.Property<bool>("IsProfileEdited");
 
@@ -212,7 +213,7 @@ namespace HwProj.AuthService.API.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("HwProj.Models.AuthService.ViewModels.ExpertData", b =>
+            modelBuilder.Entity("HwProj.AuthService.API.Models.ExpertData", b =>
                 {
                     b.HasOne("HwProj.Models.AuthService.ViewModels.User", "User")
                         .WithMany()

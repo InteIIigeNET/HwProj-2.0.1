@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HwProj.CoursesService.API.Migrations
 {
     [DbContext(typeof(CourseContext))]
-    [Migration("20240824195532_AddCourseFilterNavigationProperty")]
-    partial class AddCourseFilterNavigationProperty
+    [Migration("20240911013242_CreateCourseFilterTables")]
+    partial class CreateCourseFilterTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

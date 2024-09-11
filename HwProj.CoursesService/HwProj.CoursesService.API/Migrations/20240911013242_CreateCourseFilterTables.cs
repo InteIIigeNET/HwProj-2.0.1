@@ -31,16 +31,27 @@ namespace HwProj.CoursesService.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserToCourseFilters", x => new { x.CourseId, x.UserId });
+                    table.ForeignKey(
+                        name: "FK_UserToCourseFilters_CourseFilters_CourseFilterId",
+                        column: x => x.CourseFilterId,
+                        principalTable: "CourseFilters",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserToCourseFilters_CourseFilterId",
+                table: "UserToCourseFilters",
+                column: "CourseFilterId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "CourseFilters");
+                name: "UserToCourseFilters");
 
             migrationBuilder.DropTable(
-                name: "UserToCourseFilters");
+                name: "CourseFilters");
         }
     }
 }

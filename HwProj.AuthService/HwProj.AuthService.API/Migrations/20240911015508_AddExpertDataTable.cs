@@ -12,7 +12,7 @@ namespace HwProj.AuthService.API.Migrations
                 {
                     Id = table.Column<string>(maxLength: 450, nullable: false),
                     IsProfileEdited = table.Column<bool>(nullable: false),
-                    LecturerId = table.Column<string>(maxLength: 450, nullable: true),
+                    LecturerId = table.Column<string>(maxLength: 450, nullable: false),
                     Tags = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
