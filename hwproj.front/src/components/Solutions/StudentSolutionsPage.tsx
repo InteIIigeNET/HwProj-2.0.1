@@ -100,7 +100,7 @@ const StudentSolutionsPage: FC = () => {
         : allTaskSolutionsStats
 
     const studentSolutionsPreview = showOnlyUnrated
-        ? allStudentSolutionsPreview.filter(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
+        ? allStudentSolutionsPreview.filter(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0 || x.student.userId === studentId)
         : allStudentSolutionsPreview
 
     const getTaskData = async (taskId: string, studentId: string) => {
