@@ -9,12 +9,8 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {Grid} from "@material-ui/core";
 import {
+    Checkbox,
     Chip,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    OutlinedInput,
-    Select,
     SelectChangeEvent,
     Stack,
     Tooltip
@@ -143,20 +139,12 @@ const TaskSolutionsPage: FC = () => {
                 <Grid container item direction={"row"} spacing={2}>
                     <Grid container item lg={3} spacing={1} direction={"column"}>
                         <Grid item>
-                            <FormControl fullWidth>
-                                <InputLabel>Фильтр</InputLabel>
-                                <Select
-                                    size={"medium"}
-                                    value={filterState}
+                            <Stack direction={"row"} alignItems={"center"}>
+                                <Checkbox
                                     onChange={handleFilterChange}
-                                    input={<OutlinedInput label="Фильтр"/>}
-                                    MenuProps={FilterProps}
-                                >
-                                    <MenuItem key="Только нерешенные" value={"Только нерешенные" as Filter}>
-                                        Только нерешенные
-                                    </MenuItem>
-                                </Select>
-                            </FormControl>
+                                    checked={filterState.includes("Только нерешенные")}/>
+                                <Typography>Только нерешенные</Typography>
+                            </Stack>
                         </Grid>
                         {task.canSendSolution && <Grid item><Button
                             fullWidth

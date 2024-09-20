@@ -12,17 +12,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import {
     Alert,
     Chip,
-    FormControl,
-    InputLabel,
     List,
     ListItemButton,
     ListItemText,
-    MenuItem,
-    OutlinedInput,
-    Select,
     SelectChangeEvent,
     Stack,
-    Tooltip
+    Tooltip,
+    Checkbox
 } from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 
@@ -190,20 +186,12 @@ const StudentSolutionsPage: FC = () => {
                 </Grid>
                 <Grid container spacing={3} style={{marginTop: '1px'}} direction={"row"}>
                     <Grid item lg={3}>
-                        <FormControl fullWidth>
-                            <InputLabel>Фильтр</InputLabel>
-                            <Select
-                                size={"medium"}
-                                value={filterState}
+                        <Stack direction={"row"} alignItems={"center"}>
+                            <Checkbox
                                 onChange={handleFilterChange}
-                                input={<OutlinedInput label="Фильтр"/>}
-                                MenuProps={FilterProps}
-                            >
-                                <MenuItem key="Только непроверенные" value={"Только непроверенные" as Filter}>
-                                    Только непроверенные
-                                </MenuItem>
-                            </Select>
-                        </FormControl>
+                                checked={filterState.includes("Только непроверенные")}/>
+                            <Typography>Только непроверенные</Typography>
+                        </Stack>
                         <List>
                             {studentSolutionsPreview!.map(({
                                                                lastSolution,
