@@ -7,7 +7,8 @@ import {Alert, Chip, Button} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
-import {BonusTag, TestTag} from "../Common/HomeworkTags";
+import {BonusTag, GroupTag, TestTag} from "../Common/HomeworkTags";
+import Lodash from "lodash"
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -90,40 +91,19 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const hasTests = testsMaxSum > 0
 
     function groupTestsByTags(homeworks: HomeworkViewModel[]): HomeworkViewModel[][] {
-        const result: HomeworkViewModel[][] = [];
-
-        const groupedHomeworks = homeworks.filter(h => h.tags!.includes(TestTag))
-        .reduce((acc, h) => {
-            h.tags!.forEach(tag => {
-                if (tag !== TestTag && tag !== 'Командная работа'){
-                    if (!acc[tag]) {
-                    acc[tag] = []
-                    }
-                    acc[tag].push(h)
-                }
-            })
-
-            if (h.tags!.length === 1 || h.tags!.length === 2 && h.tags!.includes('Командная работа')){
-                if (!acc[TestTag]) {
-                    acc[TestTag] = []
-                    }
-                    acc[TestTag].push(h)
+        const groupedHomeworks = Lodash(homeworks.filter(h => h.tags!.includes(TestTag)))
+        .groupBy(h => {
+            const key = h.tags!.find(t => t !== TestTag && t !== GroupTag && t !== BonusTag)
+            if (!key) {
+                return h.id!.toString()
             }
-          
-            return acc
-        }, {} as Record<string, HomeworkViewModel[]>)
+            return key
+        })
+        .values()
+        .value()
 
-        Object.entries(groupedHomeworks).forEach(([key, value]) => {
-          if (key === TestTag) {
-            result.push(...value.map(item => [item]));
-          } else {
-            result.push(value);
-          }
-        });
-
-        return result;
-
-    }   
+        return groupedHomeworks
+    }
 
     return (
         <div>
@@ -225,17 +205,14 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 .reduce((sum, rating) => sum + rating, 0) 
                             const testsSum = groupTestsByTags(homeworks)
                             .map(group => {
-                                const rating: number[] = new Array(group[0].tasks!.length).fill(0)
-                                
-                                group.forEach(homework => 
+                                const allTasks = group.map(homework =>
                                     solutions
                                         .find(s => s.id === cm.id)?.homeworks!
                                         .find(h => h.id === homework.id)?.tasks!
-                                        .forEach((task, index) => {
-                                            rating[index] = Math.max(rating[index], StudentStatsUtils.calculateLastRatedSolution(task.solution || [])?.rating || 0) || 0
-                                        })
-                                )
-                                return rating
+                                        .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0)
+                                ).filter(row => row !== undefined)
+                            
+                                return allTasks[0].map((_, colInd) => allTasks.map(row => row[colInd])).map(tasks => Math.max(...tasks))
                             })
                             .flat()
                             .reduce((sum, rating) => sum + rating, 0)
