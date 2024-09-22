@@ -77,7 +77,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const groupTestsByTags = (homeworks: HomeworkViewModel[]) =>
         Lodash(homeworks.filter(h => h.tags!.includes(TestTag)))
             .groupBy(h => {
-                const key = h.tags!.find(t => t ! in DefaultTags)
+                const key = h.tags!.find(t => !DefaultTags.includes(t))
                 return key || h.id!.toString();
             })
             .values()
