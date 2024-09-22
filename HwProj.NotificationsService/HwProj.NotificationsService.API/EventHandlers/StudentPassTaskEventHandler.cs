@@ -15,17 +15,17 @@ namespace HwProj.NotificationsService.API.EventHandlers
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IConfigurationSection _configuration;
         private readonly IEmailService _emailService;
-        private readonly INotificationSettingsRepository _settingsRepository;
+        private readonly INotificationSettingsService _settingsService;
 
         public StudentPassTaskEventHandler(
             IAuthServiceClient authServiceClient,
             IConfiguration configuration,
             IEmailService emailService,
-            INotificationSettingsRepository settingsRepository)
+            INotificationSettingsService settingsService)
         {
             _authServiceClient = authServiceClient;
             _emailService = emailService;
-            _settingsRepository = settingsRepository;
+            _settingsService = settingsService;
             _configuration = configuration.GetSection("Notification");
         }
 
@@ -36,9 +36,10 @@ namespace HwProj.NotificationsService.API.EventHandlers
                        $" задачи <a href='{_configuration["Url"]}/task/{@event.Task.Id}/{@event.Student.UserId}'>{@event.Task.Title}</a>" +
                        $" из курса <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>.";
 
-            foreach (var m in @event.Course.MentorIds)
+            foreach (var mentorId in @event.Course.MentorIds)
             {
-                var setting = await _settingsRepository.GetAsync(m, NotificationsSettingCategory.NewSolutionsCategory);
+                var setting = await _settingsService.GetAsync(mentorId,
+                    NotificationsSettingCategory.NewSolutionsCategory);
                 if (!setting!.IsEnabled) continue;
 
                 var notification = new Notification
@@ -48,11 +49,12 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Category = CategoryState.Homeworks,
                     Date = @event.CreationData,
                     HasSeen = false,
-                    Owner = m
+                    Owner = mentorId
                 };
 
                 var subject = $"Новое решение задачи {@event.Task.Title}";
                 var mentor = await _authServiceClient.GetAccountData(notification.Owner);
+
                 await _emailService.SendEmailAsync(notification, mentor.Email, subject);
             }
         }

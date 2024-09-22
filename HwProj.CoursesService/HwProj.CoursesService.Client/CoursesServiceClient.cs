@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
@@ -477,6 +478,21 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode
                 ? Result<string[]>.Success(await response.DeserializeAsync<string[]>())
                 : Result<string[]>.Failed();
+        }
+
+        public async Task<Result<long>> CreateOrUpdateExpertCourseFilter(CreateCourseFilterModel model)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + "api/CourseFilters/createExpertFilter");
+            httpRequest.Content = new StringContent(
+                JsonConvert.SerializeObject(model),
+                Encoding.UTF8,
+                "application/json");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<long>>();
         }
 
         public async Task<bool> Ping()

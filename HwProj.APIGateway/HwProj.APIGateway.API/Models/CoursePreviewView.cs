@@ -9,6 +9,7 @@ namespace HwProj.APIGateway.API.Models
         public string GroupName { get; set; }
         public bool IsCompleted { get; set; }
         public AccountDataDto[] Mentors { get; set; }
+        public long? TaskId { get; set; }
     }
 
     public class CourseEvents

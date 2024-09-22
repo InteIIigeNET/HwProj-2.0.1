@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
@@ -41,6 +42,7 @@ namespace HwProj.CoursesService.Client
         Task<Result> AcceptLecturer(long courseId, string lecturerEmail, string lecturerId);
         Task<Result<AccountDataDto[]>> GetLecturersAvailableForCourse(long courseId);
         Task<Result<string[]>> GetAllTagsForCourse(long courseId);
+        Task<Result<long>> CreateOrUpdateExpertCourseFilter(CreateCourseFilterModel model);
         Task<bool> Ping();
     }
 }

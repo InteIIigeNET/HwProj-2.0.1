@@ -13,6 +13,7 @@ import NewCourseEvents from "./Courses/NewCourseEvents";
 import {TestTag} from "./Common/HomeworkTags";
 import Utils from "../services/Utils";
 
+
 interface IWorkspaceState {
     isLoaded: boolean;
     tabValue: number;
@@ -41,6 +42,8 @@ const Workspace: FC = () => {
 
     const classes = useStyles()
     const isLecturer = ApiSingleton.authService.isLecturer()
+    const isExpert = ApiSingleton.authService.isExpert()
+    const isMentor = isLecturer || isExpert
 
     useEffect(() => {
         getUserInfo()
@@ -57,7 +60,7 @@ const Workspace: FC = () => {
             return
         }
         const data = await ApiSingleton.accountApi.apiAccountGetUserDataGet()
-        const unratedSolutions = isLecturer
+        const unratedSolutions = isMentor
             ? await ApiSingleton.solutionsApi.apiSolutionsUnratedSolutionsGet()
             : undefined
         setAccountState({...data, unratedSolutionPreviews: unratedSolutions})
@@ -110,7 +113,7 @@ const Workspace: FC = () => {
                             </Typography>
                         </Grid>
                     </Grid>
-                    {isUserProfile && !isLecturer && testDeadlines &&
+                    {isUserProfile && !isMentor && testDeadlines &&
                         <Grid container item spacing={1} alignContent={"stretch"}>
                             {[...new Set(testDeadlines.map(x => x.courseId))].map(courseId => {
                                 const test = testDeadlines.find(x => x.courseId === courseId)!
@@ -137,7 +140,7 @@ const Workspace: FC = () => {
                                 }));
                             }}
                         >
-                            {isLecturer && <Tab label={
+                            {isMentor && <Tab label={
                                 <Stack direction="row" spacing={1}>
                                     <div>Ожидают проверки</div>
                                     <Chip size={"small"} color={"default"}
@@ -150,13 +153,13 @@ const Workspace: FC = () => {
                                           label={(courseEvents!.length)}/>
                                 </Stack>}/>}
 
-                            {!isLecturer && <Tab label={
+                            {!isMentor && <Tab label={
                                 <Stack direction="row" spacing={1}>
                                     <div>Дедлайны</div>
                                     <Chip size={"small"} color={"default"}
                                           label={(nearestTaskDeadlines!.length)}/>
                                 </Stack>}/>}
-                            {!isLecturer && pastTaskDeadlines.length > 0 &&
+                            {!isMentor && pastTaskDeadlines.length > 0 &&
                                 <Tab style={{minWidth: "fit-content"}}
                                      label={
                                          <Stack direction="row" spacing={1}>
@@ -169,11 +172,11 @@ const Workspace: FC = () => {
                         </Tabs>
                         <div style={{marginTop: 15}}>
                             {tabValue === 0 &&
-                                (isLecturer
+                                (isMentor
                                     ? <UnratedSolutions unratedSolutionsPreviews={unratedSolutionPreviews!}/>
                                     : <TaskDeadlines taskDeadlines={nearestTaskDeadlines}
                                                      onGiveUpClick={onGiveUpClick}/>)}
-                            {tabValue === 1 &&
+                            {tabValue === 1 && !isExpert &&
                                 (isLecturer
                                     ? <NewCourseEvents courseEvents={courseEvents!}/>
                                     : <TaskDeadlines taskDeadlines={pastTaskDeadlines}

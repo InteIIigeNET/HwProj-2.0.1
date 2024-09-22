@@ -61,6 +61,19 @@ namespace HwProj.CoursesService.API.Migrations
                     b.ToTable("Courses");
                 });
 
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.CourseFilter", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("FilterJson");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CourseFilters");
+                });
+
             modelBuilder.Entity("HwProj.CoursesService.API.Models.CourseMate", b =>
                 {
                     b.Property<long>("Id")
@@ -129,8 +142,6 @@ namespace HwProj.CoursesService.API.Migrations
 
                     b.Property<bool>("IsDeadlineStrict");
 
-                    b.Property<bool>("IsGroupWork");
-
                     b.Property<DateTime>("PublicationDate");
 
                     b.Property<string>("Tags");
@@ -190,6 +201,21 @@ namespace HwProj.CoursesService.API.Migrations
                     b.ToTable("TasksModels");
                 });
 
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.UserToCourseFilter", b =>
+                {
+                    b.Property<long>("CourseId");
+
+                    b.Property<string>("UserId");
+
+                    b.Property<long>("CourseFilterId");
+
+                    b.HasKey("CourseId", "UserId");
+
+                    b.HasIndex("CourseFilterId");
+
+                    b.ToTable("UserToCourseFilters");
+                });
+
             modelBuilder.Entity("HwProj.CoursesService.API.Models.Assignment", b =>
                 {
                     b.HasOne("HwProj.CoursesService.API.Models.Course")
@@ -235,6 +261,14 @@ namespace HwProj.CoursesService.API.Migrations
                     b.HasOne("HwProj.CoursesService.API.Models.Group")
                         .WithMany("Tasks")
                         .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.UserToCourseFilter", b =>
+                {
+                    b.HasOne("HwProj.CoursesService.API.Models.CourseFilter", "CourseFilter")
+                        .WithMany()
+                        .HasForeignKey("CourseFilterId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

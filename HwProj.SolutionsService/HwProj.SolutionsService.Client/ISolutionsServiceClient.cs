@@ -21,7 +21,7 @@ namespace HwProj.SolutionsService.Client
         Task<StatisticsCourseStudentsBenchmarkDTO> GetBenchmarkStatistics(long courseId);
         Task<StudentSolutions[]> GetTaskSolutionStatistics(long courseId, long taskId);
         Task<Solution?[]> GetLastTaskSolutions(long[] taskIds, string userId);
-        Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(long[] taskIds);
+        Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(GetTasksSolutionsModel model);
         Task<TaskSolutionsStats[]> GetTaskSolutionsStats(long[] taskIds);
         Task<SolutionActualityDto> GetSolutionActuality(long solutionId);
         Task<bool> Ping();

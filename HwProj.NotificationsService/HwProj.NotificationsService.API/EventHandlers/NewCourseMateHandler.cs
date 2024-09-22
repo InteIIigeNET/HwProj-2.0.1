@@ -4,6 +4,7 @@ using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
+using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.Extensions.Configuration;
@@ -13,12 +14,14 @@ namespace HwProj.NotificationsService.API.EventHandlers
     public class NewCourseMateHandler : EventHandlerBase<NewCourseMateEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
+        private readonly INotificationSettingsService _settingsService;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IConfigurationSection _configuration;
         private readonly IEmailService _emailService;
 
         public NewCourseMateHandler(
             INotificationsRepository notificationRepository,
+            INotificationSettingsService settingsService,
             IAuthServiceClient authServiceClient,
             IConfiguration configuration,
             IEmailService emailService)
@@ -26,6 +29,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _notificationRepository = notificationRepository;
             _authServiceClient = authServiceClient;
             _emailService = emailService;
+            _settingsService = settingsService;
             _configuration = configuration.GetSection("Notification");
         }
 
@@ -34,9 +38,16 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var user = await _authServiceClient.GetAccountData(@event.StudentId);
             var url = _configuration["Url"];
 
+            var mentorIds = @event.MentorIds.Split('/');
+            var mentors = await _authServiceClient.GetAccountsData(mentorIds);
+
             //TODO: fix
-            foreach (var m in @event.MentorIds.Split('/'))
+            foreach (var mentor in mentors)
             {
+                var setting = await _settingsService.GetAsync(mentor.UserId,
+                    NotificationsSettingCategory.NewCourseMateCategory);
+                if (!setting!.IsEnabled) continue;
+
                 var notification = new Notification
                 {
                     Sender = "CourseService",
@@ -46,11 +57,10 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Category = CategoryState.Courses,
                     Date = DateTime.UtcNow,
                     HasSeen = false,
-                    Owner = m
+                    Owner = mentor.UserId
                 };
 
                 var subject = $"Новая заявка в курс {@event.CourseName}";
-                var mentor = await _authServiceClient.GetAccountData(notification.Owner);
 
                 var addNotificationTask = _notificationRepository.AddAsync(notification);
                 var sendEmailTask = _emailService.SendEmailAsync(notification, mentor.Email, subject);

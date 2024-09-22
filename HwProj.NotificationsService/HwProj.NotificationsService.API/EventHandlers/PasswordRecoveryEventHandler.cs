@@ -17,7 +17,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
         private readonly INotificationsRepository _notificationRepository;
         private readonly IEmailService _emailService;
 
-        public PasswordRecoveryEventHandler(INotificationsRepository notificationRepository, IEmailService emailService,
+        public PasswordRecoveryEventHandler(
+            INotificationsRepository notificationRepository,
+            IEmailService emailService,
             IConfiguration configuration)
         {
             _notificationRepository = notificationRepository;

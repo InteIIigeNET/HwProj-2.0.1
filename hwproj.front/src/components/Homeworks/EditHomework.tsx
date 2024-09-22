@@ -7,8 +7,9 @@ import EditIcon from '@material-ui/icons/Edit';
 import {Button} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
-import Tags from "./HomeworkTags";
+import Tags from "../Common/Tags";
 import {Grid, Typography, TextField} from "@mui/material";
+import apiSingleton from "../../api/ApiSingleton";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -197,7 +198,8 @@ const EditHomework: FC = () => {
                             />
                         </Grid>
                         <Grid item xs={12} style={{marginBottom: "15px"}}>
-                            <Tags tags={editHomework.tags} courseId={editHomework.courseId} onTagsChange={handleTagsChange}/>
+                            <Tags tags={editHomework.tags} onTagsChange={handleTagsChange} isElementSmall={false}
+                                  requestTags={() => apiSingleton.coursesApi.apiCoursesTagsByCourseIdGet(editHomework.courseId)}/>
                             <PublicationAndDeadlineDates
                                 hasDeadline={editHomework.hasDeadline}
                                 isDeadlineStrict={editHomework.isDeadlineStrict}

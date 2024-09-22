@@ -7,11 +7,12 @@ import {Box, Divider, Grid, ListItem, Typography} from "@mui/material";
 interface ICoursesProps {
     navigate: any
     courses: CoursePreviewView[];
+    isExpert: boolean
 }
 
 export class CoursesList extends React.Component<ICoursesProps, {}> {
     public render() {
-        const {courses} = this.props;
+        const {courses, isExpert} = this.props;
 
         return (
             <Box>
@@ -22,7 +23,8 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                                 style={{padding: 0}}
                             >
                                 <NavLink
-                                    to={"/courses/" + course.id!.toString()}
+                                    to={isExpert ? "/task/" + course.taskId!.toString() + "/default"
+                                        : "/courses/" + course.id!.toString()}
                                     style={{color: "#212529"}}
                                 >
                                     <Typography style={{fontSize: "20px"}}>

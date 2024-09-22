@@ -1,5 +1,6 @@
 import {
     AccountApi,
+    ExpertsApi,
     NotificationsApi,
     CoursesApi,
     SolutionsApi,
@@ -16,6 +17,7 @@ import Utils from "../services/Utils";
 class Api {
     auth = new AuthService()
     readonly accountApi: AccountApi;
+    readonly expertsApi: ExpertsApi;
     readonly coursesApi: CoursesApi;
     readonly solutionsApi: SolutionsApi;
     readonly notificationsApi: NotificationsApi;
@@ -27,6 +29,7 @@ class Api {
 
     constructor(
         accountApi: AccountApi,
+        expertsApi: ExpertsApi,
         coursesApi: CoursesApi,
         solutionsApi: SolutionsApi,
         notificationsApi: NotificationsApi,
@@ -37,6 +40,7 @@ class Api {
         authService: AuthService
     ) {
         this.accountApi = accountApi;
+        this.expertsApi = expertsApi;
         this.coursesApi = coursesApi;
         this.solutionsApi = solutionsApi;
         this.notificationsApi = notificationsApi;
@@ -54,6 +58,7 @@ const authService = new AuthService()
 let ApiSingleton: Api;
 ApiSingleton = new Api(
     new AccountApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
+    new ExpertsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
     new CoursesApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
     new SolutionsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
     new NotificationsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),

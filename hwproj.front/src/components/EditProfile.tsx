@@ -8,14 +8,22 @@ import ApiSingleton from "../api/ApiSingleton";
 import {useSearchParams} from 'react-router-dom';
 import EditIcon from "@material-ui/icons/Edit";
 import makeStyles from "@material-ui/styles/makeStyles";
+import {EditAccountViewModel} from "../api";
+
+interface IEditProfileProps {
+    isExpert: boolean;
+}
 
 interface IEditProfileState {
     isLoaded: boolean;
     edited: boolean;
     errors: string[];
+    email: string;
     name: string;
     surname: string;
     middleName?: string;
+    bio: string;
+    company: string;
     isExternalAuth?: boolean;
     githubId: string | undefined;
     githubLoginUrl?: string
@@ -37,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const EditProfile: FC = () => {
+const EditProfile: FC<IEditProfileProps> = (props) => {
     const [searchParams, setSearchParams] = useSearchParams();
 
     const removeGithubCodeParam = () => {
@@ -49,9 +57,12 @@ const EditProfile: FC = () => {
         isLoaded: false,
         edited: false,
         errors: [],
+        email: "",
         name: "",
         surname: "",
         middleName: "",
+        bio: "",
+        company: "",
         isExternalAuth: false,
         githubId: "",
         githubLoginUrl: "",
@@ -59,22 +70,28 @@ const EditProfile: FC = () => {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const editForm = {
+        const editForm: EditAccountViewModel = {
             name: profile.name,
             surname: profile.surname,
             middleName: profile.middleName,
+            email: profile.email,
+            bio: profile.bio,
+            companyName: profile.company
         }
         try {
             const result = await ApiSingleton.accountApi.apiAccountEditPut(editForm)
-            result.succeeded
-                ? setProfile((prevState) => ({
+            if (result.succeeded) {
+                setProfile((prevState) => ({
                     ...prevState,
                     edited: true,
-                }))
-                : setProfile((prevState) => ({
+                }));
+                await ApiSingleton.authService.setIsExpertProfileEdited();
+            } else {
+                setProfile((prevState) => ({
                     ...prevState,
                     errors: result.errors!
-                }))
+                }));
+            }
         } catch (e) {
             setProfile((prevState) => ({
                 ...prevState,
@@ -115,9 +132,12 @@ const EditProfile: FC = () => {
             setProfile((prevState) => ({
                 ...prevState,
                 isLoaded: true,
+                email: currentUser.email!,
                 name: currentUser.name!,
                 surname: currentUser.surname!,
                 middleName: currentUser.middleName!,
+                bio: currentUser.bio!,
+                company: currentUser.companyName!,
                 isExternalAuth: currentUser.isExternalAuth,
                 githubId: githubId,
                 githubLoginUrl: githubLoginUrl!
@@ -204,32 +224,84 @@ const EditProfile: FC = () => {
                                         }}
                                     />
                                 </Grid>
-                            </Grid>
-                            <Grid container direction="row" spacing={1} alignItems="center" justifyContent="center">
-                                <Grid item>
-                                    <GitHubIcon/>
+                                <Grid item xs={12}>
+                                    {props.isExpert &&
+                                        <TextField
+                                            fullWidth
+                                            type="email"
+                                            label="Электронная почта"
+                                            variant="outlined"
+                                            value={profile.email}
+                                            onChange={(e) => {
+                                                e.persist()
+                                                setProfile((prevState) => ({
+                                                    ...prevState,
+                                                    email: e.target.value
+                                                }))
+                                            }}
+                                        />}
                                 </Grid>
-                                <Grid item>
-                                    {profile.githubId
-                                        ? <Link href={`https://github.com/${profile.githubId}`} underline="hover">
-                                            <Typography display="inline"
-                                                        style={{fontSize: 15}}>{profile.githubId}</Typography>
-                                        </Link>
-                                        : <Link href={profile.githubLoginUrl ?? ''} underline="hover">
-                                            <Typography display="inline" style={{fontSize: 15}}>Добавить логин
-                                                GitHub</Typography>
-                                        </Link>
-                                    }
+                                <Grid item xs={12}>
+                                    {props.isExpert &&
+                                        <TextField
+                                            fullWidth
+                                            label="Компания"
+                                            variant="outlined"
+                                            value={profile.company}
+                                            onChange={(e) => {
+                                                e.persist()
+                                                setProfile((prevState) => ({
+                                                    ...prevState,
+                                                    company: e.target.value
+                                                }))
+                                            }}
+                                        />}
                                 </Grid>
-
-                                {profile.githubId &&
-                                    <Grid item>
-                                        <Link href={profile.githubLoginUrl ?? ''} underline="hover">
-                                            <EditIcon style={{fontSize: 17}}/>
-                                        </Link>
-                                    </Grid>
+                                {props.isExpert && <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        multiline
+                                        label="Дополнительная информация (био)"
+                                        variant="outlined"
+                                        value={profile.bio}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setProfile((prevState) => ({
+                                                ...prevState,
+                                                bio: e.target.value
+                                            }))
+                                        }}
+                                    />
+                                </Grid>
                                 }
                             </Grid>
+                            {!props.isExpert &&
+                                <Grid container direction="row" spacing={1} alignItems="center"
+                                      justifyContent="center">
+                                    <Grid item>
+                                        <GitHubIcon/>
+                                    </Grid>
+                                    <Grid item>
+                                        {profile.githubId
+                                            ? <Link href={`https://github.com/${profile.githubId}`} underline="hover">
+                                                <Typography display="inline"
+                                                            style={{fontSize: 15}}>{profile.githubId}</Typography>
+                                            </Link>
+                                            : <Link href={profile.githubLoginUrl ?? ''} underline="hover">
+                                                <Typography display="inline" style={{fontSize: 15}}>Добавить логин
+                                                    GitHub</Typography>
+                                            </Link>
+                                        }
+                                    </Grid>
+
+                                    {profile.githubId &&
+                                        <Grid item>
+                                            <Link href={profile.githubLoginUrl ?? ''} underline="hover">
+                                                <EditIcon style={{fontSize: 17}}/>
+                                            </Link>
+                                        </Grid>
+                                    }
+                                </Grid>}
                             <Button
                                 style={{marginTop: '15px'}}
                                 fullWidth
@@ -237,7 +309,7 @@ const EditProfile: FC = () => {
                                 color="primary"
                                 type="submit"
                             >
-                                Редактировать профиль
+                                Сохранить
                             </Button>
                         </form>
                     </div>

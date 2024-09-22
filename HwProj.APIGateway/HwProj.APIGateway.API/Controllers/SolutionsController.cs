@@ -12,6 +12,7 @@ using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.Client;
+using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -108,6 +109,7 @@ namespace HwProj.APIGateway.API.Controllers
             });
         }
 
+        // Научить без конкретного taskId по courseId получать данные
         [Authorize]
         [HttpGet("tasks/{taskId}")]
         [ProducesResponseType(typeof(TaskSolutionStatisticsPageData), (int)HttpStatusCode.OK)]
@@ -216,7 +218,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("rateEmptySolution/{taskId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
+        [Authorize(Roles = Roles.LecturerOrExpertRole)]
         public async Task<IActionResult> PostEmptySolutionWithRate(long taskId, SolutionViewModel solution)
         {
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
@@ -248,7 +250,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("rateSolution/{solutionId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
+        [Authorize(Roles = Roles.LecturerOrExpertRole)]
         public async Task<IActionResult> RateSolution(long solutionId,
             RateSolutionModel rateSolutionModel)
         {
@@ -282,14 +284,34 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpGet("unratedSolutions")]
-        [Authorize(Roles = Roles.LecturerRole)]
+        [Authorize(Roles = Roles.LecturerOrExpertRole)]
         public async Task<UnratedSolutionPreviews> GetUnratedSolutions(long? taskId)
         {
+            var role = Request.GetUserRole();
             var mentorCourses = await _coursesServiceClient.GetAllUserCourses();
             var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
 
-            var taskIds = tasks.Select(t => t.Key).ToArray();
-            var solutions = await _solutionsClient.GetAllUnratedSolutionsForTasks(taskIds);
+            SolutionPreviewDto[] solutions;
+            if (role == Roles.LecturerRole)
+            {
+                solutions = await _solutionsClient.GetAllUnratedSolutionsForTasks(
+                    new GetTasksSolutionsModel { TaskIds = tasks.Keys.ToArray() }
+                );
+            }
+            else
+            {
+                var studentsAndTasks = new Dictionary<long, (List<string> studentIds, List<long> taskIds)>();
+                foreach (var value in tasks.Values)
+                {
+                    studentsAndTasks.TryAdd(
+                        value.course.Id, (
+                            value.course.AcceptedStudents.Select(ast => ast.StudentId).ToList(),
+                            new List<long>()));
+                    studentsAndTasks[value.course.Id].taskIds.Add(value.task.Id);
+                }
+
+                solutions = await GetAllUnratedSolutionsForTasks(studentsAndTasks);
+            }
 
             var studentIds = solutions.Select(t => t.StudentId).Distinct().ToArray();
             var accountsData = await AuthServiceClient.GetAccountsData(studentIds);
@@ -352,6 +374,28 @@ namespace HwProj.APIGateway.API.Controllers
             var betterThanCount = lastRatedSolutions.Count(t => solution.Rating > t!.Rating);
             if (betterThanCount == 0) return Ok(lastRatedSolutions.Length == 1 ? 100 : 0);
             return Ok(betterThanCount * 100 / (lastRatedSolutions.Length - 1));
+        }
+
+        private async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(
+            Dictionary<long, (List<string> studentIds, List<long> taskIds)> tasksAndStudents)
+        {
+            var solutions = new List<Task<SolutionPreviewDto[]>>();
+
+            foreach (var value in tasksAndStudents.Values)
+            {
+                solutions.Add(
+                    _solutionsClient.GetAllUnratedSolutionsForTasks(
+                        new GetTasksSolutionsModel
+                        {
+                            TaskIds = value.taskIds.ToArray(),
+                            StudentIds = value.studentIds.ToArray()
+                        }
+                    )
+                );
+            }
+
+            var allSolutions = await Task.WhenAll(solutions);
+            return allSolutions.SelectMany(s => s).OrderBy(s => s.PublicationDate).ToArray();
         }
 
         private static IEnumerable<(long taskId,

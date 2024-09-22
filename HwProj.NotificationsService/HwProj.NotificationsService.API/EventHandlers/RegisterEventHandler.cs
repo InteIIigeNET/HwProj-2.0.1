@@ -13,7 +13,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
         private readonly INotificationsRepository _notificationRepository;
         private readonly IEmailService _emailService;
 
-        public RegisterEventHandler(INotificationsRepository notificationRepository, IEmailService emailService)
+        public RegisterEventHandler(
+            INotificationsRepository notificationRepository, 
+            IEmailService emailService)
         {
             _notificationRepository = notificationRepository;
             _emailService = emailService;

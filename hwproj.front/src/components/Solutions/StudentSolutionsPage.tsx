@@ -59,7 +59,11 @@ const FilterProps = {
     },
 }
 
-const StudentSolutionsPage: FC = () => {
+interface StudentSolutionsPageProps {
+    isExpert: boolean;
+}
+
+const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({ isExpert }) => {
     const {taskId, studentId} = useParams()
     const navigate = useNavigate()
 
@@ -232,7 +236,7 @@ const StudentSolutionsPage: FC = () => {
                                 </Link>;
                             })}
                         </List>
-                        {renderGoBackToCoursesStatsLink()}
+                        {!isExpert && renderGoBackToCoursesStatsLink()}
                     </Grid>
                     <Grid item lg={9} spacing={2}>
                         <Task

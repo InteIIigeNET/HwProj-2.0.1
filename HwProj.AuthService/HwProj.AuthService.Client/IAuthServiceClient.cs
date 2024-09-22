@@ -23,5 +23,12 @@ namespace HwProj.AuthService.Client
         Task<Result> ResetPassword(ResetPasswordViewModel model);
         Task<UrlDto> GetGithubLoginUrl(UrlDto redirectUrl);
         Task<GithubCredentials> AuthorizeGithub(string code, string userId);
+        Task<Result> RegisterExpert(RegisterExpertViewModel model, string lecturerId);
+        Task<Result> LoginExpert(TokenCredentials credentials);
+        Task<Result<TokenCredentials>> GetExpertToken(string expertEmail);
+        Task<Result<bool>> GetIsExpertProfileEdited(string expertId);
+        Task<Result> SetExpertProfileIsEdited(string expertId);
+        Task<ExpertDataDTO[]> GetAllExperts();
+        Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto);
     }
 }

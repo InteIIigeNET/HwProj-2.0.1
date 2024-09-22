@@ -9,6 +9,7 @@ using AutoMapper;
 using HwProj.AuthService.API.Extensions;
 using HwProj.Models.Roles;
 using HwProj.AuthService.API.Events;
+using HwProj.AuthService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
@@ -100,7 +101,7 @@ namespace HwProj.AuthService.API.Services
                 return Result.Failed("Пользователь не найден");
             }
 
-            var result = await ChangeUserNameTask(user, model);
+            var result = await ChangeUserDataTask(user, model);
 
             return result.Succeeded ? Result.Success() : Result.Failed();
         }
@@ -221,6 +222,9 @@ namespace HwProj.AuthService.API.Services
             var user = await _aspUserManager.FindByEmailAsync(model.Email);
             if (user == null) return Result.Failed("Пользователь не найден");
 
+            var isExpert = await _aspUserManager.IsInRoleAsync(user, Roles.ExpertRole);
+            if (isExpert) return Result.Failed("Эксперт не имеет пароля");
+
             var token = await _aspUserManager.GeneratePasswordResetTokenAsync(user);
             if (token == null) return Result.Failed("Произошла внутренняя ошибка");
 
@@ -268,7 +272,7 @@ namespace HwProj.AuthService.API.Services
         public async Task<GithubCredentials> AuthorizeGithub(string code, string userId)
         {
             var sourceSettings = _configuration.GetSection("Github");
-            
+
             var parameters = new Dictionary<string, string>
             {
                 { "client_id", sourceSettings["ClientIdGithub"] },
@@ -314,8 +318,13 @@ namespace HwProj.AuthService.API.Services
             return githubCredentials;
         }
 
-        private Task<IdentityResult> ChangeUserNameTask(User user, EditDataDTO model)
+        private Task<IdentityResult> ChangeUserDataTask(User user, EditDataDTO model)
         {
+            if (!string.IsNullOrWhiteSpace(model.Email))
+            {
+                user.Email = model.Email;
+            }
+
             if (!string.IsNullOrWhiteSpace(model.Name))
             {
                 user.Name = model.Name;
@@ -329,6 +338,16 @@ namespace HwProj.AuthService.API.Services
             if (!string.IsNullOrWhiteSpace(model.MiddleName))
             {
                 user.MiddleName = model.MiddleName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.CompanyName))
+            {
+                user.CompanyName = model.CompanyName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Bio))
+            {
+                user.Bio = model.Bio;
             }
 
             return _userManager.UpdateAsync(user);
