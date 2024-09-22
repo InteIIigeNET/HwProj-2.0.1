@@ -3,6 +3,8 @@ import {FC} from "react";
 
 export const TestTag = "Контрольная работа"
 export const BonusTag = "Доп. баллы"
+export const GroupWorkTag = "Командная работа"
+export const DefaultTags = [TestTag, BonusTag, GroupWorkTag]
 
 const TestTip: FC = () => <sup style={{color: "#2979ff"}}> тест</sup>
 const BonusTip: FC = () => <sup style={{color: "green"}}> бонус</sup>

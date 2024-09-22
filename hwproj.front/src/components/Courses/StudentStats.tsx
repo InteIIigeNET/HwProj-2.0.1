@@ -3,11 +3,12 @@ import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "..
 import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Chip, Button} from "@mui/material";
+import {Alert, Button, Chip} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
-import {BonusTag, TestTag} from "../Common/HomeworkTags";
+import {BonusTag, DefaultTags, TestTag} from "../Common/HomeworkTags";
+import Lodash from "lodash"
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -72,6 +73,16 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         return undefined
     }
 
+    //TODO: Bonus tag?
+    const groupTestsByTags = (homeworks: HomeworkViewModel[]) =>
+        Lodash(homeworks.filter(h => h.tags!.includes(TestTag)))
+            .groupBy(h => {
+                const key = h.tags!.find(t => t ! in DefaultTags)
+                return key || h.id!.toString();
+            })
+            .values()
+            .value();
+
     const homeworksMaxSum = homeworks.filter(h => !h.tags!.includes(BonusTag))
         .filter(h => !h.tags!.includes(TestTag))
         .flatMap(homework => homework.tasks)
@@ -79,12 +90,12 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
             return sum + (task!.maxRating || 0);
         }, 0)
 
-    const testsMaxSum = homeworks.filter(h => h.tags!.includes(TestTag))
-        .filter(h => !h.tags!.includes(BonusTag))
+    const testGroups = groupTestsByTags(homeworks)
+
+    const testsMaxSum = testGroups
+        .map(h => h[0])
         .flatMap(homework => homework.tasks)
-        .reduce((sum, task) => {
-            return sum + (task!.maxRating || 0);
-        }, 0)
+        .reduce((sum, task) => sum + (task!.maxRating || 0), 0)
 
     const hasHomeworks = homeworksMaxSum > 0
     const hasTests = testsMaxSum > 0
@@ -187,15 +198,23 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0) || 0
                                 )
                                 .reduce((sum, rating) => sum + rating, 0)
-                            const testsSum = homeworks
-                                .filter(h => h.tags!.includes(TestTag))
-                                .flatMap(homework =>
-                                    solutions
-                                        .find(s => s.id === cm.id)?.homeworks!
-                                        .find(h => h.id === homework.id)?.tasks!
-                                        .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0) || 0
-                                )
+
+                            const testsSum = testGroups
+                                .map(group => {
+                                    const testRatings = group
+                                        .map(homework =>
+                                            solutions
+                                                .find(s => s.id === cm.id)?.homeworks!
+                                                .find(h => h.id === homework.id)?.tasks!
+                                                .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0)!
+                                        )
+                                    return testRatings[0]!
+                                        .map((_, columnId) => testRatings.map(row => row[columnId]))
+                                        .map(taskRatings => Math.max(...taskRatings))
+                                })
+                                .flat()
                                 .reduce((sum, rating) => sum + rating, 0)
+
                             return (
                                 <TableRow key={index} hover style={{height: 50}}>
                                     <TableCell
