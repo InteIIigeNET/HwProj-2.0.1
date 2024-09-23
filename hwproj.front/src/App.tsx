@@ -70,7 +70,7 @@ class App extends Component<{ navigate: any }, AppState> {
         }
     }
 
-    login = () => {
+    login = async () => {
         const isLecturer = ApiSingleton.authService.isLecturer();
         const isExpert = ApiSingleton.authService.isExpert();
         this.setState({
@@ -79,15 +79,14 @@ class App extends Component<{ navigate: any }, AppState> {
             isExpert: isExpert
         })
         if (!isExpert) {
+            await this.updatedNewNotificationsCount()
             this.props.navigate("/");
         }
     }
 
     logout = () => {
         ApiSingleton.authService.logout();
-        this.setState({loggedIn: false});
-        this.setState({isLecturer: false});
-        this.setState({isExpert: false})
+        this.setState({loggedIn: false, isLecturer: false, isExpert: false, newNotificationsCount: 0});
         this.props.navigate("/login");
     }
 
