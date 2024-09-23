@@ -35,7 +35,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
             var setting = await _settingsService.GetAsync(mentorId,
                 NotificationsSettingCategory.LecturerInvitedToCourseCategory);
-            if (!setting!.IsEnabled) return;
+            if (!setting.IsEnabled) return;
 
             var notification = new Notification
             {

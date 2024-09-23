@@ -9,7 +9,7 @@ namespace HwProj.NotificationsService.API.Services
 {
     public interface INotificationSettingsService
     {
-        Task<NotificationsSetting?> GetAsync(string userId, string category);
+        Task<NotificationsSetting> GetAsync(string userId, string category);
         Task ChangeAsync(string userId, string category, bool enabled);
     }
 
@@ -26,10 +26,10 @@ namespace HwProj.NotificationsService.API.Services
             _authServiceClient = authServiceClient;
         }
 
-        public async Task<NotificationsSetting?> GetAsync(string userId, string category)
+        public async Task<NotificationsSetting> GetAsync(string userId, string category)
         {
             var setting = await _context.Settings.FindAsync(userId, category);
-            if (setting != null || category != NotificationsSettingCategory.NewSolutionsCategory) return setting;
+            if (setting != null) return setting;
 
             var user = await _authServiceClient.GetAccountData(userId);
             var defaultSetting = new NotificationsSetting()

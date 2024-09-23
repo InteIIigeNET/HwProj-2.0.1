@@ -40,7 +40,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             {
                 var setting = await _settingsService.GetAsync(mentorId,
                     NotificationsSettingCategory.NewSolutionsCategory);
-                if (!setting!.IsEnabled) continue;
+                if (!setting.IsEnabled) continue;
 
                 var notification = new Notification
                 {

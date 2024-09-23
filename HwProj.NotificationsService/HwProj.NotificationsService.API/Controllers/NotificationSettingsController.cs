@@ -25,7 +25,7 @@ namespace HwProj.NotificationsService.API.Controllers
             {
                 new NotificationsSettingDto
                 {
-                    Category = settings!.Category,
+                    Category = settings.Category,
                     IsEnabled = settings.IsEnabled
                 }
             };
