@@ -127,7 +127,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const postedSolutionTime = solution && Utils.renderReadableDate(solution.publicationDate!)
     const ratingTime = solution && solution.ratingDate && Utils.renderReadableDate(solution.ratingDate!)
     const students = (solution?.groupMates?.length || 0) > 0 ? solution!.groupMates! : [student]
-    const lecturerName = solution?.lecturer && (solution.lecturer.surname + " " + solution.lecturer.name)
+    const lecturer = solution?.lecturer
+    const lecturerName = lecturer && (lecturer.surname + " " + lecturer.name)
 
     const getDatesDiff = (_date1: Date, _date2: Date) => {
         const date1 = new Date(_date1).getTime()
@@ -279,7 +280,10 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         </Avatar>
                         <Stack direction={"column"}>
                             <Typography variant={"body1"}>
-                                {state.clickedForRate ? "..." : lecturerName}
+                                {state.clickedForRate ? "..." :
+                                    <div>{lecturerName}
+                                        <sub style={{color: "#3f51b5"}}> {lecturer!.companyName}</sub>
+                                    </div>}
                             </Typography>
                             {ratingTime && <Typography style={{color: "GrayText"}}>
                                 {ratingTime}

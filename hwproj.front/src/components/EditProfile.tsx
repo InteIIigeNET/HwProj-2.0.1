@@ -224,38 +224,36 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                                         }}
                                     />
                                 </Grid>
+                                {props.isExpert && <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        type="email"
+                                        label="Электронная почта"
+                                        variant="outlined"
+                                        value={profile.email}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setProfile((prevState) => ({
+                                                ...prevState,
+                                                email: e.target.value
+                                            }))
+                                        }}
+                                    />
+                                </Grid>}
                                 <Grid item xs={12}>
-                                    {props.isExpert &&
-                                        <TextField
-                                            fullWidth
-                                            type="email"
-                                            label="Электронная почта"
-                                            variant="outlined"
-                                            value={profile.email}
-                                            onChange={(e) => {
-                                                e.persist()
-                                                setProfile((prevState) => ({
-                                                    ...prevState,
-                                                    email: e.target.value
-                                                }))
-                                            }}
-                                        />}
-                                </Grid>
-                                <Grid item xs={12}>
-                                    {props.isExpert &&
-                                        <TextField
-                                            fullWidth
-                                            label="Компания"
-                                            variant="outlined"
-                                            value={profile.company}
-                                            onChange={(e) => {
-                                                e.persist()
-                                                setProfile((prevState) => ({
-                                                    ...prevState,
-                                                    company: e.target.value
-                                                }))
-                                            }}
-                                        />}
+                                    <TextField
+                                        fullWidth
+                                        label="Организация/Компания"
+                                        variant="outlined"
+                                        value={profile.company}
+                                        onChange={(e) => {
+                                            e.persist()
+                                            setProfile((prevState) => ({
+                                                ...prevState,
+                                                company: e.target.value
+                                            }))
+                                        }}
+                                    />
                                 </Grid>
                                 {props.isExpert && <Grid item xs={12}>
                                     <TextField
@@ -272,8 +270,7 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                                             }))
                                         }}
                                     />
-                                </Grid>
-                                }
+                                </Grid>}
                             </Grid>
                             {!props.isExpert &&
                                 <Grid container direction="row" spacing={1} alignItems="center"
