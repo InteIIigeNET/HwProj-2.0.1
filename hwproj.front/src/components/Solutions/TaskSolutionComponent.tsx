@@ -231,7 +231,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                            alignItems={students.length === 1 ? "center" : "normal"} spacing={1}>
                         <Stack direction={"row"} spacing={1}>
                             {students && students.map(t => <Tooltip title={t.surname + " " + t.name}>
-                                <Avatar {...AvatarUtils.stringAvatar(t.name!, t.surname!)} />
+                                <Avatar {...AvatarUtils.stringAvatar(t)} />
                             </Tooltip>)}
                         </Stack>
                         <Grid item spacing={1} container direction="column">
@@ -275,9 +275,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             <Grid item container direction={"column"}>
                 {lecturerName && isRated &&
                     <Stack direction={"row"} alignItems={"center"} spacing={1} style={{marginTop: 5}}>
-                        <Avatar>
-                            {state.clickedForRate ? <Edit/> : <Assignment/>}
-                        </Avatar>
+                        {state.clickedForRate ? <Avatar><Edit/></Avatar> :
+                            <Avatar {...AvatarUtils.stringAvatar(lecturer!)}/>}
                         <Stack direction={"column"}>
                             <Typography variant={"body1"}>
                                 {state.clickedForRate ? "..." :

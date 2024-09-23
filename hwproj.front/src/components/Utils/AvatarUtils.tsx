@@ -1,3 +1,5 @@
+import {AccountDataDto} from "../../api";
+
 export default class AvatarUtils {
 
     static stringToColor(string: string) {
@@ -18,13 +20,18 @@ export default class AvatarUtils {
         return color;
     }
 
-    static stringAvatar(name: string, surname: string) {
+    static stringAvatar(account: AccountDataDto) {
+        if (account.githubId) return {
+            src: `https://github.com/${account.githubId}.png?size=100`
+        }
+
+        const {name, surname} = account
         return {
             sx: {
                 bgcolor: AvatarUtils.stringToColor(surname + ' ' + name),
                 borderStyle: "solid", borderWidth: "1px", borderColor: "#3f51b5", textShadow: "0 0 2px #3f51b5"
             },
-            children: `${surname[0]}${name[0]}`,
+            children: `${surname![0]}${name![0]}`,
         };
     }
 }
