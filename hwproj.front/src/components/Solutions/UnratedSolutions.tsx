@@ -149,7 +149,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                 onChange={(event) => handleFilterChange(filterName, event.target.value as string)}
                 label="demo-label"
             >
-                <MenuItem value={""}>Любое</MenuItem>
+                <MenuItem value={""}>Все</MenuItem>
                 {options.map(t => <MenuItem value={t}>{t}</MenuItem>)}
             </Select>
         </FormControl>)
