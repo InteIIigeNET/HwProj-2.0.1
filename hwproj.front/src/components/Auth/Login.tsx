@@ -1,7 +1,7 @@
 import React, {FC, FormEvent} from "react";
 import Avatar from '@material-ui/core/Avatar';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
-import {Navigate, Link} from "react-router-dom";
+import {Navigate, Link, useSearchParams} from "react-router-dom";
 import {TextField, Button, Typography} from "@material-ui/core";
 import Grid from '@material-ui/core/Grid';
 import ApiSingleton from "../../api/ApiSingleton";
@@ -13,7 +13,7 @@ import Container from '@material-ui/core/Container';
 import ValidationUtils from "../Utils/ValidationUtils";
 
 interface LoginProps {
-    onLogin: () => void;
+    onLogin: (returnUrl: string | null) => void;
 }
 
 interface ILoginState {
@@ -55,6 +55,8 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const Login: FC<LoginProps> = (props) => {
+    const [searchParams, setSearchParams] = useSearchParams()
+    const returnUrl = searchParams.get("returnUrl")
     const classes = useStyles()
     const [loginState, setLoginState] = useState<ILoginState>({
         email: '',
@@ -85,13 +87,13 @@ const Login: FC<LoginProps> = (props) => {
         }
         try {
             const result = await ApiSingleton.authService.login(userData)
-            setLoginState(prevState => ({
-                ...prevState,
-                error: result.error,
-                isLogin: result.isLogin,
-            }))
-            if (result.isLogin) {
-                props.onLogin?.()
+            if (result.isLogin) props.onLogin?.(returnUrl)
+            else {
+                setLoginState(prevState => ({
+                    ...prevState,
+                    error: result.error,
+                    isLogin: result.isLogin,
+                }))
             }
         } catch (e) {
             setLoginState(prevState => ({
@@ -119,7 +121,6 @@ const Login: FC<LoginProps> = (props) => {
             password: e.target.value
         }))
     }
-    
 
     const headerStyles: React.CSSProperties = {marginRight: "9.5rem"};
 
@@ -198,7 +199,7 @@ const Login: FC<LoginProps> = (props) => {
                 </Button>
             </Grid>
             <Grid className={classes.clickable_text}>
-                <Link to="/recovery" style={{textDecoration: "underline"}} >
+                <Link to="/recovery" style={{textDecoration: "underline"}}>
                     Забыли пароль?
                 </Link>
             </Grid>

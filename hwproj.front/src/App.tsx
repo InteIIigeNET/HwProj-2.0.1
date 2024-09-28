@@ -70,7 +70,7 @@ class App extends Component<{ navigate: any }, AppState> {
         }
     }
 
-    login = async () => {
+    login = async (returnUrl: string | null) => {
         const isLecturer = ApiSingleton.authService.isLecturer();
         const isExpert = ApiSingleton.authService.isExpert();
         this.setState({
@@ -80,7 +80,7 @@ class App extends Component<{ navigate: any }, AppState> {
         })
         if (!isExpert) {
             await this.updatedNewNotificationsCount()
-            this.props.navigate("/");
+            this.props.navigate(returnUrl || "/");
         }
     }
 
@@ -122,7 +122,7 @@ class App extends Component<{ navigate: any }, AppState> {
                     <Route path="statistics/:courseId/charts" element={<StudentStatsChart/>}/>
                     <Route path="status" element={<SystemInfoComponent/>}/>
                     <Route path="login" element={<Login onLogin={this.login}/>}/>
-                    <Route path="register" element={<Register onLogin={this.login}/>}/>
+                    <Route path="register" element={<Register onLogin={() => this.login("")}/>}/>
                     <Route path="recovery" element={<PasswordRecovery/>}/>
                     <Route path="resetPassword" element={<ResetPassword/>}/>
                     <Route path="join/:token" element={<ExpertAuthLayout onLogin={this.login}/>}/>
