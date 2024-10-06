@@ -33,9 +33,7 @@ namespace HwProj.CoursesService.API.Controllers
             courseFilterModel.CourseId = courseId;
 
             var result = await _courseFilterService.CreateOrUpdateCourseFilter(courseFilterModel);
-            return result.Succeeded
-                ? Ok(result.Value) as IActionResult
-                : BadRequest(result.Errors[0]);
+            return Ok(result);
         }
     }
 }

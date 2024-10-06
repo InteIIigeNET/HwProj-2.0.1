@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
-using HwProj.Models.AuthService.DTO;
 
 namespace HwProj.Models.CoursesService.ViewModels
 {
     public class WorkspaceViewModel
     {
-        public AccountDataDto[] Students { get; set; }
+        public List<string> StudentIds { get; set; } = new List<string>();
 
-        public HomeworkViewModel[] Homeworks { get; set; }
+        public List<long> HomeworkIds { get; set; } = new List<long>();
+
+        public List<string> MentorIds { get; set; } = new List<string>();
+
     }
 }

@@ -9,7 +9,6 @@ using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
-using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -176,51 +175,23 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpPost("editMentorWorkspace/{courseId}/{mentorId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> EditMentorWorkspace(
-            long courseId, string mentorId, EditMentorWorkspaceDTO editMentorWorkspaceDto)
+            long courseId, string mentorId, WorkspaceViewModel workspaceViewModel)
         {
             var mentor = await AuthServiceClient.GetAccountData(mentorId);
             if (mentor == null)
                 return NotFound("Пользователь с такой почтой не найден");
 
-            if (!Roles.LecturerOrExpertRole.Contains(mentor.Role))
+            if (mentor.Role != Roles.LecturerOrExpertRole)
                 return BadRequest("Пользователь с такой почтой не является преподавателем или экспертом");
 
-            var courseFilterModel = _mapper.Map<CreateCourseFilterDTO>(editMentorWorkspaceDto);
+            var courseFilterModel = _mapper.Map<CreateCourseFilterDTO>(workspaceViewModel);
             courseFilterModel.UserId = mentorId;
 
-            var courseFilterCreationResult =
-                await _coursesClient.CreateOrUpdateCourseFilter(courseId, courseFilterModel);
+            var courseFilterCreationResult = await _coursesClient.CreateOrUpdateCourseFilter(courseId, courseFilterModel);
 
             return courseFilterCreationResult.Succeeded
                 ? Ok() as IActionResult
-                : BadRequest(courseFilterCreationResult.Errors[0]);
-        }
-
-        [HttpGet("getMentorWorkspace/{courseId}/{mentorId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(WorkspaceViewModel), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetMentorWorkspace(long courseId, string mentorId)
-        {
-            var mentor = await AuthServiceClient.GetAccountData(mentorId);
-            if (mentor == null)
-                return NotFound("Пользователь с такой почтой не найден");
-
-            if (!Roles.LecturerOrExpertRole.Contains(mentor.Role))
-                return BadRequest("Пользователь с такой почтой не является преподавателем или экспертом");
-
-            var mentorCourseView = await _coursesClient.GetCourseByIdForMentor(courseId, mentorId);
-            if (!mentorCourseView.Succeeded)
-                return BadRequest(mentorCourseView.Errors[0]);
-
-            var studentIds = mentorCourseView.Value.CourseMates.Select(t => t.StudentId).ToArray();
-            var students = await AuthServiceClient.GetAccountsData(studentIds);
-            
-            var workspace = new WorkspaceViewModel
-            {
-                Homeworks = mentorCourseView.Value.Homeworks,
-                Students = students
-            };
-            return Ok(workspace);
+                : BadRequest(courseFilterCreationResult.Errors);
         }
     }
 }

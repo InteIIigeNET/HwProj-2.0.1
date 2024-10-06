@@ -62,23 +62,6 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? await response.DeserializeAsync<CourseDTO>() : null;
         }
 
-        public async Task<Result<CourseDTO>> GetCourseByIdForMentor(long courseId, string mentorId)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get,
-                _coursesServiceUri + $"api/Courses/getForMentor/{courseId}/{mentorId}");
-
-            httpRequest.TryAddUserId(_httpContextAccessor);
-            var response = await _httpClient.SendAsync(httpRequest);
-            
-            return response.StatusCode switch
-            {
-                HttpStatusCode.OK => Result<CourseDTO>.Success(await response.DeserializeAsync<CourseDTO>()),
-                HttpStatusCode.BadRequest => Result<CourseDTO>.Failed(await response.Content.ReadAsStringAsync()),
-                _ => Result<CourseDTO>.Failed()
-            };
-        }
-
         public async Task<Result> DeleteCourse(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -512,8 +495,8 @@ namespace HwProj.CoursesService.Client
             
             return response.StatusCode switch
             {
-                HttpStatusCode.OK => Result<long>.Success(await response.DeserializeAsync<long>()),
-                HttpStatusCode.BadRequest => Result<long>.Failed(await response.Content.ReadAsStringAsync()),
+                HttpStatusCode.OK => await response.DeserializeAsync<Result<long>>(),
+                HttpStatusCode.Forbidden => Result<long>.Failed(await response.Content.ReadAsStringAsync()),
                 _ => Result<long>.Failed(),
             };
         }
