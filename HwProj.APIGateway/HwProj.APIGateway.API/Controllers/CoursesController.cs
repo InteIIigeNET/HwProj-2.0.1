@@ -2,10 +2,12 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.APIGateway.API.Models;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
@@ -18,11 +20,14 @@ namespace HwProj.APIGateway.API.Controllers
     public class CoursesController : AggregationController
     {
         private readonly ICoursesServiceClient _coursesClient;
+        private readonly IMapper _mapper;
 
-        public CoursesController(ICoursesServiceClient coursesClient, IAuthServiceClient authServiceClient) : base(
-            authServiceClient)
+        public CoursesController(ICoursesServiceClient coursesClient,
+            IAuthServiceClient authServiceClient,
+            IMapper mapper) : base(authServiceClient)
         {
             _coursesClient = coursesClient;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -165,6 +170,28 @@ namespace HwProj.APIGateway.API.Controllers
             return result.Succeeded
                 ? Ok(result.Value) as IActionResult
                 : BadRequest(result.Errors);
+        }
+
+        [HttpPost("editMentorWorkspace/{courseId}/{mentorId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<IActionResult> EditMentorWorkspace(
+            long courseId, string mentorId, WorkspaceViewModel workspaceViewModel)
+        {
+            var mentor = await AuthServiceClient.GetAccountData(mentorId);
+            if (mentor == null)
+                return NotFound("Пользователь с такой почтой не найден");
+
+            if (mentor.Role != Roles.LecturerOrExpertRole)
+                return BadRequest("Пользователь с такой почтой не является преподавателем или экспертом");
+
+            var courseFilterModel = _mapper.Map<CreateCourseFilterDTO>(workspaceViewModel);
+            courseFilterModel.UserId = mentorId;
+
+            var courseFilterCreationResult = await _coursesClient.CreateOrUpdateCourseFilter(courseId, courseFilterModel);
+
+            return courseFilterCreationResult.Succeeded
+                ? Ok() as IActionResult
+                : BadRequest(courseFilterCreationResult.Errors);
         }
     }
 }

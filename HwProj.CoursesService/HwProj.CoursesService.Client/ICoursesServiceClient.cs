@@ -42,7 +42,7 @@ namespace HwProj.CoursesService.Client
         Task<Result> AcceptLecturer(long courseId, string lecturerEmail, string lecturerId);
         Task<Result<AccountDataDto[]>> GetLecturersAvailableForCourse(long courseId);
         Task<Result<string[]>> GetAllTagsForCourse(long courseId);
-        Task<Result<long>> CreateOrUpdateExpertCourseFilter(CreateCourseFilterModel model);
+        Task<Result<long>> CreateOrUpdateCourseFilter(long courseId, CreateCourseFilterDTO model);
         Task<bool> Ping();
     }
 }

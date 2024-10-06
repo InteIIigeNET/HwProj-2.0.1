@@ -18,7 +18,7 @@ namespace HwProj.CoursesService.API.Services
             _courseFilterRepository = courseFilterRepository;
         }
         
-        public async Task<Result<long>> CreateOrUpdateExpertFilter(CreateCourseFilterModel courseFilterModel)
+        public async Task<Result<long>> CreateOrUpdateCourseFilter(CreateCourseFilterModel courseFilterModel)
         {
             var areViewInvalid = courseFilterModel.IsFilterParametersEmpty();
             if (areViewInvalid)
