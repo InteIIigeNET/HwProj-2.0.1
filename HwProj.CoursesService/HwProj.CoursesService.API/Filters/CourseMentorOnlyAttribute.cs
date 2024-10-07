@@ -49,7 +49,13 @@ namespace HwProj.CoursesService.API.Filters
 
             if (mentorIds != null && !mentorIds.Contains(userId.ToString()))
             {
-                context.Result = new StatusCodeResult(StatusCodes.Status403Forbidden);
+                context.Result = new ContentResult
+                {
+                    StatusCode = StatusCodes.Status403Forbidden,
+                    Content = "Недостаточно прав: Вы не являетесь ментором на курсе.",
+                    ContentType = "application/json"
+                };
+                return;
             }
 
             await next.Invoke();
