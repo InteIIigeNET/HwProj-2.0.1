@@ -9,6 +9,7 @@ using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -174,6 +175,7 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpPost("editMentorWorkspace/{courseId}/{mentorId}")]
         [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> EditMentorWorkspace(
             long courseId, string mentorId, WorkspaceViewModel workspaceViewModel)
         {
