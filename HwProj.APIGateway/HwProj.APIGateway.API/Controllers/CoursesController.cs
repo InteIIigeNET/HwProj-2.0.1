@@ -175,25 +175,25 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpPost("editMentorWorkspace/{courseId}/{mentorId}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> EditMentorWorkspace(
-            long courseId, string mentorId, WorkspaceViewModel workspaceViewModel)
+            long courseId, string mentorId, WorkspaceDTO workspaceDto)
         {
             var mentor = await AuthServiceClient.GetAccountData(mentorId);
             if (mentor == null)
                 return NotFound("Пользователь с такой почтой не найден");
 
-            if (mentor.Role != Roles.LecturerOrExpertRole)
+            if (!Roles.LecturerOrExpertRole.Contains(mentor.Role))
                 return BadRequest("Пользователь с такой почтой не является преподавателем или экспертом");
 
             var courseFilterModel = _mapper.Map<CreateCourseFilterDTO>(workspaceViewModel);
             courseFilterModel.UserId = mentorId;
 
-            var courseFilterCreationResult = await _coursesClient.CreateOrUpdateCourseFilter(courseId, courseFilterModel);
+            var courseFilterCreationResult =
+                await _coursesClient.CreateOrUpdateCourseFilter(courseId, courseFilterModel);
 
             return courseFilterCreationResult.Succeeded
                 ? Ok() as IActionResult
-                : BadRequest(courseFilterCreationResult.Errors);
+                : BadRequest(courseFilterCreationResult.Errors[0]);
         }
     }
 }
