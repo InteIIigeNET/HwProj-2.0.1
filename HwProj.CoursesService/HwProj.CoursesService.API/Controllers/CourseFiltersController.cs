@@ -34,6 +34,16 @@ namespace HwProj.CoursesService.API.Controllers
 
             var result = await _courseFilterService.CreateOrUpdateCourseFilter(courseFilterModel);
             return Ok(result);
+
+        [HttpGet("get/{courseId}/{userId}")]
+        [ProducesResponseType(typeof(CourseFilterDTO), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Get(long courseId, string userId)
+        {
+            var result = await _courseFilterService.Get(courseId, userId);
+
+            return result.Succeeded
+                ? Ok(result.Value) as IActionResult
+                : NotFound(result.Errors[0]);
         }
     }
 }

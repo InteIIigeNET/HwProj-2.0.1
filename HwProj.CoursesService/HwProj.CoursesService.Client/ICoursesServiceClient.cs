@@ -44,6 +44,7 @@ namespace HwProj.CoursesService.Client
         Task<Result<AccountDataDto[]>> GetLecturersAvailableForCourse(long courseId);
         Task<Result<string[]>> GetAllTagsForCourse(long courseId);
         Task<Result<long>> CreateOrUpdateCourseFilter(long courseId, CreateCourseFilterDTO model);
+        Task<Result<CourseFilterDTO>> GetCourseFilter(long courseId, string userId);
         Task<bool> Ping();
     }
 }

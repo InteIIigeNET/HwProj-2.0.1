@@ -49,6 +49,19 @@ namespace HwProj.CoursesService.API.Services
             return Result<long>.Success(filterId);
         }
 
+        public async Task<Result<CourseFilterDTO>> Get(long courseId, string userId)
+        {
+            var courseFilter = await _courseFilterRepository.GetAsync(userId, courseId);
+            if (courseFilter?.Filter == null)
+            {
+                return Result<CourseFilterDTO>.Failed();
+            }
+
+            var courseFilterDto = _mapper.Map<CourseFilterDTO>(courseFilter.Filter);
+
+            return Result<CourseFilterDTO>.Success(courseFilterDto);
+        }
+
         public async Task UpdateAsync(long courseFilterId, Filter filter)
         {
             var courseFilter = new CourseFilter
