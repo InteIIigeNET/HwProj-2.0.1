@@ -185,7 +185,7 @@ namespace HwProj.APIGateway.API.Controllers
             if (!Roles.LecturerOrExpertRole.Contains(mentor.Role))
                 return BadRequest("Пользователь с такой почтой не является преподавателем или экспертом");
 
-            var courseFilterModel = _mapper.Map<CreateCourseFilterDTO>(workspaceViewModel);
+            var courseFilterModel = _mapper.Map<CreateCourseFilterDTO>(workspaceDto);
             courseFilterModel.UserId = mentorId;
 
             var courseFilterCreationResult =
@@ -194,6 +194,39 @@ namespace HwProj.APIGateway.API.Controllers
             return courseFilterCreationResult.Succeeded
                 ? Ok() as IActionResult
                 : BadRequest(courseFilterCreationResult.Errors[0]);
+        }
+
+        [HttpGet("getMentorWorkspace/{courseId}/{mentorId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(WorkspaceDTO), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetMentorWorkspace(long courseId, string mentorId)
+        {
+            var mentor = await AuthServiceClient.GetAccountData(mentorId);
+            if (mentor == null)
+                return NotFound("Пользователь с такой почтой не найден");
+
+            if (!Roles.LecturerOrExpertRole.Contains(mentor.Role))
+                return BadRequest("Пользователь с такой почтой не является преподавателем или экспертом");
+
+            var courseFilterResult = await _coursesClient.GetCourseFilter(courseId, mentorId);
+
+            // Если фильтра для ментора не существует, его рабочая область -- все домашки и студенты
+            if (!courseFilterResult.Succeeded)
+            {
+                var course = await _coursesClient.GetCourseById(courseId);
+                if (course == null)
+                    return BadRequest("Курса с таким идентификатором не существует");
+
+                var workspace = new WorkspaceDTO
+                {
+                    HomeworkIds = course.Homeworks.Select(h => h.Id).ToList(),
+                    StudentIds = course.CourseMates.Select(c => c.StudentId).ToList()
+                };
+                return Ok(workspace);
+            }
+
+            var workspaceViewModel = _mapper.Map<WorkspaceDTO>(courseFilterResult.Value);
+            return Ok(workspaceViewModel);
         }
     }
 }
