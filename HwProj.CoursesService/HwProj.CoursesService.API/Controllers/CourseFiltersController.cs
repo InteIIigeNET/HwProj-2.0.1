@@ -33,7 +33,10 @@ namespace HwProj.CoursesService.API.Controllers
             courseFilterModel.CourseId = courseId;
 
             var result = await _courseFilterService.CreateOrUpdateCourseFilter(courseFilterModel);
-            return Ok(result);
+            return result.Succeeded
+                ? Ok(result.Value) as IActionResult
+                : BadRequest(result.Errors[0]);
+        }
 
         [HttpGet("get/{courseId}/{userId}")]
         [ProducesResponseType(typeof(CourseFilterDTO), (int)HttpStatusCode.OK)]
