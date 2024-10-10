@@ -1,5 +1,4 @@
 ﻿import React, {FC, useEffect, useState} from 'react'
-import {makeStyles} from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -9,12 +8,10 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import ApiSingleton from "../../api/ApiSingleton";
 import Typography from "@material-ui/core/Typography";
 import Grid from '@material-ui/core/Grid';
-import {
-    HomeworkViewModel,
-    AccountDataDto,
-    WorkspaceViewModel
-} from "../../api";
-import {Autocomplete} from "@mui/material";
+import {HomeworkViewModel, AccountDataDto, WorkspaceDTO} from "../../api";
+import {Autocomplete, Alert} from "@mui/material";
+import ErrorsHandler from "../Utils/ErrorsHandler";
+import {CircularProgress, Snackbar} from "@material-ui/core";
 
 interface MentorWorkspaceProps {
     isOpen: boolean;
@@ -42,80 +39,75 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
         errors: []
     });
 
-    const [isInviteButtonDisabled, setIsInviteButtonDisabled]
-        = useState<boolean>(true); // Состояние для блокировки кнопки "Изменить"
+    // Состояние для отображения элемента загрузки
+    const [isWorkspaceLoading, setIsWorkspaceLoading]
+        = useState<boolean>(true);
 
-    const [isLinkCopied, setIsLinkCopied]
-        = useState<boolean>(false); // Состояние для отображения сообщения "Ссылка скопирована"
+    // Состояние для отображения сообщения об успешном обновлении воркспейса ментора
+    const [isWorkspaceUpdated, setIsWorkspaceUpdated]
+        = useState<boolean>(false);
 
-    const [isInvited, setIsInvited]
-        = useState<boolean>(false); // Состояние для скрытия кнопки "Изменить"
-
-    // Получаем всех возможных студентов и все возможные домашние работы курса.
     useEffect(() => {
-        const fetchCourseData = async () => {
-            const courseViewModel = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(props.courseId);
-            setState(prevState => ({
-                ...prevState,
-                courseHomeworks: courseViewModel.homeworks ?? [],
-                courseStudents: courseViewModel.acceptedStudents ?? []
-            }));
-        };
+        // Получаем назначенных ментору студентов и домашние работы.
+        const fetchMentorWorkspace = async () => {
+            try {
+                const courseViewModel = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(props.courseId);
 
-        fetchCourseData();
-    }, [])
+                const workspace =
+                    await ApiSingleton.coursesApi.apiCoursesGetMentorWorkspaceByCourseIdByMentorIdGet(props.courseId, props.mentorId);
 
-    // useEffect(() => {
-    //     // Здесь будем получать текущих выбранных студентов и домашние работы.
-    //     const fetchCourses = async () => {
-    //         const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesGet();
-    //         setState(prevState => ({
-    //             ...prevState,
-    //             lecturerCourses: courses
-    //         }));
-    //     }
-    //
-    //     fetchCourses();
-    // }, [])
+                const studentIdsSet = new Set(workspace.studentIds)
+                const homeworkIdsSet = new Set(workspace.homeworkIds)
 
-    // Здесь работаем с кнопкой изменить: пока выбранные студенты и домашки совпадают с ранее выбранными, кнопка заблокирована
-    useEffect(() => {
-        const controlItemsAccessibility = () => {
-            //setIsInviteButtonDisabled(!isInputAllowed);
+                // Формируем модели назначенных домашних работ и студентов. Если количество назначенных объектов
+                // совпадает с количеством объектов курса, то передаем пустой массив (эквивалентно "Все")
+                const students = studentIdsSet.size === courseViewModel.acceptedStudents?.length ?
+                    [] : courseViewModel.acceptedStudents!.filter(studentData => studentIdsSet.has(studentData.userId!));
+                const homeworks = homeworkIdsSet.size === courseViewModel.homeworks?.length ?
+                    [] : courseViewModel.homeworks!.filter(homeworkData => homeworkIdsSet.has(homeworkData.id!));
+
+                setState(prevState => ({
+                    ...prevState,
+                    courseHomeworks: courseViewModel.homeworks ?? [],
+                    courseStudents: courseViewModel.acceptedStudents ?? [],
+                    selectedStudents: students,
+                    selectedHomeworks: homeworks
+                }))
+                setIsWorkspaceLoading(false);
+            } catch (e) {
+                const errors = await ErrorsHandler.getErrorMessages(e);
+                setState((prevState) => ({
+                    ...prevState,
+                    errors: errors
+                }))
+            }
         }
 
-        controlItemsAccessibility();
-    }, [state.selectedStudents, state.selectedHomeworks])
+        fetchMentorWorkspace();
+    }, [])
 
     // Если преподаватель не выбрал ни одного студента, по умолчанию регистрируем всех. Аналогично с выбором домашних работ
-    const handleInvitation = async () => {
+    const handleWorkspaceChanges = async () => {
         try {
-            const workspaceViewModel: WorkspaceViewModel = {
+            // TODO: уметь обрабатывать ситуации "никого" и "все"
+            const workspaceViewModel: WorkspaceDTO = {
                 homeworkIds: state.selectedHomeworks.length === 0 ?
                     state.courseHomeworks.map(homeworkViewModel => homeworkViewModel.id!)
                     : state.selectedHomeworks.map(homeworkViewModel => homeworkViewModel.id!),
                 studentIds: state.selectedStudents.length === 0 ?
                     state.courseStudents.map(accountData => accountData.userId!)
-                    : state.selectedStudents.map(accountData => accountData.userId!),
-                mentorIds: []
+                    : state.selectedStudents.map(accountData => accountData.userId!)
             }
-            const result = await ApiSingleton.coursesApi.apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(
+            await ApiSingleton.coursesApi.apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(
                 props.courseId, props.mentorId, workspaceViewModel
             );
-            
-            if (result.succeeded) {
-                setIsInviteButtonDisabled(true);
-                setIsInvited(true);
-            }
-            setState((prevState) => ({
-                ...prevState,
-                errors: result!.errors ?? [],
-            }));
+
+            setIsWorkspaceUpdated(true);
         } catch (e) {
-            const responseErrors = await e.json()
+            const errors = await ErrorsHandler.getErrorMessages(e);
             setState((prevState) => ({
                 ...prevState,
-                errors: responseErrors ?? ['Сервис недоступен']
+                errors: errors
             }))
         }
     }
@@ -124,127 +116,121 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
         <div>
             <Dialog open={props.isOpen} onClose={props.onClose} aria-labelledby="dialog-title" fullWidth>
                 <DialogTitle id="dialog-title">
-                    {props.mentorName}&nbsp;{props.mentorSurname}
+                    <Typography align="center" variant="h6">
+                        {props.mentorName}&nbsp;{props.mentorSurname}
+                    </Typography>
                 </DialogTitle>
                 <DialogContent>
-                    <Grid item container direction={"row"} justifyContent={"center"}>
-                        {state.errors.length > 0 && (
-                            <p style={{color: "red", marginBottom: "5px"}}>{state.errors}</p>
-                        )}
-                    </Grid>
-                    <Typography>
-                        Здесь вы можете изменить область работы преподавателя.
-                    </Typography>
-                    <Grid container style={{marginTop: '10px'}}>
-                        <Grid container>
+                    {isWorkspaceLoading ? (
+                        <div className="container" style={{paddingLeft: "40px"}}>
+                            <p>Загружаем данные...</p>
+                            <CircularProgress/>
+                        </div>
+                    ) : (
+                        <div>
+                            <Grid item container direction={"row"} justifyContent={"center"}>
+                                {state.errors.length > 0 && (
+                                    <p style={{color: "red", marginBottom: "5px"}}>{state.errors}</p>
+                                )}
+                            </Grid>
                             <Typography>
-                                Задачи:
+                                Здесь Вы можете изменить область работы преподавателя
                             </Typography>
-                            <Grid container spacing={2} style={{marginTop: '2px'}}>
-                                <Grid item xs={12} sm={12}>
-                                    <Autocomplete
-                                        multiple
-                                        fullWidth
-                                        options={state.courseHomeworks}
-                                        getOptionLabel={(option: HomeworkViewModel) => option.title ?? "Без названия"}
-                                        filterSelectedOptions
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                variant="outlined"
-                                                label={state.selectedHomeworks.length === 0 ? "" : "Домашние работы"}
-                                                placeholder={state.selectedHomeworks.length === 0 ? "Все домашние работы" : ""}
-                                            />
-                                        )}
-                                        noOptionsText={'На курсе больше нет домашних работ'}
-                                        value={state.selectedHomeworks}
-                                        onChange={(_, values) => {
-                                            setState(prevState => ({
-                                                ...prevState,
-                                                selectedHomeworks: values
-                                            }));
-                                        }}
-                                    />
+                            <Grid container style={{marginTop: '10px'}}>
+                                <Grid container spacing={2} style={{marginTop: '2px'}}>
+                                    <Grid item xs={12} sm={12}>
+                                        <Autocomplete
+                                            multiple
+                                            fullWidth
+                                            options={state.courseHomeworks}
+                                            getOptionLabel={(option: HomeworkViewModel) => option.title ?? "Без названия"}
+                                            filterSelectedOptions
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    variant="outlined"
+                                                    label={state.selectedHomeworks.length === 0 ? "" : "Домашние работы"}
+                                                    placeholder={state.selectedHomeworks.length === 0 ? "Все домашние работы" : ""}
+                                                />
+                                            )}
+                                            noOptionsText={'На курсе больше нет домашних работ'}
+                                            value={state.selectedHomeworks}
+                                            onChange={(_, values) => {
+                                                setState(prevState => ({
+                                                    ...prevState,
+                                                    selectedHomeworks: values
+                                                }));
+                                            }}
+                                        />
+                                    </Grid>
+                                </Grid>
+                                <Grid container spacing={2} style={{marginTop: '12px'}}>
+                                    <Grid item xs={12} sm={12}>
+                                        <Autocomplete
+                                            multiple
+                                            fullWidth
+                                            options={state.courseStudents}
+                                            getOptionLabel={(option: AccountDataDto) => option.name + ' ' + option.surname}
+                                            filterSelectedOptions
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    variant="outlined"
+                                                    label={state.selectedStudents.length === 0 ? "" : "Студенты"}
+                                                    placeholder={state.selectedStudents.length === 0 ? "Все студенты" : ""}
+                                                />)}
+                                            noOptionsText={'На курсе больше нет студентов'}
+                                            value={state.selectedStudents}
+                                            onChange={(_, values) => {
+                                                setState(prevState => ({
+                                                    ...prevState,
+                                                    selectedStudents: values
+                                                }));
+                                            }}
+                                        />
+                                    </Grid>
                                 </Grid>
                             </Grid>
-                        </Grid>
-                        <Grid container style={{marginTop: '10px'}}>
-                            <Typography>
-                                Студенты:
-                            </Typography>
-                            <Grid container spacing={2} style={{marginTop: '2px'}}>
-                                <Grid item xs={12} sm={12}>
-                                    <Autocomplete
-                                        multiple
-                                        fullWidth
-                                        options={state.courseStudents}
-                                        getOptionLabel={(option: AccountDataDto) => option.name + ' ' + option.surname}
-                                        filterSelectedOptions
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                variant="outlined"
-                                                label={state.selectedStudents.length === 0 ? "" : "Студенты"}
-                                                placeholder={state.selectedStudents.length === 0 ? "Все студенты" : ""}
-                                            />)}
-                                        noOptionsText={'На курсе больше нет студентов'}
-                                        value={state.selectedStudents}
-                                        onChange={(_, values) => {
-                                            setState(prevState => ({
-                                                ...prevState,
-                                                selectedStudents: values
-                                            }));
-                                        }}
-                                    />
+                            <Grid
+                                direction="row"
+                                justifyContent="flex-end"
+                                alignItems="flex-end"
+                                container
+                                style={{marginTop: '15px'}}
+                            >
+                                <Grid item>
+                                    <Button
+                                        onClick={props.onClose}
+                                        color="primary"
+                                        variant="contained"
+                                        style={{marginRight: '10px'}}
+                                    >
+                                        Закрыть
+                                    </Button>
+                                </Grid>
+                                <Grid item>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={handleWorkspaceChanges}
+                                    >
+                                        Изменить
+                                    </Button>
                                 </Grid>
                             </Grid>
-                        </Grid>
-                    </Grid>
-                    <Grid
-                        direction="row"
-                        justifyContent="flex-end"
-                        alignItems="flex-end"
-                        container
-                        style={{marginTop: '15px'}}
-                    >
-                        <Grid item>
-                            <Button
-                                onClick={props.onClose}
-                                color="primary"
-                                variant="contained"
-                                style={{marginRight: '10px'}}
-                            >
-                                Закрыть
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleInvitation}
-                                disabled={isInviteButtonDisabled}
-                            >
-                                Изменить
-                            </Button>
-                        </Grid>
-                    </Grid>
+                        </div>)}
                 </DialogContent>
                 <DialogActions>
                 </DialogActions>
-                {isLinkCopied && (
-                    <div style={{
-                        position: 'fixed',
-                        bottom: '20px',
-                        right: '20px',
-                        backgroundColor: '#3F51B5',
-                        color: 'white',
-                        padding: '10px',
-                        borderRadius: '5px',
-                        zIndex: 1000
-                    }}>
-                        Ссылка скопирована в буфер обмена
-                    </div>
-                )}
+                <Snackbar
+                    anchorOrigin={{vertical: 'top', horizontal: 'center'}}
+                    open={isWorkspaceUpdated}
+                    onClose={() => setIsWorkspaceUpdated(false)}
+                    key={'top center'}
+                    autoHideDuration={5000}
+                >
+                    <Alert severity="success">Успешно обновлено</Alert>
+                </Snackbar>
             </Dialog>
         </div>
     )
