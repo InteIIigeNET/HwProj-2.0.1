@@ -495,8 +495,8 @@ namespace HwProj.CoursesService.Client
             
             return response.StatusCode switch
             {
-                HttpStatusCode.OK => await response.DeserializeAsync<Result<long>>(),
-                HttpStatusCode.Forbidden => Result<long>.Failed(await response.Content.ReadAsStringAsync()),
+                HttpStatusCode.OK => Result<long>.Success(await response.DeserializeAsync<long>()),
+                HttpStatusCode.BadRequest => Result<long>.Failed(await response.Content.ReadAsStringAsync()),
                 _ => Result<long>.Failed(),
             };
         }

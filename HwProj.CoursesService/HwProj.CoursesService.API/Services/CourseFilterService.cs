@@ -28,7 +28,7 @@ namespace HwProj.CoursesService.API.Services
             var areViewInvalid = courseFilterModel.IsFilterParametersEmpty();
             if (areViewInvalid)
             {
-                return Result<long>.Failed("Необходимо выделить эксперту хотя бы одного студента и домашнюю работу");
+                return Result<long>.Failed("Необходимо выделить ментору хотя бы одного студента и домашнюю работу");
             }
 
             var filter = CourseFilterUtils.CreateFilter(courseFilterModel);
