@@ -1,8 +1,10 @@
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.Models.CoursesService;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
 
@@ -11,19 +13,22 @@ namespace HwProj.CoursesService.API.Services
     public class CourseFilterService : ICourseFilterService
     {
         private readonly ICourseFilterRepository _courseFilterRepository;
+        private readonly IMapper _mapper;
 
         public CourseFilterService(
-            ICourseFilterRepository courseFilterRepository)
+            ICourseFilterRepository courseFilterRepository,
+            IMapper mapper)
         {
             _courseFilterRepository = courseFilterRepository;
+            _mapper = mapper;
         }
         
-        public async Task<Result<long>> CreateOrUpdateExpertFilter(CreateCourseFilterModel courseFilterModel)
+        public async Task<Result<long>> CreateOrUpdateCourseFilter(CreateCourseFilterModel courseFilterModel)
         {
             var areViewInvalid = courseFilterModel.IsFilterParametersEmpty();
             if (areViewInvalid)
             {
-                return Result<long>.Failed("Необходимо выделить эксперту хотя бы одного студента и домашнюю работу");
+                return Result<long>.Failed("Необходимо выделить ментору хотя бы одного студента и домашнюю работу");
             }
 
             var filter = CourseFilterUtils.CreateFilter(courseFilterModel);
@@ -42,6 +47,19 @@ namespace HwProj.CoursesService.API.Services
             }
             
             return Result<long>.Success(filterId);
+        }
+
+        public async Task<Result<CourseFilterDTO>> Get(long courseId, string userId)
+        {
+            var courseFilter = await _courseFilterRepository.GetAsync(userId, courseId);
+            if (courseFilter?.Filter == null)
+            {
+                return Result<CourseFilterDTO>.Failed();
+            }
+
+            var courseFilterDto = _mapper.Map<CourseFilterDTO>(courseFilter.Filter);
+
+            return Result<CourseFilterDTO>.Success(courseFilterDto);
         }
 
         public async Task UpdateAsync(long courseFilterId, Filter filter)

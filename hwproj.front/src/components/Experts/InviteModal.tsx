@@ -132,8 +132,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                     : state.selectedHomeworks.map(homeworkViewModel => homeworkViewModel.id!),
                 studentIds: state.selectedStudents.length === 0 ?
                     state.courseStudents.map(accountData => accountData.userId!)
-                    : state.selectedStudents.map(accountData => accountData.userId!),
-                mentorIds: []
+                    : state.selectedStudents.map(accountData => accountData.userId!)
             }
             const result = await ApiSingleton.expertsApi.apiExpertsInvitePost(inviteExpertModel);
             if (result.succeeded) {

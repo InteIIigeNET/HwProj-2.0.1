@@ -5,7 +5,7 @@ using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
-using HwProj.Models.CoursesService;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
@@ -43,9 +43,10 @@ namespace HwProj.APIGateway.API.Controllers
             if (inviteExpertView.UserId != expert.UserId)
                 return BadRequest("Идентификатор эксперта с такой почтой не соответствует переданному идентификатору");
 
-            var courseFilterModel = _mapper.Map<CreateCourseFilterModel>(inviteExpertView);
+            var courseFilterDto = _mapper.Map<CreateCourseFilterDTO>(inviteExpertView);
 
-            var courseFilterCreationResult = await _coursesClient.CreateOrUpdateExpertCourseFilter(courseFilterModel);
+            var courseFilterCreationResult =
+                await _coursesClient.CreateOrUpdateCourseFilter(inviteExpertView.CourseId, courseFilterDto);
             if (!courseFilterCreationResult.Succeeded) return BadRequest(courseFilterCreationResult.Errors);
 
             var acceptanceResult = await _coursesClient.AcceptLecturer(inviteExpertView.CourseId,

@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using HwProj.CoursesService.API.Models;
+using HwProj.Models.CoursesService;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API
@@ -16,6 +18,9 @@ namespace HwProj.CoursesService.API
             CreateMap<CreateHomeworkViewModel, Homework>();
             CreateMap<HomeworkTask, HomeworkTaskViewModel>().ReverseMap();
             CreateMap<CreateTaskViewModel, HomeworkTask>().ReverseMap();
+            
+            CreateMap<CreateCourseFilterDTO, CreateCourseFilterModel>();
+            CreateMap<Filter, CourseFilterDTO>();
         }
     }
 }

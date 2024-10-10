@@ -2,11 +2,14 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.APIGateway.API.Models;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,11 +21,14 @@ namespace HwProj.APIGateway.API.Controllers
     public class CoursesController : AggregationController
     {
         private readonly ICoursesServiceClient _coursesClient;
+        private readonly IMapper _mapper;
 
-        public CoursesController(ICoursesServiceClient coursesClient, IAuthServiceClient authServiceClient) : base(
-            authServiceClient)
+        public CoursesController(ICoursesServiceClient coursesClient,
+            IAuthServiceClient authServiceClient,
+            IMapper mapper) : base(authServiceClient)
         {
             _coursesClient = coursesClient;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -165,6 +171,62 @@ namespace HwProj.APIGateway.API.Controllers
             return result.Succeeded
                 ? Ok(result.Value) as IActionResult
                 : BadRequest(result.Errors);
+        }
+
+        [HttpPost("editMentorWorkspace/{courseId}/{mentorId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<IActionResult> EditMentorWorkspace(
+            long courseId, string mentorId, WorkspaceDTO workspaceDto)
+        {
+            var mentor = await AuthServiceClient.GetAccountData(mentorId);
+            if (mentor == null)
+                return NotFound("Пользователь с такой почтой не найден");
+
+            if (!Roles.LecturerOrExpertRole.Contains(mentor.Role))
+                return BadRequest("Пользователь с такой почтой не является преподавателем или экспертом");
+
+            var courseFilterModel = _mapper.Map<CreateCourseFilterDTO>(workspaceDto);
+            courseFilterModel.UserId = mentorId;
+
+            var courseFilterCreationResult =
+                await _coursesClient.CreateOrUpdateCourseFilter(courseId, courseFilterModel);
+
+            return courseFilterCreationResult.Succeeded
+                ? Ok() as IActionResult
+                : BadRequest(courseFilterCreationResult.Errors[0]);
+        }
+
+        [HttpGet("getMentorWorkspace/{courseId}/{mentorId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(WorkspaceDTO), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetMentorWorkspace(long courseId, string mentorId)
+        {
+            var mentor = await AuthServiceClient.GetAccountData(mentorId);
+            if (mentor == null)
+                return NotFound("Пользователь с такой почтой не найден");
+
+            if (!Roles.LecturerOrExpertRole.Contains(mentor.Role))
+                return BadRequest("Пользователь с такой почтой не является преподавателем или экспертом");
+
+            var courseFilterResult = await _coursesClient.GetCourseFilter(courseId, mentorId);
+
+            // Если фильтра для ментора не существует, его рабочая область -- все домашки и студенты
+            if (!courseFilterResult.Succeeded)
+            {
+                var course = await _coursesClient.GetCourseById(courseId);
+                if (course == null)
+                    return BadRequest("Курса с таким идентификатором не существует");
+
+                var workspace = new WorkspaceDTO
+                {
+                    HomeworkIds = course.Homeworks.Select(h => h.Id).ToList(),
+                    StudentIds = course.CourseMates.Select(c => c.StudentId).ToList()
+                };
+                return Ok(workspace);
+            }
+
+            var workspaceViewModel = _mapper.Map<WorkspaceDTO>(courseFilterResult.Value);
+            return Ok(workspaceViewModel);
         }
     }
 }

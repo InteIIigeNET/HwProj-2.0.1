@@ -480,11 +480,11 @@ namespace HwProj.CoursesService.Client
                 : Result<string[]>.Failed();
         }
 
-        public async Task<Result<long>> CreateOrUpdateExpertCourseFilter(CreateCourseFilterModel model)
+        public async Task<Result<long>> CreateOrUpdateCourseFilter(long courseId, CreateCourseFilterDTO model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + "api/CourseFilters/createExpertFilter");
+                _coursesServiceUri + $"api/CourseFilters/{courseId}/create");
             httpRequest.Content = new StringContent(
                 JsonConvert.SerializeObject(model),
                 Encoding.UTF8,
@@ -492,7 +492,29 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result<long>>();
+            
+            return response.StatusCode switch
+            {
+                HttpStatusCode.OK => Result<long>.Success(await response.DeserializeAsync<long>()),
+                HttpStatusCode.BadRequest => Result<long>.Failed(await response.Content.ReadAsStringAsync()),
+                _ => Result<long>.Failed(),
+            };
+        }
+
+        public async Task<Result<CourseFilterDTO>> GetCourseFilter(long courseId, string userId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/CourseFilters/get/{courseId}/{userId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+
+            return response.StatusCode switch
+            {
+                HttpStatusCode.OK => Result<CourseFilterDTO>.Success(await response.DeserializeAsync<CourseFilterDTO>()),
+                HttpStatusCode.NotFound => Result<CourseFilterDTO>.Failed(await response.Content.ReadAsStringAsync()),
+                _ => Result<CourseFilterDTO>.Failed(),
+            };
         }
 
         public async Task<bool> Ping()
