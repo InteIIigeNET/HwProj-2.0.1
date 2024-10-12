@@ -8,10 +8,11 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import ApiSingleton from "../../api/ApiSingleton";
 import Typography from "@material-ui/core/Typography";
 import Grid from '@material-ui/core/Grid';
-import {HomeworkViewModel, AccountDataDto, WorkspaceDTO} from "../../api";
-import {Autocomplete, Alert} from "@mui/material";
+import {HomeworkViewModel, AccountDataDto, EditMentorWorkspaceDTO} from "../../api";
+import {Alert} from "@mui/material";
 import ErrorsHandler from "../Utils/ErrorsHandler";
 import {CircularProgress, Snackbar} from "@material-ui/core";
+import CourseFilter from "./CourseFilter";
 
 interface MentorWorkspaceProps {
     isOpen: boolean;
@@ -23,8 +24,6 @@ interface MentorWorkspaceProps {
 }
 
 interface MentorWorkspaceState {
-    courseHomeworks: HomeworkViewModel[];
-    courseStudents: AccountDataDto[];
     selectedHomeworks: HomeworkViewModel[];
     selectedStudents: AccountDataDto[];
     errors: string[];
@@ -32,8 +31,6 @@ interface MentorWorkspaceState {
 
 const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
     const [state, setState] = useState<MentorWorkspaceState>({
-        courseHomeworks: [],
-        courseStudents: [],
         selectedHomeworks: [],
         selectedStudents: [],
         errors: []
@@ -47,57 +44,14 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
     const [isWorkspaceUpdated, setIsWorkspaceUpdated]
         = useState<boolean>(false);
 
-    useEffect(() => {
-        // Получаем назначенных ментору студентов и домашние работы.
-        const fetchMentorWorkspace = async () => {
-            try {
-                const courseViewModel = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(props.courseId);
-
-                const workspace =
-                    await ApiSingleton.coursesApi.apiCoursesGetMentorWorkspaceByCourseIdByMentorIdGet(props.courseId, props.mentorId);
-
-                const studentIdsSet = new Set(workspace.studentIds)
-                const homeworkIdsSet = new Set(workspace.homeworkIds)
-
-                // Формируем модели назначенных домашних работ и студентов. Если количество назначенных объектов
-                // совпадает с количеством объектов курса, то передаем пустой массив (эквивалентно "Все")
-                const students = studentIdsSet.size === courseViewModel.acceptedStudents?.length ?
-                    [] : courseViewModel.acceptedStudents!.filter(studentData => studentIdsSet.has(studentData.userId!));
-                const homeworks = homeworkIdsSet.size === courseViewModel.homeworks?.length ?
-                    [] : courseViewModel.homeworks!.filter(homeworkData => homeworkIdsSet.has(homeworkData.id!));
-
-                setState(prevState => ({
-                    ...prevState,
-                    courseHomeworks: courseViewModel.homeworks ?? [],
-                    courseStudents: courseViewModel.acceptedStudents ?? [],
-                    selectedStudents: students,
-                    selectedHomeworks: homeworks
-                }))
-                setIsWorkspaceLoading(false);
-            } catch (e) {
-                const errors = await ErrorsHandler.getErrorMessages(e);
-                setState((prevState) => ({
-                    ...prevState,
-                    errors: errors
-                }))
-            }
-        }
-
-        fetchMentorWorkspace();
-    }, [])
-
     // Если преподаватель не выбрал ни одного студента, по умолчанию регистрируем всех. Аналогично с выбором домашних работ
     const handleWorkspaceChanges = async () => {
         try {
-            // TODO: уметь обрабатывать ситуации "никого" и "все"
-            const workspaceViewModel: WorkspaceDTO = {
-                homeworkIds: state.selectedHomeworks.length === 0 ?
-                    state.courseHomeworks.map(homeworkViewModel => homeworkViewModel.id!)
-                    : state.selectedHomeworks.map(homeworkViewModel => homeworkViewModel.id!),
-                studentIds: state.selectedStudents.length === 0 ?
-                    state.courseStudents.map(accountData => accountData.userId!)
-                    : state.selectedStudents.map(accountData => accountData.userId!)
+            const workspaceViewModel: EditMentorWorkspaceDTO = {
+                homeworkIds: state.selectedHomeworks.map(homeworkViewModel => homeworkViewModel.id!),
+                studentIds: state.selectedStudents.map(accountData => accountData.userId!)
             }
+
             await ApiSingleton.coursesApi.apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(
                 props.courseId, props.mentorId, workspaceViewModel
             );
@@ -121,76 +75,41 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
                     </Typography>
                 </DialogTitle>
                 <DialogContent>
-                    {isWorkspaceLoading ? (
-                        <div className="container" style={{paddingLeft: "40px"}}>
-                            <p>Загружаем данные...</p>
-                            <CircularProgress/>
-                        </div>
-                    ) : (
-                        <div>
-                            <Grid item container direction={"row"} justifyContent={"center"}>
-                                {state.errors.length > 0 && (
-                                    <p style={{color: "red", marginBottom: "5px"}}>{state.errors}</p>
-                                )}
-                            </Grid>
+                    <div>
+                        <Grid item container direction={"row"} justifyContent={"center"}>
+                            {state.errors.length > 0 && (
+                                <p style={{color: "red", marginBottom: "5px"}}>{state.errors}</p>
+                            )}
+                        </Grid>
+                        {!isWorkspaceLoading &&
                             <Typography>
                                 Здесь Вы можете изменить область работы преподавателя
-                            </Typography>
-                            <Grid container style={{marginTop: '10px'}}>
-                                <Grid container spacing={2} style={{marginTop: '2px'}}>
-                                    <Grid item xs={12} sm={12}>
-                                        <Autocomplete
-                                            multiple
-                                            fullWidth
-                                            options={state.courseHomeworks}
-                                            getOptionLabel={(option: HomeworkViewModel) => option.title ?? "Без названия"}
-                                            filterSelectedOptions
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    variant="outlined"
-                                                    label={state.selectedHomeworks.length === 0 ? "" : "Домашние работы"}
-                                                    placeholder={state.selectedHomeworks.length === 0 ? "Все домашние работы" : ""}
-                                                />
-                                            )}
-                                            noOptionsText={'На курсе больше нет домашних работ'}
-                                            value={state.selectedHomeworks}
-                                            onChange={(_, values) => {
-                                                setState(prevState => ({
-                                                    ...prevState,
-                                                    selectedHomeworks: values
-                                                }));
-                                            }}
-                                        />
-                                    </Grid>
-                                </Grid>
-                                <Grid container spacing={2} style={{marginTop: '12px'}}>
-                                    <Grid item xs={12} sm={12}>
-                                        <Autocomplete
-                                            multiple
-                                            fullWidth
-                                            options={state.courseStudents}
-                                            getOptionLabel={(option: AccountDataDto) => option.name + ' ' + option.surname}
-                                            filterSelectedOptions
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    variant="outlined"
-                                                    label={state.selectedStudents.length === 0 ? "" : "Студенты"}
-                                                    placeholder={state.selectedStudents.length === 0 ? "Все студенты" : ""}
-                                                />)}
-                                            noOptionsText={'На курсе больше нет студентов'}
-                                            value={state.selectedStudents}
-                                            onChange={(_, values) => {
-                                                setState(prevState => ({
-                                                    ...prevState,
-                                                    selectedStudents: values
-                                                }));
-                                            }}
-                                        />
-                                    </Grid>
-                                </Grid>
-                            </Grid>
+                            </Typography>}
+                        <CourseFilter courseId={props.courseId}
+                                      mentorId={props.mentorId}
+                                      onSelectedHomeworksChange={(homeworks) =>
+                                          setState(prevState => ({
+                                              ...prevState,
+                                              selectedHomeworks: homeworks
+                                          }))
+                                      }
+                                      onSelectedStudentsChange={(students) =>
+                                          setState(prevState => ({
+                                              ...prevState,
+                                              selectedStudents: students
+                                          }))
+                                      }
+                                      onWorkspaceInitialize={(success, errors) => {
+                                          if (!success) {
+                                              setState(prevState => ({
+                                                  ...prevState,
+                                                  errors: errors ?? ['Сервис недоступен']
+                                              }))
+                                          }
+                                          setIsWorkspaceLoading(false)
+                                      }}
+                        />
+                        {!isWorkspaceLoading &&
                             <Grid
                                 direction="row"
                                 justifyContent="flex-end"
@@ -217,8 +136,8 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
                                         Изменить
                                     </Button>
                                 </Grid>
-                            </Grid>
-                        </div>)}
+                            </Grid>}
+                    </div>
                 </DialogContent>
                 <DialogActions>
                 </DialogActions>
