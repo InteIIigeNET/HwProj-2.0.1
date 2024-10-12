@@ -626,6 +626,26 @@ export interface EditAccountViewModel {
 /**
  *
  * @export
+ * @interface EditMentorWorkspaceDTO
+ */
+export interface EditMentorWorkspaceDTO {
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof EditMentorWorkspaceDTO
+     */
+    studentIds?: Array<string>;
+    /**
+     *
+     * @type {Array<number>}
+     * @memberof EditMentorWorkspaceDTO
+     */
+    homeworkIds?: Array<number>;
+}
+
+/**
+ *
+ * @export
  * @interface ExpertDataDTO
  */
 export interface ExpertDataDTO {
@@ -2227,21 +2247,21 @@ export interface UserTaskSolutionsPageData {
 /**
  *
  * @export
- * @interface WorkspaceDTO
+ * @interface WorkspaceViewModel
  */
-export interface WorkspaceDTO {
+export interface WorkspaceViewModel {
     /**
      *
-     * @type {Array<string>}
-     * @memberof WorkspaceDTO
+     * @type {Array<AccountDataDto>}
+     * @memberof WorkspaceViewModel
      */
-    studentIds?: Array<string>;
+    students?: Array<AccountDataDto>;
     /**
      *
-     * @type {Array<number>}
-     * @memberof WorkspaceDTO
+     * @type {Array<HomeworkViewModel>}
+     * @memberof WorkspaceViewModel
      */
-    homeworkIds?: Array<number>;
+    homeworks?: Array<HomeworkViewModel>;
 }
 
 
@@ -4105,11 +4125,11 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
          *
          * @param {number} courseId
          * @param {string} mentorId
-         * @param {WorkspaceDTO} [workspaceDto]
+         * @param {EditMentorWorkspaceDTO} [editMentorWorkspaceDto]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(courseId: number, mentorId: string, workspaceDto?: WorkspaceDTO, options: any = {}): FetchArgs {
+        apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(courseId: number, mentorId: string, editMentorWorkspaceDto?: EditMentorWorkspaceDTO, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
                 throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost.');
@@ -4140,8 +4160,8 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"WorkspaceDTO" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(workspaceDto || {}) : (workspaceDto || "");
+            const needsSerialization = (<any>"EditMentorWorkspaceDTO" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(editMentorWorkspaceDto || {}) : (editMentorWorkspaceDto || "");
 
             return {
                 url: url.format(localVarUrlObj),
@@ -4546,12 +4566,12 @@ export const CoursesApiFp = function(configuration?: Configuration) {
          *
          * @param {number} courseId
          * @param {string} mentorId
-         * @param {WorkspaceDTO} [workspaceDto]
+         * @param {EditMentorWorkspaceDTO} [editMentorWorkspaceDto]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(courseId: number, mentorId: string, workspaceDto?: WorkspaceDTO, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(courseId, mentorId, workspaceDto, options);
+        apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(courseId: number, mentorId: string, editMentorWorkspaceDto?: EditMentorWorkspaceDTO, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(courseId, mentorId, editMentorWorkspaceDto, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -4604,7 +4624,7 @@ export const CoursesApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesGetMentorWorkspaceByCourseIdByMentorIdGet(courseId: number, mentorId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<WorkspaceDTO> {
+        apiCoursesGetMentorWorkspaceByCourseIdByMentorIdGet(courseId: number, mentorId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<WorkspaceViewModel> {
             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesGetMentorWorkspaceByCourseIdByMentorIdGet(courseId, mentorId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -4767,12 +4787,12 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
          *
          * @param {number} courseId
          * @param {string} mentorId
-         * @param {WorkspaceDTO} [workspaceDto]
+         * @param {EditMentorWorkspaceDTO} [editMentorWorkspaceDto]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(courseId: number, mentorId: string, workspaceDto?: WorkspaceDTO, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(courseId, mentorId, workspaceDto, options)(fetch, basePath);
+        apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(courseId: number, mentorId: string, editMentorWorkspaceDto?: EditMentorWorkspaceDTO, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(courseId, mentorId, editMentorWorkspaceDto, options)(fetch, basePath);
         },
         /**
          *
@@ -4918,13 +4938,13 @@ export class CoursesApi extends BaseAPI {
      *
      * @param {number} courseId
      * @param {string} mentorId
-     * @param {WorkspaceDTO} [workspaceDto]
+     * @param {EditMentorWorkspaceDTO} [editMentorWorkspaceDto]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CoursesApi
      */
-    public apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(courseId: number, mentorId: string, workspaceDto?: WorkspaceDTO, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(courseId, mentorId, workspaceDto, options)(this.fetch, this.basePath);
+    public apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(courseId: number, mentorId: string, editMentorWorkspaceDto?: EditMentorWorkspaceDTO, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(courseId, mentorId, editMentorWorkspaceDto, options)(this.fetch, this.basePath);
     }
 
     /**
