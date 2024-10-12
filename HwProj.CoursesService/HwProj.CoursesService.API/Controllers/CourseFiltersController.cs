@@ -37,16 +37,5 @@ namespace HwProj.CoursesService.API.Controllers
                 ? Ok(result.Value) as IActionResult
                 : BadRequest(result.Errors[0]);
         }
-
-        [HttpGet("get/{courseId}/{userId}")]
-        [ProducesResponseType(typeof(CourseFilterDTO), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get(long courseId, string userId)
-        {
-            var result = await _courseFilterService.Get(courseId, userId);
-
-            return result.Succeeded
-                ? Ok(result.Value) as IActionResult
-                : NotFound(result.Errors[0]);
-        }
     }
 }

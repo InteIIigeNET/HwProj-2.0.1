@@ -518,22 +518,6 @@ namespace HwProj.CoursesService.Client
             };
         }
 
-        public async Task<Result<CourseFilterDTO>> GetCourseFilter(long courseId, string userId)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get,
-                _coursesServiceUri + $"api/CourseFilters/get/{courseId}/{userId}");
-
-            var response = await _httpClient.SendAsync(httpRequest);
-
-            return response.StatusCode switch
-            {
-                HttpStatusCode.OK => Result<CourseFilterDTO>.Success(await response.DeserializeAsync<CourseFilterDTO>()),
-                HttpStatusCode.NotFound => Result<CourseFilterDTO>.Failed(await response.Content.ReadAsStringAsync()),
-                _ => Result<CourseFilterDTO>.Failed(),
-            };
-        }
-
         public async Task<bool> Ping()
         {
             try
