@@ -87,6 +87,7 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
                             </Typography>}
                         <CourseFilter courseId={props.courseId}
                                       mentorId={props.mentorId}
+                                      isStudentsSelectionHidden={false}
                                       onSelectedHomeworksChange={(homeworks) =>
                                           setState(prevState => ({
                                               ...prevState,

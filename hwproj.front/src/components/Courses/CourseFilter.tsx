@@ -6,6 +6,7 @@ import TextField from "@material-ui/core/TextField";
 import ApiSingleton from "../../api/ApiSingleton";
 import ErrorsHandler from "../Utils/ErrorsHandler";
 import {CircularProgress} from "@material-ui/core";
+import Button from "@material-ui/core/Button";
 
 interface ICourseFilterProps {
     courseId: number;
@@ -13,6 +14,7 @@ interface ICourseFilterProps {
     onSelectedHomeworksChange: (homeworks: HomeworkViewModel[]) => void;
     onSelectedStudentsChange: (students: AccountDataDto[]) => void;
     onWorkspaceInitialize: (success: boolean, errors?: string[]) => void;
+    isStudentsSelectionHidden: boolean;
 }
 
 interface ICourseFilterState {
@@ -31,8 +33,11 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
         selectedStudents: []
     });
 
-    // Для отображения элемента загрузки
+    // Состояние для отображения элемента загрузки
     const [isLoading, setIsLoading] = useState<boolean>(true);
+
+    // Состояние для отображения поля выбора студентов
+    const [isStudentsSelectionHidden, setIsStudentsSelectionHidden] = useState<boolean>(props.isStudentsSelectionHidden);
 
     // Если у преподавателя в workspace все студенты, отображаем "Все" в компоненте.
     // Функция, необходимые для корректного отображения и передачи данных родителю
@@ -83,7 +88,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
     return (
         <div>
             {isLoading ? (
-                <div className="container" style={{paddingLeft: "40px"}}>
+                <div className="container">
                     <p>Загружаем данные...</p>
                     <CircularProgress/>
                 </div>
@@ -121,37 +126,47 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                             />
                         </Grid>
                     </Grid>
-                    <Grid container spacing={2} style={{marginTop: '12px'}}>
-                        <Grid item xs={12} sm={12}>
-                            <Autocomplete
-                                multiple
-                                fullWidth
-                                options={state.courseStudents}
-                                getOptionLabel={(option: AccountDataDto) => option.name + ' ' + option.surname}
-                                filterSelectedOptions
-                                isOptionEqualToValue={(option, value) => option.userId === value.userId}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        variant="outlined"
-                                        label={state.selectedStudents.length === 0 ? "" : "Студенты"}
-                                        placeholder={state.selectedStudents.length === 0 ? "Все студенты" : ""}
-                                    />)}
-                                noOptionsText={'На курсе больше нет студентов'}
-                                value={state.selectedStudents}
-                                onChange={(_, values) => {
-                                    setState((prevState) => ({
-                                        ...prevState,
-                                        selectedStudents: values
-                                    }));
+                    {isStudentsSelectionHidden ? (
+                        <div style={{marginTop: '15px'}}>
+                            <Button size={"small"} color="primary"
+                                    onClick={() => setIsStudentsSelectionHidden(false)}>
+                                Выбрать студентов
+                            </Button>
+                        </div>
+                    ) : (
+                        <Grid container spacing={2} style={{marginTop: '12px'}}>
+                            <Grid item xs={12} sm={12}>
+                                <Autocomplete
+                                    multiple
+                                    fullWidth
+                                    options={state.courseStudents}
+                                    getOptionLabel={(option: AccountDataDto) => option.name + ' ' + option.surname}
+                                    filterSelectedOptions
+                                    isOptionEqualToValue={(option, value) => option.userId === value.userId}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            variant="outlined"
+                                            label={state.selectedStudents.length === 0 ? "" : "Студенты"}
+                                            placeholder={state.selectedStudents.length === 0 ? "Все студенты" : ""}
+                                        />)}
+                                    noOptionsText={'На курсе больше нет студентов'}
+                                    value={state.selectedStudents}
+                                    onChange={(_, values) => {
+                                        setState((prevState) => ({
+                                            ...prevState,
+                                            selectedStudents: values
+                                        }));
 
-                                    const processedValues = processSelectedItems(
-                                        values, state.courseStudents);
-                                    props.onSelectedStudentsChange(processedValues);
-                                }}
-                            />
+                                        const processedValues = processSelectedItems(
+                                            values, state.courseStudents);
+                                        props.onSelectedStudentsChange(processedValues);
+                                    }}
+                                />
+                            </Grid>
                         </Grid>
-                    </Grid>
+
+                    )}
                 </Grid>
             )}
         </div>
