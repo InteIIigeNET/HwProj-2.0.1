@@ -12,8 +12,7 @@ namespace HwProj.APIGateway.API
         public ApplicationProfile()
         {
             CreateMap<InviteExpertViewModel, CreateCourseFilterDTO>();
-            CreateMap<WorkspaceDTO, CreateCourseFilterDTO>();
-            CreateMap<CourseFilterDTO, WorkspaceDTO>();
+            CreateMap<EditMentorWorkspaceDTO, CreateCourseFilterDTO>();
         }
     }
 }

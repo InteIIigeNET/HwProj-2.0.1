@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace HwProj.Models.CoursesService.ViewModels
+namespace HwProj.Models.CoursesService.DTO
 {
-    public class WorkspaceDTO
+    public class EditMentorWorkspaceDTO
     {
         public List<string> StudentIds { get; set; } = new List<string>();
 
