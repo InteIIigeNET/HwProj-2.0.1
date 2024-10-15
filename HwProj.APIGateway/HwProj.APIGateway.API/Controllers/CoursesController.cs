@@ -40,6 +40,18 @@ namespace HwProj.APIGateway.API.Controllers
             return result;
         }
 
+        [HttpGet("getAllData/{courseId}")]
+        [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllCourseData(long courseId)
+        {
+            var courseResult = await _coursesClient.GetAllCourseData(courseId);
+            if (!courseResult.Succeeded)
+                return BadRequest(courseResult.Errors[0]);
+
+            var result = await ToCourseViewModel(courseResult.Value);
+            return Ok(result);
+        }
+
         [HttpGet("{courseId}")]
         [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseData(long courseId)
@@ -47,36 +59,7 @@ namespace HwProj.APIGateway.API.Controllers
             var course = await _coursesClient.GetCourseById(courseId);
             if (course == null) return NotFound();
 
-            var studentIds = course.CourseMates.Select(t => t.StudentId).ToArray();
-            var getStudentsTask = AuthServiceClient.GetAccountsData(studentIds);
-            var getMentorsTask = AuthServiceClient.GetAccountsData(course.MentorIds);
-
-            await Task.WhenAll(getStudentsTask, getMentorsTask);
-
-            var students = getStudentsTask.Result;
-
-            var acceptedStudents = new List<AccountDataDto>();
-            var newStudents = new List<AccountDataDto>();
-            for (var i = 0; i < students.Length; i++)
-            {
-                if (!(students[i] is { } student)) continue;
-                if (course.CourseMates[i].IsAccepted) acceptedStudents.Add(student);
-                else newStudents.Add(student);
-            }
-
-            var result = new CourseViewModel
-            {
-                Id = courseId,
-                Name = course.Name,
-                GroupName = course.GroupName,
-                Mentors = getMentorsTask.Result.Where(t => t != null).ToArray(),
-                AcceptedStudents = acceptedStudents.ToArray(),
-                NewStudents = newStudents.ToArray(),
-                Homeworks = course.Homeworks,
-                IsCompleted = course.IsCompleted,
-                IsOpen = course.IsOpen,
-            };
-
+            var result = await ToCourseViewModel(course);
             return Ok(result);
         }
 
@@ -221,6 +204,39 @@ namespace HwProj.APIGateway.API.Controllers
                 Students = students
             };
             return Ok(workspace);
+        }
+
+        private async Task<CourseViewModel> ToCourseViewModel(CourseDTO course)
+        {
+            var studentIds = course.CourseMates.Select(t => t.StudentId).ToArray();
+            var getStudentsTask = AuthServiceClient.GetAccountsData(studentIds);
+            var getMentorsTask = AuthServiceClient.GetAccountsData(course.MentorIds);
+
+            await Task.WhenAll(getStudentsTask, getMentorsTask);
+
+            var students = getStudentsTask.Result;
+
+            var acceptedStudents = new List<AccountDataDto>();
+            var newStudents = new List<AccountDataDto>();
+            for (var i = 0; i < students.Length; i++)
+            {
+                if (!(students[i] is { } student)) continue;
+                if (course.CourseMates[i].IsAccepted) acceptedStudents.Add(student);
+                else newStudents.Add(student);
+            }
+
+            return new CourseViewModel
+            {
+                Id = course.Id,
+                Name = course.Name,
+                GroupName = course.GroupName,
+                Mentors = getMentorsTask.Result.Where(t => t != null).ToArray(),
+                AcceptedStudents = acceptedStudents.ToArray(),
+                NewStudents = newStudents.ToArray(),
+                Homeworks = course.Homeworks,
+                IsCompleted = course.IsCompleted,
+                IsOpen = course.IsOpen,
+            };
         }
     }
 }
