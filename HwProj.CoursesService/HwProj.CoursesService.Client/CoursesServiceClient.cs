@@ -62,6 +62,23 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? await response.DeserializeAsync<CourseDTO>() : null;
         }
 
+        public async Task<Result<CourseDTO>> GetCourseByIdForMentor(long courseId, string mentorId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/getForMentor/{courseId}/{mentorId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            
+            return response.StatusCode switch
+            {
+                HttpStatusCode.OK => Result<CourseDTO>.Success(await response.DeserializeAsync<CourseDTO>()),
+                HttpStatusCode.BadRequest => Result<CourseDTO>.Failed(await response.Content.ReadAsStringAsync()),
+                _ => Result<CourseDTO>.Failed()
+            };
+        }
+
         public async Task<Result> DeleteCourse(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -480,11 +497,11 @@ namespace HwProj.CoursesService.Client
                 : Result<string[]>.Failed();
         }
 
-        public async Task<Result<long>> CreateOrUpdateExpertCourseFilter(CreateCourseFilterModel model)
+        public async Task<Result<long>> CreateOrUpdateCourseFilter(long courseId, CreateCourseFilterDTO model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + "api/CourseFilters/createExpertFilter");
+                _coursesServiceUri + $"api/CourseFilters/{courseId}/create");
             httpRequest.Content = new StringContent(
                 JsonConvert.SerializeObject(model),
                 Encoding.UTF8,
@@ -492,7 +509,13 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result<long>>();
+            
+            return response.StatusCode switch
+            {
+                HttpStatusCode.OK => Result<long>.Success(await response.DeserializeAsync<long>()),
+                HttpStatusCode.BadRequest => Result<long>.Failed(await response.Content.ReadAsStringAsync()),
+                _ => Result<long>.Failed(),
+            };
         }
 
         public async Task<bool> Ping()

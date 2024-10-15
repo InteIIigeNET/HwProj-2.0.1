@@ -287,31 +287,20 @@ namespace HwProj.APIGateway.API.Controllers
         [Authorize(Roles = Roles.LecturerOrExpertRole)]
         public async Task<UnratedSolutionPreviews> GetUnratedSolutions(long? taskId)
         {
-            var role = Request.GetUserRole();
             var mentorCourses = await _coursesServiceClient.GetAllUserCourses();
             var tasks = FilterTasks(mentorCourses, taskId).ToDictionary(t => t.taskId, t => t.data);
 
-            SolutionPreviewDto[] solutions;
-            if (role == Roles.LecturerRole)
+            var studentsAndTasks = new Dictionary<long, (List<string> studentIds, List<long> taskIds)>();
+            foreach (var value in tasks.Values)
             {
-                solutions = await _solutionsClient.GetAllUnratedSolutionsForTasks(
-                    new GetTasksSolutionsModel { TaskIds = tasks.Keys.ToArray() }
-                );
+                studentsAndTasks.TryAdd(
+                    value.course.Id, (
+                        value.course.AcceptedStudents.Select(ast => ast.StudentId).ToList(),
+                        new List<long>()));
+                studentsAndTasks[value.course.Id].taskIds.Add(value.task.Id);
             }
-            else
-            {
-                var studentsAndTasks = new Dictionary<long, (List<string> studentIds, List<long> taskIds)>();
-                foreach (var value in tasks.Values)
-                {
-                    studentsAndTasks.TryAdd(
-                        value.course.Id, (
-                            value.course.AcceptedStudents.Select(ast => ast.StudentId).ToList(),
-                            new List<long>()));
-                    studentsAndTasks[value.course.Id].taskIds.Add(value.task.Id);
-                }
 
-                solutions = await GetAllUnratedSolutionsForTasks(studentsAndTasks);
-            }
+            var solutions = await GetAllUnratedSolutionsForTasks(studentsAndTasks);
 
             var studentIds = solutions.Select(t => t.StudentId).Distinct().ToArray();
             var accountsData = await AuthServiceClient.GetAccountsData(studentIds);

@@ -11,6 +11,7 @@ namespace HwProj.CoursesService.Client
     {
         Task<CoursePreview[]> GetAllCourses();
         Task<CourseDTO?> GetCourseById(long courseId);
+        Task<Result<CourseDTO>> GetCourseByIdForMentor(long courseId, string mentorId);
         Task<CourseDTO?> GetCourseByTask(long taskId);
         Task<Result> DeleteCourse(long courseId);
         Task<long> CreateCourse(CreateCourseViewModel model, string mentorId);
@@ -42,7 +43,7 @@ namespace HwProj.CoursesService.Client
         Task<Result> AcceptLecturer(long courseId, string lecturerEmail, string lecturerId);
         Task<Result<AccountDataDto[]>> GetLecturersAvailableForCourse(long courseId);
         Task<Result<string[]>> GetAllTagsForCourse(long courseId);
-        Task<Result<long>> CreateOrUpdateExpertCourseFilter(CreateCourseFilterModel model);
+        Task<Result<long>> CreateOrUpdateCourseFilter(long courseId, CreateCourseFilterDTO model);
         Task<bool> Ping();
     }
 }
