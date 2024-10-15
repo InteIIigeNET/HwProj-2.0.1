@@ -66,7 +66,7 @@ namespace HwProj.CoursesService.API.Services
             return await GetAsync(homework.CourseId, userId);
         }
 
-        public async Task<CourseDTO?> GetAsync(long id, string userId)
+        public async Task<CourseDTO?> GetAsync(long id, string userId = "")
         {
             var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(id);
             if (course == null) return null;
@@ -82,7 +82,8 @@ namespace HwProj.CoursesService.API.Services
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
 
-            var result = await _courseFilterService.ApplyFilter(courseDto, userId);
+            var result = userId == string.Empty ?
+                courseDto : await _courseFilterService.ApplyFilter(courseDto, userId);
             return result;
         }
 
