@@ -74,7 +74,24 @@ namespace HwProj.CoursesService.Client
             return response.StatusCode switch
             {
                 HttpStatusCode.OK => Result<CourseDTO>.Success(await response.DeserializeAsync<CourseDTO>()),
-                HttpStatusCode.BadRequest => Result<CourseDTO>.Failed(await response.Content.ReadAsStringAsync()),
+                HttpStatusCode.Forbidden => Result<CourseDTO>.Failed(await response.Content.ReadAsStringAsync()),
+                _ => Result<CourseDTO>.Failed()
+            };
+        }
+
+        public async Task<Result<CourseDTO>> GetAllCourseData(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/getAllData/{courseId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+
+            return response.StatusCode switch
+            {
+                HttpStatusCode.OK => Result<CourseDTO>.Success(await response.DeserializeAsync<CourseDTO>()),
+                HttpStatusCode.Forbidden => Result<CourseDTO>.Failed(await response.Content.ReadAsStringAsync()),
                 _ => Result<CourseDTO>.Failed()
             };
         }

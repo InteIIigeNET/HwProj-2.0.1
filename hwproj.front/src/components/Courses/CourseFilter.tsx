@@ -39,16 +39,22 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
     // Состояние для отображения поля выбора студентов
     const [isStudentsSelectionHidden, setIsStudentsSelectionHidden] = useState<boolean>(props.isStudentsSelectionHidden);
 
-    // Если у преподавателя в workspace все студенты, отображаем "Все" в компоненте.
-    // Функция, необходимые для корректного отображения и передачи данных родителю
+    // Если у преподавателя в workspace все студенты, отображаем "Все" в компоненте, значений при этом не выбрано.
+    // Функция, необходимые для корректной передачи данных родителю
     function processSelectedItems<T>(selected: T[], all: T[]): T[] {
         return selected.length === 0 ? all : selected;
+    }
+
+    // Если у преподавателя в workspace все студенты, отображаем "Все" в компоненте, значений при этом не выбрано.
+    // Функция, необходимые для корректного отображения выбранных элементов.
+    function getItemsView<T>(selected: T[], all: T[]): T[] {
+        return selected.length === all.length ? [] : selected;
     }
 
     useEffect(() => {
         const fetchCourseDataForMentor = async () => {
             try {
-                const courseViewModel = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(props.courseId);
+                const courseViewModel = await ApiSingleton.coursesApi.apiCoursesGetAllDataByCourseIdGet(props.courseId);
                 const mentorWorkspace =
                     await ApiSingleton.coursesApi.apiCoursesGetMentorWorkspaceByCourseIdByMentorIdGet(props.courseId, props.mentorId);
 
@@ -116,7 +122,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                 onChange={(_, values) => {
                                     setState((prevState) => ({
                                         ...prevState,
-                                        selectedHomeworks: values,
+                                        selectedHomeworks: getItemsView(values, state.courseHomeworks),
                                     }))
 
                                     const processedValues = processSelectedItems(
@@ -155,7 +161,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                     onChange={(_, values) => {
                                         setState((prevState) => ({
                                             ...prevState,
-                                            selectedStudents: values
+                                            selectedStudents: getItemsView(values, state.courseStudents)
                                         }));
 
                                         const processedValues = processSelectedItems(

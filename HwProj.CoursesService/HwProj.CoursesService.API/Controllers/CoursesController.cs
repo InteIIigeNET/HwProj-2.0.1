@@ -65,6 +65,16 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(course);
         }
 
+        [HttpGet("getAllData/{courseId}/")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> GetAllData(long courseId)
+        {
+            var course = await _coursesService.GetAsync(courseId);
+            if (course == null) return NotFound();
+
+            return Ok(course);
+        }
+
         [CourseDataFilter]
         [HttpGet("getByTask/{taskId}")]
         public async Task<IActionResult> GetByTask(long taskId)
