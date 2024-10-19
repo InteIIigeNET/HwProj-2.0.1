@@ -228,12 +228,9 @@ namespace HwProj.SolutionsService.API.Services
                 .ToArrayAsync();
         }
 
-        public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats(long[] taskIds)
+        public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats(GetTasksSolutionsModel tasksSolutionsModel)
         {
-            var unratedSolutions = await GetAllUnratedSolutions(new GetTasksSolutionsModel
-            {
-                TaskIds = taskIds
-            });
+            var unratedSolutions = await GetAllUnratedSolutions(tasksSolutionsModel);
             var statsSolutions = unratedSolutions
                 .GroupBy(s => s.TaskId)
                 .Select(s => new TaskSolutionsStats
@@ -242,7 +239,7 @@ namespace HwProj.SolutionsService.API.Services
                     CountUnratedSolutions = s.Count()
                 }).ToDictionary(t => t.TaskId);
 
-            return taskIds.Select(t => statsSolutions.TryGetValue(t, out var value)
+            return tasksSolutionsModel.TaskIds.Select(t => statsSolutions.TryGetValue(t, out var value)
                 ? value
                 : new TaskSolutionsStats
                 {

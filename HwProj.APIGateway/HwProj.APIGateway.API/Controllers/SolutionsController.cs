@@ -11,6 +11,7 @@ using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
+using HwProj.Models.SolutionsService.DTO;
 using HwProj.SolutionsService.Client;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -133,7 +134,12 @@ namespace HwProj.APIGateway.API.Controllers
 
             var getUsersDataTask = AuthServiceClient.GetAccountsData(studentIds.Union(course.MentorIds).ToArray());
             var getStatisticsTask = _solutionsClient.GetTaskSolutionStatistics(course.Id, taskId);
-            var getStatsForTasks = _solutionsClient.GetTaskSolutionsStats(taskIds);
+            var getStatsForTasks = _solutionsClient.GetTaskSolutionsStats(
+                new GetTasksSolutionsDTO
+                {
+                    StudentIds = studentIds,
+                    TaskIds = taskIds
+                });
 
             await Task.WhenAll(getUsersDataTask, getStatisticsTask, getStatsForTasks);
 
