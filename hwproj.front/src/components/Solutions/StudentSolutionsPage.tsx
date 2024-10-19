@@ -117,7 +117,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({ isExpert }) => {
             studentsSolutions,
             courseId,
             statsForTasks
-        } = await ApiSingleton.solutionsApi.apiSolutionsTasksByTaskIdGet(+taskId!, studentId)
+        } = await ApiSingleton.solutionsApi.apiSolutionsTasksByTaskIdGet(+taskId!)
 
         const studentSolutionsPreview = studentsSolutions!.map(studentSolutions => {
             const ratedSolutionInfo = StudentStatsUtils.calculateLastRatedSolutionInfo(studentSolutions.solutions!, task.maxRating!)
