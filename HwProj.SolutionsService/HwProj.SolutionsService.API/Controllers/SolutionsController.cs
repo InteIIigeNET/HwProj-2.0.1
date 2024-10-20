@@ -287,9 +287,9 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("taskSolutionsStats")]
-        public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats([FromBody] long[] taskIds)
+        public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats([FromBody] GetTasksSolutionsModel tasksSolutionsModel)
         {
-            return await _solutionsService.GetTaskSolutionsStats(taskIds);
+            return await _solutionsService.GetTaskSolutionsStats(tasksSolutionsModel);
         }
 
         [HttpGet("actuality/{solutionId}")]

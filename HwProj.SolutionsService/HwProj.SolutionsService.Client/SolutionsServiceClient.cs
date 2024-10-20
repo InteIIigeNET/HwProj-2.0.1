@@ -257,14 +257,14 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<SolutionPreviewDto[]>();
         }
         
-        public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats(long[] taskIds)
+        public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats(GetTasksSolutionsModel tasksSolutionsDTO)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _solutionServiceUri + "api/Solutions/taskSolutionsStats")
             {
                 Content = new StringContent(
-                    JsonConvert.SerializeObject(taskIds),
+                    JsonConvert.SerializeObject(tasksSolutionsDTO),
                     Encoding.UTF8,
                     "application/json")
             };
