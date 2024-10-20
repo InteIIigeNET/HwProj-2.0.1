@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using HwProj.Exceptions;
 using HwProj.HttpUtils;
 using HwProj.Models.SolutionsService;
-using HwProj.Models.SolutionsService.DTO;
 using HwProj.Models.StatisticsService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -258,7 +257,7 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<SolutionPreviewDto[]>();
         }
         
-        public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats(GetTasksSolutionsDTO tasksSolutionsDTO)
+        public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats(GetTasksSolutionsModel tasksSolutionsDTO)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
