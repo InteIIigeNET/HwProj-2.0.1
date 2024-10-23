@@ -3,6 +3,7 @@ import {CoursePreviewView} from "../../api/";
 import {NavLink} from "react-router-dom";
 import MentorsList from "../Common/MentorsList";
 import {Box, Divider, Grid, ListItem, Typography} from "@mui/material";
+import NameBuilder from "../Utils/NameBuilder";
 
 interface ICoursesProps {
     navigate: any
@@ -28,7 +29,7 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                                     style={{color: "#212529"}}
                                 >
                                     <Typography style={{fontSize: "20px"}}>
-                                        {course.name} {course.groupName?.length != 0 ? "/ " + course.groupName : ""}
+                                        {NameBuilder.getCourseFullName(course.name!, course.groupName)}
                                     </Typography>
                                 </NavLink>
                             </ListItem>

@@ -148,8 +148,6 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
     return (
         <div>
             <Dialog open={props.isOpen} onClose={props.onClose} aria-labelledby="dialog-title" fullWidth>
-                <DialogTitle id="dialog-title">
-                    Пригласить эксперта
                 <DialogTitle id="dialog-title" style={{textAlign: "center"}}>
                     {props.expertFullName}
                 </DialogTitle>
@@ -191,7 +189,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                                                 }}>
                                                 {state.lecturerCourses.map((courseViewModel, i) =>
                                                     <MenuItem key={i} value={courseViewModel.id}>
-                                                        {courseViewModel.name}
+                                                        {NameBuilder.getCourseFullName(courseViewModel.name!, courseViewModel.groupName)}
                                                     </MenuItem>)}
                                             </Select>
                                         </FormControl>

@@ -18,6 +18,7 @@ import {useParams, useNavigate} from 'react-router-dom';
 import MentorsList from "../Common/MentorsList";
 import LecturerStatistics from "./Statistics/LecturerStatistics";
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import NameBuilder from "../Utils/NameBuilder";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -188,7 +189,7 @@ const Course: React.FC = () => {
                         <Grid item container xs={12} className={classes.info} alignItems="center" justifyContent="space-between">
                             <Grid item>
                                 <Typography style={{fontSize: '22px'}}>
-                                    {`${course.name} / ${course.groupName}`} &nbsp;
+                                    {NameBuilder.getCourseFullName(course.name!, course.groupName)} &nbsp;
                                     {isLecturer &&
                                         <IconButton
                                             size="small"
