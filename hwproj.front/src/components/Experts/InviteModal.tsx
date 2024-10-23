@@ -14,11 +14,13 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import {CoursePreviewView, HomeworkViewModel, InviteExpertViewModel, AccountDataDto} from "../../api";
 import {Select, MenuItem, InputLabel, FormControl, Autocomplete} from "@mui/material";
 import CourseFilter from "../Courses/CourseFilter";
+import NameBuilder from "../Utils/NameBuilder";
 
 interface IInviteExpertProps {
     isOpen: boolean;
     onClose: any;
     expertEmail: string;
+    expertFullName: string;
     expertId: string;
 }
 
@@ -148,6 +150,8 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
             <Dialog open={props.isOpen} onClose={props.onClose} aria-labelledby="dialog-title" fullWidth>
                 <DialogTitle id="dialog-title">
                     Пригласить эксперта
+                <DialogTitle id="dialog-title" style={{textAlign: "center"}}>
+                    {props.expertFullName}
                 </DialogTitle>
                 <DialogContent>
                     <Grid item container direction={"row"} justifyContent={"center"}>
@@ -163,7 +167,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                     ) : (
                         <div>
                             <Typography>
-                                Выберите курс:
+                                Выберите курс, на который хотите пригласить эксперта
                             </Typography>
                             <Grid container style={{marginTop: '10px'}}>
                                 <Grid container spacing={2}>

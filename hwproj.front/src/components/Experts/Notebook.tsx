@@ -17,11 +17,13 @@ import Chip from "@mui/material/Chip/Chip";
 import InlineTags from "./InlineTags";
 import Tooltip from '@mui/material/Tooltip';
 import EditIcon from '@mui/icons-material/Edit';
+import NameBuilder from './../Utils/NameBuilder';
 import {Alert} from "@mui/material";
 
 interface InviteExpertState {
     isOpen: boolean;
     email: string;
+    fullName: string;
     id: string;
 }
 
@@ -76,6 +78,7 @@ const ExpertsNotebook: FC = () => {
     const [inviteExpertState, setInviteExpertState] = useState<InviteExpertState>({
         isOpen: false,
         email: "",
+        fullName: "",
         id: ""
     })
 
@@ -96,10 +99,11 @@ const ExpertsNotebook: FC = () => {
         setIsAllExpertsSelected(event.target.checked)
     };
 
-    const handleOpenExpertInvitation = (expertEmail: string, expertId: string) => {
+    const handleOpenExpertInvitation = (expert: ExpertDataDTO) => {
         setInviteExpertState({
-            email: expertEmail,
-            id: expertId,
+            email: expert.email!,
+            fullName: NameBuilder.getUserFullName(expert.name, expert.surname, expert.middleName),
+            id: expert.id!,
             isOpen: true
         })
     }
@@ -107,6 +111,7 @@ const ExpertsNotebook: FC = () => {
     const handleCloseExpertInvitation = () => {
         setInviteExpertState({
             email: "",
+            fullName: "",
             id: "",
             isOpen: false
         })
@@ -156,8 +161,8 @@ const ExpertsNotebook: FC = () => {
                 key={expert.id}
                 onMouseEnter={() => setMouseHoveredRow(expert.id!)}
             >
-                <TableCell
-                    align={"left"}>{expert.surname + ' ' + expert.name + ' ' + expert.middleName}
+                <TableCell align={"left"} sx={{ fontWeight: 500 }}>
+                    {NameBuilder.getUserFullName(expert.name, expert.surname, expert.middleName)}
                     {isExpertControlled(expert.lecturerId!) && <ControlledExpertTip/>}
                 </TableCell>
                 <TableCell align={"center"}>{expert.email}</TableCell>
@@ -280,8 +285,8 @@ const ExpertsNotebook: FC = () => {
                     <RegisterExpertModal isOpen={isOpenRegisterExpert} onClose={handleCloseExpertRegistration}/>)}
                 {inviteExpertState.isOpen && (
                     <InviteExpertModal isOpen={inviteExpertState.isOpen} onClose={handleCloseExpertInvitation}
-                                       expertEmail={inviteExpertState.email} expertId={inviteExpertState.id}/>)}
                                        expertEmail={inviteExpertState.email} expertId={inviteExpertState.id}
+                                       expertFullName={inviteExpertState.fullName}
                     />)}
                 <Snackbar
                     anchorOrigin={{vertical: 'top', horizontal: 'center'}}
