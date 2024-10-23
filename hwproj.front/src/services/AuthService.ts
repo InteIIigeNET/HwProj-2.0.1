@@ -61,8 +61,7 @@ export default class AuthService {
             let decoded = decode<TokenPayload>(token);
             return decoded.exp < Date.now() / 1000;
         } catch (err) {
-
-            return false;
+            return true;
         }
     }
 
