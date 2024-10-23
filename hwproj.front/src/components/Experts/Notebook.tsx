@@ -8,7 +8,7 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import {Typography, Grid, Button, Checkbox, FormControlLabel, CircularProgress} from "@material-ui/core";
+import {Typography, Grid, Button, Checkbox, FormControlLabel, CircularProgress, Snackbar} from "@material-ui/core";
 import {ExpertDataDTO, UpdateExpertTagsDTO} from 'api/api';
 import ApiSingleton from "../../api/ApiSingleton";
 import RegisterExpertModal from "./RegisterModal";
@@ -17,6 +17,7 @@ import Chip from "@mui/material/Chip/Chip";
 import InlineTags from "./InlineTags";
 import Tooltip from '@mui/material/Tooltip';
 import EditIcon from '@mui/icons-material/Edit';
+import {Alert} from "@mui/material";
 
 interface InviteExpertState {
     isOpen: boolean;
@@ -65,6 +66,7 @@ const ExpertsNotebook: FC = () => {
     const [mouseHoveredRow, setMouseHoveredRow] = useState<string>("");
     const [isAllExpertsSelected, setIsAllExpertsSelected] = useState<boolean>(false)
     const [isOpenRegisterExpert, setIsOpenRegisterExpert] = useState<boolean>(false)
+    const [expertWasRegistered, setExpertWasRegistered] = useState<boolean>(false)
 
     const [tagsEditingState, setTagsEditingState] = useState<EditTagsState>({
         isOpen: false,
@@ -110,7 +112,8 @@ const ExpertsNotebook: FC = () => {
         })
     }
 
-    const handleCloseExpertRegistration = () => {
+    const handleCloseExpertRegistration = (isExpertRegistered: boolean) => {
+        setExpertWasRegistered(isExpertRegistered)
         setIsOpenRegisterExpert(false);
     }
 
@@ -197,7 +200,7 @@ const ExpertsNotebook: FC = () => {
                         <Grid item style={{minHeight: 32}} alignContent={"center"}>
                             {mouseHoveredRow === expert.id &&
                                 <Button
-                                    onClick={() => handleOpenExpertInvitation(expert.email!, expert.id!)}
+                                    onClick={() => handleOpenExpertInvitation(expert)}
                                     color="primary"
                                     size="small"
                                 >
@@ -278,6 +281,18 @@ const ExpertsNotebook: FC = () => {
                 {inviteExpertState.isOpen && (
                     <InviteExpertModal isOpen={inviteExpertState.isOpen} onClose={handleCloseExpertInvitation}
                                        expertEmail={inviteExpertState.email} expertId={inviteExpertState.id}/>)}
+                                       expertEmail={inviteExpertState.email} expertId={inviteExpertState.id}
+                    />)}
+                <Snackbar
+                    anchorOrigin={{vertical: 'top', horizontal: 'center'}}
+                    open={expertWasRegistered}
+                    onClose={() => setExpertWasRegistered(false)}
+                    key={'top center'}
+                    autoHideDuration={5000}
+                    style={{marginTop: "40px"}}
+                >
+                    <Alert severity="success">Эксперт успешно зарегистрирован</Alert>
+                </Snackbar>
             </div>
         )
     }
