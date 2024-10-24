@@ -15,12 +15,11 @@ import ValidationUtils from "../Utils/ValidationUtils";
 
 interface IRegisterExpertProps {
     isOpen: boolean;
-    onClose: any;
+    onClose: (isExpertRegistered: boolean) => void;
 }
 
 interface IRegisterExpertState {
     errors: string[];
-    isRegisterSuccessful: boolean | undefined;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -57,7 +56,6 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
 
     const [commonState, setCommonState] = useState<IRegisterExpertState>({
         errors: [],
-        isRegisterSuccessful: undefined
     })
 
 
@@ -82,9 +80,11 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
             setCommonState((prevState) => ({
                 ...prevState,
                 errors: result!.errors ?? [],
-                isRegisterSuccessful: result.succeeded
             }));
-            handleClose();
+
+            if (result.succeeded) {
+                handleClose(result.succeeded!);
+            }
         } catch (e) {
             setCommonState((prevState) => ({
                 ...prevState,
@@ -93,7 +93,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
         }
     }
 
-    const handleClose = () => {
+    const handleClose = (isExpertRegistered: boolean) => {
         setRegisterState({
             name: "",
             surname: "",
@@ -102,11 +102,8 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
             companyName: "",
             bio: ""
         })
-        setCommonState(prevState => ({
-            ...prevState,
-            isRegisterSuccessful: undefined
-        }))
-        props.onClose()
+
+        props.onClose(isExpertRegistered)
     }
 
     return (
@@ -130,9 +127,6 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                     <Grid item container direction={"row"} justifyContent={"center"}>
                         {commonState.errors.length > 0 && (
                             <p style={{color: "red", marginBottom: "0"}}>{commonState.errors}</p>
-                        )}
-                        {commonState.isRegisterSuccessful && (
-                            <p style={{color: "green", marginBottom: "0"}}>Эксперт успешно зарегистрирован</p>
                         )}
                     </Grid>
                     <form onSubmit={handleSubmit} className={classes.form}>
@@ -250,7 +244,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                         >
                             <Grid item>
                                 <Button
-                                    onClick={handleClose}
+                                    onClick={() => handleClose(false)}
                                     color="primary"
                                     variant="contained"
                                     style={{marginRight: '10px'}}

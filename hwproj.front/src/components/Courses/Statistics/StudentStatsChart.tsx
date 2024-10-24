@@ -12,6 +12,7 @@ import HelpPopoverChartInfo from './HelpPopoverChartInfo';
 import StudentCheckboxList from "./StudentCheckboxList";
 import StudentProgressChart from "./StudentProgressChart";
 import StudentPunctualityChart from './StudentPunctualityChart';
+import NameBuilder from "../../Utils/NameBuilder";
 
 interface IStudentStatsChartState {
     isFound: boolean;
@@ -132,7 +133,7 @@ const StudentStatsChart: React.FC = () => {
                         <Grid item container direction='column' xs={"auto"}>
                             <Grid item>
                                 <Typography style={{fontSize: '22px'}}>
-                                    {`${state.course.name} / ${state.course.groupName}`}
+                                    {NameBuilder.getCourseFullName(state.course.name!, state.course.groupName)}
                                     <sup style={{color: "#2979ff"}}> бета</sup>
                                 </Typography>
                             </Grid>

@@ -5,6 +5,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import * as React from "react";
 import {Link} from "react-router-dom";
 import Utils from "../../services/Utils";
+import NameBuilder from "../Utils/NameBuilder";
 
 const courseEventPlurals = ["новая заявка", "новые заявки", "новых заявок"]
 
@@ -20,7 +21,7 @@ const NewCourseEvents: FC<{
                         <CardContent>
                             <Stack direction={"row"} alignItems={"center"} spacing={1}>
                                 <Typography variant={"subtitle1"}>
-                                    {event.name} {event.groupName?.length != 0 ? "/ " + event.groupName : ""}
+                                    {NameBuilder.getCourseFullName(event.name!, event.groupName)}
                                 </Typography>
                                 {event.isCompleted && <Chip style={{color: "GrayText"}} label="Курс завершен" size={"small"}/>}
                             </Stack>

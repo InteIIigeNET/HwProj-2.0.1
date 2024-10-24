@@ -56,17 +56,14 @@ const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutPr
         ) : (
             <Center>
                 <Box sx={{minWidth: 150, marginTop: 15}}>
-                    <Paper elevation={3}>
-                        <Box p={2}>
-                            <Typography variant="h6" gutterBottom align="center">
-                                Отказано в доступе
-                            </Typography>
-                            <Typography variant="body1">
-                                Ссылка невалидна.
-                                Обратитесь к преподавателю для получения корректного приглашения в сервис.
-                            </Typography>
-                        </Box>
-                    </Paper>
+                    <Box p={2}>
+                        <Typography variant="h6" gutterBottom align="center">
+                            Ошибка в пригласительной ссылке
+                        </Typography>
+                        <Typography variant="body1">
+                            Ссылка просрочена или содержит опечатку. Обратитесь к выдавшему её преподавателю.
+                        </Typography>
+                    </Box>
                 </Box>
             </Center>
         )
