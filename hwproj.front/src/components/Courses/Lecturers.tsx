@@ -3,7 +3,6 @@ import List from "@material-ui/core/List";
 import { Link, ListItem, Typography, Accordion, AccordionSummary,
     AccordionDetails, Grid, ListItemIcon, Avatar} from "@material-ui/core";
 import {AccountDataDto} from "../../api";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import IconButton from "@material-ui/core/IconButton";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import AddLecturerInCourse from "./AddLecturerInCourse";
@@ -81,9 +80,8 @@ const Lecturers: FC<LecturersProps> = (props) => {
 
     return (
         <div>
-            <Accordion>
+            <Accordion expanded={true}>
                 <AccordionSummary
-                    expandIcon={<ExpandMoreIcon/>}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                 >
