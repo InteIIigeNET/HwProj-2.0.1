@@ -40,12 +40,6 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
     const [isStudentsSelectionHidden, setIsStudentsSelectionHidden] = useState<boolean>(props.isStudentsSelectionHidden);
 
     // Если у преподавателя в workspace все студенты, отображаем "Все" в компоненте, значений при этом не выбрано.
-    // Функция, необходимые для корректной передачи данных родителю
-    function processSelectedItems<T>(selected: T[], all: T[]): T[] {
-        return selected.length === 0 ? all : selected;
-    }
-
-    // Если у преподавателя в workspace все студенты, отображаем "Все" в компоненте, значений при этом не выбрано.
     // Функция, необходимые для корректного отображения выбранных элементов.
     function getItemsView<T>(selected: T[], all: T[]): T[] {
         return selected.length === all.length ? [] : selected;
@@ -62,7 +56,8 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                 props.onSelectedHomeworksChange(mentorWorkspace.homeworks ?? [])
 
                 // Для корректного отображения "Все" при инцициализации (получении данных с бэкенда)
-                const initSelectedStudentsView = mentorWorkspace.students?.length === courseViewModel.acceptedStudents?.length ?
+                const allCourseStudentsCount = (courseViewModel.acceptedStudents?.length ?? 0) + (courseViewModel.newStudents?.length ?? 0);
+                const initSelectedStudentsView = mentorWorkspace.students?.length === allCourseStudentsCount ?
                     [] : (mentorWorkspace.students) ?? [];
                 const initSelectedHomeworksView = mentorWorkspace.homeworks?.length === courseViewModel.homeworks?.length ?
                     [] : (mentorWorkspace.homeworks ?? []);
@@ -72,7 +67,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                     courseHomeworks: courseViewModel.homeworks ?? [],
                     courseStudents: courseViewModel.acceptedStudents ?? [],
                     selectedStudents: initSelectedStudentsView,
-                    selectedHomeworks: initSelectedHomeworksView
+                    selectedHomeworks: initSelectedHomeworksView,
                 }))
 
                 setIsLoading(false);
@@ -91,6 +86,14 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
         fetchCourseDataForMentor();
     }, [])
 
+    useEffect(() => {
+        props.onSelectedStudentsChange(state.selectedStudents)
+    }, [state.selectedStudents]);
+
+    useEffect(() => {
+        props.onSelectedHomeworksChange(state.selectedHomeworks)
+    }, [state.selectedHomeworks]);
+
     return (
         <div>
             {isLoading ? (
@@ -99,6 +102,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                     <CircularProgress/>
                 </div>
             ) : (
+                //TODO: унифицировать
                 <Grid container style={{marginTop: '10px'}}>
                     <Grid container spacing={2} style={{marginTop: '2px'}}>
                         <Grid item xs={12} sm={12}>
@@ -122,12 +126,8 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                 onChange={(_, values) => {
                                     setState((prevState) => ({
                                         ...prevState,
-                                        selectedHomeworks: getItemsView(values, state.courseHomeworks),
+                                        selectedHomeworks: values,
                                     }))
-
-                                    const processedValues = processSelectedItems(
-                                        values, state.courseHomeworks)
-                                    props.onSelectedHomeworksChange(processedValues)
                                 }}
                             />
                         </Grid>
@@ -161,12 +161,8 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                     onChange={(_, values) => {
                                         setState((prevState) => ({
                                             ...prevState,
-                                            selectedStudents: getItemsView(values, state.courseStudents)
+                                            selectedStudents: values
                                         }));
-
-                                        const processedValues = processSelectedItems(
-                                            values, state.courseStudents);
-                                        props.onSelectedStudentsChange(processedValues);
                                     }}
                                 />
                             </Grid>

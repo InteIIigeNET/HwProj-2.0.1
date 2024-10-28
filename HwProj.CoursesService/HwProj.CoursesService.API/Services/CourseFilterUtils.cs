@@ -14,20 +14,15 @@ namespace HwProj.CoursesService.API.Services
                 HomeworkIds = courseFilterModel.HomeworkIds,
                 MentorIds = courseFilterModel.MentorIds,
                 StudentIds = courseFilterModel.StudentIds
-            };
+            }.FillEmptyFields();
         }
 
-        public static bool IsFilterParametersEmpty(this CreateCourseFilterModel courseFilterModel)
-        {
-            return !courseFilterModel.StudentIds.Any()
-                   || !courseFilterModel.HomeworkIds.Any();
-        }
-
-        public static void FillEmptyFields(this Filter filter)
+        public static Filter FillEmptyFields(this Filter filter)
         {
             filter.StudentIds ??= new List<string>();
             filter.HomeworkIds ??= new List<long>();
             filter.MentorIds ??= new List<string>();
+            return filter;
         }
     }
 }
