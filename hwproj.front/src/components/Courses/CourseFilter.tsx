@@ -56,7 +56,8 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                 props.onSelectedHomeworksChange(mentorWorkspace.homeworks ?? [])
 
                 // Для корректного отображения "Все" при инцициализации (получении данных с бэкенда)
-                const initSelectedStudentsView = mentorWorkspace.students?.length === courseViewModel.acceptedStudents?.length ?
+                const allCourseStudentsCount = (courseViewModel.acceptedStudents?.length ?? 0) + (courseViewModel.newStudents?.length ?? 0);
+                const initSelectedStudentsView = mentorWorkspace.students?.length === allCourseStudentsCount ?
                     [] : (mentorWorkspace.students) ?? [];
                 const initSelectedHomeworksView = mentorWorkspace.homeworks?.length === courseViewModel.homeworks?.length ?
                     [] : (mentorWorkspace.homeworks ?? []);
