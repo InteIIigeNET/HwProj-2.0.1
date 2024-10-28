@@ -55,12 +55,18 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                 props.onSelectedStudentsChange(mentorWorkspace.students ?? [])
                 props.onSelectedHomeworksChange(mentorWorkspace.homeworks ?? [])
 
+                // Для корректного отображения "Все" при инцициализации (получении данных с бэкенда)
+                const initSelectedStudentsView = mentorWorkspace.students?.length === courseViewModel.acceptedStudents?.length ?
+                    [] : (mentorWorkspace.students) ?? [];
+                const initSelectedHomeworksView = mentorWorkspace.homeworks?.length === courseViewModel.homeworks?.length ?
+                    [] : (mentorWorkspace.homeworks ?? []);
+
                 setState(prevState => ({
                     ...prevState,
                     courseHomeworks: courseViewModel.homeworks ?? [],
                     courseStudents: courseViewModel.acceptedStudents ?? [],
-                    selectedStudents: mentorWorkspace.students ?? [],
-                    selectedHomeworks: mentorWorkspace.homeworks ?? [],
+                    selectedStudents: initSelectedStudentsView,
+                    selectedHomeworks: initSelectedHomeworksView,
                 }))
 
                 setIsLoading(false);
@@ -78,6 +84,14 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
 
         fetchCourseDataForMentor();
     }, [])
+
+    useEffect(() => {
+        props.onSelectedStudentsChange(state.selectedStudents)
+    }, [state.selectedStudents]);
+
+    useEffect(() => {
+        props.onSelectedHomeworksChange(state.selectedHomeworks)
+    }, [state.selectedHomeworks]);
 
     return (
         <div>
@@ -109,15 +123,10 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                 noOptionsText={'На курсе больше нет домашних работ'}
                                 value={state.selectedHomeworks}
                                 onChange={(_, values) => {
-                                    setState((prevState) => {
-                                        let newVar = {
-                                            ...prevState,
-                                            selectedHomeworks: getItemsView(values, state.courseHomeworks),
-                                        };
-                                        return newVar;
-                                    })
-
-                                    props.onSelectedHomeworksChange(values)
+                                    setState((prevState) => ({
+                                        ...prevState,
+                                        selectedHomeworks: values,
+                                    }))
                                 }}
                             />
                         </Grid>
@@ -151,10 +160,8 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                     onChange={(_, values) => {
                                         setState((prevState) => ({
                                             ...prevState,
-                                            selectedStudents: getItemsView(values, state.courseStudents)
+                                            selectedStudents: values
                                         }));
-
-                                        props.onSelectedStudentsChange(values);
                                     }}
                                 />
                             </Grid>
