@@ -3,17 +3,25 @@ import {FC, useEffect, useState} from 'react';
 import {Button, Grid, TextField, Typography} from "@material-ui/core";
 import Link from '@material-ui/core/Link'
 import './style.css'
-import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, Solution, SolutionActualityDto} from '../../api'
+import {
+    AccountDataDto,
+    GetSolutionModel,
+    HomeworkTaskViewModel,
+    Solution,
+    SolutionActualityDto,
+    SolutionActualityPart
+} from '../../api'
 import ApiSingleton from "../../api/ApiSingleton";
 import {Alert, Avatar, Rating, Stack, Tooltip} from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
-import GitHubIcon from '@mui/icons-material/GitHub';
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
-import {Assignment, Edit, GradingTwoTone} from "@mui/icons-material";
+import {Edit, GradingTwoTone} from "@mui/icons-material";
 import {ReactMarkdownWithCodeHighlighting, TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import {LoadingButton} from "@mui/lab";
-import {TestTag} from "../Common/HomeworkTags";
+import CheckIcon from '@mui/icons-material/Done';
+import WarningIcon from '@mui/icons-material/Warning';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface ISolutionProps {
     solution: GetSolutionModel | undefined,
@@ -85,8 +93,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         if (props.solution &&
             props.isLastSolution &&
             props.forMentor &&
-            props.task.tags!.includes(TestTag) &&
-            props.solution.githubUrl) {
+            props.solution.githubUrl &&
+            props.solution.githubUrl.startsWith("https://github.com/")
+        ) {
             const actualityDto = await ApiSingleton.solutionsApi.apiSolutionsActualityBySolutionIdGet(props.solution.id!)
             setSolutionActuality(actualityDto)
         } else setSolutionActuality(undefined)
@@ -129,6 +138,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const students = (solution?.groupMates?.length || 0) > 0 ? solution!.groupMates! : [student]
     const lecturer = solution?.lecturer
     const lecturerName = lecturer && (lecturer.surname + " " + lecturer.name)
+    const commitsActuality = solutionActuality?.commitsActuality
 
     const getDatesDiff = (_date1: Date, _date2: Date) => {
         const date1 = new Date(_date1).getTime()
@@ -136,6 +146,17 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         const diffTime = date1 - date2
         if (diffTime <= 0) return ""
         return Utils.pluralizeDateTime(diffTime);
+    }
+
+    const renderTestsStatus = (status: SolutionActualityPart | undefined) => {
+        if (!status) return null
+
+        let icon
+        if (status.isActual) icon = <CheckIcon fontSize={"small"} color={"success"}/>
+        else if (status.additionalData !== "") icon = <WarningIcon fontSize={"small"} color={"warning"}/>
+        else icon = <CloseIcon fontSize={"small"} color={"error"}/>
+        return <Tooltip arrow placement={"right"}
+                        title={<div>{status.comment}</div>}>{icon}</Tooltip>
     }
 
     const renderRateInput = () => {
@@ -212,12 +233,12 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     return <Grid container direction="column" spacing={2} style={{marginTop: -16}}>
         {solution &&
             <Grid item container direction={"column"} spacing={1}>
-                {solutionActuality && !solutionActuality.isActual &&
+                {commitsActuality && !commitsActuality.isActual &&
                     <Grid item>
                         <Alert severity="error">
-                            {`${solutionActuality.comment ?? ""}. `}
-                            {solutionActuality.additionalData &&
-                                <a href={clearUrl(props.solution!.githubUrl!) + `/commits/${solutionActuality.additionalData}`}
+                            {`${commitsActuality.comment ?? ""}. `}
+                            {commitsActuality.additionalData &&
+                                <a href={clearUrl(props.solution!.githubUrl!) + `/commits/${commitsActuality.additionalData}`}
                                    target="_blank"
                                    rel="noopener noreferrer"
                                 >
@@ -235,14 +256,16 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             </Tooltip>)}
                         </Stack>
                         <Grid item spacing={1} container direction="column">
-                            {solution.githubUrl && <Link
-                                href={solution.githubUrl}
-                                target="_blank"
-                                style={{color: 'darkblue'}}
-                            >
-                                {solution.githubUrl?.startsWith("https://github.com/") &&
-                                    <GitHubIcon/>} Ссылка на решение
-                            </Link>}
+                            <Stack direction={"row"} alignItems={"center"} spacing={0.5}>
+                                {solution.githubUrl && <Link
+                                    href={solution.githubUrl}
+                                    target="_blank"
+                                    style={{color: 'darkblue'}}
+                                >
+                                    Ссылка на решение
+                                </Link>}
+                                {renderTestsStatus(solutionActuality?.testsActuality)}
+                            </Stack>
                             <Typography style={{color: "GrayText"}}>
                                 {postedSolutionTime}
                             </Typography>

@@ -1536,20 +1536,40 @@ export namespace Solution {
 export interface SolutionActualityDto {
     /**
      *
-     * @type {boolean}
+     * @type {SolutionActualityPart}
      * @memberof SolutionActualityDto
+     */
+    commitsActuality?: SolutionActualityPart;
+    /**
+     *
+     * @type {SolutionActualityPart}
+     * @memberof SolutionActualityDto
+     */
+    testsActuality?: SolutionActualityPart;
+}
+
+/**
+ *
+ * @export
+ * @interface SolutionActualityPart
+ */
+export interface SolutionActualityPart {
+    /**
+     *
+     * @type {boolean}
+     * @memberof SolutionActualityPart
      */
     isActual?: boolean;
     /**
      *
      * @type {string}
-     * @memberof SolutionActualityDto
+     * @memberof SolutionActualityPart
      */
     comment?: string;
     /**
      *
      * @type {string}
-     * @memberof SolutionActualityDto
+     * @memberof SolutionActualityPart
      */
     additionalData?: string;
 }
