@@ -271,19 +271,20 @@ namespace HwProj.SolutionsService.API.Services
             var pullRequest = SolutionHelper.TryParsePullRequestUrl(solution.GithubUrl);
             if (pullRequest == null) return solutionsActuality;
 
-            var lastSolutionCommit = await _githubSolutionCommitsRepository.TryGetLastBySolutionId(solutionId);
+            var commits =
+                await client.PullRequest.Commits(pullRequest.Owner, pullRequest.RepoName, pullRequest.Number)
+                ?? Array.Empty<PullRequestCommit>();
 
             if (isTestWork)
             {
-                var commits =
-                    await client.PullRequest.Commits(pullRequest.Owner, pullRequest.RepoName, pullRequest.Number)
-                    ?? Array.Empty<PullRequestCommit>();
-
+                var lastSolutionCommit = await _githubSolutionCommitsRepository.TryGetLastBySolutionId(solutionId);
                 solutionsActuality.CommitsActuality = SolutionHelper.GetCommitActuality(commits, lastSolutionCommit);
             }
 
+            if (!(commits.LastOrDefault() is { } lastCommit)) return solutionsActuality;
+
             var suite = await client.Check.Suite.GetAllForReference(pullRequest.Owner, pullRequest.RepoName,
-                lastSolutionCommit.CommitHash);
+                lastCommit.Sha);
 
             if (suite == null || suite.CheckSuites.Count == 0) return solutionsActuality;
 
