@@ -9,7 +9,6 @@ namespace HwProj.CoursesService.Client
 {
     public interface ICoursesServiceClient
     {
-        Task<CoursePreview[]> GetAllCourses();
         Task<CourseDTO?> GetCourseById(long courseId);
         Task<Result<CourseDTO>> GetCourseByIdForMentor(long courseId, string mentorId);
         Task<Result<CourseDTO>> GetAllCourseData(long courseId);
