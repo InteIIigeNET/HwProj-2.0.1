@@ -26,7 +26,7 @@ namespace HwProj.SolutionsService.API.Domains
                 return new PullRequestDto
                 {
                     Owner = match.Groups["owner"].Value,
-                    Name = match.Groups["repo"].Value,
+                    RepoName = match.Groups["repo"].Value,
                     Number = int.Parse(match.Groups["number"].Value),
                 };
             }
@@ -34,7 +34,7 @@ namespace HwProj.SolutionsService.API.Domains
             return null;
         }
 
-        public static SolutionActualityDto GetCommitActuality(
+        public static SolutionActualityPart GetCommitActuality(
             IEnumerable<PullRequestCommit> pullRequestCommits,
             GithubSolutionCommit? lastSolutionCommit)
         {
@@ -51,7 +51,7 @@ namespace HwProj.SolutionsService.API.Domains
             else if (pullRequestCommitsSha.Last() != lastSolutionCommit.CommitHash)
                 comment = "С момента сдачи последнего решения были добавлены новые коммиты";
 
-            return new SolutionActualityDto
+            return new SolutionActualityPart
             {
                 isActual = comment == string.Empty,
                 Comment = comment,

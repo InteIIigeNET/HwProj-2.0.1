@@ -4,7 +4,7 @@ namespace HwProj.SolutionsService.API.Models
     {
         public string Owner { get; set; }
 
-        public string Name { get; set; }
+        public string RepoName { get; set; }
 
         public int Number { get; set; }
     }

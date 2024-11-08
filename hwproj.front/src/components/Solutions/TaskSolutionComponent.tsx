@@ -10,7 +10,7 @@ import AvatarUtils from "../Utils/AvatarUtils";
 import GitHubIcon from '@mui/icons-material/GitHub';
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
-import {Assignment, Edit, GradingTwoTone} from "@mui/icons-material";
+import {Edit, GradingTwoTone} from "@mui/icons-material";
 import {ReactMarkdownWithCodeHighlighting, TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import {LoadingButton} from "@mui/lab";
 import {TestTag} from "../Common/HomeworkTags";
@@ -129,6 +129,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const students = (solution?.groupMates?.length || 0) > 0 ? solution!.groupMates! : [student]
     const lecturer = solution?.lecturer
     const lecturerName = lecturer && (lecturer.surname + " " + lecturer.name)
+    const commitsActuality = solutionActuality?.commitsActuality
 
     const getDatesDiff = (_date1: Date, _date2: Date) => {
         const date1 = new Date(_date1).getTime()
@@ -212,12 +213,12 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     return <Grid container direction="column" spacing={2} style={{marginTop: -16}}>
         {solution &&
             <Grid item container direction={"column"} spacing={1}>
-                {solutionActuality && !solutionActuality.isActual &&
+                {commitsActuality && !commitsActuality.isActual &&
                     <Grid item>
                         <Alert severity="error">
-                            {`${solutionActuality.comment ?? ""}. `}
-                            {solutionActuality.additionalData &&
-                                <a href={clearUrl(props.solution!.githubUrl!) + `/commits/${solutionActuality.additionalData}`}
+                            {`${commitsActuality.comment ?? ""}. `}
+                            {commitsActuality.additionalData &&
+                                <a href={clearUrl(props.solution!.githubUrl!) + `/commits/${commitsActuality.additionalData}`}
                                    target="_blank"
                                    rel="noopener noreferrer"
                                 >

@@ -253,20 +253,73 @@ namespace HwProj.SolutionsService.API.Services
             return await _solutionsRepository.FindAll(cm => cm.GroupId == groupId).ToArrayAsync();
         }
 
-        public async Task<SolutionActualityDto> GetSolutionActuality(long solutionId)
+        public async Task<SolutionActualityDto?> GetSolutionActuality(long solutionId)
         {
             var solution = await _solutionsRepository.GetAsync(solutionId) ??
                            throw new ArgumentException(nameof(solutionId));
-            var lastSolutionCommit = await _githubSolutionCommitsRepository.TryGetLastBySolutionId(solutionId);
-            var commits = await TryGetCommitsByUrl(solution.GithubUrl) ?? Array.Empty<PullRequestCommit>();
+            var task = await _coursesServiceClient.GetTask(solution.TaskId);
+            var isTestWork = task.Tags.Contains(HomeworkTags.Test);
 
-            return SolutionHelper.GetCommitActuality(commits, lastSolutionCommit);
+            var solutionsActuality = new SolutionActualityDto
+            {
+                CommitsActuality = null,
+                TestsActuality = null
+            };
+
+            var client = CreateGitHubClient();
+
+            var pullRequest = SolutionHelper.TryParsePullRequestUrl(solution.GithubUrl);
+            if (pullRequest == null) return null;
+
+            var lastSolutionCommit = await _githubSolutionCommitsRepository.TryGetLastBySolutionId(solutionId);
+
+            if (isTestWork)
+            {
+                var commits =
+                    await client.PullRequest.Commits(pullRequest.Owner, pullRequest.RepoName, pullRequest.Number)
+                    ?? Array.Empty<PullRequestCommit>();
+
+                solutionsActuality.CommitsActuality = SolutionHelper.GetCommitActuality(commits, lastSolutionCommit);
+            }
+
+            var suite = await client.Check.Suite.GetAllForReference(pullRequest.Owner, pullRequest.RepoName,
+                lastSolutionCommit.CommitHash);
+
+            if (suite == null || suite.CheckSuites.Count == 0) return solutionsActuality;
+
+            var conclusion = suite.CheckSuites.Last().Conclusion?.Value;
+
+            solutionsActuality.TestsActuality = new SolutionActualityPart
+            {
+                isActual = conclusion == CheckConclusion.Success,
+                Comment = conclusion switch
+                {
+                    CheckConclusion.Success => "Все тесты успешно пройдены.",
+                    null => "Тестирование ещё не завершено",
+                    var x => $"Тесты завершились со статусом '{x}'"
+                },
+                AdditionalData = conclusion switch
+                {
+                    CheckConclusion.TimedOut => "Some",
+                    CheckConclusion.ActionRequired => "Some",
+                    CheckConclusion.Skipped => "Some",
+                    CheckConclusion.Stale => "Some",
+                    _ => ""
+                }
+            };
+
+            return solutionsActuality;
         }
 
         private async Task TrySaveSolutionCommitsInfo(long solutionId, string solutionUrl)
         {
-            var commits = await TryGetCommitsByUrl(solutionUrl);
-            var lastCommitSha = commits?.LastOrDefault()?.Sha;
+            var client = CreateGitHubClient();
+            var pullRequest = SolutionHelper.TryParsePullRequestUrl(solutionUrl);
+            if (pullRequest == null) return;
+
+            var commits = await client.PullRequest.Commits(pullRequest.Owner, pullRequest.RepoName, pullRequest.Number)
+                          ?? Array.Empty<PullRequestCommit>();
+            var lastCommitSha = commits.LastOrDefault()?.Sha;
             if (lastCommitSha is null) return;
 
             await _githubSolutionCommitsRepository.AddAsync(new GithubSolutionCommit
@@ -276,23 +329,15 @@ namespace HwProj.SolutionsService.API.Services
             });
         }
 
-        private async Task<IEnumerable<PullRequestCommit>?> TryGetCommitsByUrl(string solutionUrl)
+        private GitHubClient CreateGitHubClient()
         {
             const string productName = "Hwproj";
             var token = _configuration.GetSection("Github")["Token"];
 
-            var client = new GitHubClient(new ProductHeaderValue(productName))
+            return new GitHubClient(new ProductHeaderValue(productName))
             {
                 Credentials = new Credentials(token)
             };
-
-            var pullRequest = SolutionHelper.TryParsePullRequestUrl(solutionUrl);
-            if (pullRequest is null)
-                return null;
-
-            var commits = await client.PullRequest.Commits(pullRequest.Owner, pullRequest.Name, pullRequest.Number);
-
-            return commits;
         }
     }
 }
