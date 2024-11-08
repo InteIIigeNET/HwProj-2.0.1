@@ -295,8 +295,8 @@ namespace HwProj.SolutionsService.API.Services
                 Comment = conclusion switch
                 {
                     CheckConclusion.Success => "Все тесты успешно пройдены.",
-                    null => "Тестирование ещё не завершено",
-                    var x => $"Тесты завершились со статусом '{x}'"
+                    null => "Тестирование ещё не завершено.",
+                    var x => $"Тесты завершились со статусом '{x}'."
                 },
                 AdditionalData = conclusion switch
                 {
