@@ -253,7 +253,7 @@ namespace HwProj.SolutionsService.API.Services
             return await _solutionsRepository.FindAll(cm => cm.GroupId == groupId).ToArrayAsync();
         }
 
-        public async Task<SolutionActualityDto?> GetSolutionActuality(long solutionId)
+        public async Task<SolutionActualityDto> GetSolutionActuality(long solutionId)
         {
             var solution = await _solutionsRepository.GetAsync(solutionId) ??
                            throw new ArgumentException(nameof(solutionId));
@@ -269,7 +269,7 @@ namespace HwProj.SolutionsService.API.Services
             var client = CreateGitHubClient();
 
             var pullRequest = SolutionHelper.TryParsePullRequestUrl(solution.GithubUrl);
-            if (pullRequest == null) return null;
+            if (pullRequest == null) return solutionsActuality;
 
             var lastSolutionCommit = await _githubSolutionCommitsRepository.TryGetLastBySolutionId(solutionId);
 
