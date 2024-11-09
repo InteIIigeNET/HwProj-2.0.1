@@ -35,6 +35,7 @@
     "lowdb": "^1.0.0",
     "portable-fetch": "^3.0.0",
     "prop-types": "^15.7.2",
+    "qrcode.react": "^4.1.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-markdown": "^4.3.1",

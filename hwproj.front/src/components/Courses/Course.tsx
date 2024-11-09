@@ -6,19 +6,21 @@ import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Grid, Tab, Tabs, Typography, IconButton, Switch, CircularProgress} from "@material-ui/core";
+import {Button, Grid, Tab, Tabs, Typography, IconButton, CircularProgress} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import {Alert, AlertTitle, Chip, Stack} from "@mui/material";
+import {Alert, AlertTitle, Chip, Dialog, DialogContent, DialogTitle, Stack} from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
 import MentorsList from "../Common/MentorsList";
 import LecturerStatistics from "./Statistics/LecturerStatistics";
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import NameBuilder from "../Utils/NameBuilder";
+import {QRCodeSVG} from 'qrcode.react';
+import {Center} from "@skbkontur/react-ui";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -36,6 +38,7 @@ interface ICourseState {
     newStudents: AccountDataDto[];
     isReadingMode: boolean;
     studentSolutions: StatisticsCourseMatesModel[];
+    showQrCode: boolean;
 }
 
 interface IPageState {
@@ -65,6 +68,7 @@ const Course: React.FC = () => {
         newStudents: [],
         isReadingMode: true,
         studentSolutions: [],
+        showQrCode: false
     })
 
     const [pageState, setPageState] = useState<IPageState>({
@@ -121,7 +125,7 @@ const Course: React.FC = () => {
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!)
 
-        // У пользователя изменилась роль (иначе он не может стать лектором в курсе), 
+        // У пользователя изменилась роль (иначе он не может стать лектором в курсе),
         // однако он все ещё использует токен с прежней ролью
         const shouldRefreshToken =
             !isMentor &&
@@ -174,6 +178,19 @@ const Course: React.FC = () => {
     if (isFound) {
         return (
             <div className="container">
+                <Dialog
+                    open={courseState.showQrCode}
+                    onClose={() => setCourseState(prevState => ({...prevState, showQrCode: false}))}
+                >
+                    <DialogTitle>
+                        Поделитесь ссылкой на курс с помощью QR-кода
+                    </DialogTitle>
+                    <DialogContent>
+                        <Center>
+                            <QRCodeSVG size={200} value={window.location.href.replace(tabValue, "")}/>
+                        </Center>
+                    </DialogContent>
+                </Dialog>
                 <Grid style={{marginTop: "15px"}}>
                     <Grid container direction={"column"} spacing={2}>
                         {course.isCompleted && <Grid item>
@@ -186,10 +203,16 @@ const Course: React.FC = () => {
                                         : !isMentor ? "Вы можете записаться на курс и отправлять решения." : ""}
                             </Alert>
                         </Grid>}
-                        <Grid item container xs={12} className={classes.info} alignItems="center" justifyContent="space-between">
+                        <Grid item container xs={12} className={classes.info} alignItems="center"
+                              justifyContent="space-between">
                             <Grid item>
-                                <Typography style={{fontSize: '22px'}}>
-                                    {NameBuilder.getCourseFullName(course.name!, course.groupName)} &nbsp;
+                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                    <Typography style={{fontSize: '22px', cursor: "pointer"}} onClick={() => setCourseState(prevState => ({
+                                        ...prevState,
+                                        showQrCode: true
+                                    }))}>
+                                        {NameBuilder.getCourseFullName(course.name!, course.groupName)}
+                                    </Typography>
                                     {isLecturer &&
                                         <IconButton
                                             size="small"
@@ -212,10 +235,10 @@ const Course: React.FC = () => {
                                     }
                                     {isCourseMentor && isLecturer && !isReadingMode! && (
                                         <RouterLink to={`/courses/${courseId}/edit`}>
-                                            <EditIcon style={{marginLeft: 5}} fontSize="small"/>
+                                            <EditIcon fontSize="small"/>
                                         </RouterLink>
                                     )}
-                                </Typography>
+                                </Stack>
                             </Grid>
                             <Grid item>
                                 <Grid container alignItems="center" justifyContent="flex-end">
@@ -224,7 +247,8 @@ const Course: React.FC = () => {
                                     </Grid>
                                     {isCourseMentor && isLecturer && isReadingMode &&
                                         <Grid item>
-                                            <IconButton size="small" style={{marginLeft: 5}} onClick={() => setLecturerStatsState(true)}>
+                                            <IconButton size="small" style={{marginLeft: 5}}
+                                                        onClick={() => setLecturerStatsState(true)}>
                                                 <AssessmentIcon>
                                                     Статистика лекторов по курсу
                                                 </AssessmentIcon>
