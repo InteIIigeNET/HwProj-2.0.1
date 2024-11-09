@@ -107,7 +107,8 @@ namespace HwProj.CoursesService.API.Services
                     : courseDto.MentorIds,
                 CourseMates =
                     filter.StudentIds.Any()
-                        ? courseDto.CourseMates.Where(mate => filter.StudentIds.Contains(mate.StudentId)).ToArray()
+                        ? courseDto.CourseMates
+                            .Where(mate => !mate.IsAccepted || filter.StudentIds.Contains(mate.StudentId)).ToArray()
                         : courseDto.CourseMates,
                 Homeworks =
                     filter.HomeworkIds.Any()
