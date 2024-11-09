@@ -7,6 +7,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 interface ICoursesState {
     isLoaded: boolean;
     myCourses: CoursePreviewView[];
+    allCourses: CoursePreviewView[];
     tabValue: number;
     isLecturer: boolean;
     isExpert: boolean;
@@ -24,6 +25,7 @@ export default class Courses extends React.Component<Props, ICoursesState> {
         this.state = {
             isLoaded: false,
             myCourses: [],
+            allCourses: [],
             tabValue: 0,
             isLecturer: this.props.isLecturer,
             isExpert: this.props.isExpert
@@ -31,7 +33,7 @@ export default class Courses extends React.Component<Props, ICoursesState> {
     }
 
     public render() {
-        const {isLoaded, myCourses, tabValue} = this.state;
+        const {isLoaded, allCourses, myCourses, tabValue} = this.state;
         const {navigate} = this.props.navigate;
 
         if (!isLoaded) {
@@ -47,8 +49,9 @@ export default class Courses extends React.Component<Props, ICoursesState> {
         const completedCourses = myCourses.filter(course => course.isCompleted)
         const isExpert = this.props.isExpert
         let activeCoursesTab = activeCourses.length > 0 ? 0 : undefined
+        let allCoursesTab = activeCoursesTab === 0 ? 1 : 0
         let completedCoursesTab = completedCourses.length > 0
-            ? activeCoursesTab === 0 ? 1 : 0
+            ? activeCoursesTab === 0 ? 2 : 1
             : undefined
 
         return (
@@ -61,11 +64,14 @@ export default class Courses extends React.Component<Props, ICoursesState> {
                     }}
                 >
                     {activeCourses.length > 0 && <Tab label="Ваши курсы"/>}
+                    {!isExpert && <Tab label="Все курсы"/>}
                     {completedCourses.length > 0 && <Tab label="Завершенные курсы"/>}
                 </Tabs>
                 <br/>
                 {tabValue === activeCoursesTab &&
                     <CoursesList navigate={navigate} courses={activeCourses} isExpert={isExpert}/>}
+                {tabValue === allCoursesTab && !isExpert
+                    && <CoursesList navigate={navigate} courses={allCourses} isExpert={isExpert}/>}
                 {tabValue === completedCoursesTab &&
                     <CoursesList navigate={navigate} courses={completedCourses} isExpert={isExpert}/>}
             </div>
@@ -75,9 +81,11 @@ export default class Courses extends React.Component<Props, ICoursesState> {
     async componentDidMount() {
         try {
             const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesGet()
+            const allCourses = await ApiSingleton.coursesApi.apiCoursesGet();
             this.setState({
                 isLoaded: true,
                 myCourses: courses.reverse(),
+                allCourses: allCourses.reverse(),
             })
         } catch (error) {
             this.setState({

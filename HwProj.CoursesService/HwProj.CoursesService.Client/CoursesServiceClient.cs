@@ -30,6 +30,16 @@ namespace HwProj.CoursesService.Client
             _coursesServiceUri = new Uri(configuration.GetSection("Services")["Courses"]);
         }
 
+        public async Task<CoursePreview[]> GetAllCourses()
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + "api/Courses");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<CoursePreview[]>();
+        }
+
         public async Task<CourseDTO?> GetCourseByTask(long taskId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -60,7 +70,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-
+            
             return response.StatusCode switch
             {
                 HttpStatusCode.OK => Result<CourseDTO>.Success(await response.DeserializeAsync<CourseDTO>()),
@@ -270,9 +280,9 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _coursesServiceUri + $"api/Tasks/get/{taskId}");
-
+            
             httpRequest.TryAddUserId(_httpContextAccessor);
-
+            
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<HomeworkTaskViewModel>();
         }
@@ -516,7 +526,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-
+            
             return response.StatusCode switch
             {
                 HttpStatusCode.OK => Result<long>.Success(await response.DeserializeAsync<long>()),

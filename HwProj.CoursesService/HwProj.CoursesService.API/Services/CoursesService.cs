@@ -33,7 +33,7 @@ namespace HwProj.CoursesService.API.Services
             IAuthServiceClient authServiceClient,
             ITasksRepository tasksRepository,
             IHomeworksRepository homeworksRepository,
-            IGroupsRepository groupsRepository,
+            IGroupsRepository groupsRepository, 
             ICourseFilterService courseFilterService)
         {
             _coursesRepository = coursesRepository;
@@ -44,6 +44,15 @@ namespace HwProj.CoursesService.API.Services
             _tasksRepository = tasksRepository;
             _groupsRepository = groupsRepository;
             _courseFilterService = courseFilterService;
+        }
+
+        public async Task<Course[]> GetAllAsync()
+        {
+            var courses = await _coursesRepository.GetAllWithCourseMatesAndHomeworks().ToArrayAsync();
+
+            CourseDomain.FillTasksInCourses(courses);
+
+            return courses;
         }
 
         public async Task<CourseDTO?> GetByTaskAsync(long taskId, string userId)
@@ -197,7 +206,7 @@ namespace HwProj.CoursesService.API.Services
                         .FirstOrDefault()?.Id;
                 }
             }
-
+            
             return result;
         }
 

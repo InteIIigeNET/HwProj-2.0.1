@@ -36,6 +36,14 @@ namespace HwProj.CoursesService.API.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet]
+        public async Task<CoursePreview[]> GetAll()
+        {
+            var coursesFromDb = await _coursesService.GetAllAsync();
+            var courses = coursesFromDb.Select(c => c.ToCoursePreview()).ToArray();
+            return courses;
+        }
+
         [CourseDataFilter]
         [HttpGet("{courseId}")]
         public async Task<IActionResult> Get(long courseId)
