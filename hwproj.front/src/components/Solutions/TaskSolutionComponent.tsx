@@ -89,17 +89,15 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         return match ? match[1] : url;
     }
 
-    const isGitHubUrl = props.solution &&
+    const checkTestsActuality = props.solution &&
+        props.isLastSolution &&
+        props.forMentor &&
         props.solution.githubUrl &&
         props.solution.githubUrl.startsWith("https://github.com/")
 
     const getActuality = async () => {
-        if (props.solution &&
-            props.isLastSolution &&
-            props.forMentor &&
-            isGitHubUrl
-        ) {
-            const actualityDto = await ApiSingleton.solutionsApi.apiSolutionsActualityBySolutionIdGet(props.solution.id!)
+        if (checkTestsActuality) {
+            const actualityDto = await ApiSingleton.solutionsApi.apiSolutionsActualityBySolutionIdGet(props.solution!.id!)
             setSolutionActuality(actualityDto)
         } else setSolutionActuality(undefined)
     }
@@ -267,7 +265,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 >
                                     Ссылка на решение
                                 </Link>}
-                                {isGitHubUrl && (solutionActuality
+                                {checkTestsActuality && (solutionActuality
                                     ? renderTestsStatus(solutionActuality.testsActuality)
                                     : <CircularProgress size={12}/>)}
                             </Stack>
