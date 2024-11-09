@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {FC, useEffect, useState} from 'react';
-import {Button, Grid, TextField, Typography} from "@material-ui/core";
+import {Button, CircularProgress, Grid, TextField, Typography} from "@material-ui/core";
 import Link from '@material-ui/core/Link'
 import './style.css'
 import {
@@ -89,12 +89,15 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         return match ? match[1] : url;
     }
 
+    const isGitHubUrl = props.solution &&
+        props.solution.githubUrl &&
+        props.solution.githubUrl.startsWith("https://github.com/")
+
     const getActuality = async () => {
         if (props.solution &&
             props.isLastSolution &&
             props.forMentor &&
-            props.solution.githubUrl &&
-            props.solution.githubUrl.startsWith("https://github.com/")
+            isGitHubUrl
         ) {
             const actualityDto = await ApiSingleton.solutionsApi.apiSolutionsActualityBySolutionIdGet(props.solution.id!)
             setSolutionActuality(actualityDto)
@@ -264,7 +267,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 >
                                     Ссылка на решение
                                 </Link>}
-                                {renderTestsStatus(solutionActuality?.testsActuality)}
+                                {isGitHubUrl && (solutionActuality
+                                    ? renderTestsStatus(solutionActuality.testsActuality)
+                                    : <CircularProgress size={12}/>)}
                             </Stack>
                             <Typography style={{color: "GrayText"}}>
                                 {postedSolutionTime}
