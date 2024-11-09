@@ -289,6 +289,7 @@ namespace HwProj.SolutionsService.API.Services
             if (suite == null || suite.CheckSuites.Count == 0) return solutionsActuality;
 
             var conclusion = suite.CheckSuites.Last().Conclusion?.Value;
+            if (conclusion == null) return solutionsActuality;
 
             solutionsActuality.TestsActuality = new SolutionActualityPart
             {
@@ -296,17 +297,14 @@ namespace HwProj.SolutionsService.API.Services
                 Comment = conclusion switch
                 {
                     CheckConclusion.Success => "Все тесты успешно пройдены.",
-                    null => "Тестирование ещё не завершено.",
+                    CheckConclusion.Failure => "Тесты завершились с ошибками.",
                     var x => $"Тесты завершились со статусом '{x}'."
                 },
                 AdditionalData = conclusion switch
                 {
-                    null => "Some",
-                    CheckConclusion.TimedOut => "Some",
-                    CheckConclusion.ActionRequired => "Some",
-                    CheckConclusion.Skipped => "Some",
-                    CheckConclusion.Stale => "Some",
-                    _ => ""
+                    CheckConclusion.Success => "",
+                    CheckConclusion.Failure => "",
+                    _ => "Some"
                 }
             };
 
