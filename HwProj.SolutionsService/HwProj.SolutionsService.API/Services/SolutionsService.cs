@@ -301,6 +301,7 @@ namespace HwProj.SolutionsService.API.Services
                 },
                 AdditionalData = conclusion switch
                 {
+                    null => "Some",
                     CheckConclusion.TimedOut => "Some",
                     CheckConclusion.ActionRequired => "Some",
                     CheckConclusion.Skipped => "Some",
