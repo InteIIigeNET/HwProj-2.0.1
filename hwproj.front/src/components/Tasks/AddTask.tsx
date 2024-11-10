@@ -9,8 +9,7 @@ import {HomeworkViewModel, CreateTaskViewModel} from "../../api";
 interface IAddTaskProps {
     homework: HomeworkViewModel;
     onAdding: () => void;
-    onCancel: () => void;
-    update: () => void;
+    onClose: () => void;
 }
 
 interface IAddTaskState {
@@ -41,6 +40,7 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
 
         await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(props.homework.id!, state);
         props.onAdding()
+        props.onClose()
     }
 
     return (
@@ -69,7 +69,7 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
                             Добавить задачу
                         </Button>
                         <Button
-                            onClick={() => props.onCancel()}
+                            onClick={() => props.onClose()}
                             size="small"
                             variant="contained"
                             color="primary"

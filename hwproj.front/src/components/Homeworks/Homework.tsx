@@ -30,7 +30,7 @@ interface IHomeworkProps {
     forStudent: boolean,
     isReadingMode: boolean,
     isExpanded: boolean,
-    onDeleteClick: () => void
+    onUpdateClick: () => void
 }
 
 const useStyles = makeStyles(_ => ({
@@ -62,7 +62,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
 
     const deleteHomework = async () => {
         await ApiSingleton.homeworksApi.apiHomeworksDeleteByHomeworkIdDelete(props.homework.id!)
-        props.onDeleteClick()
+        props.onUpdateClick()
     }
 
     const classes = useStyles()
@@ -119,7 +119,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                         {(props.forMentor && homeworkState.createTask) &&
                             <div style={{width: '100%'}}>
                                 <HomeworkTasks
-                                    onDelete={() => props.onDeleteClick()}
+                                    onDelete={() => props.onUpdateClick()}
                                     tasks={props.homework.tasks!}
                                     forStudent={props.forStudent}
                                     forMentor={props.forMentor}
@@ -127,18 +127,17 @@ const Homework: FC<IHomeworkProps> = (props) => {
                                 />
                                 <AddTask
                                     homework={props.homework}
-                                    onAdding={() => window.location.reload()}
-                                    onCancel={() => setHomeworkState({
+                                    onAdding={() => props.onUpdateClick()}
+                                    onClose={() => setHomeworkState({
                                         createTask: false
                                     })}
-                                    update={() => props.onDeleteClick()}
                                 />
                             </div>
                         }
                         {(props.forMentor && !homeworkState.createTask) &&
                             <div style={{width: '100%'}}>
                                 <HomeworkTasks
-                                    onDelete={() => props.onDeleteClick()}
+                                    onDelete={() => props.onUpdateClick()}
                                     tasks={props.homework.tasks!}
                                     forStudent={props.forStudent}
                                     forMentor={props.forMentor}
@@ -162,7 +161,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                         }
                         {!props.forMentor &&
                             <HomeworkTasks
-                                onDelete={() => props.onDeleteClick()}
+                                onDelete={() => props.onUpdateClick()}
                                 tasks={props.homework.tasks!}
                                 forStudent={props.forStudent}
                                 forMentor={props.forMentor}

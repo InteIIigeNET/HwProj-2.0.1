@@ -332,7 +332,7 @@ const Course: React.FC = () => {
                                                 </Grid>
                                                 <Grid item xs={12}>
                                                     <CourseHomework
-                                                        onDelete={() => setCurrentState()}
+                                                        onUpdate={() => setCurrentState()}
                                                         isStudent={isAcceptedStudent}
                                                         isMentor={isCourseMentor}
                                                         isReadingMode={isReadingMode}
@@ -362,7 +362,7 @@ const Course: React.FC = () => {
                                                     </Button>
                                                 }
                                                 <CourseHomework
-                                                    onDelete={() => setCurrentState()}
+                                                    onUpdate={() => setCurrentState()}
                                                     isStudent={isAcceptedStudent}
                                                     isMentor={isCourseMentor}
                                                     isReadingMode={isReadingMode}
@@ -373,7 +373,7 @@ const Course: React.FC = () => {
                                     )}
                                     {!isCourseMentor && (
                                         <CourseHomework
-                                            onDelete={() => setCurrentState()}
+                                            onUpdate={() => setCurrentState()}
                                             homework={courseHomeworks}
                                             isStudent={isAcceptedStudent}
                                             isMentor={isCourseMentor}

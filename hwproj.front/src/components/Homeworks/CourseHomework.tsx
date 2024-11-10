@@ -11,7 +11,7 @@ interface ICourseHomeworkProps {
     isMentor: boolean;
     isStudent: boolean;
     isReadingMode: boolean;
-    onDelete: () => void;
+    onUpdate: () => void;
 }
 
 const CourseHomework: FC<ICourseHomeworkProps> = (props) => {
@@ -25,7 +25,7 @@ const CourseHomework: FC<ICourseHomeworkProps> = (props) => {
                     forStudent={props.isStudent}
                     forMentor={props.isMentor}
                     isReadingMode={props.isReadingMode}
-                    onDeleteClick={() => props.onDelete()}
+                    onUpdateClick={() => props.onUpdate()}
                 />
 
             </ListItem>
