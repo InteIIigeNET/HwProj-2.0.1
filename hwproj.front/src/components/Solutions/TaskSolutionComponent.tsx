@@ -75,9 +75,17 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         RatingStorage.clean(storageKey)
     }, [state.clickedForRate]);
 
+    const checkTestsActuality = props.solution &&
+        props.isLastSolution &&
+        props.forMentor &&
+        props.solution.githubUrl &&
+        props.solution.githubUrl.startsWith("https://github.com/")
+
+    const checkAchievement = props.solution && props.isLastSolution && props.solution.rating
+
     const getAchievementState = async () => {
-        if (props.solution && props.isLastSolution && props.solution.rating) {
-            const achievement = await ApiSingleton.solutionsApi.apiSolutionsSolutionAchievementGet(task.id, props.solution.id)
+        if (checkAchievement) {
+            const achievement = await ApiSingleton.solutionsApi.apiSolutionsSolutionAchievementGet(task.id, props.solution!.id)
             setAchievementState(achievement)
         } else setAchievementState(undefined)
     }
@@ -88,12 +96,6 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
         return match ? match[1] : url;
     }
-
-    const checkTestsActuality = props.solution &&
-        props.isLastSolution &&
-        props.forMentor &&
-        props.solution.githubUrl &&
-        props.solution.githubUrl.startsWith("https://github.com/")
 
     const getActuality = async () => {
         if (checkTestsActuality) {
@@ -292,9 +294,10 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 Решение оценено выше максимального балла.
             </Alert>
         </Grid>}
-        {achievement !== undefined && <Grid item>
-            <Alert variant="outlined" severity={achievement >= 80 ? "success" : "info"}>
-                Лучше {achievement}% других решений по задаче.
+        {checkAchievement && <Grid item>
+            <Alert variant="outlined" icon={achievement ? null : <CircularProgress size={20} color={"inherit"}/>}
+                   severity={achievement && achievement >= 80 ? "success" : "info"}>
+                {achievement ? `Лучше ${achievement}% других решений по задаче.` : "Смотрим на решения..."}
             </Alert>
         </Grid>}
         {(props.forMentor || isRated) &&
