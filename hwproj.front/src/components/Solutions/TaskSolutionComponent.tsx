@@ -81,7 +81,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         props.solution.githubUrl &&
         props.solution.githubUrl.startsWith("https://github.com/")
 
-    const checkAchievement = props.solution && props.isLastSolution && props.solution.rating !== undefined
+    const checkAchievement = props.solution && props.isLastSolution && props.solution.state !== Solution.StateEnum.NUMBER_0
 
     const getAchievementState = async () => {
         if (checkAchievement) {
@@ -295,7 +295,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             </Alert>
         </Grid>}
         {checkAchievement && <Grid item>
-            <Alert variant="outlined" icon={achievement !== undefined ? null : <CircularProgress size={20} color={"inherit"}/>}
+            <Alert variant="outlined"
+                   icon={achievement !== undefined ? null : <CircularProgress size={20} color={"inherit"}/>}
                    severity={achievement !== undefined && achievement >= 80 ? "success" : "info"}>
                 {achievement !== undefined ? `Лучше ${achievement}% других решений по задаче.` : "Смотрим на решения..."}
             </Alert>
