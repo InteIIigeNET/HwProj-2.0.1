@@ -71,17 +71,12 @@ namespace StudentsInfo
             const string url = "https://timetable.spbu.ru/MATH";
             var web = new HtmlWeb();
             var doc = web.Load(url);
-            
-            // Select all list items containing 'Software Engineering' (case-insensitive)
+
+            // Select all list items containing programs (regardless of their type)
             var programNodes = doc.DocumentNode.SelectNodes("//li[contains(@class, 'common-list-item row')]");
 
-            // Filter only 'Software Engineering' programs (case-insensitive)
-            var softwareEngineeringPrograms = programNodes
-                .Where(node => node.InnerText.Contains("Software Engineering", StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            // Process each 'Software Engineering' program
-            foreach (var programNode in softwareEngineeringPrograms)
+            // Process each program node
+            foreach (var programNode in programNodes)
             {
                 var programNameNode = programNode.SelectSingleNode(".//div[contains(@class, 'col-sm-5')]");
                 var programName = programNameNode?.InnerText.Trim();
@@ -92,7 +87,7 @@ namespace StudentsInfo
                 {
                     var titles = new List<string>();
 
-                    // Collect all group titles
+                    // Collect all groups
                     foreach (var titleNode in titleNodes)
                     {
                         var title = titleNode.SelectSingleNode(".//a")?.Attributes["title"]?.Value;
