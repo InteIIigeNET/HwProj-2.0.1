@@ -81,7 +81,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         props.solution.githubUrl &&
         props.solution.githubUrl.startsWith("https://github.com/")
 
-    const checkAchievement = props.solution && props.isLastSolution && props.solution.rating
+    const checkAchievement = props.solution && props.isLastSolution && props.solution.rating !== undefined
 
     const getAchievementState = async () => {
         if (checkAchievement) {
