@@ -77,7 +77,6 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     const checkTestsActuality = props.solution &&
         props.isLastSolution &&
-        props.forMentor &&
         props.solution.githubUrl &&
         props.solution.githubUrl.startsWith("https://github.com/")
 
