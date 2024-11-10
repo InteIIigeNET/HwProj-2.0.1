@@ -263,7 +263,6 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpGet("actuality/{solutionId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(SolutionActualityDto), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetSolutionActuality(long solutionId)
         {
