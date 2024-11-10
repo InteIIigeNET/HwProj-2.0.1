@@ -295,9 +295,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             </Alert>
         </Grid>}
         {checkAchievement && <Grid item>
-            <Alert variant="outlined" icon={achievement ? null : <CircularProgress size={20} color={"inherit"}/>}
-                   severity={achievement && achievement >= 80 ? "success" : "info"}>
-                {achievement ? `Лучше ${achievement}% других решений по задаче.` : "Смотрим на решения..."}
+            <Alert variant="outlined" icon={achievement !== undefined ? null : <CircularProgress size={20} color={"inherit"}/>}
+                   severity={achievement !== undefined && achievement >= 80 ? "success" : "info"}>
+                {achievement !== undefined ? `Лучше ${achievement}% других решений по задаче.` : "Смотрим на решения..."}
             </Alert>
         </Grid>}
         {(props.forMentor || isRated) &&
