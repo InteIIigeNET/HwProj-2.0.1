@@ -163,7 +163,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
         {tabValue === 0 && <Grid item style={{marginTop: '5px'}}>
             <TaskQuestions forMentor={forMentor}
                            taskId={task.id!}
-                           studentId={student.userId!}
+                           student={student}
                            questions={questionsState} onChange={getQuestions}/>
         </Grid>}
         {tabValue === 1 && <Grid item style={{marginTop: '16px'}}>

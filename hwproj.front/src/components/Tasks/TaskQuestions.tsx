@@ -1,7 +1,7 @@
 ﻿import {FC, useState} from "react";
 import {Link} from "@material-ui/core";
 import {
-    Alert, Card, CardContent,
+    Alert, Avatar, Card, CardContent,
     Dialog,
     DialogActions,
     DialogContent,
@@ -14,15 +14,16 @@ import * as React from "react";
 import {ReactMarkdownWithCodeHighlighting, TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import Button from "@material-ui/core/Button";
 import ApiSingleton from "../../api/ApiSingleton";
-import {AddAnswerForQuestionDto, AddTaskQuestionDto, GetTaskQuestionDto} from "../../api";
+import {AccountDataDto, AddAnswerForQuestionDto, AddTaskQuestionDto, GetTaskQuestionDto} from "../../api";
 import {Checkbox} from "@mui/material/";
 import CloseIcon from "@mui/icons-material/Close";
 import GroupsIcon from "@mui/icons-material/Groups";
 import PersonIcon from "@mui/icons-material/Person";
+import AvatarUtils from "../Utils/AvatarUtils";
 
 interface ITaskQuestionsProps {
     forMentor: boolean
-    studentId: string
+    student: AccountDataDto
     taskId: number
     questions: GetTaskQuestionDto[]
     onChange: () => void
@@ -137,10 +138,15 @@ const TaskQuestions: FC<ITaskQuestionsProps> = (props) => {
             </Grid>}
             {props.questions.map(q => {
                 const addAnswer = q.id === addAnswerState.questionId
+                const isCurrentStudent = q.studentId === props.student.userId
                 const isAnswered = q.answer !== null
                 return <Grid item>
                     <Alert severity={isAnswered ? "success" : "info"}
-                           icon={q.isPrivate ? <PersonIcon fontSize={"small"}/> : <GroupsIcon fontSize={"medium"}/>}
+                           icon={isCurrentStudent
+                               ? <Avatar style={{width: 30, height: 30}} {...AvatarUtils.stringAvatar(props.student)} />
+                               : q.isPrivate
+                                   ? <PersonIcon fontSize={"small"}/>
+                                   : <GroupsIcon fontSize={"medium"}/>}
                            action={isAnswered || !props.forMentor ? null :
                                <Stack direction={"row"} alignItems={"center"}>
                                    {addAnswer &&
@@ -167,6 +173,9 @@ const TaskQuestions: FC<ITaskQuestionsProps> = (props) => {
                                    </Button>
                                </Stack>
                            }>
+                        {isCurrentStudent && <Typography variant={"caption"}>
+                            Вопрос от проверяемого студента:
+                        </Typography>}
                         <ReactMarkdownWithCodeHighlighting value={q.text!}/>
                         {!isAnswered && q.id === addAnswerState.questionId && <TextFieldWithPreview
                             multiline
