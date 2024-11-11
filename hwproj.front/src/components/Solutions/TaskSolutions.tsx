@@ -154,8 +154,9 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
         >
             <Tab style={{minWidth: 3}} textColor={"primary"}
                  label={<Badge badgeContent={newQuestions} variant="dot" showZero={false}
-                               color="primary"><QuestionMark
-                     fontSize={"small"}/></Badge>}/>
+                               color="primary">
+                     <QuestionMark style={{fontSize: 15}}/>
+                 </Badge>}/>
             <Tab label="Последнее решение"/>
             {arrayOfRatedSolutions.length > 0 && <Tab label="Предыдущие попытки"/>}
         </Tabs>

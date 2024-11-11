@@ -122,6 +122,9 @@ const TaskQuestions: FC<ITaskQuestionsProps> = (props) => {
                 </Button>
             </DialogActions>
         </Dialog>
+        {props.forMentor && props.questions.length === 0 && <Typography variant={"caption"}>
+            Никто не задал ещё вопросы.
+        </Typography>}
         <Grid container spacing={1} direction={"column"}>
             {!props.forMentor && <Grid item><Link
                 style={{cursor: "pointer"}}
