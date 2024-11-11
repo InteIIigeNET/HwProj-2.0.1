@@ -28,7 +28,8 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<HomeworkTask> GetTaskAsync(long taskId)
         {
-            var task = await _tasksRepository.FindAll(x => x.Id == taskId).Include(x => x.Homework).FirstOrDefaultAsync();
+            var task = await _tasksRepository.FindAll(x => x.Id == taskId).Include(x => x.Homework)
+                .FirstOrDefaultAsync();
 
             CourseDomain.FillTask(task.Homework, task);
 
@@ -52,7 +53,8 @@ namespace HwProj.CoursesService.API.Services
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
             if (task.PublicationDate <= DateTime.UtcNow)
-                _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, deadlineDate, course.Name, course.Id, studentIds));
+                _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, deadlineDate, course.Name, course.Id,
+                    studentIds));
 
             return taskId;
         }

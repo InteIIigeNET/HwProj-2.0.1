@@ -46,7 +46,7 @@ const TextFieldWithPreview: FC<TextFieldProps & {
         {isPreview
             ? <Card variant={props.previewStyle ? "outlined" : "elevation"}
                     style={props.previewStyle || {backgroundColor: "ghostwhite"}}>
-                <CardContent>
+                <CardContent style={{paddingBottom: 0, marginBottom: 0}}>
                     <ReactMarkdownWithCodeHighlighting value={props.value as string}/>
                 </CardContent>
             </Card>

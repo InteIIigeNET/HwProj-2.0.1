@@ -38,6 +38,7 @@ namespace HwProj.CoursesService.API
             services.AddScoped<IHomeworksService, HomeworksService>();
             services.AddScoped<ITasksService, TasksService>();
             services.AddScoped<ICourseFilterRepository, CourseFilterRepository>();
+            services.AddScoped<ITaskQuestionsRepository, TaskQuestionsRepository>();
             services.AddScoped<ICourseFilterService, CourseFilterService>();
             services.AddScoped<CourseMentorOnlyAttribute>();
 

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
+using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -59,7 +60,7 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.DeleteTask(taskId);
             return Ok();
         }
-        
+
         [HttpPut("update/{taskId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> UpdateTask(long taskId, CreateTaskViewModel taskViewModel)
@@ -68,6 +69,30 @@ namespace HwProj.APIGateway.API.Controllers
             return result.Succeeded
                 ? Ok() as IActionResult
                 : BadRequest(result.Errors);
+        }
+
+        [HttpPost("addQuestion")]
+        [Authorize(Roles = Roles.StudentRole)]
+        public async Task<IActionResult> AddQuestionForTask(AddTaskQuestionDto question)
+        {
+            await _coursesClient.AddQuestionForTask(question);
+            return Ok();
+        }
+
+        [HttpGet("questions/{taskId}")]
+        [ProducesResponseType(typeof(GetTaskQuestionDto[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetQuestionsForTask(long taskId)
+        {
+            var result = await _coursesClient.GetQuestionsForTask(taskId);
+            return Ok(result);
+        }
+
+        [HttpPost("addAnswer")]
+        [Authorize(Roles = Roles.LecturerOrExpertRole)]
+        public async Task<IActionResult> AddAnswerForQuestion(AddAnswerForQuestionDto answer)
+        {
+            await _coursesClient.AddAnswerForQuestion(answer);
+            return Ok();
         }
     }
 }

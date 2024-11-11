@@ -33,7 +33,7 @@ namespace HwProj.CoursesService.API.Services
             IAuthServiceClient authServiceClient,
             ITasksRepository tasksRepository,
             IHomeworksRepository homeworksRepository,
-            IGroupsRepository groupsRepository, 
+            IGroupsRepository groupsRepository,
             ICourseFilterService courseFilterService)
         {
             _coursesRepository = coursesRepository;
@@ -82,8 +82,7 @@ namespace HwProj.CoursesService.API.Services
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
 
-            var result = userId == string.Empty ?
-                courseDto : await _courseFilterService.ApplyFilter(courseDto, userId);
+            var result = userId == string.Empty ? courseDto : await _courseFilterService.ApplyFilter(courseDto, userId);
             return result;
         }
 
@@ -206,7 +205,7 @@ namespace HwProj.CoursesService.API.Services
                         .FirstOrDefault()?.Id;
                 }
             }
-            
+
             return result;
         }
 
@@ -243,6 +242,12 @@ namespace HwProj.CoursesService.API.Services
             return course.MentorIds
                 .Split('/')
                 .ToArray();
+        }
+
+        public async Task<bool> HasStudent(long courseId, string studentId)
+        {
+            var student = await _courseMatesRepository.FindAsync(x => x.StudentId == studentId);
+            return student != null;
         }
 
         public async Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId)

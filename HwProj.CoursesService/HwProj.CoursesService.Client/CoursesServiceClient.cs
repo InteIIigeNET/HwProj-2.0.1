@@ -70,7 +70,7 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            
+
             return response.StatusCode switch
             {
                 HttpStatusCode.OK => Result<CourseDTO>.Success(await response.DeserializeAsync<CourseDTO>()),
@@ -280,9 +280,9 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _coursesServiceUri + $"api/Tasks/get/{taskId}");
-            
+
             httpRequest.TryAddUserId(_httpContextAccessor);
-            
+
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<HomeworkTaskViewModel>();
         }
@@ -526,13 +526,52 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            
+
             return response.StatusCode switch
             {
                 HttpStatusCode.OK => Result<long>.Success(await response.DeserializeAsync<long>()),
                 HttpStatusCode.BadRequest => Result<long>.Failed(await response.Content.ReadAsStringAsync()),
                 _ => Result<long>.Failed(),
             };
+        }
+
+        public async Task AddQuestionForTask(AddTaskQuestionDto question)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + "api/Tasks/addQuestion");
+            httpRequest.Content = new StringContent(
+                JsonConvert.SerializeObject(question),
+                Encoding.UTF8,
+                "application/json");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            await _httpClient.SendAsync(httpRequest);
+        }
+
+        public async Task<GetTaskQuestionDto[]> GetQuestionsForTask(long taskId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Tasks/questions/{taskId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<GetTaskQuestionDto[]>();
+        }
+
+        public async Task AddAnswerForQuestion(AddAnswerForQuestionDto answer)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + "api/Tasks/addAnswer");
+            httpRequest.Content = new StringContent(
+                JsonConvert.SerializeObject(answer),
+                Encoding.UTF8,
+                "application/json");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            await _httpClient.SendAsync(httpRequest);
         }
 
         public async Task<bool> Ping()
