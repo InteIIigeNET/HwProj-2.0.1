@@ -6,7 +6,7 @@ import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
 import {CircularProgress, Grid} from "@material-ui/core";
-import {Link, useNavigate, useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import EditIcon from '@mui/icons-material/Edit';
 import {
@@ -29,7 +29,6 @@ import {getTip} from "../Common/HomeworkTags";
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
-    currentStudentId: string
     task: HomeworkTaskViewModel
     isLoaded: boolean
     allSolutionsRated: boolean,
@@ -63,13 +62,12 @@ interface StudentSolutionsPageProps {
     isExpert: boolean;
 }
 
-const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({ isExpert }) => {
+const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
     const {taskId, studentId} = useParams()
-    const navigate = useNavigate()
 
+    const [currentStudentId, setCurrentStudentId] = useState<string>(studentId!)
     const [studentSolutionsState, setStudentSolutionsState] = useState<IStudentSolutionsPageState>({
         currentTaskId: "",
-        currentStudentId: studentId!,
         allSolutionsRated: false,
         task: {},
         isLoaded: false,
@@ -91,7 +89,6 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({ isExpert }) => {
 
     const {
         isLoaded,
-        currentStudentId,
         currentTaskId,
         allStudentSolutionsPreview,
         allSolutionsRated,
@@ -107,7 +104,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({ isExpert }) => {
         ? allStudentSolutionsPreview.filter(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0 || x.student.userId === studentId)
         : allStudentSolutionsPreview
 
-    const getTaskData = async (taskId: string, studentId: string) => {
+    const getTaskData = async (taskId: string) => {
         const fullUpdate = currentTaskId !== taskId
         const task = fullUpdate
             ? await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
@@ -128,7 +125,6 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({ isExpert }) => {
             ...studentSolutionsState,
             task: task,
             isLoaded: true,
-            currentStudentId: studentId,
             currentTaskId: taskId,
             allTaskSolutionsStats: statsForTasks!,
             allStudentSolutionsPreview: studentSolutionsPreview,
@@ -138,8 +134,12 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({ isExpert }) => {
     }
 
     useEffect(() => {
-        getTaskData(taskId!, studentId!)
-    }, [taskId, studentId])
+        getTaskData(taskId!)
+    }, [taskId])
+
+    useEffect(() => {
+        setCurrentStudentId(studentId!)
+    }, [studentId])
 
     const currentStudent = studentSolutionsPreview.find(x => x.student.userId === currentStudentId)
     const renderGoBackToCoursesStatsLink = () => {
@@ -255,7 +255,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({ isExpert }) => {
                             student={currentStudent!.student}
                             onSolutionRateClick={async () => {
                                 //const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.student.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
-                                await getTaskData(currentTaskId, currentStudentId)
+                                await getTaskData(currentTaskId)
                                 //else navigate(`/task/${currentTaskId}/${studentSolutionsPreview[nextStudentIndex].student.userId}`)
                             }}
                         />}
