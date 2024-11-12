@@ -271,42 +271,57 @@ namespace HwProj.SolutionsService.API.Services
             var pullRequest = SolutionHelper.TryParsePullRequestUrl(solution.GithubUrl);
             if (pullRequest == null) return solutionsActuality;
 
-            var commits =
-                await client.PullRequest.Commits(pullRequest.Owner, pullRequest.RepoName, pullRequest.Number)
-                ?? Array.Empty<PullRequestCommit>();
-
-            if (isTestWork)
+            try
             {
-                var lastSolutionCommit = await _githubSolutionCommitsRepository.TryGetLastBySolutionId(solutionId);
-                solutionsActuality.CommitsActuality = SolutionHelper.GetCommitActuality(commits, lastSolutionCommit);
-            }
+                var commits =
+                    await client.PullRequest.Commits(pullRequest.Owner, pullRequest.RepoName, pullRequest.Number)
+                    ?? Array.Empty<PullRequestCommit>();
 
-            if (!(commits.LastOrDefault() is { } lastCommit)) return solutionsActuality;
-
-            var suite = await client.Check.Suite.GetAllForReference(pullRequest.Owner, pullRequest.RepoName,
-                lastCommit.Sha);
-
-            if (suite == null || suite.CheckSuites.Count == 0) return solutionsActuality;
-
-            var conclusion = suite.CheckSuites.Last().Conclusion?.Value;
-            if (conclusion == null) return solutionsActuality;
-
-            solutionsActuality.TestsActuality = new SolutionActualityPart
-            {
-                isActual = conclusion == CheckConclusion.Success,
-                Comment = conclusion switch
+                if (isTestWork)
                 {
-                    CheckConclusion.Success => "Все тесты успешно пройдены.",
-                    CheckConclusion.Failure => "Тесты завершились с ошибками.",
-                    var x => $"Тесты завершились со статусом '{x}'."
-                },
-                AdditionalData = conclusion switch
-                {
-                    CheckConclusion.Success => "",
-                    CheckConclusion.Failure => "",
-                    _ => "Some"
+                    var lastSolutionCommit = await _githubSolutionCommitsRepository.TryGetLastBySolutionId(solutionId);
+                    solutionsActuality.CommitsActuality =
+                        SolutionHelper.GetCommitActuality(commits, lastSolutionCommit);
                 }
-            };
+
+                if (!(commits.LastOrDefault() is { } lastCommit)) return solutionsActuality;
+
+                var suite = await client.Check.Suite.GetAllForReference(pullRequest.Owner, pullRequest.RepoName,
+                    lastCommit.Sha);
+
+                if (suite == null || suite.CheckSuites.Count == 0) return solutionsActuality;
+
+                var conclusion = suite.CheckSuites.Last().Conclusion?.Value;
+                if (conclusion == null) return solutionsActuality;
+
+                solutionsActuality.TestsActuality = new SolutionActualityPart
+                {
+                    isActual = conclusion == CheckConclusion.Success,
+                    Comment = conclusion switch
+                    {
+                        CheckConclusion.Success => "Все тесты успешно пройдены.",
+                        CheckConclusion.Failure => "Тесты завершились с ошибками.",
+                        var x => $"Тесты завершились со статусом '{x}'."
+                    },
+                    AdditionalData = conclusion switch
+                    {
+                        CheckConclusion.Success => "",
+                        CheckConclusion.Failure => "",
+                        _ => "Some"
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                var result = new SolutionActualityPart
+                {
+                    isActual = false,
+                    Comment = $"Ошибка при чтении пулл-реквеста: {ex.Message}",
+                    AdditionalData = ""
+                };
+                solutionsActuality.CommitsActuality = result;
+                solutionsActuality.TestsActuality = result;
+            }
 
             return solutionsActuality;
         }
