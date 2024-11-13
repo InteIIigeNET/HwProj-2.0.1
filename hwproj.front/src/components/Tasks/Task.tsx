@@ -11,10 +11,11 @@ import {Accordion, AccordionDetails, AccordionSummary, Button, Grid, Tooltip} fr
 import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
-import {Chip} from "@mui/material";
+import {Chip, Stack} from "@mui/material";
 import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
 import Utils from "../../services/Utils";
 import {getTip} from "../Common/HomeworkTags";
+import StarIcon from '@mui/icons-material/Star';
 
 interface ITaskProp {
     task: HomeworkTaskViewModel,
@@ -80,18 +81,26 @@ const Task: FC<ITaskProp> = (props) => {
                                     {task.title}{getTip(task)}
                                 </Typography>
                             </Grid>
+                            <Grid item><Chip label={<Stack direction={"row"} alignItems={"center"} spacing={0.5}>
+                                <StarIcon style={{fontSize: 15}}/>
+                                <div>{task.maxRating}</div>
+                            </Stack>}
+                                             variant={"outlined"}
+                                             style={{fontWeight: "bold"}}
+                                             color={"success"}/></Grid>
                             {task.isGroupWork && <Grid item><Chip color={"info"} label="Комадное"/></Grid>}
-                            {props.forMentor && <Grid item><Chip label={"🕘 " + publicationDate}/></Grid>}
-                            {task.hasDeadline && <Grid item><Chip label={"⌛ " + deadlineDate}/></Grid>}
-                            {props.forMentor && props.task.isDeadlineStrict &&
-                                <Tooltip arrow title={"Нельзя публиковать решения после дедлайна"}>
+                            {props.forMentor &&
+                                <Grid item><Chip variant={"outlined"} label={"🕘 " + publicationDate}/></Grid>}
+                            {task.hasDeadline &&
+                                <Tooltip arrow
+                                         title={task.isDeadlineStrict ? "Нельзя публиковать решения после дедлайна" : "Дедлайн"}>
                                     <Grid item>
-                                        <Chip label={"⛔"}/>
+                                        <Chip variant={"outlined"}
+                                              label={(task.isDeadlineStrict ? "⛔" : "До") + " " + deadlineDate}/>
                                     </Grid>
                                 </Tooltip>
                             }
-                            {!task.hasDeadline && <Grid item><Chip label={"без дедлайна"}/></Grid>}
-                            <Grid item><Chip label={"⭐ " + task.maxRating}/></Grid>
+                            {!task.hasDeadline && <Grid item><Chip variant={"outlined"} label={"без дедлайна"}/></Grid>}
                             {props.forMentor && !props.isReadingMode && <Grid item>
                                 <div>
                                     <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>
