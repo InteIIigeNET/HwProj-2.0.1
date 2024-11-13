@@ -96,7 +96,7 @@ const Task: FC<ITaskProp> = (props) => {
                                          title={task.isDeadlineStrict ? "Нельзя публиковать решения после дедлайна" : "Дедлайн"}>
                                     <Grid item>
                                         <Chip variant={"outlined"}
-                                              label={(task.isDeadlineStrict ? "⛔" : "До") + " " + deadlineDate}/>
+                                              label={(task.isDeadlineStrict ? "⛔ До" : "До") + " " + deadlineDate}/>
                                     </Grid>
                                 </Tooltip>
                             }
