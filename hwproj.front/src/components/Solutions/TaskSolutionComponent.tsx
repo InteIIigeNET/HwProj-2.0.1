@@ -83,10 +83,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const checkAchievement = props.solution && props.isLastSolution && props.solution.state !== Solution.StateEnum.NUMBER_0
 
     const getAchievementState = async () => {
+        setAchievementState(undefined)
         if (checkAchievement) {
             const achievement = await ApiSingleton.solutionsApi.apiSolutionsSolutionAchievementGet(task.id, props.solution!.id)
             setAchievementState(achievement)
-        } else setAchievementState(undefined)
+        }
     }
 
     const clearUrl = (url: string) => {
@@ -97,10 +98,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     }
 
     const getActuality = async () => {
+        setSolutionActuality(undefined)
         if (checkTestsActuality) {
             const actualityDto = await ApiSingleton.solutionsApi.apiSolutionsActualityBySolutionIdGet(props.solution!.id!)
             setSolutionActuality(actualityDto)
-        } else setSolutionActuality(undefined)
+        }
     }
 
     const rateSolution = async () => {
