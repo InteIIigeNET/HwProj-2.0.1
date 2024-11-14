@@ -142,6 +142,8 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     return <Grid container alignItems="stretch" direction="column">
         {renderSolutionsRate()}
         <Tabs
+            variant="scrollable"
+            scrollButtons={"auto"}
             value={tabValue}
             style={{marginTop: 3}}
             indicatorColor="primary"

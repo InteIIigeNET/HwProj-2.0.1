@@ -283,6 +283,8 @@ const Course: React.FC = () => {
                         </Grid>
                     </Grid>
                     <Tabs
+                        variant="scrollable"
+                        scrollButtons={"auto"}
                         value={tabValue == "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
                         indicatorColor="primary"
                         onChange={(event, value) => {

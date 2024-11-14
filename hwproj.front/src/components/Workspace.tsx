@@ -130,6 +130,8 @@ const Workspace: FC = () => {
                         </Grid>}
                     {isUserProfile && <Grid item>
                         <Tabs
+                            variant="scrollable"
+                            scrollButtons={"auto"}
                             value={tabValue}
                             style={{marginTop: 10}}
                             indicatorColor="primary"

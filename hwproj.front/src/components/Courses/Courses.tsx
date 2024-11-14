@@ -57,6 +57,8 @@ export default class Courses extends React.Component<Props, ICoursesState> {
         return (
             <div className="container">
                 <Tabs
+                    variant="scrollable"
+                    scrollButtons={"auto"}
                     value={tabValue}
                     indicatorColor="primary"
                     onChange={(event, value) => {

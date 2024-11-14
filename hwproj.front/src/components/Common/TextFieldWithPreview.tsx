@@ -32,6 +32,8 @@ const TextFieldWithPreview: FC<TextFieldProps & {
 
     return <>
         {isEditable && <Tabs
+            variant="scrollable"
+            scrollButtons={"auto"}
             indicatorColor={"primary"}
             value={isPreview ? 1 : 0}
             onChange={(_, newValue) => setState(prevState => ({
