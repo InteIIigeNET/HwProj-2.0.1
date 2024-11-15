@@ -8,9 +8,11 @@ using HwProj.APIGateway.API.Extensions;
 using HwProj.APIGateway.API.Models.Solutions;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
+using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
+using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -123,12 +125,23 @@ namespace HwProj.APIGateway.API.Controllers
                 .ToArray();
 
             var currentDateTime = DateTime.UtcNow;
-            var tasks = course.Homeworks
-                .SelectMany(t => t.Tasks)
-                .Where(t => t.PublicationDate <= currentDateTime)
+            var homeworks = course.Homeworks
+                .GroupBy(t =>
+                {
+                    var isTest = t.Tags.Contains(HomeworkTags.Test);
+                    var groupingTag = t.Tags.Except(HomeworkTags.DefaultTags).FirstOrDefault();
+                    return isTest && groupingTag != null ? groupingTag : t.Id.ToString();
+                }, x =>
+                {
+                    x.Tasks = x.Tasks.Where(t => t.PublicationDate <= currentDateTime).ToList();
+                    return x;
+                })
                 .ToList();
 
-            var taskIds = tasks.Select(t => t.Id).ToArray();
+            var taskIds = homeworks
+                .SelectMany(x => x.SelectMany(t => t.Tasks))
+                .Select(t => t.Id)
+                .ToArray();
 
             var getUsersDataTask = AuthServiceClient.GetAccountsData(studentIds.Union(course.MentorIds).ToArray());
             var getStatisticsTask = _solutionsClient.GetTaskSolutionStatistics(course.Id, taskId);
@@ -143,16 +156,10 @@ namespace HwProj.APIGateway.API.Controllers
 
             var usersData = getUsersDataTask.Result.ToDictionary(t => t.UserId);
             var statistics = getStatisticsTask.Result.ToDictionary(t => t.StudentId);
-            var statsForTasks = getStatsForTasks.Result;
+            var statsForTasks = getStatsForTasks.Result.ToDictionary(t => t.TaskId);
             var groups = course.Groups.ToDictionary(
                 t => t.Id,
                 t => t.StudentsIds.Select(s => usersData[s]).ToArray());
-
-            for (var i = 0; i < statsForTasks.Length; i++)
-            {
-                statsForTasks[i].Title = tasks[i].Title;
-                statsForTasks[i].Tags = tasks[i].Tags;
-            }
 
             var result = new TaskSolutionStatisticsPageData()
             {
@@ -169,7 +176,29 @@ namespace HwProj.APIGateway.API.Controllers
                     .OrderBy(t => t.User.Surname)
                     .ThenBy(t => t.User.Name)
                     .ToArray(),
-                StatsForTasks = statsForTasks
+
+                StatsForTasks = homeworks.Select(group =>
+                {
+                    var isSingle = homeworks.Count == 1;
+                    return new HomeworksGroupSolutionStats()
+                    {
+                        GroupTitle = isSingle ? null : group.Key,
+                        StatsForHomeworks = group.Select(h => new HomeworkSolutionsStats
+                        {
+                            HomeworkTitle = h.Title,
+                            StatsForTasks = h.Tasks.Select(t =>
+                            {
+                                var stats = statsForTasks.TryGetValue(t.Id, out var taskStats)
+                                    ? taskStats
+                                    : new TaskSolutionsStats();
+
+                                stats.Title = t.Title;
+                                stats.Tags = t.Tags;
+                                return stats;
+                            }).ToArray()
+                        }).ToArray()
+                    };
+                }).ToArray()
             };
 
             return Ok(result);

@@ -1,12 +1,18 @@
 import * as React from "react";
 import {FC, useEffect, useState} from "react";
-import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, Solution, TaskSolutionsStats} from "../../api/";
+import {
+    AccountDataDto,
+    GetSolutionModel, HomeworksGroupSolutionStats,
+    HomeworkTaskViewModel,
+    Solution,
+    TaskSolutionsStats
+} from "../../api/";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
-import {CircularProgress, Grid} from "@material-ui/core";
-import {Link, useParams} from "react-router-dom";
+import {CircularProgress, Grid, Tabs, Tab} from "@material-ui/core";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import EditIcon from '@mui/icons-material/Edit';
 import {
@@ -33,7 +39,7 @@ interface IStudentSolutionsPageState {
     isLoaded: boolean
     allSolutionsRated: boolean,
     courseId: number,
-    allTaskSolutionsStats: TaskSolutionsStats[],
+    homeworkSolutionsStats: HomeworksGroupSolutionStats[],
     allStudentSolutionsPreview: {
         student: AccountDataDto,
         solutions: GetSolutionModel[]
@@ -64,6 +70,7 @@ interface StudentSolutionsPageProps {
 
 const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
     const {taskId, studentId} = useParams()
+    const navigate = useNavigate()
 
     const [currentStudentId, setCurrentStudentId] = useState<string>(studentId!)
     const [studentSolutionsState, setStudentSolutionsState] = useState<IStudentSolutionsPageState>({
@@ -72,7 +79,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
         task: {},
         isLoaded: false,
         courseId: -1,
-        allTaskSolutionsStats: [],
+        homeworkSolutionsStats: [],
         allStudentSolutionsPreview: [],
     })
     const [filterState, setFilterState] = React.useState<Filter[]>(
@@ -93,8 +100,23 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
         allStudentSolutionsPreview,
         allSolutionsRated,
         courseId,
-        allTaskSolutionsStats
+        homeworkSolutionsStats
     } = studentSolutionsState
+
+    const allTaskSolutionsStats = homeworkSolutionsStats.flatMap(x => {
+        if (!x.statsForHomeworks) return []
+        const firstHomeworkTasks = x.statsForHomeworks[0]?.statsForTasks || []
+        return x.statsForHomeworks.length === 1
+            ? firstHomeworkTasks
+            : firstHomeworkTasks.map((t, i) => ({
+                ...t,
+                title: "(" + x.groupTitle! + ") " + `Задача ${i + 1}`,
+                countUnratedSolutions:
+                    x.statsForHomeworks!
+                        .map(h => h.statsForTasks![i])
+                        .reduce((acc, cur) => acc + cur.countUnratedSolutions!, 0)
+            }));
+    })
 
     const taskSolutionsStats = showOnlyUnrated
         ? allTaskSolutionsStats.filter(x => x.countUnratedSolutions && x.countUnratedSolutions > 0)
@@ -103,6 +125,23 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
     const studentSolutionsPreview = showOnlyUnrated
         ? allStudentSolutionsPreview.filter(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0 || x.student.userId === studentId)
         : allStudentSolutionsPreview
+
+    const currentHomeworksGroup = homeworkSolutionsStats
+        .find(x => x.statsForHomeworks!
+            .some(h => h.statsForTasks!
+                .some(t => t.taskId === +currentTaskId)))
+
+    const homeworks = currentHomeworksGroup?.statsForHomeworks || []
+
+    const versionOfTask = homeworks.findIndex(x => x.statsForTasks!.some(t => t.taskId === +currentTaskId))
+
+    const taskIndexInHomework = versionOfTask === undefined
+        ? undefined
+        : homeworks[versionOfTask].statsForTasks!.findIndex(t => t.taskId === +currentTaskId)
+
+    const versionsOfCurrentTask = taskIndexInHomework === undefined
+        ? []
+        : homeworks.map(h => h.statsForTasks![taskIndexInHomework].taskId)
 
     const getTaskData = async (taskId: string) => {
         const fullUpdate = currentTaskId !== taskId
@@ -126,7 +165,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
             task: task,
             isLoaded: true,
             currentTaskId: taskId,
-            allTaskSolutionsStats: statsForTasks!,
+            homeworkSolutionsStats: statsForTasks!,
             allStudentSolutionsPreview: studentSolutionsPreview,
             courseId: courseId!,
             allSolutionsRated: studentSolutionsPreview.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
@@ -153,6 +192,13 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
         </Link>
     }
 
+    const renderUnratedSolutionsCountChip = (t: TaskSolutionsStats, isSelected: boolean) => {
+        return t.countUnratedSolutions
+            ? <Chip size={"small"} color={isSelected ? "primary" : "default"}
+                    label={t.countUnratedSolutions}/>
+            : <TaskAltIcon color={isSelected ? "primary" : "success"}/>
+    }
+
     if (isLoaded) {
         return (
             <div className={"container"} style={{marginBottom: '50px', marginTop: '15px'}}>
@@ -160,7 +206,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                     <Stack direction={"row"} spacing={1}
                            style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
                         {taskSolutionsStats!.map((t, index) => {
-                            const isCurrent = taskId === String(t.taskId)
+                            const isCurrent = versionsOfCurrentTask.includes(t.taskId)
                             const color = isCurrent ? "primary" : "default"
                             return <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                 {index > 0 && <hr style={{width: 100}}/>}
@@ -172,10 +218,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                                                 if (isCurrent) ref?.scrollIntoView({inline: "nearest"})
                                             }}
                                             color={color}
-                                            icon={t.countUnratedSolutions
-                                                ? <Chip size={"small"} color={isCurrent ? "primary" : "default"}
-                                                        label={t.countUnratedSolutions}/>
-                                                : <TaskAltIcon color={isCurrent ? "primary" : "success"}/>}>
+                                            icon={renderUnratedSolutionsCountChip(t, isCurrent)}>
                                             {t.title}{getTip(t)}
                                         </StepButton>
                                     </Link>
@@ -239,6 +282,21 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                         {!isExpert && renderGoBackToCoursesStatsLink()}
                     </Grid>
                     <Grid item lg={9} spacing={2}>
+                        {currentHomeworksGroup && taskIndexInHomework !== undefined && currentHomeworksGroup.statsForHomeworks!.length > 1 &&
+                            <Tabs
+                                onChange={(_, value) => navigate(`/task/${currentHomeworksGroup!.statsForHomeworks![value].statsForTasks![taskIndexInHomework]!.taskId}/${currentStudentId}`)}
+                                variant="scrollable"
+                                scrollButtons={"auto"}
+                                value={versionOfTask}
+                                indicatorColor="primary"
+                            >
+                                {currentHomeworksGroup.statsForHomeworks?.map((h, i) => <Tab
+                                    label={<Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                        {renderUnratedSolutionsCountChip(h.statsForTasks![taskIndexInHomework], i === versionOfTask)}
+                                        <div>{h.homeworkTitle}</div>
+                                    </Stack>}/>)}
+                            </Tabs>
+                        }
                         <Task
                             task={studentSolutionsState.task}
                             forStudent={false}

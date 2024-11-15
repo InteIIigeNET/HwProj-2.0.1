@@ -24,7 +24,7 @@ namespace HwProj.APIGateway.API.Models.Solutions
     {
         public UserTaskSolutions[] StudentsSolutions { get; set; }
         public long CourseId { get; set; }
-        public TaskSolutionsStats[] StatsForTasks { get; set; }
+        public HomeworksGroupSolutionStats[] StatsForTasks { get; set; }
     }
 
     public class UserTaskSolutionsPageData
@@ -33,5 +33,17 @@ namespace HwProj.APIGateway.API.Models.Solutions
         public AccountDataDto[] CourseMates { get; set; }
         public HomeworkTaskViewModel Task { get; set; }
         public UserTaskSolutions2[] TaskSolutions { get; set; }
+    }
+
+    public class HomeworksGroupSolutionStats
+    {
+        public string? GroupTitle { get; set; }
+        public HomeworkSolutionsStats[] StatsForHomeworks { get; set; }
+    }
+
+    public class HomeworkSolutionsStats
+    {
+        public string HomeworkTitle { get; set; }
+        public TaskSolutionsStats[] StatsForTasks { get; set; }
     }
 }

@@ -942,6 +942,26 @@ export interface GroupViewModel {
 /**
  * 
  * @export
+ * @interface HomeworkSolutionsStats
+ */
+export interface HomeworkSolutionsStats {
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeworkSolutionsStats
+     */
+    homeworkTitle?: string;
+    /**
+     * 
+     * @type {Array<TaskSolutionsStats>}
+     * @memberof HomeworkSolutionsStats
+     */
+    statsForTasks?: Array<TaskSolutionsStats>;
+}
+
+/**
+ * 
+ * @export
  * @interface HomeworkTaskForEditingViewModel
  */
 export interface HomeworkTaskForEditingViewModel {
@@ -1123,6 +1143,26 @@ export interface HomeworkViewModel {
      * @memberof HomeworkViewModel
      */
     tasks?: Array<HomeworkTaskViewModel>;
+}
+
+/**
+ * 
+ * @export
+ * @interface HomeworksGroupSolutionStats
+ */
+export interface HomeworksGroupSolutionStats {
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeworksGroupSolutionStats
+     */
+    groupTitle?: string;
+    /**
+     * 
+     * @type {Array<HomeworkSolutionsStats>}
+     * @memberof HomeworksGroupSolutionStats
+     */
+    statsForHomeworks?: Array<HomeworkSolutionsStats>;
 }
 
 /**
@@ -2080,10 +2120,10 @@ export interface TaskSolutionStatisticsPageData {
     courseId?: number;
     /**
      * 
-     * @type {Array<TaskSolutionsStats>}
+     * @type {Array<HomeworksGroupSolutionStats>}
      * @memberof TaskSolutionStatisticsPageData
      */
-    statsForTasks?: Array<TaskSolutionsStats>;
+    statsForTasks?: Array<HomeworksGroupSolutionStats>;
 }
 
 /**
