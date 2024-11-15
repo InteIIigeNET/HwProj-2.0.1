@@ -2,16 +2,17 @@ import * as React from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button'
 import ApiSingleton from "../../api/ApiSingleton";
-import {AccountDataDto, SolutionViewModel} from "../../api";
+import {AccountDataDto, HomeworkTaskViewModel, SolutionViewModel} from "../../api";
 import {FC, useState} from "react";
 import {Alert, Autocomplete, Grid, DialogContent, Dialog, DialogTitle, DialogActions} from "@mui/material";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import {TestTag} from "../Common/HomeworkTags";
 
 interface IAddSolutionProps {
     userId: string
     lastSolutionUrl: string | undefined,
     lastGroup: string[],
-    taskId: number,
+    task: HomeworkTaskViewModel,
     supportsGroup: boolean,
     students: AccountDataDto[]
     onAdd: () => void,
@@ -28,11 +29,13 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        await ApiSingleton.solutionsApi.apiSolutionsByTaskIdPost(props.taskId, solution)
+        await ApiSingleton.solutionsApi.apiSolutionsByTaskIdPost(props.task.id!, solution)
         props.onAdd()
     }
 
     const {githubUrl} = solution
+    const isTest = props.task.tags?.includes(TestTag)
+    const showTestGithubInfo = isTest && githubUrl?.startsWith("https://github") && githubUrl.includes("/pull/")
     const courseMates = props.students.filter(s => props.userId !== s.userId)
 
     return (
@@ -57,7 +60,13 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                                 }))
                             }}
                         />
-                        {githubUrl === props.lastSolutionUrl &&
+                        {showTestGithubInfo &&
+                            <Alert sx={{paddingTop: 0, paddingBottom: 0, marginTop: 0.2}} severity="info">
+                                Для данного решения будет сохранена информация о коммитах на момент отправки.
+                                <br/>
+                                Убедитесь, что работа закончена, и отправьте решение в конце.
+                            </Alert>}
+                        {githubUrl === props.lastSolutionUrl && !showTestGithubInfo &&
                             <Alert sx={{paddingTop: 0, paddingBottom: 0, marginTop: 0.2}} severity="info">Ссылка
                                 взята из предыдущего
                                 решения</Alert>}

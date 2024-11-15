@@ -198,7 +198,7 @@ const TaskSolutionsPage: FC = () => {
             </Grid>
             {taskSolutionPage.addSolution && <AddSolution
                 userId={userId}
-                taskId={+taskId!}
+                task={task}
                 onAdd={getTask}
                 onCancel={onCancelAddSolution}
                 lastSolutionUrl={lastSolution?.githubUrl}
