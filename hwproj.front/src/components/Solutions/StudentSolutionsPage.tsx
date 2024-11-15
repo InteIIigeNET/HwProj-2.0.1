@@ -135,11 +135,11 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
 
     const versionOfTask = homeworks.findIndex(x => x.statsForTasks!.some(t => t.taskId === +currentTaskId))
 
-    const taskIndexInHomework = versionOfTask === undefined
-        ? undefined
+    const taskIndexInHomework = versionOfTask === -1
+        ? -1
         : homeworks[versionOfTask].statsForTasks!.findIndex(t => t.taskId === +currentTaskId)
 
-    const versionsOfCurrentTask = taskIndexInHomework === undefined
+    const versionsOfCurrentTask = taskIndexInHomework === -1
         ? []
         : homeworks.map(h => h.statsForTasks![taskIndexInHomework].taskId)
 
@@ -282,7 +282,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                         {!isExpert && renderGoBackToCoursesStatsLink()}
                     </Grid>
                     <Grid item lg={9} spacing={2}>
-                        {currentHomeworksGroup && taskIndexInHomework !== undefined && currentHomeworksGroup.statsForHomeworks!.length > 1 &&
+                        {currentHomeworksGroup && taskIndexInHomework !== -1 && currentHomeworksGroup.statsForHomeworks!.length > 1 &&
                             <Tabs
                                 onChange={(_, value) => navigate(`/task/${currentHomeworksGroup!.statsForHomeworks![value].statsForTasks![taskIndexInHomework]!.taskId}/${currentStudentId}`)}
                                 variant="scrollable"
