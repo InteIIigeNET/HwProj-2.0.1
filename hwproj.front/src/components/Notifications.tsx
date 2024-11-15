@@ -201,7 +201,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                             } label="Только непрочитанные"/>
                             <Divider/>
                             <div>
-                                <FormGroup>
+                                <FormGroup style={{paddingTop: 5}}>
                                     <FormControlLabel control={
                                         <Checkbox
                                             color={"primary"}
