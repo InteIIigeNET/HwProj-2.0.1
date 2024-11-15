@@ -40,10 +40,10 @@ namespace HwProj.NotificationsService.API.Repositories
                 .Where(t => t.Owner == userId);
 
             var newNotifications = await notifications
-                .Where(t => t.HasSeen == true)
+                .Where(t => t.HasSeen == false)
                 .ToListAsync();
             var readNotifications = await notifications
-                .Where(t => t.HasSeen == false)
+                .Where(t => t.HasSeen == true)
                 .OrderByDescending(t => t.Date)
                 .Take(100)
                 .ToListAsync();
