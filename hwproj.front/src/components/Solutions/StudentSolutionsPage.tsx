@@ -136,6 +136,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
             })
             : x)
 
+    const currentFilteredStudentSolutionPreviews = studentSolutionsPreviews.find(x => x.taskId === +currentTaskId)?.studentSolutionsPreview || []
     const allSolutionsRated = currentTaskSolutions.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
 
     const currentHomeworksGroup = homeworkSolutionsStats
