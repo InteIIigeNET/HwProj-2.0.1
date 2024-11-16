@@ -331,6 +331,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                                 indicatorColor="primary"
                             >
                                 {currentHomeworksGroup.statsForHomeworks?.map((h, i) => <Tab
+                                    style={{textTransform: "none"}}
                                     label={<Stack direction={"row"} spacing={1} alignItems={"center"}>
                                         {renderUnratedSolutionsCountChip(h.statsForTasks![taskIndexInHomework], i === versionOfTask)}
                                         <div>{h.homeworkTitle}</div>
