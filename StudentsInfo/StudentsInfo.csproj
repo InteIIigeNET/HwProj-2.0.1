@@ -9,4 +9,8 @@
       <PackageReference Include="Novell.Directory.Ldap" Version="2.2.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\IStudentsInfo\IStudentsInfo.csproj" />
+    </ItemGroup>
+
 </Project>

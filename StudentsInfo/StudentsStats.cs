@@ -6,7 +6,7 @@ using Novell.Directory.Ldap;
 
 namespace StudentsInfo
 {
-    public class StudentsStats
+    public class StudentsStats : IStudentsInfo.IStudentsStats
     {
         private readonly Dictionary<string, List<string>> _programsGroups = new Dictionary<string, List<string>>();
         private readonly string _ldapHost = "ad.pu.ru";
@@ -16,17 +16,13 @@ namespace StudentsInfo
         private string _username;
         private string _password;
 
-        /// <summary>
-        /// Given a name of a study program in English, returns a list of corresponding academic groups
-        /// </summary>
+        /// <inheritdoc />
         public List<string> GetGroups(string programName)
         {
             return _programsGroups.ContainsKey(programName) ? _programsGroups[programName] : new List<string>();
         }
         
-        /// <summary>
-        /// Given a name of an academic group returns a list of students' STs (Student IDs)
-        /// </summary>
+        /// <inheritdoc />
         public List<string> GetSts(string groupName)
         {
             var searchFilter = $"(&(objectClass=person)(memberOf=CN=АкадемГруппа_{groupName},OU=АкадемГруппа,OU=Группы,DC=ad,DC=pu,DC=ru))";
