@@ -157,14 +157,6 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
         : homeworks.map(h => h.statsForTasks![taskIndexInHomework].taskId!)
 
     const getTaskData = async (taskId: string) => {
-        if (versionsOfCurrentTask.includes(+taskId)) {
-            setStudentSolutionsState({
-                ...studentSolutionsState,
-                currentTaskId: taskId
-            })
-            return
-        }
-
         //useEffect
         const fullUpdate = currentTaskId !== taskId
         const task = fullUpdate
@@ -197,7 +189,12 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
     }
 
     useEffect(() => {
-        getTaskData(taskId!)
+        if (taskId && versionsOfCurrentTask.includes(+taskId)) {
+            setStudentSolutionsState({
+                ...studentSolutionsState,
+                currentTaskId: taskId
+            })
+        } else getTaskData(taskId!)
     }, [taskId])
 
     useEffect(() => {
