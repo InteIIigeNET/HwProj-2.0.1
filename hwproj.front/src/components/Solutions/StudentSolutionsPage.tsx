@@ -156,12 +156,18 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
         ? []
         : homeworks.map(h => h.statsForTasks![taskIndexInHomework].taskId!)
 
-    const getTaskData = async (taskId: string) => {
-        //useEffect
-        const fullUpdate = currentTaskId !== taskId
-        const task = fullUpdate
-            ? await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
-            : studentSolutionsState.task
+    const getTaskData = async (taskId: string, fullUpdate: boolean) => {
+        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
+
+        if (!fullUpdate && versionsOfCurrentTask.includes(+taskId)) {
+            setStudentSolutionsState({
+                ...studentSolutionsState,
+                task: task,
+                isLoaded: true,
+                currentTaskId: taskId,
+            })
+            return
+        }
 
         const {
             taskSolutions,
@@ -189,12 +195,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
     }
 
     useEffect(() => {
-        if (taskId && versionsOfCurrentTask.includes(+taskId)) {
-            setStudentSolutionsState({
-                ...studentSolutionsState,
-                currentTaskId: taskId
-            })
-        } else getTaskData(taskId!)
+        getTaskData(taskId!, false)
     }, [taskId])
 
     useEffect(() => {
@@ -351,7 +352,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                             student={currentStudent!.student}
                             onSolutionRateClick={async () => {
                                 //const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.student.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
-                                await getTaskData(currentTaskId)
+                                await getTaskData(currentTaskId, true)
                                 //else navigate(`/task/${currentTaskId}/${studentSolutionsPreview[nextStudentIndex].student.userId}`)
                             }}
                         />}
