@@ -131,7 +131,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                 taskId: x.taskId,
                 studentSolutionsPreview: x.studentSolutionsPreview.filter(((_, i) => {
                     const lastSolution = currentTaskSolutions[i].lastSolution
-                    return lastSolution && lastSolution.state !== Solution.StateEnum.NUMBER_0
+                    return lastSolution && lastSolution.state === Solution.StateEnum.NUMBER_0
                 }))
             })
             : x)
