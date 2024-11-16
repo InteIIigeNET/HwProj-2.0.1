@@ -138,13 +138,22 @@ namespace HwProj.APIGateway.API.Controllers
                 })
                 .ToList();
 
+            var homeworksGroup = homeworks
+                .First(g => g.Any(h => h.Tasks.Any(t => t.Id == taskId)))
+                .ToList();
+
+            var homeworkIndex = homeworksGroup.FindIndex(t => t.Tasks.Any(x => x.Id == taskId));
+            var taskIndex = homeworksGroup[homeworkIndex].Tasks.FindIndex(t => t.Id == taskId);
+            var taskVersionIds = homeworksGroup.Select(h => h.Tasks[taskIndex].Id).ToArray();
+
             var taskIds = homeworks
                 .SelectMany(x => x.SelectMany(t => t.Tasks))
                 .Select(t => t.Id)
                 .ToArray();
 
             var getUsersDataTask = AuthServiceClient.GetAccountsData(studentIds.Union(course.MentorIds).ToArray());
-            var getStatisticsTask = _solutionsClient.GetTaskSolutionStatistics(course.Id, taskId);
+            var getStatisticsTasks =
+                taskVersionIds.Select(x => _solutionsClient.GetTaskSolutionStatistics(course.Id, x)).ToList();
             var getStatsForTasks = _solutionsClient.GetTaskSolutionsStats(
                 new GetTasksSolutionsModel
                 {
@@ -152,10 +161,14 @@ namespace HwProj.APIGateway.API.Controllers
                     TaskIds = taskIds
                 });
 
-            await Task.WhenAll(getUsersDataTask, getStatisticsTask, getStatsForTasks);
+            await Task.WhenAll(getUsersDataTask, Task.WhenAll(getStatisticsTasks), getStatsForTasks);
 
             var usersData = getUsersDataTask.Result.ToDictionary(t => t.UserId);
-            var statistics = getStatisticsTask.Result.ToDictionary(t => t.StudentId);
+            var statistics = taskVersionIds
+                .Zip(getStatisticsTasks,
+                    (id, solutions) => (id, statistic: solutions.Result.ToDictionary(t => t.StudentId)))
+                .ToDictionary(tuple => tuple.id, tuple => tuple.statistic);
+
             var statsForTasks = getStatsForTasks.Result.ToDictionary(t => t.TaskId);
             var groups = course.Groups.ToDictionary(
                 t => t.Id,
@@ -164,19 +177,26 @@ namespace HwProj.APIGateway.API.Controllers
             var result = new TaskSolutionStatisticsPageData()
             {
                 CourseId = course.Id,
-                StudentsSolutions = studentIds.Select(studentId => new UserTaskSolutions
+                TaskSolutions = taskVersionIds.Select(tId =>
+                {
+                    statistics.TryGetValue(tId, out var statistic);
+                    return new TaskSolutions
                     {
-                        Solutions = statistics.TryGetValue(studentId, out var studentSolutions)
-                            ? studentSolutions.Solutions.Select(t => new GetSolutionModel(t,
-                                t.GroupId is { } groupId ? groups[groupId] : null,
-                                t.LecturerId == null ? null : usersData[t.LecturerId])).ToArray()
-                            : Array.Empty<GetSolutionModel>(),
-                        User = usersData[studentId]
-                    })
-                    .OrderBy(t => t.User.Surname)
-                    .ThenBy(t => t.User.Name)
-                    .ToArray(),
-
+                        TaskId = tId,
+                        StudentSolutions = studentIds.Select(studentId => new UserTaskSolutions
+                            {
+                                Solutions = statistic!.TryGetValue(studentId, out var studentSolutions)
+                                    ? studentSolutions.Solutions.Select(t => new GetSolutionModel(t,
+                                        t.GroupId is { } groupId ? groups[groupId] : null,
+                                        t.LecturerId == null ? null : usersData[t.LecturerId])).ToArray()
+                                    : Array.Empty<GetSolutionModel>(),
+                                User = usersData[studentId]
+                            })
+                            .OrderBy(t => t.User.Surname)
+                            .ThenBy(t => t.User.Name)
+                            .ToArray(),
+                    };
+                }).ToArray(),
                 StatsForTasks = homeworks.Select(group =>
                 {
                     var isSingle = homeworks.Count == 1;

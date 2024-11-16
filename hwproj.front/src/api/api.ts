@@ -2108,10 +2108,10 @@ export namespace TaskDeadlineView {
 export interface TaskSolutionStatisticsPageData {
     /**
      * 
-     * @type {Array<UserTaskSolutions>}
+     * @type {Array<TaskSolutions>}
      * @memberof TaskSolutionStatisticsPageData
      */
-    studentsSolutions?: Array<UserTaskSolutions>;
+    taskSolutions?: Array<TaskSolutions>;
     /**
      * 
      * @type {number}
@@ -2124,6 +2124,26 @@ export interface TaskSolutionStatisticsPageData {
      * @memberof TaskSolutionStatisticsPageData
      */
     statsForTasks?: Array<HomeworksGroupSolutionStats>;
+}
+
+/**
+ * 
+ * @export
+ * @interface TaskSolutions
+ */
+export interface TaskSolutions {
+    /**
+     * 
+     * @type {number}
+     * @memberof TaskSolutions
+     */
+    taskId?: number;
+    /**
+     * 
+     * @type {Array<UserTaskSolutions>}
+     * @memberof TaskSolutions
+     */
+    studentSolutions?: Array<UserTaskSolutions>;
 }
 
 /**

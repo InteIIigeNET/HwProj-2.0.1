@@ -37,17 +37,19 @@ interface IStudentSolutionsPageState {
     currentTaskId: string
     task: HomeworkTaskViewModel
     isLoaded: boolean
-    allSolutionsRated: boolean,
     courseId: number,
     homeworkSolutionsStats: HomeworksGroupSolutionStats[],
-    allStudentSolutionsPreview: {
-        student: AccountDataDto,
-        solutions: GetSolutionModel[]
-        lastSolution: GetSolutionModel,
-        lastRatedSolution: Solution,
-        color: string,
-        ratedSolutionsCount: number,
-        solutionsDescription: string
+    taskStudentsSolutionsPreview: {
+        taskId: number,
+        studentSolutionsPreview: {
+            student: AccountDataDto,
+            solutions: GetSolutionModel[]
+            lastSolution: GetSolutionModel,
+            lastRatedSolution: Solution,
+            color: string,
+            ratedSolutionsCount: number,
+            solutionsDescription: string
+        }[]
     }[]
 }
 
@@ -75,12 +77,11 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
     const [currentStudentId, setCurrentStudentId] = useState<string>(studentId!)
     const [studentSolutionsState, setStudentSolutionsState] = useState<IStudentSolutionsPageState>({
         currentTaskId: "",
-        allSolutionsRated: false,
         task: {},
         isLoaded: false,
         courseId: -1,
         homeworkSolutionsStats: [],
-        allStudentSolutionsPreview: [],
+        taskStudentsSolutionsPreview: [],
     })
     const [filterState, setFilterState] = React.useState<Filter[]>(
         localStorage.getItem(FilterStorageKey)?.split(", ").filter(x => x != "").map(x => x as Filter) || ["Только непроверенные"]
@@ -97,11 +98,13 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
     const {
         isLoaded,
         currentTaskId,
-        allStudentSolutionsPreview,
-        allSolutionsRated,
+        taskStudentsSolutionsPreview,
         courseId,
         homeworkSolutionsStats
     } = studentSolutionsState
+
+    const currentTaskSolutionsPreview = taskStudentsSolutionsPreview.find(x => x.taskId === +currentTaskId)
+    const currentTaskSolutions = currentTaskSolutionsPreview?.studentSolutionsPreview || []
 
     const allTaskSolutionsStats = homeworkSolutionsStats.flatMap(x => {
         if (!x.statsForHomeworks) return []
@@ -122,9 +125,19 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
         ? allTaskSolutionsStats.filter(x => x.countUnratedSolutions && x.countUnratedSolutions > 0)
         : allTaskSolutionsStats
 
-    const studentSolutionsPreview = showOnlyUnrated
-        ? allStudentSolutionsPreview.filter(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0 || x.student.userId === studentId)
-        : allStudentSolutionsPreview
+    const studentSolutionsPreviews =
+        taskStudentsSolutionsPreview.map(x => showOnlyUnrated
+            ? ({
+                taskId: x.taskId,
+                studentSolutionsPreview: x.studentSolutionsPreview.filter(((_, i) => {
+                    const lastSolution = currentTaskSolutions[i].lastSolution
+                    return lastSolution && lastSolution.state !== Solution.StateEnum.NUMBER_0
+                }))
+            })
+            : x)
+
+    const currentFilteredStudentSolutionPreviews = studentSolutionsPreviews.find(x => x.taskId === +currentTaskId)?.studentSolutionsPreview || []
+    const allSolutionsRated = currentFilteredStudentSolutionPreviews.length === 0
 
     const currentHomeworksGroup = homeworkSolutionsStats
         .find(x => x.statsForHomeworks!
@@ -141,24 +154,36 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
 
     const versionsOfCurrentTask = taskIndexInHomework === -1
         ? []
-        : homeworks.map(h => h.statsForTasks![taskIndexInHomework].taskId)
+        : homeworks.map(h => h.statsForTasks![taskIndexInHomework].taskId!)
 
     const getTaskData = async (taskId: string) => {
+        if (versionsOfCurrentTask.includes(+taskId)) {
+            setStudentSolutionsState({
+                ...studentSolutionsState,
+                currentTaskId: taskId
+            })
+            return
+        }
+
+        //useEffect
         const fullUpdate = currentTaskId !== taskId
         const task = fullUpdate
             ? await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
             : studentSolutionsState.task
 
         const {
-            studentsSolutions,
+            taskSolutions,
             courseId,
             statsForTasks
         } = await ApiSingleton.solutionsApi.apiSolutionsTasksByTaskIdGet(+taskId!)
 
-        const studentSolutionsPreview = studentsSolutions!.map(studentSolutions => {
-            const ratedSolutionInfo = StudentStatsUtils.calculateLastRatedSolutionInfo(studentSolutions.solutions!, task.maxRating!)
-            return {student: studentSolutions.user!, ...ratedSolutionInfo, solutions: studentSolutions.solutions!}
-        })
+        const studentSolutionsPreview = taskSolutions!.map(ts => ({
+            taskId: ts.taskId!,
+            studentSolutionsPreview: ts.studentSolutions!.map(studentSolutions => {
+                const ratedSolutionInfo = StudentStatsUtils.calculateLastRatedSolutionInfo(studentSolutions.solutions!, task.maxRating!)
+                return {student: studentSolutions.user!, ...ratedSolutionInfo, solutions: studentSolutions.solutions!}
+            })
+        }))
 
         setStudentSolutionsState({
             ...studentSolutionsState,
@@ -166,9 +191,8 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
             isLoaded: true,
             currentTaskId: taskId,
             homeworkSolutionsStats: statsForTasks!,
-            allStudentSolutionsPreview: studentSolutionsPreview,
-            courseId: courseId!,
-            allSolutionsRated: studentSolutionsPreview.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
+            taskStudentsSolutionsPreview: studentSolutionsPreview,
+            courseId: courseId!
         })
     }
 
@@ -180,7 +204,8 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
         setCurrentStudentId(studentId!)
     }, [studentId])
 
-    const currentStudent = studentSolutionsPreview.find(x => x.student.userId === currentStudentId)
+    const currentStudent = currentTaskSolutions.find(x => x.student.userId === currentStudentId)
+
     const renderGoBackToCoursesStatsLink = () => {
         return <Link
             to={`/courses/${courseId}/stats`}
@@ -206,7 +231,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                     <Stack direction={"row"} spacing={1}
                            style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
                         {taskSolutionsStats!.map((t, index) => {
-                            const isCurrent = versionsOfCurrentTask.includes(t.taskId)
+                            const isCurrent = versionsOfCurrentTask.includes(t.taskId!)
                             const color = isCurrent ? "primary" : "default"
                             return <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                 {index > 0 && <hr style={{width: 100}}/>}
@@ -240,21 +265,25 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                             <Typography>Только непроверенные</Typography>
                         </Stack>
                         <List>
-                            {studentSolutionsPreview!.map(({
-                                                               lastSolution,
-                                                               color,
-                                                               solutionsDescription,
-                                                               lastRatedSolution, student: {
-                                    name,
-                                    surname,
-                                    userId
-                                }
-                                                           }) => {
+                            {currentFilteredStudentSolutionPreviews!.map((
+                                {
+                                    lastSolution,
+                                    color,
+                                    solutionsDescription,
+                                    lastRatedSolution,
+                                    student: {
+                                        name,
+                                        surname,
+                                        userId
+                                    }
+                                }, idx) => {
                                 const storageKey = {
                                     taskId: +currentTaskId,
                                     studentId: userId!,
                                     solutionId: lastSolution?.id
                                 }
+                                const taskVersionsSolutions = studentSolutionsPreviews.map(x => x.studentSolutionsPreview[idx])
+                                const maxStudentRating = Math.max(...taskVersionsSolutions.map(x => x.lastRatedSolution?.rating || -1))
                                 const ratingStorageValue = RatingStorage.tryGet(storageKey)
                                 return <Link to={`/task/${currentTaskId}/${(userId)!}`}
                                              style={{color: "black", textDecoration: "none"}}>
@@ -262,6 +291,15 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                                                     disableTouchRipple={currentStudentId === userId}
                                                     selected={currentStudentId === userId || currentStudent?.lastSolution?.groupMates?.some(x => x.userId === userId)}>
                                         <Stack direction={"row"} spacing={1} sx={{paddingLeft: 1}}>
+                                            {versionsOfCurrentTask.length > 1 &&
+                                                <Tooltip arrow disableInteractive
+                                                         title={<span style={{whiteSpace: 'pre-line'}}>Максимальная последняя оценка студента среди всех версий задачи</span>}
+                                                >
+                                                    <Chip
+                                                        color={undefined}
+                                                        size={"small"}
+                                                        label={maxStudentRating === -1 ? "?" : maxStudentRating}/>
+                                                </Tooltip>}
                                             {ratingStorageValue
                                                 ? <Tooltip arrow disableInteractive enterDelay={1000}
                                                            title={"Решение частично проверено"}>
@@ -269,6 +307,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                                                 </Tooltip>
                                                 : <Tooltip arrow disableInteractive enterDelay={1000} title={<span
                                                     style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
+
                                                     <Chip style={{backgroundColor: color}}
                                                           size={"small"}
                                                           label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
@@ -276,7 +315,8 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                                             <ListItemText primary={surname + " " + name}/>
                                         </Stack>
                                     </ListItemButton>
-                                </Link>;
+                                </Link>
+                                    ;
                             })}
                         </List>
                         {!isExpert && renderGoBackToCoursesStatsLink()}
@@ -284,7 +324,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                     <Grid item lg={9} spacing={2}>
                         {currentHomeworksGroup && taskIndexInHomework !== -1 && currentHomeworksGroup.statsForHomeworks!.length > 1 &&
                             <Tabs
-                                onChange={(_, value) => navigate(`/task/${currentHomeworksGroup!.statsForHomeworks![value].statsForTasks![taskIndexInHomework]!.taskId}/${currentStudentId}`)}
+                                onChange={(_, value) => navigate(`/task/${currentHomeworksGroup!.statsForHomeworks![value].statsForTasks![taskIndexInHomework]!.taskId!}/${currentStudentId}`)}
                                 variant="scrollable"
                                 scrollButtons={"auto"}
                                 value={versionOfTask}
