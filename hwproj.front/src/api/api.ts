@@ -1068,6 +1068,26 @@ export interface HomeworkTaskViewModel {
 /**
  * 
  * @export
+ * @interface HomeworkUserTaskSolutions
+ */
+export interface HomeworkUserTaskSolutions {
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeworkUserTaskSolutions
+     */
+    homeworkTitle?: string;
+    /**
+     * 
+     * @type {Array<UserTaskSolutions2>}
+     * @memberof HomeworkUserTaskSolutions
+     */
+    studentSolutions?: Array<UserTaskSolutions2>;
+}
+
+/**
+ * 
+ * @export
  * @interface HomeworkViewModel
  */
 export interface HomeworkViewModel {
@@ -1163,6 +1183,26 @@ export interface HomeworksGroupSolutionStats {
      * @memberof HomeworksGroupSolutionStats
      */
     statsForHomeworks?: Array<HomeworkSolutionsStats>;
+}
+
+/**
+ * 
+ * @export
+ * @interface HomeworksGroupUserTaskSolutions
+ */
+export interface HomeworksGroupUserTaskSolutions {
+    /**
+     * 
+     * @type {string}
+     * @memberof HomeworksGroupUserTaskSolutions
+     */
+    groupTitle?: string;
+    /**
+     * 
+     * @type {Array<HomeworkUserTaskSolutions>}
+     * @memberof HomeworksGroupUserTaskSolutions
+     */
+    homeworkSolutions?: Array<HomeworkUserTaskSolutions>;
 }
 
 /**
@@ -2402,16 +2442,10 @@ export interface UserTaskSolutionsPageData {
     courseMates?: Array<AccountDataDto>;
     /**
      * 
-     * @type {HomeworkTaskViewModel}
+     * @type {Array<HomeworksGroupUserTaskSolutions>}
      * @memberof UserTaskSolutionsPageData
      */
-    task?: HomeworkTaskViewModel;
-    /**
-     * 
-     * @type {Array<UserTaskSolutions2>}
-     * @memberof UserTaskSolutionsPageData
-     */
-    taskSolutions?: Array<UserTaskSolutions2>;
+    taskSolutions?: Array<HomeworksGroupUserTaskSolutions>;
 }
 
 /**

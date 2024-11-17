@@ -31,9 +31,21 @@ namespace HwProj.APIGateway.API.Models.Solutions
     {
         public long CourseId { get; set; }
         public AccountDataDto[] CourseMates { get; set; }
-        public HomeworkTaskViewModel Task { get; set; }
-        public UserTaskSolutions2[] TaskSolutions { get; set; }
+        public HomeworksGroupUserTaskSolutions[] TaskSolutions { get; set; }
     }
+
+    public class HomeworksGroupUserTaskSolutions
+    {
+        public string? GroupTitle { get; set; }
+        public HomeworkUserTaskSolutions[] HomeworkSolutions  { get; set; }
+    }
+
+    public class HomeworkUserTaskSolutions
+    {
+        public string HomeworkTitle { get; set; }
+        public UserTaskSolutions2[] StudentSolutions { get; set; }
+    }
+
 
     public class TaskSolutions
     {

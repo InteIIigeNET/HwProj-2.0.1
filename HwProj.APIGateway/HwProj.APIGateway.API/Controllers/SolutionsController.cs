@@ -56,8 +56,23 @@ namespace HwProj.APIGateway.API.Controllers
             var courseMate = course.AcceptedStudents.FirstOrDefault(t => t.StudentId == studentId);
             if (courseMate == null) return NotFound();
 
-            var studentSolutions = (await _solutionsClient.GetCourseStatistics(course.Id, UserId)).Single();
-            var tasks = course.Homeworks.SelectMany(t => t.Tasks).ToDictionary(t => t.Id);
+            var studentSolutions = (await _solutionsClient.GetCourseStatistics(course.Id, UserId))
+                .Single().Homeworks
+                .ToDictionary(x => x.Id);
+
+            var homeworks = course.Homeworks
+                .Where(t => t.Tasks.Any())
+                .GroupBy(t =>
+                {
+                    var isTest = t.Tags.Contains(HomeworkTags.Test);
+                    var groupingTag = t.Tags.Except(HomeworkTags.DefaultTags).FirstOrDefault();
+                    return isTest && groupingTag != null ? groupingTag : t.Id.ToString();
+                })
+                .ToList();
+
+            var tasks = homeworks
+                .SelectMany(x => x.SelectMany(t => t.Tasks))
+                .ToDictionary(t => t.Id);
 
             // Получаем группы только для выбранной задачи
             var studentsOnCourse = course.AcceptedStudents
@@ -66,7 +81,7 @@ namespace HwProj.APIGateway.API.Controllers
 
             var accounts = await AuthServiceClient.GetAccountsData(studentsOnCourse.Union(course.MentorIds).ToArray());
 
-            var solutionsGroupsIds = studentSolutions.Homeworks
+            var solutionsGroupsIds = studentSolutions.Values
                 .SelectMany(t => t.Tasks)
                 .First(x => x.Id == taskId).Solution
                 .Select(s => s.GroupId)
@@ -79,34 +94,48 @@ namespace HwProj.APIGateway.API.Controllers
                 .Where(g => solutionsGroupsIds.Contains(g.Id))
                 .ToDictionary(t => t.Id);
 
-            var taskSolutions = studentSolutions.Homeworks
-                .SelectMany(t => t.Tasks)
-                .Select(t =>
+            var taskSolutions = homeworks.Select(group =>
+            {
+                var isSingle = group.Count() == 1;
+                return new HomeworksGroupUserTaskSolutions
                 {
-                    var task = tasks[t.Id];
-                    return new UserTaskSolutions2
-                    {
-                        MaxRating = task.MaxRating,
-                        Title = task.Title,
-                        Tags = task.Tags,
-                        TaskId = task.Id.ToString(),
-                        Solutions = t.Solution.Select(s => new GetSolutionModel(s,
-                            s.TaskId == taskId && s.GroupId is { } groupId
-                                ? solutionsGroups[groupId].StudentsIds
-                                    .Select(x => accountsCache[x])
+                    GroupTitle = isSingle ? null : group.Key,
+                    HomeworkSolutions = group.Select(h =>
+                        {
+                            studentSolutions.TryGetValue(h.Id, out var solutions);
+                            return new HomeworkUserTaskSolutions
+                            {
+                                HomeworkTitle = h.Title,
+                                StudentSolutions = solutions!.Tasks.Select(t =>
+                                    {
+                                        var task = tasks[t.Id];
+                                        return new UserTaskSolutions2
+                                        {
+                                            MaxRating = task.MaxRating,
+                                            Title = task.Title,
+                                            Tags = task.Tags,
+                                            TaskId = task.Id.ToString(),
+                                            Solutions = t.Solution.Select(s => new GetSolutionModel(s,
+                                                s.TaskId == taskId && s.GroupId is { } groupId
+                                                    ? solutionsGroups[groupId].StudentsIds
+                                                        .Select(x => accountsCache[x])
+                                                        .ToArray()
+                                                    : null,
+                                                s.LecturerId == null ? null : accountsCache[s.LecturerId])).ToArray()
+                                        };
+                                    })
                                     .ToArray()
-                                : null,
-                            s.LecturerId == null ? null : accountsCache[s.LecturerId])).ToArray()
-                    };
-                })
-                .ToArray();
+                            };
+                        })
+                        .ToArray()
+                };
+            }).ToArray();
 
             return Ok(new UserTaskSolutionsPageData()
             {
                 CourseId = course.Id,
                 CourseMates = accounts,
-                TaskSolutions = taskSolutions,
-                Task = tasks[taskId]
+                TaskSolutions = taskSolutions
             });
         }
 
