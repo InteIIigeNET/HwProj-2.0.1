@@ -28,8 +28,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<HomeworkTask> GetTaskAsync(long taskId)
         {
-            var task = await _tasksRepository.FindAll(x => x.Id == taskId).Include(x => x.Homework)
-                .FirstOrDefaultAsync();
+            var task = await _tasksRepository.GetWithHomeworkAsync(taskId);
 
             CourseDomain.FillTask(task.Homework, task);
 
@@ -38,7 +37,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<HomeworkTask> GetForEditingTaskAsync(long taskId)
         {
-            return await _tasksRepository.FindAll(x => x.Id == taskId).Include(x => x.Homework).FirstOrDefaultAsync();
+            return await _tasksRepository.GetWithHomeworkAsync(taskId);
         }
 
         public async Task<long> AddTaskAsync(long homeworkId, HomeworkTask task)
@@ -66,9 +65,8 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task UpdateTaskAsync(long taskId, HomeworkTask update)
         {
-            var task = await _tasksRepository.GetAsync(taskId);
-            var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
-            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(homework.CourseId);
+            var task = await _tasksRepository.GetWithHomeworkAsync(taskId);
+            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(task.Homework.CourseId);
 
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 

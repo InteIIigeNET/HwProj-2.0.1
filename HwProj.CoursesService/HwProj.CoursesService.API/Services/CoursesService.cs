@@ -57,13 +57,10 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<CourseDTO?> GetByTaskAsync(long taskId, string userId)
         {
-            var task = await _tasksRepository.GetAsync(taskId);
+            var task = await _tasksRepository.GetWithHomeworkAsync(taskId);
             if (task == null) return null;
 
-            var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
-            if (homework == null) return null;
-
-            return await GetAsync(homework.CourseId, userId);
+            return await GetAsync(task.Homework.CourseId, userId);
         }
 
         public async Task<CourseDTO?> GetAsync(long id, string userId = "")
