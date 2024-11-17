@@ -319,43 +319,50 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                         </List>
                         {!isExpert && renderGoBackToCoursesStatsLink()}
                     </Grid>
-                    <Grid item lg={9} spacing={2}>
+                    <Grid container item lg={9}>
                         {currentHomeworksGroup && taskIndexInHomework !== -1 && currentHomeworksGroup.statsForHomeworks!.length > 1 &&
-                            <Tabs
-                                onChange={(_, value) => navigate(`/task/${currentHomeworksGroup!.statsForHomeworks![value].statsForTasks![taskIndexInHomework]!.taskId!}/${currentStudentId}`)}
-                                variant="scrollable"
-                                scrollButtons={"auto"}
-                                value={versionOfTask}
-                                indicatorColor="primary"
-                            >
-                                {currentHomeworksGroup.statsForHomeworks?.map((h, i) => <Tab
-                                    style={{textTransform: "none"}}
-                                    label={<Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                        {renderUnratedSolutionsCountChip(h.statsForTasks![taskIndexInHomework], i === versionOfTask)}
-                                        <div>{h.homeworkTitle}</div>
-                                    </Stack>}/>)}
-                            </Tabs>
+                            <Grid item xs={12}>
+                                <Tabs
+                                    onChange={(_, value) => navigate(`/task/${currentHomeworksGroup!.statsForHomeworks![value].statsForTasks![taskIndexInHomework]!.taskId!}/${currentStudentId}`)}
+                                    variant="scrollable"
+                                    scrollButtons={"auto"}
+                                    value={versionOfTask}
+                                    indicatorColor="primary"
+                                >
+                                    {currentHomeworksGroup.statsForHomeworks?.map((h, i) => <Tab
+                                        style={{textTransform: "none"}}
+                                        label={<Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                            {renderUnratedSolutionsCountChip(h.statsForTasks![taskIndexInHomework], i === versionOfTask)}
+                                            <div>{h.homeworkTitle}</div>
+                                        </Stack>}/>)}
+                                </Tabs>
+                            </Grid>
                         }
-                        <Task
-                            task={studentSolutionsState.task}
-                            forStudent={false}
-                            forMentor={true}
-                            isReadingMode={true}
-                            onDeleteClick={() => 0}
-                            isExpanded={false}
-                            showForCourse={false}
-                        />
-                        {currentStudent && <TaskSolutions
-                            forMentor={true}
-                            task={studentSolutionsState.task}
-                            solutions={currentStudent!.solutions}
-                            student={currentStudent!.student}
-                            onSolutionRateClick={async () => {
-                                //const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.student.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
-                                await getTaskData(currentTaskId, true)
-                                //else navigate(`/task/${currentTaskId}/${studentSolutionsPreview[nextStudentIndex].student.userId}`)
-                            }}
-                        />}
+                        <Grid item xs={12}>
+                            <Task
+                                task={studentSolutionsState.task}
+                                forStudent={false}
+                                forMentor={true}
+                                isReadingMode={true}
+                                onDeleteClick={() => 0}
+                                isExpanded={false}
+                                showForCourse={false}
+                            />
+                        </Grid>
+                        {currentStudent &&
+                            <Grid item xs={12}>
+                                <TaskSolutions
+                                    forMentor={true}
+                                    task={studentSolutionsState.task}
+                                    solutions={currentStudent!.solutions}
+                                    student={currentStudent!.student}
+                                    onSolutionRateClick={async () => {
+                                        //const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.student.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
+                                        await getTaskData(currentTaskId, true)
+                                        //else navigate(`/task/${currentTaskId}/${studentSolutionsPreview[nextStudentIndex].student.userId}`)
+                                    }}
+                                />
+                            </Grid>}
                     </Grid>
                 </Grid>
             </div>
