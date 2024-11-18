@@ -1,6 +1,6 @@
 import * as React from "react";
 import ApiSingleton from "../../api/ApiSingleton";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Grid, TextField, Button, Typography} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import {CreateHomeworkViewModel, CreateTaskViewModel, HomeworkViewModel} from "../../api";
@@ -64,8 +64,13 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
         tags: []
     })
 
-    const deadlineDateSuggestion = () => {
-        if (!addHomeworkState.hasDeadline) return undefined
+    const [deadlineSuggestion, setDeadlineSuggestion] = useState<Date | undefined>(undefined)
+
+    useEffect(() => {
+        if (!addHomeworkState.hasDeadline) {
+            setDeadlineSuggestion(undefined)
+            return
+        }
 
         const isTest = isTestWork(addHomeworkState)
         const isBonus = isBonusWork(addHomeworkState)
@@ -91,8 +96,8 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
         const dateTime = dateCandidate.deadlineDate
         now.setDate(now.getDate() + dateCandidate.daysDiff)
         now.setHours(dateTime.getHours(), dateTime.getMinutes(), 0, 0)
-        return now
-    }
+        setDeadlineSuggestion(now)
+    }, [addHomeworkState.hasDeadline])
 
 
     const handleSubmit = async (e: any) => {
@@ -166,7 +171,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     isDeadlineStrict={false}
                     publicationDate={undefined}
                     deadlineDate={undefined}
-                    autoCalculatedDeadline={deadlineDateSuggestion()}
+                    autoCalculatedDeadline={deadlineSuggestion}
                     onChange={(state) => setAddHomeworkState((prevState) => ({
                         ...prevState,
                         hasDeadline: state.hasDeadline,
