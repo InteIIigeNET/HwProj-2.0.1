@@ -21,6 +21,9 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import NameBuilder from "../Utils/NameBuilder";
 import {QRCodeSVG} from 'qrcode.react';
 import {Center} from "@skbkontur/react-ui";
+import addHomework from "../Homeworks/AddHomework";
+import Lodash from "lodash";
+import {date} from "@storybook/addon-knobs";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -109,6 +112,28 @@ const Course: React.FC = () => {
 
     const showStatsTab = isCourseMentor || isAcceptedStudent
     const showApplicationsTab = isCourseMentor
+
+    const deadlineDateSuggestion = () => {
+        if (!createHomework) return undefined
+        const dateCandidate = Lodash(courseHomeworks
+            .filter(x => x.hasDeadline)
+            .map(x => {
+                const deadlineDate = new Date(x.deadlineDate!)
+                return ({
+                    deadlineDate: deadlineDate,
+                    daysDiff: Math.abs(deadlineDate.getDate() - new Date(x.publicationDate!).getDate())
+                });
+            }))
+            .groupBy(x => [x.daysDiff, x.deadlineDate.getHours(), x.deadlineDate.getMinutes()])
+            .entries()
+            .sortBy(x => x[1].length).last()?.[1][0]
+        if (!dateCandidate) return undefined
+        const now = new Date()
+        const dateTime = dateCandidate.deadlineDate
+        now.setDate(now.getDate() + dateCandidate.daysDiff)
+        now.setHours(dateTime.getHours(), dateTime.getMinutes(), 0, 0)
+        return now
+    }
 
     const changeTab = (newTab: string) => {
         if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
@@ -207,10 +232,11 @@ const Course: React.FC = () => {
                               justifyContent="space-between">
                             <Grid item>
                                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                    <Typography style={{fontSize: '22px', cursor: "pointer"}} onClick={() => setCourseState(prevState => ({
-                                        ...prevState,
-                                        showQrCode: true
-                                    }))}>
+                                    <Typography style={{fontSize: '22px', cursor: "pointer"}}
+                                                onClick={() => setCourseState(prevState => ({
+                                                    ...prevState,
+                                                    showQrCode: true
+                                                }))}>
                                         {NameBuilder.getCourseFullName(course.name!, course.groupName)}
                                     </Typography>
                                     {isLecturer &&
@@ -330,6 +356,7 @@ const Course: React.FC = () => {
                                                         id={+courseId!}
                                                         onCancel={() => setCurrentState()}
                                                         onSubmit={() => setCurrentState()}
+                                                        deadlineDateSuggestion={deadlineDateSuggestion()}
                                                     />
                                                 </Grid>
                                                 <Grid item xs={12}>

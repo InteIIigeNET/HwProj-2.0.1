@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import Utils from "../../services/Utils";
 import {Tooltip, Checkbox, TextField, Grid, FormControlLabel} from '@mui/material/'
 
@@ -7,6 +7,7 @@ interface IDateFieldsProps {
     publicationDate: Date | undefined;
     hasDeadline: boolean;
     deadlineDate: Date | undefined;
+    autoCalculatedDeadline: Date | undefined;
     isDeadlineStrict: boolean;
     disabledPublicationDate?: boolean;
     onChange: (c: IDateFieldsState & { hasErrors: boolean }) => void;
@@ -36,8 +37,7 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
         return publicationDate
     }
 
-    const [state, setState] = useState<IDateFieldsState>(() => 
-    {
+    const [state, setState] = useState<IDateFieldsState>(() => {
         const publicationDate = props.publicationDate === undefined
             ? getInitialPublicationDate()
             : props.publicationDate
@@ -48,13 +48,15 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                 ? getInitialPublicationDate()
                 : props.publicationDate,
             deadlineDate: props.hasDeadline
-                ? props.deadlineDate === undefined 
-                    ? getInitialDeadlineDate(publicationDate) 
+                ? props.deadlineDate === undefined
+                    ? props.autoCalculatedDeadline || getInitialDeadlineDate(publicationDate)
                     : props.deadlineDate
                 : undefined,
             isDeadlineStrict: props.isDeadlineStrict,
         }
     });
+
+    const deadlineChosenAutomatically = props.autoCalculatedDeadline !== undefined
 
     const isDeadlineSoonerThanPublication = (publicationDate: Date, deadlineDate: Date | undefined) =>
         deadlineDate != undefined && deadlineDate < publicationDate;
@@ -109,8 +111,9 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                 checked={state.hasDeadline}
                                 onChange={(e) => {
                                     const date = e.target.checked
-                                        ? props.deadlineDate === undefined 
-                                            ? getInitialDeadlineDate(state.publicationDate) 
+                                        //TODO: unify
+                                        ? props.deadlineDate === undefined
+                                            ? props.autoCalculatedDeadline || getInitialDeadlineDate(state.publicationDate)
                                             : props.deadlineDate
                                         : undefined
 
@@ -127,7 +130,7 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                 }}
                             />
                         }
-                    />    
+                    />
                 </Grid>
             </Grid>
             {state.hasDeadline && (
@@ -145,14 +148,18 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             label="Дедлайн задания"
                             type="datetime-local"
                             error={deadlineSoonerThatHomework}
-                            helperText={deadlineSoonerThatHomework ? "Дедлайн задания не может быть раньше даты публикации" : ""}
+                            helperText={deadlineSoonerThatHomework
+                                ? "Дедлайн задания не может быть раньше даты публикации"
+                                : deadlineChosenAutomatically
+                                    ? "На основе дедлайнов предыдущих работ"
+                                    : ""}
                             variant='standard'
                             value={Utils.toISOString(state.deadlineDate) ?? ''}
                             onChange={(e) => {
                                 setState(prevState => ({
                                     ...prevState,
-                                    deadlineDate: e.target.value === '' 
-                                        ? undefined 
+                                    deadlineDate: e.target.value === ''
+                                        ? undefined
                                         : new Date(e.target.value)
                                 }))
                             }}
@@ -172,8 +179,8 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                         checked={state.isDeadlineStrict}
                                         onChange={(e) => {
                                             setState(prevState => ({
-                                            ...prevState,
-                                            isDeadlineStrict: e.target.checked,
+                                                ...prevState,
+                                                isDeadlineStrict: e.target.checked,
                                             }))
                                         }}
                                     />
@@ -184,7 +191,7 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                 </Grid>
             )}
         </Grid>
-        </div>
+    </div>
 };
 
 export default PublicationAndDeadlineDates;

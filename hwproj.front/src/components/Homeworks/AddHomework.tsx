@@ -8,11 +8,12 @@ import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import CreateTask from "../Tasks/CreateTask"
 import Tags from "../Common/Tags";
 import apiSingleton from "../../api/ApiSingleton";
-import {Alert } from "@mui/material";
-import { TestTag } from "components/Common/HomeworkTags";
+import {Alert} from "@mui/material";
+import {TestTag} from "components/Common/HomeworkTags";
 
 interface IAddHomeworkProps {
     id: number;
+    deadlineDateSuggestion: Date | undefined;
     onSubmit: () => void;
     onCancel: () => void;
 }
@@ -125,12 +126,15 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                 />
                 <Tags tags={[]} onTagsChange={handleTagsChange} isElementSmall={false}
                       requestTags={() => apiSingleton.coursesApi.apiCoursesTagsByCourseIdGet(props.id)}/>
-                {addHomeworkState.tags.includes(TestTag) && <Alert severity="info">Вы можете сгруппировать контрольные работы и переписывания с помощью дополнительного тега. Например, 'КР 1'</Alert>}
+                {addHomeworkState.tags.includes(TestTag) &&
+                    <Alert severity="info">Вы можете сгруппировать контрольные работы и переписывания с помощью
+                        дополнительного тега. Например, 'КР 1'</Alert>}
                 <PublicationAndDeadlineDates
                     hasDeadline={false}
                     isDeadlineStrict={false}
                     publicationDate={undefined}
                     deadlineDate={undefined}
+                    autoCalculatedDeadline={props.deadlineDateSuggestion}
                     onChange={(state) => setAddHomeworkState((prevState) => ({
                         ...prevState,
                         hasDeadline: state.hasDeadline,

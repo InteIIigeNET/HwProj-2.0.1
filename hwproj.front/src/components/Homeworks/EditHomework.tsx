@@ -147,10 +147,10 @@ const EditHomework: FC = () => {
 
                 <div className={classes.logo}>
                     <div>
-                        <EditIcon color='primary' style={{ marginRight: '0.5rem' }}/>
+                        <EditIcon color='primary' style={{marginRight: '0.5rem'}}/>
                     </div>
                     <div>
-                        <Typography style={{ fontSize: '22px' }}>
+                        <Typography style={{fontSize: '22px'}}>
                             Редактировать домашнее задание
                         </Typography>
                     </div>
@@ -205,6 +205,7 @@ const EditHomework: FC = () => {
                                 isDeadlineStrict={editHomework.isDeadlineStrict}
                                 publicationDate={editHomework.publicationDate}
                                 deadlineDate={editHomework.deadlineDate}
+                                autoCalculatedDeadline={undefined}
                                 disabledPublicationDate={editHomework.isPublished}
                                 onChange={(state) => setEditHomework(prevState => ({
                                     ...prevState,
@@ -222,7 +223,7 @@ const EditHomework: FC = () => {
                             variant="contained"
                             type="submit"
                             disabled={isSomeTaskSoonerThanHomework || editHomework.hasErrors}>
-                                Редактировать домашнее задание
+                            Редактировать домашнее задание
                         </Button>
                     </Grid>
                 </form>
