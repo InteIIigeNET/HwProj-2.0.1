@@ -3,17 +3,18 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {useState} from "react";
 import {Grid, TextField, Button, Typography} from "@material-ui/core";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
-import {CreateHomeworkViewModel, CreateTaskViewModel} from "../../api";
+import {CreateHomeworkViewModel, CreateTaskViewModel, HomeworkViewModel} from "../../api";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import CreateTask from "../Tasks/CreateTask"
 import Tags from "../Common/Tags";
 import apiSingleton from "../../api/ApiSingleton";
 import {Alert} from "@mui/material";
-import {TestTag} from "components/Common/HomeworkTags";
+import {TestTag, isTestWork, isBonusWork} from "components/Common/HomeworkTags";
+import Lodash from "lodash";
 
 interface IAddHomeworkProps {
     id: number;
-    deadlineDateSuggestion: Date | undefined;
+    previousHomeworks: HomeworkViewModel[]
     onSubmit: () => void;
     onCancel: () => void;
 }
@@ -62,6 +63,37 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
         hasErrors: false,
         tags: []
     })
+
+    const deadlineDateSuggestion = () => {
+        if (!addHomeworkState.hasDeadline) return undefined
+
+        const isTest = isTestWork(addHomeworkState)
+        const isBonus = isBonusWork(addHomeworkState)
+
+        const dateCandidate = Lodash(props.previousHomeworks
+            .filter(x => {
+                const xIsTest = isTestWork(x)
+                const xIsBonus = isBonusWork(x)
+                return x.hasDeadline && (isTest && xIsTest || isBonus && xIsBonus || !isTest && !isBonus && !xIsTest && !xIsBonus)
+            })
+            .map(x => {
+                const deadlineDate = new Date(x.deadlineDate!)
+                return ({
+                    deadlineDate: deadlineDate,
+                    daysDiff: Math.abs(deadlineDate.getDate() - new Date(x.publicationDate!).getDate())
+                });
+            }))
+            .groupBy(x => [x.daysDiff, x.deadlineDate.getHours(), x.deadlineDate.getMinutes()])
+            .entries()
+            .sortBy(x => x[1].length).last()?.[1][0]
+        if (!dateCandidate) return undefined
+        const now = new Date()
+        const dateTime = dateCandidate.deadlineDate
+        now.setDate(now.getDate() + dateCandidate.daysDiff)
+        now.setHours(dateTime.getHours(), dateTime.getMinutes(), 0, 0)
+        return now
+    }
+
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -134,7 +166,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     isDeadlineStrict={false}
                     publicationDate={undefined}
                     deadlineDate={undefined}
-                    autoCalculatedDeadline={props.deadlineDateSuggestion}
+                    autoCalculatedDeadline={deadlineDateSuggestion()}
                     onChange={(state) => setAddHomeworkState((prevState) => ({
                         ...prevState,
                         hasDeadline: state.hasDeadline,

@@ -6,6 +6,9 @@ export const BonusTag = "Доп. баллы"
 export const GroupWorkTag = "Командная работа"
 export const DefaultTags = [TestTag, BonusTag, GroupWorkTag]
 
+export const isTestWork = (tagsOwner: { tags?: string[] }) => tagsOwner.tags?.includes(TestTag) ?? false
+export const isBonusWork = (tagsOwner: { tags?: string[] }) => tagsOwner.tags?.includes(BonusTag) ?? false
+
 const TestTip: FC = () => <sup style={{color: "#2979ff"}}> тест</sup>
 const BonusTip: FC = () => <sup style={{color: "green"}}> бонус</sup>
 
