@@ -1,7 +1,7 @@
 import * as React from "react";
 import Task from "../Tasks/Task";
 import Typography from "@material-ui/core/Typography";
-import AddSolution from "./AddSolution";
+import AddOrEditSolution from "./AddOrEditSolution";
 import Button from "@material-ui/core/Button";
 import TaskSolutions from "./TaskSolutions";
 import {
@@ -227,7 +227,7 @@ const TaskSolutionsPage: FC = () => {
                                 }))
                             }}
                         >
-                            Добавить решение
+                            {lastSolution?.state === Solution.StateEnum.NUMBER_0 ? "Изменить решение" : "Добавить решение"}
                         </Button></Grid>}
                         <Grid item>
                             <Link
@@ -289,14 +289,13 @@ const TaskSolutionsPage: FC = () => {
                     </Grid>
                 </Grid>
             </Grid>
-            {taskSolutionPage.addSolution && <AddSolution
+            {taskSolutionPage.addSolution && <AddOrEditSolution
                 userId={userId}
                 task={task}
                 onAdd={getSolutions}
                 onCancel={onCancelAddSolution}
-                lastSolutionUrl={lastSolution?.githubUrl}
+                lastSolution={lastSolution}
                 students={courseMates}
-                lastGroup={lastSolution?.groupMates?.map(s => s.userId!) || []}
                 supportsGroup={task.isGroupWork!}/>}
         </Grid>
     </div> : (

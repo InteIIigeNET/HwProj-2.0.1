@@ -2,7 +2,7 @@ import * as React from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button'
 import ApiSingleton from "../../api/ApiSingleton";
-import {AccountDataDto, HomeworkTaskViewModel, SolutionViewModel} from "../../api";
+import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, Solution, SolutionViewModel} from "../../api";
 import {FC, useState} from "react";
 import {Alert, Autocomplete, Grid, DialogContent, Dialog, DialogTitle, DialogActions} from "@mui/material";
 import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
@@ -10,8 +10,7 @@ import {TestTag} from "../Common/HomeworkTags";
 
 interface IAddSolutionProps {
     userId: string
-    lastSolutionUrl: string | undefined,
-    lastGroup: string[],
+    lastSolution: GetSolutionModel | undefined,
     task: HomeworkTaskViewModel,
     supportsGroup: boolean,
     students: AccountDataDto[]
@@ -19,12 +18,15 @@ interface IAddSolutionProps {
     onCancel: () => void,
 }
 
-const AddSolution: FC<IAddSolutionProps> = (props) => {
+const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
+    const {lastSolution} = props
+    const isEdit = lastSolution?.state === Solution.StateEnum.NUMBER_0
+    const lastGroup = lastSolution?.groupMates?.map(x => x.userId!) || []
 
     const [solution, setSolution] = useState<SolutionViewModel>({
-        githubUrl: props.lastSolutionUrl || "",
-        comment: "",
-        groupMateIds: props.lastGroup || []
+        githubUrl: lastSolution?.githubUrl || "",
+        comment: isEdit ? lastSolution!.comment : "",
+        groupMateIds: lastGroup
     })
 
     const handleSubmit = async (e: any) => {
@@ -66,7 +68,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                                 <br/>
                                 Убедитесь, что работа закончена, и отправьте решение в конце.
                             </Alert>}
-                        {githubUrl === props.lastSolutionUrl && !showTestGithubInfo &&
+                        {!isEdit && githubUrl === lastSolution?.githubUrl && !showTestGithubInfo &&
                             <Alert sx={{paddingTop: 0, paddingBottom: 0, marginTop: 0.2}} severity="info">Ссылка
                                 взята из предыдущего
                                 решения</Alert>}
@@ -94,7 +96,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                                 />
                             )}
                         />
-                        {props.lastGroup?.length > 0 && solution.groupMateIds === props.lastGroup &&
+                        {!isEdit && lastGroup?.length > 0 && solution.groupMateIds === lastGroup &&
                             <Alert sx={{paddingTop: 0, paddingBottom: 0, marginTop: 0.2}} severity="info">Команда
                                 взята из предыдущего
                                 решения</Alert>}
@@ -129,7 +131,7 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
                     type="submit"
                     onClick={e => handleSubmit(e)}
                 >
-                    Отправить решение
+                    {isEdit ? "Изменить решение" : "Отправить решение"}
                 </Button>
                 <Button
                     size="small"
@@ -144,4 +146,4 @@ const AddSolution: FC<IAddSolutionProps> = (props) => {
     )
 }
 
-export default AddSolution
+export default AddOrEditSolution

@@ -77,7 +77,6 @@ namespace HwProj.SolutionsService.API.Controllers
                 return BadRequest();
 
             var solution = _mapper.Map<Solution>(solutionModel);
-            solution.TaskId = taskId;
             var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
 
             return Ok(solutionId);

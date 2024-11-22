@@ -13,7 +13,7 @@ namespace HwProj.SolutionsService.API.Repositories
         {
         }
 
-        public async Task<GithubSolutionCommit> TryGetLastBySolutionId(long solutionId)
+        public async Task<GithubSolutionCommit?> TryGetLastBySolutionId(long solutionId)
         {
             var result = await FindAsync(c => c.Id == solutionId);
             return result;

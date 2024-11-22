@@ -6,6 +6,6 @@ namespace HwProj.SolutionsService.API.Repositories
 {
     public interface IGithubSolutionCommitsRepository : ICrudRepository<GithubSolutionCommit, long>
     {
-        Task<GithubSolutionCommit> TryGetLastBySolutionId(long solutionId);
+        Task<GithubSolutionCommit?> TryGetLastBySolutionId(long solutionId);
     }
 }
