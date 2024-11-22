@@ -67,11 +67,6 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
     const [deadlineSuggestion, setDeadlineSuggestion] = useState<Date | undefined>(undefined)
 
     useEffect(() => {
-        if (!addHomeworkState.hasDeadline) {
-            setDeadlineSuggestion(undefined)
-            return
-        }
-
         const isTest = isTestWork(addHomeworkState)
         const isBonus = isBonusWork(addHomeworkState)
 
@@ -91,13 +86,16 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
             .groupBy(x => [x.daysDiff, x.deadlineDate.getHours(), x.deadlineDate.getMinutes()])
             .entries()
             .sortBy(x => x[1].length).last()?.[1][0]
-        if (!dateCandidate) return undefined
-        const now = new Date()
-        const dateTime = dateCandidate.deadlineDate
-        now.setDate(now.getDate() + dateCandidate.daysDiff)
-        now.setHours(dateTime.getHours(), dateTime.getMinutes(), 0, 0)
-        setDeadlineSuggestion(now)
-    }, [addHomeworkState.hasDeadline])
+        if (dateCandidate) {
+            const now = new Date()
+            const dateTime = dateCandidate.deadlineDate
+            now.setDate(now.getDate() + dateCandidate.daysDiff)
+            now.setHours(dateTime.getHours(), dateTime.getMinutes(), 0, 0)
+            setDeadlineSuggestion(now)
+        } else {
+            setDeadlineSuggestion(undefined)
+        }
+    }, [addHomeworkState.tags])
 
 
     const handleSubmit = async (e: any) => {

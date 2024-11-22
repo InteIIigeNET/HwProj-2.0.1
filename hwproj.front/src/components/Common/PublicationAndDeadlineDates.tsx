@@ -48,15 +48,13 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                 ? getInitialPublicationDate()
                 : props.publicationDate,
             deadlineDate: props.hasDeadline
-                ? props.deadlineDate === undefined
-                    ? props.autoCalculatedDeadline || getInitialDeadlineDate(publicationDate)
-                    : props.deadlineDate
+                ? props.deadlineDate || props.autoCalculatedDeadline || getInitialDeadlineDate(publicationDate)
                 : undefined,
             isDeadlineStrict: props.isDeadlineStrict,
         }
     });
 
-    const deadlineChosenAutomatically = props.autoCalculatedDeadline !== undefined
+    const deadlineChosenAutomatically = props.autoCalculatedDeadline && state.deadlineDate == props.autoCalculatedDeadline
 
     const isDeadlineSoonerThanPublication = (publicationDate: Date, deadlineDate: Date | undefined) =>
         deadlineDate != undefined && deadlineDate < publicationDate;
@@ -68,6 +66,15 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
 
         props.onChange({...state, hasErrors: validationResult})
     }, [state])
+
+    useEffect(() => {
+        setState(prevState => ({
+            ...prevState,
+            deadlineDate: state.hasDeadline
+                ? props.autoCalculatedDeadline || state.deadlineDate || getInitialDeadlineDate(prevState.publicationDate)
+                : undefined,
+        }))
+    }, [props.autoCalculatedDeadline])
 
     return <div>
         <Grid container direction="column" style={{marginTop: "10px"}}>
@@ -112,9 +119,7 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                 onChange={(e) => {
                                     const date = e.target.checked
                                         //TODO: unify
-                                        ? props.deadlineDate === undefined
-                                            ? props.autoCalculatedDeadline || getInitialDeadlineDate(state.publicationDate)
-                                            : props.deadlineDate
+                                        ? props.deadlineDate || props.autoCalculatedDeadline || getInitialDeadlineDate(state.publicationDate)
                                         : undefined
 
                                     const strict = e.target.checked && props.isDeadlineStrict !== undefined
