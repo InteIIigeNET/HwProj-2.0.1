@@ -62,12 +62,7 @@ namespace HwProj.APIGateway.API.Controllers
 
             var homeworks = course.Homeworks
                 .Where(t => t.Tasks.Any())
-                .GroupBy(t =>
-                {
-                    var isTest = t.Tags.Contains(HomeworkTags.Test);
-                    var groupingTag = t.Tags.Except(HomeworkTags.DefaultTags).FirstOrDefault();
-                    return isTest && groupingTag != null ? groupingTag : t.Id.ToString();
-                })
+                .GroupBy(GetGroupingKey)
                 .ToList();
 
             var tasks = homeworks
@@ -99,7 +94,7 @@ namespace HwProj.APIGateway.API.Controllers
                 var isSingle = group.Count() == 1;
                 return new HomeworksGroupUserTaskSolutions
                 {
-                    GroupTitle = isSingle ? null : group.Key,
+                    GroupTitle = isSingle ? null : group.Key.id,
                     HomeworkSolutions = group.Select(h =>
                         {
                             studentSolutions.TryGetValue(h.Id, out var solutions);
@@ -155,12 +150,7 @@ namespace HwProj.APIGateway.API.Controllers
 
             var currentDateTime = DateTime.UtcNow;
             var homeworks = course.Homeworks
-                .GroupBy(t =>
-                {
-                    var isTest = t.Tags.Contains(HomeworkTags.Test);
-                    var groupingTag = t.Tags.Except(HomeworkTags.DefaultTags).FirstOrDefault();
-                    return isTest && groupingTag != null ? groupingTag : t.Id.ToString();
-                }, x =>
+                .GroupBy(GetGroupingKey, x =>
                 {
                     x.Tasks = x.Tasks.Where(t => t.PublicationDate <= currentDateTime).ToList();
                     return x;
@@ -231,7 +221,7 @@ namespace HwProj.APIGateway.API.Controllers
                     var isSingle = homeworks.Count == 1;
                     return new HomeworksGroupSolutionStats()
                     {
-                        GroupTitle = isSingle ? null : group.Key,
+                        GroupTitle = isSingle ? null : group.Key.id,
                         StatsForHomeworks = group.Select(h => new HomeworkSolutionsStats
                         {
                             HomeworkTitle = h.Title,
@@ -485,6 +475,15 @@ namespace HwProj.APIGateway.API.Controllers
                 if (!taskId.HasValue)
                     yield return (task.Id, (course, homework.Title, task));
             }
+        }
+
+        private static (string id, string tasks) GetGroupingKey(HomeworkViewModel homework)
+        {
+            var isTest = homework.Tags.Contains(HomeworkTags.Test);
+            var groupingTag = homework.Tags.Except(HomeworkTags.DefaultTags).FirstOrDefault();
+            return isTest && groupingTag != null
+                ? (groupingTag, string.Join(";", homework.Tasks.Select(t => t.MaxRating)))
+                : (homework.Id.ToString(), "");
         }
     }
 }
