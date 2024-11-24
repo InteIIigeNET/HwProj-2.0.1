@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.Repositories;
@@ -19,6 +21,15 @@ namespace HwProj.CoursesService.API.Repositories
                 .FirstOrDefaultAsync(u => u.UserId == userId && u.CourseId == courseId);
 
             return userToCourseFilter?.CourseFilter;
+        }
+
+        public async Task<List<UserToCourseFilter>> GetAsync(string userId, long[] courseIds)
+        {
+            return await Context.Set<UserToCourseFilter>()
+                .AsNoTracking()
+                .Where(u => u.UserId == userId && courseIds.Contains(u.CourseId))
+                .Include(ucf => ucf.CourseFilter)
+                .ToListAsync();
         }
 
         public async Task<long> AddAsync(CourseFilter courseFilter, string userId, long courseId)
