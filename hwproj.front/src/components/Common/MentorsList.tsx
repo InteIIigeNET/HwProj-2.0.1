@@ -20,7 +20,9 @@ const MentorsList: FC<{
         {mentorsToHide.length > 0 && <Tooltip arrow title={
             <span style={{whiteSpace: 'pre-line'}}>
                 <Typography variant={"body1"}>
-                    {mentorsToHide.map(t => `${t.name} ${t.surname}`).join("\n")}
+                    {mentorsToHide.map(t => <div>{`${t.name} ${t.surname}`}
+                        <sub style={{color: "powderblue"}}> {t.companyName}</sub>
+                    </div>)}
                 </Typography>
             </span>}>
             <Chip size={"small"}
