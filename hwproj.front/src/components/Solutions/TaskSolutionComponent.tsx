@@ -294,7 +294,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                                 <sub style={{color: "#3f51b5"}}> {lecturer!.companyName}</sub>
                                             </div>}
                                     </Typography>
-                                    {ratingTime && <Typography style={{color: "GrayText"}}>
+                                    {ratingTime && <Typography variant={"caption"} style={{color: "GrayText"}}>
                                         {ratingTime}
                                     </Typography>}
                                 </Stack>
@@ -416,7 +416,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     ? renderTestsStatus(solutionActuality.testsActuality)
                                     : <CircularProgress size={12}/>)}
                             </Stack>
-                            <Typography style={{color: "GrayText"}}>
+                            <Typography variant={"caption"} style={{color: "GrayText"}}>
                                 {postedSolutionTime}
                             </Typography>
                         </Grid>
