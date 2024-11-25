@@ -12,11 +12,11 @@ import {
     SolutionActualityPart
 } from '../../api'
 import ApiSingleton from "../../api/ApiSingleton";
-import {Alert, Avatar, Rating, Stack, Tooltip, Card, CardContent, CardActions} from "@mui/material";
+import {Alert, Avatar, Rating, Stack, Tooltip, Card, CardContent, CardActions, IconButton} from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
-import {Edit} from "@mui/icons-material";
+import {Edit, ThumbDown, ThumbUp} from "@mui/icons-material";
 import {ReactMarkdownWithCodeHighlighting, TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import {LoadingButton} from "@mui/lab";
 import CheckIcon from '@mui/icons-material/Done';
@@ -164,16 +164,35 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     }
 
     const renderRateInput = () => {
+        const showThumbs = maxRating === 1
+        const enabled = props.forMentor && (!isRated || state.clickedForRate)
+        const thumbsHandler = (rating: number) => {
+            setState((prevState) => ({
+                ...prevState,
+                points: rating,
+                clickedForRate: enabled
+            }))
+        }
         if (maxRating <= 10 && points <= maxRating && !addBonusPoints)
             return (<Grid container item direction={"row"} spacing={1} alignItems={"center"}>
-                <Grid item>
+                {showThumbs && <Grid item><
+                    Stack direction={"row"} alignItems={"center"}>
+                    <IconButton disabled={!enabled} onClick={() => thumbsHandler(1)}>
+                        <ThumbUp color={points === 1 ? "success" : "disabled"}/>
+                    </IconButton>
+                    <IconButton disabled={!enabled} onClick={() => thumbsHandler(0)}>
+                        <ThumbDown color={(isRated || state.clickedForRate) && points === 0 ? "error" : "disabled"}/>
+                    </IconButton>
+                </Stack>
+                </Grid>}
+                {!showThumbs && <Grid item>
                     <Rating
                         name="customized"
                         size="large"
                         defaultValue={2}
                         max={maxRating}
                         value={points}
-                        readOnly={!props.forMentor || isRated && !state.clickedForRate}
+                        readOnly={!enabled}
                         onChange={(_, newValue) => {
                             setState((prevState) => ({
                                 ...prevState,
@@ -183,11 +202,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             }))
                         }}
                     />
-                </Grid>
-                <Grid item>
+                </Grid>}
+                {!showThumbs && <Grid item>
                     {points + " / " + maxRating}
-                </Grid>
-                {!addBonusPoints && props.forMentor && state.clickedForRate && < Grid item>
+                </Grid>}
+                {!addBonusPoints && props.forMentor && state.clickedForRate && <Grid item>
                     <Tooltip arrow title={"Позволяет поставить оценку выше максимальной"}>
                         <Typography variant={"caption"}>
                             <Link onClick={() => setState(prevState => ({...prevState, addBonusPoints: true}))}>
