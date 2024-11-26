@@ -12,7 +12,7 @@ import {
     SolutionActualityPart
 } from '../../api'
 import ApiSingleton from "../../api/ApiSingleton";
-import {Alert, Avatar, Rating, Stack, Tooltip, Card, CardContent, CardActions, IconButton} from "@mui/material";
+import {Alert, Avatar, Rating, Stack, Tooltip, Card, CardContent, CardActions, IconButton, Chip} from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
@@ -165,22 +165,22 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     const renderRateInput = () => {
         const showThumbs = maxRating === 1
-        const enabled = props.forMentor && (!isRated || state.clickedForRate)
+        const isEditable = props.forMentor && (!isRated || state.clickedForRate)
         const thumbsHandler = (rating: number) => {
             setState((prevState) => ({
                 ...prevState,
                 points: rating,
-                clickedForRate: enabled
+                clickedForRate: isEditable
             }))
         }
         if (maxRating <= 10 && points <= maxRating && !addBonusPoints)
             return (<Grid container item direction={"row"} spacing={1} alignItems={"center"}>
                 {showThumbs && <Grid item><
                     Stack direction={"row"} alignItems={"center"}>
-                    <IconButton disabled={!enabled} onClick={() => thumbsHandler(1)}>
+                    <IconButton disabled={!isEditable} onClick={() => thumbsHandler(1)}>
                         <ThumbUp color={points === 1 ? "success" : "disabled"}/>
                     </IconButton>
-                    <IconButton disabled={!enabled} onClick={() => thumbsHandler(0)}>
+                    <IconButton disabled={!isEditable} onClick={() => thumbsHandler(0)}>
                         <ThumbDown color={(isRated || state.clickedForRate) && points === 0 ? "error" : "disabled"}/>
                     </IconButton>
                 </Stack>
@@ -192,7 +192,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         defaultValue={2}
                         max={maxRating}
                         value={points}
-                        readOnly={!enabled}
+                        readOnly={!isEditable}
                         onChange={(_, newValue) => {
                             setState((prevState) => ({
                                 ...prevState,
@@ -218,34 +218,36 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             </Grid>)
         return (<Grid container item direction={"row"} spacing={1} alignItems={"center"}>
             <Grid item>
-                <TextField
-                    style={{width: 100}}
-                    required
-                    label="Баллы"
-                    variant="outlined"
-                    margin="normal"
-                    type="number"
-                    fullWidth
-                    InputProps={{
-                        readOnly: !props.forMentor || !state.clickedForRate,
-                        inputProps: {min: 0, value: points},
-                    }}
-                    maxRows={10}
-                    onChange={(e) => {
-                        e.persist()
-                        setState((prevState) => ({
-                            ...prevState,
-                            points: +e.target.value
-                        }))
-                    }}
-                    onClick={() => {
-                        if (isRated) return
-                        setState((prevState) => ({
-                            ...prevState,
-                            clickedForRate: props.forMentor
-                        }));
-                    }}
-                />
+                {isEditable
+                    ? <TextField
+                        style={{width: 100}}
+                        required
+                        label="Баллы"
+                        variant="outlined"
+                        margin="normal"
+                        type="number"
+                        fullWidth
+                        InputProps={{
+                            readOnly: !props.forMentor || !state.clickedForRate,
+                            inputProps: {min: 0, value: points},
+                        }}
+                        maxRows={10}
+                        onChange={(e) => {
+                            e.persist()
+                            setState((prevState) => ({
+                                ...prevState,
+                                points: +e.target.value
+                            }))
+                        }}
+                        onClick={() => {
+                            if (isRated) return
+                            setState((prevState) => ({
+                                ...prevState,
+                                clickedForRate: props.forMentor
+                            }));
+                        }}
+                    />
+                    : <Chip label={<Typography variant={"h6"}>{points}</Typography>} size={"medium"}/>}
             </Grid>
             <Grid item>
                 {" / " + maxRating}
