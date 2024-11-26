@@ -80,22 +80,22 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                 const deadlineDate = new Date(x.deadlineDate!)
                 return ({
                     deadlineDate: deadlineDate,
-                    daysDiff: Math.abs(deadlineDate.getDate() - new Date(x.publicationDate!).getDate())
+                    daysDiff: Math.floor((deadlineDate.getTime() - new Date(x.publicationDate!).getTime()) / (1000 * 3600 * 24))
                 });
             }))
             .groupBy(x => [x.daysDiff, x.deadlineDate.getHours(), x.deadlineDate.getMinutes()])
             .entries()
             .sortBy(x => x[1].length).last()?.[1][0]
         if (dateCandidate) {
-            const now = new Date()
+            const publicationDate = new Date(addHomeworkState.publicationDate)
             const dateTime = dateCandidate.deadlineDate
-            now.setDate(now.getDate() + dateCandidate.daysDiff)
-            now.setHours(dateTime.getHours(), dateTime.getMinutes(), 0, 0)
-            setDeadlineSuggestion(now)
+            publicationDate.setDate(publicationDate.getDate() + dateCandidate.daysDiff)
+            publicationDate.setHours(dateTime.getHours(), dateTime.getMinutes(), 0, 0)
+            setDeadlineSuggestion(publicationDate)
         } else {
             setDeadlineSuggestion(undefined)
         }
-    }, [addHomeworkState.tags])
+    }, [addHomeworkState.tags, addHomeworkState.publicationDate])
 
 
     const handleSubmit = async (e: any) => {
