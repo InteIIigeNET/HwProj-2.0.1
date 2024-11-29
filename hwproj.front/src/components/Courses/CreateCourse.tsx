@@ -1,4 +1,4 @@
-import * as React from "react"; 
+import * as React from "react";
 import {
   TextField,
   Button,
@@ -66,6 +66,9 @@ const CreateCourse: FC = () => {
   const [apiResult, setApiResult] = useState<string[]>([]);
   const [programName, setProgramName] = useState<string>('');
   const [fetchingGroups, setFetchingGroups] = useState<boolean>(false);
+  const [groupName, setGroupName] = useState<string>(''); 
+  const [studentStatusResult, setStudentStatusResult] = useState<string[]>([]); 
+  const [fetchingStudentStatus, setFetchingStudentStatus] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchApiData = async (program: string) => {
@@ -85,8 +88,33 @@ const CreateCourse: FC = () => {
 
     if (programName) {
       fetchApiData(programName); 
+    } else {
+      setApiResult([]); 
     }
   }, [programName]);
+
+  useEffect(() => {
+    const fetchStudentStatus = async (group: string) => {
+      if (!group) return;
+      setFetchingStudentStatus(true);
+      try {
+        const response = await ApiSingleton.coursesApi.apiCoursesGetStudentStsGet(group);
+        const data = await response.json();
+        setStudentStatusResult(data);
+      } catch (e) {
+        console.error("Error fetching student status:", e);
+        setStudentStatusResult(["Error fetching student status"]);
+      } finally {
+        setFetchingStudentStatus(false);
+      }
+    };
+
+    if (groupName) {
+      fetchStudentStatus(groupName);
+    } else {
+      setStudentStatusResult([]); 
+    }
+  }, [groupName]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -184,7 +212,7 @@ const CreateCourse: FC = () => {
           variant="contained"
           color="secondary"
           style={{ marginTop: '16px' }}
-          disabled 
+          disabled
         >
           Получить информацию по группам
         </Button>
@@ -200,7 +228,7 @@ const CreateCourse: FC = () => {
         />
         
         {/* Display groups if there are any */}
-        {apiResult.length > 0 && !fetchingGroups && (
+        {programName && apiResult.length > 0 && !fetchingGroups && (
           <Paper className={classes.groupList}>
             <Typography
               component="h2"
@@ -222,10 +250,42 @@ const CreateCourse: FC = () => {
           </Paper>
         )}
 
-        {/* Display loading indicator */}
-        {fetchingGroups && (
+        {/* Display student status results */}
+        <TextField
+          label="Название группы"
+          variant="outlined"
+          fullWidth
+          value={groupName}
+          onChange={(e) => setGroupName(e.target.value)} 
+          style={{ marginTop: '16px' }}
+        />
+
+        {groupName && studentStatusResult.length > 0 && !fetchingStudentStatus && (
+          <Paper className={classes.groupList}>
+            <Typography
+              component="h2"
+              variant="h6"
+              gutterBottom
+              style={{ textAlign: 'center' }}
+            >
+              Почтовые адреса студентов для группы "{groupName}":
+            </Typography>
+            <ul>
+              {studentStatusResult.length > 0 ? (
+                studentStatusResult.map((status, index) => (
+                  <li key={index} className={classes.groupItem}>{status}</li>
+                ))
+              ) : (
+                <li>No student status data available for this group.</li>
+              )}
+            </ul>
+          </Paper>
+        )}
+
+        {/* Display loading indicator for student status */}
+        {fetchingStudentStatus && (
           <Typography variant="h6" style={{ marginTop: '20px' }}>
-            Загрузка групп...
+            Загрузка почтовых адресов студентов...
           </Typography>
         )}
       </div>
