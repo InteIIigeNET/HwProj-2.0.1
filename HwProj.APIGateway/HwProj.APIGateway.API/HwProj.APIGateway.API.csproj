@@ -22,5 +22,6 @@
     <ProjectReference Include="..\..\HwProj.CoursesService\HwProj.CoursesService.Client\HwProj.CoursesService.Client.csproj" />
     <ProjectReference Include="..\..\HwProj.NotificationsService\HwProj.NotificationsService.Client\HwProj.NotificationsService.Client.csproj" />
     <ProjectReference Include="..\..\HwProj.SolutionsService\HwProj.SolutionsService.Client\HwProj.SolutionsService.Client.csproj" />
+    <ProjectReference Include="..\..\StudentsInfo\StudentsInfo.csproj" />
   </ItemGroup>
 </Project>
