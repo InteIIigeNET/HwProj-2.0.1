@@ -12,6 +12,7 @@ using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StudentsInfo;
 
 namespace HwProj.APIGateway.API.Controllers
 {
@@ -194,6 +195,21 @@ namespace HwProj.APIGateway.API.Controllers
                 Students = students
             };
             return Ok(workspace);
+        }
+        
+        [HttpGet("getGroups")]
+        public  IActionResult GetGroups(string programName)
+        {
+            var studentsInfo = new StudentsStats("", "");
+            return Ok(studentsInfo.GetGroups(programName));
+        }
+                
+        [HttpGet("getStudentSts")]
+        public  IActionResult GetStudentSts(string groupName)
+        {   
+            // Credentials needed!
+            var studentsInfo = new StudentsStats("", "");
+            return Ok(studentsInfo.GetSts(groupName));
         }
 
         private async Task<CourseViewModel> ToCourseViewModel(CourseDTO course)
