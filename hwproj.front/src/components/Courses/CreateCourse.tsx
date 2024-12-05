@@ -1,10 +1,10 @@
 import * as React from "react";
-import {
-  TextField,
-  Button,
-  Typography,
-  Grid,
-  Paper,
+import { 
+  TextField, 
+  Button, 
+  Typography, 
+  Grid, 
+  Paper 
 } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import './Styles/CreateCourse.css';
@@ -12,6 +12,7 @@ import { FC, FormEvent, useState, useEffect } from "react";
 import GroupIcon from '@material-ui/icons/Group';
 import makeStyles from "@material-ui/styles/makeStyles";
 import Container from "@material-ui/core/Container";
+import Autocomplete from "@material-ui/lab/Autocomplete";  // Import Autocomplete
 
 interface ICreateCourseState {
   name: string;
@@ -63,33 +64,52 @@ const CreateCourse: FC = () => {
     errors: [],
   });
 
+  const [programNames, setProgramNames] = useState<string[]>([]); // State for program names
+  const [programName, setProgramName] = useState<string>('');  // State for selected program
   const [apiResult, setApiResult] = useState<string[]>([]);
-  const [programName, setProgramName] = useState<string>('');
   const [fetchingGroups, setFetchingGroups] = useState<boolean>(false);
-  const [groupName, setGroupName] = useState<string>(''); 
-  const [studentStatusResult, setStudentStatusResult] = useState<string[]>([]); 
+  const [groupName, setGroupName] = useState<string>('');
+
+  const [studentStatusResult, setStudentStatusResult] = useState<string[]>([]);
   const [fetchingStudentStatus, setFetchingStudentStatus] = useState<boolean>(false);
+
+  // Fetch program names on component mount
+  useEffect(() => {
+    const fetchProgramNames = async () => {
+      try {
+        const response = await ApiSingleton.coursesApi.apiCoursesGetProgramNamesGet();
+        const data = await response.json();
+        setProgramNames(data);  // Store the program names in state
+      } catch (e) {
+        console.error("Error fetching program names:", e);
+        setProgramNames([]);
+      }
+    };
+
+    fetchProgramNames();
+  }, []);
 
   useEffect(() => {
     const fetchApiData = async (program: string) => {
       if (!program) return;
-      setFetchingGroups(true); 
+      setFetchingGroups(true);
+
       try {
         const response = await ApiSingleton.coursesApi.apiCoursesGetGroupsGet(program);
-        const data = await response.json(); 
-        setApiResult(data); 
+        const data = await response.json();
+        setApiResult(data);
       } catch (e) {
         console.error("Error fetching API:", e);
         setApiResult(["Error fetching API result"]);
       } finally {
-        setFetchingGroups(false); 
+        setFetchingGroups(false);
       }
     };
 
     if (programName) {
-      fetchApiData(programName); 
+      fetchApiData(programName);
     } else {
-      setApiResult([]); 
+      setApiResult([]);
     }
   }, [programName]);
 
@@ -112,7 +132,7 @@ const CreateCourse: FC = () => {
     if (groupName) {
       fetchStudentStatus(groupName);
     } else {
-      setStudentStatusResult([]); 
+      setStudentStatusResult([]);
     }
   }, [groupName]);
 
@@ -129,7 +149,7 @@ const CreateCourse: FC = () => {
         ...prevState,
         courseId: courseId.toString(),
       }));
-      window.location.assign("/"); 
+      window.location.assign("/");
     } catch (e) {
       setCourse((prevState) => ({
         ...prevState,
@@ -206,27 +226,27 @@ const CreateCourse: FC = () => {
           </Button>
         </form>
 
-        {/* Button to fetch group information, now above the program name field */}
-        <Button
-          fullWidth
-          variant="contained"
-          color="secondary"
-          style={{ marginTop: '16px' }}
-          disabled
-        >
-          Получить информацию по группам
-        </Button>
-
-        {/* Program Name Input Field */}
-        <TextField
-          label="Название программы"
-          variant="outlined"
-          fullWidth
+        {/* Program Name Autocomplete Field */}
+        <Autocomplete
           value={programName}
-          onChange={(e) => setProgramName(e.target.value)} 
-          style={{ marginTop: '16px' }}
+          onChange={(event, newValue) => {
+            setProgramName(newValue || ''); 
+          }}
+          options={programNames} 
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Название программы"
+              variant="outlined"
+              fullWidth
+              style={{ marginTop: '16px' }}
+            /> 
+          )}
+          fullWidth
+          noOptionsText="Программы не найдено"
         />
-        
+
+
         {/* Display groups if there are any */}
         {programName && apiResult.length > 0 && !fetchingGroups && (
           <Paper className={classes.groupList}>
@@ -234,14 +254,16 @@ const CreateCourse: FC = () => {
               component="h2"
               variant="h6"
               gutterBottom
-              style={{ textAlign: 'center' }} 
+              style={{ textAlign: 'center' }}
             >
               Группы для программы "{programName}":
             </Typography>
             <ul>
               {apiResult.length > 0 ? (
                 apiResult.map((group, index) => (
-                  <li key={index} className={classes.groupItem}>{group}</li>
+                  <li key={index} className={classes.groupItem}>
+                    {group}
+                  </li>
                 ))
               ) : (
                 <li>No groups available for this program.</li>
@@ -256,7 +278,7 @@ const CreateCourse: FC = () => {
           variant="outlined"
           fullWidth
           value={groupName}
-          onChange={(e) => setGroupName(e.target.value)} 
+          onChange={(e) => setGroupName(e.target.value)}
           style={{ marginTop: '16px' }}
         />
 
@@ -273,7 +295,9 @@ const CreateCourse: FC = () => {
             <ul>
               {studentStatusResult.length > 0 ? (
                 studentStatusResult.map((status, index) => (
-                  <li key={index} className={classes.groupItem}>{status}</li>
+                  <li key={index} className={classes.groupItem}>
+                    {status}
+                  </li>
                 ))
               ) : (
                 <li>No student status data available for this group.</li>
