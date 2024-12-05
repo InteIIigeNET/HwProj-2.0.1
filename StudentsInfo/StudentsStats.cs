@@ -62,16 +62,19 @@ namespace StudentsInfo
         {
             this._username = username;
             this._password = password;
-
-            // Fetch programs and corresponding groups from the timetable
-            const string url = "https://timetable.spbu.ru/MATH";
+            
+            const string url = "https://timetable.spbu.ru/MATH?lang=ru";
             var web = new HtmlWeb();
+            
+            web.PreRequest = request =>
+            {
+                request.Headers.Add("Accept-Language", "ru");
+                return true;
+            };
+
             var doc = web.Load(url);
-
-            // Select all list items containing programs (regardless of their type)
             var programNodes = doc.DocumentNode.SelectNodes("//li[contains(@class, 'common-list-item row')]");
-
-            // Process each program node
+            
             foreach (var programNode in programNodes)
             {
                 var programNameNode = programNode.SelectSingleNode(".//div[contains(@class, 'col-sm-5')]");
@@ -82,8 +85,6 @@ namespace StudentsInfo
                 if (titleNodes != null && programName != null)
                 {
                     var titles = new List<string>();
-
-                    // Collect all groups
                     foreach (var titleNode in titleNodes)
                     {
                         var title = titleNode.SelectSingleNode(".//a")?.Attributes["title"]?.Value;
@@ -92,8 +93,7 @@ namespace StudentsInfo
                             titles.Add(title);
                         }
                     }
-
-                    // If the program already exists, append the new titles
+                    
                     if (_programsGroups.ContainsKey(programName))
                     {
                         _programsGroups[programName].AddRange(titles);
