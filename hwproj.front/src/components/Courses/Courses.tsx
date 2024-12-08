@@ -57,6 +57,7 @@ export default class Courses extends React.Component<Props, ICoursesState> {
         return (
             <div className="container">
                 <Tabs
+                    style={{marginBottom: 10}}
                     variant="scrollable"
                     scrollButtons={"auto"}
                     value={tabValue}
@@ -69,7 +70,6 @@ export default class Courses extends React.Component<Props, ICoursesState> {
                     {!isExpert && <Tab label="Все курсы"/>}
                     {completedCourses.length > 0 && <Tab label="Завершенные курсы"/>}
                 </Tabs>
-                <br/>
                 {tabValue === activeCoursesTab &&
                     <CoursesList navigate={navigate} courses={activeCourses} isExpert={isExpert}/>}
                 {tabValue === allCoursesTab && !isExpert
