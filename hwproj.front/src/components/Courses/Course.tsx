@@ -214,7 +214,7 @@ const Course: React.FC = () => {
                                                 }))}>
                                         {NameBuilder.getCourseFullName(course.name!, course.groupName)}
                                     </Typography>
-                                    {isLecturer &&
+                                    {isCourseMentor &&
                                         <IconButton
                                             size="small"
                                             onClick={() =>
