@@ -284,6 +284,7 @@ const Course: React.FC = () => {
                         </Grid>
                     </Grid>
                     <Tabs
+                        style={{marginBottom: 10}}
                         variant="scrollable"
                         scrollButtons={"auto"}
                         value={tabValue == "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
@@ -309,7 +310,6 @@ const Course: React.FC = () => {
                                       label={newStudents.length}/>
                             </Stack>}/>}
                     </Tabs>
-                    <br/>
                     {tabValue === "homeworks" && <div>
                         {
                             isReadingMode
