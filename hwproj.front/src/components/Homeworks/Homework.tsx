@@ -175,8 +175,8 @@ const Homework: FC<IHomeworkProps> = (props) => {
                 onCancel={closeDialogDeleteHomework}
                 onSubmit={deleteHomework}
                 isOpen={isOpenDialogDeleteHomework}
-                dialogTitle={'Удаление домашнего задания'}
-                dialogContentText={`Вы точно хотите удалить домашнее задание "${props.homework.title}"?`}
+                dialogTitle={'Удаление задания'}
+                dialogContentText={`Вы точно хотите удалить задание "${props.homework.title}"?`}
                 confirmationWord={''}
                 confirmationText={''}
             />

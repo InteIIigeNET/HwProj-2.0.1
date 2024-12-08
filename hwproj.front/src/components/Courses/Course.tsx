@@ -295,7 +295,7 @@ const Course: React.FC = () => {
                             if (value === 2 && !isExpert) navigate(`/courses/${courseId}/applications`)
                         }}
                     >
-                        {!isExpert && <Tab label="Домашние задания"/>}
+                        {!isExpert && <Tab label="Задания"/>}
                         {showStatsTab && <Tab label={
                             <Stack direction="row" spacing={1}>
                                 <div>Решения</div>

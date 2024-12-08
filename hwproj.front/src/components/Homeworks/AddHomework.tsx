@@ -255,7 +255,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                         type="submit"
                         disabled={addHomeworkState.hasErrors || addHomeworkState.tasks.some(t => t.hasErrors)}
                     >
-                        Добавить домашнее задание
+                        Добавить задание
                     </Button>
                     &nbsp;
                     <Button

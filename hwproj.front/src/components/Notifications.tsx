@@ -240,7 +240,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                             value={CategoryEnum.NUMBER_3}
                                             inputProps={{'aria-label': 'controlled'}}
                                         />
-                                    } label="Домашние задания"
+                                    } label="Задания"
                                     />
                                     {allNotSeen.length != 0 &&
                                         <Button fullWidth variant="contained" onClick={markAllNotificationsAsSeen}>Прочитать

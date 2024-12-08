@@ -162,10 +162,10 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                     {renderSelect("Курс", "coursesFilter", filtersState.coursesFilter, filtersState.courses)}
                 </Grid>
                 <Grid item>
-                    {renderSelect("Домашняя работа", "homeworksFilter", filtersState.homeworksFilter, filtersState.homeworks)}
+                    {renderSelect("Задание", "homeworksFilter", filtersState.homeworksFilter, filtersState.homeworks)}
                 </Grid>
                 <Grid item>
-                    {renderSelect("Задание", "tasksFilter", filtersState.tasksFilter, filtersState.tasks)}
+                    {renderSelect("Задача", "tasksFilter", filtersState.tasksFilter, filtersState.tasks)}
                 </Grid>
                 <Grid item>
                     {renderSelect("Студент", "studentsFilter", filtersState.studentsFilter, filtersState.students)}

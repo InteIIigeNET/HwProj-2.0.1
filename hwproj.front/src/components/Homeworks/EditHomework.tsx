@@ -126,7 +126,7 @@ const EditHomework: FC = () => {
         if (!editHomework.courseMentorIds.includes(ApiSingleton.authService.getUserId())) {
             return (
                 <Typography variant="h6" gutterBottom>
-                    Только преподаватель может редактировать домашнюю работу
+                    Только преподаватель может редактировать задание
                 </Typography>
             );
         }
@@ -151,7 +151,7 @@ const EditHomework: FC = () => {
                     </div>
                     <div>
                         <Typography style={{fontSize: '22px'}}>
-                            Редактировать домашнее задание
+                            Редактировать задание
                         </Typography>
                     </div>
                 </div>
@@ -223,7 +223,7 @@ const EditHomework: FC = () => {
                             variant="contained"
                             type="submit"
                             disabled={isSomeTaskSoonerThanHomework || editHomework.hasErrors}>
-                            Редактировать домашнее задание
+                            Редактировать задание
                         </Button>
                     </Grid>
                 </form>
