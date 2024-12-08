@@ -51,9 +51,11 @@ export default class Utils {
 
     }
 
-    static renderReadableDate = (date: Date) => {
-        const options = {month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'}
-        return (new Date(date)).toLocaleString(undefined, options)
+    static renderReadableDate = (d: Date) => {
+        const date = new Date(d)
+        const showYear = date.getFullYear() !== new Date().getFullYear()
+        const options = {month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', year: showYear ? 'numeric' : undefined}
+        return date.toLocaleString(undefined, options)
     }
 
     static renderReadableDateWithoutTime = (date: Date) => {
