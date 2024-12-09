@@ -19,11 +19,12 @@ namespace StudentsInfo
         /// <inheritdoc />
         public List<string> GetGroups(string programName)
         {
-            // Return the list of groups for a program, concatenated by comma and split
+            // Return the list of groups for a program, concatenated by comma and split, trimmed for extra spaces
             return _programsGroups.ContainsKey(programName)
                 ? _programsGroups[programName]
                     .Aggregate((current, next) => current + "," + next) // Concatenate all groups into one string
                     .Split(',') // Split by comma
+                    .Select(group => group.Trim()) // Trim any leading or trailing whitespace
                     .ToList()
                 : new List<string>();
         }
