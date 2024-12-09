@@ -182,10 +182,18 @@ namespace HwProj.SolutionsService.API.Controllers
                     };
                 }).ToList();
 
-            var additionalStats = GetMentorsWithoutCheckedSolutions(lecturerStat, course);
+            // Дополняем статистику менторами, не проверившими ни одного решения
+            var lecturerStatIds = lecturerStat.Select(mentor => mentor.LecturerId);
+            var additionalStats = course.MentorIds.Except(lecturerStatIds)
+                .Select(mentorId => new StatisticsLecturerDTO
+                {
+                    LecturerId = mentorId,
+                    NumberOfCheckedSolutions = 0,
+                    NumberOfCheckedUniqueSolutions = 0
+                });
             lecturerStat.AddRange(additionalStats);
 
-            return Ok(lecturerStat.ToArray());
+            return Ok(lecturerStat);
         }
 
         [HttpGet("getCourseStat/{courseId}")]
@@ -300,26 +308,6 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<SolutionActualityDto> GetSolutionActuality(long solutionId)
         {
             return await _solutionsService.GetSolutionActuality(solutionId);
-        }
-
-        private static List<StatisticsLecturerDTO> GetMentorsWithoutCheckedSolutions(
-            List<StatisticsLecturerDTO> mentorsWithCheckedSolutions, CourseDTO course)
-        {
-            var mentorsWithoutCheckedSolutions = new List<StatisticsLecturerDTO>();
-            foreach (var mentorId in course.MentorIds)
-            {
-                if (mentorsWithCheckedSolutions.All(ls => ls.LecturerId != mentorId))
-                {
-                    mentorsWithoutCheckedSolutions.Add(new StatisticsLecturerDTO
-                    {
-                        LecturerId = mentorId,
-                        NumberOfCheckedSolutions = 0,
-                        NumberOfCheckedUniqueSolutions = 0
-                    });
-                }
-            }
-
-            return mentorsWithoutCheckedSolutions;
         }
     }
 }
