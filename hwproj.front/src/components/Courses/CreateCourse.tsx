@@ -162,7 +162,7 @@ const CreateCourse: FC = () => {
             }}
           />
 
-          <Autocomplete
+          <Autocomplete freeSolo
             value={programName}
             onChange={(event, newValue) => {
               setProgramName(newValue || '');
@@ -180,7 +180,7 @@ const CreateCourse: FC = () => {
             fullWidth
           />
 
-          <Autocomplete
+          <Autocomplete freeSolo
             value={course.groupName}
             onChange={(event, newValue) => {
               setCourse((prevState) => ({
@@ -192,7 +192,7 @@ const CreateCourse: FC = () => {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Название группы"
+                label="Название группы *"
                 variant="outlined"
                 fullWidth
                 style={{ marginTop: '16px' }}
