@@ -180,26 +180,44 @@ const CreateCourse: FC = () => {
             fullWidth
           />
 
-          <Autocomplete freeSolo
-            value={course.groupName}
-            onChange={(event, newValue) => {
-              setCourse((prevState) => ({
-                ...prevState,
-                groupName: newValue || '',
-              }));
-            }}
-            options={groupNames}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Название группы *"
-                variant="outlined"
-                fullWidth
-                style={{ marginTop: '16px' }}
-              />
-            )}
-            fullWidth
-          />
+          {programName ? (
+            <Autocomplete
+              freeSolo
+              value={course.groupName}
+              onChange={(event, newValue) => {
+                setCourse((prevState) => ({
+                  ...prevState,
+                  groupName: newValue || '',
+                }));
+              }}
+              options={groupNames}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Название группы"
+                  variant="outlined"
+                  fullWidth
+                  style={{ marginTop: '16px' }}
+                />
+              )}
+              fullWidth
+            />
+          ) : (
+            <TextField
+              label="Название группы"
+              variant="outlined"
+              fullWidth
+              value={course.groupName}
+              onChange={(e) => {
+                e.persist();
+                setCourse((prevState) => ({
+                  ...prevState,
+                  groupName: e.target.value,
+                }));
+              }}
+              style={{ marginTop: '16px' }}
+            />
+          )}
 
           <Button
             fullWidth
@@ -215,5 +233,6 @@ const CreateCourse: FC = () => {
     </Container>
   );
 };
+
 
 export default CreateCourse;
