@@ -12,7 +12,7 @@ namespace IStudentsInfo
         /// <summary>
         /// Given a name of an academic group returns a list of students' STs (Student IDs)
         /// </summary>
-        List<string> GetSts(string groupName);
+        Dictionary<string, string> GetStudentInformation(string groupName);
         
         /// <summary>
         /// Returns study program names
