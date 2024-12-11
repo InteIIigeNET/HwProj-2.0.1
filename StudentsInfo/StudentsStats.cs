@@ -12,16 +12,23 @@ namespace StudentsInfo
         private readonly string _ldapHost = "ad.pu.ru";
         private readonly int _ldapPort = 389;
         private readonly string _searchBase = "DC=ad,DC=pu,DC=ru";
-        
+
         private string _username;
         private string _password;
 
         /// <inheritdoc />
         public List<string> GetGroups(string programName)
         {
-            return _programsGroups.ContainsKey(programName) ? _programsGroups[programName] : new List<string>();
+            // Return the list of groups for a program, concatenated by comma and split, trimmed for extra spaces
+            return _programsGroups.ContainsKey(programName)
+                ? _programsGroups[programName]
+                    .Aggregate((current, next) => current + "," + next) // Concatenate all groups into one string
+                    .Split(',') // Split by comma
+                    .Select(group => group.Trim()) // Trim any leading or trailing whitespace
+                    .ToList()
+                : new List<string>();
         }
-        
+
         /// <inheritdoc />
         public List<string> GetSts(string groupName)
         {
@@ -38,7 +45,7 @@ namespace StudentsInfo
                     _searchBase,
                     LdapConnection.SCOPE_SUB,
                     searchFilter,
-                    new[] { "cn" }, 
+                    new[] { "cn" },
                     false
                 );
 
@@ -47,7 +54,7 @@ namespace StudentsInfo
                     var entry = results.next();
                     cnList.Add(entry.getAttribute("cn").StringValue);
                 }
-        
+
                 connection.Disconnect();
             }
             catch (LdapReferralException)
@@ -57,21 +64,26 @@ namespace StudentsInfo
 
             return cnList;
         }
-
+        
+        public List<string> ProgramNames => _programsGroups.Keys.ToList();
+        
         public StudentsStats(string username, string password)
         {
             this._username = username;
             this._password = password;
 
-            // Fetch programs and corresponding groups from the timetable
-            const string url = "https://timetable.spbu.ru/MATH";
+            const string url = "https://timetable.spbu.ru/MATH?lang=ru";
             var web = new HtmlWeb();
-            var doc = web.Load(url);
 
-            // Select all list items containing programs (regardless of their type)
+            web.PreRequest = request =>
+            {
+                request.Headers.Add("Accept-Language", "ru");
+                return true;
+            };
+
+            var doc = web.Load(url);
             var programNodes = doc.DocumentNode.SelectNodes("//li[contains(@class, 'common-list-item row')]");
 
-            // Process each program node
             foreach (var programNode in programNodes)
             {
                 var programNameNode = programNode.SelectSingleNode(".//div[contains(@class, 'col-sm-5')]");
@@ -82,8 +94,6 @@ namespace StudentsInfo
                 if (titleNodes != null && programName != null)
                 {
                     var titles = new List<string>();
-
-                    // Collect all groups
                     foreach (var titleNode in titleNodes)
                     {
                         var title = titleNode.SelectSingleNode(".//a")?.Attributes["title"]?.Value;
@@ -93,7 +103,6 @@ namespace StudentsInfo
                         }
                     }
 
-                    // If the program already exists, append the new titles
                     if (_programsGroups.ContainsKey(programName))
                     {
                         _programsGroups[programName].AddRange(titles);

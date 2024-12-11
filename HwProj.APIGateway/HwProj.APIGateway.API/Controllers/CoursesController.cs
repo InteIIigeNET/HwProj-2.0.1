@@ -211,6 +211,13 @@ namespace HwProj.APIGateway.API.Controllers
             var studentsInfo = new StudentsStats("", "");
             return Ok(studentsInfo.GetSts(groupName));
         }
+        
+        [HttpGet("getProgramNames")]
+        public  IActionResult GetProgramNames()
+        {   
+            var studentsInfo = new StudentsStats("", "");
+            return Ok(studentsInfo.ProgramNames);
+        }
 
         private async Task<CourseViewModel> ToCourseViewModel(CourseDTO course)
         {

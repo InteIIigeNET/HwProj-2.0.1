@@ -1,17 +1,11 @@
 import * as React from "react";
-import {
-  TextField,
-  Button,
-  Typography,
-  Grid,
-  Paper,
-} from "@material-ui/core";
+import { TextField, Button, Typography } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
-import './Styles/CreateCourse.css';
 import { FC, FormEvent, useState, useEffect } from "react";
 import GroupIcon from '@material-ui/icons/Group';
 import makeStyles from "@material-ui/styles/makeStyles";
 import Container from "@material-ui/core/Container";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 
 interface ICreateCourseState {
   name: string;
@@ -39,20 +33,6 @@ const useStyles = makeStyles((theme) => ({
   button: {
     marginTop: theme.spacing(1),
   },
-  groupList: {
-    marginTop: theme.spacing(2),
-    padding: theme.spacing(2),
-    borderRadius: 4,
-    backgroundColor: '#f7f7f7',
-    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-  },
-  groupItem: {
-    padding: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-    border: '1px solid #ddd',
-    borderRadius: 4,
-    backgroundColor: '#fff',
-  },
 }));
 
 const CreateCourse: FC = () => {
@@ -63,58 +43,64 @@ const CreateCourse: FC = () => {
     errors: [],
   });
 
-  const [apiResult, setApiResult] = useState<string[]>([]);
+  const [programNames, setProgramNames] = useState<string[]>([]);
   const [programName, setProgramName] = useState<string>('');
+  const [groupNames, setGroupNames] = useState<string[]>([]);
   const [fetchingGroups, setFetchingGroups] = useState<boolean>(false);
-  const [groupName, setGroupName] = useState<string>(''); 
-  const [studentStatusResult, setStudentStatusResult] = useState<string[]>([]); 
-  const [fetchingStudentStatus, setFetchingStudentStatus] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetchApiData = async (program: string) => {
+    const fetchProgramNames = async () => {
+      try {
+        const response = await ApiSingleton.coursesApi.apiCoursesGetProgramNamesGet();
+        const data = await response.json();
+        setProgramNames(data);
+      } catch (e) {
+        console.error("Error fetching program names:", e);
+        setProgramNames([]);
+      }
+    };
+
+    fetchProgramNames();
+  }, []);
+
+  useEffect(() => {
+    const fetchGroups = async (program: string) => {
       if (!program) return;
-      setFetchingGroups(true); 
+      setFetchingGroups(true);
       try {
         const response = await ApiSingleton.coursesApi.apiCoursesGetGroupsGet(program);
-        const data = await response.json(); 
-        setApiResult(data); 
+        const data = await response.json();
+        setGroupNames(data);
       } catch (e) {
-        console.error("Error fetching API:", e);
-        setApiResult(["Error fetching API result"]);
+        console.error("Error fetching groups:", e);
+        setGroupNames([]);
       } finally {
-        setFetchingGroups(false); 
+        setFetchingGroups(false);
       }
     };
 
     if (programName) {
-      fetchApiData(programName); 
+      fetchGroups(programName);
     } else {
-      setApiResult([]); 
+      setGroupNames([]);
     }
   }, [programName]);
 
   useEffect(() => {
-    const fetchStudentStatus = async (group: string) => {
-      if (!group) return;
-      setFetchingStudentStatus(true);
-      try {
-        const response = await ApiSingleton.coursesApi.apiCoursesGetStudentStsGet(group);
-        const data = await response.json();
-        setStudentStatusResult(data);
-      } catch (e) {
-        console.error("Error fetching student status:", e);
-        setStudentStatusResult(["Error fetching student status"]);
-      } finally {
-        setFetchingStudentStatus(false);
-      }
-    };
+    if (course.groupName) {
+      const fetchStudents = async () => {
+        try {
+          const response = await ApiSingleton.coursesApi.apiCoursesGetStudentStsGet(course.groupName);
+          const students = await response.json();
+          console.log(students); 
+        } catch (error) {
+          console.error('Error fetching students:', error);
+        }
+      };
 
-    if (groupName) {
-      fetchStudentStatus(groupName);
-    } else {
-      setStudentStatusResult([]); 
+      fetchStudents();
     }
-  }, [groupName]);
+  }, [course.groupName]); 
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -129,7 +115,7 @@ const CreateCourse: FC = () => {
         ...prevState,
         courseId: courseId.toString(),
       }));
-      window.location.assign("/"); 
+      window.location.assign("/");
     } catch (e) {
       setCourse((prevState) => ({
         ...prevState,
@@ -160,137 +146,93 @@ const CreateCourse: FC = () => {
           Создать курс
         </Typography>
 
-        {/* Form for creating course */}
         <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
+          <TextField
+            required
+            label="Название курса"
+            variant="outlined"
+            fullWidth
+            name={course.name}
+            onChange={(e) => {
+              e.persist();
+              setCourse((prevState) => ({
+                ...prevState,
+                name: e.target.value,
+              }));
+            }}
+          />
+
+          <Autocomplete freeSolo
+            value={programName}
+            onChange={(event, newValue) => {
+              setProgramName(newValue || '');
+            }}
+            options={programNames}
+            renderInput={(params) => (
               <TextField
-                required
-                label="Название курса"
+                {...params}
+                label="Название программы"
                 variant="outlined"
                 fullWidth
-                name={course.name}
-                onChange={(e) => {
-                  e.persist();
-                  setCourse((prevState) => ({
-                    ...prevState,
-                    name: e.target.value,
-                  }));
-                }}
+                style={{ marginTop: '16px' }}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Номер группы"
-                variant="outlined"
-                fullWidth
-                value={course.groupName}
-                onChange={(e) => {
-                  e.persist();
-                  setCourse((prevState) => ({
-                    ...prevState,
-                    groupName: e.target.value,
-                  }));
-                }}
-              />
-            </Grid>
-          </Grid>
+            )}
+            fullWidth
+          />
+
+          {programName ? (
+            <Autocomplete
+              freeSolo
+              value={course.groupName}
+              onChange={(event, newValue) => {
+                setCourse((prevState) => ({
+                  ...prevState,
+                  groupName: newValue || '',
+                }));
+              }}
+              options={groupNames}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Название группы"
+                  variant="outlined"
+                  fullWidth
+                  style={{ marginTop: '16px' }}
+                />
+              )}
+              fullWidth
+            />
+          ) : (
+            <TextField
+              label="Название группы"
+              variant="outlined"
+              fullWidth
+              value={course.groupName}
+              onChange={(e) => {
+                e.persist();
+                setCourse((prevState) => ({
+                  ...prevState,
+                  groupName: e.target.value,
+                }));
+              }}
+              style={{ marginTop: '16px' }}
+            />
+          )}
+
           <Button
-            style={{ marginTop: '16px' }}
             fullWidth
             variant="contained"
             color="primary"
             type="submit"
+            style={{ marginTop: '16px' }}
           >
             Создать курс
           </Button>
         </form>
-
-        {/* Button to fetch group information, now above the program name field */}
-        <Button
-          fullWidth
-          variant="contained"
-          color="secondary"
-          style={{ marginTop: '16px' }}
-          disabled
-        >
-          Получить информацию по группам
-        </Button>
-
-        {/* Program Name Input Field */}
-        <TextField
-          label="Название программы"
-          variant="outlined"
-          fullWidth
-          value={programName}
-          onChange={(e) => setProgramName(e.target.value)} 
-          style={{ marginTop: '16px' }}
-        />
-        
-        {/* Display groups if there are any */}
-        {programName && apiResult.length > 0 && !fetchingGroups && (
-          <Paper className={classes.groupList}>
-            <Typography
-              component="h2"
-              variant="h6"
-              gutterBottom
-              style={{ textAlign: 'center' }} 
-            >
-              Группы для программы "{programName}":
-            </Typography>
-            <ul>
-              {apiResult.length > 0 ? (
-                apiResult.map((group, index) => (
-                  <li key={index} className={classes.groupItem}>{group}</li>
-                ))
-              ) : (
-                <li>No groups available for this program.</li>
-              )}
-            </ul>
-          </Paper>
-        )}
-
-        {/* Display student status results */}
-        <TextField
-          label="Название группы"
-          variant="outlined"
-          fullWidth
-          value={groupName}
-          onChange={(e) => setGroupName(e.target.value)} 
-          style={{ marginTop: '16px' }}
-        />
-
-        {groupName && studentStatusResult.length > 0 && !fetchingStudentStatus && (
-          <Paper className={classes.groupList}>
-            <Typography
-              component="h2"
-              variant="h6"
-              gutterBottom
-              style={{ textAlign: 'center' }}
-            >
-              Почтовые адреса студентов для группы "{groupName}":
-            </Typography>
-            <ul>
-              {studentStatusResult.length > 0 ? (
-                studentStatusResult.map((status, index) => (
-                  <li key={index} className={classes.groupItem}>{status}</li>
-                ))
-              ) : (
-                <li>No student status data available for this group.</li>
-              )}
-            </ul>
-          </Paper>
-        )}
-
-        {/* Display loading indicator for student status */}
-        {fetchingStudentStatus && (
-          <Typography variant="h6" style={{ marginTop: '20px' }}>
-            Загрузка почтовых адресов студентов...
-          </Typography>
-        )}
       </div>
     </Container>
   );
 };
+
 
 export default CreateCourse;
