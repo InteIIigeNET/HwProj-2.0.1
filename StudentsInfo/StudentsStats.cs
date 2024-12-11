@@ -54,7 +54,7 @@ namespace StudentsInfo
 
                     if (cn != null && displayName != null)
                     {
-                        cnDisplayNameDict[cn] = displayName;
+                        cnDisplayNameDict[cn + "@student.spbu.ru"] = displayName;
                     }
                 }
 
@@ -66,7 +66,7 @@ namespace StudentsInfo
 
             return cnDisplayNameDict;
         }
-        
+
         public List<string> ProgramNames => _programsGroups.Keys.ToList();
         
         public StudentsStats(string username, string password)
