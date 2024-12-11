@@ -21,7 +21,7 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                     {courses.map((course, i) => (
                         <Grid item key={course.id}>
                             <ListItem
-                                style={{padding: 0}}
+                                style={{padding: 0, marginBottom: 5}}
                             >
                                 <NavLink
                                     to={isExpert ? "/task/" + course.taskId!.toString() + "/default"
