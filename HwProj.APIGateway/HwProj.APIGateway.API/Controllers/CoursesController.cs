@@ -203,14 +203,6 @@ namespace HwProj.APIGateway.API.Controllers
             var studentsInfo = new StudentsStats("", "");
             return Ok(studentsInfo.GetGroups(programName));
         }
-                
-        [HttpGet("getStudentSts")]
-        public  IActionResult GetStudentSts(string groupName)
-        {   
-            // Credentials needed!
-            var studentsInfo = new StudentsStats("", "");
-            return Ok(studentsInfo.GetSts(groupName));
-        }
         
         [HttpGet("getProgramNames")]
         public  IActionResult GetProgramNames()
