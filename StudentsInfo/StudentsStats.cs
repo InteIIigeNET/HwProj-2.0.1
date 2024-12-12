@@ -23,8 +23,8 @@ namespace StudentsInfo
             return _programsGroups.ContainsKey(programName)
                 ? _programsGroups[programName]
                     .Aggregate((current, next) => current + "," + next) 
-                    .Split(',') 
-                    .Select(group => group.Trim()) 
+                    .Split(',')
+                    .Select(group => group.Trim())
                     .ToList()
                 : new List<string>();
         }
@@ -32,35 +32,39 @@ namespace StudentsInfo
         /// <inheritdoc/>
         public Dictionary<string, string> GetStudentInformation(string groupName)
         {
+            // Формируем фильтр для поиска студентов в LDAP.
             var searchFilter = $"(&(objectClass=person)(memberOf=CN=АкадемГруппа_{groupName},OU=АкадемГруппа,OU=Группы,DC=ad,DC=pu,DC=ru))";
             var cnDisplayNameDict = new Dictionary<string, string>();
 
             try
             {
+                // Создаем подключение к LDAP серверу.
                 var connection = new LdapConnection();
                 connection.Connect(_ldapHost, _ldapPort);
                 connection.Bind(_username, _password);
 
+                // Выполняем поиск по LDAP с заданным фильтром.
                 var results = connection.Search(
                     _searchBase,
                     LdapConnection.SCOPE_SUB,
                     searchFilter,
-                    new[] { "cn", "displayName" },
+                    new[] { "cn", "displayName" }, // Получаем атрибуты "cn" (st студента) и "displayName" (ФИО студента)
                     false
                 );
 
+                // Проходим по результатам поиска.
                 while (results.hasMore())
                 {
                     var entry = results.next();
                     var cn = entry.getAttribute("cn")?.StringValue;
                     var displayName = entry.getAttribute("displayName")?.StringValue;
-
+                    
                     if (cn != null && displayName != null)
                     {
                         cnDisplayNameDict[cn + "@student.spbu.ru"] = displayName;
                     }
                 }
-
+                
                 connection.Disconnect();
             }
             catch (LdapReferralException)
@@ -80,16 +84,18 @@ namespace StudentsInfo
 
             const string url = "https://timetable.spbu.ru/MATH?lang=ru";
             var web = new HtmlWeb();
-
+            
             web.PreRequest = request =>
             {
                 request.Headers.Add("Accept-Language", "ru");
                 return true;
             };
 
+            // Загружаем HTML-страницу расписания.
             var doc = web.Load(url);
             var programNodes = doc.DocumentNode.SelectNodes("//li[contains(@class, 'common-list-item row')]");
 
+            // Проходим по всем найденным программам.
             foreach (var programNode in programNodes)
             {
                 var programNameNode = programNode.SelectSingleNode(".//div[contains(@class, 'col-sm-5')]");
@@ -100,6 +106,7 @@ namespace StudentsInfo
                 if (titleNodes != null && programName != null)
                 {
                     var titles = new List<string>();
+                    // Получаем все названия групп по этой программе.
                     foreach (var titleNode in titleNodes)
                     {
                         var title = titleNode.SelectSingleNode(".//a")?.Attributes["title"]?.Value;
@@ -108,7 +115,7 @@ namespace StudentsInfo
                             titles.Add(title);
                         }
                     }
-
+                    
                     if (_programsGroups.ContainsKey(programName))
                     {
                         _programsGroups[programName].AddRange(titles);
