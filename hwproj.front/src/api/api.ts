@@ -4370,13 +4370,14 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         /**
          * 
          * @param {string} [groupName] 
+         * @param {number} [courseId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesGetStudentStsGet(groupName?: string, options: any = {}): FetchArgs {
-            const localVarPath = `/api/Courses/getStudentSts`;
+        apiCoursesInviteAndAddStudentsToCoursePost(groupName?: string, courseId?: number, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Courses/inviteAndAddStudentsToCourse`;
             const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
@@ -4390,6 +4391,10 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
 
             if (groupName !== undefined) {
                 localVarQueryParameter['groupName'] = groupName;
+            }
+
+            if (courseId !== undefined) {
+                localVarQueryParameter['courseId'] = courseId;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -4801,11 +4806,12 @@ export const CoursesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @param {string} [groupName] 
+         * @param {number} [courseId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesGetStudentStsGet(groupName?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesGetStudentStsGet(groupName, options);
+        apiCoursesInviteAndAddStudentsToCoursePost(groupName?: string, courseId?: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesInviteAndAddStudentsToCoursePost(groupName, courseId, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -5022,11 +5028,12 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         /**
          * 
          * @param {string} [groupName] 
+         * @param {number} [courseId] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesGetStudentStsGet(groupName?: string, options?: any) {
-            return CoursesApiFp(configuration).apiCoursesGetStudentStsGet(groupName, options)(fetch, basePath);
+        apiCoursesInviteAndAddStudentsToCoursePost(groupName?: string, courseId?: number, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesInviteAndAddStudentsToCoursePost(groupName, courseId, options)(fetch, basePath);
         },
         /**
          * 
@@ -5212,12 +5219,13 @@ export class CoursesApi extends BaseAPI {
     /**
      * 
      * @param {string} [groupName] 
+     * @param {number} [courseId] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CoursesApi
      */
-    public apiCoursesGetStudentStsGet(groupName?: string, options?: any) {
-        return CoursesApiFp(this.configuration).apiCoursesGetStudentStsGet(groupName, options)(this.fetch, this.basePath);
+    public apiCoursesInviteAndAddStudentsToCoursePost(groupName?: string, courseId?: number, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesInviteAndAddStudentsToCoursePost(groupName, courseId, options)(this.fetch, this.basePath);
     }
 
     /**

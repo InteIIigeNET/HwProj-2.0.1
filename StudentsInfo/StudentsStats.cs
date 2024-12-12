@@ -6,6 +6,7 @@ using Novell.Directory.Ldap;
 
 namespace StudentsInfo
 {
+    /// <inheritdoc/>
     public class StudentsStats : IStudentsInfo.IStudentsStats
     {
         private readonly Dictionary<string, List<string>> _programsGroups = new Dictionary<string, List<string>>();
@@ -15,25 +16,24 @@ namespace StudentsInfo
 
         private string _username;
         private string _password;
-
-        /// <inheritdoc />
+    
+        /// <inheritdoc/>
         public List<string> GetGroups(string programName)
         {
-            // Return the list of groups for a program, concatenated by comma and split, trimmed for extra spaces
             return _programsGroups.ContainsKey(programName)
                 ? _programsGroups[programName]
-                    .Aggregate((current, next) => current + "," + next) // Concatenate all groups into one string
-                    .Split(',') // Split by comma
-                    .Select(group => group.Trim()) // Trim any leading or trailing whitespace
+                    .Aggregate((current, next) => current + "," + next) 
+                    .Split(',') 
+                    .Select(group => group.Trim()) 
                     .ToList()
                 : new List<string>();
         }
 
-        /// <inheritdoc />
-        public List<string> GetSts(string groupName)
+        /// <inheritdoc/>
+        public Dictionary<string, string> GetStudentInformation(string groupName)
         {
             var searchFilter = $"(&(objectClass=person)(memberOf=CN=АкадемГруппа_{groupName},OU=АкадемГруппа,OU=Группы,DC=ad,DC=pu,DC=ru))";
-            var cnList = new List<string>();
+            var cnDisplayNameDict = new Dictionary<string, string>();
 
             try
             {
@@ -45,26 +45,32 @@ namespace StudentsInfo
                     _searchBase,
                     LdapConnection.SCOPE_SUB,
                     searchFilter,
-                    new[] { "cn" },
+                    new[] { "cn", "displayName" },
                     false
                 );
 
                 while (results.hasMore())
                 {
                     var entry = results.next();
-                    cnList.Add(entry.getAttribute("cn").StringValue);
+                    var cn = entry.getAttribute("cn")?.StringValue;
+                    var displayName = entry.getAttribute("displayName")?.StringValue;
+
+                    if (cn != null && displayName != null)
+                    {
+                        cnDisplayNameDict[cn + "@student.spbu.ru"] = displayName;
+                    }
                 }
 
                 connection.Disconnect();
             }
             catch (LdapReferralException)
             {
-                // Handle exception if needed
             }
 
-            return cnList;
+            return cnDisplayNameDict;
         }
-        
+
+        /// <inheritdoc/>
         public List<string> ProgramNames => _programsGroups.Keys.ToList();
         
         public StudentsStats(string username, string password)

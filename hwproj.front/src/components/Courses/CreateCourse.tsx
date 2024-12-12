@@ -86,22 +86,6 @@ const CreateCourse: FC = () => {
     }
   }, [programName]);
 
-  useEffect(() => {
-    if (course.groupName) {
-      const fetchStudents = async () => {
-        try {
-          const response = await ApiSingleton.coursesApi.apiCoursesGetStudentStsGet(course.groupName);
-          const students = await response.json();
-          console.log(students); 
-        } catch (error) {
-          console.error('Error fetching students:', error);
-        }
-      };
-
-      fetchStudents();
-    }
-  }, [course.groupName]); 
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const courseViewModel = {
@@ -111,6 +95,7 @@ const CreateCourse: FC = () => {
     };
     try {
       const courseId = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel);
+      await ApiSingleton.coursesApi.apiCoursesInviteAndAddStudentsToCoursePost(course.groupName, courseId);
       setCourse((prevState) => ({
         ...prevState,
         courseId: courseId.toString(),
@@ -233,6 +218,5 @@ const CreateCourse: FC = () => {
     </Container>
   );
 };
-
 
 export default CreateCourse;
