@@ -4369,6 +4369,46 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @param {string} [groupName] 
+         * @param {number} [courseId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesInviteAndAddStudentsToCoursePost(groupName?: string, courseId?: number, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Courses/inviteAndAddStudentsToCourse`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (groupName !== undefined) {
+                localVarQueryParameter['groupName'] = groupName;
+            }
+
+            if (courseId !== undefined) {
+                localVarQueryParameter['courseId'] = courseId;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} courseId 
          * @param {string} studentId 
          * @param {*} [options] Override http request option.
@@ -4765,6 +4805,25 @@ export const CoursesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {string} [groupName] 
+         * @param {number} [courseId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesInviteAndAddStudentsToCoursePost(groupName?: string, courseId?: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesInviteAndAddStudentsToCoursePost(groupName, courseId, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @param {number} courseId 
          * @param {string} studentId 
          * @param {*} [options] Override http request option.
@@ -4968,6 +5027,16 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         },
         /**
          * 
+         * @param {string} [groupName] 
+         * @param {number} [courseId] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiCoursesInviteAndAddStudentsToCoursePost(groupName?: string, courseId?: number, options?: any) {
+            return CoursesApiFp(configuration).apiCoursesInviteAndAddStudentsToCoursePost(groupName, courseId, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {number} courseId 
          * @param {string} studentId 
          * @param {*} [options] Override http request option.
@@ -5145,6 +5214,18 @@ export class CoursesApi extends BaseAPI {
      */
     public apiCoursesGetProgramNamesGet(options?: any) {
         return CoursesApiFp(this.configuration).apiCoursesGetProgramNamesGet(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {string} [groupName] 
+     * @param {number} [courseId] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public apiCoursesInviteAndAddStudentsToCoursePost(groupName?: string, courseId?: number, options?: any) {
+        return CoursesApiFp(this.configuration).apiCoursesInviteAndAddStudentsToCoursePost(groupName, courseId, options)(this.fetch, this.basePath);
     }
 
     /**
