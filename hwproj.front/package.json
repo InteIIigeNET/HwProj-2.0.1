@@ -33,6 +33,7 @@
     "html-react-parser": "^1.2.8",
     "jwt-decode": "^3.1.2",
     "lowdb": "^1.0.0",
+    "notistack": "^3.0.1",
     "portable-fetch": "^3.0.0",
     "prop-types": "^15.7.2",
     "qrcode.react": "^4.1.0",

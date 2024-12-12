@@ -22,6 +22,7 @@ import {LoadingButton} from "@mui/lab";
 import CheckIcon from '@mui/icons-material/Done';
 import WarningIcon from '@mui/icons-material/Warning';
 import CloseIcon from '@mui/icons-material/Close';
+import {useSnackbar} from 'notistack';
 
 interface ISolutionProps {
     solution: GetSolutionModel | undefined,
@@ -57,6 +58,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const [achievement, setAchievementState] = useState<number | undefined>(undefined)
     const [rateInProgress, setRateInProgressState] = useState<boolean | undefined>(false)
     const [solutionActuality, setSolutionActuality] = useState<SolutionActualityDto | undefined>(undefined)
+
+    const {enqueueSnackbar} = useSnackbar()
 
     useEffect(() => {
         setState(getDefaultState())
@@ -129,6 +132,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 }
             )
         setState(prevState => ({...prevState, clickedForRate: false}))
+        enqueueSnackbar('Решение успешно оценено', {variant: "success", autoHideDuration: 1700});
         props.onRateSolutionClick?.()
     }
 
