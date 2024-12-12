@@ -6,6 +6,7 @@ using Novell.Directory.Ldap;
 
 namespace StudentsInfo
 {
+    /// <inheritdoc/>
     public class StudentsStats : IStudentsInfo.IStudentsStats
     {
         private readonly Dictionary<string, List<string>> _programsGroups = new Dictionary<string, List<string>>();
@@ -15,7 +16,8 @@ namespace StudentsInfo
 
         private string _username;
         private string _password;
-
+    
+        /// <inheritdoc/>
         public List<string> GetGroups(string programName)
         {
             return _programsGroups.ContainsKey(programName)
@@ -27,6 +29,7 @@ namespace StudentsInfo
                 : new List<string>();
         }
 
+        /// <inheritdoc/>
         public Dictionary<string, string> GetStudentInformation(string groupName)
         {
             var searchFilter = $"(&(objectClass=person)(memberOf=CN=АкадемГруппа_{groupName},OU=АкадемГруппа,OU=Группы,DC=ad,DC=pu,DC=ru))";
@@ -67,6 +70,7 @@ namespace StudentsInfo
             return cnDisplayNameDict;
         }
 
+        /// <inheritdoc/>
         public List<string> ProgramNames => _programsGroups.Keys.ToList();
         
         public StudentsStats(string username, string password)

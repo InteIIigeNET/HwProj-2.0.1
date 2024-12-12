@@ -2,20 +2,25 @@ using System.Collections.Generic;
 
 namespace IStudentsInfo
 {
+    /// <summary>
+    /// Класс, который содержит функциональность по получению образовательных программ, учебных групп
+    /// и информации о студентах
+    /// </summary>
     public interface IStudentsStats
     {
         /// <summary>
-        /// Given a name of a study program in English, returns a list of corresponding academic groups
+        /// По данному названию образовательной программы возвращает список соответствующих учебных групп
         /// </summary>
         List<string> GetGroups(string programName);
 
         /// <summary>
-        /// Given a name of an academic group returns a list of students' STs (Student IDs)
+        /// По данному названию учебной группы возвращает информацию о студентах в виде словаря,
+        /// в котором ключи - почты студентов, значения - ФИО
         /// </summary>
         Dictionary<string, string> GetStudentInformation(string groupName);
         
         /// <summary>
-        /// Returns study program names
+        /// Возвращает список образовательных программ
         /// </summary>
         List<string> ProgramNames { get; }
     }
