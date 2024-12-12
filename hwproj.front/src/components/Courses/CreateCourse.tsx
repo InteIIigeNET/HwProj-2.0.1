@@ -48,31 +48,33 @@ const CreateCourse: FC = () => {
   const [groupNames, setGroupNames] = useState<string[]>([]);
   const [fetchingGroups, setFetchingGroups] = useState<boolean>(false);
 
+  // Загрузка списка программ при монтировании компонента
   useEffect(() => {
     const fetchProgramNames = async () => {
       try {
         const response = await ApiSingleton.coursesApi.apiCoursesGetProgramNamesGet();
         const data = await response.json();
-        setProgramNames(data);
+        setProgramNames(data); 
       } catch (e) {
-        console.error("Error fetching program names:", e);
+        console.error("Ошибка при загрузке списка программ:", e);
         setProgramNames([]);
       }
     };
 
     fetchProgramNames();
-  }, []);
+  }, []); 
 
+  // Загрузка списка групп, при выборе программа
   useEffect(() => {
     const fetchGroups = async (program: string) => {
       if (!program) return;
-      setFetchingGroups(true);
+      setFetchingGroups(true); 
       try {
         const response = await ApiSingleton.coursesApi.apiCoursesGetGroupsGet(program);
         const data = await response.json();
-        setGroupNames(data);
+        setGroupNames(data); 
       } catch (e) {
-        console.error("Error fetching groups:", e);
+        console.error("Ошибка при загрузке списка групп:", e);
         setGroupNames([]);
       } finally {
         setFetchingGroups(false);
@@ -84,8 +86,9 @@ const CreateCourse: FC = () => {
     } else {
       setGroupNames([]);
     }
-  }, [programName]);
+  }, [programName]); 
 
+  // Обработчик отправки формы
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const courseViewModel = {
@@ -94,8 +97,8 @@ const CreateCourse: FC = () => {
       isOpen: true,
     };
     try {
-      const courseId = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel);
-      await ApiSingleton.coursesApi.apiCoursesInviteAndAddStudentsToCoursePost(course.groupName, courseId);
+      const courseId = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel); // Создаем курс
+      await ApiSingleton.coursesApi.apiCoursesInviteAndAddStudentsToCoursePost(course.groupName, courseId); // Приглашаем студентов в курс
       setCourse((prevState) => ({
         ...prevState,
         courseId: courseId.toString(),
@@ -111,6 +114,7 @@ const CreateCourse: FC = () => {
 
   const classes = useStyles();
 
+  // Проверка роли пользователя
   if (!ApiSingleton.authService.isLecturer()) {
     return (
       <Typography component="h1" variant="h5">
@@ -165,6 +169,7 @@ const CreateCourse: FC = () => {
             fullWidth
           />
 
+          {/* Если выбрана программа, показываем список существующих для нее групп */}
           {programName ? (
             <Autocomplete
               freeSolo

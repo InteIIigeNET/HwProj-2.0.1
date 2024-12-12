@@ -216,6 +216,7 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpPost("inviteAndAddStudentsToCourse")]
         public async Task<IActionResult> InviteAndRegisterGroup(string groupName, long courseId)
         {
+            // Для работы необходимо указать st-почту и пароль
             var studentsInfo = new StudentsStats("", "");
             var students = studentsInfo.GetStudentInformation(groupName);
             
