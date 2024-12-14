@@ -21,8 +21,8 @@ import {
     Tooltip
 } from '@material-ui/core';
 import {Stack} from '@mui/material';
-import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
 import Utils from "../../services/Utils";
+import {MarkdownPreview} from "../Common/MarkdownEditor";
 
 interface IHomeworkProps {
     homework: HomeworkViewModel,
@@ -115,7 +115,11 @@ const Homework: FC<IHomeworkProps> = (props) => {
                 </AccordionSummary>
                 <AccordionDetails>
                     <div style={{width: '100%'}}>
-                        <ReactMarkdownWithCodeHighlighting value={props.homework.description!}/>
+                        <MarkdownPreview
+                            value={props.homework.description!}
+                            backgroundColor="transparent"
+                            textColor="inherit"
+                        />
                         {(props.forMentor && homeworkState.createTask) &&
                             <div style={{width: '100%'}}>
                                 <HomeworkTasks

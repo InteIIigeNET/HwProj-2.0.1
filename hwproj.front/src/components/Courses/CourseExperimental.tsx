@@ -20,8 +20,8 @@ import {Card, CardActions, CardContent, Chip, Divider, Paper, Stack, Tooltip} fr
 import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import Utils from "../../services/Utils";
-import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
 import {getTip} from "../Common/HomeworkTags";
+import {MarkdownPreview} from "../Common/MarkdownEditor";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -97,7 +97,11 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
             <Typography style={{color: "#454545"}} gutterBottom variant="body1">
-                <ReactMarkdownWithCodeHighlighting value={homework.description!}/>
+                <MarkdownPreview
+                    value={homework.description!}
+                    backgroundColor="transparent"
+                    textColor="inherit"
+                />
             </Typography>
         </CardContent>
     }
@@ -119,7 +123,11 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
             <Typography style={{color: "#454545"}} gutterBottom variant="body1">
-                <ReactMarkdownWithCodeHighlighting value={task.description!}/>
+                <MarkdownPreview
+                    value={task.description!}
+                    backgroundColor="transparent"
+                    textColor="inherit"
+                />
             </Typography>
         </CardContent>
     }

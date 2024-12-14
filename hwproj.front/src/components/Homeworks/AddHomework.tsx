@@ -2,7 +2,7 @@ import * as React from "react";
 import ApiSingleton from "../../api/ApiSingleton";
 import {useEffect, useState} from "react";
 import {Grid, TextField, Button, Typography} from "@material-ui/core";
-import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import {MarkdownEditor} from "../Common/MarkdownEditor";
 import {CreateHomeworkViewModel, CreateTaskViewModel, HomeworkViewModel} from "../../api";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import CreateTask from "../Tasks/CreateTask"
@@ -141,24 +141,20 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     }
                     }
                 />
-                <TextFieldWithPreview
-                    multiline
-                    fullWidth
-                    minRows={4}
-                    maxRows="20"
-                    label="Описание"
-                    variant="outlined"
-                    margin="normal"
-                    value={addHomeworkState.description}
-                    onChange={(e) => {
-                        e.persist()
-                        setAddHomeworkState((prevState) => ({
-                            ...prevState,
-                            description: e.target.value
-                        }))
-                    }
-                    }
-                />
+                <div style={{ marginBottom: -3, marginTop: -5 }}>
+                    <MarkdownEditor
+                        label={"Описание"}
+                        height={200}
+                        maxHeight={400}
+                        value={addHomeworkState.description}
+                        onChange={(value) => {
+                            setAddHomeworkState((prevState) => ({
+                                ...prevState,
+                                description: value
+                            }))
+                        }}
+                    />
+                </div>
                 <Tags tags={[]} onTagsChange={handleTagsChange} isElementSmall={false}
                       requestTags={() => apiSingleton.coursesApi.apiCoursesTagsByCourseIdGet(props.id)}/>
                 {addHomeworkState.tags.includes(TestTag) &&

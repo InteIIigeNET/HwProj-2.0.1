@@ -1,9 +1,9 @@
 import * as React from "react";
 import {FC, useEffect, useState} from "react";
 import {Grid, TextField} from "@material-ui/core";
-import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import {HomeworkViewModel} from 'api';
+import {MarkdownEditor} from "../Common/MarkdownEditor";
 
 interface ICreateTaskProps {
     homework: HomeworkViewModel;
@@ -72,24 +72,20 @@ const CreateTask: FC<ICreateTaskProps> = (props) => {
                     }}
                 />
             </Grid>
-            <TextFieldWithPreview
-                multiline
-                fullWidth
-                minRows={7}
-                maxRows="20"
-                label="Условие задачи"
-                variant="outlined"
-                margin="normal"
-                value={createTaskState.description}
-                onChange={(e) => {
-                    e.persist()
-                    setCreateTaskState((prevState) => ({
-                        ...prevState,
-                        description: e.target.value,
-                    }))
-                }}
-            />
-
+            <div style={{marginBottom: -3, marginTop: -5}}>
+                <MarkdownEditor
+                    label={"Условие задачи"}
+                    height={240}
+                    maxHeight={400}
+                    value={createTaskState.description}
+                    onChange={(value) => {
+                        setCreateTaskState((prevState) => ({
+                            ...prevState,
+                            description: value,
+                        }))
+                    }}
+                />
+            </div>
             <TaskPublicationAndDeadlineDates
                 hasDeadline={undefined}
                 isDeadlineStrict={undefined}

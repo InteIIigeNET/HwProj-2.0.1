@@ -11,7 +11,7 @@ import {
     Typography
 } from "@mui/material";
 import * as React from "react";
-import {ReactMarkdownWithCodeHighlighting, TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import {MarkdownEditor, MarkdownPreview} from "../Common/MarkdownEditor";
 import Button from "@material-ui/core/Button";
 import ApiSingleton from "../../api/ApiSingleton";
 import {AccountDataDto, AddAnswerForQuestionDto, AddTaskQuestionDto, GetTaskQuestionDto} from "../../api";
@@ -83,25 +83,20 @@ const TaskQuestions: FC<ITaskQuestionsProps> = (props) => {
                         />
                     }
                 />
-                <TextFieldWithPreview
-                    multiline
-                    fullWidth
-                    style={{width: "100%", minWidth: "100%"}}
-                    minRows={4}
-                    maxRows={20}
-                    margin="normal"
-                    label="Вопрос"
-                    variant="outlined"
-                    previewStyle={{borderColor: "GrayText"}}
-                    value={addQuestionState.text}
-                    onChange={(e) => {
-                        e.persist()
-                        setAddQuestionState((prevState) => ({
-                            ...prevState,
-                            text: e.target.value,
-                        }))
-                    }}
-                />
+                <div style={{marginTop: -2, marginBottom: -4}}>
+                    <MarkdownEditor
+                        label={"Вопрос"}
+                        height={200}
+                        maxHeight={400}
+                        value={addQuestionState.text ?? ""}
+                        onChange={(value) => {
+                            setAddQuestionState((prevState) => ({
+                                ...prevState,
+                                text: value
+                            }))
+                        }}
+                    />
+                </div>
             </DialogContent>
             <DialogActions>
                 <Button
@@ -176,26 +171,21 @@ const TaskQuestions: FC<ITaskQuestionsProps> = (props) => {
                         {isCurrentStudent && <Typography variant={"caption"}>
                             Вопрос от проверяемого студента:
                         </Typography>}
-                        <ReactMarkdownWithCodeHighlighting value={q.text!}/>
-                        {!isAnswered && q.id === addAnswerState.questionId && <TextFieldWithPreview
-                            multiline
-                            fullWidth
-                            style={{width: "100%"}}
-                            minRows={4}
-                            maxRows={20}
-                            margin="normal"
-                            label="Ответ"
-                            variant="outlined"
-                            previewStyle={{borderColor: "GrayText"}}
-                            value={addAnswerState.answer}
-                            onChange={(e) => {
-                                e.persist()
-                                setAddAnswerState((prevState) => ({
-                                    ...prevState,
-                                    answer: e.target.value,
-                                }))
-                            }}
-                        />}
+                        <MarkdownPreview value={q.text!} backgroundColor={"transparent"} textColor={"inherit"}/>
+                        {!isAnswered && q.id === addAnswerState.questionId &&
+                            <MarkdownEditor
+                                label={"Ответ"}
+                                height={200}
+                                maxHeight={400}
+                                value={addAnswerState.answer ?? ""}
+                                onChange={(value) => {
+                                    setAddAnswerState((prevState) => ({
+                                        ...prevState,
+                                        answer: value
+                                    }))
+                                }}
+                            />
+                        }
                         {isAnswered &&
                             <div>
                                 <Typography variant={"caption"}>
@@ -204,7 +194,11 @@ const TaskQuestions: FC<ITaskQuestionsProps> = (props) => {
                                 <Card variant={"outlined"}
                                       style={{backgroundColor: "ghostwhite"}}>
                                     <CardContent style={{paddingBottom: 0, marginBottom: 0}}>
-                                        <ReactMarkdownWithCodeHighlighting value={q.answer!}/>
+                                        <MarkdownPreview
+                                            value={q.answer!}
+                                            backgroundColor={"transparent"}
+                                            textColor={"inherit"}
+                                        />
                                     </CardContent>
                                 </Card>
                             </div>}
