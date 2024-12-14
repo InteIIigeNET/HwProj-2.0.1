@@ -2,9 +2,9 @@ import * as React from 'react';
 import {Navigate, useParams} from 'react-router-dom';
 import ApiSingleton from "../../api/ApiSingleton";
 import Button from '@material-ui/core/Button'
-import {Grid, Box, Checkbox, TextField, FormControlLabel, Container, Link, Typography} from '@mui/material';
+import {Grid, Box, Checkbox, TextField, FormControlLabel, Link, Typography} from '@mui/material';
 import {FC, useEffect, useState} from "react";
-import makeStyles from "@material-ui/styles/makeStyles";
+import {makeStyles} from "@material-ui/core/styles";
 import EditIcon from "@material-ui/icons/Edit";
 import Lecturers from "./Lecturers";
 import {AccountDataDto} from "../../api";

@@ -12,7 +12,7 @@ interface TagsProps {
 export default function InlineTags({tags, onTagsChange}: TagsProps) {
     const tagsOptions: string[] = []
 
-    const [value, setValue] = useState<string[]>(tags.filter(t => t != ''));
+    const [value, setValue] = useState<string[]>(tags.filter(t => t !== ''));
     const handleOptionSelect = (event: SyntheticEvent<Element, Event>, newValue: string[]) => {
         setValue(newValue);
         onTagsChange(newValue);

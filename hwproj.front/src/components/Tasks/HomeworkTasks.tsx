@@ -1,6 +1,3 @@
-import {Accordion, AccordionDetails, AccordionSummary, Typography} from '@material-ui/core';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import ApiSingleton from 'api/ApiSingleton';
 import * as React from 'react';
 import {HomeworkTaskViewModel} from "../../api";
 import Task from './Task'

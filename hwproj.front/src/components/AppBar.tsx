@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {makeStyles} from '@material-ui/styles';
+import {makeStyles} from '@material-ui/core/styles';
 import AppBar from "@material-ui/core/AppBar";
 import {Link} from "react-router-dom";
 import {Badge, Grid, IconButton, MenuItem, Typography} from "@material-ui/core";
@@ -9,7 +9,7 @@ import InviteLecturerModal from "./InviteLecturerModal";
 import MailIcon from '@mui/icons-material/Mail';
 import {Button} from "@mui/material";
 
-const styles = makeStyles(theme => ({
+const styles = makeStyles((theme) => ({
     tools: {
         display: "flex",
         flexWrap: "nowrap",

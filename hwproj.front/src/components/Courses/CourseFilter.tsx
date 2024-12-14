@@ -39,12 +39,6 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
     // Состояние для отображения поля выбора студентов
     const [isStudentsSelectionHidden, setIsStudentsSelectionHidden] = useState<boolean>(props.isStudentsSelectionHidden);
 
-    // Если у преподавателя в workspace все студенты, отображаем "Все" в компоненте, значений при этом не выбрано.
-    // Функция, необходимые для корректного отображения выбранных элементов.
-    function getItemsView<T>(selected: T[], all: T[]): T[] {
-        return selected.length === all.length ? [] : selected;
-    }
-
     useEffect(() => {
         const fetchCourseDataForMentor = async () => {
             try {

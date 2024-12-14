@@ -268,9 +268,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                             const additionalStyles = i === 0 && homeworkStyles(homeworks, idx)
                                             return <StudentStatsCell
                                                 solutions={solutions
-                                                    .find(s => s.id == cm.id)!.homeworks!
-                                                    .find(h => h.id == homework.id)!.tasks!
-                                                    .find(t => t.id == task.id)!.solution!}
+                                                    .find(s => s.id === cm.id)!.homeworks!
+                                                    .find(h => h.id === homework.id)!.tasks!
+                                                    .find(t => t.id === task.id)!.solution!}
                                                 userId={props.userId}
                                                 forMentor={props.isMentor}
                                                 studentId={String(cm.id)}

@@ -145,7 +145,7 @@ const Notifications: FC<IProfileProps> = (props) => {
 
     const changeCategory = (event: ChangeEvent<HTMLInputElement>) => {
         filterState.categoryFlag.forEach((value, key) =>
-            key.toString() == event.target.value ? filterState.categoryFlag.set(key, !value) : value);
+            key.toString() === event.target.value ? filterState.categoryFlag.set(key, !value) : value);
 
         setFilterState((prevState) => ({
             ...prevState,
@@ -242,7 +242,7 @@ const Notifications: FC<IProfileProps> = (props) => {
                                         />
                                     } label="Задания"
                                     />
-                                    {allNotSeen.length != 0 &&
+                                    {allNotSeen.length !== 0 &&
                                         <Button fullWidth variant="contained" onClick={markAllNotificationsAsSeen}>Прочитать
                                             все</Button>}
                                     {isLecturer &&

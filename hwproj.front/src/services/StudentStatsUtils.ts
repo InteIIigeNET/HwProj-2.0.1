@@ -10,7 +10,7 @@ export default class StudentStatsUtils {
     static getCellBackgroundColor = (state: Solution.StateEnum | undefined,
                                      rating: number | undefined, maxRating: number,
                                      isFirstTry: boolean): string => {
-        if (state == Solution.StateEnum.NUMBER_0)
+        if (state === Solution.StateEnum.NUMBER_0)
             return isFirstTry ? "#d0fcc7" : "#afeeee"
         return rating !== undefined
             ? StudentStatsUtils.getRatingColor(rating, maxRating)
@@ -18,12 +18,12 @@ export default class StudentStatsUtils {
     }
 
     static calculateLastRatedSolution(solutions: Solution[]){
-        const ratedSolutions = solutions!.filter(x => x.state != Solution.StateEnum.NUMBER_0)
+        const ratedSolutions = solutions!.filter(x => x.state !== Solution.StateEnum.NUMBER_0)
         return ratedSolutions.slice(-1)[0]
     }
 
     static calculateLastRatedSolutionInfo(solutions: Solution[], taskMaxRating: number) {
-        const ratedSolutions = solutions!.filter(x => x.state != Solution.StateEnum.NUMBER_0)
+        const ratedSolutions = solutions!.filter(x => x.state !== Solution.StateEnum.NUMBER_0)
         const ratedSolutionsCount = ratedSolutions.length
         const isFirstUnratedTry = ratedSolutionsCount === 0
         const lastSolution = solutions!.slice(-1)[0]
@@ -34,7 +34,7 @@ export default class StudentStatsUtils {
             solutionsDescription = "Решение отсутствует"
         else if (isFirstUnratedTry)
             solutionsDescription = "Решение ожидает проверки"
-        else if (lastSolution.state != Solution.StateEnum.NUMBER_0)
+        else if (lastSolution.state !== Solution.StateEnum.NUMBER_0)
             solutionsDescription = `${lastSolution.rating}/${taskMaxRating} ${Utils.pluralizeHelper(["балл", "балла", "баллов"], taskMaxRating)}`
         else solutionsDescription = "Последняя оценка — " + `${lastRatedSolution.rating}/${taskMaxRating} ${Utils.pluralizeHelper(["балл", "балла", "баллов"], taskMaxRating)}\nНовое решение ожидает проверки`
 

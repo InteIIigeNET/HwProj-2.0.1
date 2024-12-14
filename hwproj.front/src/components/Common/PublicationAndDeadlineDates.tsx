@@ -54,10 +54,11 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
         }
     });
 
-    const deadlineChosenAutomatically = props.autoCalculatedDeadline && state.deadlineDate == props.autoCalculatedDeadline
+    const deadlineChosenAutomatically =
+        props.autoCalculatedDeadline && state.deadlineDate === props.autoCalculatedDeadline
 
     const isDeadlineSoonerThanPublication = (publicationDate: Date, deadlineDate: Date | undefined) =>
-        deadlineDate != undefined && deadlineDate < publicationDate;
+        deadlineDate !== undefined && deadlineDate < publicationDate;
 
     const deadlineSoonerThatHomework = isDeadlineSoonerThanPublication(state.publicationDate, state.deadlineDate)
 

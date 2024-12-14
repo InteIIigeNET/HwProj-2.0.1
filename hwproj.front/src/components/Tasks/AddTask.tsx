@@ -1,10 +1,9 @@
 import * as React from "react";
 import ApiSingleton from "../../api/ApiSingleton";
-import Utils from "../../services/Utils";
-import {FC, useEffect, useState} from "react";
-import {Grid, Checkbox, Button, TextField, Typography, Tooltip, Link} from "@material-ui/core";
+import {useState} from "react";
+import {Grid, Button, Typography} from "@material-ui/core";
 import CreateTask from "./CreateTask";
-import {HomeworkViewModel, CreateTaskViewModel} from "../../api";
+import {HomeworkViewModel} from "../../api";
 
 interface IAddTaskProps {
     homework: HomeworkViewModel;
