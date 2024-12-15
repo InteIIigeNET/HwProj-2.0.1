@@ -12,7 +12,7 @@ import Grid from '@material-ui/core/Grid';
 import {CircularProgress, IconButton} from "@material-ui/core";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import {CoursePreviewView, HomeworkViewModel, InviteExpertViewModel, AccountDataDto} from "../../api";
-import {Select, MenuItem, InputLabel, FormControl, Autocomplete} from "@mui/material";
+import {Select, MenuItem, InputLabel, FormControl} from "@mui/material";
 import CourseFilter from "../Courses/CourseFilter";
 import NameBuilder from "../Utils/NameBuilder";
 

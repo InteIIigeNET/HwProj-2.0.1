@@ -9,7 +9,7 @@ import {Link as RouterLink} from 'react-router-dom'
 import ApiSingleton from "../../api/ApiSingleton";
 import {Accordion, AccordionDetails, AccordionSummary, Button, Grid, Tooltip} from '@material-ui/core';
 import {FC, useState} from "react";
-import {makeStyles} from "@material-ui/styles";
+import {makeStyles} from '@material-ui/core/styles';
 import DeletionConfirmation from "../DeletionConfirmation";
 import {Chip, Stack} from "@mui/material";
 import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";

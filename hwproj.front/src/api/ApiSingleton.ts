@@ -9,9 +9,7 @@ import {
     StatisticsApi,
     SystemApi
 } from ".";
-import {Configuration} from './configuration';
 import AuthService from "../services/AuthService";
-import Utils from "../services/Utils";
 
 
 class Api {

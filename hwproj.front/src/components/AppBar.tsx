@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {makeStyles} from '@material-ui/styles';
+import {makeStyles} from '@material-ui/core/styles';
 import AppBar from "@material-ui/core/AppBar";
 import {Link} from "react-router-dom";
 import {Badge, Grid, IconButton, MenuItem, Typography} from "@material-ui/core";

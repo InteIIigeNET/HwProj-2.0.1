@@ -6,7 +6,7 @@ import {AccountDataDto} from "../../api";
 import IconButton from "@material-ui/core/IconButton";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import AddLecturerInCourse from "./AddLecturerInCourse";
-import {makeStyles} from "@material-ui/styles";
+import {makeStyles} from '@material-ui/core/styles';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';

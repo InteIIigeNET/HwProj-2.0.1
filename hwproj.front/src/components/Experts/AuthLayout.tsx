@@ -1,7 +1,7 @@
-﻿import {Navigate, Outlet, useParams} from 'react-router-dom';
+﻿import {Navigate, useParams} from 'react-router-dom';
 import React, {FC, useEffect, useState} from "react";
 import ApiSingleton from "./../../api/ApiSingleton";
-import {Box, CircularProgress, Paper, Typography} from "@material-ui/core";
+import {Box, CircularProgress, Typography} from "@material-ui/core";
 import {Center} from "@skbkontur/react-ui";
 import {TokenCredentials} from "api/api";
 

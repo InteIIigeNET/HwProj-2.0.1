@@ -75,9 +75,9 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
     const tasksFilter = getFilterSetting("tasksFilter")
     const studentsFilter = getFilterSetting("studentsFilter")
 
-    const filteredHomeworks = coursesFilter == "" ? unratedSolutions : unratedSolutions.filter(t => t.courseTitle === coursesFilter)
-    const filteredTasks = homeworksFilter == "" ? filteredHomeworks : filteredHomeworks.filter(t => t.homeworkTitle === homeworksFilter)
-    const filteredStudents = tasksFilter == "" ? filteredTasks : filteredTasks.filter(t => t.taskTitle === tasksFilter)
+    const filteredHomeworks = coursesFilter === "" ? unratedSolutions : unratedSolutions.filter(t => t.courseTitle === coursesFilter)
+    const filteredTasks = homeworksFilter === "" ? filteredHomeworks : filteredHomeworks.filter(t => t.homeworkTitle === homeworksFilter)
+    const filteredStudents = tasksFilter === "" ? filteredTasks : filteredTasks.filter(t => t.taskTitle === tasksFilter)
 
     const [filtersState, setFiltersState] = useState<IFiltersState>({
         coursesFilter: coursesFilter,
@@ -122,9 +122,9 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
             studentFilter = value
         }
 
-        const filteredHomeworks = courseFilter == "" ? unratedSolutions : unratedSolutions.filter(t => t.courseTitle === courseFilter)
-        const filteredTasks = homeworkFilter == "" ? filteredHomeworks : filteredHomeworks.filter(t => t.homeworkTitle === homeworkFilter)
-        const filteredStudents = taskFilter == "" ? filteredTasks : filteredTasks.filter(t => t.taskTitle === taskFilter)
+        const filteredHomeworks = courseFilter === "" ? unratedSolutions : unratedSolutions.filter(t => t.courseTitle === courseFilter)
+        const filteredTasks = homeworkFilter === "" ? filteredHomeworks : filteredHomeworks.filter(t => t.homeworkTitle === homeworkFilter)
+        const filteredStudents = taskFilter === "" ? filteredTasks : filteredTasks.filter(t => t.taskTitle === taskFilter)
         localStorage.setItem("coursesFilter", courseFilter)
         localStorage.setItem("homeworksFilter", homeworkFilter)
         localStorage.setItem("tasksFilter", taskFilter)
@@ -250,7 +250,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                 </Card>
             }
             {renderFilter()}
-            {unratedSolutions.length == 0 ?
+            {unratedSolutions.length === 0 ?
                 <div>
                     <Typography variant={"body1"} color={"GrayText"}>Все решения проверены.</Typography>
                 </div> :

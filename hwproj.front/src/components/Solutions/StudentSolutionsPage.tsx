@@ -84,10 +84,9 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
         taskStudentsSolutionsPreview: [],
     })
     const [filterState, setFilterState] = React.useState<Filter[]>(
-        localStorage.getItem(FilterStorageKey)?.split(", ").filter(x => x != "").map(x => x as Filter) || ["Только непроверенные"]
+        localStorage.getItem(FilterStorageKey)?.split(", ").filter(x => x !== "").map(x => x as Filter) || ["Только непроверенные"]
     )
     const handleFilterChange = (event: SelectChangeEvent<typeof filterState>) => {
-        const {target: {value}} = event
         const filters = filterState.length > 0 ? [] : ["Только непроверенные" as Filter]
         localStorage.setItem(FilterStorageKey, filters.join(", "))
         setFilterState(filters)

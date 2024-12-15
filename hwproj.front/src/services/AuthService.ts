@@ -1,4 +1,4 @@
-import {LoginViewModel, AccountApi, RegisterViewModel, RegisterExpertViewModel} from './../api/';
+import {LoginViewModel, AccountApi, RegisterViewModel} from '../api';
 import ApiSingleton from "../api/ApiSingleton";
 import decode from "jwt-decode";
 
