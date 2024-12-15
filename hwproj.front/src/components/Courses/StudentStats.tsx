@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
+import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel, HomeworkTaskViewModel} from "../../api/";
 import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
@@ -76,7 +76,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     //TODO: Bonus tag?
     const groupTestsByTags = (homeworks: HomeworkViewModel[]) =>
         Lodash(homeworks.filter(h => h.tags!.includes(TestTag)))
-            .groupBy(h => {
+            .groupBy((h: HomeworkViewModel) => {
                 const key = h.tags!.find(t => !DefaultTags.includes(t))
                 return key || h.id!.toString();
             })
@@ -268,9 +268,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                             const additionalStyles = i === 0 && homeworkStyles(homeworks, idx)
                                             return <StudentStatsCell
                                                 solutions={solutions
-                                                    .find(s => s.id == cm.id)!.homeworks!
-                                                    .find(h => h.id == homework.id)!.tasks!
-                                                    .find(t => t.id == task.id)!.solution!}
+                                                    .find(s => s.id === cm.id)!.homeworks!
+                                                    .find(h => h.id === homework.id)!.tasks!
+                                                    .find(t => t.id === task.id)!.solution!}
                                                 userId={props.userId}
                                                 forMentor={props.isMentor}
                                                 studentId={String(cm.id)}

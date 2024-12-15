@@ -12,7 +12,7 @@ import Grid from '@material-ui/core/Grid';
 import {CircularProgress, IconButton} from "@material-ui/core";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import {CoursePreviewView, HomeworkViewModel, InviteExpertViewModel, AccountDataDto} from "../../api";
-import {Select, MenuItem, InputLabel, FormControl, Autocomplete} from "@mui/material";
+import {Select, MenuItem, InputLabel, FormControl} from "@mui/material";
 import CourseFilter from "../Courses/CourseFilter";
 import NameBuilder from "../Utils/NameBuilder";
 
@@ -137,7 +137,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                 errors: result!.errors ?? [],
             }));
         } catch (e) {
-            const responseErrors = await e.json()
+            const responseErrors = await (e as Response).json()
             setState((prevState) => ({
                 ...prevState,
                 errors: responseErrors ?? ['Сервис недоступен']

@@ -1,6 +1,5 @@
-﻿import React, {FC, useEffect, useState} from 'react'
+﻿import React, {FC, useState} from 'react'
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -11,7 +10,7 @@ import Grid from '@material-ui/core/Grid';
 import {HomeworkViewModel, AccountDataDto, EditMentorWorkspaceDTO} from "../../api";
 import {Alert} from "@mui/material";
 import ErrorsHandler from "../Utils/ErrorsHandler";
-import {CircularProgress, Snackbar} from "@material-ui/core";
+import {Snackbar} from "@material-ui/core";
 import CourseFilter from "./CourseFilter";
 
 interface MentorWorkspaceProps {
@@ -58,7 +57,7 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
 
             setIsWorkspaceUpdated(true);
         } catch (e) {
-            const errors = await ErrorsHandler.getErrorMessages(e);
+            const errors = await ErrorsHandler.getErrorMessages(e as Response);
             setState((prevState) => ({
                 ...prevState,
                 errors: errors

@@ -1,7 +1,7 @@
 import * as React from "react";
 import ListItem from "@material-ui/core/ListItem";
 import List from "@material-ui/core/List";
-import {Grid, Typography} from "@material-ui/core";
+import {Grid} from "@material-ui/core";
 import {HomeworkViewModel} from "../../api";
 import Homework from "./Homework";
 import {FC} from "react";

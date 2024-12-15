@@ -63,10 +63,9 @@ const TaskSolutionsPage: FC = () => {
     })
 
     const [filterState, setFilterState] = React.useState<Filter[]>(
-        localStorage.getItem(FilterStorageKey)?.split(", ").filter(x => x != "").map(x => x as Filter) || []
+        localStorage.getItem(FilterStorageKey)?.split(", ").filter(x => x !== "").map(x => x as Filter) || []
     )
     const handleFilterChange = (event: SelectChangeEvent<typeof filterState>) => {
-        const {target: {value}} = event
         const filters = filterState.length > 0 ? [] : ["Только нерешенные" as Filter]
         localStorage.setItem(FilterStorageKey, filters.join(", "))
         setFilterState(filters)

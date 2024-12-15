@@ -8,7 +8,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
 import {useState} from "react";
 import {LoginViewModel} from "../../api/"
-import makeStyles from "@material-ui/styles/makeStyles";
+import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import ValidationUtils from "../Utils/ValidationUtils";
 
@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const Login: FC<LoginProps> = (props) => {
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [searchParams] = useSearchParams()
     const returnUrl = searchParams.get("returnUrl")
     const classes = useStyles()
     const [loginState, setLoginState] = useState<ILoginState>({

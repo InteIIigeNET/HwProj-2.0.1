@@ -10,6 +10,7 @@ import ApiSingleton from 'api/ApiSingleton'
 import React, {FC, FormEvent, useEffect, useState} from 'react'
 import {AccountDataDto} from "../../api";
 import {Autocomplete} from "@material-ui/lab";
+import ValidationUtils from "../Utils/ValidationUtils";
 
 interface AddLecturerInCourseProps {
     onClose: any;
@@ -34,14 +35,9 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
         data: [],
     })
 
-    const isCorrectEmail = (email: string) => {
-        const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,5}))$/;
-        return re.test(email);
-    }
-
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (!isCorrectEmail(lecturerState.email)) {
+        if (!ValidationUtils.isCorrectEmail(lecturerState.email)) {
             setLecturerState((prevState) => ({
                 ...prevState,
                 errors: ['Некорректный адрес электронной почты']

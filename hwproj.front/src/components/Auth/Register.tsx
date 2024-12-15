@@ -8,7 +8,7 @@ import { RegisterViewModel } from "../../api/";
 import "./Styles/Register.css";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
-import makeStyles from "@material-ui/styles/makeStyles";
+import {makeStyles} from '@material-ui/core/styles';
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Avatar from "@material-ui/core/Avatar";
 import ValidationUtils from "../Utils/ValidationUtils";

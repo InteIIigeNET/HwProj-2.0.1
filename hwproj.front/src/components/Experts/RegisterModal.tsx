@@ -7,7 +7,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {RegisterExpertViewModel} from "../../api/";
 import "../Auth/Styles/Register.css";
 import Grid from "@material-ui/core/Grid";
-import makeStyles from "@material-ui/styles/makeStyles";
+import {makeStyles} from '@material-ui/core/styles';
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import Avatar from "@material-ui/core/Avatar";
 import Tags from "../Common/Tags";

@@ -54,7 +54,7 @@ const styles = makeStyles(() => ({
 
 const Course: React.FC = () => {
     const {courseId, tab} = useParams()
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [searchParams] = useSearchParams()
     const navigate = useNavigate()
     const classes = styles()
 
@@ -287,7 +287,7 @@ const Course: React.FC = () => {
                         style={{marginBottom: 10}}
                         variant="scrollable"
                         scrollButtons={"auto"}
-                        value={tabValue == "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
+                        value={tabValue === "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
                         indicatorColor="primary"
                         onChange={(event, value) => {
                             if (value === 0 && !isExpert) navigate(`/courses/${courseId}/homeworks`)

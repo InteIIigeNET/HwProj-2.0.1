@@ -9,7 +9,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import './Styles/CreateCourse.css';
 import {FC, FormEvent, useState} from "react";
 import GroupIcon from '@material-ui/icons/Group';
-import makeStyles from "@material-ui/styles/makeStyles";
+import {makeStyles} from '@material-ui/core/styles';
 import Container from "@material-ui/core/Container";
 
 interface ICreateCourseState {

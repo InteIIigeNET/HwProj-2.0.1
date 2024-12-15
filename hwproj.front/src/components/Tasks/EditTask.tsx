@@ -69,11 +69,11 @@ const EditTask: FC = () => {
         const task = taskForEditing.task!
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
 
-        const publication = task.publicationDate == undefined
+        const publication = task.publicationDate === undefined
             ? undefined
             : new Date(task.publicationDate)
 
-        const deadline = task.deadlineDate == undefined
+        const deadline = task.deadlineDate === undefined
             ? undefined
             : new Date(task.deadlineDate)
 

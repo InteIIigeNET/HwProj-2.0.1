@@ -57,13 +57,19 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const renderDate = (date: Date) => {
         date = new Date(date)
-        const options = {month: 'long', day: 'numeric'};
+        const options: Intl.DateTimeFormatOptions = {
+            month: 'long',
+            day: 'numeric'
+        };
         return date.toLocaleString("ru-RU", options)
     }
 
     const renderTime = (date: Date) => {
         date = new Date(date)
-        const options = {hour: "2-digit", minute: "2-digit"};
+        const options: Intl.DateTimeFormatOptions = {
+            hour: "2-digit",
+            minute: "2-digit"
+        };
         return date.toLocaleString("ru-RU", options)
     }
 
@@ -89,7 +95,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     <Chip
                         label={tasksCount + " " + Utils.pluralizeHelper(["Задание", "Задания", "Заданий"], tasksCount)}/>
                 </Grid>}
-                {homework.tags?.filter(t => t != '').map((tag, index) => (
+                {homework.tags?.filter(t => t !== '').map((tag, index) => (
                     <Grid item>
                         <Chip key={index} label={tag}/>
                     </Grid>
@@ -143,13 +149,13 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 color,
                 solutionsDescription
             } = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)
-            return lastSolution == undefined
+            return lastSolution === undefined
                 ? <TimelineDot variant={"outlined"}/>
                 : <Tooltip arrow disableInteractive enterDelay={1000}
                            title={<span style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
                     <Chip style={{backgroundColor: color, marginTop: '11.5px'}}
                           size={"small"}
-                          label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
+                          label={lastRatedSolution === undefined ? "?" : lastRatedSolution.rating}/>
                 </Tooltip>
         }
         return <TimelineDot variant={"outlined"}/>

@@ -7,7 +7,7 @@ import {Button, Container, Grid, TextField, Typography, Link} from "@material-ui
 import ApiSingleton from "../api/ApiSingleton";
 import {useSearchParams} from 'react-router-dom';
 import EditIcon from "@material-ui/icons/Edit";
-import makeStyles from "@material-ui/styles/makeStyles";
+import {makeStyles} from '@material-ui/core/styles';
 import {EditAccountViewModel} from "../api";
 
 interface IEditProfileProps {
