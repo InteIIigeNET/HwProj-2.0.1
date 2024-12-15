@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
+import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel, HomeworkTaskViewModel} from "../../api/";
 import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
@@ -76,7 +76,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     //TODO: Bonus tag?
     const groupTestsByTags = (homeworks: HomeworkViewModel[]) =>
         Lodash(homeworks.filter(h => h.tags!.includes(TestTag)))
-            .groupBy(h => {
+            .groupBy((h: HomeworkViewModel) => {
                 const key = h.tags!.find(t => !DefaultTags.includes(t))
                 return key || h.id!.toString();
             })
@@ -93,9 +93,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const testGroups = groupTestsByTags(homeworks)
 
     const testsMaxSum = testGroups
-        .map(h => h[0])
-        .flatMap(homework => homework.tasks)
-        .reduce((sum, task) => sum + (task!.maxRating || 0), 0)
+        .map((h: any) => h[0])
+        .flatMap((homework: HomeworkViewModel) => homework.tasks)
+        .reduce((sum: number, task: HomeworkTaskViewModel) => sum + (task!.maxRating || 0), 0)
 
     const hasHomeworks = homeworksMaxSum > 0
     const hasTests = testsMaxSum > 0
@@ -200,20 +200,20 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 .reduce((sum, rating) => sum + rating, 0)
 
                             const testsSum = testGroups
-                                .map(group => {
+                                .map((group: any) => {
                                     const testRatings = group
-                                        .map(homework =>
+                                        .map((homework: any) =>
                                             solutions
                                                 .find(s => s.id === cm.id)?.homeworks!
                                                 .find(h => h.id === homework.id)?.tasks!
                                                 .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0)!
                                         )
                                     return testRatings[0]!
-                                        .map((_, columnId) => testRatings.map(row => row[columnId]))
-                                        .map(taskRatings => Math.max(...taskRatings))
+                                        .map((_: any, columnId: any) => testRatings.map((row: any) => row[columnId]))
+                                        .map((taskRatings: any) => Math.max(...taskRatings))
                                 })
                                 .flat()
-                                .reduce((sum, rating) => sum + rating, 0)
+                                .reduce((sum: number, rating: number) => sum + rating, 0)
 
                             return (
                                 <TableRow key={index} hover style={{height: 50}}>

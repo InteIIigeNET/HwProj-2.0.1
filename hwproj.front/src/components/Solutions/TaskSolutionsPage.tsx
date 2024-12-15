@@ -117,7 +117,7 @@ const TaskSolutionsPage: FC = () => {
         if (!x.homeworkSolutions) return []
         const firstHomeworkTasks = x.homeworkSolutions[0]?.previews || []
         return firstHomeworkTasks.map((t, i) => {
-            const solutions = Lodash(x.homeworkSolutions).maxBy(h => h.previews![i].lastRatedSolution?.rating || -1)
+            const solutions = Lodash(x.homeworkSolutions).maxBy((h: any) => h.previews![i].lastRatedSolution?.rating || -1)
             const preview = solutions!.previews[i]
             return ({
                 lastRatedSolution: preview.lastRatedSolution,

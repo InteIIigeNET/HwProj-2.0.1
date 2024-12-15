@@ -83,9 +83,9 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     daysDiff: Math.floor((deadlineDate.getTime() - new Date(x.publicationDate!).getTime()) / (1000 * 3600 * 24))
                 });
             }))
-            .groupBy(x => [x.daysDiff, x.deadlineDate.getHours(), x.deadlineDate.getMinutes()])
+            .groupBy((x: any) => [x.daysDiff, x.deadlineDate.getHours(), x.deadlineDate.getMinutes()])
             .entries()
-            .sortBy(x => x[1].length).last()?.[1][0]
+            .sortBy((x: any) => x[1].length).last()?.[1][0]
         if (dateCandidate) {
             const publicationDate = new Date(addHomeworkState.publicationDate)
             const dateTime = dateCandidate.deadlineDate
