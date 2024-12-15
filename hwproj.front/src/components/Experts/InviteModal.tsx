@@ -137,7 +137,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                 errors: result!.errors ?? [],
             }));
         } catch (e) {
-            const responseErrors = await e.json()
+            const responseErrors = await (e as Response).json()
             setState((prevState) => ({
                 ...prevState,
                 errors: responseErrors ?? ['Сервис недоступен']

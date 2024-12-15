@@ -73,7 +73,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                 setIsLoading(false);
                 props.onWorkspaceInitialize(true);
             } catch (e) {
-                const errors = await ErrorsHandler.getErrorMessages(e);
+                const errors = await ErrorsHandler.getErrorMessages(e as Response);
                 setState((prevState) => ({
                     ...prevState,
                     errors: errors

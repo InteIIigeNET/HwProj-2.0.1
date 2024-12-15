@@ -54,22 +54,44 @@ export default class Utils {
     static renderReadableDate = (d: Date) => {
         const date = new Date(d)
         const showYear = date.getFullYear() !== new Date().getFullYear()
-        const options = {month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', year: showYear ? 'numeric' : undefined}
+        const options: Intl.DateTimeFormatOptions = {
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            year: showYear ? 'numeric' : undefined
+        };
+
         return date.toLocaleString(undefined, options)
     }
 
     static renderReadableDateWithoutTime = (date: Date) => {
-        const options = {month: 'long', day: 'numeric'}
+        const options: Intl.DateTimeFormatOptions = {
+            month: 'long',
+            day: 'numeric',
+        };
+        
         return (new Date(date)).toLocaleString(undefined, options)
     }
 
     static renderDateWithoutSeconds = (date: Date) => {
-        const options = {year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'}
+        const options: Intl.DateTimeFormatOptions = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+        };
+
         return (new Date(date)).toLocaleString(undefined, options)
     }
 
     static renderDateWithoutHours = (date: Date) => {
-        const options = {month: '2-digit', day: '2-digit'}
+        const options: Intl.DateTimeFormatOptions = {
+            month: '2-digit',
+            day: '2-digit',
+        };
+
         return (new Date(date)).toLocaleString(undefined, options)
     }
 }

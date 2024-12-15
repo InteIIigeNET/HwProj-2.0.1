@@ -57,13 +57,19 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const renderDate = (date: Date) => {
         date = new Date(date)
-        const options = {month: 'long', day: 'numeric'};
+        const options: Intl.DateTimeFormatOptions = {
+            month: 'long',
+            day: 'numeric'
+        };
         return date.toLocaleString("ru-RU", options)
     }
 
     const renderTime = (date: Date) => {
         date = new Date(date)
-        const options = {hour: "2-digit", minute: "2-digit"};
+        const options: Intl.DateTimeFormatOptions = {
+            hour: "2-digit",
+            minute: "2-digit"
+        };
         return date.toLocaleString("ru-RU", options)
     }
 
