@@ -12,10 +12,10 @@ import {FC, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import DeletionConfirmation from "../DeletionConfirmation";
 import {Chip, Stack} from "@mui/material";
-import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
 import Utils from "../../services/Utils";
 import {getTip} from "../Common/HomeworkTags";
 import StarIcon from '@mui/icons-material/Star';
+import {MarkdownPreview} from "../Common/MarkdownEditor";
 
 interface ITaskProp {
     task: HomeworkTaskViewModel,
@@ -116,9 +116,9 @@ const Task: FC<ITaskProp> = (props) => {
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <Grid>
+                    <Grid style={{width: "100%"}}>
                         <Typography variant="body1">
-                            <ReactMarkdownWithCodeHighlighting value={task.description!}/>
+                            <MarkdownPreview value={task.description!}/>
                         </Typography>
                         {props.showForCourse && props.forStudent &&
                             <div style={{marginTop: '15px'}}>

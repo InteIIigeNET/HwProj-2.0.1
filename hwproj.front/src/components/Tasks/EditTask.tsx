@@ -6,7 +6,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from "@material-ui/styles";
 import {Button} from "@material-ui/core";
 import {Typography, TextField, Grid} from "@mui/material";
-import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import {MarkdownEditor} from "../Common/MarkdownEditor";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import {HomeworkViewModel} from "../../api";
 
@@ -190,21 +190,16 @@ const EditTask: FC = () => {
                                         />
                                     </Grid>
                                 </Grid>
-                                <Grid item xs={12}>
-                                    <TextFieldWithPreview
-                                        multiline
-                                        fullWidth
-                                        minRows={7}
-                                        maxRows="20"
-                                        label="Условие задачи"
-                                        variant="outlined"
-                                        margin="normal"
+                                <Grid item xs={12} marginBottom={-1} marginTop={-1}>
+                                    <MarkdownEditor
+                                        label={"Условие задачи"}
+                                        height={240}
+                                        maxHeight={400}
                                         value={taskState.description}
-                                        onChange={(e) => {
-                                            e.persist()
+                                        onChange={(value) => {
                                             setTaskState((prevState) => ({
                                                 ...prevState,
-                                                description: e.target.value
+                                                description: value
                                             }))
                                         }}
                                     />

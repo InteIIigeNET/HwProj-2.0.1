@@ -5,7 +5,7 @@ import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import EditIcon from '@material-ui/icons/Edit';
 import {Button} from "@material-ui/core";
-import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import {MarkdownEditor} from "../Common/MarkdownEditor";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import Tags from "../Common/Tags";
 import {Grid, Typography, TextField} from "@mui/material";
@@ -178,21 +178,16 @@ const EditHomework: FC = () => {
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={12} style={{marginBottom: "10px"}}>
-                            <TextFieldWithPreview
-                                multiline
-                                fullWidth
-                                minRows={7}
-                                maxRows="20"
-                                label="Условие задания"
-                                variant="outlined"
-                                margin="normal"
+                        <Grid item xs={12} style={{marginBottom: "5px", marginTop: -2}}>
+                            <MarkdownEditor
+                                label={"Условие задания"}
+                                height={240}
+                                maxHeight={400}
                                 value={editHomework.description}
-                                onChange={(e) => {
-                                    e.persist()
+                                onChange={(value) => {
                                     setEditHomework((prevState) => ({
                                         ...prevState,
-                                        description: e.target.value
+                                        description: value
                                     }))
                                 }}
                             />

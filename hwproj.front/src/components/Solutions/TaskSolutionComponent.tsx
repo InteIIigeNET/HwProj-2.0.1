@@ -17,7 +17,7 @@ import AvatarUtils from "../Utils/AvatarUtils";
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
 import {Edit, ThumbDown, ThumbUp} from "@mui/icons-material";
-import {ReactMarkdownWithCodeHighlighting, TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import {MarkdownEditor, MarkdownPreview} from "../Common/MarkdownEditor";
 import {LoadingButton} from "@mui/lab";
 import CheckIcon from '@mui/icons-material/Done';
 import WarningIcon from '@mui/icons-material/Warning';
@@ -307,40 +307,25 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             </Stack>
                         </Grid>}
                     {state.clickedForRate
-                        ? <Grid item>
-                            <TextFieldWithPreview
-                                multiline
-                                fullWidth
-                                InputProps={{
-                                    readOnly: !props.forMentor || !state.clickedForRate
-                                }}
-                                rows="4"
-                                rowsMax="15"
+                        ? <Grid item style={{marginBottom: -7, marginTop: -8}}>
+                            <MarkdownEditor
                                 label="Комментарий преподавателя"
-                                variant="outlined"
-                                margin="normal"
-                                isEditable={props.forMentor}
                                 value={state.lecturerComment}
-                                previewStyle={{borderColor: undefined}}
-                                onClick={() => {
-                                    if (!state.clickedForRate)
-                                        setState((prevState) => ({
-                                            ...prevState,
-                                            clickedForRate: true
-                                        }))
-                                }}
-                                onChange={(e) => {
-                                    e.persist()
+                                onChange={(value) => {
                                     setState((prevState) => ({
                                         ...prevState,
-                                        lecturerComment: e.target.value
+                                        lecturerComment: value
                                     }))
                                 }}
                             />
-                        </Grid>
+                       </Grid>
                         : isRated &&
                         <Grid item>
-                            <ReactMarkdownWithCodeHighlighting value={lecturerComment}/>
+                            <MarkdownPreview
+                                value={lecturerComment} 
+                                backgroundColor={backgroundColor}
+                                textColor={color}
+                            />
                         </Grid>
                     }
                 </Grid>
@@ -430,7 +415,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 </Grid>
                 {solution.comment &&
                     <Grid item style={{marginBottom: -16}}>
-                        <ReactMarkdownWithCodeHighlighting value={solution.comment as string}/>
+                        <MarkdownPreview value={solution.comment}/>
                     </Grid>
                 }
             </Grid>
