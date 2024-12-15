@@ -19,6 +19,7 @@
     "@types/bluebird": "^3.5.36",
     "@types/classnames": "^2.3.1",
     "@types/jwt-decode": "^2.2.1",
+    "@types/lodash": "^4.17.13",
     "@types/react-syntax-highlighter": "^10.2.1",
     "@types/recharts": "^1.8.29",
     "@types/remarkable": "^1.7.4",

@@ -93,9 +93,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const testGroups = groupTestsByTags(homeworks)
 
     const testsMaxSum = testGroups
-        .map((h: any) => h[0])
-        .flatMap((homework: HomeworkViewModel) => homework.tasks)
-        .reduce((sum: number, task: HomeworkTaskViewModel) => sum + (task!.maxRating || 0), 0)
+        .map(h => h[0])
+        .flatMap(homework => homework.tasks)
+        .reduce((sum, task) => sum + (task!.maxRating || 0), 0)
 
     const hasHomeworks = homeworksMaxSum > 0
     const hasTests = testsMaxSum > 0
@@ -200,20 +200,20 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 .reduce((sum, rating) => sum + rating, 0)
 
                             const testsSum = testGroups
-                                .map((group: any) => {
+                                .map(group => {
                                     const testRatings = group
-                                        .map((homework: any) =>
+                                        .map(homework =>
                                             solutions
                                                 .find(s => s.id === cm.id)?.homeworks!
                                                 .find(h => h.id === homework.id)?.tasks!
                                                 .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0)!
                                         )
                                     return testRatings[0]!
-                                        .map((_: any, columnId: any) => testRatings.map((row: any) => row[columnId]))
-                                        .map((taskRatings: any) => Math.max(...taskRatings))
+                                        .map((_, columnId) => testRatings.map(row => row[columnId]))
+                                        .map(taskRatings => Math.max(...taskRatings))
                                 })
                                 .flat()
-                                .reduce((sum: number, rating: number) => sum + rating, 0)
+                                .reduce((sum, rating) => sum + rating, 0)
 
                             return (
                                 <TableRow key={index} hover style={{height: 50}}>
