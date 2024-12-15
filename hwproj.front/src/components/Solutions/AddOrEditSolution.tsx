@@ -5,7 +5,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, Solution, SolutionViewModel} from "../../api";
 import {FC, useState} from "react";
 import {Alert, Autocomplete, Grid, DialogContent, Dialog, DialogTitle, DialogActions} from "@mui/material";
-import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import {MarkdownEditor} from "../Common/MarkdownEditor";
 import {TestTag} from "../Common/HomeworkTags";
 
 interface IAddSolutionProps {
@@ -101,22 +101,14 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
                                 взята из предыдущего
                                 решения</Alert>}
                     </Grid>}
-                    <Grid item xs={12} style={{marginTop: '16px'}}>
-                        <TextFieldWithPreview
-                            multiline
-                            fullWidth
-                            minRows={4}
-                            maxRows={20}
-                            margin="normal"
-                            label="Комментарий"
-                            variant="outlined"
-                            previewStyle={{borderColor: "GrayText"}}
-                            value={solution.comment}
-                            onChange={(e) => {
-                                e.persist()
+                    <Grid item xs={12} style={{marginTop: '12px', marginBottom: -4}}>
+                        <MarkdownEditor
+                            label={"Комментарий"}
+                            value={solution.comment ?? ""}
+                            onChange={(value) => {
                                 setSolution((prevState) => ({
                                     ...prevState,
-                                    comment: e.target.value,
+                                    comment: value
                                 }))
                             }}
                         />
