@@ -585,6 +585,17 @@ namespace HwProj.CoursesService.Client
             await _httpClient.SendAsync(httpRequest);
         }
 
+        public async Task<StudentsToReviewersDTO> GetStudentsToReviewers(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/getStudentsToReviewers/{courseId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<StudentsToReviewersDTO>();
+        }
+
         public async Task<bool> Ping()
         {
             try

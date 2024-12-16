@@ -23,6 +23,15 @@ namespace HwProj.CoursesService.API.Repositories
             return userToCourseFilter?.CourseFilter;
         }
 
+        public async Task<List<UserToCourseFilter>> GetAsync(string[] userIds, long courseId)
+        {
+            return await Context.Set<UserToCourseFilter>()
+                .AsNoTracking()
+                .Where(u => userIds.Contains(u.UserId) && u.CourseId == courseId)
+                .Include(ucf => ucf.CourseFilter)
+                .ToListAsync();
+        }
+
         public async Task<List<UserToCourseFilter>> GetAsync(string userId, long[] courseIds)
         {
             return await Context.Set<UserToCourseFilter>()

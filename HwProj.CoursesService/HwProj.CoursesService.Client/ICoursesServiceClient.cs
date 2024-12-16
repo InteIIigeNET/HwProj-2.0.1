@@ -49,6 +49,7 @@ namespace HwProj.CoursesService.Client
         Task AddQuestionForTask(AddTaskQuestionDto question);
         Task<GetTaskQuestionDto[]> GetQuestionsForTask(long taskId);
         Task AddAnswerForQuestion(AddAnswerForQuestionDto answer);
+        Task<StudentsToReviewersDTO> GetStudentsToReviewers(long courseId);
         Task<bool> Ping();
     }
 }
