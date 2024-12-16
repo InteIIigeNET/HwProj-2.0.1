@@ -1,5 +1,9 @@
 import React, {useEffect, useState} from "react";
-import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel, HomeworkTaskViewModel} from "../../api/";
+import {
+    CourseViewModel,
+    HomeworkViewModel,
+    AdvancedStatisticsCourseMatesModel
+} from "../../api/";
 import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
@@ -15,7 +19,7 @@ interface IStudentStatsProps {
     homeworks: HomeworkViewModel[];
     isMentor: boolean;
     userId: string;
-    solutions: StatisticsCourseMatesModel[];
+    solutions: AdvancedStatisticsCourseMatesModel[];
 }
 
 interface IStudentStatsState {
