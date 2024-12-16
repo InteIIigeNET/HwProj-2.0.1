@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.Models.CoursesService;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
 
@@ -74,6 +75,20 @@ namespace HwProj.CoursesService.API.Services
         {
             var courseFilter = await _courseFilterRepository.GetAsync(userId, courseDto.Id);
             return ApplyFilterInternal(courseDto, courseFilter);
+        }
+
+        public async Task<MentorToAssignedStudentsDTO[]> GetAssignedStudentsIds(long courseId, string[] mentorsIds)
+        {
+            var usersCourseFilters = await _courseFilterRepository.GetAsync(mentorsIds, courseId);
+
+            return usersCourseFilters
+                .Where(u => u.CourseFilter.Filter.HomeworkIds.Count == 0)
+                .Select(u => new MentorToAssignedStudentsDTO
+                {
+                    MentorId = u.UserId,
+                    SelectedStudentsIds = u.CourseFilter.Filter.StudentIds
+                })
+                .ToArray();
         }
 
         private async Task<long> AddCourseFilter(Filter filter, long courseId, string userId)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
@@ -9,6 +10,7 @@ using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
+using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
@@ -24,16 +26,22 @@ namespace HwProj.CoursesService.API.Controllers
     public class CoursesController : Controller
     {
         private readonly ICoursesService _coursesService;
+        private readonly ICourseFilterService _courseFilterService;
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly IMapper _mapper;
+        private readonly IAuthServiceClient _authServiceClient;
 
         public CoursesController(ICoursesService coursesService,
             IHomeworksRepository homeworksRepository,
-            IMapper mapper)
+            IMapper mapper,
+            ICourseFilterService courseFilterService,
+            IAuthServiceClient authServiceClient)
         {
             _coursesService = coursesService;
             _homeworksRepository = homeworksRepository;
             _mapper = mapper;
+            _courseFilterService = courseFilterService;
+            _authServiceClient = authServiceClient;
         }
 
         [HttpGet]
@@ -237,6 +245,54 @@ namespace HwProj.CoursesService.API.Controllers
             result = result.Concat(defaultTags).Distinct().ToArray();
 
             return Ok(result);
+        }
+
+        [HttpGet("getStudentsToReviewers/{courseId}")]
+        [ProducesResponseType(typeof(StudentsToReviewersDTO), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetStudentsToReviewers(long courseId)
+        {
+            var mentorIds = await _coursesService.GetCourseLecturers(courseId);
+
+            var getMentorsToStudentsTask = _courseFilterService.GetAssignedStudentsIds(courseId, mentorIds);
+            var getMentorsTask = _authServiceClient.GetAccountsData(mentorIds);
+            await Task.WhenAll(getMentorsToStudentsTask, getMentorsTask);
+
+            // Получаем пары <студент, закрепленные проверящие (те, которые его явно в фильтре выбрали)>
+            var studentsToReviewers = GetStudentsToReviewersDictionary(
+                getMentorsToStudentsTask.Result,
+                getMentorsTask.Result);
+
+            return Ok(new StudentsToReviewersDTO
+            {
+                StudentsToReviewersDictionary = studentsToReviewers
+            });
+        }
+
+        private static Dictionary<string, AccountDataDto[]> GetStudentsToReviewersDictionary(
+            MentorToAssignedStudentsDTO[] mentorsToStudents, AccountDataDto[] mentors)
+        {
+            var mentorIdToAccountData = mentors
+                .ToDictionary(
+                    accountData => accountData.UserId,
+                    accountData => accountData
+                );
+
+            return mentorsToStudents
+                .SelectMany(m =>
+                    m.SelectedStudentsIds.Select(studentId =>
+                        new
+                        {
+                            StudentId = studentId,
+                            Reviewer = mentorIdToAccountData[m.MentorId]
+                        })
+                )
+                .GroupBy(sr => sr.StudentId)
+                .ToDictionary(
+                    groups => groups.Key,
+                    groups => groups.Select(sr => sr.Reviewer)
+                        .Distinct()
+                        .ToArray()
+                );
         }
     }
 }
