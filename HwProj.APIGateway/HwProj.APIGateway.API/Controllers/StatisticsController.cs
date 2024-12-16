@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Models.Statistics;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
+using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.SolutionsService.Client;
@@ -19,7 +21,7 @@ namespace HwProj.APIGateway.API.Controllers
         private readonly ISolutionsServiceClient _solutionClient;
         private readonly ICoursesServiceClient _coursesClient;
 
-        public StatisticsController(ISolutionsServiceClient solutionClient, IAuthServiceClient authServiceClient, 
+        public StatisticsController(ISolutionsServiceClient solutionClient, IAuthServiceClient authServiceClient,
             ICoursesServiceClient coursesServiceClient) :
             base(authServiceClient)
         {
@@ -49,39 +51,50 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpGet("{courseId}")]
-        [ProducesResponseType(typeof(StatisticsCourseMatesModel[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AdvancedStatisticsCourseMatesModel[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseStatistics(long courseId)
         {
             var statistics = await _solutionClient.GetCourseStatistics(courseId, UserId);
             if (statistics == null) return Forbid();
 
             var studentIds = statistics.Select(t => t.StudentId).ToArray();
-            var students = await AuthServiceClient.GetAccountsData(studentIds);
-
-            var result = statistics.Zip(students, (stats, student) => new StatisticsCourseMatesModel
-            {
-                Id = student.UserId,
-                Name = student.Name,
-                Surname = student.Surname,
-                Homeworks = stats.Homeworks
-            }).OrderBy(t => t.Surname).ThenBy(t => t.Name);
+            
+            var getStudentsTask = AuthServiceClient.GetAccountsData(studentIds);
+            var getStudentsToReviewersTask = _coursesClient.GetStudentsToReviewers(courseId);
+            await Task.WhenAll(getStudentsTask, getStudentsToReviewersTask);
+            
+            var result = statistics.Zip(
+                getStudentsTask.Result,
+                (stats, student) =>
+                {
+                    getStudentsToReviewersTask.Result
+                        .StudentsToReviewersDictionary.TryGetValue(student.UserId, out var reviewers);
+                    return new AdvancedStatisticsCourseMatesModel
+                    {
+                        Id = student.UserId,
+                        Name = student.Name,
+                        Surname = student.Surname,
+                        Reviewers = reviewers ?? Array.Empty<AccountDataDto>(),
+                        Homeworks = stats.Homeworks
+                    };
+                }).OrderBy(t => t.Surname).ThenBy(t => t.Name);
 
             return Ok(result);
         }
-        
+
         [HttpGet("{courseId}/charts")]
         [ProducesResponseType(typeof(AdvancedCourseStatisticsViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetChartStatistics(long courseId)
         {
             var course = await _coursesClient.GetCourseById(courseId);
-            if (course == null) 
+            if (course == null)
                 return Forbid();
-            
+
             var statistics = await _solutionClient.GetCourseStatistics(courseId, UserId);
             var studentIds = statistics.Select(t => t.StudentId).ToArray();
             var studentsData = await AuthServiceClient.GetAccountsData(studentIds);
-            
-            var students = statistics.Zip(studentsData, 
+
+            var students = statistics.Zip(studentsData,
                 (stats, student) => new StatisticsCourseMatesModel
             {
                 Id = student.UserId,
@@ -105,7 +118,7 @@ namespace HwProj.APIGateway.API.Controllers
                 AverageStudentSolutions = statisticsMeasure.AverageStudentSolutions,
                 BestStudentSolutions = statisticsMeasure.BestStudentSolutions
             };
-            
+
             return Ok(result);
         }
     }
