@@ -23,6 +23,7 @@ import CheckIcon from '@mui/icons-material/Done';
 import WarningIcon from '@mui/icons-material/Warning';
 import CloseIcon from '@mui/icons-material/Close';
 import {useSnackbar} from 'notistack';
+import StudentStatsUtils from "../../services/StudentStatsUtils";
 
 interface ISolutionProps {
     solution: GetSolutionModel | undefined,
@@ -267,12 +268,12 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             state.clickedForRate || !isRated ? {backgroundColor: undefined, color: undefined}
                 : rating >= 70
                     ? {backgroundColor: "rgb(237,247,237)", color: "rgb(30,70,32)"}
-                    : rating <= 30
+                    : rating <= 34
                         ? {backgroundColor: "rgb(253,237,237)", color: "rgb(95,33,32)"}
                         : {backgroundColor: "rgb(255,244,229)", color: "rgb(102,60,0)"}
         return <Card variant={"outlined"}
                      sx={{
-                         border: isRated && !state.clickedForRate ? "none" : "",
+                         borderColor: state.clickedForRate || isRated ? StudentStatsUtils.getRatingColor(points, maxRating) : "",
                          width: "100%",
                          backgroundColor: backgroundColor,
                          color: color
@@ -318,11 +319,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     }))
                                 }}
                             />
-                       </Grid>
+                        </Grid>
                         : isRated &&
                         <Grid item>
                             <MarkdownPreview
-                                value={lecturerComment} 
+                                value={lecturerComment}
                                 backgroundColor={backgroundColor}
                                 textColor={color}
                             />
