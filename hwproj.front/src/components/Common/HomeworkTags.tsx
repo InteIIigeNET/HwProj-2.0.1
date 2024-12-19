@@ -1,5 +1,6 @@
 ﻿import * as React from "react";
 import {FC} from "react";
+import ValidationUtils from "../Utils/ValidationUtils";
 
 export const TestTag = "Контрольная работа"
 export const BonusTag = "Доп. баллы"
@@ -14,7 +15,7 @@ const BonusTip: FC = () => <sup style={{color: "green"}}> бонус</sup>
 
 export const getTip = (tagsOwner: { tags?: string[] }) => {
     const tags = tagsOwner.tags
-    if (tags === undefined || tags === null) return null
+    if (ValidationUtils.isNullOrUndefined(tags)) return null
     if (tags.includes(TestTag)) return <TestTip/>
     if (tags.includes(BonusTag)) return <BonusTip/>
     return null

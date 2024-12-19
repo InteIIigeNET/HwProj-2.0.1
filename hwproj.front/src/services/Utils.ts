@@ -1,3 +1,5 @@
+import ValidationUtils from "../components/Utils/ValidationUtils";
+
 export default class Utils {
     static convertLocalDateToUTCDate(d: Date) {
         let date = new Date(d)
@@ -9,7 +11,7 @@ export default class Utils {
     }
 
     static toISOString(date: Date | undefined) {
-        if (date === undefined || date === null) return undefined
+        if (ValidationUtils.isNullOrUndefined(date)) return undefined
 
         const pad = (num: number) => (num < 10 ? '0' : '') + num
 

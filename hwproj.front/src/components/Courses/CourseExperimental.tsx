@@ -22,6 +22,7 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 import Utils from "../../services/Utils";
 import {getTip} from "../Common/HomeworkTags";
 import {MarkdownPreview} from "../Common/MarkdownEditor";
+import ValidationUtils from "../Utils/ValidationUtils";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -149,14 +150,13 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 color,
                 solutionsDescription
             } = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)
-            return lastSolution === undefined || lastSolution === null
+            return ValidationUtils.isNullOrUndefined(lastSolution)
                 ? <TimelineDot variant={"outlined"}/>
                 : <Tooltip arrow disableInteractive enterDelay={1000}
                            title={<span style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
                     <Chip style={{backgroundColor: color, marginTop: '11.5px'}}
                           size={"small"}
-                          label={lastRatedSolution === undefined || lastRatedSolution === null ?
-                              "?" : lastRatedSolution.rating}/>
+                          label={ValidationUtils.isNullOrUndefined(lastRatedSolution) ? "?" : lastRatedSolution.rating}/>
                 </Tooltip>
         }
         return <TimelineDot variant={"outlined"}/>
