@@ -230,6 +230,12 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         variant={"head"}
                                     >
                                         {cm.surname} {cm.name}
+                                        <div style={{color: "gray", fontSize: "12px", marginTop: "-4px", lineHeight: '1.2'}}>
+                                            {cm.reviewers && cm.reviewers
+                                                .filter(r => r.userId !== props.userId)
+                                                .map(r => `${r.name} ${r.surname}`)
+                                                .join(', ')}
+                                        </div>
                                     </TableCell>
                                     {hasHomeworks && <TableCell
                                         align="center"
