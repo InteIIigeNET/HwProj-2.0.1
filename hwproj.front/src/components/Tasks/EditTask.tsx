@@ -9,7 +9,6 @@ import {Typography, TextField, Grid} from "@mui/material";
 import {MarkdownEditor} from "../Common/MarkdownEditor";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import {HomeworkViewModel} from "../../api";
-import ValidationUtils from "../Utils/ValidationUtils";
 
 interface IEditTaskState {
     isLoaded: boolean;
@@ -70,11 +69,11 @@ const EditTask: FC = () => {
         const task = taskForEditing.task!
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
 
-        const publication = ValidationUtils.isNullOrUndefined(task.publicationDate)
+        const publication = task.publicationDate == null
             ? undefined
             : new Date(task.publicationDate)
 
-        const deadline = ValidationUtils.isNullOrUndefined(task.deadlineDate)
+        const deadline = task.deadlineDate == null
             ? undefined
             : new Date(task.deadlineDate)
 

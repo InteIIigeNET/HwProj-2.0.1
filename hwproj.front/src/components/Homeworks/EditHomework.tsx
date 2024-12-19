@@ -10,7 +10,6 @@ import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import Tags from "../Common/Tags";
 import {Grid, Typography, TextField} from "@mui/material";
 import apiSingleton from "../../api/ApiSingleton";
-import ValidationUtils from "../Utils/ValidationUtils";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -71,7 +70,7 @@ const EditHomework: FC = () => {
 
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
 
-        const deadline = ValidationUtils.isNullOrUndefined(homework.deadlineDate)
+        const deadline = homework.deadlineDate == null
             ? undefined
             : new Date(homework.deadlineDate)
 
@@ -91,7 +90,7 @@ const EditHomework: FC = () => {
             hasErrors: false,
             tags: homework.tags!,
             changedTaskPublicationDates: homework.tasks!
-                .filter(t => !ValidationUtils.isNullOrUndefined(t.publicationDate))
+                .filter(t => t.publicationDate != null)
                 .map(t => new Date(t.publicationDate!))
         }))
     }

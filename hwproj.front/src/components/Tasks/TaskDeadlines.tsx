@@ -8,7 +8,6 @@ import Utils from "../../services/Utils";
 import ApiSingleton from "../../api/ApiSingleton";
 import Button from "@material-ui/core/Button";
 import {getTip} from "../Common/HomeworkTags";
-import ValidationUtils from "../Utils/ValidationUtils";
 
 interface ITaskDeadlinesProps {
     taskDeadlines: TaskDeadlineView[]
@@ -90,7 +89,7 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({taskDeadlines, onGiveUpClick}) 
                     <Stack direction={"row"} spacing={10} alignItems={"baseline"} justifyContent={"space-between"}
                            style={{height: 27}}>
                         {Utils.renderReadableDate(deadline!.deadlineDate!)}
-                        {hoveredElement === i && ValidationUtils.isNullOrUndefined(solutionState) && (
+                        {hoveredElement === i && solutionState == null && (
                             <Typography variant={"caption"}>
                                 <LinkText
                                     style={{textDecoration: "none", cursor: "pointer"}}

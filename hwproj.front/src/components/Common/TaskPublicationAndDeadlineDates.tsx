@@ -5,7 +5,6 @@ import Checkbox from '@mui/material/Checkbox';
 import {Grid} from "@mui/material";
 import {Typography, Link, Tooltip, FormControlLabel, FormHelperText} from '@material-ui/core';
 import {HomeworkViewModel} from 'api';
-import ValidationUtils from "../Utils/ValidationUtils";
 
 interface IDateFieldsProps {
     homework: HomeworkViewModel;
@@ -27,8 +26,7 @@ interface IDateFieldsState {
 const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     const {homework} = props
     const homeworkPublicationDate = new Date(homework.publicationDate!)
-    const homeworkDeadlineDate = ValidationUtils.isNullOrUndefined(homework.deadlineDate) ?
-        undefined : new Date(homework.deadlineDate)
+    const homeworkDeadlineDate = homework.deadlineDate == null ? undefined : new Date(homework.deadlineDate)
 
     const [state, setState] = useState<IDateFieldsState>({
         hasDeadline: props.hasDeadline,
@@ -38,10 +36,10 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     });
 
     const [showDates, setShowDates] = useState<boolean>(
-        !ValidationUtils.isNullOrUndefined(props.deadlineDate)
-        || !ValidationUtils.isNullOrUndefined(props.hasDeadline)
-        || !ValidationUtils.isNullOrUndefined(props.isDeadlineStrict)
-        || !ValidationUtils.isNullOrUndefined(props.publicationDate))
+        props.deadlineDate != null
+        || props.hasDeadline != null
+        || props.isDeadlineStrict != null
+        || props.publicationDate != null)
 
     const {publicationDate, isDeadlineStrict, deadlineDate, hasDeadline} = state
 
@@ -51,7 +49,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     const isDeadlineSoonerThanPublication = (taskPublicationDate: Date | undefined, taskDeadlineDate: Date | undefined) =>
     {
         const deadlineDate = taskDeadlineDate || homeworkDeadlineDate
-        if (ValidationUtils.isNullOrUndefined(deadlineDate)) return false
+        if (deadlineDate == null) return false
 
         return deadlineDate < (taskPublicationDate || homeworkPublicationDate)
     }
@@ -59,7 +57,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     const taskSoonerThanHomework = !!state.publicationDate && isTaskSoonerThanHomework(state.publicationDate)
     const deadlineSoonerThanPublication = (!!state.deadlineDate || !!homeworkDeadlineDate) && isDeadlineSoonerThanPublication(state.publicationDate, state.deadlineDate)
 
-    const showDeadlineEdit = ValidationUtils.isNullOrUndefined(hasDeadline) ? homework.hasDeadline : hasDeadline
+    const showDeadlineEdit = hasDeadline == null ? homework.hasDeadline : hasDeadline
 
     useEffect(() => {
         const validationResult =
@@ -146,13 +144,13 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                         ...prevState,
                                         deadlineDate: undefined,
                                         isDeadlineStrict: undefined,
-                                        hasDeadline: ValidationUtils.isNullOrUndefined(hasDeadline) ? !homework.hasDeadline : undefined,
+                                        hasDeadline: hasDeadline == null ? !homework.hasDeadline : undefined,
                                     }))
                                 }}
                             />}
                         />
                     <FormHelperText style={{ marginTop: '-1px' }}>
-                        {!ValidationUtils.isNullOrUndefined(hasDeadline)
+                        {hasDeadline != null
                             ? hasDeadline
                                 ? 'Было без дедлайна'
                                 : 'Был c дедлайном'
@@ -177,7 +175,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             variant="standard"
                             error={deadlineSoonerThanPublication}
                             helperText={deadlineSoonerThanPublication ? `Дедлайн задачи раньше ее публикации: ${Utils.renderDateWithoutSeconds(state.publicationDate!)}` :
-                                !ValidationUtils.isNullOrUndefined(deadlineDate)
+                                deadlineDate != null
                                     ? props.homework.hasDeadline
                                         ? `Было ${Utils.renderDateWithoutSeconds(props.homework.deadlineDate!)}`
                                         : `Было без дедлайна`
@@ -203,7 +201,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             <FormControlLabel
                                 label="Строгий"
                                 control={<Checkbox
-                                    checked={ValidationUtils.isNullOrUndefined(isDeadlineStrict) ? homework.isDeadlineStrict : isDeadlineStrict}
+                                    checked={isDeadlineStrict == null ? homework.isDeadlineStrict : isDeadlineStrict}
                                     onChange={(_) => {
                                         setState(prevState => ({
                                             ...prevState,
@@ -213,7 +211,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                 />}
                             />
                             <FormHelperText style={{ marginTop: '-1px' }}>
-                                {!ValidationUtils.isNullOrUndefined(isDeadlineStrict)
+                                {isDeadlineStrict != null
                                     ? isDeadlineStrict
                                         ? 'Был нестрогий'
                                         : 'Был строгий'
