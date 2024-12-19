@@ -9,7 +9,7 @@ export default class Utils {
     }
 
     static toISOString(date: Date | undefined) {
-        if (date === undefined) return undefined
+        if (date === undefined || date === null) return undefined
 
         const pad = (num: number) => (num < 10 ? '0' : '') + num
 

@@ -149,13 +149,14 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 color,
                 solutionsDescription
             } = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)
-            return lastSolution === undefined
+            return lastSolution === undefined || lastSolution === null
                 ? <TimelineDot variant={"outlined"}/>
                 : <Tooltip arrow disableInteractive enterDelay={1000}
                            title={<span style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
                     <Chip style={{backgroundColor: color, marginTop: '11.5px'}}
                           size={"small"}
-                          label={lastRatedSolution === undefined ? "?" : lastRatedSolution.rating}/>
+                          label={lastRatedSolution === undefined || lastRatedSolution === null ?
+                              "?" : lastRatedSolution.rating}/>
                 </Tooltip>
         }
         return <TimelineDot variant={"outlined"}/>
