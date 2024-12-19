@@ -149,12 +149,17 @@ namespace HwProj.APIGateway.API.Controllers
                 .ToArray();
 
             var currentDateTime = DateTime.UtcNow;
-            var homeworks = course.Homeworks
-                .GroupBy(GetGroupingKey, x =>
+            var actualHomeworks = course.Homeworks
+                .Select(hw =>
                 {
-                    x.Tasks = x.Tasks.Where(t => t.PublicationDate <= currentDateTime).ToList();
-                    return x;
+                    hw.Tasks = hw.Tasks.Where(t => t.PublicationDate <= currentDateTime).ToList();
+                    return hw;
                 })
+                .Where(hw => hw.Tasks.Count > 0)
+                .ToList();
+            
+            var homeworks = actualHomeworks
+                .GroupBy(GetGroupingKey)
                 .ToList();
 
             var homeworksGroup = homeworks
