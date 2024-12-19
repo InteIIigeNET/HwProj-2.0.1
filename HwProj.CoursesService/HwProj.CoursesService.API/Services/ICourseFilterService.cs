@@ -13,5 +13,6 @@ namespace HwProj.CoursesService.API.Services
         Task UpdateAsync(long courseFilterId, Filter filter);
         Task<CourseDTO[]> ApplyFiltersToCourses(string userId, CourseDTO[] courses);
         Task<CourseDTO> ApplyFilter(CourseDTO courseDto, string userId);
+        Task<MentorToAssignedStudentsDTO[]> GetAssignedStudentsIds(long courseId, string[] mentorsIds);
     }
 }
