@@ -1,12 +1,13 @@
 ﻿import {ChangeEvent, FC} from "react";
 import MDEditor from "@uiw/react-md-editor";
-import { getCommands, getExtraCommands } from "./Styles/MarkdownEditorCommands.ru";
-import rehypeSanitize from "rehype-sanitize";
+import {getCommands, getExtraCommands} from "./Styles/MarkdownEditorCommands.ru";
+import rehypeSanitize, {defaultSchema} from 'rehype-sanitize';
 import * as React from "react";
 
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import "./Styles/MarkdownEditor.css";
+import {Schema} from "rehype-sanitize/lib";
 
 interface MarkdownEditorProps {
     label: string;
@@ -22,19 +23,29 @@ interface MarkdownPreviewProps {
     textColor?: string;
 }
 
-const MarkdownPreview: FC<MarkdownPreviewProps> = (props) =>
-    <MDEditor.Markdown
-        className="markdown-preview"
-        source={props.value}
-        style={{
-            backgroundColor: props.backgroundColor ?? "transparent",
-            color: props.textColor ?? "inherit",
-            paddingBottom: '15px'
-        }}
-        wrapperElement={{
-            "data-color-mode": "light"
-        }}
-    />
+const customRehypeSanitizeSchema: Schema = {
+    ...defaultSchema,
+    tagNames: [...defaultSchema.tagNames!, 'code', 'span'],
+    attributes: {
+        ...defaultSchema.attributes,
+        code: ['className'],
+        span: ['className'],
+    },
+};
+
+const MarkdownPreview: FC<MarkdownPreviewProps> = (props) => <MDEditor.Markdown
+    className="markdown-preview"
+    source={props.value}
+    style={{
+        backgroundColor: props.backgroundColor ?? "transparent",
+        color: props.textColor ?? "inherit",
+        paddingBottom: '15px'
+    }}
+    wrapperElement={{
+        "data-color-mode": "light"
+    }}
+    rehypePlugins={[[rehypeSanitize, customRehypeSanitizeSchema]]}
+/>
 
 const MarkdownEditor: FC<MarkdownEditorProps> = (props) => {
     const handleChange = (value: string | undefined, event?: ChangeEvent<HTMLTextAreaElement>) => {
@@ -57,8 +68,8 @@ const MarkdownEditor: FC<MarkdownEditorProps> = (props) => {
                 value={props.value}
                 onChange={handleChange}
                 previewOptions={{
-                    rehypePlugins: [[rehypeSanitize]],
-                    className: "markdown-preview"
+                    className: "markdown-preview",
+                    rehypePlugins: [[rehypeSanitize, customRehypeSanitizeSchema]]
                 }}
                 maxHeight={props.maxHeight ?? 400}
                 height={props.height ?? 230}
