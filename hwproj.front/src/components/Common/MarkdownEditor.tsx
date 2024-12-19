@@ -61,10 +61,11 @@ const MarkdownEditor: FC<MarkdownEditorProps> = (props) => {
                     className: "markdown-preview"
                 }}
                 maxHeight={props.maxHeight ?? 400}
-                height={props.height ?? 200}
+                height={props.height ?? 230}
                 textareaProps={{
                     placeholder: props.label
                 }}
+                preview="edit"
             />
         </div>
     );
