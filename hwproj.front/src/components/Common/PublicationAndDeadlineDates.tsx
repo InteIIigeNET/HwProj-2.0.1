@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react';
 import Utils from "../../services/Utils";
 import {Tooltip, Checkbox, TextField, Grid, FormControlLabel} from '@mui/material/'
 
-
 interface IDateFieldsProps {
     publicationDate: Date | undefined;
     hasDeadline: boolean;
@@ -58,7 +57,7 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
         props.autoCalculatedDeadline && state.deadlineDate === props.autoCalculatedDeadline
 
     const isDeadlineSoonerThanPublication = (publicationDate: Date, deadlineDate: Date | undefined) =>
-        deadlineDate !== undefined && deadlineDate < publicationDate;
+        deadlineDate != null && deadlineDate < publicationDate;
 
     const deadlineSoonerThatHomework = isDeadlineSoonerThanPublication(state.publicationDate, state.deadlineDate)
 

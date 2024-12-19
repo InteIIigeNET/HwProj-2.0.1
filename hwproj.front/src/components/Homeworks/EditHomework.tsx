@@ -70,7 +70,7 @@ const EditHomework: FC = () => {
 
         const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
 
-        const deadline = homework.deadlineDate === undefined
+        const deadline = homework.deadlineDate == null
             ? undefined
             : new Date(homework.deadlineDate)
 
@@ -90,7 +90,7 @@ const EditHomework: FC = () => {
             hasErrors: false,
             tags: homework.tags!,
             changedTaskPublicationDates: homework.tasks!
-                .filter(t => t.publicationDate !== undefined)
+                .filter(t => t.publicationDate != null)
                 .map(t => new Date(t.publicationDate!))
         }))
     }

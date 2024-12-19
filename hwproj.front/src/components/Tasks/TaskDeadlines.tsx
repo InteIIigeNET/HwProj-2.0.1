@@ -89,7 +89,7 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({taskDeadlines, onGiveUpClick}) 
                     <Stack direction={"row"} spacing={10} alignItems={"baseline"} justifyContent={"space-between"}
                            style={{height: 27}}>
                         {Utils.renderReadableDate(deadline!.deadlineDate!)}
-                        {hoveredElement === i && solutionState === undefined && (
+                        {hoveredElement === i && solutionState == null && (
                             <Typography variant={"caption"}>
                                 <LinkText
                                     style={{textDecoration: "none", cursor: "pointer"}}

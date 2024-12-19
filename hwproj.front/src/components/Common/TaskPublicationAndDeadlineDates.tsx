@@ -26,7 +26,7 @@ interface IDateFieldsState {
 const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     const {homework} = props
     const homeworkPublicationDate = new Date(homework.publicationDate!)
-    const homeworkDeadlineDate = homework.deadlineDate === undefined ? undefined : new Date(homework.deadlineDate)
+    const homeworkDeadlineDate = homework.deadlineDate == null ? undefined : new Date(homework.deadlineDate)
 
     const [state, setState] = useState<IDateFieldsState>({
         hasDeadline: props.hasDeadline,
@@ -36,10 +36,10 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     });
 
     const [showDates, setShowDates] = useState<boolean>(
-        props.deadlineDate !== undefined
-        || props.hasDeadline !== undefined
-        || props.isDeadlineStrict !== undefined
-        || props.publicationDate !== undefined)
+        props.deadlineDate != null
+        || props.hasDeadline != null
+        || props.isDeadlineStrict != null
+        || props.publicationDate != null)
 
     const {publicationDate, isDeadlineStrict, deadlineDate, hasDeadline} = state
 
@@ -48,15 +48,16 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
 
     const isDeadlineSoonerThanPublication = (taskPublicationDate: Date | undefined, taskDeadlineDate: Date | undefined) =>
     {
-        if ((taskDeadlineDate || homeworkDeadlineDate) === undefined) return false
+        const deadlineDate = taskDeadlineDate || homeworkDeadlineDate
+        if (deadlineDate == null) return false
 
-        return (taskDeadlineDate || homeworkDeadlineDate)! < (taskPublicationDate || homeworkPublicationDate)
+        return deadlineDate < (taskPublicationDate || homeworkPublicationDate)
     }
 
     const taskSoonerThanHomework = !!state.publicationDate && isTaskSoonerThanHomework(state.publicationDate)
     const deadlineSoonerThanPublication = (!!state.deadlineDate || !!homeworkDeadlineDate) && isDeadlineSoonerThanPublication(state.publicationDate, state.deadlineDate)
 
-    const showDeadlineEdit = hasDeadline === undefined ? homework.hasDeadline : hasDeadline
+    const showDeadlineEdit = hasDeadline == null ? homework.hasDeadline : hasDeadline
 
     useEffect(() => {
         const validationResult =
@@ -143,13 +144,13 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                         ...prevState,
                                         deadlineDate: undefined,
                                         isDeadlineStrict: undefined,
-                                        hasDeadline: hasDeadline === undefined ? !homework.hasDeadline : undefined,
+                                        hasDeadline: hasDeadline == null ? !homework.hasDeadline : undefined,
                                     }))
                                 }}
                             />}
                         />
                     <FormHelperText style={{ marginTop: '-1px' }}>
-                        {hasDeadline !== undefined 
+                        {hasDeadline != null
                             ? hasDeadline
                                 ? 'Было без дедлайна'
                                 : 'Был c дедлайном'
@@ -174,7 +175,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             variant="standard"
                             error={deadlineSoonerThanPublication}
                             helperText={deadlineSoonerThanPublication ? `Дедлайн задачи раньше ее публикации: ${Utils.renderDateWithoutSeconds(state.publicationDate!)}` :
-                                deadlineDate !== undefined 
+                                deadlineDate != null
                                     ? props.homework.hasDeadline
                                         ? `Было ${Utils.renderDateWithoutSeconds(props.homework.deadlineDate!)}`
                                         : `Было без дедлайна`
@@ -200,7 +201,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             <FormControlLabel
                                 label="Строгий"
                                 control={<Checkbox
-                                    checked={isDeadlineStrict === undefined ? homework.isDeadlineStrict : isDeadlineStrict}
+                                    checked={isDeadlineStrict == null ? homework.isDeadlineStrict : isDeadlineStrict}
                                     onChange={(_) => {
                                         setState(prevState => ({
                                             ...prevState,
@@ -210,7 +211,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                 />}
                             />
                             <FormHelperText style={{ marginTop: '-1px' }}>
-                                {isDeadlineStrict !== undefined
+                                {isDeadlineStrict != null
                                     ? isDeadlineStrict
                                         ? 'Был нестрогий'
                                         : 'Был строгий'
