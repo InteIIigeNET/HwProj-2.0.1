@@ -11,6 +11,7 @@ using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
+using IStudentsInfo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudentsInfo;
@@ -23,6 +24,7 @@ namespace HwProj.APIGateway.API.Controllers
     {
         private readonly ICoursesServiceClient _coursesClient;
         private readonly IMapper _mapper;
+        private readonly IStudentsInformation _studentsInfo;
 
         public CoursesController(ICoursesServiceClient coursesClient,
             IAuthServiceClient authServiceClient,
@@ -30,6 +32,8 @@ namespace HwProj.APIGateway.API.Controllers
         {
             _coursesClient = coursesClient;
             _mapper = mapper;
+            // Для работы необходимо указать st-почту и пароль
+            _studentsInfo = new StudentsInformation("", "");
         }
 
         [HttpGet("getAllData/{courseId}")]
@@ -202,23 +206,19 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpGet("getGroups")]
         public  IActionResult GetGroups(string programName)
         {
-            var studentsInfo = new StudentsInformation("", "");
-            return Ok(studentsInfo.GetGroups(programName));
+            return Ok(_studentsInfo.GetGroups(programName));
         }
         
         [HttpGet("getProgramNames")]
         public  IActionResult GetProgramNames()
         {   
-            var studentsInfo = new StudentsInformation("", "");
-            return Ok(studentsInfo.ProgramNames);
+            return Ok(_studentsInfo.ProgramNames);
         }
         
         [HttpPost("inviteAndAddStudentsToCourse")]
         public async Task<IActionResult> InviteAndRegisterGroup(string groupName, long courseId)
         {
-            // Для работы необходимо указать st-почту и пароль
-            var studentsInfo = new StudentsInformation("", "");
-            var students = studentsInfo.GetStudentInformation(groupName);
+            var students = _studentsInfo.GetStudentInformation(groupName);
             
             foreach (var email in students.Keys)
             {
