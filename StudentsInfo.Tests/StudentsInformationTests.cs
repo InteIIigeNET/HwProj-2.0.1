@@ -18,7 +18,7 @@ namespace StudentsInfo.Tests
         [Test]
         public void Constructor_ShouldPopulateProgramGroups()
         {
-            var programNames = _studentsInformation.ProgramNames;
+            var programNames = _studentsInformation.GetProgramNames();
             
             Assert.IsNotEmpty(programNames);
             Assert.Contains("Программная инженерия", programNames); 
