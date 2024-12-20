@@ -226,9 +226,8 @@ namespace HwProj.APIGateway.API.Controllers
                 if (studentId == null)
                 {
                     var registerModel = new RegisterViewModel();
-                    var passwordRecoveryModel = new RequestPasswordRecoveryViewModel();
                     
-                    registerModel.Email = passwordRecoveryModel.Email = student.Email;
+                    registerModel.Email = student.Email;
                     registerModel.Name = student.Name;
                     registerModel.Surname = student.Surname;
                     registerModel.MiddleName = student.MiddleName;
@@ -236,8 +235,6 @@ namespace HwProj.APIGateway.API.Controllers
                     registerModel.PasswordConfirm = "123456";
                     
                     await AuthServiceClient.Register(registerModel);
-                    await AuthServiceClient.RequestPasswordRecovery(passwordRecoveryModel);
-                        
                     studentId = await AuthServiceClient.FindByEmailAsync(student.Email);
                 }
                 await _coursesClient.SignInCourse(courseId, studentId); 
