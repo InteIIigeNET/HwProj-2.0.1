@@ -98,7 +98,6 @@ const CreateCourse: FC = () => {
     };
     try {
       const courseId = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel); // Создаем курс
-      await ApiSingleton.coursesApi.apiCoursesInviteAndAddStudentsToCoursePost(course.groupName, courseId); // Приглашаем студентов в курс
       setCourse((prevState) => ({
         ...prevState,
         courseId: courseId.toString(),

@@ -72,6 +72,31 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
+            var students = _studentsInfo.GetStudentInformation(model.GroupName);
+            var studentsIDs = new List<string>();
+
+            foreach (var student in students)
+            {
+                var studentId = await AuthServiceClient.FindByEmailAsync(student.Email);
+                if (studentId == null)
+                {
+                    var registerModel = new RegisterViewModel();
+                    
+                    registerModel.Email = student.Email;
+                    registerModel.Name = student.Name;
+                    registerModel.Surname = student.Surname;
+                    registerModel.MiddleName = student.MiddleName;
+                    registerModel.Password = "123456";
+                    registerModel.PasswordConfirm = "123456";
+                    
+                    await AuthServiceClient.Register(registerModel);
+                    studentId = await AuthServiceClient.FindByEmailAsync(student.Email);
+                }
+                studentsIDs.Add(studentId);
+            }
+
+            model.studentIDs = studentsIDs;
+            
             var result = await _coursesClient.CreateCourse(model, UserId);
             return Ok(result);
         }
@@ -215,34 +240,6 @@ namespace HwProj.APIGateway.API.Controllers
         public  IActionResult GetProgramNames()
         {   
             return Ok(_studentsInfo.GetProgramNames());
-        }
-        
-        [HttpPost("inviteAndAddStudentsToCourse")]
-        public async Task<IActionResult> InviteAndRegisterGroup(string groupName, long courseId)
-        {
-            var students = _studentsInfo.GetStudentInformation(groupName);
-            
-            foreach (var student in students)
-            {
-                var studentId = await AuthServiceClient.FindByEmailAsync(student.Email);
-                if (studentId == null)
-                {
-                    var registerModel = new RegisterViewModel();
-                    
-                    registerModel.Email = student.Email;
-                    registerModel.Name = student.Name;
-                    registerModel.Surname = student.Surname;
-                    registerModel.MiddleName = student.MiddleName;
-                    registerModel.Password = "123456";
-                    registerModel.PasswordConfirm = "123456";
-                    
-                    await AuthServiceClient.Register(registerModel);
-                    studentId = await AuthServiceClient.FindByEmailAsync(student.Email);
-                }
-                await _coursesClient.SignInCourse(courseId, studentId); 
-            }
-
-            return Ok();
         }
 
         private async Task<CourseViewModel> ToCourseViewModel(CourseDTO course)

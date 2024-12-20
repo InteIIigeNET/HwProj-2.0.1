@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System.Linq;
 
 namespace StudentsInfo.Tests
 {
@@ -18,7 +19,8 @@ namespace StudentsInfo.Tests
         [Test]
         public void Constructor_ShouldPopulateProgramGroups()
         {
-            var programNames = _studentsInformation.GetProgramNames();
+            var programNamesModels = _studentsInformation.GetProgramNames();
+            var programNames = programNamesModels.Select(model => model.ProgramName).ToList();
             
             Assert.IsNotEmpty(programNames);
             Assert.Contains("Программная инженерия", programNames); 
@@ -30,7 +32,8 @@ namespace StudentsInfo.Tests
         {
             string programName = "Программная инженерия";
             
-            var groups = _studentsInformation.GetGroups(programName);
+            var groupsModels = _studentsInformation.GetGroups(programName);
+            var groups = groupsModels.Select(model => model.GroupName).ToList();
             
             Assert.IsNotEmpty(groups);
             Assert.Contains("22.Б11-мм", groups);
@@ -43,7 +46,7 @@ namespace StudentsInfo.Tests
             string programName = "Экономика";
             
             var groups = _studentsInformation.GetGroups(programName);
-
+            
             Assert.IsEmpty(groups);
         }
         
