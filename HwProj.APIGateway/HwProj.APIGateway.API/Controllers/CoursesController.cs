@@ -202,14 +202,14 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpGet("getGroups")]
         public  IActionResult GetGroups(string programName)
         {
-            var studentsInfo = new StudentsStats("", "");
+            var studentsInfo = new StudentsInformation("", "");
             return Ok(studentsInfo.GetGroups(programName));
         }
         
         [HttpGet("getProgramNames")]
         public  IActionResult GetProgramNames()
         {   
-            var studentsInfo = new StudentsStats("", "");
+            var studentsInfo = new StudentsInformation("", "");
             return Ok(studentsInfo.ProgramNames);
         }
         
@@ -217,7 +217,7 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> InviteAndRegisterGroup(string groupName, long courseId)
         {
             // Для работы необходимо указать st-почту и пароль
-            var studentsInfo = new StudentsStats("", "");
+            var studentsInfo = new StudentsInformation("", "");
             var students = studentsInfo.GetStudentInformation(groupName);
             
             foreach (var email in students.Keys)

@@ -7,7 +7,7 @@ using Novell.Directory.Ldap;
 namespace StudentsInfo
 {
     /// <inheritdoc/>
-    public class StudentsStats : IStudentsInfo.IStudentsStats
+    public class StudentsInformation : IStudentsInfo.IStudentsInformation
     {
         private readonly Dictionary<string, List<string>> _programsGroups = new Dictionary<string, List<string>>();
         private readonly string _ldapHost = "ad.pu.ru";
@@ -77,7 +77,7 @@ namespace StudentsInfo
         /// <inheritdoc/>
         public List<string> ProgramNames => _programsGroups.Keys.ToList();
         
-        public StudentsStats(string username, string password)
+        public StudentsInformation(string username, string password)
         {
             this._username = username;
             this._password = password;
