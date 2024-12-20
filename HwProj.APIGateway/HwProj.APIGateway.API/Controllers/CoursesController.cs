@@ -220,26 +220,25 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var students = _studentsInfo.GetStudentInformation(groupName);
             
-            foreach (var email in students.Keys)
+            foreach (var student in students)
             {
-                var studentId = await AuthServiceClient.FindByEmailAsync(email);
+                var studentId = await AuthServiceClient.FindByEmailAsync(student.Email);
                 if (studentId == null)
                 {
                     var registerModel = new RegisterViewModel();
                     var passwordRecoveryModel = new RequestPasswordRecoveryViewModel();
-                    string[] splitNames = students[email].Split(' ');
                     
-                    registerModel.Email = passwordRecoveryModel.Email = email;
-                    registerModel.Name = splitNames[0];
-                    registerModel.Surname = splitNames.Length > 1 ? splitNames[1] : "";
-                    registerModel.MiddleName = splitNames.Length > 2 ? splitNames[2] : "";
+                    registerModel.Email = passwordRecoveryModel.Email = student.Email;
+                    registerModel.Name = student.Name;
+                    registerModel.Surname = student.Surname;
+                    registerModel.MiddleName = student.MiddleName;
                     registerModel.Password = "123456";
                     registerModel.PasswordConfirm = "123456";
                     
                     await AuthServiceClient.Register(registerModel);
                     await AuthServiceClient.RequestPasswordRecovery(passwordRecoveryModel);
                         
-                    studentId = await AuthServiceClient.FindByEmailAsync(email);
+                    studentId = await AuthServiceClient.FindByEmailAsync(student.Email);
                 }
                 await _coursesClient.SignInCourse(courseId, studentId); 
             }
