@@ -82,9 +82,11 @@ namespace StudentsInfo
         }
 
         /// <inheritdoc/>
-        public List<string> GetProgramNames()
+        public List<ProgramModel> GetProgramNames()
         {
-            return _programsGroups.Keys.ToList(); 
+            return _programsGroups.Keys
+                .Select(key => new ProgramModel { ProgramName = key })
+                .ToList();
         }
 
         public StudentsInformation(string username, string password)

@@ -210,6 +210,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpGet("getProgramNames")]
+        [ProducesResponseType(typeof(List<ProgramModel>), (int)HttpStatusCode.OK)]
         public  IActionResult GetProgramNames()
         {   
             return Ok(_studentsInfo.GetProgramNames());

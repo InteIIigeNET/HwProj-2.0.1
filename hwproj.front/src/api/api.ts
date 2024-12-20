@@ -1203,6 +1203,20 @@ export interface NotificationsSettingDto {
 /**
  * 
  * @export
+ * @interface ProgramModel
+ */
+export interface ProgramModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof ProgramModel
+     */
+    programName?: string;
+}
+
+/**
+ * 
+ * @export
  * @interface RateSolutionModel
  */
 export interface RateSolutionModel {
@@ -4791,12 +4805,12 @@ export const CoursesApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesGetProgramNamesGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+        apiCoursesGetProgramNamesGet(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<ProgramModel>> {
             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesGetProgramNamesGet(options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
-                        return response;
+                        return response.json();
                     } else {
                         throw response;
                     }

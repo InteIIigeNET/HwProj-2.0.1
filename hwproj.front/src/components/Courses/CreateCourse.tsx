@@ -53,8 +53,8 @@ const CreateCourse: FC = () => {
     const fetchProgramNames = async () => {
       try {
         const response = await ApiSingleton.coursesApi.apiCoursesGetProgramNamesGet();
-        const data = await response.json();
-        setProgramNames(data); 
+        const programNames = response.map(model => model.programName).filter((name): name is string => name !== undefined);
+        setProgramNames(programNames); 
       } catch (e) {
         console.error("Ошибка при загрузке списка программ:", e);
         setProgramNames([]);

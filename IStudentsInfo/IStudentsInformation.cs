@@ -13,6 +13,14 @@ namespace IStudentsInfo
     };
     
     /// <summary>
+    /// Модель, хранящая информацию об образовательной программе
+    /// </summary>
+    public class ProgramModel 
+    {
+        public string ProgramName { get; set; }
+    };
+    
+    /// <summary>
     /// Класс, который содержит функциональность по получению образовательных программ, учебных групп
     /// и информации о студентах
     /// </summary>
@@ -32,6 +40,6 @@ namespace IStudentsInfo
         /// <summary>
         /// Возвращает список образовательных программ
         /// </summary>
-        List<string> GetProgramNames();
+        List<ProgramModel> GetProgramNames();
     }
 }
