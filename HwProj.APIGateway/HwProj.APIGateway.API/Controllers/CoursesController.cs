@@ -212,7 +212,7 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpGet("getProgramNames")]
         public  IActionResult GetProgramNames()
         {   
-            return Ok(_studentsInfo.ProgramNames);
+            return Ok(_studentsInfo.GetProgramNames());
         }
         
         [HttpPost("inviteAndAddStudentsToCourse")]

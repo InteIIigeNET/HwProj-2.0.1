@@ -28,10 +28,10 @@ namespace IStudentsInfo
         /// в котором ключи - почты студентов, значения - ФИО
         /// </summary>
         List<StudentModel> GetStudentInformation(string groupName);
-        
+
         /// <summary>
         /// Возвращает список образовательных программ
         /// </summary>
-        List<string> ProgramNames { get; }
+        List<string> GetProgramNames();
     }
 }

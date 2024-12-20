@@ -82,8 +82,11 @@ namespace StudentsInfo
         }
 
         /// <inheritdoc/>
-        public List<string> ProgramNames => _programsGroups.Keys.ToList();
-        
+        public List<string> GetProgramNames()
+        {
+            return _programsGroups.Keys.ToList(); 
+        }
+
         public StudentsInformation(string username, string password)
         {
             this._username = username;
