@@ -21,6 +21,14 @@ namespace IStudentsInfo
     };
     
     /// <summary>
+    /// Модель, хранящая информацию об учебной группе
+    /// </summary>
+    public class GroupModel 
+    {
+        public string GroupName { get; set; }
+    };
+    
+    /// <summary>
     /// Класс, который содержит функциональность по получению образовательных программ, учебных групп
     /// и информации о студентах
     /// </summary>
@@ -29,7 +37,7 @@ namespace IStudentsInfo
         /// <summary>
         /// По данному названию образовательной программы возвращает список соответствующих учебных групп
         /// </summary>
-        List<string> GetGroups(string programName);
+        List<GroupModel> GetGroups(string programName);
 
         /// <summary>
         /// По данному названию учебной группы возвращает информацию о студентах в виде словаря,

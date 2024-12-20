@@ -832,6 +832,20 @@ export interface GroupMateViewModel {
 /**
  * 
  * @export
+ * @interface GroupModel
+ */
+export interface GroupModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof GroupModel
+     */
+    groupName?: string;
+}
+
+/**
+ * 
+ * @export
  * @interface GroupViewModel
  */
 export interface GroupViewModel {
@@ -4751,12 +4765,12 @@ export const CoursesApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiCoursesGetGroupsGet(programName?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+        apiCoursesGetGroupsGet(programName?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<GroupModel>> {
             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).apiCoursesGetGroupsGet(programName, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
-                        return response;
+                        return response.json();
                     } else {
                         throw response;
                     }

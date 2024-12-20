@@ -71,7 +71,7 @@ const CreateCourse: FC = () => {
       setFetchingGroups(true); 
       try {
         const response = await ApiSingleton.coursesApi.apiCoursesGetGroupsGet(program);
-        const data = await response.json();
+        const data = response.map(model => model.groupName).filter((name): name is string => name !== undefined);
         setGroupNames(data); 
       } catch (e) {
         console.error("Ошибка при загрузке списка групп:", e);

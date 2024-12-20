@@ -204,6 +204,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpGet("getGroups")]
+        [ProducesResponseType(typeof(List<GroupModel>), (int)HttpStatusCode.OK)]
         public  IActionResult GetGroups(string programName)
         {
             return Ok(_studentsInfo.GetGroups(programName));

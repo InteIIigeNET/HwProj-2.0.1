@@ -19,15 +19,15 @@ namespace StudentsInfo
         private string _password;
     
         /// <inheritdoc/>
-        public List<string> GetGroups(string programName)
+        public List<GroupModel> GetGroups(string programName)
         {
             return _programsGroups.ContainsKey(programName)
                 ? _programsGroups[programName]
                     .Aggregate((current, next) => current + "," + next) 
                     .Split(',')
-                    .Select(group => group.Trim())
+                    .Select(group => new GroupModel { GroupName = group.Trim() })
                     .ToList()
-                : new List<string>();
+                : new List<GroupModel>();
         }
 
         /// <inheritdoc/>
