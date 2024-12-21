@@ -84,6 +84,13 @@ namespace HwProj.CoursesService.API.Controllers
         {
             var course = _mapper.Map<Course>(courseViewModel);
             var id = await _coursesService.AddAsync(course, mentorId);
+            
+            foreach (var studentID in courseViewModel.studentIDs)
+            { 
+                await _coursesService.AddStudentAsync(id, studentID);
+                await _coursesService.AcceptCourseMateAsync(id, studentID);
+            }
+            
             return Ok(id);
         }
 

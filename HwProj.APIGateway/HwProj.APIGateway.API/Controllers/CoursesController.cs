@@ -11,6 +11,7 @@ using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
+using IStudentsInfo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudentsInfo;
@@ -23,6 +24,7 @@ namespace HwProj.APIGateway.API.Controllers
     {
         private readonly ICoursesServiceClient _coursesClient;
         private readonly IMapper _mapper;
+        private readonly IStudentsInformation _studentsInfo;
 
         public CoursesController(ICoursesServiceClient coursesClient,
             IAuthServiceClient authServiceClient,
@@ -30,6 +32,8 @@ namespace HwProj.APIGateway.API.Controllers
         {
             _coursesClient = coursesClient;
             _mapper = mapper;
+            // Для работы необходимо указать st-почту и пароль
+            _studentsInfo = new StudentsInformation("", "");
         }
 
         [HttpGet("getAllData/{courseId}")]
@@ -68,6 +72,31 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
+            var students = _studentsInfo.GetStudentInformation(model.GroupName);
+            var studentsIDs = new List<string>();
+
+            foreach (var student in students)
+            {
+                var studentId = await AuthServiceClient.FindByEmailAsync(student.Email);
+                if (studentId == null)
+                {
+                    var registerModel = new RegisterViewModel();
+                    
+                    registerModel.Email = student.Email;
+                    registerModel.Name = student.Name;
+                    registerModel.Surname = student.Surname;
+                    registerModel.MiddleName = student.MiddleName;
+                    registerModel.Password = "123456";
+                    registerModel.PasswordConfirm = "123456";
+                    
+                    await AuthServiceClient.Register(registerModel);
+                    studentId = await AuthServiceClient.FindByEmailAsync(student.Email);
+                }
+                studentsIDs.Add(studentId);
+            }
+
+            model.studentIDs = studentsIDs;
+            
             var result = await _coursesClient.CreateCourse(model, UserId);
             return Ok(result);
         }
@@ -200,51 +229,17 @@ namespace HwProj.APIGateway.API.Controllers
         }
         
         [HttpGet("getGroups")]
+        [ProducesResponseType(typeof(List<GroupModel>), (int)HttpStatusCode.OK)]
         public  IActionResult GetGroups(string programName)
         {
-            var studentsInfo = new StudentsStats("", "");
-            return Ok(studentsInfo.GetGroups(programName));
+            return Ok(_studentsInfo.GetGroups(programName));
         }
         
         [HttpGet("getProgramNames")]
+        [ProducesResponseType(typeof(List<ProgramModel>), (int)HttpStatusCode.OK)]
         public  IActionResult GetProgramNames()
         {   
-            var studentsInfo = new StudentsStats("", "");
-            return Ok(studentsInfo.ProgramNames);
-        }
-        
-        [HttpPost("inviteAndAddStudentsToCourse")]
-        public async Task<IActionResult> InviteAndRegisterGroup(string groupName, long courseId)
-        {
-            // Для работы необходимо указать st-почту и пароль
-            var studentsInfo = new StudentsStats("", "");
-            var students = studentsInfo.GetStudentInformation(groupName);
-            
-            foreach (var email in students.Keys)
-            {
-                var studentId = await AuthServiceClient.FindByEmailAsync(email);
-                if (studentId == null)
-                {
-                    var registerModel = new RegisterViewModel();
-                    var passwordRecoveryModel = new RequestPasswordRecoveryViewModel();
-                    string[] splitNames = students[email].Split(' ');
-                    
-                    registerModel.Email = passwordRecoveryModel.Email = email;
-                    registerModel.Name = splitNames[0];
-                    registerModel.Surname = splitNames.Length > 1 ? splitNames[1] : "";
-                    registerModel.MiddleName = splitNames.Length > 2 ? splitNames[2] : "";
-                    registerModel.Password = "123456";
-                    registerModel.PasswordConfirm = "123456";
-                    
-                    await AuthServiceClient.Register(registerModel);
-                    await AuthServiceClient.RequestPasswordRecovery(passwordRecoveryModel);
-                        
-                    studentId = await AuthServiceClient.FindByEmailAsync(email);
-                }
-                await _coursesClient.SignInCourse(courseId, studentId); 
-            }
-
-            return Ok();
+            return Ok(_studentsInfo.GetProgramNames());
         }
 
         private async Task<CourseViewModel> ToCourseViewModel(CourseDTO course)

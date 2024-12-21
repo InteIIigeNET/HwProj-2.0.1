@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using HtmlAgilityPack;
 using Novell.Directory.Ldap;
+using IStudentsInfo;
 
 namespace StudentsInfo
 {
     /// <inheritdoc/>
-    public class StudentsStats : IStudentsInfo.IStudentsStats
+    public class StudentsInformation : IStudentsInformation
     {
         private readonly Dictionary<string, List<string>> _programsGroups = new Dictionary<string, List<string>>();
         private readonly string _ldapHost = "ad.pu.ru";
@@ -18,24 +19,24 @@ namespace StudentsInfo
         private string _password;
     
         /// <inheritdoc/>
-        public List<string> GetGroups(string programName)
+        public List<GroupModel> GetGroups(string programName)
         {
             return _programsGroups.ContainsKey(programName)
                 ? _programsGroups[programName]
                     .Aggregate((current, next) => current + "," + next) 
                     .Split(',')
-                    .Select(group => group.Trim())
+                    .Select(group => new GroupModel { GroupName = group.Trim() })
                     .ToList()
-                : new List<string>();
+                : new List<GroupModel>();
         }
 
         /// <inheritdoc/>
-        public Dictionary<string, string> GetStudentInformation(string groupName)
+        public List<StudentModel> GetStudentInformation(string groupName)
         {
             // Формируем фильтр для поиска студентов в LDAP.
             var searchFilter = $"(&(objectClass=person)(memberOf=CN=АкадемГруппа_{groupName},OU=АкадемГруппа,OU=Группы,DC=ad,DC=pu,DC=ru))";
-            var cnDisplayNameDict = new Dictionary<string, string>();
-
+            var studentsList = new List<StudentModel>();
+            
             try
             {
                 // Создаем подключение к LDAP серверу.
@@ -61,7 +62,13 @@ namespace StudentsInfo
                     
                     if (cn != null && displayName != null)
                     {
-                        cnDisplayNameDict[cn + "@student.spbu.ru"] = displayName;
+                        string[] splitNames = displayName.Split(' ');
+                        var newStudent = new StudentModel();
+                        newStudent.Name = splitNames[0];
+                        newStudent.Surname = splitNames.Length > 1 ? splitNames[1] : "";
+                        newStudent.MiddleName = splitNames.Length > 2 ? splitNames[2] : "";
+                        newStudent.Email = cn + "@student.spbu.ru";
+                        studentsList.Add(newStudent);
                     }
                 }
                 
@@ -71,13 +78,18 @@ namespace StudentsInfo
             {
             }
 
-            return cnDisplayNameDict;
+            return studentsList;
         }
 
         /// <inheritdoc/>
-        public List<string> ProgramNames => _programsGroups.Keys.ToList();
-        
-        public StudentsStats(string username, string password)
+        public List<ProgramModel> GetProgramNames()
+        {
+            return _programsGroups.Keys
+                .Select(key => new ProgramModel { ProgramName = key })
+                .ToList();
+        }
+
+        public StudentsInformation(string username, string password)
         {
             this._username = username;
             this._password = password;

@@ -53,8 +53,8 @@ const CreateCourse: FC = () => {
     const fetchProgramNames = async () => {
       try {
         const response = await ApiSingleton.coursesApi.apiCoursesGetProgramNamesGet();
-        const data = await response.json();
-        setProgramNames(data); 
+        const programNames = response.map(model => model.programName).filter((name): name is string => name !== undefined);
+        setProgramNames(programNames); 
       } catch (e) {
         console.error("Ошибка при загрузке списка программ:", e);
         setProgramNames([]);
@@ -71,7 +71,7 @@ const CreateCourse: FC = () => {
       setFetchingGroups(true); 
       try {
         const response = await ApiSingleton.coursesApi.apiCoursesGetGroupsGet(program);
-        const data = await response.json();
+        const data = response.map(model => model.groupName).filter((name): name is string => name !== undefined);
         setGroupNames(data); 
       } catch (e) {
         console.error("Ошибка при загрузке списка групп:", e);
@@ -98,7 +98,6 @@ const CreateCourse: FC = () => {
     };
     try {
       const courseId = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel); // Создаем курс
-      await ApiSingleton.coursesApi.apiCoursesInviteAndAddStudentsToCoursePost(course.groupName, courseId); // Приглашаем студентов в курс
       setCourse((prevState) => ({
         ...prevState,
         courseId: courseId.toString(),
