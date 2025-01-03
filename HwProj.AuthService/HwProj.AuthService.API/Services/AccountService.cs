@@ -340,12 +340,12 @@ namespace HwProj.AuthService.API.Services
                 user.MiddleName = model.MiddleName;
             }
 
-            if (!string.IsNullOrWhiteSpace(model.CompanyName))
+            if (model.CompanyName != null)
             {
                 user.CompanyName = model.CompanyName;
             }
 
-            if (!string.IsNullOrWhiteSpace(model.Bio))
+            if (model.Bio != null)
             {
                 user.Bio = model.Bio;
             }
