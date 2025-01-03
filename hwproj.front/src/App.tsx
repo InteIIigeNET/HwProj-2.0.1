@@ -112,7 +112,8 @@ class App extends Component<{ navigate: any }, AppState> {
                         <Route path="create_course" element={<CreateCourse/>}/>
                         <Route path="courses/:courseId" element={<Course/>}/>
                         <Route path="courses/:courseId/:tab" element={<Course/>}/>
-                        <Route path="courses/:courseId/edit" element={<EditCourse/>}/>
+                        <Route path="courses/:courseId/editHomeworks" element={<Course isReadingMode={false}/>}/>
+                        <Route path="courses/:courseId/editInfo" element={<EditCourse/>}/>
                         <Route path="homework/:homeworkId/edit" element={<EditHomework/>}/>
                         <Route path="task/:taskId/edit" element={<EditTask/>}/>
                         <Route path="task/:taskId/:studentId"
