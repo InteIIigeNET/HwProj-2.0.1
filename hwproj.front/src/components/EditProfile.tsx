@@ -85,7 +85,9 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                     ...prevState,
                     edited: true,
                 }));
-                await ApiSingleton.authService.setIsExpertProfileEdited();
+                if (props.isExpert) {
+                    await ApiSingleton.authService.setIsExpertProfileEdited();
+                }
             } else {
                 setProfile((prevState) => ({
                     ...prevState,
