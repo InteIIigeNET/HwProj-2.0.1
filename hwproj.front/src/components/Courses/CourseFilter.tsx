@@ -111,17 +111,18 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                 fullWidth
                                 options={state.courseHomeworks}
                                 getOptionLabel={(option: HomeworkViewModel) => option.title ?? "Без названия"}
+                                getOptionKey={(option: HomeworkViewModel) => option.id ?? 0}
                                 filterSelectedOptions
                                 isOptionEqualToValue={(option, value) => option.id === value.id}
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
                                         variant="outlined"
-                                        label={state.selectedHomeworks.length === 0 ? "" : "Задания"}
-                                        placeholder={state.selectedHomeworks.length === 0 ? "Все задания" : ""}
+                                        label={state.selectedHomeworks.length === 0 ? "" : "Работы"}
+                                        placeholder={state.selectedHomeworks.length === 0 ? "Все работы" : ""}
                                     />
                                 )}
-                                noOptionsText={'На курсе больше нет заданий'}
+                                noOptionsText={'На курсе больше нет работ'}
                                 value={state.selectedHomeworks}
                                 onChange={(_, values) => {
                                     setState((prevState) => ({
@@ -147,6 +148,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                     fullWidth
                                     options={state.courseStudents}
                                     getOptionLabel={(option: AccountDataDto) => option.name + ' ' + option.surname}
+                                    getOptionKey={(option: AccountDataDto) => option.userId ?? ""}
                                     filterSelectedOptions
                                     isOptionEqualToValue={(option, value) => option.userId === value.userId}
                                     renderInput={(params) => (
