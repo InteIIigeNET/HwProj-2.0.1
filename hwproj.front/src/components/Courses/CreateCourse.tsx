@@ -11,6 +11,7 @@ import {FC, FormEvent, useState} from "react";
 import GroupIcon from '@material-ui/icons/Group';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from "@material-ui/core/Container";
+import {Navigate} from "react-router-dom";
 
 interface ICreateCourseState {
   name: string;
@@ -59,7 +60,6 @@ const CreateCourse: FC = () => {
         ...prevState,
         courseId: courseId.toString(),
       }))
-      window.location.assign("/")
     }
     catch (e) {
       setCourse((prevState) => ({
@@ -78,8 +78,10 @@ const CreateCourse: FC = () => {
         </Typography>
     )
   }
-  return (
-      <Container component="main" maxWidth="xs">
+  return course.courseId !== "" ?
+      <Navigate to={`/courses/${course.courseId}/editHomeworks`}/>
+      :
+      (<Container component="main" maxWidth="xs">
         <div className={classes.paper}>
           <GroupIcon
               fontSize='large'

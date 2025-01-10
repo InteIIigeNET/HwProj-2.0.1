@@ -28,6 +28,10 @@ function isAcceptableTabValue(str: string): str is TabValue {
     return str === "homeworks" || str === "stats" || str === "applications";
 }
 
+interface ICourseProps {
+    isReadingMode?: boolean;
+}
+
 interface ICourseState {
     isFound: boolean;
     course: CourseViewModel;
@@ -52,7 +56,7 @@ const styles = makeStyles(() => ({
     },
 }))
 
-const Course: React.FC = () => {
+const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     const {courseId, tab} = useParams()
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
@@ -66,7 +70,7 @@ const Course: React.FC = () => {
         mentors: [],
         acceptedStudents: [],
         newStudents: [],
-        isReadingMode: true,
+        isReadingMode: props.isReadingMode ?? true,
         studentSolutions: [],
         showQrCode: false
     })
@@ -235,7 +239,7 @@ const Course: React.FC = () => {
                                         </IconButton>
                                     }
                                     {isCourseMentor && isLecturer && !isReadingMode! && (
-                                        <RouterLink to={`/courses/${courseId}/edit`}>
+                                        <RouterLink to={`/courses/${courseId}/editInfo`}>
                                             <EditIcon fontSize="small"/>
                                         </RouterLink>
                                     )}
