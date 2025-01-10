@@ -1,5 +1,9 @@
 import React, {useEffect, useState} from "react";
-import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel, HomeworkTaskViewModel} from "../../api/";
+import {
+    CourseViewModel,
+    HomeworkViewModel,
+    AdvancedStatisticsCourseMatesModel
+} from "../../api/";
 import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
@@ -15,7 +19,7 @@ interface IStudentStatsProps {
     homeworks: HomeworkViewModel[];
     isMentor: boolean;
     userId: string;
-    solutions: StatisticsCourseMatesModel[];
+    solutions: AdvancedStatisticsCourseMatesModel[];
 }
 
 interface IStudentStatsState {
@@ -226,6 +230,12 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         variant={"head"}
                                     >
                                         {cm.surname} {cm.name}
+                                        <div style={{color: "gray", fontSize: "12px", marginTop: "-4px", lineHeight: '1.2'}}>
+                                            {cm.reviewers && cm.reviewers
+                                                .filter(r => r.userId !== props.userId)
+                                                .map(r => `${r.name} ${r.surname}`)
+                                                .join(', ')}
+                                        </div>
                                     </TableCell>
                                     {hasHomeworks && <TableCell
                                         align="center"
