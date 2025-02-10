@@ -61,7 +61,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
     }
 
     const deleteHomework = async () => {
-        await ApiSingleton.homeworksApi.apiHomeworksDeleteByHomeworkIdDelete(props.homework.id!)
+        await ApiSingleton.homeworksApi.apiHomeworksDeleteHomeworkIdDelete(props.homework.id!)
         props.onUpdateClick()
     }
 

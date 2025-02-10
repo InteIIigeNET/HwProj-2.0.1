@@ -104,7 +104,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const getActuality = async () => {
         setSolutionActuality(undefined)
         if (checkTestsActuality) {
-            const actualityDto = await ApiSingleton.solutionsApi.apiSolutionsActualityBySolutionIdGet(props.solution!.id!)
+            const actualityDto = await ApiSingleton.solutionsApi.apiSolutionsActualitySolutionIdGet(props.solution!.id!)
             setSolutionActuality(actualityDto)
         }
     }
@@ -113,7 +113,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         setRateInProgressState(true)
         if (props.solution) {
             await ApiSingleton.solutionsApi
-                .apiSolutionsRateSolutionBySolutionIdPost(
+                .apiSolutionsRateSolutionSolutionIdPost(
                     props.solution.id!,
                     {
                         rating: points,
@@ -121,7 +121,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     }
                 )
         } else await ApiSingleton.solutionsApi
-            .apiSolutionsRateEmptySolutionByTaskIdPost(
+            .apiSolutionsRateEmptySolutionTaskIdPost(
                 props.task.id!,
                 {
                     comment: "",

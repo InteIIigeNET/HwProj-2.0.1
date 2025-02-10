@@ -127,7 +127,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     }
 
     const setCurrentState = async () => {
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!)
+        const course = await ApiSingleton.coursesApi.apiCoursesCourseIdGet(+courseId!)
 
         // У пользователя изменилась роль (иначе он не может стать лектором в курсе),
         // однако он все ещё использует токен с прежней ролью
@@ -141,7 +141,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
             return
         }
 
-        const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+courseId!)
+        const solutions = await ApiSingleton.statisticsApi.apiStatisticsCourseIdGet(+courseId!)
 
         setCourseState(prevState => ({
             ...prevState,
@@ -164,7 +164,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
 
     const joinCourse = async () => {
         await ApiSingleton.coursesApi
-            .apiCoursesSignInCourseByCourseIdPost(+courseId!)
+            .apiCoursesSignInCourseCourseIdPost(+courseId!)
             .then(() => setCurrentState());
     }
 

@@ -31,7 +31,7 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({taskDeadlines, onGiveUpClick}) 
     );
 
     const giveUp = async (taskId: number) => {
-        await ApiSingleton.solutionsApi.apiSolutionsGiveUpByTaskIdPost(taskId);
+        await ApiSingleton.solutionsApi.apiSolutionsGiveUpTaskIdPost(taskId);
         setShowGiveUpModalForTaskId(undefined);
         onGiveUpClick();
     };

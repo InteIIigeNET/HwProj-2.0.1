@@ -14,12 +14,12 @@ interface INewCourseStudentsProps {
 const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
 
     const acceptStudent = async (studentId: string) => {
-        await ApiSingleton.coursesApi.apiCoursesAcceptStudentByCourseIdByStudentIdPost(props.course.id!, studentId)
+        await ApiSingleton.coursesApi.apiCoursesAcceptStudentCourseIdStudentIdPost(props.course.id!, studentId)
         props.onUpdate()
     }
 
     const rejectStudent = async (studentId: string) => {
-        await ApiSingleton.coursesApi.apiCoursesRejectStudentByCourseIdByStudentIdPost(props.course.id!, studentId)
+        await ApiSingleton.coursesApi.apiCoursesRejectStudentCourseIdStudentIdPost(props.course.id!, studentId)
         props.onUpdate()
     }
 

@@ -40,7 +40,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     const [questionsState, setQuestionsState] = useState<GetTaskQuestionDto[]>([])
 
     const getQuestions = async () => {
-        const questions = await ApiSingleton.tasksApi.apiTasksQuestionsByTaskIdGet(props.task.id!)
+        const questions = await ApiSingleton.tasksApi.apiTasksQuestionsTaskIdGet(props.task.id!)
         setQuestionsState(questions.reverse())
     }
 

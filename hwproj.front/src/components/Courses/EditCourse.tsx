@@ -70,7 +70,7 @@ const EditCourse: FC = () => {
     }, [])
 
     const getCourse = async () => {
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!)
+        const course = await ApiSingleton.coursesApi.apiCoursesCourseIdGet(+courseId!)
         setCourseState((prevState) => ({
             ...prevState,
             isLoaded: true,
@@ -91,7 +91,7 @@ const EditCourse: FC = () => {
             isCompleted: courseState.isCompleted
         };
 
-        await ApiSingleton.coursesApi.apiCoursesUpdateByCourseIdPost(+courseId!, courseViewModel)
+        await ApiSingleton.coursesApi.apiCoursesUpdateCourseIdPost(+courseId!, courseViewModel)
         setCourseState((prevState) => ({
             ...prevState,
             edited: true,

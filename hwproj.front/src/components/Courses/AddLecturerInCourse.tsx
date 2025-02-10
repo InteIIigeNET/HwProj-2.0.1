@@ -46,9 +46,9 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
         }
         try {
             await ApiSingleton.coursesApi
-                .apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(+props.courseId, lecturerState.email)
+                .apiCoursesAcceptLecturerCourseIdLecturerEmailGet(+props.courseId, lecturerState.email)
             const data = await ApiSingleton.coursesApi
-                .apiCoursesGetLecturersAvailableForCourseByCourseIdGet(+props.courseId);
+                .apiCoursesGetLecturersAvailableForCourseCourseIdGet(+props.courseId);
             setLecturerState((prevState) => ({
                 ...prevState,
                 info: ['Преподаватель добавлен'],
@@ -76,7 +76,7 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
 
     const setCurrentState = async () => {
         const data = await ApiSingleton.coursesApi
-            .apiCoursesGetLecturersAvailableForCourseByCourseIdGet(+props.courseId);
+            .apiCoursesGetLecturersAvailableForCourseCourseIdGet(+props.courseId);
         setLecturerState({
             errors: [],
             email: '',

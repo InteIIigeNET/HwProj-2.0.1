@@ -48,9 +48,9 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
     useEffect(() => {
         const fetchCourseDataForMentor = async () => {
             try {
-                const courseViewModel = await ApiSingleton.coursesApi.apiCoursesGetAllDataByCourseIdGet(props.courseId);
+                const courseViewModel = await ApiSingleton.coursesApi.apiCoursesGetAllDataCourseIdGet(props.courseId);
                 const mentorWorkspace =
-                    await ApiSingleton.coursesApi.apiCoursesGetMentorWorkspaceByCourseIdByMentorIdGet(props.courseId, props.mentorId);
+                    await ApiSingleton.coursesApi.apiCoursesGetMentorWorkspaceCourseIdMentorIdGet(props.courseId, props.mentorId);
 
                 props.onSelectedStudentsChange(mentorWorkspace.students ?? [])
                 props.onSelectedHomeworksChange(mentorWorkspace.homeworks ?? [])

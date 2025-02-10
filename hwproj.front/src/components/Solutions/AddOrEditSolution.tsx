@@ -31,7 +31,7 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        await ApiSingleton.solutionsApi.apiSolutionsByTaskIdPost(props.task.id!, solution)
+        await ApiSingleton.solutionsApi.apiSolutionsTaskIdPost(props.task.id!, solution)
         props.onAdd()
     }
 

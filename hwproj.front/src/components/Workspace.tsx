@@ -51,7 +51,7 @@ const Workspace: FC = () => {
 
     const getUserInfo = async () => {
         if (id) {
-            const data = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(id)
+            const data = await ApiSingleton.accountApi.apiAccountGetUserDataUserIdGet(id)
             setAccountState({userData: data, taskDeadlines: [], courseEvents: [], unratedSolutionPreviews: undefined})
             setProfileState(prevState => ({
                 ...prevState,

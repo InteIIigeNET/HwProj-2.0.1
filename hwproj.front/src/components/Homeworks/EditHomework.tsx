@@ -66,9 +66,9 @@ const EditHomework: FC = () => {
     }, [])
 
     const getHomework = async () => {
-        const homework = await ApiSingleton.homeworksApi.apiHomeworksGetForEditingByHomeworkIdGet(+homeworkId!)
+        const homework = await ApiSingleton.homeworksApi.apiHomeworksGetForEditingHomeworkIdGet(+homeworkId!)
 
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
+        const course = await ApiSingleton.coursesApi.apiCoursesCourseIdGet(homework.courseId!)
 
         const deadline = homework.deadlineDate == null
             ? undefined
@@ -98,7 +98,7 @@ const EditHomework: FC = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault()
 
-        await ApiSingleton.homeworksApi.apiHomeworksUpdateByHomeworkIdPut(+homeworkId!, editHomework)
+        await ApiSingleton.homeworksApi.apiHomeworksUpdateHomeworkIdPut(+homeworkId!, editHomework)
 
         setEditHomework((prevState) => ({
             ...prevState,
@@ -194,7 +194,7 @@ const EditHomework: FC = () => {
                         </Grid>
                         <Grid item xs={12} style={{marginBottom: "15px"}}>
                             <Tags tags={editHomework.tags} onTagsChange={handleTagsChange} isElementSmall={false}
-                                  requestTags={() => apiSingleton.coursesApi.apiCoursesTagsByCourseIdGet(editHomework.courseId)}/>
+                                  requestTags={() => apiSingleton.coursesApi.apiCoursesTagsCourseIdGet(editHomework.courseId)}/>
                             <PublicationAndDeadlineDates
                                 hasDeadline={editHomework.hasDeadline}
                                 isDeadlineStrict={editHomework.isDeadlineStrict}

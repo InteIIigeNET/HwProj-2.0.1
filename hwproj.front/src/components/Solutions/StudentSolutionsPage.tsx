@@ -157,7 +157,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
         : homeworks.map(h => h.statsForTasks![taskIndexInHomework].taskId!)
 
     const getTaskData = async (taskId: string, fullUpdate: boolean) => {
-        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
+        const task = await ApiSingleton.tasksApi.apiTasksGetTaskIdGet(+taskId!)
 
         if (!fullUpdate && versionsOfCurrentTask.includes(+taskId)) {
             setStudentSolutionsState({
@@ -173,7 +173,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
             taskSolutions,
             courseId,
             statsForTasks
-        } = await ApiSingleton.solutionsApi.apiSolutionsTasksByTaskIdGet(+taskId!)
+        } = await ApiSingleton.solutionsApi.apiSolutionsTasksTaskIdGet(+taskId!)
 
         const studentSolutionsPreview = taskSolutions!.map(ts => ({
             taskId: ts.taskId!,
