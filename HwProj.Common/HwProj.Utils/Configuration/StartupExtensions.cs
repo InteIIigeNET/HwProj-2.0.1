@@ -18,11 +18,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace HwProj.Utils.Configuration
 {
@@ -39,22 +39,32 @@ namespace HwProj.Utils.Configuration
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = serviceName, Version = "v1" });
-
+                c.SwaggerDoc("v1", new OpenApiInfo() { Title = serviceName, Version = "v1" });
                 if (serviceName == "API Gateway")
                 {
                     c.AddSecurityDefinition("Bearer",
-                        new ApiKeyScheme
+                        new OpenApiSecurityScheme()
                         {
-                            In = "header",
+                            In = ParameterLocation.Header,
                             Description = "Please enter into field the word 'Bearer' following by space and JWT",
                             Name = "Authorization",
-                            Type = "apiKey"
+                            Type = SecuritySchemeType.ApiKey
                         });
-                    c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
-                    {
-                        { "Bearer", Enumerable.Empty<string>() },
-                    });
+                    c.AddSecurityRequirement(
+                        new OpenApiSecurityRequirement
+                        {
+                            {
+                                new OpenApiSecurityScheme
+                                {
+                                    Reference = new OpenApiReference
+                                    {
+                                        Id = "Bearer",
+                                        Type = ReferenceType.SecurityScheme
+                                    }
+                                },
+                                new List<string>()
+                            }
+                        });
                 }
             });
 
@@ -158,7 +168,7 @@ namespace HwProj.Utils.Configuration
                     context.Database.EnsureCreated();
                     return app;
                 }
-                
+
                 var logger = app.ApplicationServices
                     .GetService<ILoggerFactory>()
                     .CreateLogger(typeof(StartupExtensions));
