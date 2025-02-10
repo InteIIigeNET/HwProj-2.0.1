@@ -5,6 +5,7 @@ import {
     GetSolutionModel, HomeworksGroupSolutionStats,
     HomeworkTaskViewModel,
     Solution,
+    SolutionState,
     TaskSolutionsStats
 } from "../../api/";
 import Typography from "@material-ui/core/Typography";
@@ -130,13 +131,13 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                 taskId: x.taskId,
                 studentSolutionsPreview: x.studentSolutionsPreview.filter(((_, i) => {
                     const lastSolution = currentTaskSolutions[i].lastSolution
-                    return lastSolution && lastSolution.state === Solution.StateEnum.NUMBER_0
+                    return lastSolution && lastSolution.state === SolutionState.NUMBER_0
                 }))
             })
             : x)
 
     const currentFilteredStudentSolutionPreviews = studentSolutionsPreviews.find(x => x.taskId === +currentTaskId)?.studentSolutionsPreview || []
-    const allSolutionsRated = currentTaskSolutions.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
+    const allSolutionsRated = currentTaskSolutions.findIndex(x => x.lastSolution && x.lastSolution.state === SolutionState.NUMBER_0) === -1
 
     const currentHomeworksGroup = homeworkSolutionsStats
         .find(x => x.statsForHomeworks!

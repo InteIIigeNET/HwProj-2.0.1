@@ -8,7 +8,8 @@ import {
     AccountDataDto,
     HomeworksGroupUserTaskSolutions,
     HomeworkTaskViewModel,
-    Solution
+    Solution,
+    SolutionState
 } from "../../api/";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
@@ -226,7 +227,7 @@ const TaskSolutionsPage: FC = () => {
                                 }))
                             }}
                         >
-                            {lastSolution?.state === Solution.StateEnum.NUMBER_0 ? "Изменить решение" : "Добавить решение"}
+                            {lastSolution?.state === SolutionState.NUMBER_0 ? "Изменить решение" : "Добавить решение"}
                         </Button></Grid>}
                         <Grid item>
                             <Link

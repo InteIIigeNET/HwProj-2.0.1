@@ -7,7 +7,7 @@ import {
     AccountDataDto,
     GetSolutionModel,
     HomeworkTaskViewModel,
-    Solution,
+    SolutionState,
     SolutionActualityDto,
     SolutionActualityPart
 } from '../../api'
@@ -84,7 +84,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         props.solution.githubUrl &&
         props.solution.githubUrl.startsWith("https://github.com/")
 
-    const checkAchievement = props.solution && props.isLastSolution && props.solution.state !== Solution.StateEnum.NUMBER_0
+    const checkAchievement = props.solution && props.isLastSolution && props.solution.state !== SolutionState.NUMBER_0
 
     const getAchievementState = async () => {
         setAchievementState(undefined)
@@ -140,7 +140,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const {solution, lastRating, student, task} = props
     const maxRating = task.maxRating!
     //TODO: enum instead of string
-    const isRated = solution && solution.state !== Solution.StateEnum.NUMBER_0 // != Posted
+    const isRated = solution && solution.state !== SolutionState.NUMBER_0 // != Posted
     const {points, lecturerComment, addBonusPoints} = state
     const postedSolutionTime = solution && Utils.renderReadableDate(solution.publicationDate!)
     const ratingTime = solution && solution.ratingDate && Utils.renderReadableDate(solution.ratingDate!)
