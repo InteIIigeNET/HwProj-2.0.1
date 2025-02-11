@@ -55,7 +55,7 @@ const Task: FC<ITaskProp> = (props) => {
     }
 
     const deleteTask = async () => {
-        await ApiSingleton.tasksApi.apiTasksDeleteTaskIdDelete(props.task.id!)
+        await ApiSingleton.tasksApi.tasksDeleteTask(props.task.id!)
         props.onDeleteClick()
     }
 

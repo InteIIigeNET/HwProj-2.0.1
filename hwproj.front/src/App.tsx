@@ -65,7 +65,7 @@ class App extends Component<{ navigate: any }, AppState> {
 
     updatedNewNotificationsCount = async () => {
         if (ApiSingleton.authService.isLoggedIn()) {
-            const data = await ApiSingleton.notificationsApi.apiNotificationsGetNewNotificationsCountGet()
+            const data = await ApiSingleton.notificationsApi.notificationsGetNewNotificationsCount()
             this.setState({newNotificationsCount: data})
         }
     }

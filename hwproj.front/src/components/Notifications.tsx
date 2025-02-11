@@ -87,7 +87,7 @@ const Notifications: FC<IProfileProps> = (props) => {
     }, [])
 
     const getUserInfo = async () => {
-        const data = await ApiSingleton.notificationsApi.apiNotificationsGetGet()
+        const data = await ApiSingleton.notificationsApi.notificationsGet()
         setProfileState((prevState) => ({
             ...prevState,
             isLoaded: true,
@@ -118,7 +118,7 @@ const Notifications: FC<IProfileProps> = (props) => {
     }
 
     const markAsSeenNotifications = async (ids: number[]) => {
-        await ApiSingleton.notificationsApi.apiNotificationsMarkAsSeenPut(ids);
+        await ApiSingleton.notificationsApi.notificationsMarkAsSeen(ids);
         await props.onMarkAsSeen();
         await getUserInfo();
     }

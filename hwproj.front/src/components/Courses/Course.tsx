@@ -127,7 +127,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     }
 
     const setCurrentState = async () => {
-        const course = await ApiSingleton.coursesApi.apiCoursesCourseIdGet(+courseId!)
+        const course = await ApiSingleton.coursesApi.coursesGetCourseData(+courseId!)
 
         // У пользователя изменилась роль (иначе он не может стать лектором в курсе),
         // однако он все ещё использует токен с прежней ролью
@@ -136,12 +136,12 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
             course &&
             course.mentors!.some(t => t.userId === userId)
         if (shouldRefreshToken) {
-            const newToken = await ApiSingleton.accountApi.apiAccountRefreshTokenGet()
+            const newToken = await ApiSingleton.accountApi.accountRefreshToken()
             newToken.value && ApiSingleton.authService.refreshToken(newToken.value.accessToken!)
             return
         }
 
-        const solutions = await ApiSingleton.statisticsApi.apiStatisticsCourseIdGet(+courseId!)
+        const solutions = await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
 
         setCourseState(prevState => ({
             ...prevState,
@@ -163,8 +163,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
 
     const joinCourse = async () => {
-        await ApiSingleton.coursesApi
-            .apiCoursesSignInCourseCourseIdPost(+courseId!)
+        await ApiSingleton.coursesApi.coursesSignInCourse(+courseId!)
             .then(() => setCurrentState());
     }
 

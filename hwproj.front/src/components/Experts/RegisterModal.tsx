@@ -76,7 +76,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
             return
         }
         try {
-            const result = await ApiSingleton.expertsApi.apiExpertsRegisterPost(registerState);
+            const result = await ApiSingleton.expertsApi.expertsRegister(registerState);
             setCommonState((prevState) => ({
                 ...prevState,
                 errors: result!.errors ?? [],

@@ -79,7 +79,7 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
             companyName: profile.company
         }
         try {
-            const result = await ApiSingleton.accountApi.apiAccountEditPut(editForm)
+            const result = await ApiSingleton.accountApi.accountEdit(editForm)
             if (result.succeeded) {
                 setProfile((prevState) => ({
                     ...prevState,
@@ -114,7 +114,7 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
 
         if (code) {
             try {
-                githubId = (await ApiSingleton.accountApi.apiAccountGithubAuthorizePost(code)).githubId
+                githubId = (await ApiSingleton.accountApi.accountAuthorizeGithub(code)).githubId
             } catch (e) {
                 setProfile((prevState) => ({
                     ...prevState,
@@ -127,8 +127,8 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
         }
 
         try {
-            const githubLoginUrl = (await ApiSingleton.accountApi.apiAccountGithubUrlPost({url: window.location.href})).url
-            const currentUser = (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
+            const githubLoginUrl = (await ApiSingleton.accountApi.accountGetGithubLoginUrl({url: window.location.href})).url
+            const currentUser = (await ApiSingleton.accountApi.accountGetUserData()).userData!
             githubId = githubId ? githubId : currentUser.githubId
 
             setProfile((prevState) => ({

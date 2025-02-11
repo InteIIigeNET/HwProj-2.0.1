@@ -84,12 +84,12 @@ const TaskSolutionsPage: FC = () => {
     }, [taskId])
 
     const getTask = async () => {
-        const task = await ApiSingleton.tasksApi.apiTasksGetTaskIdGet(+taskId!)
+        const task = await ApiSingleton.tasksApi.tasksGetTask(+taskId!)
         setTask(task)
     }
 
     const getSolutions = async () => {
-        const pageData = await ApiSingleton.solutionsApi.apiSolutionsTaskSolutionTaskIdStudentIdGet(+taskId!, userId);
+        const pageData = await ApiSingleton.solutionsApi.solutionsGetStudentSolution(+taskId!, userId);
         setTaskSolutionPage({
             isLoaded: true,
             addSolution: false,

@@ -89,7 +89,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const getAchievementState = async () => {
         setAchievementState(undefined)
         if (checkAchievement) {
-            const achievement = await ApiSingleton.solutionsApi.apiSolutionsSolutionAchievementGet(task.id, props.solution!.id)
+            const achievement = await ApiSingleton.solutionsApi.solutionsGetSolutionAchievement(task.id, props.solution!.id)
             setAchievementState(achievement)
         }
     }
@@ -104,7 +104,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const getActuality = async () => {
         setSolutionActuality(undefined)
         if (checkTestsActuality) {
-            const actualityDto = await ApiSingleton.solutionsApi.apiSolutionsActualitySolutionIdGet(props.solution!.id!)
+            const actualityDto = await ApiSingleton.solutionsApi.solutionsGetSolutionActuality(props.solution!.id!)
             setSolutionActuality(actualityDto)
         }
     }
@@ -112,26 +112,24 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const rateSolution = async () => {
         setRateInProgressState(true)
         if (props.solution) {
-            await ApiSingleton.solutionsApi
-                .apiSolutionsRateSolutionSolutionIdPost(
-                    props.solution.id!,
-                    {
-                        rating: points,
-                        lecturerComment: lecturerComment
-                    }
-                )
-        } else await ApiSingleton.solutionsApi
-            .apiSolutionsRateEmptySolutionTaskIdPost(
-                props.task.id!,
+            await ApiSingleton.solutionsApi.solutionsRateSolution(
+                props.solution.id!,
                 {
-                    comment: "",
-                    githubUrl: "",
-                    lecturerComment: state.lecturerComment,
-                    publicationDate: undefined,
-                    rating: state.points,
-                    studentId: props.student.userId
+                    rating: points,
+                    lecturerComment: lecturerComment
                 }
             )
+        } else await ApiSingleton.solutionsApi.solutionsPostEmptySolutionWithRate(
+            props.task.id!,
+            {
+                comment: "",
+                githubUrl: "",
+                lecturerComment: state.lecturerComment,
+                publicationDate: undefined,
+                rating: state.points,
+                studentId: props.student.userId
+            }
+        )
         setState(prevState => ({...prevState, clickedForRate: false}))
         enqueueSnackbar('Решение успешно оценено', {variant: "success", autoHideDuration: 1700});
         props.onRateSolutionClick?.()

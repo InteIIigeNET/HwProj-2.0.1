@@ -64,10 +64,10 @@ const EditTask: FC = () => {
     }, [])
 
     const getTask = async () => {
-        const taskForEditing = await ApiSingleton.tasksApi.apiTasksGetForEditingTaskIdGet(+taskId!)
+        const taskForEditing = await ApiSingleton.tasksApi.tasksGetForEditingTask(+taskId!)
         const homework = taskForEditing.homework!
         const task = taskForEditing.task!
-        const course = await ApiSingleton.coursesApi.apiCoursesCourseIdGet(homework.courseId!)
+        const course = await ApiSingleton.coursesApi.coursesGetCourseData(homework.courseId!)
 
         const publication = task.publicationDate == null
             ? undefined
@@ -99,7 +99,7 @@ const EditTask: FC = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
-        await ApiSingleton.tasksApi.apiTasksUpdateTaskIdPut(+taskId!, taskState)
+        await ApiSingleton.tasksApi.tasksUpdateTask(+taskId!, taskState)
 
         setTaskState((prevState) => ({
             ...prevState,

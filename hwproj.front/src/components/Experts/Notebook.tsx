@@ -87,7 +87,7 @@ const ExpertsNotebook: FC = () => {
 
     useEffect(() => {
         const fetchExperts = async () => {
-            const allExperts = await ApiSingleton.expertsApi.apiExpertsGetAllGet();
+            const allExperts = await ApiSingleton.expertsApi.expertsGetAll();
             setAllExperts(allExperts);
             setLoadedState(true);
         };
@@ -135,7 +135,7 @@ const ExpertsNotebook: FC = () => {
                 expertId: expert.id,
                 tags: expert.tags
             }
-            ApiSingleton.expertsApi.apiExpertsUpdateTagsPost(dto);
+            ApiSingleton.expertsApi.expertsUpdateTags(dto);
         }
         setTagsEditingState({
             isOpen: false,
