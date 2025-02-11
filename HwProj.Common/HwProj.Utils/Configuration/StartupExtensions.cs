@@ -37,37 +37,7 @@ namespace HwProj.Utils.Configuration
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo() { Title = serviceName, Version = "v1" });
-                if (serviceName == "API Gateway")
-                {
-                    c.AddSecurityDefinition("Bearer",
-                        new OpenApiSecurityScheme()
-                        {
-                            In = ParameterLocation.Header,
-                            Description = "Please enter into field the word 'Bearer' following by space and JWT",
-                            Name = "Authorization",
-                            Type = SecuritySchemeType.ApiKey
-                        });
-                    c.AddSecurityRequirement(
-                        new OpenApiSecurityRequirement
-                        {
-                            {
-                                new OpenApiSecurityScheme
-                                {
-                                    Reference = new OpenApiReference
-                                    {
-                                        Id = "Bearer",
-                                        Type = ReferenceType.SecurityScheme
-                                    }
-                                },
-                                new List<string>()
-                            }
-                        });
-                }
-            });
-
+            services.AddSwaggerConfiguration(serviceName);
             if (serviceName != "AuthService API")
             {
                 services.AddAuthentication(options =>
@@ -197,6 +167,45 @@ namespace HwProj.Utils.Configuration
                     AuthSchemeConstants.UserIdAuthentication, null);
 
             return services;
+        }
+
+        private static void AddSwaggerConfiguration(this IServiceCollection services, string serviceName)
+        {
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo() { Title = serviceName, Version = "v1" });
+                c.CustomOperationIds(apiDesc =>
+                {
+                    var controllerName = apiDesc.ActionDescriptor.RouteValues["controller"];
+                    var actionName = apiDesc.ActionDescriptor.RouteValues["action"];
+                    return $"{controllerName}{actionName}";
+                });
+                if (serviceName == "API Gateway")
+                {
+                    c.AddSecurityDefinition("Bearer",
+                        new OpenApiSecurityScheme()
+                        {
+                            In = ParameterLocation.Header,
+                            Description = "Please enter into field the word 'Bearer' following by space and JWT",
+                            Name = "Authorization",
+                            Type = SecuritySchemeType.ApiKey
+                        });
+                    c.AddSecurityRequirement(
+                        new OpenApiSecurityRequirement
+                        {
+                            { new OpenApiSecurityScheme
+                                {
+                                    Reference = new OpenApiReference
+                                    {
+                                        Id = "Bearer",
+                                        Type = ReferenceType.SecurityScheme
+                                    }
+                                },
+                                new List<string>() 
+                            }
+                        });
+                }
+            });
         }
     }
 }
