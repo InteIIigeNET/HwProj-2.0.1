@@ -23,6 +23,7 @@ import {
 import {Stack} from '@mui/material';
 import Utils from "../../services/Utils";
 import {MarkdownPreview} from "../Common/MarkdownEditor";
+import {IFileInfo} from 'components/Files/IFileInfo';
 
 interface IHomeworkProps {
     homework: HomeworkViewModel,
@@ -31,6 +32,7 @@ interface IHomeworkProps {
     isReadingMode: boolean,
     isExpanded: boolean,
     onUpdateClick: () => void
+    homeworkFilesInfo: IFileInfo[]
 }
 
 const useStyles = makeStyles(_ => ({
@@ -62,8 +64,27 @@ const Homework: FC<IHomeworkProps> = (props) => {
 
     const deleteHomework = async () => {
         await ApiSingleton.homeworksApi.homeworksDeleteHomework(props.homework.id!)
+
+        // Удаляем файлы домашней работы из хранилища
+        const deleteOperations = props.homeworkFilesInfo
+            .map(initialFile => ApiSingleton.customFilesApi.deleteFileByKey(initialFile.s3Key!));
+        await Promise.all(deleteOperations)
+
         props.onUpdateClick()
     }
+    
+    const getDeleteMessage = (homeworkName: string, filesInfo: IFileInfo[]) => {
+        let message = `Вы точно хотите удалить задание "${homeworkName}"?`;
+        if (filesInfo.length > 0) {
+            message += ` Будет также удален файл ${filesInfo[0].name}`;
+            if (filesInfo.length > 1) {
+                message += ` и другие прикрепленные файлы`;
+            }
+        }
+
+        return message;
+    };
+
 
     const classes = useStyles()
 
@@ -98,7 +119,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                             }
                             {tasksCount > 0 && <Chip label={tasksCount + " заданий"}/>}
                             {props.homework.tags?.filter(t => t !== '').map((tag, index) => (
-                                <Chip key={index} label={tag} />
+                                <Chip key={index} label={tag}/>
                             ))}
                             {props.forMentor && !props.isReadingMode && <div>
                                 <IconButton aria-label="Delete" onClick={openDialogDeleteHomework}>
@@ -176,7 +197,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                 onSubmit={deleteHomework}
                 isOpen={isOpenDialogDeleteHomework}
                 dialogTitle={'Удаление задания'}
-                dialogContentText={`Вы точно хотите удалить задание "${props.homework.title}"?`}
+                dialogContentText={getDeleteMessage(props.homework.title!, props.homeworkFilesInfo)}
                 confirmationWord={''}
                 confirmationText={''}
             />
