@@ -8,8 +8,11 @@ import {Button} from "@material-ui/core";
 import {MarkdownEditor} from "../Common/MarkdownEditor";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import Tags from "../Common/Tags";
-import {Grid, Typography, TextField} from "@mui/material";
+import {Grid, Typography, TextField, CircularProgress} from "@mui/material";
 import apiSingleton from "../../api/ApiSingleton";
+import FilesUploader from "components/Files/FilesUploader";
+import {IFileInfo} from "components/Files/IFileInfo";
+import FileInfoConverter from "components/Utils/FileInfoConverter";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -27,6 +30,11 @@ interface IEditHomeworkState {
     hasErrors: boolean;
     changedTaskPublicationDates: Date[];
     tags: string[]
+}
+
+interface IHomeworkFilesState {
+    initialFilesInfo: IFileInfo[]
+    selectedFilesInfo: IFileInfo[]
 }
 
 const useStyles = makeStyles(theme => ({
@@ -60,6 +68,11 @@ const EditHomework: FC = () => {
         tags: [],
         changedTaskPublicationDates: []
     })
+    const [filesControlState, setFilesControlState] = useState<IHomeworkFilesState>({
+        initialFilesInfo: [],
+        selectedFilesInfo: []
+    });
+    const [handleSubmitLoading, setHandleSubmitLoading] = useState(false);
 
     useEffect(() => {
         getHomework()
@@ -71,6 +84,8 @@ const EditHomework: FC = () => {
         const deadline = homework.deadlineDate == null
             ? undefined
             : new Date(homework.deadlineDate)
+
+        await fetchAndSetHomeworkFiles(course.id!, +homeworkId!)
 
         setEditHomework((prevState) => ({
             ...prevState,
@@ -93,10 +108,45 @@ const EditHomework: FC = () => {
         }))
     }
 
+    const fetchAndSetHomeworkFiles = async (courseId: number, homeworkId: number) => {
+        const homeworkFiles = await ApiSingleton.filesApi.filesGetHomeworkFilesInfo(courseId, homeworkId)
+        console.log(homeworkFiles)
+        if (homeworkFiles.length > 0) {
+            const filesInfo = FileInfoConverter.FromHomeworkFileInfoArray(homeworkFiles)
+            setFilesControlState((prevState) => ({
+                ...prevState,
+                initialFilesInfo: filesInfo,
+                selectedFilesInfo: filesInfo
+            }))
+        }
+    }
+
     const handleSubmit = async (e: any) => {
         e.preventDefault()
+        setHandleSubmitLoading(true)
+        await ApiSingleton.homeworksApi.homeworksUpdateHomework(+homeworkId!, editHomework)
+        
+        // Если какие-то файлы из ранее добавленных больше не выбраны, удаляем их из хранилища
+        const deleteOperations = filesControlState.initialFilesInfo
+            .filter(initialFile =>
+                initialFile.s3Key &&
+                !filesControlState.selectedFilesInfo.some(s => s.s3Key === initialFile.s3Key)
+            )
+            .map(initialFile => ApiSingleton.customFilesApi.deleteFileByKey(initialFile.s3Key!));
 
-        await ApiSingleton.homeworksApi.apiHomeworksUpdateByHomeworkIdPut(+homeworkId!, editHomework)
+        // Если какие-то файлы из выбранных сейчас не были добавлены раньше, загружаем их в хранилище
+        const uploadOperations = filesControlState.selectedFilesInfo
+            .filter(selectedFile =>
+                selectedFile.file &&
+                !filesControlState.initialFilesInfo.some(i => i.s3Key === selectedFile.s3Key)
+            )
+            .map(selectedFile => ApiSingleton.customFilesApi.uploadFile(
+                selectedFile.file!,
+                editHomework.courseId,
+                +homeworkId!
+            ));
+        // Дожидаемся удаления и загрузки необходимых файлов
+        await Promise.all([...deleteOperations, ...uploadOperations]);
 
         setEditHomework((prevState) => ({
             ...prevState,
@@ -192,23 +242,42 @@ const EditHomework: FC = () => {
                         </Grid>
                         <Grid item xs={12} style={{marginBottom: "15px"}}>
                             <Tags tags={editHomework.tags} onTagsChange={handleTagsChange} isElementSmall={false}
-                                  requestTags={() => apiSingleton.coursesApi.apiCoursesTagsByCourseIdGet(editHomework.courseId)}/>
-                            <PublicationAndDeadlineDates
-                                hasDeadline={editHomework.hasDeadline}
-                                isDeadlineStrict={editHomework.isDeadlineStrict}
-                                publicationDate={editHomework.publicationDate}
-                                deadlineDate={editHomework.deadlineDate}
-                                autoCalculatedDeadline={undefined}
-                                disabledPublicationDate={editHomework.isPublished}
-                                onChange={(state) => setEditHomework(prevState => ({
-                                    ...prevState,
-                                    hasDeadline: state.hasDeadline,
-                                    isDeadlineStrict: state.isDeadlineStrict,
-                                    publicationDate: state.publicationDate,
-                                    deadlineDate: state.deadlineDate,
-                                    hasErrors: state.hasErrors
-                                }))}
-                            />
+                                  requestTags={() => apiSingleton.coursesApi.coursesGetAllTagsForCourse(editHomework.courseId)}/>
+                            <Grid
+                                container
+                                direction="row"
+                                justifyContent="space-between"
+                            >
+                                <Grid item>
+                                    <PublicationAndDeadlineDates
+                                        hasDeadline={editHomework.hasDeadline}
+                                        isDeadlineStrict={editHomework.isDeadlineStrict}
+                                        publicationDate={editHomework.publicationDate}
+                                        deadlineDate={editHomework.deadlineDate}
+                                        autoCalculatedDeadline={undefined}
+                                        disabledPublicationDate={editHomework.isPublished}
+                                        onChange={(state) => setEditHomework(prevState => ({
+                                            ...prevState,
+                                            hasDeadline: state.hasDeadline,
+                                            isDeadlineStrict: state.isDeadlineStrict,
+                                            publicationDate: state.publicationDate,
+                                            deadlineDate: state.deadlineDate,
+                                            hasErrors: state.hasErrors
+                                        }))}
+                                    />
+                                </Grid>
+                                <Grid item style={{marginTop: "12px"}}>
+                                    <FilesUploader
+                                        initialFilesInfo={filesControlState.selectedFilesInfo}
+                                        onChange={(filesInfo) => {
+                                            setFilesControlState((prevState) => ({
+                                                ...prevState,
+                                                selectedFilesInfo: filesInfo
+                                            }))
+                                        }}
+                                    />
+                                </Grid>
+                            </Grid>
                         </Grid>
                         <Button
                             fullWidth
@@ -218,6 +287,11 @@ const EditHomework: FC = () => {
                             disabled={isSomeTaskSoonerThanHomework || editHomework.hasErrors}>
                             Редактировать задание
                         </Button>
+                        {handleSubmitLoading &&
+                            <div className="container" style={{marginTop: 10, textAlign: "center"}}>
+                                <p>Сохраняем задание...</p>
+                                <CircularProgress/>
+                            </div>}
                     </Grid>
                 </form>
             </Grid>
