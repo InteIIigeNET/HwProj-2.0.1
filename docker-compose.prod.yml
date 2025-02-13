@@ -33,6 +33,7 @@ services:
       - Services:Auth=http://hwproj.authservice.api
       - Services:Courses=http://hwproj.coursesservice.api
       - Services:Solutions=http://hwproj.solutionsservice.api
+      - Services:Content=http://hwproj.contentservice.api
     ports:
       - "80"
 
@@ -83,3 +84,12 @@ services:
     volumes:
       - /root/.asp.net/https:/root/.aspnet/https:ro
       #- ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+  hwproj.contentservice.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - EventBus:EventBusHostName=rabbitmq
+      - Services:Auth=http://hwproj.authservice.api
+    ports:
+      - "80"
