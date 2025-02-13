@@ -1,6 +1,9 @@
 import * as React from "react";
 import {Link as RouterLink, useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
+import {
+    AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel,
+    CourseFileInfoDTO
+} from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
@@ -36,6 +39,7 @@ interface ICourseState {
     isFound: boolean;
     course: CourseViewModel;
     courseHomework: HomeworkViewModel[];
+    courseFilesInfo: CourseFileInfoDTO[];
     createHomework: boolean;
     mentors: AccountDataDto[];
     acceptedStudents: AccountDataDto[];
@@ -66,6 +70,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         isFound: false,
         course: {},
         courseHomework: [],
+        courseFilesInfo: [],
         createHomework: false,
         mentors: [],
         acceptedStudents: [],
@@ -83,6 +88,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         isFound,
         course,
         createHomework,
+        courseFilesInfo,
         mentors,
         newStudents,
         acceptedStudents,
@@ -142,11 +148,13 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         }
 
         const solutions = await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
+        const courseFilesInfo = await ApiSingleton.filesApi.filesGetCourseFilesInfo(+courseId!)
         setCourseState(prevState => ({
             ...prevState,
             isFound: true,
             course: course,
             courseHomework: course.homeworks!,
+            courseFilesInfo: courseFilesInfo,
             createHomework: false,
             mentors: course.mentors!,
             acceptedStudents: course.acceptedStudents!,
@@ -318,6 +326,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                 ?
                                 <CourseExperimental
                                     homeworks={courseHomeworks}
+                                    courseFilesInfo={courseFilesInfo}
                                     isMentor={isCourseMentor}
                                     studentSolutions={studentSolutions}
                                     isStudentAccepted={isAcceptedStudent}
@@ -343,6 +352,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                                         isMentor={isCourseMentor}
                                                         isReadingMode={isReadingMode}
                                                         homework={courseHomeworks}
+                                                        courseFilesInfo={courseState.courseFilesInfo}
                                                     />
                                                 </Grid>
                                             </Grid>
@@ -373,6 +383,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                                     isMentor={isCourseMentor}
                                                     isReadingMode={isReadingMode}
                                                     homework={courseHomeworks}
+                                                    courseFilesInfo={courseState.courseFilesInfo}
                                                 />
                                             </Grid>
                                         </div>
@@ -384,6 +395,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                             isStudent={isAcceptedStudent}
                                             isMentor={isCourseMentor}
                                             isReadingMode={isReadingMode}
+                                            courseFilesInfo={courseState.courseFilesInfo}
                                         />
                                     )}
                                 </div>
