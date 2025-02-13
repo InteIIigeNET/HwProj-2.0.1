@@ -18,11 +18,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace HwProj.Utils.Configuration
 {
@@ -37,6 +37,16 @@ namespace HwProj.Utils.Configuration
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
+            ConfigureHwProjServiceSwaggerGen(services, serviceName);
+            ConfigureHwProjServiceAuthentication(services, serviceName);
+
+            services.AddTransient<NoApiGatewayMiddleware>();
+            services.AddHttpContextAccessor();
+            return services;
+        }
+
+        public static void ConfigureHwProjServiceSwaggerGen(this IServiceCollection services, string serviceName)
+        {
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo() { Title = serviceName, Version = "v1" });
@@ -74,6 +84,8 @@ namespace HwProj.Utils.Configuration
             });
         }
 
+        public static void ConfigureHwProjServiceAuthentication(this IServiceCollection services, string serviceName)
+        {
             if (serviceName != "AuthService API")
             {
                 services.AddAuthentication(options =>
@@ -95,12 +107,6 @@ namespace HwProj.Utils.Configuration
                         };
                     });
             }
-
-            services.AddTransient<NoApiGatewayMiddleware>();
-
-            services.AddHttpContextAccessor();
-
-            return services;
         }
 
         public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
@@ -148,23 +154,7 @@ namespace HwProj.Utils.Configuration
         public static IApplicationBuilder ConfigureHwProj(this IApplicationBuilder app, IHostingEnvironment env,
             string serviceName, DbContext? context = null)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage()
-                    .UseSwagger()
-                    .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", serviceName); });
-            }
-            else
-            {
-                app.UseHsts();
-            }
-
-            app.UseAuthentication();
-            app.UseCors(x => x
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .SetIsOriginAllowed(origin => true)
-                .AllowCredentials());
+            app.ConfigureHwProjApplicationParameters(env, serviceName);
             app.UseMvc();
 
             if (context != null)
@@ -174,7 +164,7 @@ namespace HwProj.Utils.Configuration
                     context.Database.EnsureCreated();
                     return app;
                 }
-                
+
                 var logger = app.ApplicationServices
                     .GetService<ILoggerFactory>()
                     .CreateLogger(typeof(StartupExtensions));
@@ -193,6 +183,28 @@ namespace HwProj.Utils.Configuration
             }
 
             return app;
+        }
+
+        public static void ConfigureHwProjApplicationParameters(this IApplicationBuilder app, IHostingEnvironment env,
+            string serviceName)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage()
+                    .UseSwagger()
+                    .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", serviceName); });
+            }
+            else
+            {
+                app.UseHsts();
+            }
+
+            app.UseAuthentication();
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true)
+                .AllowCredentials());
         }
 
         public static IServiceCollection AddUserIdAuthentication(this IServiceCollection services)
