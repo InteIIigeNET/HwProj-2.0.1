@@ -5,7 +5,8 @@ import {
     GetSolutionModel, HomeworksGroupSolutionStats,
     HomeworkTaskViewModel,
     Solution,
-    TaskSolutionsStats
+    TaskSolutionsStats,
+    SolutionState
 } from "../../api/";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
@@ -130,13 +131,13 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                 taskId: x.taskId,
                 studentSolutionsPreview: x.studentSolutionsPreview.filter(((_, i) => {
                     const lastSolution = currentTaskSolutions[i].lastSolution
-                    return lastSolution && lastSolution.state === Solution.StateEnum.NUMBER_0
+                    return lastSolution && lastSolution.state === SolutionState.NUMBER_0
                 }))
             })
             : x)
 
     const currentFilteredStudentSolutionPreviews = studentSolutionsPreviews.find(x => x.taskId === +currentTaskId)?.studentSolutionsPreview || []
-    const allSolutionsRated = currentTaskSolutions.findIndex(x => x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0) === -1
+    const allSolutionsRated = currentTaskSolutions.findIndex(x => x.lastSolution && x.lastSolution.state === SolutionState.NUMBER_0) === -1
 
     const currentHomeworksGroup = homeworkSolutionsStats
         .find(x => x.statsForHomeworks!
@@ -156,7 +157,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
         : homeworks.map(h => h.statsForTasks![taskIndexInHomework].taskId!)
 
     const getTaskData = async (taskId: string, fullUpdate: boolean) => {
-        const task = await ApiSingleton.tasksApi.apiTasksGetByTaskIdGet(+taskId!)
+        const task = await ApiSingleton.tasksApi.tasksGetTask(+taskId!)
 
         if (!fullUpdate && versionsOfCurrentTask.includes(+taskId)) {
             setStudentSolutionsState({
@@ -172,7 +173,7 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
             taskSolutions,
             courseId,
             statsForTasks
-        } = await ApiSingleton.solutionsApi.apiSolutionsTasksByTaskIdGet(+taskId!)
+        } = await ApiSingleton.solutionsApi.solutionsGetTaskSolutionsPageData(+taskId!)
 
         const studentSolutionsPreview = taskSolutions!.map(ts => ({
             taskId: ts.taskId!,

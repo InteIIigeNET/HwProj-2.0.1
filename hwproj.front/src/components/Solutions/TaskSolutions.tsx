@@ -6,7 +6,7 @@ import {
     GetSolutionModel,
     GetTaskQuestionDto,
     HomeworkTaskViewModel,
-    Solution
+    SolutionState
 } from '../../api';
 import {Grid, Tab, Tabs} from "@material-ui/core";
 import {Chip, Divider, Stack, Tooltip, Badge} from "@mui/material";
@@ -40,7 +40,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     const [questionsState, setQuestionsState] = useState<GetTaskQuestionDto[]>([])
 
     const getQuestions = async () => {
-        const questions = await ApiSingleton.tasksApi.apiTasksQuestionsByTaskIdGet(props.task.id!)
+        const questions = await ApiSingleton.tasksApi.tasksGetQuestionsForTask(props.task.id!)
         setQuestionsState(questions.reverse())
     }
 
@@ -57,7 +57,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     const lastSolution = solutions[solutions.length - 1]
     const arrayOfRatedSolutions = solutions.slice(0, solutions.length - 1)
     const previousSolution = arrayOfRatedSolutions && arrayOfRatedSolutions[arrayOfRatedSolutions.length - 1]
-    const lastRating = previousSolution && previousSolution.state !== Solution.StateEnum.NUMBER_0 // != Posted
+    const lastRating = previousSolution && previousSolution.state !== SolutionState.NUMBER_0 // != Posted
         ? previousSolution.rating
         : undefined
 
@@ -65,7 +65,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
 
     const renderSolutionsRate = () => {
         const ratedSolutions = solutions
-            .filter(x => x.state !== Solution.StateEnum.NUMBER_0)
+            .filter(x => x.state !== SolutionState.NUMBER_0)
             .map(x => ({
                 publicationTime: new Date(x.publicationDate!),
                 rating: x.rating,

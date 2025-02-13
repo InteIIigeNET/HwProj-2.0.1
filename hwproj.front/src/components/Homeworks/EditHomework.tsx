@@ -66,10 +66,8 @@ const EditHomework: FC = () => {
     }, [])
 
     const getHomework = async () => {
-        const homework = await ApiSingleton.homeworksApi.apiHomeworksGetForEditingByHomeworkIdGet(+homeworkId!)
-
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
-
+        const homework = await ApiSingleton.homeworksApi.homeworksGetForEditingHomework(+homeworkId!)
+        const course = await ApiSingleton.coursesApi.coursesGetCourseData(homework.courseId!)
         const deadline = homework.deadlineDate == null
             ? undefined
             : new Date(homework.deadlineDate)

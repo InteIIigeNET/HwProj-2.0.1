@@ -105,8 +105,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
             ...addHomeworkState,
             tasks: addHomeworkState.tasks.map(t => t.task)
         }
-
-        await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(props.id, addHomework)
+        var homeworkId = await ApiSingleton.homeworksApi.homeworksAddHomework(props.id, addHomework)
         setAddHomeworkState((prevState) => ({
             ...prevState,
             added: true
@@ -154,7 +153,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     />
                 </div>
                 <Tags tags={[]} onTagsChange={handleTagsChange} isElementSmall={false}
-                      requestTags={() => apiSingleton.coursesApi.apiCoursesTagsByCourseIdGet(props.id)}/>
+                      requestTags={() => ApiSingleton.coursesApi.coursesGetAllTagsForCourse(props.id)}/>
                 {addHomeworkState.tags.includes(TestTag) &&
                     <Alert severity="info">Вы можете сгруппировать контрольные работы и переписывания с помощью
                         дополнительного тега. Например, 'КР 1'</Alert>}

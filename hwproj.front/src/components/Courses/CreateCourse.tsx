@@ -55,7 +55,7 @@ const CreateCourse: FC = () => {
       isOpen: true,
     }
     try {
-      const courseId = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel)
+      const courseId = await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel)
       setCourse((prevState) => ({
         ...prevState,
         courseId: courseId.toString(),

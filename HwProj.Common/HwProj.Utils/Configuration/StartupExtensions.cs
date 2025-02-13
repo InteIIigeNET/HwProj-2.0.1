@@ -39,24 +39,40 @@ namespace HwProj.Utils.Configuration
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = serviceName, Version = "v1" });
-
+                c.SwaggerDoc("v1", new OpenApiInfo() { Title = serviceName, Version = "v1" });
+                c.CustomOperationIds(apiDesc =>
+                {
+                    var controllerName = apiDesc.ActionDescriptor.RouteValues["controller"];
+                    var actionName = apiDesc.ActionDescriptor.RouteValues["action"];
+                    return $"{controllerName}{actionName}";
+                });
                 if (serviceName == "API Gateway")
                 {
                     c.AddSecurityDefinition("Bearer",
-                        new ApiKeyScheme
+                        new OpenApiSecurityScheme()
                         {
-                            In = "header",
+                            In = ParameterLocation.Header,
                             Description = "Please enter into field the word 'Bearer' following by space and JWT",
                             Name = "Authorization",
-                            Type = "apiKey"
+                            Type = SecuritySchemeType.ApiKey
                         });
-                    c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
-                    {
-                        { "Bearer", Enumerable.Empty<string>() },
-                    });
+                    c.AddSecurityRequirement(
+                        new OpenApiSecurityRequirement
+                        {
+                            { new OpenApiSecurityScheme
+                                {
+                                    Reference = new OpenApiReference
+                                    {
+                                        Id = "Bearer",
+                                        Type = ReferenceType.SecurityScheme
+                                    }
+                                },
+                                new List<string>()
+                            }
+                        });
                 }
             });
+        }
 
             if (serviceName != "AuthService API")
             {

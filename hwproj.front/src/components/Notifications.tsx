@@ -13,14 +13,13 @@ import {
     Typography
 } from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
-import {CategorizedNotifications, NotificationViewModel} from "../api/";
+import {CategorizedNotifications, NotificationViewModel, CategoryState} from "../api/";
 import "./Styles/Profile.css";
 import parse from 'html-react-parser';
 import {Button} from "@mui/material";
 import NotificationSettings from "./NotificationSettings";
 import Utils from "../services/Utils";
 
-let CategoryEnum = CategorizedNotifications.CategoryEnum;
 const dateTimeOptions = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
 
 function getAll(data: CategorizedNotifications[]) {
@@ -55,7 +54,7 @@ interface IProfileProps {
 }
 
 interface IFilterState {
-    categoryFlag: Map<CategorizedNotifications.CategoryEnum, boolean>;
+    categoryFlag: Map<CategoryState, boolean>;
     filteredNotifications: NotificationViewModel[];
     showOnlyUnread: boolean;
     showAll: boolean;
@@ -72,9 +71,9 @@ const Notifications: FC<IProfileProps> = (props) => {
 
     const [filterState, setFilterState] = useState<IFilterState>({
         categoryFlag: new Map([
-            [CategoryEnum.NUMBER_1, true],
-            [CategoryEnum.NUMBER_2, true],
-            [CategoryEnum.NUMBER_3, true]
+            [CategoryState.NUMBER_1, true],
+            [CategoryState.NUMBER_2, true],
+            [CategoryState.NUMBER_3, true]
         ]),
         filteredNotifications: [],
         showOnlyUnread: true,
@@ -88,7 +87,7 @@ const Notifications: FC<IProfileProps> = (props) => {
     }, [])
 
     const getUserInfo = async () => {
-        const data = await ApiSingleton.notificationsApi.apiNotificationsGetGet()
+        const data = await ApiSingleton.notificationsApi.notificationsGet()
         setProfileState((prevState) => ({
             ...prevState,
             isLoaded: true,
@@ -119,7 +118,7 @@ const Notifications: FC<IProfileProps> = (props) => {
     }
 
     const markAsSeenNotifications = async (ids: number[]) => {
-        await ApiSingleton.notificationsApi.apiNotificationsMarkAsSeenPut(ids);
+        await ApiSingleton.notificationsApi.notificationsMarkAsSeen(ids);
         await props.onMarkAsSeen();
         await getUserInfo();
     }
@@ -215,9 +214,9 @@ const Notifications: FC<IProfileProps> = (props) => {
                                     <FormControlLabel control={
                                         <Checkbox
                                             color={"primary"}
-                                            checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_1)}
+                                            checked={filterState.categoryFlag.get(CategoryState.NUMBER_1)}
                                             onChange={changeCategory}
-                                            value={CategoryEnum.NUMBER_1}
+                                            value={CategoryState.NUMBER_1}
                                             inputProps={{'aria-label': 'controlled'}}
                                         />
                                     } label="Профиль"
@@ -225,9 +224,9 @@ const Notifications: FC<IProfileProps> = (props) => {
                                     <FormControlLabel control={
                                         <Checkbox
                                             color={"primary"}
-                                            checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_2)}
+                                            checked={filterState.categoryFlag.get(CategoryState.NUMBER_2)}
                                             onChange={changeCategory}
-                                            value={CategoryEnum.NUMBER_2}
+                                            value={CategoryState.NUMBER_2}
                                             inputProps={{'aria-label': 'controlled'}}
                                         />
                                     } label="Курсы"
@@ -235,9 +234,9 @@ const Notifications: FC<IProfileProps> = (props) => {
                                     <FormControlLabel control={
                                         <Checkbox
                                             color={"primary"}
-                                            checked={filterState.categoryFlag.get(CategoryEnum.NUMBER_3)}
+                                            checked={filterState.categoryFlag.get(CategoryState.NUMBER_3)}
                                             onChange={changeCategory}
-                                            value={CategoryEnum.NUMBER_3}
+                                            value={CategoryState.NUMBER_3}
                                             inputProps={{'aria-label': 'controlled'}}
                                         />
                                     } label="Задания"

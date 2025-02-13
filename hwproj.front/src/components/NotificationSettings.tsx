@@ -15,12 +15,12 @@ const NotificationSettings: FC<{
         return ""
     }
     const getSettings = async () => {
-        const settings = await ApiSingleton.notificationsApi.apiNotificationsSettingsGet()
+        const settings = await ApiSingleton.notificationsApi.notificationsGetSettings()
         setSettings(settings)
     }
 
     const changeSetting = async (setting: NotificationsSettingDto, enabled: boolean) => {
-        await ApiSingleton.notificationsApi.apiNotificationsSettingsPut({...setting, isEnabled: enabled})
+        await ApiSingleton.notificationsApi.notificationsChangeSetting({...setting, isEnabled: enabled})
         await getSettings()
     }
 
