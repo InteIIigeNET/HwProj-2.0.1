@@ -1,4 +1,5 @@
 ﻿using HwProj.AuthService.Client;
+using HwProj.ContentService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
@@ -49,6 +50,7 @@ namespace HwProj.APIGateway.API
             services.AddCoursesServiceClient();
             services.AddSolutionServiceClient();
             services.AddNotificationsServiceClient();
+            services.AddContentServiceClient();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
