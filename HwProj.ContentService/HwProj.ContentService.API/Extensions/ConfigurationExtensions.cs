@@ -4,8 +4,11 @@ using Amazon.Runtime;
 using Amazon.S3;
 using HwProj.ContentService.API.Configuration;
 using HwProj.ContentService.API.Services;
-using HwProj.Utils.Configuration;
+using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration.Middleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 
 namespace HwProj.ContentService.API.Extensions;
@@ -22,9 +25,7 @@ public static class ConfigurationExtensions
         services.AddScoped<IFilesService, FilesService>();
         services.AddHttpClient();
 
-        services.Configure<ServiceConfiguration>(configuration);
-        services.ConfigureHwProjService(configuration);
-        
+        services.ConfigureHwProjContentService();
         return services;
     }
 
@@ -51,20 +52,52 @@ public static class ConfigurationExtensions
     }
 
     // Не вызываем ConfigureHwProjServices из-за проблем с AddMvc (.NET 8 / ASP.Net Core 2.2)
-    private static void ConfigureHwProjService(this IServiceCollection services, IConfiguration configuration)
+    private static void ConfigureHwProjContentService(this IServiceCollection services)
     {
-        var serviceName = configuration.Get<ServiceConfiguration>()?.ServiceName;
-        if (serviceName == null)
-            throw new NullReferenceException("Ошибка при чтении названия микросервиса из параметров конфигурации");
-
         services.AddControllers().AddNewtonsoftJson(options =>
         {
             options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
         });
-        services.ConfigureHwProjServiceSwaggerGen(serviceName);
-        services.ConfigureHwProjServiceAuthentication(serviceName);
+        services.ConfigureContentServiceSwaggerGen();
+        services.ConfigureContentServiceAuthentication();
 
         services.AddTransient<NoApiGatewayMiddleware>();
         services.AddHttpContextAccessor();
+    }
+
+    private static void ConfigureContentServiceSwaggerGen(this IServiceCollection services)
+    {
+        services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Content API", Version = "v1" });
+            c.CustomOperationIds(apiDesc =>
+            {
+                var controllerName = apiDesc.ActionDescriptor.RouteValues["controller"];
+                var actionName = apiDesc.ActionDescriptor.RouteValues["action"];
+                return $"{controllerName}{actionName}";
+            });
+        });
+    }
+
+    private static void ConfigureContentServiceAuthentication(this IServiceCollection services)
+    {
+        services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false; //TODO: dev env setting
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = "AuthService",
+                    ValidateIssuer = true,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = AuthorizationKey.SecurityKey,
+                    ValidateIssuerSigningKey = true
+                };
+            });
     }
 }

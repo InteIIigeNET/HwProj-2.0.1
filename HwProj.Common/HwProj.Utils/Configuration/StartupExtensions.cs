@@ -37,19 +37,41 @@ namespace HwProj.Utils.Configuration
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            ConfigureHwProjServiceSwaggerGen(services, serviceName);
-            ConfigureHwProjServiceAuthentication(services, serviceName);
+            services.ConfigureHwProjServiceSwaggerGen(serviceName);
+            if (serviceName != "AuthService API")
+            {
+                services.AddAuthentication(options =>
+                    {
+                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    })
+                    .AddJwtBearer(x =>
+                    {
+                        x.RequireHttpsMetadata = false; //TODO: dev env setting
+                        x.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidIssuer = "AuthService",
+                            ValidateIssuer = true,
+                            ValidateAudience = false,
+                            ValidateLifetime = true,
+                            IssuerSigningKey = AuthorizationKey.SecurityKey,
+                            ValidateIssuerSigningKey = true
+                        };
+                    });
+            }
 
             services.AddTransient<NoApiGatewayMiddleware>();
+
             services.AddHttpContextAccessor();
+
             return services;
         }
 
-        public static void ConfigureHwProjServiceSwaggerGen(this IServiceCollection services, string serviceName)
+        private static void ConfigureHwProjServiceSwaggerGen(this IServiceCollection services, string serviceName)
         {
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo() { Title = serviceName, Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = serviceName, Version = "v1" });
                 c.CustomOperationIds(apiDesc =>
                 {
                     var controllerName = apiDesc.ActionDescriptor.RouteValues["controller"];
@@ -82,31 +104,6 @@ namespace HwProj.Utils.Configuration
                         });
                 }
             });
-        }
-
-        public static void ConfigureHwProjServiceAuthentication(this IServiceCollection services, string serviceName)
-        {
-            if (serviceName != "AuthService API")
-            {
-                services.AddAuthentication(options =>
-                    {
-                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                    })
-                    .AddJwtBearer(x =>
-                    {
-                        x.RequireHttpsMetadata = false; //TODO: dev env setting
-                        x.TokenValidationParameters = new TokenValidationParameters
-                        {
-                            ValidIssuer = "AuthService",
-                            ValidateIssuer = true,
-                            ValidateAudience = false,
-                            ValidateLifetime = true,
-                            IssuerSigningKey = AuthorizationKey.SecurityKey,
-                            ValidateIssuerSigningKey = true
-                        };
-                    });
-            }
         }
 
         public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
@@ -154,7 +151,23 @@ namespace HwProj.Utils.Configuration
         public static IApplicationBuilder ConfigureHwProj(this IApplicationBuilder app, IHostingEnvironment env,
             string serviceName, DbContext? context = null)
         {
-            app.ConfigureHwProjApplicationParameters(env, serviceName);
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage()
+                    .UseSwagger()
+                    .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", serviceName); });
+            }
+            else
+            {
+                app.UseHsts();
+            }
+
+            app.UseAuthentication();
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true)
+                .AllowCredentials());
             app.UseMvc();
 
             if (context != null)
@@ -183,28 +196,6 @@ namespace HwProj.Utils.Configuration
             }
 
             return app;
-        }
-
-        public static void ConfigureHwProjApplicationParameters(this IApplicationBuilder app, IHostingEnvironment env,
-            string serviceName)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage()
-                    .UseSwagger()
-                    .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", serviceName); });
-            }
-            else
-            {
-                app.UseHsts();
-            }
-
-            app.UseAuthentication();
-            app.UseCors(x => x
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .SetIsOriginAllowed(origin => true)
-                .AllowCredentials());
         }
 
         public static IServiceCollection AddUserIdAuthentication(this IServiceCollection services)

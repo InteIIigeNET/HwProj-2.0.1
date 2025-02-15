@@ -18,10 +18,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\HwProj.Common\HwProj.Utils\HwProj.Utils.csproj" />
+      <ProjectReference Include="..\..\HwProj.Common\HwProj.Utils\HwProj.Models.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Utils\" />
-    </ItemGroup>
-
 </Project>
