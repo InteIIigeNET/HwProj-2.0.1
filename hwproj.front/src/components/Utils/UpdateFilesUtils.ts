@@ -8,7 +8,16 @@ export default class UpdateFilesUtils {
         try {
             await ApiSingleton.customFilesApi.uploadFile(file, courseId, homeworkId);
         } catch (e) {
-            const errors = await ErrorsHandler.getErrorMessages(e as Response);
+            const response = e as Response
+            let errors: string[];
+            const contentType = response.headers.get("content-type");
+            if (contentType?.includes("application/json")) {
+                const json = await response.json();
+                errors = [json.File?.[0]] || [json.message];
+            } else {
+                errors = await ErrorsHandler.getErrorMessages(response);
+            }
+
             enqueueSnackbar(`Проблема при загрузке файла ${file.name}: ${errors[0]}`, {
                 variant: "error",
                 autoHideDuration: 5000
