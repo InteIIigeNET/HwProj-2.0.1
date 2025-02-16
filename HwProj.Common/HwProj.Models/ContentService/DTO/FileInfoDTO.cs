@@ -1,6 +1,6 @@
 namespace HwProj.Models.ContentService.DTO
 {
-    public class CourseFileInfoDTO
+    public class FileInfoDTO
     {
         public string Name { get; set; }
         public long Size { get; set; }

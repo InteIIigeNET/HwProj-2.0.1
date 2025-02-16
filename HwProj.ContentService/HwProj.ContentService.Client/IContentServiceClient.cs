@@ -7,9 +7,13 @@ namespace HwProj.ContentService.Client
     public interface IContentServiceClient
     {
         Task<Result> UploadFileAsync(UploadFileDTO uploadFileDto);
+        
         Task<Result<string>> GetDownloadLinkAsync(string fileKey);
-        Task<CourseFileInfoDTO[]> GetCourseFilesInfo(long courseId);
-        Task<HomeworkFileInfoDTO[]> GetHomeworkFilesInfo(long courseId, long homeworkId);
+        
+        Task<FileInfoDTO[]> GetFilesInfo(long courseId, long? homeworkId = null);
+        
         Task<Result> DeleteFileAsync(string fileKey);
+        
+        Task<Result<long>> GetCourseIdFromKeyAsync(string fileKey);
     }
 }

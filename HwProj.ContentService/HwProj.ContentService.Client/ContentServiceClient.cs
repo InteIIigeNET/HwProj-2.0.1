@@ -55,25 +55,19 @@ namespace HwProj.ContentService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<string>>();
         }
-
-        public async Task<CourseFileInfoDTO[]> GetCourseFilesInfo(long courseId)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get,
-                _contentServiceUri + $"api/Files/courseFilesInfo/{courseId}");
-
-            var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<CourseFileInfoDTO[]>();
-        }
         
-        public async Task<HomeworkFileInfoDTO[]> GetHomeworkFilesInfo(long courseId, long homeworkId)
+        public async Task<FileInfoDTO[]> GetFilesInfo(long courseId, long? homeworkId = null)
         {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get,
-                _contentServiceUri + $"api/Files/homeworkFilesInfo/{courseId}/{homeworkId}");
+            var url = _contentServiceUri + $"api/Files/filesInfo/{courseId}";
+            if (homeworkId.HasValue)
+            {
+                url += $"?homeworkId={homeworkId.Value}";
+            }
+
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<HomeworkFileInfoDTO[]>();
+            return await response.DeserializeAsync<FileInfoDTO[]>();
         }
         
         public async Task<Result> DeleteFileAsync(string fileKey)
@@ -86,6 +80,17 @@ namespace HwProj.ContentService.Client
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result>();
+        }
+
+        public async Task<Result<long>> GetCourseIdFromKeyAsync(string fileKey)
+        {
+            var encodedFileKey = Uri.EscapeDataString(fileKey);
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _contentServiceUri + $"api/FileKey/courseId?key={encodedFileKey}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<long>>();
         }
     }
 }

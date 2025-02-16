@@ -10,6 +10,7 @@ namespace HwProj.ContentService.API.Controllers;
 public class FilesController : ControllerBase
 {
     private readonly IFilesService _filesService;
+    private readonly IFileKeyService _fileKeyService;
 
     public FilesController(IFilesService filesService)
     {
@@ -31,17 +32,10 @@ public class FilesController : ControllerBase
         return Ok(downloadUrlResult);
     }
     
-    [HttpGet("homeworkFilesInfo/{courseId}/{homeworkId}")]
-    public async Task<IActionResult> GetHomeworkFilesInfo(long courseId, long homeworkId)
+    [HttpGet("filesInfo/{courseId}")]
+    public async Task<IActionResult> GetFilesInfo(long courseId, [FromQuery] long? homeworkId = null)
     {
-        var filesInfo = await _filesService.GetHomeworkFilesAsync(courseId, homeworkId);
-        return Ok(filesInfo);
-    }
-    
-    [HttpGet("courseFilesInfo/{courseId}")]
-    public async Task<IActionResult> GetCourseFilesInfo(long courseId)
-    {
-        var filesInfo = await _filesService.GetCourseFilesAsync(courseId);
+        var filesInfo = await _filesService.GetFilesInfoAsync(courseId, homeworkId ?? -1);
         return Ok(filesInfo);
     }
     
