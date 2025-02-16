@@ -6,7 +6,6 @@ import {useState} from "react";
 import {IFileInfo} from "./IFileInfo";
 import {Alert, Grid} from "@mui/material";
 import FilesPreviewList from "./FilesPreviewList";
-import LightTooltip from "components/Common/LightTooltip";
 
 interface IFilesUploaderProps {
     initialFilesInfo?: IFileInfo[];
@@ -30,13 +29,21 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
     const [selectedFilesInfo, setSelectedFilesInfo] = useState<IFileInfo[]>(props.initialFilesInfo ?? []);
     const [error, setError] = useState<string | null>(null);
 
-    const validFileNameRegex = /^[a-zA-Z0-9_-]+$/;
+    const validFileNameRegex = /^(?!.*[:*?"<>|!])[\p{L}0-9_\-\.() ]+(\.[\p{L}0-9]+)?$/u;
+    const maxFileSizeInBytes = 100 * 1024 * 1024;
+
     const validateFiles = (files: FileList): boolean => {
         for (const file of files) {
             const isValidName = validFileNameRegex.test(file.name);
-
             if (!isValidName) {
-                setError(`Недопустимое имя файла: ${file.name}. Используйте английские буквы, цифры и символы _ -`);
+                setError(`Недопустимое имя файла: ${file.name}.
+                 Пожалуйста, используйте буквы, цифры, символы _ - . ( ) : или пробел`);
+                return false;
+            }
+
+            if (file.size > maxFileSizeInBytes) {
+                setError(`Файл "${file.name}" слишком большой.
+                 Максимальный допустимый размер: ${(maxFileSizeInBytes / 1024 / 1024).toFixed(1)} MB.`);
                 return false;
             }
         }
