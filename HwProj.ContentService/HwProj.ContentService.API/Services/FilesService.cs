@@ -77,20 +77,22 @@ public class FilesService : IFilesService
     public async Task<List<FileInfoDTO>> GetFilesInfoAsync(long courseId, long homeworkId = -1)
     {
         var searchPrefix = _fileKeyService.GetFilesSearchPrefix(courseId, homeworkId);
-        var files = await GetFilesByPrefix(searchPrefix);
+        var filesResponse = await FetchFilesInfoByPrefix(searchPrefix);
 
-        return files.Select(f =>
+        return filesResponse.S3Objects?.Select(obj =>
         {
-            if (homeworkId == -1 && !_fileKeyService.GetHomeworkIdFromKey(f.Key, out homeworkId))
-                throw new ApplicationException($"Путь к файлу {f.Key} не содержит идентификатора домашней работы");
+            if (!_fileKeyService.GetHomeworkIdFromKey(obj.Key, out homeworkId))
+                throw new ApplicationException($"Путь к файлу {obj.Key} не содержит идентификатора домашней работы");
+
             return new FileInfoDTO
             {
-                Name = f.Name,
-                Key = f.Key,
-                Size = f.Size,
+                Name = _fileKeyService.GetFileName(obj.Key),
+                Key = obj.Key,
+                Size = obj.Size ??
+                       throw new ArgumentException("В хранилище отсутствует информация о размере файла", nameof(obj)),
                 HomeworkId = homeworkId
             };
-        }).ToList();
+        }).ToList() ?? new List<FileInfoDTO>();
     }
 
     public async Task<Result> DeleteFileAsync(string fileKey, string userId)
@@ -127,24 +129,13 @@ public class FilesService : IFilesService
         };
     }
 
-    private async Task<List<FileInfoDTO>> GetFilesByPrefix(string prefix)
-    {
-        var response = await _s3AmazonClient.ListObjectsV2Async(
+    private async Task<ListObjectsV2Response> FetchFilesInfoByPrefix(string prefix)
+        => await _s3AmazonClient.ListObjectsV2Async(
             new ListObjectsV2Request
             {
                 BucketName = _bucketName,
                 Prefix = prefix
             });
-
-        return response.S3Objects?.Select(obj =>
-            new FileInfoDTO
-            {
-                Key = obj.Key,
-                Size = obj.Size ??
-                       throw new ArgumentException("В хранилище отсутствует информация о размере файла", nameof(obj)),
-                Name = _fileKeyService.GetFileName(obj.Key),
-            }).ToList() ?? new List<FileInfoDTO>();
-    }
 
     private static bool IsOwner(MetadataCollection metadata, string userId)
         => metadata[$"{AwsMetaDataPrefix}{UploaderIdMetadataKey}"] == userId;
