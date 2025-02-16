@@ -112,10 +112,9 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
             ...prevState,
             added: true
         }))
-
         if (selectedFiles != null) {
             const uploadOperations = selectedFiles.map(
-                selectedFile => UpdateFilesUtils.uploadFileWithErrorsHadling(selectedFile, props.id, +homeworkId!));
+                selectedFile => UpdateFilesUtils.uploadFileWithErrorsHadling(selectedFile, props.id, homeworkId));
 
             // Дожидаемся окончания обработки загрузки всех файлов
             await Promise.all(uploadOperations);
@@ -167,12 +166,21 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                 {addHomeworkState.tags.includes(TestTag) &&
                     <Alert severity="info">Вы можете сгруппировать контрольные работы и переписывания с помощью
                         дополнительного тега. Например, 'КР 1'</Alert>}
+                <Grid container>
+                    <Grid item>
+                        <FilesUploader
+                            onChange={(filesInfo) => {console.log(filesInfo); setSelectedFiles(filesInfo
+                                .filter(fileInfo => fileInfo.file != undefined)
+                                .map(fileInfo => fileInfo.file!))}}
+                        />
+                    </Grid>
+                </Grid>
                 <Grid
                     container
                     direction="row"
                     justifyContent="space-between"
                 >
-                    <Grid item>
+                    <Grid item style={{marginTop: "5px"}}>
                         <PublicationAndDeadlineDates
                             hasDeadline={false}
                             isDeadlineStrict={false}
@@ -187,13 +195,6 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                                 deadlineDate: state.deadlineDate,
                                 hasErrors: state.hasErrors,
                             }))}
-                        />
-                    </Grid>
-                    <Grid item style={{marginTop: "12px"}}>
-                        <FilesUploader
-                            onChange={(filesInfo) => setSelectedFiles(filesInfo
-                                .filter(fileInfo => fileInfo.file != undefined)
-                                .map(fileInfo => fileInfo.file!))}
                         />
                     </Grid>
                 </Grid>

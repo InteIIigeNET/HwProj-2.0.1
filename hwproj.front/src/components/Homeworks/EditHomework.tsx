@@ -246,9 +246,20 @@ const EditHomework: FC = () => {
                                   requestTags={() => apiSingleton.coursesApi.coursesGetAllTagsForCourse(editHomework.courseId)}/>
                             <Grid
                                 container
-                                direction="row"
+                                direction="column"
                                 justifyContent="space-between"
                             >
+                                <Grid item>
+                                    <FilesUploader
+                                        initialFilesInfo={filesControlState.selectedFilesInfo}
+                                        onChange={(filesInfo) => {
+                                            setFilesControlState((prevState) => ({
+                                                ...prevState,
+                                                selectedFilesInfo: filesInfo
+                                            }))
+                                        }}
+                                    />
+                                </Grid>
                                 <Grid item>
                                     <PublicationAndDeadlineDates
                                         hasDeadline={editHomework.hasDeadline}
@@ -265,17 +276,6 @@ const EditHomework: FC = () => {
                                             deadlineDate: state.deadlineDate,
                                             hasErrors: state.hasErrors
                                         }))}
-                                    />
-                                </Grid>
-                                <Grid item style={{marginTop: "12px"}}>
-                                    <FilesUploader
-                                        initialFilesInfo={filesControlState.selectedFilesInfo}
-                                        onChange={(filesInfo) => {
-                                            setFilesControlState((prevState) => ({
-                                                ...prevState,
-                                                selectedFilesInfo: filesInfo
-                                            }))
-                                        }}
                                     />
                                 </Grid>
                             </Grid>

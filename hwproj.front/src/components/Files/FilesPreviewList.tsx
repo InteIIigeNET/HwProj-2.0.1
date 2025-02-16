@@ -12,10 +12,10 @@ interface FilesPreviewProps {
 const FilesPreviewList: React.FC<FilesPreviewProps> = (props) => {
 
     return (
-        <Grid item container direction={props.onRemoveFileInfo ? "column" : "row"} spacing={0.7}
-              alignItems={props.onRemoveFileInfo ? "flex-end" : "flex-start"} sx={{width: "100%"}}>
+        <Grid container direction="row" spacing={0.7} flexWrap="wrap"
+              alignItems="flex-start" sx={{flexGrow: 1}}>
             {props.filesInfo.map((fileInfo, index) => (
-                <Grid item key={fileInfo.s3Key || fileInfo.file?.name || index}>
+                <Grid item key={fileInfo.key || fileInfo.file?.name || index}>
                     <FilePreview
                         fileInfo={fileInfo}
                         onRemove={props.onRemoveFileInfo}

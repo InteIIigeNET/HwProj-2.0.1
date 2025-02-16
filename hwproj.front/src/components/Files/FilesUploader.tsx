@@ -73,7 +73,7 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
     }
 
     return (
-        <Grid container columnSpacing={1}>
+        <Grid container direction="row" alignItems="flex-start" spacing={1}>
             {error && (
                 <Snackbar
                     open={!!error}
@@ -85,39 +85,35 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
                 </Snackbar>
             )}
             <Grid item>
+                <Button
+                    size="small"
+                    component="label"
+                    role={undefined}
+                    variant="contained"
+                    tabIndex={-1}
+                    startIcon={<CloudUploadIcon/>}
+                    color="primary"
+                    style={{marginTop: "10px"}}
+                >
+                    Прикрепить файлы
+                    <VisuallyHiddenInput
+                        type="file"
+                        onChange={handleFileInputChange}
+                        multiple
+                    />
+                </Button>
+            </Grid>
+            <Grid item>
                 <FilesPreviewList
                     filesInfo={selectedFilesInfo}
                     onRemoveFileInfo={(fI) => {
                         setSelectedFilesInfo(previouslySelected => {
-                            const updatedArray = previouslySelected.filter(f => f.s3Key !== fI.s3Key)
+                            const updatedArray = previouslySelected.filter(f => f.name !== fI.name);
                             props.onChange(updatedArray);
                             return updatedArray;
                         });
                     }}
                 />
-            </Grid>
-            <Grid item>
-                <LightTooltip
-                    title="Для безопасной загрузки файлов, пожалуйста, используйте в названии
-                     только английские буквы, цифры и символы _ -">
-                    <Button
-                        size="small"
-                        component="label"
-                        role={undefined}
-                        variant="contained"
-                        tabIndex={-1}
-                        startIcon={<CloudUploadIcon/>}
-                        color="primary"
-                    >
-                        Прикрепить файлы
-                        <VisuallyHiddenInput
-                            type="file"
-                            onChange={handleFileInputChange}
-                            multiple
-
-                        />
-                    </Button>
-                </LightTooltip>
             </Grid>
         </Grid>
     )

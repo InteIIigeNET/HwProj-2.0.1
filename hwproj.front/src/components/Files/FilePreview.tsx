@@ -44,7 +44,7 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
             padding: hasRemoveButton ? '4px 8px' : '4px 4px',
             border: '1px solid #ddd',
             borderRadius: 1,
-            width: 225,
+            width: 216,
             position: 'relative',
             backgroundColor: '#f5f5f5',
             fontSize: hasRemoveButton ? '0.8rem' : '0.75rem',
