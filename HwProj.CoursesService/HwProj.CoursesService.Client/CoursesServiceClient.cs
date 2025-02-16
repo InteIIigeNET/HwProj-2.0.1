@@ -500,6 +500,17 @@ namespace HwProj.CoursesService.Client
                 ? Result<AccountDataDto[]>.Success(await response.DeserializeAsync<AccountDataDto[]>())
                 : Result<AccountDataDto[]>.Failed(response.ReasonPhrase);
         }
+        
+        public async Task<string[]> GetCourseLecturersIds(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/getCourseLecturers/{courseId}");
+            httpRequest.TryAddUserId(_httpContextAccessor);
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<string[]>();
+        }
 
         public async Task<Result<string[]>> GetAllTagsForCourse(long courseId)
         {

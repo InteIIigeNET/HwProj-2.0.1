@@ -43,6 +43,7 @@ namespace HwProj.CoursesService.Client
         Task<long[]> GetGroupTasks(long groupId);
         Task<Result> AcceptLecturer(long courseId, string lecturerEmail, string lecturerId);
         Task<Result<AccountDataDto[]>> GetLecturersAvailableForCourse(long courseId);
+        Task<string[]> GetCourseLecturersIds(long courseId);
         Task<Result<string[]>> GetAllTagsForCourse(long courseId);
         Task<Result<long>> CreateOrUpdateCourseFilter(long courseId, CreateCourseFilterDTO model);
         Task AddQuestionForTask(AddTaskQuestionDto question);

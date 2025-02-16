@@ -173,6 +173,14 @@ namespace HwProj.CoursesService.API.Controllers
                 ? NotFound() as IActionResult
                 : Ok(result);
         }
+        
+        [HttpGet("getCourseLecturers/{courseId}")]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCourseLecturersIds(long courseId)
+        {
+            var result = await _coursesService.GetCourseLecturers(courseId);
+            return Ok(result);
+        }
 
         //TODO: optimize
         [HttpGet("taskDeadlines")]
