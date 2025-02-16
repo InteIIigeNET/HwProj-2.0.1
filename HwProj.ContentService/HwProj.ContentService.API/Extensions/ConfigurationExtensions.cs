@@ -7,6 +7,7 @@ using HwProj.ContentService.API.Services;
 using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
@@ -20,8 +21,15 @@ public static class ConfigurationExtensions
     {
         var clientConfigurationSection = configuration.GetSection("StorageClientConfiguration");
         services.Configure<StorageClientConfiguration>(clientConfigurationSection);
+        
+        // Увеличиваем допустимый размер тела запросов, содержащих multipart/form-data
+        services.Configure<FormOptions>(options =>
+        {
+            options.MultipartBodyLengthLimit = 200 * 1024 * 1024;
+        });
 
         services.ConfigureStorageClient(clientConfigurationSection);
+        services.AddSingleton<IFileKeyService, FileKeyService>();
         services.AddScoped<IFilesService, FilesService>();
         services.AddHttpClient();
 

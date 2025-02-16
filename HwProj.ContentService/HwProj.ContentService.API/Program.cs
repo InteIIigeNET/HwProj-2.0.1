@@ -1,7 +1,14 @@
 using HwProj.ContentService.API.Extensions;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.ConfigureWithAWS(builder.Configuration);
+
+// Увеличиваем размер принимаемых запросов до 200 МБ
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 200 * 1024 * 1024;
+});
 var app = builder.Build();
 
 // При необходимости создаем пустой бакет в хранилище

@@ -7,6 +7,7 @@ using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -24,6 +25,10 @@ namespace HwProj.APIGateway.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 200 * 1024 * 1024;
+            });
             services.ConfigureHwProjServices("API Gateway");
 
             const string authenticationProviderKey = "GatewayKey";
