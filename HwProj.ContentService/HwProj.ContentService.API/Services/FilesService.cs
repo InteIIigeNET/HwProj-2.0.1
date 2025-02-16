@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text.RegularExpressions;
 using Amazon.S3;
 using Amazon.S3.Model;
 using HwProj.ContentService.API.Configuration;
@@ -15,26 +14,26 @@ public class FilesService : IFilesService
     private const int FileDownloadUrlExpirationMinutes = 10;
     private const string UploaderIdMetadataKey = "uploader-id";
     private const string AwsMetaDataPrefix = "x-amz-meta-";
-
-    private readonly IAmazonS3 _s3AmazonClient;
     private readonly string _bucketName;
 
-    public FilesService(IAmazonS3 s3Client, IOptions<StorageClientConfiguration> storageClientConfiguration)
+    private readonly IAmazonS3 _s3AmazonClient;
+    private readonly IFileKeyService _fileKeyService;
+
+    public FilesService(IAmazonS3 s3Client, IOptions<StorageClientConfiguration> storageClientConfiguration,
+        IFileKeyService fileKeyService)
     {
         _s3AmazonClient = s3Client;
+        _fileKeyService = fileKeyService;
         _bucketName = storageClientConfiguration.Value.DefaultBucketName
                       ?? throw new NullReferenceException("Не указано имя бакета для сохранения файлов");
     }
 
+    // Если файл с таким ключем уже существует, в текущей реализации он будет перезаписываться
     public async Task<Result> UploadFileAsync(UploadFileDTO uploadFileDto, string uploaderId)
     {
-        var fileKey = BuildFileKey(uploadFileDto);
-
-        if (await FileExistsAsync(fileKey))
-            return Result.Failed("Файл с таким именем уже существует");
-
         try
         {
+            var fileKey = _fileKeyService.BuildFileKey(uploadFileDto);
             await using var stream = uploadFileDto.File.OpenReadStream();
             var request = CreateUploadRequest(uploadFileDto, uploaderId, stream, fileKey);
 
@@ -75,14 +74,16 @@ public class FilesService : IFilesService
         }
     }
 
-    public async Task<List<CourseFileInfoDTO>> GetCourseFilesAsync(long courseId)
+    public async Task<List<FileInfoDTO>> GetFilesInfoAsync(long courseId, long homeworkId = -1)
     {
-        var files = await GetFilesByPrefix($"courses/{courseId}/");
+        var searchPrefix = _fileKeyService.GetFilesSearchPrefix(courseId, homeworkId);
+        var files = await GetFilesByPrefix(searchPrefix);
+
         return files.Select(f =>
         {
-            if (!GetHomeworkIdFromKey(f.Key, out var homeworkId))
+            if (homeworkId == -1 && !_fileKeyService.GetHomeworkIdFromKey(f.Key, out homeworkId))
                 throw new ApplicationException($"Путь к файлу {f.Key} не содержит идентификатора домашней работы");
-            return new CourseFileInfoDTO
+            return new FileInfoDTO
             {
                 Name = f.Name,
                 Key = f.Key,
@@ -92,17 +93,10 @@ public class FilesService : IFilesService
         }).ToList();
     }
 
-    public async Task<List<HomeworkFileInfoDTO>> GetHomeworkFilesAsync(long courseId, long homeworkId)
-        => await GetFilesByPrefix($"courses/{courseId}/homeworks/{homeworkId}/files/");
-
     public async Task<Result> DeleteFileAsync(string fileKey, string userId)
     {
         try
         {
-            var metadata = await GetFileMetadataAsync(fileKey);
-            if (!IsOwner(metadata, userId))
-                return Result.Failed("Вы не являетесь создателем файла");
-
             var response = await _s3AmazonClient.DeleteObjectAsync(_bucketName, fileKey);
             return response.IsSuccessStatusCode()
                 ? Result.Success()
@@ -112,20 +106,6 @@ public class FilesService : IFilesService
         {
             return Result.Failed(e.Message);
         }
-    }
-
-    private static bool IsOwner(MetadataCollection metadata, string userId)
-        => metadata[$"{AwsMetaDataPrefix}{UploaderIdMetadataKey}"] == userId;
-    
-    private async Task<MetadataCollection> GetFileMetadataAsync(string fileKey)
-    {
-        var metadataResponse = await _s3AmazonClient.GetObjectMetadataAsync(new GetObjectMetadataRequest
-        {
-            BucketName = _bucketName,
-            Key = fileKey
-        });
-
-        return metadataResponse.Metadata;
     }
 
     private PutObjectRequest CreateUploadRequest(UploadFileDTO dto, string uploaderId, Stream stream,
@@ -147,7 +127,7 @@ public class FilesService : IFilesService
         };
     }
 
-    private async Task<List<HomeworkFileInfoDTO>> GetFilesByPrefix(string prefix)
+    private async Task<List<FileInfoDTO>> GetFilesByPrefix(string prefix)
     {
         var response = await _s3AmazonClient.ListObjectsV2Async(
             new ListObjectsV2Request
@@ -157,41 +137,26 @@ public class FilesService : IFilesService
             });
 
         return response.S3Objects?.Select(obj =>
-            new HomeworkFileInfoDTO
+            new FileInfoDTO
             {
                 Key = obj.Key,
-                Size = obj.Size ?? throw new ArgumentException("Размер объекта должен быть больше нуля", nameof(obj)),
-                Name = GetFileName(obj.Key),
-            }).ToList() ?? new List<HomeworkFileInfoDTO>();
+                Size = obj.Size ??
+                       throw new ArgumentException("В хранилище отсутствует информация о размере файла", nameof(obj)),
+                Name = _fileKeyService.GetFileName(obj.Key),
+            }).ToList() ?? new List<FileInfoDTO>();
     }
 
-    private async Task<bool> FileExistsAsync(string fileKey)
+    private static bool IsOwner(MetadataCollection metadata, string userId)
+        => metadata[$"{AwsMetaDataPrefix}{UploaderIdMetadataKey}"] == userId;
+
+    private async Task<MetadataCollection> GetFileMetadataAsync(string fileKey)
     {
-        try
+        var metadataResponse = await _s3AmazonClient.GetObjectMetadataAsync(new GetObjectMetadataRequest
         {
-            var response = await _s3AmazonClient.GetObjectMetadataAsync(_bucketName, fileKey);
-            return response.IsSuccessStatusCode();
-        }
-        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.NotFound)
-        {
-            return false;
-        }
+            BucketName = _bucketName,
+            Key = fileKey
+        });
+
+        return metadataResponse.Metadata;
     }
-
-    private static string GetFileName(string fileKey)
-        => fileKey.Split('/').Last();
-
-    private static bool GetHomeworkIdFromKey(string fileKey, out long homeworkId)
-    {
-        var match = Regex.Match(
-            fileKey,
-            @"/homeworks/(\d+)(?=/|$)", 
-            RegexOptions.IgnoreCase
-        );
-
-        return long.TryParse(match.Groups[1].Value, out homeworkId);
-    }
-
-    private static string BuildFileKey(UploadFileDTO dto)
-        => $"courses/{dto.CourseId}/homeworks/{dto.HomeworkId}/files/{dto.File.FileName}";
 }
