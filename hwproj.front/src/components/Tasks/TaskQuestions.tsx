@@ -51,13 +51,13 @@ const TaskQuestions: FC<ITaskQuestionsProps> = (props) => {
 
     const closeAddQuestion = () => setAddQuestionState({show: false, text: "", isPrivate: true})
     const sendQuestion = async (question: AddTaskQuestionDto) => {
-        await ApiSingleton.tasksApi.apiTasksAddQuestionPost(question)
+        await ApiSingleton.tasksApi.tasksAddQuestionForTask(question)
         closeAddQuestion()
         props.onChange()
     }
 
     const sendAnswer = async (answer: AddAnswerForQuestionDto) => {
-        await ApiSingleton.tasksApi.apiTasksAddAnswerPost(answer)
+        await ApiSingleton.tasksApi.tasksAddAnswerForQuestion(answer)
         setAddAnswerState({questionId: undefined, answer: ""})
         props.onChange()
     }

@@ -30,6 +30,7 @@ services:
       - hwproj.solutionsservice.api
       - hwproj.coursesservice.api
       - hwproj.notificationsservice.api
+      - hwproj.contentservice.api
 
   hwproj.authservice.api:
     #image: ${DOCKER_REGISTRY-}hwprojauthserviceapi
@@ -76,3 +77,13 @@ services:
       - hwproj.authservice.api
       - hwproj.coursesservice.api
       - mssqllocaldb
+        
+  hwproj.contentservice.api:
+    #image: ${DOCKER_REGISTRY-}hwprojcontentserviceapi
+    image: docker.io/intelligenet/hwproj:contentservice-latest
+    build:
+      context: .
+      dockerfile: HwProj.ContentService/HwProj.ContentService.API/Dockerfile
+    depends_on:
+      - rabbitmq
+      - hwproj.authservice.api

@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Link as RouterLink, useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
+import {AccountDataDto, CourseViewModel, FileInfoDTO, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
@@ -36,6 +36,7 @@ interface ICourseState {
     isFound: boolean;
     course: CourseViewModel;
     courseHomework: HomeworkViewModel[];
+    courseFilesInfo: FileInfoDTO[];
     createHomework: boolean;
     mentors: AccountDataDto[];
     acceptedStudents: AccountDataDto[];
@@ -66,6 +67,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         isFound: false,
         course: {},
         courseHomework: [],
+        courseFilesInfo: [],
         createHomework: false,
         mentors: [],
         acceptedStudents: [],
@@ -83,6 +85,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         isFound,
         course,
         createHomework,
+        courseFilesInfo,
         mentors,
         newStudents,
         acceptedStudents,
@@ -127,7 +130,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     }
 
     const setCurrentState = async () => {
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!)
+        const course = await ApiSingleton.coursesApi.coursesGetCourseData(+courseId!)
 
         // У пользователя изменилась роль (иначе он не может стать лектором в курсе),
         // однако он все ещё использует токен с прежней ролью
@@ -136,18 +139,19 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
             course &&
             course.mentors!.some(t => t.userId === userId)
         if (shouldRefreshToken) {
-            const newToken = await ApiSingleton.accountApi.apiAccountRefreshTokenGet()
+            const newToken = await ApiSingleton.accountApi.accountRefreshToken()
             newToken.value && ApiSingleton.authService.refreshToken(newToken.value.accessToken!)
             return
         }
 
-        const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+courseId!)
-
+        const solutions = await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
+        const courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
         setCourseState(prevState => ({
             ...prevState,
             isFound: true,
             course: course,
             courseHomework: course.homeworks!,
+            courseFilesInfo: courseFilesInfo,
             createHomework: false,
             mentors: course.mentors!,
             acceptedStudents: course.acceptedStudents!,
@@ -163,8 +167,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
 
     const joinCourse = async () => {
-        await ApiSingleton.coursesApi
-            .apiCoursesSignInCourseByCourseIdPost(+courseId!)
+        await ApiSingleton.coursesApi.coursesSignInCourse(+courseId!)
             .then(() => setCurrentState());
     }
 
@@ -320,6 +323,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                 ?
                                 <CourseExperimental
                                     homeworks={courseHomeworks}
+                                    courseFilesInfo={courseFilesInfo}
                                     isMentor={isCourseMentor}
                                     studentSolutions={studentSolutions}
                                     isStudentAccepted={isAcceptedStudent}
@@ -345,6 +349,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                                         isMentor={isCourseMentor}
                                                         isReadingMode={isReadingMode}
                                                         homework={courseHomeworks}
+                                                        courseFilesInfo={courseState.courseFilesInfo}
                                                     />
                                                 </Grid>
                                             </Grid>
@@ -375,6 +380,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                                     isMentor={isCourseMentor}
                                                     isReadingMode={isReadingMode}
                                                     homework={courseHomeworks}
+                                                    courseFilesInfo={courseState.courseFilesInfo}
                                                 />
                                             </Grid>
                                         </div>
@@ -386,6 +392,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                             isStudent={isAcceptedStudent}
                                             isMentor={isCourseMentor}
                                             isReadingMode={isReadingMode}
+                                            courseFilesInfo={courseState.courseFilesInfo}
                                         />
                                     )}
                                 </div>

@@ -2,7 +2,7 @@ import * as React from 'react';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button'
 import ApiSingleton from "../../api/ApiSingleton";
-import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, Solution, SolutionViewModel} from "../../api";
+import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, SolutionState, SolutionViewModel} from "../../api";
 import {FC, useState} from "react";
 import {Alert, Autocomplete, Grid, DialogContent, Dialog, DialogTitle, DialogActions} from "@mui/material";
 import {MarkdownEditor} from "../Common/MarkdownEditor";
@@ -20,7 +20,7 @@ interface IAddSolutionProps {
 
 const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     const {lastSolution} = props
-    const isEdit = lastSolution?.state === Solution.StateEnum.NUMBER_0
+    const isEdit = lastSolution?.state === SolutionState.NUMBER_0
     const lastGroup = lastSolution?.groupMates?.map(x => x.userId!) || []
 
     const [solution, setSolution] = useState<SolutionViewModel>({
@@ -31,7 +31,7 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        await ApiSingleton.solutionsApi.apiSolutionsByTaskIdPost(props.task.id!, solution)
+        await ApiSingleton.solutionsApi.solutionsPostSolution(props.task.id!, solution)
         props.onAdd()
     }
 

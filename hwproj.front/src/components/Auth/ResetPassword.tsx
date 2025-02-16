@@ -71,7 +71,7 @@ const ResetPassword: FC = () => {
         }
 
         try {
-            const result = await ApiSingleton.accountApi.apiAccountResetPasswordPost(userData)
+            const result = await ApiSingleton.accountApi.accountResetPassword(userData)
 
             setState(prevState => ({
                 ...prevState,

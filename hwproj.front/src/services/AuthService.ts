@@ -21,7 +21,7 @@ export default class AuthService {
     }
 
     async login(user: LoginViewModel) {
-        const token = await ApiSingleton.accountApi.apiAccountLoginPost(user)
+        const token = await ApiSingleton.accountApi.accountLogin(user)
         if (token.errors) {
             return {
                 error: token.errors,
@@ -36,7 +36,7 @@ export default class AuthService {
     }
 
     async register(user: RegisterViewModel) {
-        const token = await ApiSingleton.accountApi.apiAccountRegisterPost(user)
+        const token = await ApiSingleton.accountApi.accountRegister(user)
         if (!token.succeeded) {
             return {
                 loggedIn: false,
@@ -91,9 +91,9 @@ export default class AuthService {
 
     getUserId = () => this.getProfile()._id;
 
-    isExpertProfileEdited = async () => await ApiSingleton.expertsApi.apiExpertsIsProfileEditedGet();
+    isExpertProfileEdited = async () => await ApiSingleton.expertsApi.expertsGetIsProfileEdited();
 
-    setIsExpertProfileEdited = async () => await ApiSingleton.expertsApi.apiExpertsSetProfileIsEditedPost();
+    setIsExpertProfileEdited = async () => await ApiSingleton.expertsApi.expertsSetProfileIsEdited();
 
     loggedIn = () => this.getToken() !== null
 

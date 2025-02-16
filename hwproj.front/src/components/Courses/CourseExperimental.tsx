@@ -1,5 +1,6 @@
 import * as React from "react";
 import {
+    FileInfoDTO,
     HomeworkTaskViewModel,
     HomeworkViewModel, Solution, StatisticsCourseMatesModel,
 } from "../../api";
@@ -22,9 +23,14 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 import Utils from "../../services/Utils";
 import {getTip} from "../Common/HomeworkTags";
 import {MarkdownPreview} from "../Common/MarkdownEditor";
+import FilesPreviewList from "components/Files/FilesPreviewList";
+import {IFileInfo} from "components/Files/IFileInfo"
+import ApiSingleton from "api/ApiSingleton";
+import FileInfoConverter from "components/Utils/FileInfoConverter";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
+    courseFilesInfo: FileInfoDTO[]
     studentSolutions: StatisticsCourseMatesModel[]
     isMentor: boolean
     isStudentAccepted: boolean
@@ -36,24 +42,30 @@ interface ICourseExperimentalState {
     selectedItem: {
         isHomework: boolean,
         id: number | undefined,
-        data: HomeworkViewModel | HomeworkTaskViewModel | undefined
+        data: HomeworkViewModel | HomeworkTaskViewModel | undefined,
+        homeworkFilesInfo: IFileInfo[],
     }
 }
 
 const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const homeworks = props.homeworks.slice().reverse()
-    const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId} = props
+    const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId, courseFilesInfo} = props
 
     const defaultHomeworkIndex = Math.max(selectedHomeworkId ? homeworks?.findIndex(x => x.id === selectedHomeworkId) : 0, 0)
+    const defaultHomeworkId = homeworks[defaultHomeworkIndex].id
+
     const [state, setState] = useState<ICourseExperimentalState>({
         selectedItem: {
             isHomework: true,
             id: homeworks && homeworks.length > 0 ? homeworks[defaultHomeworkIndex].id : undefined,
-            data: homeworks && homeworks.length > 0 ? homeworks[defaultHomeworkIndex] : undefined
+            data: homeworks && homeworks.length > 0 ? homeworks[defaultHomeworkIndex] : undefined,
+            homeworkFilesInfo: homeworks && homeworks.length > 0 && defaultHomeworkId
+                ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, defaultHomeworkId)
+                : []
         }
     })
 
-    const {data, id, isHomework} = state.selectedItem
+    const {data, id, isHomework, homeworkFilesInfo} = state.selectedItem
 
     const renderDate = (date: Date) => {
         date = new Date(date)
@@ -78,7 +90,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const getStyle = (itemIsHomework: boolean, itemId: number) =>
         itemIsHomework === isHomework && itemId === id ? hoveredItemStyle : {}
 
-    const renderHomework = (homework: HomeworkViewModel) => {
+    const renderHomework = (homework: HomeworkViewModel, localFilesInfo: IFileInfo[]) => {
         const deferredHomeworks = homework.tasks!.filter(t => t.isDeferred!)
         const tasksCount = homework.tasks!.length
         return <CardContent>
@@ -105,6 +117,16 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             <Typography style={{color: "#454545"}} gutterBottom variant="body1">
                 <MarkdownPreview value={homework.description!}/>
             </Typography>
+            {localFilesInfo && localFilesInfo.length > 0 &&
+                <div>
+                    <FilesPreviewList
+                        filesInfo={localFilesInfo}
+                        onClickFileInfo={async (fileInfo: IFileInfo) => {
+                            var url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.key!)
+                            window.open(url, '_blank');
+                        }}
+                    />
+                </div>}
         </CardContent>
     }
 
@@ -165,7 +187,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         if (!data) return null
 
         if (isHomework) return <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
-            {renderHomework(data as HomeworkViewModel)}
+            {renderHomework(data as HomeworkViewModel, homeworkFilesInfo)}
         </Card>
 
         const task = data as HomeworkTaskViewModel
@@ -219,7 +241,8 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                     selectedItem: {
                                         data: x,
                                         isHomework: true,
-                                        id: x.id
+                                        id: x.id,
+                                        homeworkFilesInfo: FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, x.id!)
                                     }
                                 }))
                             }}>
@@ -244,7 +267,8 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                     selectedItem: {
                                         data: t,
                                         isHomework: false,
-                                        id: t.id
+                                        id: t.id,
+                                        homeworkFilesInfo: []
                                     }
                                 }))
                             }}

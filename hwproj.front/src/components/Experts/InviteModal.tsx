@@ -74,7 +74,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
 
     useEffect(() => {
         const fetchCourses = async () => {
-            const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesGet();
+            const courses = await ApiSingleton.coursesApi.coursesGetAllUserCourses();
             setState(prevState => ({
                 ...prevState,
                 lecturerCourses: courses
@@ -83,7 +83,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
         }
 
         const fetchCredentials = async () => {
-            const tokenCredentials = await ApiSingleton.expertsApi.apiExpertsGetTokenGet(props.expertEmail);
+            const tokenCredentials = await ApiSingleton.expertsApi.expertsGetToken(props.expertEmail);
             setState(prevState => ({
                 ...prevState,
                 accessToken: tokenCredentials.value!.accessToken!
@@ -120,7 +120,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                 studentIds: state.selectedStudents.map(accountData => accountData.userId!)
             }
 
-            const result = await ApiSingleton.expertsApi.apiExpertsInvitePost(inviteExpertModel);
+            const result = await ApiSingleton.expertsApi.expertsInvite(inviteExpertModel);
             if (result.succeeded) {
                 setIsInviteButtonDisabled(true);
                 setIsLinkAccessible(true);

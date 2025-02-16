@@ -7,7 +7,7 @@ import {
     AccountDataDto,
     GetSolutionModel,
     HomeworkTaskViewModel,
-    Solution,
+    SolutionState,
     SolutionActualityDto,
     SolutionActualityPart
 } from '../../api'
@@ -84,12 +84,13 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         props.solution.githubUrl &&
         props.solution.githubUrl.startsWith("https://github.com/")
 
-    const checkAchievement = props.solution && props.isLastSolution && props.solution.state !== Solution.StateEnum.NUMBER_0
+    const checkAchievement = props.solution && props.isLastSolution && props.solution.state !== SolutionState.NUMBER_0
 
     const getAchievementState = async () => {
         setAchievementState(undefined)
         if (checkAchievement) {
-            const achievement = await ApiSingleton.solutionsApi.apiSolutionsSolutionAchievementGet(task.id, props.solution!.id)
+            const achievement =
+                await ApiSingleton.solutionsApi.solutionsGetSolutionAchievement(task.id, props.solution!.id)
             setAchievementState(achievement)
         }
     }
@@ -104,7 +105,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const getActuality = async () => {
         setSolutionActuality(undefined)
         if (checkTestsActuality) {
-            const actualityDto = await ApiSingleton.solutionsApi.apiSolutionsActualityBySolutionIdGet(props.solution!.id!)
+            const actualityDto = await ApiSingleton.solutionsApi.solutionsGetSolutionActuality(props.solution!.id!)
             setSolutionActuality(actualityDto)
         }
     }
@@ -112,26 +113,24 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const rateSolution = async () => {
         setRateInProgressState(true)
         if (props.solution) {
-            await ApiSingleton.solutionsApi
-                .apiSolutionsRateSolutionBySolutionIdPost(
-                    props.solution.id!,
-                    {
-                        rating: points,
-                        lecturerComment: lecturerComment
-                    }
-                )
-        } else await ApiSingleton.solutionsApi
-            .apiSolutionsRateEmptySolutionByTaskIdPost(
-                props.task.id!,
+            await ApiSingleton.solutionsApi.solutionsRateSolution(
+                props.solution.id!,
                 {
-                    comment: "",
-                    githubUrl: "",
-                    lecturerComment: state.lecturerComment,
-                    publicationDate: undefined,
-                    rating: state.points,
-                    studentId: props.student.userId
+                    rating: points,
+                    lecturerComment: lecturerComment
                 }
             )
+        } else await ApiSingleton.solutionsApi.solutionsPostEmptySolutionWithRate(
+            props.task.id!,
+            {
+                comment: "",
+                githubUrl: "",
+                lecturerComment: state.lecturerComment,
+                publicationDate: undefined,
+                rating: state.points,
+                studentId: props.student.userId
+            }
+        )
         setState(prevState => ({...prevState, clickedForRate: false}))
         enqueueSnackbar('Решение успешно оценено', {variant: "success", autoHideDuration: 1700});
         props.onRateSolutionClick?.()
@@ -140,7 +139,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const {solution, lastRating, student, task} = props
     const maxRating = task.maxRating!
     //TODO: enum instead of string
-    const isRated = solution && solution.state !== Solution.StateEnum.NUMBER_0 // != Posted
+    const isRated = solution && solution.state !== SolutionState.NUMBER_0 // != Posted
     const {points, lecturerComment, addBonusPoints} = state
     const postedSolutionTime = solution && Utils.renderReadableDate(solution.publicationDate!)
     const ratingTime = solution && solution.ratingDate && Utils.renderReadableDate(solution.ratingDate!)

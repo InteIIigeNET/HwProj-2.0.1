@@ -51,7 +51,7 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
                 studentIds: state.selectedStudents.map(accountData => accountData.userId!)
             }
 
-            await ApiSingleton.coursesApi.apiCoursesEditMentorWorkspaceByCourseIdByMentorIdPost(
+            await ApiSingleton.coursesApi.coursesEditMentorWorkspace(
                 props.courseId, props.mentorId, workspaceViewModel
             );
 

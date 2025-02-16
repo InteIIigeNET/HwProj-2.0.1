@@ -37,7 +37,7 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
-        await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(props.homework.id!, state);
+        await ApiSingleton.tasksApi.tasksAddTask(props.homework.id!, state);
         props.onAdding()
         props.onClose()
     }

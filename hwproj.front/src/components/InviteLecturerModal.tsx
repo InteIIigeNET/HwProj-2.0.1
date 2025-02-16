@@ -46,8 +46,7 @@ const InviteLecturerModal: FC<InviteLecturer> = (props) => {
             return
         }
         try {
-            const result = await ApiSingleton.accountApi
-                .apiAccountInviteNewLecturerPost({email: lecturerState.email})
+            const result = await ApiSingleton.accountApi.accountInviteNewLecturer({email: lecturerState.email})
             if (result.succeeded) {
                 setLecturerState((prevState) => ({
                     ...prevState,
@@ -79,7 +78,7 @@ const InviteLecturerModal: FC<InviteLecturer> = (props) => {
     }
 
     const setCurrentState = async () => {
-        const data = await ApiSingleton.accountApi.apiAccountGetAllStudentsGet();
+        const data = await ApiSingleton.accountApi.accountGetAllStudents();
         setLecturerState({
             errors: [],
             email: '',

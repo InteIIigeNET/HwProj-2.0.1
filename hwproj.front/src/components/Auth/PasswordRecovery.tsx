@@ -66,7 +66,7 @@ const PasswordRecovery: FC = () => {
         }
 
         try {
-            const result = await ApiSingleton.accountApi.apiAccountRequestPasswordRecoveryPost({email: recoverState.email})
+            const result = await ApiSingleton.accountApi.accountRequestPasswordRecovery({email: recoverState.email})
             setRecoverState(prevState => ({
                 ...prevState,
                 error: result.errors,

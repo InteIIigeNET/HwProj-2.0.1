@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
 import {Bar, ComposedChart, ReferenceLine, Scatter, Text, Tooltip, XAxis, YAxis, ZAxis} from 'recharts';
 import { Tooltip as MuiTooltip } from '@mui/material';
-import {Solution, StatisticsCourseMatesModel, HomeworkTaskViewModel} from '../../../api';
+import {SolutionState, StatisticsCourseMatesModel, HomeworkTaskViewModel} from '../../../api';
 import StudentStatsUtils from "../../../services/StudentStatsUtils";
 import Utils from "../../../services/Utils";
 import {Payload, ValueType} from "recharts/types/component/DefaultTooltipContent";
@@ -244,7 +244,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
             
             const attempt = {fill, xAxisPosition: actualTick, yAxisPosition: deviation, link: solution.githubUrl};
             attemptTooltipRepresentation
-                .set(actualTick, [actuallyDeviation, `${solution.rating}/${maxRating}`, solution.state != Solution.StateEnum.NUMBER_0]);
+                .set(actualTick, [actuallyDeviation, `${solution.rating}/${maxRating}`, solution.state != SolutionState.NUMBER_0]);
             
             return [...currentAcc, attempt];
         }, [])

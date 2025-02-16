@@ -7,10 +7,11 @@ import {CreateHomeworkViewModel, CreateTaskViewModel, HomeworkViewModel} from ".
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import CreateTask from "../Tasks/CreateTask"
 import Tags from "../Common/Tags";
-import apiSingleton from "../../api/ApiSingleton";
-import {Alert} from "@mui/material";
+import {Alert, CircularProgress} from "@mui/material";
 import {TestTag, isTestWork, isBonusWork} from "components/Common/HomeworkTags";
 import Lodash from "lodash";
+import FilesUploader from "components/Files/FilesUploader";
+import UpdateFilesUtils from "components/Utils/UpdateFilesUtils";
 
 interface IAddHomeworkProps {
     id: number;
@@ -63,7 +64,8 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
         hasErrors: false,
         tags: []
     })
-
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const [handleSubmitLoading, setHandleSubmitLoading] = useState(false);
     const [deadlineSuggestion, setDeadlineSuggestion] = useState<Date | undefined>(undefined)
 
     useEffect(() => {
@@ -100,17 +102,23 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-
+        setHandleSubmitLoading(true)
         const addHomework: CreateHomeworkViewModel = {
             ...addHomeworkState,
             tasks: addHomeworkState.tasks.map(t => t.task)
         }
-
-        await ApiSingleton.homeworksApi.apiHomeworksByCourseIdAddPost(props.id, addHomework)
+        var homeworkId = await ApiSingleton.homeworksApi.homeworksAddHomework(props.id, addHomework)
         setAddHomeworkState((prevState) => ({
             ...prevState,
             added: true
         }))
+        if (selectedFiles != null) {
+            const uploadOperations = selectedFiles.map(
+                selectedFile => UpdateFilesUtils.uploadFileWithErrorsHadling(selectedFile, props.id, homeworkId));
+
+            // Дожидаемся окончания обработки загрузки всех файлов
+            await Promise.all(uploadOperations);
+        }
 
         props.onSubmit()
     }
@@ -141,7 +149,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     }
                     }
                 />
-                <div style={{ marginBottom: -3, marginTop: -5 }}>
+                <div style={{marginBottom: -3, marginTop: -5}}>
                     <MarkdownEditor
                         label={"Описание"}
                         value={addHomeworkState.description}
@@ -154,25 +162,42 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     />
                 </div>
                 <Tags tags={[]} onTagsChange={handleTagsChange} isElementSmall={false}
-                      requestTags={() => apiSingleton.coursesApi.apiCoursesTagsByCourseIdGet(props.id)}/>
+                      requestTags={() => ApiSingleton.coursesApi.coursesGetAllTagsForCourse(props.id)}/>
                 {addHomeworkState.tags.includes(TestTag) &&
                     <Alert severity="info">Вы можете сгруппировать контрольные работы и переписывания с помощью
                         дополнительного тега. Например, 'КР 1'</Alert>}
-                <PublicationAndDeadlineDates
-                    hasDeadline={false}
-                    isDeadlineStrict={false}
-                    publicationDate={undefined}
-                    deadlineDate={undefined}
-                    autoCalculatedDeadline={deadlineSuggestion}
-                    onChange={(state) => setAddHomeworkState((prevState) => ({
-                        ...prevState,
-                        hasDeadline: state.hasDeadline,
-                        isDeadlineStrict: state.isDeadlineStrict,
-                        publicationDate: state.publicationDate,
-                        deadlineDate: state.deadlineDate,
-                        hasErrors: state.hasErrors,
-                    }))}
-                />
+                <Grid container>
+                    <Grid item>
+                        <FilesUploader
+                            onChange={(filesInfo) => {console.log(filesInfo); setSelectedFiles(filesInfo
+                                .filter(fileInfo => fileInfo.file != undefined)
+                                .map(fileInfo => fileInfo.file!))}}
+                        />
+                    </Grid>
+                </Grid>
+                <Grid
+                    container
+                    direction="row"
+                    justifyContent="space-between"
+                >
+                    <Grid item style={{marginTop: "5px"}}>
+                        <PublicationAndDeadlineDates
+                            hasDeadline={false}
+                            isDeadlineStrict={false}
+                            publicationDate={undefined}
+                            deadlineDate={undefined}
+                            autoCalculatedDeadline={deadlineSuggestion}
+                            onChange={(state) => setAddHomeworkState((prevState) => ({
+                                ...prevState,
+                                hasDeadline: state.hasDeadline,
+                                isDeadlineStrict: state.isDeadlineStrict,
+                                publicationDate: state.publicationDate,
+                                deadlineDate: state.deadlineDate,
+                                hasErrors: state.hasErrors,
+                            }))}
+                        />
+                    </Grid>
+                </Grid>
                 <div>
                     <ol>
                         {addHomeworkState.tasks.map((task, index) => (
@@ -201,7 +226,10 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                                         </Button>
                                     </Grid>
                                     <CreateTask
-                                        homework={{...addHomeworkState, tasks: addHomeworkState.tasks.map(t => t.task)}}
+                                        homework={{
+                                            ...addHomeworkState,
+                                            tasks: addHomeworkState.tasks.map(t => t.task)
+                                        }}
                                         onChange={(state) => {
                                             addHomeworkState.tasks[index].task = state
                                             addHomeworkState.tasks[index].hasErrors = state.hasErrors
@@ -260,6 +288,11 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     >
                         Отменить
                     </Button>
+                    {handleSubmitLoading &&
+                        <div className="container" style={{marginTop: 10, marginLeft: -10}}>
+                            <p>Сохраняем задание...</p>
+                            <CircularProgress/>
+                        </div>}
                 </Grid>
             </form>
         </div>

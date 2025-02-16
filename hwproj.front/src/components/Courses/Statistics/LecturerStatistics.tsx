@@ -14,7 +14,8 @@ const LecturerStatistics: FC<{
     const [statistics, setStatistics] = useState<StatisticsLecturersModel[]>([])
 
     const getStatistics = async () => {
-        const statistics: StatisticsLecturersModel[] = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdLecturersGet(props.courseId)
+        const statistics: StatisticsLecturersModel[] =
+            await ApiSingleton.statisticsApi.statisticsGetLecturersStatistics(props.courseId)
         setStatistics(statistics)
         setIsLoading(false);
     }

@@ -82,8 +82,8 @@ export default class Courses extends React.Component<Props, ICoursesState> {
 
     async componentDidMount() {
         try {
-            const courses = await ApiSingleton.coursesApi.apiCoursesUserCoursesGet()
-            const allCourses = await ApiSingleton.coursesApi.apiCoursesGet();
+            const courses = await ApiSingleton.coursesApi.coursesGetAllUserCourses()
+            const allCourses = await ApiSingleton.coursesApi.coursesGetAllCourses();
             this.setState({
                 isLoaded: true,
                 myCourses: courses.reverse(),

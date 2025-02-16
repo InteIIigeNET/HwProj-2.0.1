@@ -51,7 +51,7 @@ const Workspace: FC = () => {
 
     const getUserInfo = async () => {
         if (id) {
-            const data = await ApiSingleton.accountApi.apiAccountGetUserDataByUserIdGet(id)
+            const data = await ApiSingleton.accountApi.accountGetUserDataById(id)
             setAccountState({userData: data, taskDeadlines: [], courseEvents: [], unratedSolutionPreviews: undefined})
             setProfileState(prevState => ({
                 ...prevState,
@@ -59,9 +59,9 @@ const Workspace: FC = () => {
             }))
             return
         }
-        const data = await ApiSingleton.accountApi.apiAccountGetUserDataGet()
+        const data = await ApiSingleton.accountApi.accountGetUserData()
         const unratedSolutions = isMentor
-            ? await ApiSingleton.solutionsApi.apiSolutionsUnratedSolutionsGet()
+            ? await ApiSingleton.solutionsApi.solutionsGetUnratedSolutions()
             : undefined
         setAccountState({...data, unratedSolutionPreviews: unratedSolutions})
         setProfileState(prevState => ({
