@@ -24,6 +24,7 @@ import {Stack} from '@mui/material';
 import Utils from "../../services/Utils";
 import {MarkdownPreview} from "../Common/MarkdownEditor";
 import {IFileInfo} from 'components/Files/IFileInfo';
+import UpdateFilesUtils from 'components/Utils/UpdateFilesUtils';
 
 interface IHomeworkProps {
     homework: HomeworkViewModel,
@@ -67,7 +68,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
 
         // Удаляем файлы домашней работы из хранилища
         const deleteOperations = props.homeworkFilesInfo
-            .map(initialFile => ApiSingleton.customFilesApi.deleteFileByKey(initialFile.s3Key!));
+            .map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(initialFile))
         await Promise.all(deleteOperations)
 
         props.onUpdateClick()

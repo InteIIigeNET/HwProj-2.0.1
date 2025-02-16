@@ -11,8 +11,7 @@ import {Alert, CircularProgress} from "@mui/material";
 import {TestTag, isTestWork, isBonusWork} from "components/Common/HomeworkTags";
 import Lodash from "lodash";
 import FilesUploader from "components/Files/FilesUploader";
-import ErrorsHandler from "components/Utils/ErrorsHandler";
-import {useSnackbar} from "notistack";
+import UpdateFilesUtils from "components/Utils/UpdateFilesUtils";
 
 interface IAddHomeworkProps {
     id: number;
@@ -67,7 +66,6 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
     })
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [handleSubmitLoading, setHandleSubmitLoading] = useState(false);
-    const {enqueueSnackbar} = useSnackbar()
     const [deadlineSuggestion, setDeadlineSuggestion] = useState<Date | undefined>(undefined)
 
     useEffect(() => {
@@ -116,25 +114,14 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
         }))
 
         if (selectedFiles != null) {
-            const uploadOperations = selectedFiles.map(selectedFile => uploadHomeworkFile(selectedFile, +homeworkId!));
+            const uploadOperations = selectedFiles.map(
+                selectedFile => UpdateFilesUtils.uploadFileWithErrorsHadling(selectedFile, props.id, +homeworkId!));
 
             // Дожидаемся окончания обработки загрузки всех файлов
             await Promise.all(uploadOperations);
         }
 
         props.onSubmit()
-    }
-
-    const uploadHomeworkFile = async (file: File, homeworkId: number) => {
-        try {
-            await ApiSingleton.customFilesApi.uploadFile(file, props.id, homeworkId);
-        } catch (e) {
-            const errors = await ErrorsHandler.getErrorMessages(e as Response);
-            enqueueSnackbar(`Проблема при загрузке файла ${file.name}: ${errors[0]}`, {
-                variant: "error",
-                autoHideDuration: 1700
-            });
-        }
     }
 
     const handleTagsChange = (newValue: string[]) => {

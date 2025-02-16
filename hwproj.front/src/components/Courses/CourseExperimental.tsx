@@ -1,6 +1,6 @@
 import * as React from "react";
 import {
-    CourseFileInfoDTO,
+    FileInfoDTO,
     HomeworkTaskViewModel,
     HomeworkViewModel, Solution, StatisticsCourseMatesModel,
 } from "../../api";
@@ -30,7 +30,7 @@ import FileInfoConverter from "components/Utils/FileInfoConverter";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
-    courseFilesInfo: CourseFileInfoDTO[]
+    courseFilesInfo: FileInfoDTO[]
     studentSolutions: StatisticsCourseMatesModel[]
     isMentor: boolean
     isStudentAccepted: boolean
@@ -60,7 +60,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             id: homeworks && homeworks.length > 0 ? homeworks[defaultHomeworkIndex].id : undefined,
             data: homeworks && homeworks.length > 0 ? homeworks[defaultHomeworkIndex] : undefined,
             homeworkFilesInfo: homeworks && homeworks.length > 0 && defaultHomeworkId
-                ? FileInfoConverter.GetHomeworkFilesInfo(courseFilesInfo, defaultHomeworkId)
+                ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, defaultHomeworkId)
                 : []
         }
     })
@@ -119,11 +119,10 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Typography>
             {localFilesInfo && localFilesInfo.length > 0 &&
                 <div>
-                    <Divider style={{marginTop: 0, marginBottom: 10}}/>
                     <FilesPreviewList
                         filesInfo={localFilesInfo}
                         onClickFileInfo={async (fileInfo: IFileInfo) => {
-                            var url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.s3Key!)
+                            var url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.key!)
                             window.open(url, '_blank');
                         }}
                     />
@@ -243,7 +242,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         data: x,
                                         isHomework: true,
                                         id: x.id,
-                                        homeworkFilesInfo: FileInfoConverter.GetHomeworkFilesInfo(courseFilesInfo, x.id!)
+                                        homeworkFilesInfo: FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, x.id!)
                                     }
                                 }))
                             }}>

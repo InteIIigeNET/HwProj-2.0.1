@@ -3,5 +3,5 @@ export interface IFileInfo {
     type?: string;
     name: string;
     sizeInBytes: number;
-    s3Key?: string;
+    key?: string;
 }

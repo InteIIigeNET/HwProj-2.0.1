@@ -13,6 +13,7 @@ import apiSingleton from "../../api/ApiSingleton";
 import FilesUploader from "components/Files/FilesUploader";
 import {IFileInfo} from "components/Files/IFileInfo";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
+import UpdateFilesUtils from "components/Utils/UpdateFilesUtils";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -109,10 +110,9 @@ const EditHomework: FC = () => {
     }
 
     const fetchAndSetHomeworkFiles = async (courseId: number, homeworkId: number) => {
-        const homeworkFiles = await ApiSingleton.filesApi.filesGetHomeworkFilesInfo(courseId, homeworkId)
-        console.log(homeworkFiles)
+        const homeworkFiles = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, homeworkId)
         if (homeworkFiles.length > 0) {
-            const filesInfo = FileInfoConverter.FromHomeworkFileInfoArray(homeworkFiles)
+            const filesInfo = FileInfoConverter.fromFileInfoDTOArray(homeworkFiles)
             setFilesControlState((prevState) => ({
                 ...prevState,
                 initialFilesInfo: filesInfo,
@@ -129,22 +129,23 @@ const EditHomework: FC = () => {
         // Если какие-то файлы из ранее добавленных больше не выбраны, удаляем их из хранилища
         const deleteOperations = filesControlState.initialFilesInfo
             .filter(initialFile =>
-                initialFile.s3Key &&
-                !filesControlState.selectedFilesInfo.some(s => s.s3Key === initialFile.s3Key)
+                initialFile.key &&
+                !filesControlState.selectedFilesInfo.some(s => s.key === initialFile.key)
             )
-            .map(initialFile => ApiSingleton.customFilesApi.deleteFileByKey(initialFile.s3Key!));
+            .map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(initialFile));
 
         // Если какие-то файлы из выбранных сейчас не были добавлены раньше, загружаем их в хранилище
         const uploadOperations = filesControlState.selectedFilesInfo
             .filter(selectedFile =>
                 selectedFile.file &&
-                !filesControlState.initialFilesInfo.some(i => i.s3Key === selectedFile.s3Key)
+                !filesControlState.initialFilesInfo.some(i => i.key === selectedFile.key)
             )
-            .map(selectedFile => ApiSingleton.customFilesApi.uploadFile(
+            .map(selectedFile => UpdateFilesUtils.uploadFileWithErrorsHadling(
                 selectedFile.file!,
                 editHomework.courseId,
-                +homeworkId!
-            ));
+                +homeworkId!)
+            );
+        
         // Дожидаемся удаления и загрузки необходимых файлов
         await Promise.all([...deleteOperations, ...uploadOperations]);
 

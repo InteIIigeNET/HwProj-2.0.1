@@ -326,37 +326,6 @@ export interface CourseEvents {
 /**
  *
  * @export
- * @interface CourseFileInfoDTO
- */
-export interface CourseFileInfoDTO {
-    /**
-     *
-     * @type {string}
-     * @memberof CourseFileInfoDTO
-     */
-    name?: string;
-    /**
-     *
-     * @type {number}
-     * @memberof CourseFileInfoDTO
-     */
-    size?: number;
-    /**
-     *
-     * @type {string}
-     * @memberof CourseFileInfoDTO
-     */
-    key?: string;
-    /**
-     *
-     * @type {number}
-     * @memberof CourseFileInfoDTO
-     */
-    homeworkId?: number;
-}
-/**
- *
- * @export
  * @interface CoursePreview
  */
 export interface CoursePreview {
@@ -787,6 +756,37 @@ export interface ExpertDataDTO {
 /**
  *
  * @export
+ * @interface FileInfoDTO
+ */
+export interface FileInfoDTO {
+    /**
+     *
+     * @type {string}
+     * @memberof FileInfoDTO
+     */
+    name?: string;
+    /**
+     *
+     * @type {number}
+     * @memberof FileInfoDTO
+     */
+    size?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof FileInfoDTO
+     */
+    key?: string;
+    /**
+     *
+     * @type {number}
+     * @memberof FileInfoDTO
+     */
+    homeworkId?: number;
+}
+/**
+ *
+ * @export
  * @interface FilesUploadBody
  */
 export interface FilesUploadBody {
@@ -807,7 +807,7 @@ export interface FilesUploadBody {
      * @type {Blob}
      * @memberof FilesUploadBody
      */
-    file?: Blob;
+    file: Blob;
 }
 /**
  *
@@ -975,31 +975,6 @@ export interface GroupViewModel {
      * @memberof GroupViewModel
      */
     studentsIds?: Array<string>;
-}
-/**
- *
- * @export
- * @interface HomeworkFileInfoDTO
- */
-export interface HomeworkFileInfoDTO {
-    /**
-     *
-     * @type {string}
-     * @memberof HomeworkFileInfoDTO
-     */
-    name?: string;
-    /**
-     *
-     * @type {number}
-     * @memberof HomeworkFileInfoDTO
-     */
-    size?: number;
-    /**
-     *
-     * @type {string}
-     * @memberof HomeworkFileInfoDTO
-     */
-    key?: string;
 }
 /**
  *
@@ -5901,42 +5876,6 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
         },
         /**
          *
-         * @param {number} courseId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        filesGetCourseFilesInfo(courseId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'courseId' is not null or undefined
-            if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling filesGetCourseFilesInfo.');
-            }
-            const localVarPath = `/api/Files/courseFilesInfo/{courseId}`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Bearer required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
-                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         *
          * @param {string} [key]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5973,22 +5912,17 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
         /**
          *
          * @param {number} courseId
-         * @param {number} homeworkId
+         * @param {number} [homeworkId]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        filesGetHomeworkFilesInfo(courseId: number, homeworkId: number, options: any = {}): FetchArgs {
+        filesGetFilesInfo(courseId: number, homeworkId?: number, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling filesGetHomeworkFilesInfo.');
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling filesGetFilesInfo.');
             }
-            // verify required parameter 'homeworkId' is not null or undefined
-            if (homeworkId === null || homeworkId === undefined) {
-                throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling filesGetHomeworkFilesInfo.');
-            }
-            const localVarPath = `/api/Files/homeworkFilesInfo/{courseId}/{homeworkId}`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
-                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
+            const localVarPath = `/api/Files/filesInfo/{courseId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
@@ -6000,6 +5934,10 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
                     ? configuration.apiKey("Authorization")
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (homeworkId !== undefined) {
+                localVarQueryParameter['homeworkId'] = homeworkId;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -6090,24 +6028,6 @@ export const FilesApiFp = function(configuration?: Configuration) {
         },
         /**
          *
-         * @param {number} courseId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        filesGetCourseFilesInfo(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<CourseFileInfoDTO>> {
-            const localVarFetchArgs = FilesApiFetchParamCreator(configuration).filesGetCourseFilesInfo(courseId, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         *
          * @param {string} [key]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6127,12 +6047,12 @@ export const FilesApiFp = function(configuration?: Configuration) {
         /**
          *
          * @param {number} courseId
-         * @param {number} homeworkId
+         * @param {number} [homeworkId]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        filesGetHomeworkFilesInfo(courseId: number, homeworkId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<HomeworkFileInfoDTO>> {
-            const localVarFetchArgs = FilesApiFetchParamCreator(configuration).filesGetHomeworkFilesInfo(courseId, homeworkId, options);
+        filesGetFilesInfo(courseId: number, homeworkId?: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<FileInfoDTO>> {
+            const localVarFetchArgs = FilesApiFetchParamCreator(configuration).filesGetFilesInfo(courseId, homeworkId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -6183,15 +6103,6 @@ export const FilesApiFactory = function (configuration?: Configuration, fetch?: 
         },
         /**
          *
-         * @param {number} courseId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        filesGetCourseFilesInfo(courseId: number, options?: any) {
-            return FilesApiFp(configuration).filesGetCourseFilesInfo(courseId, options)(fetch, basePath);
-        },
-        /**
-         *
          * @param {string} [key]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6202,12 +6113,12 @@ export const FilesApiFactory = function (configuration?: Configuration, fetch?: 
         /**
          *
          * @param {number} courseId
-         * @param {number} homeworkId
+         * @param {number} [homeworkId]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        filesGetHomeworkFilesInfo(courseId: number, homeworkId: number, options?: any) {
-            return FilesApiFp(configuration).filesGetHomeworkFilesInfo(courseId, homeworkId, options)(fetch, basePath);
+        filesGetFilesInfo(courseId: number, homeworkId?: number, options?: any) {
+            return FilesApiFp(configuration).filesGetFilesInfo(courseId, homeworkId, options)(fetch, basePath);
         },
         /**
          *
@@ -6243,17 +6154,6 @@ export class FilesApi extends BaseAPI {
 
     /**
      *
-     * @param {number} courseId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof FilesApi
-     */
-    public filesGetCourseFilesInfo(courseId: number, options?: any) {
-        return FilesApiFp(this.configuration).filesGetCourseFilesInfo(courseId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     *
      * @param {string} [key]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -6266,13 +6166,13 @@ export class FilesApi extends BaseAPI {
     /**
      *
      * @param {number} courseId
-     * @param {number} homeworkId
+     * @param {number} [homeworkId]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public filesGetHomeworkFilesInfo(courseId: number, homeworkId: number, options?: any) {
-        return FilesApiFp(this.configuration).filesGetHomeworkFilesInfo(courseId, homeworkId, options)(this.fetch, this.basePath);
+    public filesGetFilesInfo(courseId: number, homeworkId?: number, options?: any) {
+        return FilesApiFp(this.configuration).filesGetFilesInfo(courseId, homeworkId, options)(this.fetch, this.basePath);
     }
 
     /**

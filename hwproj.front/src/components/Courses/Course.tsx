@@ -1,9 +1,6 @@
 import * as React from "react";
 import {Link as RouterLink, useSearchParams} from "react-router-dom";
-import {
-    AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel,
-    CourseFileInfoDTO
-} from "../../api";
+import {AccountDataDto, CourseViewModel, FileInfoDTO, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
@@ -39,7 +36,7 @@ interface ICourseState {
     isFound: boolean;
     course: CourseViewModel;
     courseHomework: HomeworkViewModel[];
-    courseFilesInfo: CourseFileInfoDTO[];
+    courseFilesInfo: FileInfoDTO[];
     createHomework: boolean;
     mentors: AccountDataDto[];
     acceptedStudents: AccountDataDto[];
@@ -148,7 +145,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         }
 
         const solutions = await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
-        const courseFilesInfo = await ApiSingleton.filesApi.filesGetCourseFilesInfo(+courseId!)
+        const courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
         setCourseState(prevState => ({
             ...prevState,
             isFound: true,
