@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Link as RouterLink, useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, FileInfoDTO, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
+import {AccountDataDto, AdvancedStatisticsCourseMatesModel, CourseViewModel, FileInfoDTO, HomeworkViewModel} from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
@@ -44,7 +44,7 @@ interface ICourseState {
     acceptedStudents: AccountDataDto[];
     newStudents: AccountDataDto[];
     isReadingMode: boolean;
-    studentSolutions: StatisticsCourseMatesModel[];
+    studentSolutions: AdvancedStatisticsCourseMatesModel[];
     showQrCode: boolean;
 }
 

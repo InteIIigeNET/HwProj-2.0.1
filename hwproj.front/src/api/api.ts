@@ -228,6 +228,43 @@ export interface AdvancedCourseStatisticsViewModel {
 /**
  *
  * @export
+ * @interface AdvancedStatisticsCourseMatesModel
+ */
+export interface AdvancedStatisticsCourseMatesModel {
+    /**
+     *
+     * @type {string}
+     * @memberof AdvancedStatisticsCourseMatesModel
+     */
+    id?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof AdvancedStatisticsCourseMatesModel
+     */
+    name?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof AdvancedStatisticsCourseMatesModel
+     */
+    surname?: string;
+    /**
+     *
+     * @type {Array<AccountDataDto>}
+     * @memberof AdvancedStatisticsCourseMatesModel
+     */
+    reviewers?: Array<AccountDataDto>;
+    /**
+     *
+     * @type {Array<StatisticsCourseHomeworksModel>}
+     * @memberof AdvancedStatisticsCourseMatesModel
+     */
+    homeworks?: Array<StatisticsCourseHomeworksModel>;
+}
+/**
+ *
+ * @export
  * @interface BooleanResult
  */
 export interface BooleanResult {
@@ -8103,7 +8140,7 @@ export const StatisticsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statisticsGetCourseStatistics(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<StatisticsCourseMatesModel>> {
+        statisticsGetCourseStatistics(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<AdvancedStatisticsCourseMatesModel>> {
             const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).statisticsGetCourseStatistics(courseId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
