@@ -112,5 +112,34 @@ namespace HwProj.CoursesService.API.Domains
                 Tasks = createHomeworkViewModel.Tasks.Select(t => t.ToHomeworkTask()).ToList(),
                 Tags = createHomeworkViewModel.Tags.Join(";"),
             };
+
+        public static CourseTemplate ToCourseTemplate(this Course course)
+            => new CourseTemplate()
+            {
+                Name = course.Name,
+                GroupName = course.GroupName,
+                Homeworks = course.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList(),
+            };
+
+        public static HomeworkTemplate ToHomeworkTemplate(this Homework homework)
+            => new HomeworkTemplate()
+            {
+                Title = homework.Title,
+                Description = homework.Description,
+                HasDeadline = homework.HasDeadline,
+                IsDeadlineStrict = homework.IsDeadlineStrict,
+                Tags = homework.Tags,
+                Tasks = homework.Tasks.Select(t => t.ToHomeworkTaskTemplate()).ToList(),
+            };
+
+        public static HomeworkTaskTemplate ToHomeworkTaskTemplate(this HomeworkTask task)
+            => new HomeworkTaskTemplate()
+            {
+                Title = task.Title,
+                Description = task.Description,
+                MaxRating = task.MaxRating,
+                HasDeadline = task.HasDeadline,
+                IsDeadlineStrict = task.IsDeadlineStrict,
+            };
     }
 }
