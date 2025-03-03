@@ -113,26 +113,27 @@ namespace HwProj.CoursesService.API.Domains
                 Tags = createHomeworkViewModel.Tags.Join(";"),
             };
 
-        public static CourseTemplate ToCourseTemplate(this Course course)
+        public static CourseTemplate ToCourseTemplate(this CourseDTO course)
             => new CourseTemplate()
             {
                 Name = course.Name,
                 GroupName = course.GroupName,
+                IsOpen = course.IsOpen,
                 Homeworks = course.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList(),
             };
 
-        public static HomeworkTemplate ToHomeworkTemplate(this Homework homework)
+        public static HomeworkTemplate ToHomeworkTemplate(this HomeworkViewModel homework)
             => new HomeworkTemplate()
             {
                 Title = homework.Title,
                 Description = homework.Description,
                 HasDeadline = homework.HasDeadline,
                 IsDeadlineStrict = homework.IsDeadlineStrict,
-                Tags = homework.Tags,
+                Tags = homework.Tags.Join(";"),
                 Tasks = homework.Tasks.Select(t => t.ToHomeworkTaskTemplate()).ToList(),
             };
 
-        public static HomeworkTaskTemplate ToHomeworkTaskTemplate(this HomeworkTask task)
+        public static HomeworkTaskTemplate ToHomeworkTaskTemplate(this HomeworkTaskViewModel task)
             => new HomeworkTaskTemplate()
             {
                 Title = task.Title,
@@ -140,6 +141,34 @@ namespace HwProj.CoursesService.API.Domains
                 MaxRating = task.MaxRating,
                 HasDeadline = task.HasDeadline,
                 IsDeadlineStrict = task.IsDeadlineStrict,
+            };
+
+        public static Course ToCourse(this CourseTemplate courseTemplate)
+            => new Course()
+            {
+                Name = courseTemplate.Name,
+                GroupName = courseTemplate.GroupName,
+                IsOpen = courseTemplate.IsOpen,
+            };
+
+        public static Homework ToHomework(this HomeworkTemplate homeworkTemplate)
+            => new Homework()
+            {
+                Title = homeworkTemplate.Title,
+                Description = homeworkTemplate.Description,
+                HasDeadline = homeworkTemplate.HasDeadline,
+                IsDeadlineStrict = homeworkTemplate.IsDeadlineStrict,
+                Tags = homeworkTemplate.Tags,
+            };
+
+        public static HomeworkTask ToHomeworkTask(this HomeworkTaskTemplate taskTemplate)
+            => new HomeworkTask()
+            {
+                Title = taskTemplate.Title,
+                Description = taskTemplate.Description,
+                MaxRating = taskTemplate.MaxRating,
+                HasDeadline = taskTemplate.HasDeadline,
+                IsDeadlineStrict = taskTemplate.IsDeadlineStrict,
             };
     }
 }

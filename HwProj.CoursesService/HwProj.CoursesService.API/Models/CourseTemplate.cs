@@ -8,6 +8,8 @@ namespace HwProj.CoursesService.API.Models
 
         public string GroupName { get; set; }
 
+        public bool IsOpen { get; set; }
+
         public List<HomeworkTemplate> Homeworks { get; set; } = new List<HomeworkTemplate>();
     }
 }
