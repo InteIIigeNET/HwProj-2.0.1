@@ -77,7 +77,9 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> RecreateCourse(long courseId)
         {
             var result = await _coursesClient.RecreateCourse(courseId, UserId);
-            return Ok(result);
+            return result.Succeeded
+                ? Ok(result.Value) as IActionResult
+                : BadRequest(result.Errors);
         }
 
         [HttpPost("create")]
