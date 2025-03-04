@@ -1,5 +1,3 @@
-version: '2.0'
-
 services:
   mssqllocaldb:
     image: mcr.microsoft.com/mssql/server:2019-latest
