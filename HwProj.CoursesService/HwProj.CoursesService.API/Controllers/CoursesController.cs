@@ -106,6 +106,18 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(id);
         }
 
+        [HttpPost("recreate/{courseId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> RecreateCourse(long courseId, [FromQuery] string mentorId)
+        {
+            var course = await _coursesService.GetAsync(courseId);
+            if (course == null) return NotFound();
+
+            var courseTemplate = course.ToCourseTemplate();
+
+            return await AddCourseFromTemplate(courseTemplate, mentorId);
+        }
+
         [HttpDelete("{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> DeleteCourse(long courseId)
@@ -248,17 +260,6 @@ namespace HwProj.CoursesService.API.Controllers
             result = result.Concat(defaultTags).Distinct().ToArray();
 
             return Ok(result);
-        }
-
-        [HttpPost("recreate/{courseId}")]
-        public async Task<IActionResult> RecreateCourse(long courseId, [FromQuery] string mentorId)
-        {
-            var course = await _coursesService.GetAsync(courseId, mentorId);
-            if (course == null) return NotFound();
-
-            var courseTemplate = course.ToCourseTemplate();
-
-            return await AddCourseFromTemplate(courseTemplate, mentorId);
         }
 
         private async Task<IActionResult> AddCourseFromTemplate(CourseTemplate courseTemplate, string mentorId)
