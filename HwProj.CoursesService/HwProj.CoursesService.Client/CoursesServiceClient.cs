@@ -107,7 +107,7 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<long> RecreateCourse(long courseId, string mentorId)
+        public async Task<Result<long>> RecreateCourse(long courseId, string mentorId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -115,7 +115,11 @@ namespace HwProj.CoursesService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<long>();
+            return response.StatusCode switch
+            {
+                HttpStatusCode.OK => Result<long>.Success(await response.DeserializeAsync<long>()),
+                _ => Result<long>.Failed(response.ReasonPhrase),
+            };
         }
 
         public async Task<long> CreateCourse(CreateCourseViewModel model, string mentorId)
