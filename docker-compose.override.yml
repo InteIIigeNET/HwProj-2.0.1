@@ -1,5 +1,3 @@
-version: '2.0'
-
 services:
   mssqllocaldb:
     container_name: mssqllocaldb
@@ -82,6 +80,7 @@ services:
   hwproj.contentservice.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=80
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
     ports:
