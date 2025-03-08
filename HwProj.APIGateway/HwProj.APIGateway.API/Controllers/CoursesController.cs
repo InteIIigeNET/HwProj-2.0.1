@@ -71,6 +71,17 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
 
+        [HttpPost("recreate/{courseId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> RecreateCourse(long courseId)
+        {
+            var result = await _coursesClient.RecreateCourse(courseId, UserId);
+            return result.Succeeded
+                ? Ok(result.Value) as IActionResult
+                : BadRequest(result.Errors);
+        }
+
         [HttpPost("create")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
