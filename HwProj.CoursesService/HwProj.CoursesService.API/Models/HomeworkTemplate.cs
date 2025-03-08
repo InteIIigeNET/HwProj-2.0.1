@@ -14,6 +14,6 @@ namespace HwProj.CoursesService.API.Models
 
         public string? Tags { get; set; }
 
-        public List<HomeworkTaskTemplate> Tasks { get; set; }
+        public List<HomeworkTaskTemplate> Tasks { get; set; } = new List<HomeworkTaskTemplate>();
     }
 }
