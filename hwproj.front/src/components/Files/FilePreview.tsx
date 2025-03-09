@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Box, Typography, IconButton, Tooltip} from '@mui/material';
+import {Box, Typography, IconButton} from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import ImageIcon from '@mui/icons-material/Image';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
@@ -27,13 +27,30 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
     }, [props.fileInfo.file]);
 
     const getFileIcon = () => {
-        const iconStyle = {fontSize: 25};
-        if (props.fileInfo.type?.startsWith('image/')) return <ImageIcon sx={iconStyle}/>;
-        if (props.fileInfo.type === 'application/pdf') return <PictureAsPdfIcon sx={iconStyle}/>;
-        if (props.fileInfo.type?.startsWith('text/')) return <DescriptionIcon sx={iconStyle}/>;
+        const iconStyle = {fontSize: 28};
+        if (props.fileInfo.type?.startsWith('image/')
+            || props.fileInfo.name.endsWith('png') || props.fileInfo.name.endsWith('jpg')
+            || props.fileInfo.name.endsWith('jpeg'))
+            return <ImageIcon sx={iconStyle}/>;
+        if (props.fileInfo.type === 'application/pdf' || props.fileInfo.name.endsWith('pdf'))
+            return <PictureAsPdfIcon sx={iconStyle}/>;
+        if (props.fileInfo.type?.startsWith('text/') || props.fileInfo.name.endsWith('txt')
+            || props.fileInfo.name.endsWith('doc') || props.fileInfo.name.endsWith('docx'))
+            return <DescriptionIcon sx={iconStyle}/>;
         return <InsertDriveFileIcon sx={iconStyle}/>;
     };
 
+    const getFileSize = (sizeInBytes: number) => {
+        const sizeInKB = sizeInBytes / 1024;
+        const sizeInMB = sizeInKB / 1024;
+
+        if (sizeInMB >= 1) {
+            return `${sizeInMB.toFixed(1)} MB`;
+        } else {
+            return `${sizeInKB.toFixed(1)} KB`;
+        }
+    }
+    
     const hasRemoveButton = !!props.onRemove;
 
     return (
@@ -44,7 +61,7 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
             padding: hasRemoveButton ? '4px 8px' : '4px 4px',
             border: '1px solid #ddd',
             borderRadius: 1,
-            width: 216,
+            width: 222.5,
             position: 'relative',
             backgroundColor: '#f5f5f5',
             fontSize: hasRemoveButton ? '0.8rem' : '0.75rem',
@@ -109,7 +126,7 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
                     color="text.secondary"
                     sx={{fontSize: hasRemoveButton ? '0.7rem' : '0.65rem'}}
                 >
-                    {(props.fileInfo.sizeInBytes / 1024 / 1024).toFixed(1)} MB
+                    {getFileSize(props.fileInfo.sizeInBytes)}
                 </Typography>
             </Box>
 

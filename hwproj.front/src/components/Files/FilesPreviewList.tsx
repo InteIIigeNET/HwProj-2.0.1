@@ -13,7 +13,7 @@ const FilesPreviewList: React.FC<FilesPreviewProps> = (props) => {
 
     return (
         <Grid container direction="row" spacing={0.7} flexWrap="wrap"
-              alignItems="flex-start" sx={{flexGrow: 1}}>
+              alignItems="flex-start" marginTop={props.filesInfo.length > 4 ? -0.5 : 0.5} sx={{flexGrow: 1}}>
             {props.filesInfo.map((fileInfo, index) => (
                 <Grid item key={fileInfo.key || fileInfo.file?.name || index}>
                     <FilePreview
