@@ -167,20 +167,21 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                 {addHomeworkState.tags.includes(TestTag) &&
                     <Alert severity="info">Вы можете сгруппировать контрольные работы и переписывания с помощью
                         дополнительного тега. Например, 'КР 1'</Alert>}
-                <Grid container>
-                    <Grid item>
-                        <FilesUploader
-                            onChange={(filesInfo) => {console.log(filesInfo); setSelectedFiles(filesInfo
-                                .filter(fileInfo => fileInfo.file != undefined)
-                                .map(fileInfo => fileInfo.file!))}}
-                        />
-                    </Grid>
-                </Grid>
                 <Grid
                     container
-                    direction="row"
+                    direction="column"
                     justifyContent="space-between"
                 >
+                    <Grid item>
+                        <FilesUploader
+                            onChange={(filesInfo) => {
+                                console.log(filesInfo);
+                                setSelectedFiles(filesInfo
+                                    .filter(fileInfo => fileInfo.file != undefined)
+                                    .map(fileInfo => fileInfo.file!))
+                            }}
+                        />
+                    </Grid>
                     <Grid item style={{marginTop: "5px"}}>
                         <PublicationAndDeadlineDates
                             hasDeadline={false}
@@ -292,11 +293,6 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     >
                         Отменить
                     </Button>
-                    {handleSubmitLoading &&
-                        <div className="container" style={{marginTop: 10, marginLeft: -10}}>
-                            <p>Сохраняем задание...</p>
-                            <CircularProgress/>
-                        </div>}
                 </Grid>
             </form>
         </div>
