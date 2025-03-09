@@ -332,6 +332,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             </CardContent>
             {props.forMentor && state.clickedForRate && <CardActions>
                 <LoadingButton
+                    endIcon={<span style={{width: rateInProgress ? 17 : 0}}/>}
                     style={{color: "#3f51b5"}}
                     loading={rateInProgress}
                     loadingPosition="end"

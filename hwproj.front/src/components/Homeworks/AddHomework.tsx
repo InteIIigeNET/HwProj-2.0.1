@@ -7,11 +7,12 @@ import {CreateHomeworkViewModel, CreateTaskViewModel, HomeworkViewModel} from ".
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import CreateTask from "../Tasks/CreateTask"
 import Tags from "../Common/Tags";
-import {Alert, CircularProgress} from "@mui/material";
+import {Alert} from "@mui/material";
 import {TestTag, isTestWork, isBonusWork} from "components/Common/HomeworkTags";
 import Lodash from "lodash";
 import FilesUploader from "components/Files/FilesUploader";
 import UpdateFilesUtils from "components/Utils/UpdateFilesUtils";
+import {LoadingButton} from "@mui/lab";
 
 interface IAddHomeworkProps {
     id: number;
@@ -270,15 +271,18 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     </Button>
                 </div>
                 <Grid container style={{marginTop: "15px", marginBottom: 15}}>
-                    <Button
+                    <LoadingButton
                         size="small"
                         variant="contained"
-                        color="primary"
                         type="submit"
                         disabled={addHomeworkState.hasErrors || addHomeworkState.tasks.some(t => t.hasErrors)}
+                        loadingPosition="end"
+                        endIcon={<span style={{width: handleSubmitLoading ? 17 : 0}}/>}
+                        loading={handleSubmitLoading}
+                        style={{color: "white", backgroundColor: "#3f51b5"}}
                     >
                         Добавить задание
-                    </Button>
+                    </LoadingButton>
                     &nbsp;
                     <Button
                         onClick={() => props.onCancel()}

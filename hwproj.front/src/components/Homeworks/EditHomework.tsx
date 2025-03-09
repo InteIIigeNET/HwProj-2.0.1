@@ -4,16 +4,16 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import EditIcon from '@material-ui/icons/Edit';
-import {Button} from "@material-ui/core";
 import {MarkdownEditor} from "../Common/MarkdownEditor";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import Tags from "../Common/Tags";
-import {Grid, Typography, TextField, CircularProgress} from "@mui/material";
+import {Grid, Typography, TextField} from "@mui/material";
 import apiSingleton from "../../api/ApiSingleton";
 import FilesUploader from "components/Files/FilesUploader";
 import {IFileInfo} from "components/Files/IFileInfo";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
 import UpdateFilesUtils from "components/Utils/UpdateFilesUtils";
+import { LoadingButton } from "@mui/lab";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -280,19 +280,19 @@ const EditHomework: FC = () => {
                                 </Grid>
                             </Grid>
                         </Grid>
-                        <Button
+                        <LoadingButton
                             fullWidth
                             color="primary"
                             variant="contained"
                             type="submit"
-                            disabled={isSomeTaskSoonerThanHomework || editHomework.hasErrors}>
+                            disabled={isSomeTaskSoonerThanHomework || editHomework.hasErrors}
+                            loadingPosition="end"
+                            endIcon={<span style={{width: 17}}/>}
+                            loading={handleSubmitLoading}
+                            style={{color: "white", backgroundColor: "#3f51b5"}}
+                        >
                             Редактировать задание
-                        </Button>
-                        {handleSubmitLoading &&
-                            <div className="container" style={{marginTop: 10, textAlign: "center"}}>
-                                <p>Сохраняем задание...</p>
-                                <CircularProgress/>
-                            </div>}
+                        </LoadingButton>
                     </Grid>
                 </form>
             </Grid>
