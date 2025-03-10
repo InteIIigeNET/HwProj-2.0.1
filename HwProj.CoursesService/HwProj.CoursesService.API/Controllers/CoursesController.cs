@@ -24,14 +24,20 @@ namespace HwProj.CoursesService.API.Controllers
     public class CoursesController : Controller
     {
         private readonly ICoursesService _coursesService;
+        private readonly IHomeworksService _homeworksService;
+        private readonly ITasksService _tasksService;
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly IMapper _mapper;
 
         public CoursesController(ICoursesService coursesService,
+            IHomeworksService homeworksService,
+            ITasksService tasksService,
             IHomeworksRepository homeworksRepository,
             IMapper mapper)
         {
             _coursesService = coursesService;
+            _homeworksService = homeworksService;
+            _tasksService = tasksService;
             _homeworksRepository = homeworksRepository;
             _mapper = mapper;
         }
@@ -93,6 +99,18 @@ namespace HwProj.CoursesService.API.Controllers
             var course = _mapper.Map<Course>(courseViewModel);
             var id = await _coursesService.AddAsync(course, mentorId);
             return Ok(id);
+        }
+
+        [HttpPost("recreate/{courseId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> RecreateCourse(long courseId, [FromQuery] string mentorId)
+        {
+            var course = await _coursesService.GetAsync(courseId);
+            if (course == null) return NotFound();
+
+            var courseTemplate = course.ToCourseTemplate();
+
+            return await AddCourseFromTemplate(courseTemplate, mentorId);
         }
 
         [HttpDelete("{courseId}")]
@@ -237,6 +255,26 @@ namespace HwProj.CoursesService.API.Controllers
             result = result.Concat(defaultTags).Distinct().ToArray();
 
             return Ok(result);
+        }
+
+        private async Task<IActionResult> AddCourseFromTemplate(CourseTemplate courseTemplate, string mentorId)
+        {
+            var publicationDate = DateTime.UtcNow + TimeSpan.FromDays(365);
+
+            var courseId = await _coursesService.AddAsync(courseTemplate.ToCourse(), mentorId);
+            foreach (var homeworkTemplate in courseTemplate.Homeworks)
+            {
+                var homework = homeworkTemplate.ToHomework();
+                homework.PublicationDate = publicationDate;
+
+                var homeworkId = await _homeworksService.AddHomeworkAsync(courseId, homework);
+                foreach (var taskTemplate in homeworkTemplate.Tasks)
+                {
+                    await _tasksService.AddTaskAsync(homeworkId, taskTemplate.ToHomeworkTask());
+                }
+            }
+
+            return Ok(courseId);
         }
     }
 }
