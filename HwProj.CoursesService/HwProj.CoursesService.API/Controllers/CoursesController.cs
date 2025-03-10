@@ -264,13 +264,13 @@ namespace HwProj.CoursesService.API.Controllers
 
         private async Task<IActionResult> AddCourseFromTemplate(CourseTemplate courseTemplate, string mentorId)
         {
-            var currentDate = DateTime.UtcNow;
+            var publicationDate = DateTime.UtcNow + TimeSpan.FromDays(365);
 
             var courseId = await _coursesService.AddAsync(courseTemplate.ToCourse(), mentorId);
             foreach (var homeworkTemplate in courseTemplate.Homeworks)
             {
                 var homework = homeworkTemplate.ToHomework();
-                homework.PublicationDate = currentDate;
+                homework.PublicationDate = publicationDate;
 
                 var homeworkId = await _homeworksService.AddHomeworkAsync(courseId, homework);
                 foreach (var taskTemplate in homeworkTemplate.Tasks)

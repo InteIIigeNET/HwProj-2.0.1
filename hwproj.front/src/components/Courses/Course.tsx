@@ -196,6 +196,12 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
 
     const [lecturerStatsState, setLecturerStatsState] = useState(false);
 
+    const recreateCourse = async () => {
+        const newCourseId = await ApiSingleton.coursesApi.coursesRecreateCourse(+courseId!)
+        navigate("/courses")
+        navigate(`/courses/${newCourseId}/editHomeworks`)
+    }
+
     if (isFound) {
         return (
             <div className="container">
@@ -264,6 +270,18 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                             </Grid>
                             <Grid item>
                                 <Grid container alignItems="center" justifyContent="flex-end">
+                                    {isCourseMentor && isLecturer && !isReadingMode &&
+                                        <Button
+                                            style={{marginRight: '16px'}}
+                                            full-width
+                                            size="medium"
+                                            variant="outlined"
+                                            color="primary"
+                                            onClick={recreateCourse}
+                                        >
+                                            Пересоздать курс
+                                        </Button>
+                                    }
                                     <Grid item>
                                         <MentorsList mentors={mentors}/>
                                     </Grid>
