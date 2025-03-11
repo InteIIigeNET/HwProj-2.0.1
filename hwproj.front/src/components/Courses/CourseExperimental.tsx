@@ -49,17 +49,18 @@ interface ICourseExperimentalState {
 
 const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const homeworks = props.homeworks.slice().reverse()
+    const isHomeworksExists = homeworks && homeworks.length > 0
     const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId, courseFilesInfo} = props
 
     const defaultHomeworkIndex = Math.max(selectedHomeworkId ? homeworks?.findIndex(x => x.id === selectedHomeworkId) : 0, 0)
-    const defaultHomeworkId = homeworks[defaultHomeworkIndex].id
+    const defaultHomeworkId = isHomeworksExists ? homeworks[defaultHomeworkIndex].id : undefined
 
     const [state, setState] = useState<ICourseExperimentalState>({
         selectedItem: {
             isHomework: true,
-            id: homeworks && homeworks.length > 0 ? homeworks[defaultHomeworkIndex].id : undefined,
-            data: homeworks && homeworks.length > 0 ? homeworks[defaultHomeworkIndex] : undefined,
-            homeworkFilesInfo: homeworks && homeworks.length > 0 && defaultHomeworkId
+            id: defaultHomeworkId,
+            data: isHomeworksExists ? homeworks[defaultHomeworkIndex] : undefined,
+            homeworkFilesInfo: defaultHomeworkId
                 ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, defaultHomeworkId)
                 : []
         }
