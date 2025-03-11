@@ -31,7 +31,7 @@ const HomeworkTasks: FC<IHomeworkTasksProps> = (props) => {
                             />
                         </div>
                     )
-                }).reverse()}
+                })}
         </div>
     )
 }
