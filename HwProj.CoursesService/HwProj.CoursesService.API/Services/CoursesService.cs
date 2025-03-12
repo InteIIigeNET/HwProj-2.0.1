@@ -49,6 +49,15 @@ namespace HwProj.CoursesService.API.Services
         public async Task<Course[]> GetAllAsync()
         {
             var courses = await _coursesRepository.GetAllWithCourseMatesAndHomeworks().ToArrayAsync();
+            
+            // todo: перенести сортировку домашних работ на уровень репозитория после обновления до EF Core 5.x
+            courses = courses.Select(c =>
+            {
+                c.Homeworks = c.Homeworks
+                    .OrderBy(h => h.PublicationDate)
+                    .ToList();
+                return c;
+            }).ToArray();
 
             CourseDomain.FillTasksInCourses(courses);
 
@@ -187,6 +196,16 @@ namespace HwProj.CoursesService.API.Services
                 .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
                 .ToArrayAsync();
+
+            // todo: перенести сортировку домашних работ на уровень репозитория после обновления до EF Core 5.x
+            coursesWithValues = coursesWithValues
+                .Select(c =>
+                {
+                    c.Homeworks = c.Homeworks
+                        .OrderBy(h => h.PublicationDate)
+                        .ToList();
+                    return c;
+                }).ToArray();
 
             CourseDomain.FillTasksInCourses(coursesWithValues);
 
