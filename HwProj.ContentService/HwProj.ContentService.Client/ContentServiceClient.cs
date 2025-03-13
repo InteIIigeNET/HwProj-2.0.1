@@ -96,16 +96,5 @@ namespace HwProj.ContentService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result>();
         }
-
-        public async Task<Result<long>> GetCourseIdFromKeyAsync(string fileKey)
-        {
-            var encodedFileKey = Uri.EscapeDataString(fileKey);
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get,
-                _contentServiceUri + $"api/FileKey/courseId?key={encodedFileKey}");
-
-            var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result<long>>();
-        }
     }
 }

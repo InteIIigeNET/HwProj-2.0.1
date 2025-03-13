@@ -13,7 +13,5 @@ namespace HwProj.ContentService.Client
         Task<Result<FileInfoDTO[]>> GetFilesInfo(long courseId, long? homeworkId = null);
         
         Task<Result> DeleteFileAsync(string fileKey);
-        
-        Task<Result<long>> GetCourseIdFromKeyAsync(string fileKey);
     }
 }
