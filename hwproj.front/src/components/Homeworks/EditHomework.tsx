@@ -38,6 +38,7 @@ interface IEditHomeworkState {
 interface IHomeworkFilesState {
     initialFilesInfo: IFileInfo[]
     selectedFilesInfo: IFileInfo[]
+    isLoadingInfo: boolean
 }
 
 const useStyles = makeStyles(theme => ({
@@ -73,7 +74,8 @@ const EditHomework: FC = () => {
     })
     const [filesControlState, setFilesControlState] = useState<IHomeworkFilesState>({
         initialFilesInfo: [],
-        selectedFilesInfo: []
+        selectedFilesInfo: [],
+        isLoadingInfo: true
     });
     const [handleSubmitLoading, setHandleSubmitLoading] = useState(false);
     const {enqueueSnackbar} = useSnackbar()
@@ -88,8 +90,6 @@ const EditHomework: FC = () => {
         const deadline = homework.deadlineDate == null
             ? undefined
             : new Date(homework.deadlineDate)
-
-        await fetchAndSetHomeworkFiles(course.id!, +homeworkId!)
 
         setEditHomework((prevState) => ({
             ...prevState,
@@ -110,6 +110,8 @@ const EditHomework: FC = () => {
                 .filter(t => t.publicationDate != null)
                 .map(t => new Date(t.publicationDate!))
         }))
+
+        fetchAndSetHomeworkFiles(homework.courseId!, homework.id!)
     }
 
     const fetchAndSetHomeworkFiles = async (courseId: number, homeworkId: number) => {
