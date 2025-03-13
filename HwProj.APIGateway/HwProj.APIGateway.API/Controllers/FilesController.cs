@@ -31,6 +31,7 @@ namespace HwProj.APIGateway.API.Controllers
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
         public async Task<IActionResult> Upload([FromForm] UploadFileDTO uploadFileDto)
         {
             var courseLecturersIds = await _coursesServiceClient.GetCourseLecturersIds(uploadFileDto.CourseId);
@@ -38,7 +39,9 @@ namespace HwProj.APIGateway.API.Controllers
                 return BadRequest("Пользователь с такой почтой не является преподавателем курса");
 
             var result = await _contentServiceClient.UploadFileAsync(uploadFileDto);
-            return result.Succeeded ? Ok() as IActionResult : BadRequest(result.Errors);
+            return result.Succeeded
+                ? Ok() as IActionResult
+                : StatusCode((int)HttpStatusCode.ServiceUnavailable, result.Errors);
         }
 
         [HttpGet("downloadLink")]
@@ -54,16 +57,20 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpGet("filesInfo/{courseId}")]
         [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
         public async Task<IActionResult> GetFilesInfo(long courseId, [FromQuery] long? homeworkId = null)
         {
-            var filesInfo = await _contentServiceClient.GetFilesInfo(courseId, homeworkId);
-            return Ok(filesInfo);
+            var filesInfoResult = await _contentServiceClient.GetFilesInfo(courseId, homeworkId);
+            return filesInfoResult.Succeeded
+                ? Ok(filesInfoResult.Value) as IActionResult
+                : StatusCode((int)HttpStatusCode.ServiceUnavailable, filesInfoResult.Errors);
         }
 
         [HttpDelete]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteFile([FromQuery] string key)
         {
             var courseIdResult = await _contentServiceClient.GetCourseIdFromKeyAsync(key);

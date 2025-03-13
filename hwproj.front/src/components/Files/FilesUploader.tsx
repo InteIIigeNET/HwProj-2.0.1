@@ -1,8 +1,8 @@
-import {Button, Snackbar} from "@material-ui/core";
+import {Box, Button, Snackbar} from "@material-ui/core";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import * as React from "react";
 import {styled} from "@mui/material/styles";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {IFileInfo} from "./IFileInfo";
 import {Alert, Grid} from "@mui/material";
 import FilesPreviewList from "./FilesPreviewList";
@@ -10,6 +10,7 @@ import FilesPreviewList from "./FilesPreviewList";
 interface IFilesUploaderProps {
     initialFilesInfo?: IFileInfo[];
     onChange: (selectedFiles: IFileInfo[]) => void;
+    isLoading?: boolean;
 }
 
 // Кастомизированный Input для загрузки файла (из примеров MaterialUI)
@@ -26,9 +27,16 @@ const VisuallyHiddenInput = styled('input')({
 });
 
 const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
-    const [selectedFilesInfo, setSelectedFilesInfo] = useState<IFileInfo[]>(props.initialFilesInfo ?? []);
+    const [selectedFilesInfo, setSelectedFilesInfo] = useState<IFileInfo[]>([]);
     const [error, setError] = useState<string | null>(null);
 
+    // Для корректного отображения файлов React-ом
+    useEffect(() => {
+        if (props.initialFilesInfo) {
+            setSelectedFilesInfo(props.initialFilesInfo);
+        }
+    }, [props.initialFilesInfo]);
+    
     const validFileNameRegex = /^(?!.*[:*?"<>|!])[\p{L}0-9_\-\.() ]+(\.[\p{L}0-9]+)?$/u;
     const maxFileSizeInBytes = 100 * 1024 * 1024;
 
@@ -73,7 +81,7 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
     }
 
     return (
-        <Grid container direction="row" alignItems="flex-start" spacing={1}>
+        <Grid container direction="row" alignItems="flex-start" spacing={1} marginBottom={props.isLoading ? 0 : 1}>
             {error && (
                 <Snackbar
                     open={!!error}
@@ -96,13 +104,20 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
                     style={{marginTop: "10px"}}
                 >
                     Прикрепить файлы
-                    <VisuallyHiddenInput
+                   <VisuallyHiddenInput
                         type="file"
                         onChange={handleFileInputChange}
                         multiple
                     />
                 </Button>
             </Grid>
+            {props.isLoading &&
+                <Grid item>
+                    <Box marginTop="18px" marginBottom="-9px">
+                        <p>Загружаем информацию о файлах...</p>
+                    </Box>
+                </Grid>
+            }   
             <Grid item>
                 <FilesPreviewList
                     filesInfo={selectedFilesInfo}

@@ -21,6 +21,8 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import NameBuilder from "../Utils/NameBuilder";
 import {QRCodeSVG} from 'qrcode.react';
 import {Center} from "@skbkontur/react-ui";
+import ErrorsHandler from "components/Utils/ErrorsHandler";
+import {useSnackbar} from 'notistack';
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -62,6 +64,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
     const classes = styles()
+    const {enqueueSnackbar} = useSnackbar()
 
     const [courseState, setCourseState] = useState<ICourseState>({
         isFound: false,
@@ -145,7 +148,18 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         }
 
         const solutions = await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
-        const courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
+        
+        // В случае, если сервис файлов недоступен, показываем пользователю сообщение 
+        // и не блокируем остальную функциональность системы
+        let courseFilesInfo = [] as FileInfoDTO[]
+        try {
+            courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
+        }
+        catch (e) {
+            const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
+            enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
+        }
+        
         setCourseState(prevState => ({
             ...prevState,
             isFound: true,
