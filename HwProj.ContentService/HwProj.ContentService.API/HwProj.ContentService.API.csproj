@@ -19,5 +19,6 @@
     <ItemGroup>
       <ProjectReference Include="..\..\HwProj.Common\HwProj.Utils\HwProj.Utils.csproj" />
       <ProjectReference Include="..\..\HwProj.Common\HwProj.Models\HwProj.Models.csproj" />
+      <ProjectReference Include="..\..\HwProj.CoursesService\HwProj.CoursesService.Client\HwProj.CoursesService.Client.csproj" />
     </ItemGroup>
 </Project>

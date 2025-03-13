@@ -172,7 +172,6 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     direction="column"
                     justifyContent="space-between"
                 >
-                    <Grid item>
                         <FilesUploader
                             onChange={(filesInfo) => {
                                 console.log(filesInfo);
@@ -181,8 +180,6 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                                     .map(fileInfo => fileInfo.file!))
                             }}
                         />
-                    </Grid>
-                    <Grid item style={{marginTop: "5px"}}>
                         <PublicationAndDeadlineDates
                             hasDeadline={false}
                             isDeadlineStrict={false}
@@ -198,7 +195,6 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                                 hasErrors: state.hasErrors,
                             }))}
                         />
-                    </Grid>
                 </Grid>
                 <div>
                     <ol>

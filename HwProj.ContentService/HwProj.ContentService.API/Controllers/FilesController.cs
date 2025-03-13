@@ -1,7 +1,8 @@
+using HwProj.ContentService.API.Filters;
 using HwProj.ContentService.API.Services;
+using HwProj.Models.ContentService.DTO;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using UploadFileDTO = HwProj.Models.ContentService.DTO.UploadFileDTO;
 
 namespace HwProj.ContentService.API.Controllers;
 
@@ -10,7 +11,6 @@ namespace HwProj.ContentService.API.Controllers;
 public class FilesController : ControllerBase
 {
     private readonly IFilesService _filesService;
-    private readonly IFileKeyService _fileKeyService;
 
     public FilesController(IFilesService filesService)
     {
@@ -18,6 +18,7 @@ public class FilesController : ControllerBase
     }
 
     [HttpPost("upload")]
+    [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
     public async Task<IActionResult> Upload([FromForm] UploadFileDTO uploadFileDto)
     {
         var userId = Request.GetUserIdFromHeader();
@@ -40,6 +41,7 @@ public class FilesController : ControllerBase
     }
     
     [HttpDelete]
+    [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
     public async Task<IActionResult> DeleteFile([FromQuery] string key)
     {
         var userId = Request.GetUserIdFromHeader();
