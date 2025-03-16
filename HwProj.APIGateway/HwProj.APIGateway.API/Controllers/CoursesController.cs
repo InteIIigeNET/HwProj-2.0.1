@@ -14,6 +14,7 @@ using HwProj.Models.Roles;
 using IStudentsInfo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using StudentsInfo;
 
 namespace HwProj.APIGateway.API.Controllers
@@ -26,14 +27,18 @@ namespace HwProj.APIGateway.API.Controllers
         private readonly IMapper _mapper;
         private readonly IStudentsInformation _studentsInfo;
 
-        public CoursesController(ICoursesServiceClient coursesClient,
+        public CoursesController( ICoursesServiceClient coursesClient,
             IAuthServiceClient authServiceClient,
-            IMapper mapper) : base(authServiceClient)
+            IMapper mapper,
+            IConfiguration configuration) : base(authServiceClient)
         {
             _coursesClient = coursesClient;
             _mapper = mapper;
-            // Для работы необходимо указать st-почту и пароль
-            _studentsInfo = new StudentsInformation("", "");
+            
+            var login = configuration["StudentsInfo:Login"];
+            var password = configuration["StudentsInfo:Password"];
+            
+            _studentsInfo = new StudentsInformation(login, password);
         }
 
         [HttpGet("getAllData/{courseId}")]
