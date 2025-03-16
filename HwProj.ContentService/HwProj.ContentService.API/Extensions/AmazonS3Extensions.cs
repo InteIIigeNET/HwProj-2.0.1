@@ -10,10 +10,16 @@ public static class AmazonS3Extensions
     {
         if (!await AmazonS3Util.DoesS3BucketExistV2Async(amazonS3Client, bucketName))
         {
-            var result = await amazonS3Client.PutBucketAsync(bucketName);
-            if (result.HttpStatusCode != System.Net.HttpStatusCode.OK)
+            try
             {
-                throw new ApplicationException($"Не удалось создать бакет {bucketName} для хранения данных");
+                await amazonS3Client.PutBucketAsync(bucketName);
+            }
+            catch (AmazonS3Exception exception)
+            {
+                var errorMessage = $"Не удалось создать бакет для хранения данных {bucketName}. " +
+                                   $"Код ошибки: {exception.ErrorCode}. " +
+                                   $"Сообщение: {exception.Message}";
+                throw new ApplicationException(errorMessage, exception);
             }
         }
     }

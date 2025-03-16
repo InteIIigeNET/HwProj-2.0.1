@@ -48,7 +48,7 @@ namespace HwProj.ContentService.Client
             }
             catch (HttpRequestException e)
             {
-                return Result.Failed("Сервис для работы с файлами недоступен. Все ранее добавленные файлы сохранены");
+                return Result.Failed("Пока не можем сохранить файлы. Попробуйте повторить позже");
             }
         }
 
@@ -80,8 +80,8 @@ namespace HwProj.ContentService.Client
             }
             catch (HttpRequestException e)
             {
-                return Result<FileInfoDTO[]>.Failed(
-                    "Сервис для работы с файлами недоступен. Все ранее добавленные файлы сохранены");
+                return Result<FileInfoDTO[]>.Failed("Пока не можем получить информацию о файлах. " +
+                                                    "\nВсе ваши данные сохранены — попробуйте повторить позже");
             }
         }
         
