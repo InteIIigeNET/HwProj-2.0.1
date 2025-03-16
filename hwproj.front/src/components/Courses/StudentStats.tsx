@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {
     CourseViewModel,
     HomeworkViewModel,
-    AdvancedStatisticsCourseMatesModel
+    StatisticsCourseMatesModel
 } from "../../api/";
 import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
@@ -19,7 +19,7 @@ interface IStudentStatsProps {
     homeworks: HomeworkViewModel[];
     isMentor: boolean;
     userId: string;
-    solutions: AdvancedStatisticsCourseMatesModel[];
+    solutions: StatisticsCourseMatesModel[];
 }
 
 interface IStudentStatsState {

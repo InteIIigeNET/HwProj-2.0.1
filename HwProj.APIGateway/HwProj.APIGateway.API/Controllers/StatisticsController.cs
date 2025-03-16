@@ -51,7 +51,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpGet("{courseId}")]
-        [ProducesResponseType(typeof(AdvancedStatisticsCourseMatesModel[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(StatisticsCourseMatesModel[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseStatistics(long courseId)
         {
             var statistics = await _solutionClient.GetCourseStatistics(courseId, UserId);
@@ -69,7 +69,7 @@ namespace HwProj.APIGateway.API.Controllers
                 {
                     getStudentsToReviewersTask.Result
                         .StudentsToReviewersDictionary.TryGetValue(student.UserId, out var reviewers);
-                    return new AdvancedStatisticsCourseMatesModel
+                    return new StatisticsCourseMatesModel()
                     {
                         Id = student.UserId,
                         Name = student.Name,
