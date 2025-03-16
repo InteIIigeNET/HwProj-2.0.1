@@ -17,9 +17,9 @@ export default class UpdateFilesUtils {
         }
     }
 
-    public static async deleteFileWithErrorsHadling(file: IFileInfo) {
+    public static async deleteFileWithErrorsHadling(courseId: number, file: IFileInfo) {
         try {
-            await ApiSingleton.customFilesApi.deleteFileByKey(file.key!);
+            await ApiSingleton.customFilesApi.deleteFileByKey(courseId, file.key!);
         } catch (e) {
             const errors = await ErrorsHandler.getErrorMessages(e as Response);
             const errorDescription = errors[0] == undefined ? `: ${errors[0]}` : ''

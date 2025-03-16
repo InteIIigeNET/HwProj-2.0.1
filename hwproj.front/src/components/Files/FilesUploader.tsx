@@ -114,7 +114,7 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
             {props.isLoading &&
                 <Grid item>
                     <Box marginTop="18px" marginBottom="-9px">
-                        <p>Загружаем информацию о файлах...</p>
+                        <p>Получаем информацию о файлах...</p>
                     </Box>
                 </Grid>
             }   

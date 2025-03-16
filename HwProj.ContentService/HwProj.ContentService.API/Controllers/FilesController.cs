@@ -1,4 +1,3 @@
-using HwProj.ContentService.API.Filters;
 using HwProj.ContentService.API.Services;
 using HwProj.Models.ContentService.DTO;
 using HwProj.Utils.Authorization;
@@ -18,7 +17,6 @@ public class FilesController : ControllerBase
     }
 
     [HttpPost("upload")]
-    [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
     public async Task<IActionResult> Upload([FromForm] UploadFileDTO uploadFileDto)
     {
         var userId = Request.GetUserIdFromHeader();
@@ -41,7 +39,6 @@ public class FilesController : ControllerBase
     }
     
     [HttpDelete]
-    [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
     public async Task<IActionResult> DeleteFile([FromQuery] string key)
     {
         var userId = Request.GetUserIdFromHeader();

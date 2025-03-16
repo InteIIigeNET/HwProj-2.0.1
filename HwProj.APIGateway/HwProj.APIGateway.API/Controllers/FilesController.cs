@@ -1,5 +1,6 @@
 using System.Net;
 using System.Threading.Tasks;
+using HwProj.APIGateway.API.Filters;
 using HwProj.AuthService.Client;
 using HwProj.ContentService.Client;
 using HwProj.Models.ContentService.DTO;
@@ -24,6 +25,7 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpPost("upload")]
         [Authorize(Roles = Roles.LecturerRole)]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
@@ -59,10 +61,11 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpDelete]
         [Authorize(Roles = Roles.LecturerRole)]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> DeleteFile([FromQuery] string key)
+        public async Task<IActionResult> DeleteFile([FromQuery] long courseId, [FromQuery] string key)
         {
             var deletionResult = await _contentServiceClient.DeleteFileAsync(key);
             return deletionResult.Succeeded

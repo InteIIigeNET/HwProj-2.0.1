@@ -147,7 +147,7 @@ const EditHomework: FC = () => {
                 initialFile.key &&
                 !filesControlState.selectedFilesInfo.some(s => s.key === initialFile.key)
             )
-            .map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(initialFile));
+            .map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(editHomework.courseId, initialFile));
 
         // Если какие-то файлы из выбранных сейчас не были добавлены раньше, загружаем их в хранилище
         const uploadOperations = filesControlState.selectedFilesInfo

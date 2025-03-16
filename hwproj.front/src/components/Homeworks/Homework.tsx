@@ -68,7 +68,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
 
         // Удаляем файлы домашней работы из хранилища
         const deleteOperations = props.homeworkFilesInfo
-            .map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(initialFile))
+            .map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(props.homework.courseId!, initialFile))
         await Promise.all(deleteOperations)
 
         props.onUpdateClick()

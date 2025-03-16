@@ -39,10 +39,10 @@ export default class CustomFilesApi extends BaseAPI {
         }
     }
 
-    public deleteFileByKey = async (fileKey: string) => {
+    public deleteFileByKey = async (courseId: number, fileKey: string) => {
         // Необходимо, чтобы символы & и др. не влияли на обработку запроса на бэкенде
         const encodedFileKey = encodeURIComponent(fileKey);
-        const response = await fetch(this.basePath + `/api/Files?key=${encodedFileKey}`, {
+        const response = await fetch(this.basePath + `/api/Files?courseId=${courseId}&key=${encodedFileKey}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': this.getApiKeyValue(),

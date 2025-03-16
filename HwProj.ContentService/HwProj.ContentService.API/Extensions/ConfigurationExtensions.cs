@@ -3,9 +3,7 @@ using Amazon.Extensions.NETCore.Setup;
 using Amazon.Runtime;
 using Amazon.S3;
 using HwProj.ContentService.API.Configuration;
-using HwProj.ContentService.API.Filters;
 using HwProj.ContentService.API.Services;
-using HwProj.CoursesService.Client;
 using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,9 +30,6 @@ public static class ConfigurationExtensions
 
         services.ConfigureStorageClient(clientConfigurationSection);
         services.AddSingleton<IFileKeyService, FileKeyService>();
-
-        services.AddCoursesServiceClient();
-        services.AddScoped<CourseMentorOnlyAttribute>();
         services.AddScoped<IFilesService, FilesService>();
         
         services.AddHttpClient();
