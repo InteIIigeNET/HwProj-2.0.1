@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Z.EntityFramework.Plus;
 
@@ -21,6 +22,18 @@ namespace HwProj.Repositories
             await Context.AddAsync(item).ConfigureAwait(false);
             await Context.SaveChangesAsync().ConfigureAwait(false);
             return item.Id;
+        }
+
+        public async Task<List<TKey>> AddRangeAsync(IEnumerable<TEntity> items)
+        {
+            var result = new List<TKey>();
+
+            foreach (var item in items)
+            {
+                result.Add(await AddAsync(item));
+            }
+
+            return result;
         }
 
         public async Task DeleteAsync(TKey id)

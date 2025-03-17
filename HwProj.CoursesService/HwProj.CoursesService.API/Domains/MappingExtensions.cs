@@ -151,7 +151,8 @@ namespace HwProj.CoursesService.API.Domains
                 IsOpen = courseTemplate.IsOpen,
             };
 
-        public static Homework ToHomework(this HomeworkTemplate homeworkTemplate)
+        public static Homework ToHomework(
+            this HomeworkTemplate homeworkTemplate, long? courseId, DateTime? publicationDate)
             => new Homework()
             {
                 Title = homeworkTemplate.Title,
@@ -159,9 +160,12 @@ namespace HwProj.CoursesService.API.Domains
                 HasDeadline = homeworkTemplate.HasDeadline,
                 IsDeadlineStrict = homeworkTemplate.IsDeadlineStrict,
                 Tags = homeworkTemplate.Tags,
+                CourseId = courseId ?? default,
+                PublicationDate = publicationDate ?? default,
             };
 
-        public static HomeworkTask ToHomeworkTask(this HomeworkTaskTemplate taskTemplate)
+        public static HomeworkTask ToHomeworkTask(
+            this HomeworkTaskTemplate taskTemplate, long? homeworkId)
             => new HomeworkTask()
             {
                 Title = taskTemplate.Title,
@@ -169,6 +173,7 @@ namespace HwProj.CoursesService.API.Domains
                 MaxRating = taskTemplate.MaxRating,
                 HasDeadline = taskTemplate.HasDeadline,
                 IsDeadlineStrict = taskTemplate.IsDeadlineStrict,
+                HomeworkId = homeworkId ?? default,
             };
     }
 }

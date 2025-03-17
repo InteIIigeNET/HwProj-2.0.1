@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Transactions;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Events;
@@ -252,6 +253,26 @@ namespace HwProj.CoursesService.API.Services
             return availableLecturers
                 .Select(u => u.ToAccountDataDto(Roles.LecturerRole))
                 .ToArray();
+        }
+
+        public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, string mentorId)
+        {
+            var publicationDate = DateTime.UtcNow + TimeSpan.FromDays(365);
+
+            using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            var courseId = await AddAsync(courseTemplate.ToCourse(), mentorId);
+
+            var homeworks = courseTemplate.Homeworks.Select(
+                hwTemplate => hwTemplate.ToHomework(courseId, publicationDate));
+            var homeworkIds = await _homeworksRepository.AddRangeAsync(homeworks);
+
+            var tasks = courseTemplate.Homeworks.SelectMany((hwTemplate, i) =>
+                hwTemplate.Tasks.Select(taskTemplate => taskTemplate.ToHomeworkTask(homeworkIds[i])));
+            await _tasksRepository.AddRangeAsync(tasks);
+
+            transactionScope.Complete();
+            return courseId;
         }
     }
 }
