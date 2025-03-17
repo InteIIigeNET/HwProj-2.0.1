@@ -27,21 +27,15 @@ namespace HwProj.CoursesService.API.Controllers
     {
         private readonly ICoursesService _coursesService;
         private readonly ICourseFilterService _courseFilterService;
-        private readonly IHomeworksService _homeworksService;
-        private readonly ITasksService _tasksService;
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly IMapper _mapper;
 
         public CoursesController(ICoursesService coursesService,
-            IHomeworksService homeworksService,
-            ITasksService tasksService,
             IHomeworksRepository homeworksRepository,
             IMapper mapper,
             ICourseFilterService courseFilterService)
         {
             _coursesService = coursesService;
-            _homeworksService = homeworksService;
-            _tasksService = tasksService;
             _homeworksRepository = homeworksRepository;
             _mapper = mapper;
             _courseFilterService = courseFilterService;
@@ -114,8 +108,9 @@ namespace HwProj.CoursesService.API.Controllers
             if (course == null) return NotFound();
 
             var courseTemplate = course.ToCourseTemplate();
+            courseId = await _coursesService.AddFromTemplateAsync(courseTemplate, mentorId);
 
-            return await AddCourseFromTemplate(courseTemplate, mentorId);
+            return Ok(courseId);
         }
 
         [HttpDelete("{courseId}")]
@@ -260,26 +255,6 @@ namespace HwProj.CoursesService.API.Controllers
             result = result.Concat(defaultTags).Distinct().ToArray();
 
             return Ok(result);
-        }
-
-        private async Task<IActionResult> AddCourseFromTemplate(CourseTemplate courseTemplate, string mentorId)
-        {
-            var publicationDate = DateTime.UtcNow + TimeSpan.FromDays(365);
-
-            var courseId = await _coursesService.AddAsync(courseTemplate.ToCourse(), mentorId);
-            foreach (var homeworkTemplate in courseTemplate.Homeworks)
-            {
-                var homework = homeworkTemplate.ToHomework();
-                homework.PublicationDate = publicationDate;
-
-                var homeworkId = await _homeworksService.AddHomeworkAsync(courseId, homework);
-                foreach (var taskTemplate in homeworkTemplate.Tasks)
-                {
-                    await _tasksService.AddTaskAsync(homeworkId, taskTemplate.ToHomeworkTask());
-                }
-            }
-
-            return Ok(courseId);
         }
 
         [HttpGet("getMentorsToStudents/{courseId}")]
