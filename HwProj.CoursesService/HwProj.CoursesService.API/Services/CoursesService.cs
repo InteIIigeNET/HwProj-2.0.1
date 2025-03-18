@@ -185,6 +185,7 @@ namespace HwProj.CoursesService.API.Services
                 .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
                 .ToArrayAsync();
+
             CourseDomain.FillTasksInCourses(coursesWithValues);
 
             var result = await _courseFilterService.ApplyFiltersToCourses(
