@@ -31,6 +31,7 @@ public static class ConfigurationExtensions
         services.ConfigureStorageClient(clientConfigurationSection);
         services.AddSingleton<IFileKeyService, FileKeyService>();
         services.AddScoped<IFilesService, FilesService>();
+        
         services.AddHttpClient();
 
         services.ConfigureHwProjContentService();

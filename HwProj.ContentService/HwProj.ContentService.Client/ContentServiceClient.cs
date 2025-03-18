@@ -41,8 +41,15 @@ namespace HwProj.ContentService.Client
             httpRequest.Content = multipartContent;
             httpRequest.TryAddUserId(_httpContextAccessor);
 
-            var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result>();
+            try
+            {
+                var response = await _httpClient.SendAsync(httpRequest);
+                return await response.DeserializeAsync<Result>();
+            }
+            catch (HttpRequestException e)
+            {
+                return Result.Failed("Пока не можем сохранить файлы. Попробуйте повторить позже");
+            }
         }
 
         public async Task<Result<string>> GetDownloadLinkAsync(string fileKey)
@@ -56,7 +63,7 @@ namespace HwProj.ContentService.Client
             return await response.DeserializeAsync<Result<string>>();
         }
         
-        public async Task<FileInfoDTO[]> GetFilesInfo(long courseId, long? homeworkId = null)
+        public async Task<Result<FileInfoDTO[]>> GetFilesInfo(long courseId, long? homeworkId = null)
         {
             var url = _contentServiceUri + $"api/Files/filesInfo/{courseId}";
             if (homeworkId.HasValue)
@@ -65,9 +72,17 @@ namespace HwProj.ContentService.Client
             }
 
             using var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
-
-            var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<FileInfoDTO[]>();
+            try
+            {
+                var response = await _httpClient.SendAsync(httpRequest);
+                var filesInfo = await response.DeserializeAsync<FileInfoDTO[]>();
+                return Result<FileInfoDTO[]>.Success(filesInfo);
+            }
+            catch (HttpRequestException e)
+            {
+                return Result<FileInfoDTO[]>.Failed("Пока не можем получить информацию о файлах. " +
+                                                    "\nВсе ваши данные сохранены — попробуйте повторить позже");
+            }
         }
         
         public async Task<Result> DeleteFileAsync(string fileKey)
@@ -80,17 +95,6 @@ namespace HwProj.ContentService.Client
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result>();
-        }
-
-        public async Task<Result<long>> GetCourseIdFromKeyAsync(string fileKey)
-        {
-            var encodedFileKey = Uri.EscapeDataString(fileKey);
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get,
-                _contentServiceUri + $"api/FileKey/courseId?key={encodedFileKey}");
-
-            var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result<long>>();
         }
     }
 }

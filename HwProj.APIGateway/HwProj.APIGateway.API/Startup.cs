@@ -5,6 +5,7 @@ using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
 using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration;
+using HwProj.APIGateway.API.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
@@ -56,6 +57,8 @@ namespace HwProj.APIGateway.API
             services.AddSolutionServiceClient();
             services.AddNotificationsServiceClient();
             services.AddContentServiceClient();
+            
+            services.AddScoped<CourseMentorOnlyAttribute>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

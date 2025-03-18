@@ -5841,11 +5841,12 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
     return {
         /**
          *
+         * @param {number} [courseId]
          * @param {string} [key]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        filesDeleteFile(key?: string, options: any = {}): FetchArgs {
+        filesDeleteFile(courseId?: number, key?: string, options: any = {}): FetchArgs {
             const localVarPath = `/api/Files`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
@@ -5858,6 +5859,10 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
                     ? configuration.apiKey("Authorization")
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (courseId !== undefined) {
+                localVarQueryParameter['courseId'] = courseId;
             }
 
             if (key !== undefined) {
@@ -6010,12 +6015,13 @@ export const FilesApiFp = function(configuration?: Configuration) {
     return {
         /**
          *
+         * @param {number} [courseId]
          * @param {string} [key]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        filesDeleteFile(key?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = FilesApiFetchParamCreator(configuration).filesDeleteFile(key, options);
+        filesDeleteFile(courseId?: number, key?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = FilesApiFetchParamCreator(configuration).filesDeleteFile(courseId, key, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -6094,12 +6100,13 @@ export const FilesApiFactory = function (configuration?: Configuration, fetch?: 
     return {
         /**
          *
+         * @param {number} [courseId]
          * @param {string} [key]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        filesDeleteFile(key?: string, options?: any) {
-            return FilesApiFp(configuration).filesDeleteFile(key, options)(fetch, basePath);
+        filesDeleteFile(courseId?: number, key?: string, options?: any) {
+            return FilesApiFp(configuration).filesDeleteFile(courseId, key, options)(fetch, basePath);
         },
         /**
          *
@@ -6143,13 +6150,14 @@ export const FilesApiFactory = function (configuration?: Configuration, fetch?: 
 export class FilesApi extends BaseAPI {
     /**
      *
+     * @param {number} [courseId]
      * @param {string} [key]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public filesDeleteFile(key?: string, options?: any) {
-        return FilesApiFp(this.configuration).filesDeleteFile(key, options)(this.fetch, this.basePath);
+    public filesDeleteFile(courseId?: number, key?: string, options?: any) {
+        return FilesApiFp(this.configuration).filesDeleteFile(courseId, key, options)(this.fetch, this.basePath);
     }
 
     /**

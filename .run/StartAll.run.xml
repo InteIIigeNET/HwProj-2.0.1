@@ -2,6 +2,7 @@
   <configuration default="false" name="StartAll" type="CompoundRunConfigurationType">
     <toRun name="HwProj.APIGateway.API" type="LaunchSettings" />
     <toRun name="HwProj.AuthService.API" type="LaunchSettings" />
+    <toRun name="HwProj.ContentService.API" type="LaunchSettings" />
     <toRun name="HwProj.CoursesService.API" type="LaunchSettings" />
     <toRun name="HwProj.NotificationsService.API" type="LaunchSettings" />
     <toRun name="HwProj.SolutionsService.API" type="LaunchSettings" />

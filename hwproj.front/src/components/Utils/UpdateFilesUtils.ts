@@ -8,31 +8,24 @@ export default class UpdateFilesUtils {
         try {
             await ApiSingleton.customFilesApi.uploadFile(file, courseId, homeworkId);
         } catch (e) {
-            const response = e as Response
-            let errors: string[];
-            const contentType = response.headers.get("content-type");
-            if (contentType?.includes("application/json")) {
-                const json = await response.json();
-                errors = [json.File?.[0]] || [json.message];
-            } else {
-                errors = await ErrorsHandler.getErrorMessages(response);
-            }
-
-            enqueueSnackbar(`Проблема при загрузке файла ${file.name}: ${errors[0]}`, {
+            const errors = await ErrorsHandler.getErrorMessages(e as Response);
+            const errorDescription = errors[0] == undefined ? `: ${errors[0]}` : ''
+            enqueueSnackbar(`Проблема при загрузке файла ${file.name, errorDescription}`, {
                 variant: "error",
-                autoHideDuration: 5000
+                autoHideDuration: 3000
             });
         }
     }
 
-    public static async deleteFileWithErrorsHadling(file: IFileInfo) {
+    public static async deleteFileWithErrorsHadling(courseId: number, file: IFileInfo) {
         try {
-            await ApiSingleton.customFilesApi.deleteFileByKey(file.key!);
+            await ApiSingleton.customFilesApi.deleteFileByKey(courseId, file.key!);
         } catch (e) {
             const errors = await ErrorsHandler.getErrorMessages(e as Response);
-            enqueueSnackbar(`Проблема при удалении файла ${file.name}: ${errors[0]}`, {
+            const errorDescription = errors[0] == undefined ? `: ${errors[0]}` : ''
+            enqueueSnackbar(`Проблема при удалении файла ${file.name, errorDescription}`, {
                 variant: "error",
-                autoHideDuration: 5000
+                autoHideDuration: 3000
             });
         }
     }

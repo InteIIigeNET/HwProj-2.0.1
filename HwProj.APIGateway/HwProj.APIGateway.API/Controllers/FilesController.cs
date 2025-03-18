@@ -1,9 +1,8 @@
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using HwProj.APIGateway.API.Filters;
 using HwProj.AuthService.Client;
 using HwProj.ContentService.Client;
-using HwProj.CoursesService.Client;
 using HwProj.Models.ContentService.DTO;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
@@ -17,28 +16,25 @@ namespace HwProj.APIGateway.API.Controllers
     public class FilesController : AggregationController
     {
         private readonly IContentServiceClient _contentServiceClient;
-        private readonly ICoursesServiceClient _coursesServiceClient;
 
         public FilesController(IAuthServiceClient authServiceClient,
-            IContentServiceClient contentServiceClient,
-            ICoursesServiceClient coursesServiceClient) : base(authServiceClient)
+            IContentServiceClient contentServiceClient) : base(authServiceClient)
         {
             _contentServiceClient = contentServiceClient;
-            _coursesServiceClient = coursesServiceClient;
         }
 
         [HttpPost("upload")]
         [Authorize(Roles = Roles.LecturerRole)]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
         public async Task<IActionResult> Upload([FromForm] UploadFileDTO uploadFileDto)
         {
-            var courseLecturersIds = await _coursesServiceClient.GetCourseLecturersIds(uploadFileDto.CourseId);
-            if (!courseLecturersIds.Contains(UserId))
-                return BadRequest("Пользователь с такой почтой не является преподавателем курса");
-
             var result = await _contentServiceClient.UploadFileAsync(uploadFileDto);
-            return result.Succeeded ? Ok() as IActionResult : BadRequest(result.Errors);
+            return result.Succeeded
+                ? Ok() as IActionResult
+                : StatusCode((int)HttpStatusCode.ServiceUnavailable, result.Errors);
         }
 
         [HttpGet("downloadLink")]
@@ -54,25 +50,23 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpGet("filesInfo/{courseId}")]
         [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
         public async Task<IActionResult> GetFilesInfo(long courseId, [FromQuery] long? homeworkId = null)
         {
-            var filesInfo = await _contentServiceClient.GetFilesInfo(courseId, homeworkId);
-            return Ok(filesInfo);
+            var filesInfoResult = await _contentServiceClient.GetFilesInfo(courseId, homeworkId);
+            return filesInfoResult.Succeeded
+                ? Ok(filesInfoResult.Value) as IActionResult
+                : StatusCode((int)HttpStatusCode.ServiceUnavailable, filesInfoResult.Errors);
         }
 
         [HttpDelete]
         [Authorize(Roles = Roles.LecturerRole)]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> DeleteFile([FromQuery] string key)
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> DeleteFile([FromQuery] long courseId, [FromQuery] string key)
         {
-            var courseIdResult = await _contentServiceClient.GetCourseIdFromKeyAsync(key);
-            if (!courseIdResult.Succeeded) return BadRequest(courseIdResult.Errors);
-
-            var courseLecturersIds = await _coursesServiceClient.GetCourseLecturersIds(courseIdResult.Value);
-            if (!courseLecturersIds.Contains(UserId))
-                return BadRequest("Пользователь с такой почтой не является преподавателем курса");
-
             var deletionResult = await _contentServiceClient.DeleteFileAsync(key);
             return deletionResult.Succeeded
                 ? Ok() as IActionResult

@@ -13,7 +13,9 @@ import FilesUploader from "components/Files/FilesUploader";
 import {IFileInfo} from "components/Files/IFileInfo";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
 import UpdateFilesUtils from "components/Utils/UpdateFilesUtils";
-import { LoadingButton } from "@mui/lab";
+import {LoadingButton} from "@mui/lab";
+import ErrorsHandler from "components/Utils/ErrorsHandler";
+import {useSnackbar} from 'notistack';
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -36,6 +38,7 @@ interface IEditHomeworkState {
 interface IHomeworkFilesState {
     initialFilesInfo: IFileInfo[]
     selectedFilesInfo: IFileInfo[]
+    isLoadingInfo: boolean
 }
 
 const useStyles = makeStyles(theme => ({
@@ -71,9 +74,11 @@ const EditHomework: FC = () => {
     })
     const [filesControlState, setFilesControlState] = useState<IHomeworkFilesState>({
         initialFilesInfo: [],
-        selectedFilesInfo: []
+        selectedFilesInfo: [],
+        isLoadingInfo: true
     });
     const [handleSubmitLoading, setHandleSubmitLoading] = useState(false);
+    const {enqueueSnackbar} = useSnackbar()
 
     useEffect(() => {
         getHomework()
@@ -85,8 +90,6 @@ const EditHomework: FC = () => {
         const deadline = homework.deadlineDate == null
             ? undefined
             : new Date(homework.deadlineDate)
-
-        await fetchAndSetHomeworkFiles(course.id!, +homeworkId!)
 
         setEditHomework((prevState) => ({
             ...prevState,
@@ -107,16 +110,28 @@ const EditHomework: FC = () => {
                 .filter(t => t.publicationDate != null)
                 .map(t => new Date(t.publicationDate!))
         }))
+
+        fetchAndSetHomeworkFiles(homework.courseId!, homework.id!)
     }
 
     const fetchAndSetHomeworkFiles = async (courseId: number, homeworkId: number) => {
-        const homeworkFiles = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, homeworkId)
-        if (homeworkFiles.length > 0) {
-            const filesInfo = FileInfoConverter.fromFileInfoDTOArray(homeworkFiles)
-            setFilesControlState((prevState) => ({
+        try {
+            const homeworkFiles = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, homeworkId)
+            if (homeworkFiles.length > 0) {
+                const filesInfo = FileInfoConverter.fromFileInfoDTOArray(homeworkFiles)
+                setFilesControlState({
+                    initialFilesInfo: filesInfo,
+                    selectedFilesInfo: filesInfo,
+                    isLoadingInfo: false
+                })
+            }
+        } catch (e) {
+            const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
+            enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
+        } finally {
+            setFilesControlState(prevState => ({
                 ...prevState,
-                initialFilesInfo: filesInfo,
-                selectedFilesInfo: filesInfo
+                isLoadingInfo: false
             }))
         }
     }
@@ -125,14 +140,14 @@ const EditHomework: FC = () => {
         e.preventDefault()
         setHandleSubmitLoading(true)
         await ApiSingleton.homeworksApi.homeworksUpdateHomework(+homeworkId!, editHomework)
-        
+
         // Если какие-то файлы из ранее добавленных больше не выбраны, удаляем их из хранилища
         const deleteOperations = filesControlState.initialFilesInfo
             .filter(initialFile =>
                 initialFile.key &&
                 !filesControlState.selectedFilesInfo.some(s => s.key === initialFile.key)
             )
-            .map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(initialFile));
+            .map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(editHomework.courseId, initialFile));
 
         // Если какие-то файлы из выбранных сейчас не были добавлены раньше, загружаем их в хранилище
         const uploadOperations = filesControlState.selectedFilesInfo
@@ -145,7 +160,7 @@ const EditHomework: FC = () => {
                 editHomework.courseId,
                 +homeworkId!)
             );
-        
+
         // Дожидаемся удаления и загрузки необходимых файлов
         await Promise.all([...deleteOperations, ...uploadOperations]);
 
@@ -244,40 +259,33 @@ const EditHomework: FC = () => {
                         <Grid item xs={12} style={{marginBottom: "15px"}}>
                             <Tags tags={editHomework.tags} onTagsChange={handleTagsChange} isElementSmall={false}
                                   requestTags={() => apiSingleton.coursesApi.coursesGetAllTagsForCourse(editHomework.courseId)}/>
-                            <Grid
-                                container
-                                direction="column"
-                                justifyContent="space-between"
-                            >
-                                <Grid item>
-                                    <FilesUploader
-                                        initialFilesInfo={filesControlState.selectedFilesInfo}
-                                        onChange={(filesInfo) => {
-                                            setFilesControlState((prevState) => ({
-                                                ...prevState,
-                                                selectedFilesInfo: filesInfo
-                                            }))
-                                        }}
-                                    />
-                                </Grid>
-                                <Grid item>
-                                    <PublicationAndDeadlineDates
-                                        hasDeadline={editHomework.hasDeadline}
-                                        isDeadlineStrict={editHomework.isDeadlineStrict}
-                                        publicationDate={editHomework.publicationDate}
-                                        deadlineDate={editHomework.deadlineDate}
-                                        autoCalculatedDeadline={undefined}
-                                        disabledPublicationDate={editHomework.isPublished}
-                                        onChange={(state) => setEditHomework(prevState => ({
+                            <Grid container direction="column">
+                                <FilesUploader
+                                    initialFilesInfo={filesControlState.selectedFilesInfo}
+                                    isLoading={filesControlState.isLoadingInfo}
+                                    onChange={(filesInfo) => {
+                                        setFilesControlState((prevState) => ({
                                             ...prevState,
-                                            hasDeadline: state.hasDeadline,
-                                            isDeadlineStrict: state.isDeadlineStrict,
-                                            publicationDate: state.publicationDate,
-                                            deadlineDate: state.deadlineDate,
-                                            hasErrors: state.hasErrors
-                                        }))}
-                                    />
-                                </Grid>
+                                            selectedFilesInfo: filesInfo
+                                        }))
+                                    }}
+                                />
+                                <PublicationAndDeadlineDates
+                                    hasDeadline={editHomework.hasDeadline}
+                                    isDeadlineStrict={editHomework.isDeadlineStrict}
+                                    publicationDate={editHomework.publicationDate}
+                                    deadlineDate={editHomework.deadlineDate}
+                                    autoCalculatedDeadline={undefined}
+                                    disabledPublicationDate={editHomework.isPublished}
+                                    onChange={(state) => setEditHomework(prevState => ({
+                                        ...prevState,
+                                        hasDeadline: state.hasDeadline,
+                                        isDeadlineStrict: state.isDeadlineStrict,
+                                        publicationDate: state.publicationDate,
+                                        deadlineDate: state.deadlineDate,
+                                        hasErrors: state.hasErrors
+                                    }))}
+                                />
                             </Grid>
                         </Grid>
                         <LoadingButton

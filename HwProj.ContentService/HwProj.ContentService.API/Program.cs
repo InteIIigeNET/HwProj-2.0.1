@@ -1,5 +1,4 @@
 using HwProj.ContentService.API.Extensions;
-using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.ConfigureWithAWS(builder.Configuration);
