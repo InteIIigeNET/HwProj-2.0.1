@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Link as RouterLink, useSearchParams} from "react-router-dom";
-import {AccountDataDto, StatisticsCourseMatesModel, CourseViewModel, FileInfoDTO, HomeworkViewModel} from "../../api";
+import {AccountDataDto, CourseViewModel, FileInfoDTO, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
