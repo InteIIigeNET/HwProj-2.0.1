@@ -100,14 +100,16 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(id);
         }
 
-        [HttpPost("recreate/{courseId}")]
+        [HttpPost("createBasedOn/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> RecreateCourse(long courseId, [FromQuery] string mentorId)
+        public async Task<IActionResult> AddCourseBasedOn(long courseId,
+            [FromBody] CreateCourseViewModel courseViewModel,
+            [FromQuery] string mentorId)
         {
-            var course = await _coursesService.GetAsync(courseId);
-            if (course == null) return NotFound();
+            var baseCourse = await _coursesService.GetAsync(courseId);
+            if (baseCourse == null) return NotFound();
 
-            var courseTemplate = course.ToCourseTemplate();
+            var courseTemplate = courseViewModel.ToCourseTemplate(baseCourse);
             courseId = await _coursesService.AddFromTemplateAsync(courseTemplate, mentorId);
 
             return Ok(courseId);
