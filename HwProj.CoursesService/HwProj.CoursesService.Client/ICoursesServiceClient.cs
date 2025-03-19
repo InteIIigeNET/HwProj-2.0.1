@@ -15,8 +15,8 @@ namespace HwProj.CoursesService.Client
         Task<Result<CourseDTO>> GetAllCourseData(long courseId);
         Task<CourseDTO?> GetCourseByTask(long taskId);
         Task<Result> DeleteCourse(long courseId);
-        Task<Result<long>> RecreateCourse(long courseId, string mentorId);
         Task<long> CreateCourse(CreateCourseViewModel model, string mentorId);
+        Task<Result<long>> CreateCourseBasedOn(long courseId, CreateCourseViewModel model, string mentorId);
         Task<Result> UpdateCourse(UpdateCourseViewModel model, long courseId);
         Task SignInCourse(long courseId, string studentId);
         Task<Result> AcceptStudent(long courseId, string studentId);
