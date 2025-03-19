@@ -6,12 +6,10 @@ import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Grid, Tab, Tabs, Typography, IconButton, CircularProgress} from "@material-ui/core";
+import {Button, Grid, Tab, Tabs, Typography, IconButton, CircularProgress, Switch} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
-import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
-import VisibilityIcon from '@material-ui/icons/Visibility';
 import {Alert, AlertTitle, Chip, Dialog, DialogContent, DialogTitle, Stack} from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
@@ -148,18 +146,17 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         }
 
         const solutions = await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
-        
+
         // В случае, если сервис файлов недоступен, показываем пользователю сообщение 
         // и не блокируем остальную функциональность системы
         let courseFilesInfo = [] as FileInfoDTO[]
         try {
             courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
-        }
-        catch (e) {
+        } catch (e) {
             const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
             enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
         }
-        
+
         setCourseState(prevState => ({
             ...prevState,
             isFound: true,
@@ -236,34 +233,32 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                         {NameBuilder.getCourseFullName(course.name!, course.groupName)}
                                     </Typography>
                                     {isCourseMentor &&
-                                        <IconButton
+                                        <Switch
+                                            checked={isReadingMode}
+                                            onChange={() => setCourseState(prevState => ({
+                                                ...prevState,
+                                                isReadingMode: !isReadingMode
+                                            }))}
+                                            color="default"
                                             size="small"
-                                            onClick={() =>
-                                                setCourseState(prevState => ({
-                                                        ...prevState,
-                                                        isReadingMode: !isReadingMode
-                                                    })
-                                                )}
-                                        >
-                                            {isReadingMode
-                                                ? <VisibilityIcon
-                                                    titleAccess="Режим чтения включен"
-                                                    fontSize={"small"}/>
-                                                : <VisibilityOffIcon
-                                                    titleAccess="Режим чтения выключен"
-                                                    fontSize={"small"}
-                                                />}
-                                        </IconButton>
-                                    }
-                                    {isCourseMentor && isLecturer && !isReadingMode! && (
-                                        <RouterLink to={`/courses/${courseId}/editInfo`}>
-                                            <EditIcon fontSize="small"/>
-                                        </RouterLink>
-                                    )}
+                                        />}
+                                    <Typography
+                                        variant={"caption"}
+                                        style={{color: "GrayText"}}
+                                    >
+                                        Режим чтения
+                                    </Typography>
                                 </Stack>
                             </Grid>
                             <Grid item>
                                 <Grid container alignItems="center" justifyContent="flex-end">
+                                    {isCourseMentor && isLecturer && !isReadingMode! &&
+                                        <Grid item style={{marginBottom: "5px", marginRight: "4px"}} spacing={1}>
+                                            <RouterLink to={`/courses/${courseId}/editInfo`}>
+                                                <EditIcon fontSize="small"/>
+                                            </RouterLink>
+                                        </Grid>
+                                    }
                                     <Grid item>
                                         <MentorsList mentors={mentors}/>
                                     </Grid>
