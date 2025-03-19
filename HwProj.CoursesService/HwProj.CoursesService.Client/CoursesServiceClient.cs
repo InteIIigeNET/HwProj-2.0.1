@@ -585,15 +585,15 @@ namespace HwProj.CoursesService.Client
             await _httpClient.SendAsync(httpRequest);
         }
 
-        public async Task<StudentsToReviewersDTO> GetStudentsToReviewers(long courseId)
+        public async Task<MentorToAssignedStudentsDTO[]> GetMentorsToAssignedStudents(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _coursesServiceUri + $"api/Courses/getStudentsToReviewers/{courseId}");
+                _coursesServiceUri + $"api/Courses/getMentorsToStudents/{courseId}");
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<StudentsToReviewersDTO>();
+            return await response.DeserializeAsync<MentorToAssignedStudentsDTO[]>();
         }
 
         public async Task<bool> Ping()
