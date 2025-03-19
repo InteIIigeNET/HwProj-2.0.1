@@ -110,7 +110,7 @@ const EditTask: FC = () => {
     const classes = useStyles()
 
     if (taskState.edited) {
-        return <Navigate to={"/courses/" + taskState.courseId}/>;
+        return <Navigate to={`/courses/${taskState.courseId}/editHomeworks`}/>;
     }
 
     if (taskState.isLoaded) {
