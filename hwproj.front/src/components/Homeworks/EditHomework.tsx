@@ -183,7 +183,7 @@ const EditHomework: FC = () => {
         .some(d => d < editHomework.publicationDate)
 
     if (editHomework.edited) {
-        return <Navigate to={"/courses/" + editHomework.courseId}/>;
+        return <Navigate to={`/courses/${editHomework.courseId}/editHomeworks`}/>;
     }
 
     if (editHomework.isLoaded) {
