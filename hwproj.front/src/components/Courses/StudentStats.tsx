@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
-import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel, HomeworkTaskViewModel} from "../../api/";
+import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
 import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Button, Chip} from "@mui/material";
+import {Alert, Button, Chip, Typography} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
@@ -226,6 +226,18 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         variant={"head"}
                                     >
                                         {cm.surname} {cm.name}
+                                        <Typography
+                                            style={{
+                                                color: "GrayText",
+                                                fontSize: "12px",
+                                                lineHeight: '1.2'
+                                            }}
+                                        >
+                                            {cm.reviewers && cm.reviewers
+                                                .filter(r => r.userId !== props.userId)
+                                                .map(r => `${r.name} ${r.surname}`)
+                                                .join(', ')}
+                                        </Typography>
                                     </TableCell>
                                     {hasHomeworks && <TableCell
                                         align="center"

@@ -1864,6 +1864,12 @@ export interface StatisticsCourseMatesModel {
     surname?: string;
     /**
      *
+     * @type {Array<AccountDataDto>}
+     * @memberof StatisticsCourseMatesModel
+     */
+    reviewers?: Array<AccountDataDto>;
+    /**
+     *
      * @type {Array<StatisticsCourseHomeworksModel>}
      * @memberof StatisticsCourseMatesModel
      */
