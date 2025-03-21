@@ -5,6 +5,7 @@ import {
   Typography,
   Grid,
   MenuItem,
+  CircularProgress,
 } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import './Styles/CreateCourse.css';
@@ -27,6 +28,7 @@ interface ICreateCourseState {
 interface IBaseCoursesState {
   isLoaded: boolean;
   courses: CoursePreviewView[];
+  errors: string[];
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -59,6 +61,7 @@ const CreateCourse: FC = () => {
   const [baseCourses, setBaseCourses] = useState<IBaseCoursesState>({
     isLoaded: false,
     courses: [],
+    errors: [],
   })
 
   useEffect(() => {
@@ -68,16 +71,14 @@ const CreateCourse: FC = () => {
         setBaseCourses ({
           isLoaded: true,
           courses: userCourses,
+          errors: [],
         })
       } catch (e) {
         console.error("Ошибка при загрузке курсов лектора:", e)
-        setCourse((prevState) => ({
-          ...prevState,
-          errors: ['Не удалось загрузить курсы лектора']
-        }))
         setBaseCourses ({
           isLoaded: true,
           courses: [],
+          errors: ['Не удалось загрузить существующие курсы'],
         })
       }
     };
@@ -166,31 +167,38 @@ const CreateCourse: FC = () => {
                     }}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  select
-                  label="На основе существующего курса"
-                  variant="outlined"
-                  fullWidth
-                  value={course.baseCourseId}
-                  onChange={(e) =>
-                  {
-                    e.persist()
-                    setCourse((prevState) => ({
-                      ...prevState,
-                      baseCourseId: Number(e.target.value)
-                    }))
-                  }}
-                >
-                  {baseCourses.courses.map(course =>
-                    <MenuItem value={course.id!}>
-                      <Typography style={{fontSize: "20px"}}>
-                        {NameBuilder.getCourseFullName(course.name!, course.groupName)}
-                      </Typography>
-                    </MenuItem>
-                  )}
-                </TextField>
-              </Grid>
+              {!baseCourses.isLoaded &&
+                <Grid item xs={12} style={{display: "flex", justifyContent: "center"}}>
+                    <CircularProgress/>
+                </Grid>
+              }
+              {baseCourses.courses.length !== 0 &&
+                <Grid item xs={12}>
+                    <TextField
+                      select
+                      label="На основе существующего курса"
+                      variant="outlined"
+                      fullWidth
+                      value={course.baseCourseId}
+                      onChange={(e) =>
+                      {
+                        e.persist()
+                        setCourse((prevState) => ({
+                          ...prevState,
+                          baseCourseId: Number(e.target.value)
+                        }))
+                      }}
+                    >
+                      {baseCourses.courses.map(course =>
+                        <MenuItem value={course.id!}>
+                          <Typography style={{fontSize: "20px"}}>
+                            {NameBuilder.getCourseFullName(course.name!, course.groupName)}
+                          </Typography>
+                        </MenuItem>
+                      )}
+                    </TextField>
+                </Grid>
+              }
             </Grid>
             <Button
                 style={{ marginTop: '16px'}}
