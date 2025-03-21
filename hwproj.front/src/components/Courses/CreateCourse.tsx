@@ -20,10 +20,10 @@ import { LoadingButton } from "@mui/lab";
 interface ICreateCourseState {
   name: string;
   groupName?: string;
-  baseCourseId?: number;
+  baseCourseId?: string;
   courseId: string;
-  errors: string[];
   isLoading: boolean;
+  errors: string[];
 }
 
 interface IBaseCoursesState {
@@ -56,8 +56,8 @@ const CreateCourse: FC = () => {
     name: "",
     groupName: "",
     courseId: "",
-    errors: [],
     isLoading: false,
+    errors: [],
   })
 
   const [baseCourses, setBaseCourses] = useState<IBaseCoursesState>({
@@ -105,7 +105,7 @@ const CreateCourse: FC = () => {
     try {
       setCourseIsLoading()
       const courseId = course.baseCourseId !== undefined
-        ? await ApiSingleton.coursesApi.coursesCreateCourseBasedOn(course.baseCourseId, courseViewModel)
+        ? await ApiSingleton.coursesApi.coursesCreateCourseBasedOn(Number(course.baseCourseId), courseViewModel)
         : await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel) 
       setCourse((prevState) => ({
         ...prevState,
@@ -197,17 +197,20 @@ const CreateCourse: FC = () => {
                         e.persist()
                         setCourse((prevState) => ({
                           ...prevState,
-                          baseCourseId: Number(e.target.value)
+                          baseCourseId: e.target.value || undefined
                         }))
                       }}
                     >
+                      <MenuItem value="">
+                        <Typography style={{fontSize: "20px"}}>Курс с нуля</Typography>
+                      </MenuItem>
                       {baseCourses.courses.map(course =>
                         <MenuItem value={course.id!}>
                           <Typography style={{fontSize: "20px"}}>
                             {NameBuilder.getCourseFullName(course.name!, course.groupName)}
                           </Typography>
                         </MenuItem>
-                      )}
+                      ).toReversed()}
                     </TextField>
                 </Grid>
               }
