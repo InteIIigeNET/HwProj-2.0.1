@@ -1,7 +1,6 @@
 import * as React from "react";
 import {
   TextField,
-  Button,
   Typography,
   Grid,
   MenuItem,
@@ -16,6 +15,7 @@ import Container from "@material-ui/core/Container";
 import {Navigate} from "react-router-dom";
 import {CoursePreviewView} from "api";
 import NameBuilder from "../Utils/NameBuilder";
+import { LoadingButton } from "@mui/lab";
 
 interface ICreateCourseState {
   name: string;
@@ -23,10 +23,11 @@ interface ICreateCourseState {
   baseCourseId?: number;
   courseId: string;
   errors: string[];
+  isLoading: boolean;
 }
 
 interface IBaseCoursesState {
-  isLoaded: boolean;
+  areLoaded: boolean;
   courses: CoursePreviewView[];
   errors: string[];
 }
@@ -56,10 +57,11 @@ const CreateCourse: FC = () => {
     groupName: "",
     courseId: "",
     errors: [],
+    isLoading: false,
   })
 
   const [baseCourses, setBaseCourses] = useState<IBaseCoursesState>({
-    isLoaded: false,
+    areLoaded: false,
     courses: [],
     errors: [],
   })
@@ -69,14 +71,14 @@ const CreateCourse: FC = () => {
       try {
         const userCourses = await ApiSingleton.coursesApi.coursesGetAllUserCourses()
         setBaseCourses ({
-          isLoaded: true,
+          areLoaded: true,
           courses: userCourses,
           errors: [],
         })
       } catch (e) {
         console.error("Ошибка при загрузке курсов лектора:", e)
         setBaseCourses ({
-          isLoaded: true,
+          areLoaded: true,
           courses: [],
           errors: ['Не удалось загрузить существующие курсы'],
         })
@@ -86,6 +88,13 @@ const CreateCourse: FC = () => {
     loadBaseCourses()
   }, [])
 
+  const setCourseIsLoading = () =>
+    setCourse((prevState) =>
+    ({
+      ...prevState,
+      isLoading: true,
+    }))
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const courseViewModel = {
@@ -94,17 +103,20 @@ const CreateCourse: FC = () => {
       isOpen: true,
     }
     try {
+      setCourseIsLoading()
       const courseId = course.baseCourseId !== undefined
         ? await ApiSingleton.coursesApi.coursesCreateCourseBasedOn(course.baseCourseId, courseViewModel)
         : await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel) 
       setCourse((prevState) => ({
         ...prevState,
+        isLoading: false,
         courseId: courseId.toString(),
       }))
     }
     catch (e) {
       setCourse((prevState) => ({
         ...prevState,
+        isLoading: false,
         errors: ['Сервис недоступен'],
       }))
     }
@@ -167,7 +179,7 @@ const CreateCourse: FC = () => {
                     }}
                 />
               </Grid>
-              {!baseCourses.isLoaded &&
+              {!baseCourses.areLoaded &&
                 <Grid item xs={12} style={{display: "flex", justifyContent: "center"}}>
                     <CircularProgress/>
                 </Grid>
@@ -200,15 +212,16 @@ const CreateCourse: FC = () => {
                 </Grid>
               }
             </Grid>
-            <Button
+            <LoadingButton
                 style={{ marginTop: '16px'}}
                 fullWidth
                 variant="contained"
                 color="primary"
                 type="submit"
+                loading={course.isLoading}
             >
               Создать курс
-            </Button>
+            </LoadingButton>
           </form>
         </div>
       </Container>
