@@ -15,7 +15,9 @@ import Container from "@material-ui/core/Container";
 import {Navigate} from "react-router-dom";
 import {CoursePreviewView} from "api";
 import NameBuilder from "../Utils/NameBuilder";
-import { LoadingButton } from "@mui/lab";
+import {LoadingButton} from "@mui/lab";
+import {useSnackbar} from "notistack";
+import ErrorsHandler from "components/Utils/ErrorsHandler";
 
 interface ICreateCourseState {
   name: string;
@@ -23,13 +25,11 @@ interface ICreateCourseState {
   baseCourseId?: string;
   courseId: string;
   isLoading: boolean;
-  errors: string[];
 }
 
 interface IBaseCoursesState {
   areLoaded: boolean;
   courses: CoursePreviewView[];
-  errors: string[];
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -57,14 +57,14 @@ const CreateCourse: FC = () => {
     groupName: "",
     courseId: "",
     isLoading: false,
-    errors: [],
   })
 
   const [baseCourses, setBaseCourses] = useState<IBaseCoursesState>({
     areLoaded: false,
     courses: [],
-    errors: [],
   })
+
+  const {enqueueSnackbar} = useSnackbar()
 
   useEffect(() => {
     const loadBaseCourses = async () => {
@@ -73,15 +73,14 @@ const CreateCourse: FC = () => {
         setBaseCourses ({
           areLoaded: true,
           courses: userCourses,
-          errors: [],
         })
       } catch (e) {
-        console.error("Ошибка при загрузке курсов лектора:", e)
         setBaseCourses ({
           areLoaded: true,
           courses: [],
-          errors: ['Не удалось загрузить существующие курсы'],
         })
+        console.error("Ошибка при загрузке курсов лектора:", e)
+        enqueueSnackbar("Не удалось загрузить существующие курсы", {variant: "warning", autoHideDuration: 4000})
       }
     };
 
@@ -117,8 +116,10 @@ const CreateCourse: FC = () => {
       setCourse((prevState) => ({
         ...prevState,
         isLoading: false,
-        errors: ['Сервис недоступен'],
       }))
+      console.error("Ошибка при создании курса:", e)
+      const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
+      enqueueSnackbar(responseErrors[0], {variant: "error"})
     }
   }
 
@@ -210,7 +211,7 @@ const CreateCourse: FC = () => {
                             {NameBuilder.getCourseFullName(course.name!, course.groupName)}
                           </Typography>
                         </MenuItem>
-                      ).toReversed()}
+                      ).reverse()}
                     </TextField>
                 </Grid>
               }
