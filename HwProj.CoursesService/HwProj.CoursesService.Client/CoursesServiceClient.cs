@@ -143,6 +143,7 @@ namespace HwProj.CoursesService.Client
             return response.StatusCode switch
             {
                 HttpStatusCode.OK => Result<long>.Success(await response.DeserializeAsync<long>()),
+                HttpStatusCode.NotFound => Result<long>.Failed("Базовый курс не найден"),
                 _ => Result<long>.Failed(response.ReasonPhrase),
             };
         }
