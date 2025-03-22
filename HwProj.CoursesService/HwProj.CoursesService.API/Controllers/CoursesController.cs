@@ -10,7 +10,6 @@ using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
-using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
@@ -98,6 +97,21 @@ namespace HwProj.CoursesService.API.Controllers
             var course = _mapper.Map<Course>(courseViewModel);
             var id = await _coursesService.AddAsync(course, mentorId);
             return Ok(id);
+        }
+
+        [HttpPost("createBasedOn/{courseId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> AddCourseBasedOn(long courseId,
+            [FromBody] CreateCourseViewModel courseViewModel,
+            [FromQuery] string mentorId)
+        {
+            var baseCourse = await _coursesService.GetAsync(courseId);
+            if (baseCourse == null) return NotFound();
+
+            var courseTemplate = courseViewModel.ToCourseTemplate(baseCourse);
+            courseId = await _coursesService.AddFromTemplateAsync(courseTemplate, mentorId);
+
+            return Ok(courseId);
         }
 
         [HttpDelete("{courseId}")]
