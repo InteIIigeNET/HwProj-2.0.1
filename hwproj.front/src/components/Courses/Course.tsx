@@ -10,9 +10,8 @@ import {Button, Grid, Tab, Tabs, Typography, IconButton, CircularProgress} from 
 import EditIcon from "@material-ui/icons/Edit";
 import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
-import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import {Alert, AlertTitle, Chip, Dialog, DialogContent, DialogTitle, Stack} from "@mui/material";
+import {Alert, AlertTitle, Chip, Dialog, DialogContent, DialogTitle, Stack, Tooltip} from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
 import MentorsList from "../Common/MentorsList";
@@ -148,18 +147,17 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         }
 
         const solutions = await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
-        
+
         // В случае, если сервис файлов недоступен, показываем пользователю сообщение 
         // и не блокируем остальную функциональность системы
         let courseFilesInfo = [] as FileInfoDTO[]
         try {
             courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
-        }
-        catch (e) {
+        } catch (e) {
             const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
             enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
         }
-        
+
         setCourseState(prevState => ({
             ...prevState,
             isFound: true,
@@ -235,30 +233,17 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                                 }))}>
                                         {NameBuilder.getCourseFullName(course.name!, course.groupName)}
                                     </Typography>
-                                    {isCourseMentor &&
-                                        <IconButton
-                                            size="small"
-                                            onClick={() =>
-                                                setCourseState(prevState => ({
-                                                        ...prevState,
-                                                        isReadingMode: !isReadingMode
-                                                    })
-                                                )}
-                                        >
-                                            {isReadingMode
-                                                ? <VisibilityIcon
-                                                    titleAccess="Режим чтения включен"
-                                                    fontSize={"small"}/>
-                                                : <VisibilityOffIcon
-                                                    titleAccess="Режим чтения выключен"
-                                                    fontSize={"small"}
-                                                />}
-                                        </IconButton>
-                                    }
-                                    {isCourseMentor && isLecturer && !isReadingMode! && (
-                                        <RouterLink to={`/courses/${courseId}/editInfo`}>
-                                            <EditIcon fontSize="small"/>
-                                        </RouterLink>
+                                    {isCourseMentor && isLecturer && (
+                                        <Tooltip arrow placement={"right"}
+                                                 PopperProps={{
+                                                     modifiers: [{name: "offset", options: {offset: [0, -5],}}]
+                                                 }}
+                                                 title="Редактировать курс">
+                                            <RouterLink to={`/courses/${courseId}/editInfo`}
+                                                        style={{marginBottom: "20px"}}>
+                                                <EditIcon fontSize="small"/>
+                                            </RouterLink>
+                                        </Tooltip>
                                     )}
                                 </Stack>
                             </Grid>
@@ -316,7 +301,34 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                             if (value === 2 && !isExpert) navigate(`/courses/${courseId}/applications`)
                         }}
                     >
-                        {!isExpert && <Tab label="Задания"/>}
+                        {!isExpert &&
+                            <Tab
+                                label={
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <div>Задания</div>
+                                        <IconButton
+                                            size="small"
+                                            onClick={() =>
+                                                setCourseState(prevState => ({
+                                                        ...prevState,
+                                                        isReadingMode: !isReadingMode
+                                                    })
+                                                )}
+                                            style={{backgroundColor: '#f1f1f1', padding: 3, marginLeft: 8}}
+                                        >
+                                            <Tooltip arrow placement={"top"}
+                                                     PopperProps={{
+                                                         modifiers: [{name: "offset", options: {offset: [0, -5],}}]
+                                                     }}
+                                                     title={isReadingMode ? "В режим редактирования" : "В режим чтения"}>
+                                                {isReadingMode
+                                                    ? <EditIcon style={{fontSize: 17}}/>
+                                                    :  <VisibilityIcon style={{fontSize: 18.5}}/>}
+                                            </Tooltip>
+                                        </IconButton>
+                                    </Stack>
+                                }
+                            />}
                         {showStatsTab && <Tab label={
                             <Stack direction="row" spacing={1}>
                                 <div>Решения</div>
