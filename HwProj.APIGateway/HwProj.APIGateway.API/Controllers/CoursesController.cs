@@ -25,6 +25,7 @@ namespace HwProj.APIGateway.API.Controllers
     {
         private readonly ICoursesServiceClient _coursesClient;
         private readonly IMapper _mapper;
+        private readonly string _deafultPassword;
         private readonly IStudentsInformation _studentsInfo;
 
         public CoursesController( ICoursesServiceClient coursesClient,
@@ -34,6 +35,7 @@ namespace HwProj.APIGateway.API.Controllers
         {
             _coursesClient = coursesClient;
             _mapper = mapper;
+            _deafultPassword = configuration["StudentsInfo:DefaultPassword"];
             
             var login = configuration["StudentsInfo:Login"];
             var password = configuration["StudentsInfo:Password"];
@@ -91,8 +93,8 @@ namespace HwProj.APIGateway.API.Controllers
                     registerModel.Name = student.Name;
                     registerModel.Surname = student.Surname;
                     registerModel.MiddleName = student.MiddleName;
-                    registerModel.Password = "123456";
-                    registerModel.PasswordConfirm = "123456";
+                    registerModel.Password = _deafultPassword;
+                    registerModel.PasswordConfirm = _deafultPassword;
                     
                     await AuthServiceClient.Register(registerModel);
                     studentId = await AuthServiceClient.FindByEmailAsync(student.Email);
