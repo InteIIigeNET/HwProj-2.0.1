@@ -47,6 +47,7 @@ const CreateCourse: FC = () => {
   const [programName, setProgramName] = useState<string>('');
   const [groupNames, setGroupNames] = useState<string[]>([]);
   const [fetchingGroups, setFetchingGroups] = useState<boolean>(false);
+  const [isCreatingCourse, setIsCreatingCourse] = useState<boolean>(false); // New state for loading
 
   // Загрузка списка программ при монтировании компонента
   useEffect(() => {
@@ -91,13 +92,14 @@ const CreateCourse: FC = () => {
   // Обработчик отправки формы
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsCreatingCourse(true); // Set loading state to true
     const courseViewModel = {
       name: course.name,
       groupName: course.groupName,
       isOpen: true,
     };
     try {
-      const courseId = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel); // Создаем курс
+      const courseId = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel);
       setCourse((prevState) => ({
         ...prevState,
         courseId: courseId.toString(),
@@ -108,6 +110,8 @@ const CreateCourse: FC = () => {
         ...prevState,
         errors: ['Сервис недоступен'],
       }));
+    } finally {
+      setIsCreatingCourse(false); // Set loading state to false
     }
   };
 
@@ -214,8 +218,9 @@ const CreateCourse: FC = () => {
             color="primary"
             type="submit"
             style={{ marginTop: '16px' }}
+            disabled={isCreatingCourse} // Отключить кнопку при загрузке
           >
-            Создать курс
+            {isCreatingCourse ? 'Создание...' : 'Создать курс'}
           </Button>
         </form>
       </div>
