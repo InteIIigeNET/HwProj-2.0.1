@@ -11,11 +11,10 @@ using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
-using IStudentsInfo;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using StudentsInfo;
+using Microsoft.Extensions.Options;
+using IStudentsInfo;
 
 namespace HwProj.APIGateway.API.Controllers
 {
@@ -25,23 +24,22 @@ namespace HwProj.APIGateway.API.Controllers
     {
         private readonly ICoursesServiceClient _coursesClient;
         private readonly IMapper _mapper;
-        private readonly string _deafultPassword;
+        private readonly StudentsInfoOptions _studentsInfoOptions;
         private readonly IStudentsInformation _studentsInfo;
 
-        public CoursesController( ICoursesServiceClient coursesClient,
+        public CoursesController(
+            ICoursesServiceClient coursesClient,
             IAuthServiceClient authServiceClient,
             IMapper mapper,
-            IConfiguration configuration) : base(authServiceClient)
+            IOptions<StudentsInfoOptions> studentsInfoOptions,
+            IStudentsInformation studentsInfo) : base(authServiceClient)
         {
             _coursesClient = coursesClient;
             _mapper = mapper;
-            _deafultPassword = configuration["StudentsInfo:DefaultPassword"];
-            
-            var login = configuration["StudentsInfo:Login"];
-            var password = configuration["StudentsInfo:Password"];
-            
-            _studentsInfo = new StudentsInformation(login, password);
+            _studentsInfoOptions = studentsInfoOptions.Value;
+            _studentsInfo = studentsInfo;
         }
+
 
         [HttpGet("getAllData/{courseId}")]
         [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
@@ -93,8 +91,8 @@ namespace HwProj.APIGateway.API.Controllers
                     registerModel.Name = student.Name;
                     registerModel.Surname = student.Surname;
                     registerModel.MiddleName = student.MiddleName;
-                    registerModel.Password = _deafultPassword;
-                    registerModel.PasswordConfirm = _deafultPassword;
+                    registerModel.Password = _studentsInfoOptions.DefaultPassword;
+                    registerModel.PasswordConfirm = _studentsInfoOptions.DefaultPassword;
                     
                     await AuthServiceClient.Register(registerModel);
                     studentId = await AuthServiceClient.FindByEmailAsync(student.Email);
