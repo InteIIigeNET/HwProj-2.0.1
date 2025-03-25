@@ -138,7 +138,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     </Typography>
                 </Grid>
                 {task.isGroupWork && <Grid item>
-                    <Chip color={"info"} label="Комадное"/>
+                    <Chip color={"info"} label="Командное"/>
                 </Grid>}
                 <Grid item>
                     <Typography>{"⭐ " + task.maxRating}</Typography>
