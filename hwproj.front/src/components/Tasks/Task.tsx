@@ -88,7 +88,7 @@ const Task: FC<ITaskProp> = (props) => {
                                              variant={"outlined"}
                                              style={{fontWeight: "bold"}}
                                              color={"success"}/></Grid>
-                            {task.isGroupWork && <Grid item><Chip variant={"outlined"} color={"info"} label="Комадное"/></Grid>}
+                            {task.isGroupWork && <Grid item><Chip variant={"outlined"} color={"info"} label="Командное"/></Grid>}
                             {props.forMentor &&
                                 <Grid item><Chip variant={"outlined"} label={"🕘 " + publicationDate}/></Grid>}
                             {task.hasDeadline &&
