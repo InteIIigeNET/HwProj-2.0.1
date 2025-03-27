@@ -104,7 +104,7 @@ const CreateCourse: FC = () => {
     try {
       setCourseIsLoading()
       const courseId = course.baseCourseId !== undefined
-        ? await ApiSingleton.coursesApi.coursesCreateCourseBasedOn(Number(course.baseCourseId), courseViewModel)
+        ? await ApiSingleton.coursesApi.coursesCreateCourseBasedOn(+course.baseCourseId, courseViewModel)
         : await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel) 
       setCourse((prevState) => ({
         ...prevState,
@@ -217,10 +217,9 @@ const CreateCourse: FC = () => {
               }
             </Grid>
             <LoadingButton
-                style={{ marginTop: '16px'}}
+                style={{ marginTop: '16px', color: "white", backgroundColor: "#3f51b5" }}
                 fullWidth
                 variant="contained"
-                color="primary"
                 type="submit"
                 loading={course.isLoading}
             >
