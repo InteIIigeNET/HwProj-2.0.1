@@ -26,14 +26,10 @@ namespace HwProj.Repositories
 
         public async Task<List<TKey>> AddRangeAsync(IEnumerable<TEntity> items)
         {
-            var result = new List<TKey>();
-
-            foreach (var item in items)
-            {
-                result.Add(await AddAsync(item));
-            }
-
-            return result;
+            items = items.ToList();
+            await Context.AddRangeAsync(items).ConfigureAwait(false);
+            await Context.SaveChangesAsync().ConfigureAwait(false);
+            return items.Select(item => item.Id).ToList();
         }
 
         public async Task DeleteAsync(TKey id)
