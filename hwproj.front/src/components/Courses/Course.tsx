@@ -306,7 +306,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                 label={
                                     <Stack direction="row" spacing={1} alignItems="center">
                                         <div>Задания</div>
-                                        <IconButton
+                                        {isCourseMentor && <IconButton
                                             size="small"
                                             onClick={() =>
                                                 setCourseState(prevState => ({
@@ -323,9 +323,9 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                                      title={isReadingMode ? "В режим редактирования" : "В режим чтения"}>
                                                 {isReadingMode
                                                     ? <EditIcon style={{fontSize: 17}}/>
-                                                    :  <VisibilityIcon style={{fontSize: 18.5}}/>}
+                                                    : <VisibilityIcon style={{fontSize: 18.5}}/>}
                                             </Tooltip>
-                                        </IconButton>
+                                        </IconButton>}
                                     </Stack>
                                 }
                             />}
