@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -40,7 +41,6 @@ namespace HwProj.APIGateway.API.Controllers
             _studentsInfo = studentsInfo;
         }
 
-
         [HttpGet("getAllData/{courseId}")]
         [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllCourseData(long courseId)
@@ -77,44 +77,48 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
-            var studentsIDs = new List<string>();
+            if (string.IsNullOrEmpty(model.GroupName) || (!model.FetchStudents))
+            {
+                var result = await _coursesClient.CreateCourse(model, UserId);
+                return Ok(result);
+            }
+    
+            var students = _studentsInfo.GetStudentInformation(model.GroupName);
+            var studentEmails = students
+                .Where(student => !string.IsNullOrEmpty(student.Email))
+                .Select(student => student.Email)
+                .ToList();
             
-            if (!(string.IsNullOrEmpty(model.GroupName)))
-            {
-                var students = _studentsInfo.GetStudentInformation(model.GroupName);
-
-                foreach (var student in students)
+            var emailToIdMap = await AuthServiceClient.FindByEmailsAsync(studentEmails);
+    
+            var registrationTasks = students
+                .Where(student => !string.IsNullOrEmpty(student.Email))
+                .Select(async student =>
                 {
-                    var studentId = await AuthServiceClient.FindByEmailAsync(student.Email);
-                    if (studentId == null)
+                    if (emailToIdMap.TryGetValue(student.Email, out var studentId))
                     {
-                        var registerModel = new RegisterViewModel();
-
-                        registerModel.Email = student.Email;
-                        registerModel.Name = student.Name;
-                        registerModel.Surname = student.Surname;
-                        registerModel.MiddleName = student.MiddleName;
-                        registerModel.Password = _studentsInfoOptions.DefaultPassword;
-                        registerModel.PasswordConfirm = _studentsInfoOptions.DefaultPassword;
-
-                        await AuthServiceClient.Register(registerModel);
-                        studentId = await AuthServiceClient.FindByEmailAsync(student.Email);
+                        return studentId;
                     }
+                    
+                    var registerModel = new RegisterViewModel
+                    {
+                        Email = student.Email,
+                        Name = student.Name,
+                        Surname = student.Surname,
+                        MiddleName = student.MiddleName,
+                        Password = _studentsInfoOptions.DefaultPassword,
+                        PasswordConfirm = _studentsInfoOptions.DefaultPassword
+                    };
 
-                    studentsIDs.Add(studentId);
-                }
+                    await AuthServiceClient.Register(registerModel);
+                    return await AuthServiceClient.FindByEmailAsync(student.Email);
+                }).ToList();
+    
+            var studentIds = await Task.WhenAll(registrationTasks);
+            model.studentIDs = studentIds.ToList();
 
-                model.studentIDs = studentsIDs;
-
-                var result = await _coursesClient.CreateCourse(model, UserId);
-                return Ok(result);
-            }
-            else 
-            {
-                var result = await _coursesClient.CreateCourse(model, UserId);
-                return Ok(result);
-                
-            }
+            var resultCourse = await _coursesClient.CreateCourse(model, UserId);
+            return Ok(resultCourse);
         }
 
         [HttpPost("update/{courseId}")]

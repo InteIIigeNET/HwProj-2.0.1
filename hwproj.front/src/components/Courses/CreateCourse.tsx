@@ -1,10 +1,16 @@
 import * as React from "react";
-import { TextField, Button, Typography } from "@material-ui/core";
+import { 
+  TextField, 
+  Button, 
+  Typography,
+  FormControlLabel,
+  Checkbox,
+  Container 
+} from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import { FC, FormEvent, useState, useEffect } from "react";
 import GroupIcon from '@material-ui/icons/Group';
 import makeStyles from "@material-ui/styles/makeStyles";
-import Container from "@material-ui/core/Container";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 
 interface ICreateCourseState {
@@ -12,6 +18,7 @@ interface ICreateCourseState {
   groupName?: string;
   courseId: string;
   errors: string[];
+  fetchStudents: boolean;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -41,13 +48,15 @@ const CreateCourse: FC = () => {
     groupName: "",
     courseId: "",
     errors: [],
+    fetchStudents: false,
   });
 
   const [programNames, setProgramNames] = useState<string[]>([]);
   const [programName, setProgramName] = useState<string>('');
   const [groupNames, setGroupNames] = useState<string[]>([]);
   const [fetchingGroups, setFetchingGroups] = useState<boolean>(false);
-  const [isCreatingCourse, setIsCreatingCourse] = useState<boolean>(false); // New state for loading
+  const [isCreatingCourse, setIsCreatingCourse] = useState<boolean>(false);
+  const [isGroupFromList, setIsGroupFromList] = useState<boolean>(false);
 
   // Загрузка списка программ при монтировании компонента
   useEffect(() => {
@@ -57,11 +66,10 @@ const CreateCourse: FC = () => {
         const programNames = response.map(model => model.programName).filter((name): name is string => name !== undefined);
         setProgramNames(programNames); 
       } catch (e) {
-        console.error("Ошибка при загрузке списка программ:", e);
+        console.error("Error loading program names:", e);
         setProgramNames([]);
       }
     };
-
     fetchProgramNames();
   }, []); 
 
@@ -75,7 +83,7 @@ const CreateCourse: FC = () => {
         const data = response.map(model => model.groupName).filter((name): name is string => name !== undefined);
         setGroupNames(data); 
       } catch (e) {
-        console.error("Ошибка при загрузке списка групп:", e);
+        console.error("Error loading group names:", e);
         setGroupNames([]);
       } finally {
         setFetchingGroups(false);
@@ -92,12 +100,14 @@ const CreateCourse: FC = () => {
   // Обработчик отправки формы
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsCreatingCourse(true); // Set loading state to true
+    setIsCreatingCourse(true);
     const courseViewModel = {
       name: course.name,
       groupName: course.groupName,
       isOpen: true,
+      fetchStudents: isGroupFromList ? course.fetchStudents : false,
     };
+    
     try {
       const courseId = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel);
       setCourse((prevState) => ({
@@ -108,10 +118,10 @@ const CreateCourse: FC = () => {
     } catch (e) {
       setCourse((prevState) => ({
         ...prevState,
-        errors: ['Сервис недоступен'],
+        errors: ['Service unavailable'],
       }));
     } finally {
-      setIsCreatingCourse(false); // Set loading state to false
+      setIsCreatingCourse(false);
     }
   };
 
@@ -121,7 +131,7 @@ const CreateCourse: FC = () => {
   if (!ApiSingleton.authService.isLecturer()) {
     return (
       <Typography component="h1" variant="h5">
-        Страница не доступна
+        Page not available
       </Typography>
     );
   }
@@ -135,7 +145,7 @@ const CreateCourse: FC = () => {
           className={classes.avatar}
         />
         <Typography component="h1" variant="h5">
-          Создать курс
+          Create Course
         </Typography>
 
         <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
@@ -154,7 +164,8 @@ const CreateCourse: FC = () => {
             }}
           />
 
-          <Autocomplete freeSolo
+          <Autocomplete 
+            freeSolo
             value={programName}
             onChange={(event, newValue) => {
               setProgramName(newValue || '');
@@ -178,9 +189,12 @@ const CreateCourse: FC = () => {
               freeSolo
               value={course.groupName}
               onChange={(event, newValue) => {
+                const isFromList = groupNames.includes(newValue || '');
+                setIsGroupFromList(isFromList);
                 setCourse((prevState) => ({
                   ...prevState,
                   groupName: newValue || '',
+                  fetchStudents: isFromList ? prevState.fetchStudents : false,
                 }));
               }}
               options={groupNames}
@@ -203,13 +217,34 @@ const CreateCourse: FC = () => {
               value={course.groupName}
               onChange={(e) => {
                 e.persist();
+                setIsGroupFromList(false);
                 setCourse((prevState) => ({
                   ...prevState,
                   groupName: e.target.value,
+                  fetchStudents: false,
                 }));
               }}
               style={{ marginTop: '16px' }}
             />
+          )}
+
+          {isGroupFromList && (
+            <FormControlLabel
+            control={
+              <Checkbox
+                checked={course.fetchStudents}
+                onChange={(e, checked) => {
+                  setCourse((prevState) => ({
+                    ...prevState,
+                    fetchStudents: checked,
+                  }));
+                }}
+                color="primary"
+              />
+            }
+            label="Добавить всех студентов из группы"
+            style={{ marginTop: '16px' }}
+          />
           )}
 
           <Button
