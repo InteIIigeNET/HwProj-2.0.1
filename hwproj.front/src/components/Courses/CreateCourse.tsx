@@ -145,7 +145,7 @@ const CreateCourse: FC = () => {
           className={classes.avatar}
         />
         <Typography component="h1" variant="h5">
-          Create Course
+          Создать курс
         </Typography>
 
         <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>

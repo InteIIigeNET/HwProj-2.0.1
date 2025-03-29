@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.Models.AuthService.DTO;
@@ -20,5 +21,6 @@ namespace HwProj.CoursesService.API.Services
         Task<bool> AcceptLecturerAsync(long courseId, string lecturerEmail, string lecturerId);
         Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId);
         Task<string[]> GetCourseLecturers(long courseId);
+        Task<bool> AddAndAcceptStudentsAsync(Course course, IEnumerable<string> studentIds);
     }
 }

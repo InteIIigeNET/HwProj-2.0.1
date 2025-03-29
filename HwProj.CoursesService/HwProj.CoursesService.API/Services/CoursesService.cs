@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
@@ -146,6 +147,18 @@ namespace HwProj.CoursesService.API.Services
                 MentorIds = course.MentorIds,
                 StudentId = studentId
             });
+
+            return true;
+        }
+        
+        public async Task<bool> AddAndAcceptStudentsAsync(Course course, IEnumerable<string> studentIds)
+        {
+            var id = course.Id;
+            foreach (var studentId in studentIds)
+            {
+                await AddStudentAsync(id, studentId);
+                await AcceptCourseMateAsync(id, studentId);
+            }
 
             return true;
         }
