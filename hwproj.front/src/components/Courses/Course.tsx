@@ -37,7 +37,6 @@ interface ICourseState {
     isFound: boolean;
     course: CourseViewModel;
     courseHomework: HomeworkViewModel[];
-    courseFilesInfo: FileInfoDTO[];
     createHomework: boolean;
     mentors: AccountDataDto[];
     acceptedStudents: AccountDataDto[];
@@ -69,7 +68,6 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         isFound: false,
         course: {},
         courseHomework: [],
-        courseFilesInfo: [],
         createHomework: false,
         mentors: [],
         acceptedStudents: [],
@@ -79,6 +77,8 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         showQrCode: false
     })
 
+    const [courseFilesInfo, setCourseFilesInfo] = useState<FileInfoDTO[]>([])
+
     const [pageState, setPageState] = useState<IPageState>({
         tabValue: "homeworks"
     })
@@ -87,7 +87,6 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         isFound,
         course,
         createHomework,
-        courseFilesInfo,
         mentors,
         newStudents,
         acceptedStudents,
@@ -148,16 +147,6 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
 
         const solutions = await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
 
-        // В случае, если сервис файлов недоступен, показываем пользователю сообщение 
-        // и не блокируем остальную функциональность системы
-        let courseFilesInfo = [] as FileInfoDTO[]
-        try {
-            courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
-        } catch (e) {
-            const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
-            enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
-        }
-
         setCourseState(prevState => ({
             ...prevState,
             isFound: true,
@@ -172,9 +161,26 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         }))
     }
 
+    const getCourseFilesInfo = async () => {
+        // В случае, если сервис файлов недоступен, показываем пользователю сообщение
+        // и не блокируем остальную функциональность системы
+        let courseFilesInfo = [] as FileInfoDTO[]
+        try {
+            courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
+        } catch (e) {
+            const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
+            enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
+        }
+        setCourseFilesInfo(courseFilesInfo)
+    }
+
     useEffect(() => {
         setCurrentState()
     }, [])
+
+    useEffect(() => {
+        getCourseFilesInfo()
+    }, [courseId])
 
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
 
@@ -375,7 +381,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                                         isMentor={isCourseMentor}
                                                         isReadingMode={isReadingMode}
                                                         homework={courseHomeworks}
-                                                        courseFilesInfo={courseState.courseFilesInfo}
+                                                        courseFilesInfo={courseFilesInfo}
                                                     />
                                                 </Grid>
                                             </Grid>
@@ -406,7 +412,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                                     isMentor={isCourseMentor}
                                                     isReadingMode={isReadingMode}
                                                     homework={courseHomeworks}
-                                                    courseFilesInfo={courseState.courseFilesInfo}
+                                                    courseFilesInfo={courseFilesInfo}
                                                 />
                                             </Grid>
                                         </div>
@@ -418,7 +424,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                             isStudent={isAcceptedStudent}
                                             isMentor={isCourseMentor}
                                             isReadingMode={isReadingMode}
-                                            courseFilesInfo={courseState.courseFilesInfo}
+                                            courseFilesInfo={courseFilesInfo}
                                         />
                                     )}
                                 </div>
