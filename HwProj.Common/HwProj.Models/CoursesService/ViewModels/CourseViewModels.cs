@@ -15,6 +15,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string GroupName { get; set; }
         
         public List<string> studentIDs { get; set; }  = new List<string>();
+        public bool FetchStudents { get; set; } 
         [Required] public bool IsOpen { get; set; }
     }
 

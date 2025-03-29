@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -40,7 +41,6 @@ namespace HwProj.APIGateway.API.Controllers
             _studentsInfo = studentsInfo;
         }
 
-
         [HttpGet("getAllData/{courseId}")]
         [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllCourseData(long courseId)
@@ -77,7 +77,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
-            if (string.IsNullOrEmpty(model.GroupName))
+            if (string.IsNullOrEmpty(model.GroupName) || (!model.FetchStudents))
             {
                 var result = await _coursesClient.CreateCourse(model, UserId);
                 return Ok(result);
