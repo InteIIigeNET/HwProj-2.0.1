@@ -82,34 +82,39 @@ namespace HwProj.APIGateway.API.Controllers
                 var result = await _coursesClient.CreateCourse(model, UserId);
                 return Ok(result);
             }
-            
+    
             var students = _studentsInfo.GetStudentInformation(model.GroupName);
+            var studentEmails = students
+                .Where(student => !string.IsNullOrEmpty(student.Email))
+                .Select(student => student.Email)
+                .ToList();
             
+            var emailToIdMap = await AuthServiceClient.FindByEmailsAsync(studentEmails);
+    
             var registrationTasks = students
                 .Where(student => !string.IsNullOrEmpty(student.Email))
                 .Select(async student =>
                 {
-                    var studentId = await AuthServiceClient.FindByEmailAsync(student.Email);
-                    if (studentId == null)
+                    if (emailToIdMap.TryGetValue(student.Email, out var studentId))
                     {
-                        var registerModel = new RegisterViewModel
-                        {
-                            Email = student.Email,
-                            Name = student.Name,
-                            Surname = student.Surname,
-                            MiddleName = student.MiddleName,
-                            Password = _studentsInfoOptions.DefaultPassword,
-                            PasswordConfirm = _studentsInfoOptions.DefaultPassword
-                        };
-
-                        var registerResult = await AuthServiceClient.Register(registerModel);
-                        studentId = await AuthServiceClient.FindByEmailAsync(student.Email);
+                        return studentId;
                     }
-                    return studentId;
-                }).ToList();
-            
-            var studentIds = await Task.WhenAll(registrationTasks);
+                    
+                    var registerModel = new RegisterViewModel
+                    {
+                        Email = student.Email,
+                        Name = student.Name,
+                        Surname = student.Surname,
+                        MiddleName = student.MiddleName,
+                        Password = _studentsInfoOptions.DefaultPassword,
+                        PasswordConfirm = _studentsInfoOptions.DefaultPassword
+                    };
 
+                    await AuthServiceClient.Register(registerModel);
+                    return await AuthServiceClient.FindByEmailAsync(student.Email);
+                }).ToList();
+    
+            var studentIds = await Task.WhenAll(registrationTasks);
             model.studentIDs = studentIds.ToList();
 
             var resultCourse = await _coursesClient.CreateCourse(model, UserId);

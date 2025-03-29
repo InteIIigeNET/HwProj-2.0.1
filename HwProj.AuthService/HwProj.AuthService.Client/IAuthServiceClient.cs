@@ -2,6 +2,8 @@
 using HwProj.Models.AuthService.ViewModels;
 using System.Threading.Tasks;
 using HwProj.Models.Result;
+using System.Collections;      
+using System.Collections.Generic;
 
 namespace HwProj.AuthService.Client
 {
@@ -16,6 +18,7 @@ namespace HwProj.AuthService.Client
         Task<Result> Edit(EditAccountViewModel model, string userId);
         Task<Result> InviteNewLecturer(InviteLecturerViewModel model);
         Task<string> FindByEmailAsync(string email);
+        Task<Dictionary<string, string>> FindByEmailsAsync(IEnumerable<string> emails);
         Task<AccountDataDto[]> GetAllStudents();
         Task<User[]> GetAllLecturers();
         Task<bool> Ping();
@@ -30,5 +33,6 @@ namespace HwProj.AuthService.Client
         Task<Result> SetExpertProfileIsEdited(string expertId);
         Task<ExpertDataDTO[]> GetAllExperts();
         Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto);
+        
     }
 }

@@ -8,6 +8,8 @@ using HwProj.Models.AuthService.DTO;
 using Newtonsoft.Json;
 using HwProj.Models.Result;
 using Microsoft.Extensions.Configuration;
+using System.Collections; 
+using System.Collections.Generic;
 
 namespace HwProj.AuthService.Client
 {
@@ -147,6 +149,22 @@ namespace HwProj.AuthService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             var user = await response.DeserializeAsync<User>();
             return user?.Id;
+        }
+        public async Task<Dictionary<string, string>> FindByEmailsAsync(IEnumerable<string> emails)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + "api/account/findByEmails")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(emails),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            var users = await response.DeserializeAsync<Dictionary<string, string>>();
+            return users ?? new Dictionary<string, string>();
         }
 
         public async Task<AccountDataDto[]> GetAllStudents()
