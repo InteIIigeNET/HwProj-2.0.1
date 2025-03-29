@@ -73,8 +73,32 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<CourseDTO> ApplyFilter(CourseDTO courseDto, string userId)
         {
-            var courseFilter = await _courseFilterRepository.GetAsync(userId, courseDto.Id);
-            return ApplyFilterInternal(courseDto, courseFilter);
+            var isMentor = courseDto.MentorIds.Contains(userId);
+            var findFiltersFor = isMentor
+                ? new[] { userId }
+                : courseDto.MentorIds.Concat(new[] { userId }).ToArray();
+
+            var courseFilters =
+                (await _courseFilterRepository.GetAsync(findFiltersFor, courseDto.Id))
+                .ToDictionary(x => x.UserId, x => x.CourseFilter);
+
+            var course = courseFilters.TryGetValue(userId, out var userFilter)
+                ? ApplyFilterInternal(courseDto, userFilter)
+                : courseDto;
+            if (isMentor) return course;
+
+            var mentorIds = course.MentorIds
+                .Where(u =>
+                    // Фильтрация не настроена вообще
+                    !courseFilters.TryGetValue(u, out var courseFilter) ||
+                    // Не отфильтрованы студенты
+                    !courseFilter.Filter.StudentIds.Any() ||
+                    // Фильтр содержит студента
+                    courseFilter.Filter.StudentIds.Contains(userId))
+                .ToArray();
+
+            courseDto.MentorIds = mentorIds;
+            return course;
         }
 
         public async Task<MentorToAssignedStudentsDTO[]> GetAssignedStudentsIds(long courseId, string[] mentorsIds)
