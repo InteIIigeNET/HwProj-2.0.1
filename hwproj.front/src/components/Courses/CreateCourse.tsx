@@ -1,23 +1,35 @@
 import * as React from "react";
 import {
   TextField,
-  Button,
   Typography,
   Grid,
+  MenuItem,
+  CircularProgress,
 } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import './Styles/CreateCourse.css';
-import {FC, FormEvent, useState} from "react";
+import {FC, FormEvent, useState, useEffect} from "react";
 import GroupIcon from '@material-ui/icons/Group';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from "@material-ui/core/Container";
 import {Navigate} from "react-router-dom";
+import {CoursePreviewView} from "api";
+import NameBuilder from "../Utils/NameBuilder";
+import {LoadingButton} from "@mui/lab";
+import {useSnackbar} from "notistack";
+import ErrorsHandler from "components/Utils/ErrorsHandler";
 
 interface ICreateCourseState {
   name: string;
   groupName?: string;
+  baseCourseId?: string;
   courseId: string;
-  errors: string[];
+  isLoading: boolean;
+}
+
+interface IBaseCoursesState {
+  areLoaded: boolean;
+  courses: CoursePreviewView[];
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -44,8 +56,43 @@ const CreateCourse: FC = () => {
     name: "",
     groupName: "",
     courseId: "",
-    errors: [],
+    isLoading: false,
   })
+
+  const [baseCourses, setBaseCourses] = useState<IBaseCoursesState>({
+    areLoaded: false,
+    courses: [],
+  })
+
+  const {enqueueSnackbar} = useSnackbar()
+
+  useEffect(() => {
+    const loadBaseCourses = async () => {
+      try {
+        const userCourses = await ApiSingleton.coursesApi.coursesGetAllUserCourses()
+        setBaseCourses ({
+          areLoaded: true,
+          courses: userCourses,
+        })
+      } catch (e) {
+        setBaseCourses ({
+          areLoaded: true,
+          courses: [],
+        })
+        console.error("Ошибка при загрузке курсов лектора:", e)
+        enqueueSnackbar("Не удалось загрузить существующие курсы", {variant: "warning", autoHideDuration: 4000})
+      }
+    };
+
+    loadBaseCourses()
+  }, [])
+
+  const setCourseIsLoading = () =>
+    setCourse((prevState) =>
+    ({
+      ...prevState,
+      isLoading: true,
+    }))
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -55,17 +102,24 @@ const CreateCourse: FC = () => {
       isOpen: true,
     }
     try {
-      const courseId = await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel)
+      setCourseIsLoading()
+      const courseId = course.baseCourseId !== undefined
+        ? await ApiSingleton.coursesApi.coursesCreateCourseBasedOn(+course.baseCourseId, courseViewModel)
+        : await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel) 
       setCourse((prevState) => ({
         ...prevState,
+        isLoading: false,
         courseId: courseId.toString(),
       }))
     }
     catch (e) {
       setCourse((prevState) => ({
         ...prevState,
-        errors: ['Сервис недоступен'],
+        isLoading: false,
       }))
+      console.error("Ошибка при создании курса:", e)
+      const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
+      enqueueSnackbar(responseErrors[0], {variant: "error"})
     }
   }
 
@@ -126,16 +180,51 @@ const CreateCourse: FC = () => {
                     }}
                 />
               </Grid>
+              {!baseCourses.areLoaded &&
+                <Grid item xs={12} style={{display: "flex", justifyContent: "center"}}>
+                    <CircularProgress/>
+                </Grid>
+              }
+              {baseCourses.courses.length !== 0 &&
+                <Grid item xs={12}>
+                    <TextField
+                      select
+                      label="На основе существующего курса"
+                      variant="outlined"
+                      fullWidth
+                      value={course.baseCourseId}
+                      onChange={(e) =>
+                      {
+                        e.persist()
+                        setCourse((prevState) => ({
+                          ...prevState,
+                          baseCourseId: e.target.value || undefined
+                        }))
+                      }}
+                    >
+                      <MenuItem value="">
+                        <Typography style={{fontSize: "20px"}}>Курс с нуля</Typography>
+                      </MenuItem>
+                      {baseCourses.courses.map(course =>
+                        <MenuItem value={course.id!}>
+                          <Typography style={{fontSize: "20px"}}>
+                            {NameBuilder.getCourseFullName(course.name!, course.groupName)}
+                          </Typography>
+                        </MenuItem>
+                      ).reverse()}
+                    </TextField>
+                </Grid>
+              }
             </Grid>
-            <Button
-                style={{ marginTop: '16px'}}
+            <LoadingButton
+                style={{ marginTop: '16px', color: "white", backgroundColor: "#3f51b5" }}
                 fullWidth
                 variant="contained"
-                color="primary"
                 type="submit"
+                loading={course.isLoading}
             >
               Создать курс
-            </Button>
+            </LoadingButton>
           </form>
         </div>
       </Container>
