@@ -9,7 +9,7 @@ import CreateCourse from "./components/Courses/CreateCourse";
 import Notifications from "./components/Notifications";
 import Workspace from "./components/Workspace";
 import TaskSolutionsPage from "./components/Solutions/TaskSolutionsPage";
-import {Header} from "./components/AppBar";
+import {AppBarContextAction, appBarStateManager, Header} from "./components/AppBar";
 import Login from "./components/Auth/Login";
 import EditCourse from "./components/Courses/EditCourse";
 import EditTask from "./components/Tasks/EditTask";
@@ -33,6 +33,7 @@ interface AppState {
     isLecturer: boolean;
     isExpert: boolean;
     newNotificationsCount: number;
+    appBarContextAction: AppBarContextAction
 }
 
 const withRouter = (Component: any) => {
@@ -55,8 +56,10 @@ class App extends Component<{ navigate: any }, AppState> {
             loggedIn: ApiSingleton.authService.isLoggedIn(),
             isLecturer: ApiSingleton.authService.isLecturer(),
             isExpert: ApiSingleton.authService.isExpert(),
-            newNotificationsCount: 0
+            newNotificationsCount: 0,
+            appBarContextAction: "Default"
         };
+        appBarStateManager.setOnContextActionChange(appBarState => this.setState({appBarContextAction: appBarState}))
     }
 
     componentDidMount = async () => {
@@ -97,7 +100,8 @@ class App extends Component<{ navigate: any }, AppState> {
                         newNotificationsCount={this.state.newNotificationsCount}
                         isLecturer={this.state.isLecturer}
                         isExpert={this.state.isExpert}
-                        onLogout={this.logout}/>
+                        onLogout={this.logout}
+                        contextAction={this.state.appBarContextAction}/>
                 <Routes>
                     <Route element={<AuthLayout/>}>
                         <Route path="user/edit" element={<EditProfile isExpert={this.state.isExpert}/>}/>
@@ -116,8 +120,7 @@ class App extends Component<{ navigate: any }, AppState> {
                         <Route path="courses/:courseId/editInfo" element={<EditCourse/>}/>
                         <Route path="homework/:homeworkId/edit" element={<EditHomework/>}/>
                         <Route path="task/:taskId/edit" element={<EditTask/>}/>
-                        <Route path="task/:taskId/:studentId"
-                               element={<StudentSolutionsPage isExpert={this.state.isExpert}/>}/>
+                        <Route path="task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
                         <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
                     </Route>
                     <Route path="statistics/:courseId/charts" element={<StudentStatsChart/>}/>

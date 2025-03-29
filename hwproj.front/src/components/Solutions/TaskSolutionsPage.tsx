@@ -27,6 +27,7 @@ import StepButton from "@mui/material/StepButton";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {getTip} from "../Common/HomeworkTags";
 import Lodash from "lodash";
+import {appBarStateManager} from "../AppBar";
 
 interface ITaskSolutionsState {
     isLoaded: boolean
@@ -101,6 +102,11 @@ const TaskSolutionsPage: FC = () => {
 
     const {homeworkGroupedSolutions, courseId, courseMates} = taskSolutionPage
     const student = courseMates.find(x => x.userId === userId)!
+
+    useEffect(() => {
+        appBarStateManager.setContextAction({actionName: "К курсу", link: `/courses/${courseId}`})
+        return () => appBarStateManager.reset()
+    }, [courseId])
 
     //TODO: unify
     const taskSolutionsWithPreview = homeworkGroupedSolutions
@@ -229,16 +235,6 @@ const TaskSolutionsPage: FC = () => {
                         >
                             {lastSolution?.state === SolutionState.NUMBER_0 ? "Изменить решение" : "Добавить решение"}
                         </Button></Grid>}
-                        <Grid item>
-                            <Link
-                                style={{color: '#212529'}}
-                                to={`/courses/${courseId}`}
-                            >
-                                <Typography>
-                                    Назад к курсу
-                                </Typography>
-                            </Link>
-                        </Grid>
                     </Grid>
                     <Grid container item lg={9}>
                         <Grid item xs={12}>

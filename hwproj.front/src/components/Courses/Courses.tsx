@@ -3,6 +3,7 @@ import {Tab, Tabs, CircularProgress} from "@material-ui/core";
 import {CoursesList} from "./CoursesList";
 import {CoursePreviewView} from "../../api/";
 import ApiSingleton from "../../api/ApiSingleton";
+import {appBarStateManager} from "../AppBar";
 
 interface ICoursesState {
     isLoaded: boolean;
@@ -81,6 +82,7 @@ export default class Courses extends React.Component<Props, ICoursesState> {
     }
 
     async componentDidMount() {
+        appBarStateManager.setContextAction(null)
         try {
             const courses = await ApiSingleton.coursesApi.coursesGetAllUserCourses()
             const allCourses = await ApiSingleton.coursesApi.coursesGetAllCourses();
@@ -94,5 +96,9 @@ export default class Courses extends React.Component<Props, ICoursesState> {
                 isLoaded: true
             })
         }
+    }
+
+    componentWillUnmount() {
+        appBarStateManager.setContextAction("Default")
     }
 }

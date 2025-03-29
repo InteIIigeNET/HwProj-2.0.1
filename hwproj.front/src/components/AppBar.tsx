@@ -27,17 +27,44 @@ const styles = makeStyles(theme => ({
     }
 }));
 
+export type AppBarContextAction = { actionName: string, link: string } | null | "Default"
+
+class AppBarStateManager {
+    private _handler: ((state: AppBarContextAction) => void) | undefined = undefined
+
+    public setOnContextActionChange(handler: (state: AppBarContextAction) => void) {
+        this._handler = handler;
+    }
+
+    public setContextAction(action: AppBarContextAction) {
+        this._handler!(action)
+    }
+
+    public reset() {
+        this._handler!("Default")
+    }
+}
+
+let appBarStateManager = new AppBarStateManager()
+export {appBarStateManager}
+
+
 interface AppBarProps {
     loggedIn: boolean;
     isLecturer: boolean;
     isExpert: boolean;
     newNotificationsCount: number;
     onLogout: () => void;
+    contextAction: AppBarContextAction;
 }
 
 export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
     const [isOpenInviteLecturer, setIsOpenInviteLecturer] = useState<boolean>(false)
+    const contextAction = props.contextAction === "Default" ? {
+        actionName: "Курсы",
+        link: "/courses"
+    } : props.contextAction
 
     const closeInviteLecturer = () => {
         setIsOpenInviteLecturer(false)
@@ -55,14 +82,16 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
     const handleClose = () => {
         setAnchorEl(null)
     }
-    
+
     const isLecturer = props.isLecturer
     const isExpert = props.isExpert
 
     return (
         <div>
-            <AppBar style={{position: "static", width: "100vw", maxWidth: "100%", alignItems: "center",
-                minHeight: "5vh", justifyContent: "center"}}>
+            <AppBar style={{
+                position: "static", width: "100vw", maxWidth: "100%", alignItems: "center",
+                minHeight: "5vh", justifyContent: "center"
+            }}>
                 <div className={"container"} style={{display: "flex", alignItems: "center"}}>
                     <Grid container spacing={1} alignItems={"center"}>
                         <Grid item>
@@ -88,15 +117,15 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                         }
                         {props.loggedIn &&
                             <Grid item>
-                                <Link
+                                {contextAction && <Link
                                     style={{color: 'white', fontFamily: "Helvetica", textDecoration: "none"}}
-                                    to={("/courses")}>
+                                    to={(contextAction.link)}>
                                     <Button>
                                         <Typography style={{color: 'white', fontFamily: "Helvetica"}}>
-                                            Курсы
+                                            {contextAction.actionName}
                                         </Typography>
                                     </Button>
-                                </Link>
+                                </Link>}
                             </Grid>
                         }
                     </Grid>

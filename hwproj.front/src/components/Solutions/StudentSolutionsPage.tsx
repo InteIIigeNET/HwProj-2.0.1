@@ -33,6 +33,7 @@ import Step from '@mui/material/Step';
 import StepButton from '@mui/material/StepButton';
 import {RatingStorage} from "../Storages/RatingStorage";
 import {getTip} from "../Common/HomeworkTags";
+import {appBarStateManager} from "../AppBar";
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -67,11 +68,7 @@ const FilterProps = {
     },
 }
 
-interface StudentSolutionsPageProps {
-    isExpert: boolean;
-}
-
-const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
+const StudentSolutionsPage: FC = () => {
     const {taskId, studentId} = useParams()
     const navigate = useNavigate()
 
@@ -195,6 +192,11 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
     }
 
     useEffect(() => {
+        appBarStateManager.setContextAction({actionName: "К курсу", link: `/courses/${courseId}/stats`})
+        return () => appBarStateManager.reset()
+    }, [courseId])
+
+    useEffect(() => {
         getTaskData(taskId!, false)
     }, [taskId])
 
@@ -203,17 +205,6 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
     }, [studentId])
 
     const currentStudent = currentTaskSolutions.find(x => x.student.userId === currentStudentId)
-
-    const renderGoBackToCoursesStatsLink = () => {
-        return <Link
-            to={`/courses/${courseId}/stats`}
-            style={{color: '#212529'}}
-        >
-            <Typography>
-                Назад к курсу
-            </Typography>
-        </Link>
-    }
 
     const renderUnratedSolutionsCountChip = (t: TaskSolutionsStats, isSelected: boolean) => {
         return t.countUnratedSolutions
@@ -317,7 +308,6 @@ const StudentSolutionsPage: FC<StudentSolutionsPageProps> = ({isExpert}) => {
                                     ;
                             })}
                         </List>
-                        {!isExpert && renderGoBackToCoursesStatsLink()}
                     </Grid>
                     <Grid item lg={9} spacing={2}>
                         {currentHomeworksGroup && taskIndexInHomework !== -1 && currentHomeworksGroup.statsForHomeworks!.length > 1 &&
