@@ -102,12 +102,12 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpPost("createBasedOn/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AddCourseBasedOn(long courseId,
-            [FromBody] CreateCourseViewModel courseViewModel,
-            [FromQuery] string mentorId)
+            [FromBody] CreateCourseViewModel courseViewModel)
         {
             var baseCourse = await _coursesService.GetAsync(courseId);
             if (baseCourse == null) return NotFound();
 
+            var mentorId = Request.GetUserIdFromHeader();
             var courseTemplate = courseViewModel.ToCourseTemplate(baseCourse);
             courseId = await _coursesService.AddFromTemplateAsync(courseTemplate, mentorId);
 

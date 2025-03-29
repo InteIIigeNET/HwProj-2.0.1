@@ -124,13 +124,11 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<long>();
         }
 
-        public async Task<Result<long>> CreateCourseBasedOn(long courseId,
-            CreateCourseViewModel model,
-            string mentorId)
+        public async Task<Result<long>> CreateCourseBasedOn(long courseId, CreateCourseViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/createBasedOn/{courseId}?mentorId={mentorId}")
+                _coursesServiceUri + $"api/Courses/createBasedOn/{courseId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
