@@ -34,6 +34,7 @@ namespace HwProj.CoursesService.API.Controllers
             _coursesService = coursesService;
             _homeworksRepository = homeworksRepository;
             _mapper = mapper;
+            
         }
 
         [CourseDataFilter]
@@ -79,18 +80,18 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel,
+        public async Task<IActionResult> AddCourse(
+            [FromBody] CreateCourseViewModel courseViewModel,
             [FromQuery] string mentorId)
         {
             var course = _mapper.Map<Course>(courseViewModel);
             var id = await _coursesService.AddAsync(course, mentorId);
-            
-            foreach (var studentID in courseViewModel.studentIDs)
-            { 
-                await _coursesService.AddStudentAsync(id, studentID);
-                await _coursesService.AcceptCourseMateAsync(id, studentID);
+    
+            if (courseViewModel.studentIDs?.Any() == true)
+            {
+                await _coursesService.AddAndAcceptStudentsAsync(course, courseViewModel.studentIDs);
             }
-            
+    
             return Ok(id);
         }
 
