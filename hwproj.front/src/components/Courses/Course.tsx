@@ -237,7 +237,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                         {NameBuilder.getCourseFullName(course.name!, course.groupName)}
                                     </Typography>
                                     <QrCode2Icon fontSize="small"
-                                                 style={{marginBottom: "16px", cursor: "pointer"}}
+                                                 style={{marginBottom: "18px", cursor: "pointer"}}
                                                  onClick={() => setCourseState(prevState => ({
                                                      ...prevState,
                                                      showQrCode: true
@@ -250,7 +250,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                                  title="Редактировать курс">
                                             <RouterLink to={`/courses/${courseId}/editInfo`}
                                                         style={{marginBottom: "20px"}}>
-                                                <EditIcon fontSize="small"/>
+                                                <EditIcon style={{fontSize: 15}}/>
                                             </RouterLink>
                                         </Tooltip>
                                     )}
@@ -331,8 +331,8 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                                      }}
                                                      title={isReadingMode ? "В режим редактирования" : "В режим чтения"}>
                                                 {isReadingMode
-                                                    ? <EditIcon style={{fontSize: 17}}/>
-                                                    : <VisibilityIcon style={{fontSize: 18.5}}/>}
+                                                    ? <EditIcon style={{fontSize: 15}}/>
+                                                    : <VisibilityIcon style={{fontSize: 15}}/>}
                                             </Tooltip>
                                         </IconButton>}
                                     </Stack>
