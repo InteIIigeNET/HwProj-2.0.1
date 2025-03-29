@@ -22,6 +22,7 @@ import {QRCodeSVG} from 'qrcode.react';
 import {Center} from "@skbkontur/react-ui";
 import ErrorsHandler from "components/Utils/ErrorsHandler";
 import {useSnackbar} from 'notistack';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -232,13 +233,15 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                               justifyContent="space-between">
                             <Grid item>
                                 <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                    <Typography style={{fontSize: '22px', cursor: "pointer"}}
-                                                onClick={() => setCourseState(prevState => ({
-                                                    ...prevState,
-                                                    showQrCode: true
-                                                }))}>
+                                    <Typography style={{fontSize: '22px'}}>
                                         {NameBuilder.getCourseFullName(course.name!, course.groupName)}
                                     </Typography>
+                                    <QrCode2Icon fontSize="small"
+                                                 style={{marginBottom: "16px", cursor: "pointer"}}
+                                                 onClick={() => setCourseState(prevState => ({
+                                                     ...prevState,
+                                                     showQrCode: true
+                                                 }))}/>
                                     {isCourseMentor && isLecturer && (
                                         <Tooltip arrow placement={"right"}
                                                  PopperProps={{
