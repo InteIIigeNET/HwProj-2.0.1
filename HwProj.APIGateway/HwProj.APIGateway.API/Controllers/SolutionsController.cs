@@ -74,7 +74,15 @@ namespace HwProj.APIGateway.API.Controllers
                 .Select(t => t.StudentId)
                 .ToArray();
 
-            var accounts = await AuthServiceClient.GetAccountsData(studentsOnCourse.Union(course.MentorIds).ToArray());
+            var mentorIds = studentSolutions.Values
+                .SelectMany(t => t.Tasks)
+                .SelectMany(t => t.Solution)
+                .Select(t => t.LecturerId ?? "")
+                .Where(x => x != "")
+                .Distinct()
+                .ToArray();
+
+            var accounts = await AuthServiceClient.GetAccountsData(studentsOnCourse.Union(mentorIds).ToArray());
 
             var solutionsGroupsIds = studentSolutions.Values
                 .SelectMany(t => t.Tasks)
@@ -157,7 +165,7 @@ namespace HwProj.APIGateway.API.Controllers
                 })
                 .Where(hw => hw.Tasks.Count > 0)
                 .ToList();
-            
+
             var homeworks = actualHomeworks
                 .GroupBy(GetGroupingKey)
                 .ToList();
