@@ -157,7 +157,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
 
     const renderFilter = () => {
         return <div style={{marginBottom: 15}}>
-            <Grid container xs={"auto"} spacing={1} direction={"row"}>
+            <Grid container item xs={"auto"} spacing={1} direction={"row"}>
                 <Grid item>
                     {renderSelect("Курс", "coursesFilter", filtersState.coursesFilter, filtersState.courses)}
                 </Grid>

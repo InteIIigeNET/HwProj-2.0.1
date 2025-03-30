@@ -216,34 +216,39 @@ const StudentSolutionsPage: FC = () => {
     if (isLoaded) {
         return (
             <div className={"container"} style={{marginBottom: '50px', marginTop: '15px'}}>
-                <Grid direction={"column"} justifyContent="center" alignContent={"stretch"} spacing={2}>
-                    <Stack direction={"row"} spacing={1}
-                           style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
-                        {taskSolutionsStats!.map((t, index) => {
-                            const isCurrent = versionsOfCurrentTask.includes(t.taskId!)
-                            const color = isCurrent ? "primary" : "default"
-                            return <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                {index > 0 && <hr style={{width: 100}}/>}
-                                <Step active={isCurrent}>
-                                    <Link to={`/task/${t.taskId}/${currentStudentId}`}
-                                          style={{color: "black", textDecoration: "none"}}>
-                                        <StepButton
-                                            ref={ref => {
-                                                if (isCurrent) ref?.scrollIntoView({inline: "nearest"})
-                                            }}
-                                            color={color}
-                                            icon={renderUnratedSolutionsCountChip(t, isCurrent)}>
-                                            {t.title}{getTip(t)}
-                                        </StepButton>
-                                    </Link>
-                                </Step>
-                            </Stack>;
-                        })}
-                    </Stack>
-                    {allSolutionsRated && <Alert severity="success">
-                        Все решения на данный момент
-                        проверены!
-                    </Alert>}
+                <Grid container direction={"column"} justifyContent="center" alignContent={"stretch"} spacing={2}>
+                    <Grid item container>
+                        <Stack direction={"row"} spacing={1}
+                               style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
+                            {taskSolutionsStats!.map((t, index) => {
+                                const isCurrent = versionsOfCurrentTask.includes(t.taskId!)
+                                const color = isCurrent ? "primary" : "default"
+                                return <Stack key={index} direction={"row"} spacing={1} alignItems={"center"}>
+                                    {index > 0 && <hr style={{width: 100}}/>}
+                                    <Step active={isCurrent}>
+                                        <Link to={`/task/${t.taskId}/${currentStudentId}`}
+                                              style={{color: "black", textDecoration: "none"}}>
+                                            <StepButton
+                                                ref={ref => {
+                                                    if (isCurrent) ref?.scrollIntoView({inline: "nearest"})
+                                                }}
+                                                color={color}
+                                                icon={renderUnratedSolutionsCountChip(t, isCurrent)}>
+                                                {t.title}{getTip(t)}
+                                            </StepButton>
+                                        </Link>
+                                    </Step>
+                                </Stack>;
+                            })}
+                        </Stack>
+                        {allSolutionsRated &&
+                            <Grid item xs={12}>
+                                <Alert severity="success">
+                                    Все решения на данный момент
+                                    проверены!
+                                </Alert>
+                            </Grid>}
+                    </Grid>
                 </Grid>
                 <Grid container spacing={3} style={{marginTop: '1px'}} direction={"row"}>
                     <Grid item lg={3}>

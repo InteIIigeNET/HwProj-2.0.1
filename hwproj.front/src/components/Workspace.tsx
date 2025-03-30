@@ -100,7 +100,7 @@ const Workspace: FC = () => {
             <div className="container" style={{marginBottom: '50px'}}>
                 <Grid container style={{marginTop: "15px"}} spacing={2}>
                     <Grid item container className={classes.info} direction={"row"}>
-                        <Grid item direction={"row"} spacing={2} style={{display: "flex"}}>
+                        <Grid item container direction={"row"} spacing={2} style={{display: "flex"}}>
                             <Grid item>
                                 <Typography style={{fontSize: '20px'}}>
                                     {fullName}
