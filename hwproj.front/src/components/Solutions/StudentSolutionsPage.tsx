@@ -274,9 +274,9 @@ const StudentSolutionsPage: FC = () => {
                                 const taskVersionsSolutions = studentSolutionsPreviews.map(x => x.studentSolutionsPreview[idx])
                                 const maxStudentRating = Math.max(...taskVersionsSolutions.map(x => x.lastRatedSolution?.rating || -1))
                                 const ratingStorageValue = RatingStorage.tryGet(storageKey)
-                                return <Link to={`/task/${currentTaskId}/${(userId)!}`}
+                                return <Link key={idx} to={`/task/${currentTaskId}/${(userId)!}`}
                                              style={{color: "black", textDecoration: "none"}}>
-                                    <ListItemButton disableGutters divider
+                                    <ListItemButton key={idx} disableGutters divider
                                                     disableTouchRipple={currentStudentId === userId}
                                                     selected={currentStudentId === userId || currentStudent?.lastSolution?.groupMates?.some(x => x.userId === userId)}>
                                         <Stack direction={"row"} spacing={1} sx={{paddingLeft: 1}}>

@@ -103,7 +103,7 @@ const Lecturers: FC<LecturersProps> = (props) => {
                     <Grid container direction="column">
                         <List>
                             {props.mentors.map(mentor =>
-                                <ListItem dense={true}>
+                                <ListItem dense={true} key={mentor.userId}>
                                     <ListItemIcon>
                                         <Avatar {...AvatarUtils.stringAvatar(mentor!)} />
                                     </ListItemIcon>

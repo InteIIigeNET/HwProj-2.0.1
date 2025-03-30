@@ -19,9 +19,8 @@ const MentorsList: FC<{
         </Typography>
         {mentorsToHide.length > 0 && <Tooltip arrow title={
             <span style={{whiteSpace: 'pre-line'}}>
-                <Typography variant={"body1"}>
-                    {mentorsToHide.map(t => <div>{`${t.name} ${t.surname}`}
                 <Typography component="div" variant={"body1"}>
+                    {mentorsToHide.map((t, index) => <div key={index}>{`${t.name} ${t.surname}`}
                         <sub style={{color: "powderblue"}}> {t.companyName}</sub>
                     </div>)}
                 </Typography>

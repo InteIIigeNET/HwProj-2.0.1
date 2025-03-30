@@ -34,8 +34,9 @@ const NotificationSettings: FC<{
         </DialogTitle>
         <DialogContent>
             <FormGroup style={{marginTop: 10}}>
-                {settings.map(s =>
+                {settings.map((s, index) =>
                     <FormControlLabel
+                        key={index}
                         control={<Switch
                             onChange={(_, checked) => changeSetting(s, checked)}
                             checked={s.isEnabled}/>}

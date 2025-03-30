@@ -128,6 +128,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                             </TableCell>}
                             {homeworks.map((homework, idx) =>
                                 <TableCell
+                                    key={homework.id}
                                     padding="checkbox"
                                     component="td"
                                     align="center"
@@ -279,7 +280,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         homework.tasks!.map((task, i) => {
                                             const additionalStyles = i === 0 && homeworkStyles(homeworks, idx)
                                             return <StudentStatsCell
-                                                key={`${cm.id}-${task.id}`}
+                                                key={`${cm.id}-${homework.id}-${task.id}`}
                                                 solutions={cm.homeworks
                                                     ?.find(h => h.id === homework.id)?.tasks
                                                     ?.find(t => t.id === task.id)?.solution || []}
