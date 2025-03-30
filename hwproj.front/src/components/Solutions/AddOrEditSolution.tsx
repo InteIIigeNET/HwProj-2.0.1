@@ -50,7 +50,6 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
-                            required
                             label="Ссылка на решение"
                             variant="outlined"
                             value={solution.githubUrl}
