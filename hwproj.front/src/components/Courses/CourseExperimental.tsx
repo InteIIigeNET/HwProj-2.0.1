@@ -113,7 +113,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 ))}
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
-            <Typography style={{color: "#454545"}} gutterBottom variant="body1">
+            <Typography component="div" style={{color: "#454545"}} gutterBottom variant="body1">
                 <MarkdownPreview value={homework.description!}/>
             </Typography>
             {localFilesInfo && localFilesInfo.length > 0 &&
@@ -145,7 +145,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 </Grid>
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
-            <Typography style={{color: "#454545"}} gutterBottom variant="body1">
+            <Typography component="div" style={{color: "#454545"}} gutterBottom variant="body1">
                 <MarkdownPreview value={task.description!}/>
             </Typography>
         </CardContent>

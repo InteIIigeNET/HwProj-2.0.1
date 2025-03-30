@@ -69,7 +69,7 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
         <div>
             <Dialog open={props.isOpen} onClose={props.onClose} aria-labelledby="dialog-title" fullWidth>
                 <DialogTitle id="dialog-title">
-                    <Typography align="center" variant="h6">
+                    <Typography component="div" align="center" variant="h6">
                         {props.mentorName}&nbsp;{props.mentorSurname}
                     </Typography>
                 </DialogTitle>

@@ -28,7 +28,7 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                                         : "/courses/" + course.id!.toString()}
                                     style={{color: "#212529"}}
                                 >
-                                    <Typography style={{fontSize: "20px"}}>
+                                    <Typography component="div" style={{fontSize: "20px"}}>
                                         {NameBuilder.getCourseFullName(course.name!, course.groupName)}
                                     </Typography>
                                 </NavLink>

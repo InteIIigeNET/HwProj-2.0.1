@@ -21,6 +21,7 @@ const MentorsList: FC<{
             <span style={{whiteSpace: 'pre-line'}}>
                 <Typography variant={"body1"}>
                     {mentorsToHide.map(t => <div>{`${t.name} ${t.surname}`}
+                <Typography component="div" variant={"body1"}>
                         <sub style={{color: "powderblue"}}> {t.companyName}</sub>
                     </div>)}
                 </Typography>

@@ -98,7 +98,7 @@ const InviteLecturerModal: FC<InviteLecturer> = (props) => {
                     Пригласить преподавателя
                 </DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
+                    <DialogContentText component="div">
                         <Typography>
                             Для получения пользователем статуса преподавателя, введите его адрес электронной почты.
                         </Typography>
