@@ -279,10 +279,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         homework.tasks!.map((task, i) => {
                                             const additionalStyles = i === 0 && homeworkStyles(homeworks, idx)
                                             return <StudentStatsCell
-                                                solutions={solutions
-                                                    .find(s => s.id === cm.id)!.homeworks!
-                                                    .find(h => h.id === homework.id)!.tasks!
-                                                    .find(t => t.id === task.id)!.solution!}
+                                                key={`${cm.id}-${task.id}`}
                                                 solutions={cm.homeworks
                                                     ?.find(h => h.id === homework.id)?.tasks
                                                     ?.find(t => t.id === task.id)?.solution || []}
