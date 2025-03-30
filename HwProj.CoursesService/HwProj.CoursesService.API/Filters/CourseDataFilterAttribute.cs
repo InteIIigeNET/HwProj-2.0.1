@@ -31,9 +31,8 @@ namespace HwProj.CoursesService.API.Filters
                     courseDto.CourseMates = courseDto.CourseMates
                         .Where(t =>
                         {
-                            if (!t.IsAccepted) return t.StudentId == userId;
                             if (t.StudentId == userId) isCourseStudent = true;
-                            return true;
+                            return t.StudentId == userId;
                         })
                         .ToArray();
 
