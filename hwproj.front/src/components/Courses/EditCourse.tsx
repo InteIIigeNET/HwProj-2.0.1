@@ -2,12 +2,13 @@ import * as React from 'react';
 import {Navigate, useParams} from 'react-router-dom';
 import ApiSingleton from "../../api/ApiSingleton";
 import Button from '@material-ui/core/Button'
-import {Grid, Box, Checkbox, TextField, FormControlLabel, Link, Typography} from '@mui/material';
+import {Grid, Box, Checkbox, TextField, FormControlLabel, Typography} from '@mui/material';
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import EditIcon from "@material-ui/icons/Edit";
 import Lecturers from "./Lecturers";
 import {AccountDataDto} from "../../api";
+import {appBarStateManager} from "../AppBar";
 
 interface IEditCourseState {
     isLoaded: boolean,
@@ -67,6 +68,8 @@ const EditCourse: FC = () => {
 
     useEffect(() => {
         getCourse()
+        appBarStateManager.setContextAction({actionName: "К курсу", link: `/courses/${courseId}`})
+        return () => appBarStateManager.reset()
     }, [])
 
     const getCourse = async () => {
@@ -119,22 +122,11 @@ const EditCourse: FC = () => {
         }
 
         return (
-            <Grid container justifyContent="center" className="container">
+            <Grid container justifyContent="center" className="container" style={{marginTop: 20}}>
                 <Grid container spacing={3} direction='row'>
-                    <Grid item xs={2}>
-                        <Box style={{marginTop: "40px"}} display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                            <Link
-                                component="button"
-                                style={{ color: '#212529', textDecoration: 'none' }}
-                                onClick={() => window.location.assign('/courses/' + courseId)}
-                            >
-                                <Typography variant="body1">Назад к курсу</Typography>
-                            </Link>
-                        </Box>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Box display="flex" justifyContent="center" mb={3} style={{marginTop: "120px"}}>
-                            <EditIcon color='primary' style={{ marginRight: '0.5rem' }} />
+                    <Grid item>
+                        <Box display="flex" justifyContent="center" mb={3}>
+                            <EditIcon color='primary' style={{marginRight: '0.5rem'}}/>
                             <Typography variant="h5">Редактировать курс</Typography>
                         </Box>
                         <form onSubmit={handleSubmit}>
@@ -169,26 +161,26 @@ const EditCourse: FC = () => {
                                     }))
                                 }}
                             />
-                                <Grid>
-                                    <FormControlLabel
-                                        style={{margin: 0}}
-                                        control={
-                                            <Checkbox
-                                                defaultChecked
-                                                color="primary"
-                                                checked={courseState.isCompleted}
-                                                onChange={(e) => {
-                                                    e.persist()
-                                                    setCourseState((prevState) => ({
-                                                        ...prevState,
-                                                        isCompleted: e.target.checked
-                                                    }))
-                                                }}
-                                            />
-                                        }
-                                        label="Завершённый курс"
-                                    />
-                                </Grid>
+                            <Grid>
+                                <FormControlLabel
+                                    style={{margin: 0}}
+                                    control={
+                                        <Checkbox
+                                            defaultChecked
+                                            color="primary"
+                                            checked={courseState.isCompleted}
+                                            onChange={(e) => {
+                                                e.persist()
+                                                setCourseState((prevState) => ({
+                                                    ...prevState,
+                                                    isCompleted: e.target.checked
+                                                }))
+                                            }}
+                                        />
+                                    }
+                                    label="Завершённый курс"
+                                />
+                            </Grid>
                             <Grid className={classes.item} style={{alignItems: 'center'}}>
                                 <Button
                                     fullWidth
@@ -200,7 +192,7 @@ const EditCourse: FC = () => {
                             </Grid>
                         </form>
                     </Grid>
-                    <Grid item xs={4} style={{marginTop: "20px"}}>
+                    <Grid item>
                         <Lecturers
                             update={getCourse}
                             mentors={courseState.mentors}

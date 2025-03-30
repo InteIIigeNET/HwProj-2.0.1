@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Link as RouterLink, useSearchParams} from "react-router-dom";
+import {useSearchParams} from "react-router-dom";
 import {AccountDataDto, CourseViewModel, FileInfoDTO, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
@@ -8,10 +8,21 @@ import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
 import {Button, Grid, Tab, Tabs, Typography, IconButton, CircularProgress} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
-import {useEffect, useState} from "react";
+import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import {Alert, AlertTitle, Chip, Dialog, DialogContent, DialogTitle, Stack, Tooltip} from "@mui/material";
+import {
+    Alert,
+    AlertTitle,
+    Chip,
+    Dialog,
+    DialogContent,
+    DialogTitle, ListItemIcon, ListItemText,
+    Menu,
+    MenuItem,
+    Stack,
+    Tooltip
+} from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
 import MentorsList from "../Common/MentorsList";
@@ -23,6 +34,7 @@ import {Center} from "@skbkontur/react-ui";
 import ErrorsHandler from "components/Utils/ErrorsHandler";
 import {useSnackbar} from 'notistack';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
+import {MoreVert} from "@mui/icons-material";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -201,6 +213,62 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
 
     const [lecturerStatsState, setLecturerStatsState] = useState(false);
 
+    const CourseMenu: FC = () => {
+        const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+        const open = Boolean(anchorEl);
+        const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+            setAnchorEl(event.currentTarget);
+        };
+        const handleClose = () => {
+            setAnchorEl(null);
+        };
+
+        return (
+            <div style={{paddingTop: 4}}>
+                <IconButton
+                    aria-label="more"
+                    id="long-button"
+                    size={"small"}
+                    onClick={handleClick}
+                >
+                    <MoreVert fontSize={"small"}/>
+                </IconButton>
+                <Menu
+                    id="long-menu"
+                    MenuListProps={{
+                        'aria-labelledby': 'long-button',
+                    }}
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                >
+                    {isCourseMentor && isLecturer &&
+                        <MenuItem onClick={() => navigate(`/courses/${courseId}/editInfo`)}>
+                            <ListItemIcon>
+                                <EditIcon fontSize="small"/>
+                            </ListItemIcon>
+                            <ListItemText>Управление</ListItemText>
+                        </MenuItem>}
+                    <MenuItem onClick={() => setCourseState(prevState => ({
+                        ...prevState,
+                        showQrCode: true
+                    }))}>
+                        <ListItemIcon>
+                            <QrCode2Icon fontSize="small"/>
+                        </ListItemIcon>
+                        <ListItemText>Поделиться</ListItemText>
+                    </MenuItem>
+                    {isCourseMentor && isLecturer && <MenuItem onClick={() => setLecturerStatsState(true)}>
+                        <ListItemIcon>
+                            <AssessmentIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <ListItemText>Статистика <br/>по преподавателям</ListItemText>
+                    </MenuItem>}
+                </Menu>
+            </div>
+        );
+    }
+
     if (isFound) {
         return (
             <div className="container">
@@ -232,28 +300,11 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                         <Grid item container xs={12} className={classes.info} alignItems="center"
                               justifyContent="space-between">
                             <Grid item>
-                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                <Stack direction={"row"} spacing={1} justifyContent="start">
                                     <Typography style={{fontSize: '22px'}}>
                                         {NameBuilder.getCourseFullName(course.name!, course.groupName)}
                                     </Typography>
-                                    <QrCode2Icon fontSize="small"
-                                                 style={{marginBottom: "18px", cursor: "pointer"}}
-                                                 onClick={() => setCourseState(prevState => ({
-                                                     ...prevState,
-                                                     showQrCode: true
-                                                 }))}/>
-                                    {isCourseMentor && isLecturer && (
-                                        <Tooltip arrow placement={"right"}
-                                                 PopperProps={{
-                                                     modifiers: [{name: "offset", options: {offset: [0, -5],}}]
-                                                 }}
-                                                 title="Редактировать курс">
-                                            <RouterLink to={`/courses/${courseId}/editInfo`}
-                                                        style={{marginBottom: "20px"}}>
-                                                <EditIcon style={{fontSize: 15}}/>
-                                            </RouterLink>
-                                        </Tooltip>
-                                    )}
+                                    <CourseMenu/>
                                 </Stack>
                             </Grid>
                             <Grid item>
@@ -261,16 +312,6 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                     <Grid item>
                                         <MentorsList mentors={mentors}/>
                                     </Grid>
-                                    {isCourseMentor && isLecturer && isReadingMode &&
-                                        <Grid item>
-                                            <IconButton size="small" style={{marginLeft: 5}}
-                                                        onClick={() => setLecturerStatsState(true)}>
-                                                <AssessmentIcon>
-                                                    Статистика лекторов по курсу
-                                                </AssessmentIcon>
-                                            </IconButton>
-                                        </Grid>
-                                    }
                                     {lecturerStatsState &&
                                         <LecturerStatistics
                                             courseId={+courseId!}
