@@ -283,6 +283,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                     .find(s => s.id === cm.id)!.homeworks!
                                                     .find(h => h.id === homework.id)!.tasks!
                                                     .find(t => t.id === task.id)!.solution!}
+                                                solutions={cm.homeworks
+                                                    ?.find(h => h.id === homework.id)?.tasks
+                                                    ?.find(t => t.id === task.id)?.solution || []}
                                                 userId={props.userId}
                                                 forMentor={props.isMentor}
                                                 studentId={String(cm.id)}
