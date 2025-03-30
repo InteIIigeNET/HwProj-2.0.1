@@ -107,13 +107,13 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         label={tasksCount + " " + Utils.pluralizeHelper(["Задание", "Задания", "Заданий"], tasksCount)}/>
                 </Grid>}
                 {homework.tags?.filter(t => t !== '').map((tag, index) => (
-                    <Grid item>
+                    <Grid item key={index}>
                         <Chip key={index} label={tag}/>
                     </Grid>
                 ))}
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
-            <Typography style={{color: "#454545"}} gutterBottom variant="body1">
+            <Typography component="div" style={{color: "#454545"}} gutterBottom variant="body1">
                 <MarkdownPreview value={homework.description!}/>
             </Typography>
             {localFilesInfo && localFilesInfo.length > 0 &&
@@ -145,7 +145,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 </Grid>
             </Grid>
             <Divider style={{marginTop: 15, marginBottom: 15}}/>
-            <Typography style={{color: "#454545"}} gutterBottom variant="body1">
+            <Typography component="div" style={{color: "#454545"}} gutterBottom variant="body1">
                 <MarkdownPreview value={task.description!}/>
             </Typography>
         </CardContent>
@@ -226,8 +226,9 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                           }
                       }}>
                 {homeworks.map(x => {
-                    return <div>
+                    return <div key={x.id}>
                         <Paper
+                            key={x.id}
                             elevation={0}
                             component={Stack}
                             justifyContent="center"
@@ -260,6 +261,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 </TimelineItem>}
                         </Paper>
                         {x.tasks!.map(t => <TimelineItem
+                            key={t.id}
                             onClick={() => {
                                 setState(prevState => ({
                                     ...prevState,

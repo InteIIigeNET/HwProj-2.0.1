@@ -137,12 +137,12 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                 email: currentUser.email!,
                 name: currentUser.name!,
                 surname: currentUser.surname!,
-                middleName: currentUser.middleName!,
-                bio: currentUser.bio!,
-                company: currentUser.companyName!,
+                middleName: currentUser.middleName || "",
+                bio: currentUser.bio || "",
+                company: currentUser.companyName || "",
                 isExternalAuth: currentUser.isExternalAuth,
                 githubId: githubId,
-                githubLoginUrl: githubLoginUrl!
+                githubLoginUrl: githubLoginUrl
             }))
         } catch (e) {
             setProfile((prevState) => ({

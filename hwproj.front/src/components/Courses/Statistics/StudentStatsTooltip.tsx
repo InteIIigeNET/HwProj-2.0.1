@@ -25,11 +25,11 @@ const StudentStatsTooltip : React.FC<ITooltipProps> = (props) => {
         return (
             <div style={{fontSize: 11, color: '#666', backgroundColor: 'rgba(255, 255, 255, 0.9)'}}>
                 {
-                    props.payload.map(item => {
+                    props.payload.map((item, index) => {
                         if (item.payload.id! == props.activeId) {
                             const tasks = item.payload.tasks;
                             return (
-                                <>
+                                <div key={index}>
                                     <p style={{fontWeight: 'bold', textAlign: 'center', padding: 3, marginBottom: 0, backgroundColor: 'rgba(232, 232, 232, 0.8)'}}>
                                         {Utils.renderReadableDateWithoutTime(new Date(item.payload.date))}
                                     </p>
@@ -40,8 +40,8 @@ const StudentStatsTooltip : React.FC<ITooltipProps> = (props) => {
                                     </p>
                                     
                                     <List sx={{listStyleType: 'disc', pl: 3, pt: 0}}>
-                                        {tasks.map((task : ITaskChartView) => {
-                                            return <ListItem sx={{display: 'list-item', padding: 0}}>
+                                        {tasks.map((task : ITaskChartView, index: number) => {
+                                            return <ListItem sx={{display: 'list-item', padding: 0}} key={index}>
                                                 <p style={{marginTop: 2, marginBottom: 2, marginRight: 5}}>
                                                     {task.title}{getTip(task)}{` `}
                                                     <b>{+task.receiveRating!.toFixed(2)}/{task.maxRating}</b>
@@ -49,7 +49,7 @@ const StudentStatsTooltip : React.FC<ITooltipProps> = (props) => {
                                             </ListItem>
                                         })}
                                     </List>
-                                </>
+                                </div>
                             )
                         }
                     })

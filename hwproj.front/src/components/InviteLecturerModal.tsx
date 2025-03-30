@@ -98,7 +98,7 @@ const InviteLecturerModal: FC<InviteLecturer> = (props) => {
                     Пригласить преподавателя
                 </DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
+                    <DialogContentText component="div">
                         <Typography>
                             Для получения пользователем статуса преподавателя, введите его адрес электронной почты.
                         </Typography>
@@ -129,7 +129,7 @@ const InviteLecturerModal: FC<InviteLecturer> = (props) => {
                                         disableClearable
                                         getOptionLabel={(option) => option.email! + ' / ' + option.surname! + ' ' + option.name!}
                                         options={lecturerState.data}
-                                        renderOption={(props, option) => (
+                                        renderOption={(option) => (
                                             <Grid
                                                 direction="row"
                                                 justifyContent="flex-start"
@@ -137,15 +137,15 @@ const InviteLecturerModal: FC<InviteLecturer> = (props) => {
                                                 container
                                             >
                                                 <Grid item>
-                                                    <Box component="li" {...props} fontWeight='fontWeightMedium'>
-                                                        {props.email} /
+                                                    <Box fontWeight='fontWeightMedium'>
+                                                        {option.email} /
                                                     </Box>
                                                 </Grid>
                                                 <Grid item>
                                                     <Typography
                                                         style={{marginLeft: '3px'}}
                                                     >
-                                                        {props.name} {props.surname}
+                                                        {option.name} {option.surname}
                                                     </Typography>
                                                 </Grid>
                                             </Grid>

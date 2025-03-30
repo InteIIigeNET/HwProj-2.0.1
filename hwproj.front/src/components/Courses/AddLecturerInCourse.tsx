@@ -97,7 +97,7 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
                     Добавить преподавателя в курс
                 </DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
+                    <DialogContentText component="div">
                         <Typography>
                             Для добавления преподавателя в курс, введите его адрес элекстронной почты.
                             Пользователь должен быть зарегистрированным и иметь статус лектора.

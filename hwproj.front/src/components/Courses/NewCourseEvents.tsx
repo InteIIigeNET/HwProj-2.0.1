@@ -14,9 +14,9 @@ const NewCourseEvents: FC<{
 }> = (props) => {
     const {courseEvents} = props
     if (courseEvents.length > 0)
-        return <Grid container spacing={1} direction={"row"} xs={"auto"}>
+        return <Grid item container spacing={1} direction={"row"} xs={"auto"}>
             {courseEvents.map((event, i) => (
-                <Grid item>
+                <Grid item key={i}>
                     <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
                         <CardContent>
                             <Stack direction={"row"} alignItems={"center"} spacing={1}>

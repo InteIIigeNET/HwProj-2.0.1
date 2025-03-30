@@ -300,7 +300,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
                 <ReferenceLine y={0} strokeWidth={0.5}/>
 
                 {referenceLinesXAxis.map(x => (
-                    <ReferenceLine x={x} strokeWidth={0.5}/>
+                    <ReferenceLine key={x} x={x} strokeWidth={0.5}/>
                 ))}
 
                 <Scatter dataKey="yAxisPositionDeadline" shape="circle" fill={chartColors.scatter} name='scatter' />

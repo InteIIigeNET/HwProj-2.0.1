@@ -132,7 +132,7 @@ const StudentStatsChart: React.FC = () => {
                           }}>
                         <Grid item container direction='column' xs={"auto"}>
                             <Grid item>
-                                <Typography style={{fontSize: '22px'}}>
+                                <Typography component="div" style={{fontSize: '22px'}}>
                                     {NameBuilder.getCourseFullName(state.course.name!, state.course.groupName)}
                                     <sup style={{color: "#2979ff"}}> бета</sup>
                                 </Typography>

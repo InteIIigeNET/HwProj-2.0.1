@@ -106,7 +106,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                 <Link to={"/notifications"}>
                                     <IconButton>
                                         {props.newNotificationsCount > 0
-                                            ? <Badge badgeContent={props.newNotificationsCount} color="primary">
+                                            ? <Badge overlap="rectangular" badgeContent={props.newNotificationsCount} color="primary">
                                                 <MailIcon fontSize={"small"} htmlColor={"white"}/>
                                             </Badge>
                                             : <MailIcon fontSize={"small"} htmlColor={"white"}/>

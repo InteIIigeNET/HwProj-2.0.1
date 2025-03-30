@@ -257,6 +257,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
                 {Array.from(studentCharts.entries()).map(([studentId, line]) => {
                     const studentName = fullNameById(studentId);
                     return <Line
+                        key={studentId}
                         onClick={_ => setHighlightStudent(studentName)}
                         activeDot={{
                             onMouseOver: () => {

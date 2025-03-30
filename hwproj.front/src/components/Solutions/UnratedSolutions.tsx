@@ -150,14 +150,14 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                 label="demo-label"
             >
                 <MenuItem value={""}>Все</MenuItem>
-                {options.map(t => <MenuItem value={t}>{t}</MenuItem>)}
+                {options.map((t, index) => <MenuItem key={index} value={t}>{t}</MenuItem>)}
             </Select>
         </FormControl>)
     }
 
     const renderFilter = () => {
         return <div style={{marginBottom: 15}}>
-            <Grid container xs={"auto"} spacing={1} direction={"row"}>
+            <Grid container item xs={"auto"} spacing={1} direction={"row"}>
                 <Grid item>
                     {renderSelect("Курс", "coursesFilter", filtersState.coursesFilter, filtersState.courses)}
                 </Grid>
@@ -193,7 +193,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
 
     const renderSolutions = (solutions: SolutionPreviewView[]) => {
         return solutions.map((solution, i) => (
-            <Grid item>
+            <Grid item key={i}>
                 <ListItem
                     key={i}
                     style={{padding: 0}}

@@ -300,8 +300,8 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                         <Grid item container xs={12} className={classes.info} alignItems="center"
                               justifyContent="space-between">
                             <Grid item>
-                                <Stack direction={"row"} spacing={1} justifyContent="start">
-                                    <Typography style={{fontSize: '22px'}}>
+                                <Stack direction={"row"} spacing={1} alignItems={"start"}>
+                                    <Typography component="div" style={{fontSize: '22px'}}>
                                         {NameBuilder.getCourseFullName(course.name!, course.groupName)}
                                     </Typography>
                                     <CourseMenu/>

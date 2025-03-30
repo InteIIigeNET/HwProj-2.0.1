@@ -93,7 +93,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                         ? startTime
                         : ratedSolutions[i - 1].publicationTime.getTime()
                     const currentTime = publicationTime.getTime()
-                    const element = <Stack direction={"row"} alignItems={"center"}>
+                    const element = <Stack key={i} direction={"row"} alignItems={"center"}>
                         <Chip
                             label={rating}
                             size={"small"}
@@ -183,7 +183,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
         </Grid>}
         {tabValue === 2 &&
             arrayOfRatedSolutions.reverse().map((x, i) =>
-                <Grid item style={{marginTop: '16px'}}>
+                <Grid key={x.id} item style={{marginTop: '16px'}}>
                     <TaskSolutionComponent
                         task={props.task}
                         forMentor={false}

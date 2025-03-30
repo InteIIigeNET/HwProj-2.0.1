@@ -166,7 +166,6 @@ const EditCourse: FC = () => {
                                     style={{margin: 0}}
                                     control={
                                         <Checkbox
-                                            defaultChecked
                                             color="primary"
                                             checked={courseState.isCompleted}
                                             onChange={(e) => {
