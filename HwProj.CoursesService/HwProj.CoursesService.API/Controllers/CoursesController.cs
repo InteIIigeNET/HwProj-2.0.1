@@ -91,26 +91,22 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel,
-            [FromQuery] string mentorId)
+        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel)
         {
-            var course = _mapper.Map<Course>(courseViewModel);
-            var id = await _coursesService.AddAsync(course, mentorId);
-            return Ok(id);
-        }
-
-        [HttpPost("createBasedOn/{courseId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> AddCourseBasedOn(long courseId,
-            [FromBody] CreateCourseViewModel courseViewModel)
-        {
-            var baseCourse = await _coursesService.GetAsync(courseId);
-            if (baseCourse == null) return NotFound();
-
             var mentorId = Request.GetUserIdFromHeader();
-            var courseTemplate = courseViewModel.ToCourseTemplate(baseCourse);
-            courseId = await _coursesService.AddFromTemplateAsync(courseTemplate, mentorId);
+            var courseTemplate = courseViewModel.ToCourseTemplate();
 
+            if (courseViewModel.BaseCourseId != null)
+            {
+                var baseCourse = await _coursesService.GetAsync((long)courseViewModel.BaseCourseId);
+                if (baseCourse == null) return NotFound();
+
+                if (!baseCourse.MentorIds.Contains(mentorId)) return Forbid();
+
+                courseTemplate.Homeworks = baseCourse.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList();
+            }
+
+            var courseId = await _coursesService.AddFromTemplateAsync(courseTemplate, mentorId);
             return Ok(courseId);
         }
 

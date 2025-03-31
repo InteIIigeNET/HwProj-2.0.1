@@ -27,8 +27,8 @@ namespace HwProj.Repositories
         public async Task<List<TKey>> AddRangeAsync(IEnumerable<TEntity> items)
         {
             items = items.ToList();
-            await Context.AddRangeAsync(items).ConfigureAwait(false);
-            await Context.SaveChangesAsync().ConfigureAwait(false);
+            await Context.AddRangeAsync(items);
+            await Context.SaveChangesAsync();
             return items.Select(item => item.Id).ToList();
         }
 

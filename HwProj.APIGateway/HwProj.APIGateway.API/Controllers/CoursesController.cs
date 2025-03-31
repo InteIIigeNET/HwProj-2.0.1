@@ -76,16 +76,7 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
-            var result = await _coursesClient.CreateCourse(model, UserId);
-            return Ok(result);
-        }
-
-        [HttpPost("createBasedOn/{courseId}")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> CreateCourseBasedOn(long courseId, CreateCourseViewModel model)
-        {
-            var result = await _coursesClient.CreateCourseBasedOn(courseId, model);
+            var result = await _coursesClient.CreateCourse(model);
             return result.Succeeded
                 ? Ok(result.Value) as IActionResult
                 : BadRequest(result.Errors);

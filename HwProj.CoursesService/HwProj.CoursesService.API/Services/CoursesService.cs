@@ -80,11 +80,27 @@ namespace HwProj.CoursesService.API.Services
             return result;
         }
 
-        public async Task<long> AddAsync(Course course, string mentorId)
+        public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, string mentorId)
         {
+            var publicationDate = DateTime.UtcNow + TimeSpan.FromDays(365);
+
+            using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            var course = courseTemplate.ToCourse();
             course.MentorIds = mentorId;
             course.InviteCode = Guid.NewGuid().ToString();
-            return await _coursesRepository.AddAsync(course);
+            var courseId = await _coursesRepository.AddAsync(course);
+
+            var homeworks = courseTemplate.Homeworks.Select(
+                hwTemplate => hwTemplate.ToHomework(courseId, publicationDate));
+            var homeworkIds = await _homeworksRepository.AddRangeAsync(homeworks);
+
+            var tasks = courseTemplate.Homeworks.SelectMany((hwTemplate, i) =>
+                hwTemplate.Tasks.Select(taskTemplate => taskTemplate.ToHomeworkTask(homeworkIds[i])));
+            await _tasksRepository.AddRangeAsync(tasks);
+
+            transactionScope.Complete();
+            return courseId;
         }
 
         public async Task DeleteAsync(long id)
@@ -253,26 +269,6 @@ namespace HwProj.CoursesService.API.Services
             return availableLecturers
                 .Select(u => u.ToAccountDataDto(Roles.LecturerRole))
                 .ToArray();
-        }
-
-        public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, string mentorId)
-        {
-            var publicationDate = DateTime.UtcNow + TimeSpan.FromDays(365);
-
-            using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-
-            var courseId = await AddAsync(courseTemplate.ToCourse(), mentorId);
-
-            var homeworks = courseTemplate.Homeworks.Select(
-                hwTemplate => hwTemplate.ToHomework(courseId, publicationDate));
-            var homeworkIds = await _homeworksRepository.AddRangeAsync(homeworks);
-
-            var tasks = courseTemplate.Homeworks.SelectMany((hwTemplate, i) =>
-                hwTemplate.Tasks.Select(taskTemplate => taskTemplate.ToHomeworkTask(homeworkIds[i])));
-            await _tasksRepository.AddRangeAsync(tasks);
-
-            transactionScope.Complete();
-            return courseId;
         }
     }
 }

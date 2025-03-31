@@ -108,27 +108,11 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<long> CreateCourse(CreateCourseViewModel model, string mentorId)
+        public async Task<Result<long>> CreateCourse(CreateCourseViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/create?mentorId={mentorId}")
-            {
-                Content = new StringContent(
-                    JsonConvert.SerializeObject(model),
-                    Encoding.UTF8,
-                    "application/json")
-            };
-
-            var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<long>();
-        }
-
-        public async Task<Result<long>> CreateCourseBasedOn(long courseId, CreateCourseViewModel model)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Post,
-                _coursesServiceUri + $"api/Courses/createBasedOn/{courseId}")
+                _coursesServiceUri + $"api/Courses/create")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
@@ -142,6 +126,7 @@ namespace HwProj.CoursesService.Client
             {
                 HttpStatusCode.OK => Result<long>.Success(await response.DeserializeAsync<long>()),
                 HttpStatusCode.NotFound => Result<long>.Failed("Базовый курс не найден"),
+                HttpStatusCode.Forbidden => Result<long>.Failed("Вы не являетесь ментором базового курса"),
                 _ => Result<long>.Failed(response.ReasonPhrase),
             };
         }

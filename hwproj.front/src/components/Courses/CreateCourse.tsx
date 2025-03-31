@@ -100,12 +100,11 @@ const CreateCourse: FC = () => {
       name: course.name,
       groupName: course.groupName,
       isOpen: true,
+      baseCourseId: (course.baseCourseId && +course.baseCourseId) || undefined
     }
     try {
       setCourseIsLoading()
-      const courseId = course.baseCourseId !== undefined
-        ? await ApiSingleton.coursesApi.coursesCreateCourseBasedOn(+course.baseCourseId, courseViewModel)
-        : await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel) 
+      const courseId = await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel)
       setCourse((prevState) => ({
         ...prevState,
         isLoading: false,
