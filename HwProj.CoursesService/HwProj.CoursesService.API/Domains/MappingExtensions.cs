@@ -113,14 +113,12 @@ namespace HwProj.CoursesService.API.Domains
                 Tags = createHomeworkViewModel.Tags.Join(";"),
             };
 
-        public static CourseTemplate ToCourseTemplate(
-            this CreateCourseViewModel createCourseViewModel, CourseDTO baseCourse)
+        public static CourseTemplate ToCourseTemplate(this CreateCourseViewModel createCourseViewModel)
             => new CourseTemplate()
             {
                 Name = createCourseViewModel.Name,
                 GroupName = createCourseViewModel.GroupName,
                 IsOpen = createCourseViewModel.IsOpen,
-                Homeworks = baseCourse.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList(),
             };
 
         public static CourseTemplate ToCourseTemplate(this CourseDTO course)

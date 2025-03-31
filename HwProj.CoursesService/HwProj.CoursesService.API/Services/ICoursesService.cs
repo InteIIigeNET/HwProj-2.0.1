@@ -11,7 +11,7 @@ namespace HwProj.CoursesService.API.Services
         Task<Course[]> GetAllAsync();
         Task<CourseDTO?> GetAsync(long id, string userId = "");
         Task<CourseDTO?> GetByTaskAsync(long taskId, string userId);
-        Task<long> AddAsync(Course course, string mentorId);
+        Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, string mentorId);
         Task DeleteAsync(long id);
         Task UpdateAsync(long courseId, Course updated);
         Task<bool> AddStudentAsync(long courseId, string studentId);
@@ -22,6 +22,5 @@ namespace HwProj.CoursesService.API.Services
         Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId);
         Task<string[]> GetCourseLecturers(long courseId);
         Task<bool> HasStudent(long courseId, string studentId);
-        Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, string mentorId);
     }
 }
