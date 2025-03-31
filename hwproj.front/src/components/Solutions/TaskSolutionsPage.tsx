@@ -76,7 +76,6 @@ const TaskSolutionsPage: FC = () => {
     const showOnlyNotSolved = filterState.some(x => x === "Только нерешенные")
 
     useEffect(() => {
-        getTask()
         getSolutions()
     }, [])
 
