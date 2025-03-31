@@ -20,13 +20,8 @@ interface ITaskStudentCellProps {
 const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }> = (props) => {
     const navigate = useNavigate()
     const {solutions, taskMaxRating, forMentor} = props
-    const [cellState, setCellState] = useState({
-        ...StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)
-    })
 
-    useEffect(() => setCellState({...StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)}),
-        [props.studentId, props.taskId]
-    )
+    const cellState = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)
 
     const {ratedSolutionsCount, solutionsDescription} = cellState;
 
