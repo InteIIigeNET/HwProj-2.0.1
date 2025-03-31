@@ -73,16 +73,16 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         return undefined
     }
 
-    const testHomeworks = homeworks.filter(h => h.tags!.includes(TestTag))
+    const notTests = homeworks.filter(h => !h.tags!.includes(TestTag))
 
-    const homeworksMaxSum = homeworks.filter(h => !h.tags!.includes(BonusTag))
-        .filter(h => !h.tags!.includes(TestTag))
+    const homeworksMaxSum = notTests
+        .filter(h => !h.tags!.includes(BonusTag))
         .flatMap(homework => homework.tasks)
         .reduce((sum, task) => {
             return sum + (task!.maxRating || 0);
         }, 0)
 
-    const testGroups = Lodash(testHomeworks)
+    const testGroups = Lodash(homeworks.filter(h => h.tags!.includes(TestTag)))
         .groupBy((h: HomeworkViewModel) => {
             const key = h.tags!.find(t => !DefaultTags.includes(t))
             return key || h.id!.toString();
@@ -188,7 +188,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                     </TableHead>
                     <TableBody>
                         {solutions.map((cm, index) => {
-                            const homeworksSum = testHomeworks
+                            const homeworksSum = notTests
                                 .flatMap(homework =>
                                     solutions
                                         .find(s => s.id === cm.id)?.homeworks!
