@@ -74,7 +74,8 @@ namespace HwProj.CoursesService.API.Services
         public async Task<CourseDTO> ApplyFilter(CourseDTO courseDto, string userId)
         {
             var isMentor = courseDto.MentorIds.Contains(userId);
-            var findFiltersFor = isMentor
+            var isCourseStudent = courseDto.AcceptedStudents.Any(t => t.StudentId == userId);
+            var findFiltersFor = isMentor || !isCourseStudent
                 ? new[] { userId }
                 : courseDto.MentorIds.Concat(new[] { userId }).ToArray();
 
@@ -85,7 +86,7 @@ namespace HwProj.CoursesService.API.Services
             var course = courseFilters.TryGetValue(userId, out var userFilter)
                 ? ApplyFilterInternal(courseDto, userFilter)
                 : courseDto;
-            if (isMentor) return course;
+            if (isMentor || !isCourseStudent) return course;
 
             var mentorIds = course.MentorIds
                 .Where(u =>
