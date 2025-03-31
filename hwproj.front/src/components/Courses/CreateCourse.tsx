@@ -5,6 +5,7 @@ import {
   Grid,
   MenuItem,
   CircularProgress,
+  FormControlLabel,
 } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import './Styles/CreateCourse.css';
@@ -18,18 +19,14 @@ import NameBuilder from "../Utils/NameBuilder";
 import {LoadingButton} from "@mui/lab";
 import {useSnackbar} from "notistack";
 import ErrorsHandler from "components/Utils/ErrorsHandler";
+import {Checkbox} from "@mui/material";
 
 interface ICreateCourseState {
   name: string;
   groupName?: string;
-  baseCourseId?: string;
+  baseCourseId: string;
   courseId: string;
   isLoading: boolean;
-}
-
-interface IBaseCoursesState {
-  areLoaded: boolean;
-  courses: CoursePreviewView[];
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -55,14 +52,13 @@ const CreateCourse: FC = () => {
   const [course, setCourse] = useState<ICreateCourseState>({
     name: "",
     groupName: "",
+    baseCourseId: "",
     courseId: "",
     isLoading: false,
   })
 
-  const [baseCourses, setBaseCourses] = useState<IBaseCoursesState>({
-    areLoaded: false,
-    courses: [],
-  })
+  const [baseCourses, setBaseCourses] = useState<CoursePreviewView[]>()
+  const [baseCoursesEnabled, setBaseCoursesEnabled] = useState<boolean>(false)
 
   const {enqueueSnackbar} = useSnackbar()
 
@@ -70,15 +66,9 @@ const CreateCourse: FC = () => {
     const loadBaseCourses = async () => {
       try {
         const userCourses = await ApiSingleton.coursesApi.coursesGetAllUserCourses()
-        setBaseCourses ({
-          areLoaded: true,
-          courses: userCourses,
-        })
+        setBaseCourses(userCourses)
       } catch (e) {
-        setBaseCourses ({
-          areLoaded: true,
-          courses: [],
-        })
+        setBaseCourses([])
         console.error("Ошибка при загрузке курсов лектора:", e)
         enqueueSnackbar("Не удалось загрузить существующие курсы", {variant: "warning", autoHideDuration: 4000})
       }
@@ -87,11 +77,18 @@ const CreateCourse: FC = () => {
     loadBaseCourses()
   }, [])
 
-  const setCourseIsLoading = () =>
+  const setCourseIsLoading = (isLoading: boolean) =>
     setCourse((prevState) =>
     ({
       ...prevState,
-      isLoading: true,
+      isLoading: isLoading,
+    }))
+
+  const setBaseCourseId = (id: string) =>
+    setCourse((prevState) =>
+    ({
+      ...prevState,
+      baseCourseId: id,
     }))
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -103,7 +100,7 @@ const CreateCourse: FC = () => {
       baseCourseId: (course.baseCourseId && +course.baseCourseId) || undefined
     }
     try {
-      setCourseIsLoading()
+      setCourseIsLoading(true)
       const courseId = await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel)
       setCourse((prevState) => ({
         ...prevState,
@@ -112,10 +109,7 @@ const CreateCourse: FC = () => {
       }))
     }
     catch (e) {
-      setCourse((prevState) => ({
-        ...prevState,
-        isLoading: false,
-      }))
+      setCourseIsLoading(false)
       console.error("Ошибка при создании курса:", e)
       const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
       enqueueSnackbar(responseErrors[0], {variant: "error"})
@@ -179,41 +173,57 @@ const CreateCourse: FC = () => {
                     }}
                 />
               </Grid>
-              {!baseCourses.areLoaded &&
-                <Grid item xs={12} style={{display: "flex", justifyContent: "center"}}>
-                    <CircularProgress/>
-                </Grid>
-              }
-              {baseCourses.courses.length !== 0 &&
-                <Grid item xs={12}>
-                    <TextField
-                      select
-                      label="На основе существующего курса"
-                      variant="outlined"
-                      fullWidth
-                      value={course.baseCourseId}
+              <Grid item xs={12}>
+                <FormControlLabel
+                  label="На основе существующего курса"
+                  control={
+                    <Checkbox
+                      checked={baseCoursesEnabled}
                       onChange={(e) =>
                       {
                         e.persist()
-                        setCourse((prevState) => ({
-                          ...prevState,
-                          baseCourseId: e.target.value || undefined
-                        }))
+                        setBaseCoursesEnabled(e.target.checked)
+                        setBaseCourseId("")
                       }}
-                    >
-                      <MenuItem value="">
-                        <Typography style={{fontSize: "20px"}}>Курс с нуля</Typography>
+                    />
+                  }
+                />
+                <TextField
+                  select
+                  disabled={!baseCoursesEnabled}
+                  label="Базовый курс"
+                  variant="outlined"
+                  fullWidth
+                  value={course.baseCourseId}
+                  onChange={(e) =>
+                  {
+                    e.persist()
+                    setBaseCourseId(e.target.value)
+                  }}
+                >
+                  {!baseCourses &&
+                    <Grid item style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                      <CircularProgress/>
+                      <Typography>Загрузка курсов...</Typography>
+                    </Grid>
+                  }
+                  {baseCourses && !baseCourses.length &&
+                    <Typography>
+                      Базовых курсов не найдено &#128532;<br/>
+                      Попробуйте создать курс с нуля
+                    </Typography>
+                  }
+                  {baseCourses &&
+                    baseCourses.map(course =>
+                      <MenuItem value={course.id!}>
+                        <Typography style={{ fontSize: "18px" }}>
+                          {NameBuilder.getCourseFullName(course.name!, course.groupName)}
+                        </Typography>
                       </MenuItem>
-                      {baseCourses.courses.map(course =>
-                        <MenuItem value={course.id!}>
-                          <Typography style={{fontSize: "20px"}}>
-                            {NameBuilder.getCourseFullName(course.name!, course.groupName)}
-                          </Typography>
-                        </MenuItem>
-                      ).reverse()}
-                    </TextField>
-                </Grid>
-              }
+                    ).reverse()
+                  }
+                </TextField>
+              </Grid>
             </Grid>
             <LoadingButton
                 style={{ marginTop: '16px', color: "white", backgroundColor: "#3f51b5" }}
