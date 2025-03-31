@@ -97,7 +97,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                         <Grid item>
                             <Link to={"/"}>
                                 <Typography variant="h6" style={{color: 'white', fontFamily: "Helvetica"}}>
-                                    HW
+                                    HW😺
                                 </Typography>
                             </Link>
                         </Grid>
