@@ -36,20 +36,12 @@ export default class AuthService {
     }
 
     async register(user: RegisterViewModel) {
-        const token = await ApiSingleton.accountApi.accountRegister(user)
-        if (!token.succeeded) {
-            return {
-                loggedIn: false,
-                error: token.errors
-            }
-        }
-        this.setToken(token.value?.accessToken!)
+        const result = await ApiSingleton.accountApi.accountRegister(user)
         return {
-            loggedIn: true,
-            error: []
+            isRegistered: result.succeeded,
+            error: result.errors
         }
     }
-
 
     isLoggedIn() {
         const token = this.getToken();
@@ -108,7 +100,7 @@ export default class AuthService {
         if (this.getToken() === null) {
             return false
         }
-        
+
         const role = this.getProfile()["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
         return role === "Lecturer" || role === "Expert";
     }

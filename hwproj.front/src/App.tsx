@@ -126,7 +126,7 @@ class App extends Component<{ navigate: any }, AppState> {
                     <Route path="statistics/:courseId/charts" element={<StudentStatsChart/>}/>
                     <Route path="status" element={<SystemInfoComponent/>}/>
                     <Route path="login" element={<Login onLogin={this.login}/>}/>
-                    <Route path="register" element={<Register onLogin={() => this.login("")}/>}/>
+                    <Route path="register" element={<Register/>}/>
                     <Route path="recovery" element={<PasswordRecovery/>}/>
                     <Route path="resetPassword" element={<ResetPassword/>}/>
                     <Route path="join/:token" element={<ExpertAuthLayout onLogin={this.login}/>}/>

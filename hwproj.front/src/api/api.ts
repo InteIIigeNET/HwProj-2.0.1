@@ -1476,18 +1476,6 @@ export interface RegisterViewModel {
      * @memberof RegisterViewModel
      */
     email: string;
-    /**
-     *
-     * @type {string}
-     * @memberof RegisterViewModel
-     */
-    password: string;
-    /**
-     *
-     * @type {string}
-     * @memberof RegisterViewModel
-     */
-    passwordConfirm: string;
 }
 /**
  *
@@ -2986,7 +2974,7 @@ export const AccountApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        accountRegister(body?: RegisterViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<TokenCredentialsResult> {
+        accountRegister(body?: RegisterViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
             const localVarFetchArgs = AccountApiFetchParamCreator(configuration).accountRegister(body, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {

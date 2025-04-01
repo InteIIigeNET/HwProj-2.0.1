@@ -31,9 +31,9 @@ namespace HwProj.CoursesService.Tests
         private static RegisterViewModel GenerateRegisterViewModel()
         {
             var password = new Fixture().Create<string>();
-            var fixture = new Fixture().Build<RegisterViewModel>()
-                .With(vm => vm.Password, password)
-                .With(vm => vm.PasswordConfirm, password);
+            var fixture = new Fixture().Build<RegisterViewModel>();
+             //   .With(vm => vm.Password, password)
+              //  .With(vm => vm.PasswordConfirm, password);
             var viewModel = fixture.Create();
             viewModel.Email += "@mail.ru";
             return viewModel;

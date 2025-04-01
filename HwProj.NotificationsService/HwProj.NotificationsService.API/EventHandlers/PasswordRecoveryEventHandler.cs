@@ -7,6 +7,7 @@ using HwProj.Models;
 using HwProj.Models.NotificationsService;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
@@ -16,15 +17,18 @@ namespace HwProj.NotificationsService.API.EventHandlers
         private readonly IConfiguration _configuration;
         private readonly INotificationsRepository _notificationRepository;
         private readonly IEmailService _emailService;
+        private readonly bool _isDevelopmentEnv;
 
         public PasswordRecoveryEventHandler(
             INotificationsRepository notificationRepository,
             IEmailService emailService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IHostingEnvironment env)
         {
             _notificationRepository = notificationRepository;
             _emailService = emailService;
             _configuration = configuration;
+            _isDevelopmentEnv = env.IsDevelopment();
         }
 
         public override async Task HandleAsync(PasswordRecoveryEvent @event)
@@ -39,8 +43,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                        $"Для изменения пароля перейдите по ссылке<br/><a href={recoveryLink}>Сменить пароль</a><br/><br/>" +
                        $"Если вы не запрашивали сброс пароля, проигнорируйте это письмо.",
                 Category = CategoryState.Profile,
-                //TODO: использовать UtcNow
-                Date = DateTimeUtils.GetMoscowNow(),
+                Date = DateTime.UtcNow,
                 HasSeen = false,
                 Owner = @event.UserId
             };
@@ -54,6 +57,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 Owner = @event.UserId
             };
 
+            if(_isDevelopmentEnv) Console.WriteLine(recoveryLink);
             var addNotificationTask = _notificationRepository.AddAsync(notification);
             var sendEmailTask = _emailService.SendEmailAsync(email, @event.Email, "HwProj");
 

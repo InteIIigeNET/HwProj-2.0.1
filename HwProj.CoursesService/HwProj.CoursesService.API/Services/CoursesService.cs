@@ -22,7 +22,6 @@ namespace HwProj.CoursesService.API.Services
         private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IEventBus _eventBus;
         private readonly IAuthServiceClient _authServiceClient;
-        private readonly IHomeworksRepository _homeworksRepository;
         private readonly ITasksRepository _tasksRepository;
         private readonly IGroupsRepository _groupsRepository;
         private readonly ICourseFilterService _courseFilterService;
@@ -40,7 +39,6 @@ namespace HwProj.CoursesService.API.Services
             _courseMatesRepository = courseMatesRepository;
             _eventBus = eventBus;
             _authServiceClient = authServiceClient;
-            _homeworksRepository = homeworksRepository;
             _tasksRepository = tasksRepository;
             _groupsRepository = groupsRepository;
             _courseFilterService = courseFilterService;

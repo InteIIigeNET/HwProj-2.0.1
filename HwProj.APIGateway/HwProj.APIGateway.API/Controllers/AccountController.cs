@@ -98,7 +98,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("register")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             var result = await AuthServiceClient.Register(model);
