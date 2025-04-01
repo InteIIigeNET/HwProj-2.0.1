@@ -136,21 +136,11 @@ namespace HwProj.AuthService.API.Services
                 : await GetToken(user);
         }
 
-        public async Task<Result<TokenCredentials>> RegisterUserAsync(RegisterDataDTO model)
+        public async Task<Result> RegisterUserAsync(RegisterDataDTO model)
         {
             if (await _userManager.FindByEmailAsync(model.Email) != null)
             {
-                return Result<TokenCredentials>.Failed("Пользователь уже зарегистрирован");
-            }
-
-            if (!model.IsExternalAuth && model.Password.Length < 6)
-            {
-                return Result<TokenCredentials>.Failed("Пароль должен содержать не менее 6 символов");
-            }
-
-            if (!model.IsExternalAuth && model.Password != model.PasswordConfirm)
-            {
-                return Result<TokenCredentials>.Failed("Пароли не совпадают");
+                return Result.Failed("Пользователь уже зарегистрирован");
             }
 
             var user = _mapper.Map<User>(model);
@@ -158,7 +148,7 @@ namespace HwProj.AuthService.API.Services
 
             var createUserTask = model.IsExternalAuth
                 ? _userManager.CreateAsync(user)
-                : _userManager.CreateAsync(user, model.Password);
+                : _userManager.CreateAsync(user, Guid.NewGuid().ToString());
 
             var result = await createUserTask
                 .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
@@ -170,20 +160,18 @@ namespace HwProj.AuthService.API.Services
 
             if (result.Succeeded)
             {
-                var newUser = await _userManager.FindByEmailAsync(model.Email).ConfigureAwait(false);
+                var newUser = await _userManager.FindByEmailAsync(model.Email);
+                var changePasswordToken = await _aspUserManager.GeneratePasswordResetTokenAsync(user);
                 var registerEvent = new StudentRegisterEvent(newUser.Id, newUser.Email, newUser.Name,
-                    newUser.Surname, newUser.MiddleName);
-                _eventBus.Publish(registerEvent);
-
-                if (!model.IsExternalAuth)
+                    newUser.Surname, newUser.MiddleName)
                 {
-                    await SignIn(user, model.Password);
-                }
-
-                return await GetToken(user);
+                    ChangePasswordToken = changePasswordToken
+                };
+                _eventBus.Publish(registerEvent);
+                return Result.Success();
             }
 
-            return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
+            return Result.Failed(result.Errors.Select(errors => errors.Description).ToArray());
         }
 
         public async Task<Result> InviteNewLecturer(string emailOfInvitedUser)
