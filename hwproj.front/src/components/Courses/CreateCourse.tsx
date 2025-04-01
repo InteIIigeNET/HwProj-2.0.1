@@ -1,33 +1,32 @@
-import * as React from "react";
 import {
-  TextField,
+  Stepper,
+  Step,
+  StepLabel,
   Typography,
-  Grid,
-  MenuItem,
   CircularProgress,
-  FormControlLabel,
 } from "@material-ui/core";
-import ApiSingleton from "../../api/ApiSingleton";
-import './Styles/CreateCourse.css';
 import {FC, FormEvent, useState, useEffect} from "react";
-import GroupIcon from '@material-ui/icons/Group';
-import {makeStyles} from '@material-ui/core/styles';
+import ApiSingleton from "../../api/ApiSingleton";
+import "./Styles/CreateCourse.css";
+import GroupIcon from "@material-ui/icons/Group";
+import {makeStyles} from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import {Navigate} from "react-router-dom";
 import {CoursePreviewView} from "api";
-import NameBuilder from "../Utils/NameBuilder";
-import {LoadingButton} from "@mui/lab";
+import {useNavigate} from "react-router-dom";
 import {useSnackbar} from "notistack";
 import ErrorsHandler from "components/Utils/ErrorsHandler";
-import {Checkbox} from "@mui/material";
+import SelectBaseCourse from "./SelectBaseCourse";
+import AddCourseInfo from "./AddCourseInfo";
 
-interface ICreateCourseState {
-  name: string;
-  groupName?: string;
-  baseCourseId: string;
-  courseId: string;
-  isLoading: boolean;
+enum CreateCourseSteps {
+  SelectBaseCourseStep = 0,
+  AddCourseInfoStep = 1,
 }
+
+const stepLabels = ["Взять за основу существующий курс", "Заполнить данные о курсе"]
+
+const stepIsOptional = (step: CreateCourseSteps) =>
+  step === CreateCourseSteps.SelectBaseCourseStep
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -44,30 +43,32 @@ const useStyles = makeStyles((theme) => ({
     width: '100%'
   },
   button: {
-    marginTop: theme.spacing(1)
+    marginTop: theme.spacing(1),
   },
 }))
 
 const CreateCourse: FC = () => {
-  const [course, setCourse] = useState<ICreateCourseState>({
-    name: "",
-    groupName: "",
-    baseCourseId: "",
-    courseId: "",
-    isLoading: false,
-  })
+  const [courseName, setCourseName] = useState<string>("")
+  const [groupName, setGroupName] = useState<string>("")
+  const [courseIsLoading, setCourseIsLoading] = useState<boolean>(false)
 
   const [baseCourses, setBaseCourses] = useState<CoursePreviewView[]>()
-  const [baseCoursesEnabled, setBaseCoursesEnabled] = useState<boolean>(false)
+  const [baseCourseIndex, setBaseCourseIndex] = useState<number>()
 
+  const [activeStep, setActiveStep] = useState<CreateCourseSteps>(CreateCourseSteps.SelectBaseCourseStep)
+
+  const navigate = useNavigate()
   const {enqueueSnackbar} = useSnackbar()
 
   useEffect(() => {
     const loadBaseCourses = async () => {
       try {
         const userCourses = await ApiSingleton.coursesApi.coursesGetAllUserCourses()
+        if (!userCourses.length) setActiveStep(CreateCourseSteps.AddCourseInfoStep)
         setBaseCourses(userCourses)
-      } catch (e) {
+      }
+      catch (e) {
+        setActiveStep(CreateCourseSteps.AddCourseInfoStep)
         setBaseCourses([])
         console.error("Ошибка при загрузке курсов лектора:", e)
         enqueueSnackbar("Не удалось загрузить существующие курсы", {variant: "warning", autoHideDuration: 4000})
@@ -77,42 +78,64 @@ const CreateCourse: FC = () => {
     loadBaseCourses()
   }, [])
 
-  const setCourseIsLoading = (isLoading: boolean) =>
-    setCourse((prevState) =>
-    ({
-      ...prevState,
-      isLoading: isLoading,
-    }))
+  const handleBack = () => setActiveStep(activeStep - 1)
+  const handleNext = () => setActiveStep(activeStep + 1)
 
-  const setBaseCourseId = (id: string) =>
-    setCourse((prevState) =>
-    ({
-      ...prevState,
-      baseCourseId: id,
-    }))
+  const selectBaseCourseHandleNext = () => {
+    const baseCourse = baseCourseIndex !== undefined ? baseCourses![baseCourseIndex] : undefined
+    setCourseName(baseCourse?.name || "")
+    setGroupName(baseCourse?.groupName || "")
+    handleNext()
+  }
+
+  const selectBaseCourseHandleSkip = () => {
+    setBaseCourseIndex(undefined)
+    selectBaseCourseHandleNext()
+  }
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const courseViewModel = {
-      name: course.name,
-      groupName: course.groupName,
+      name: courseName,
+      groupName: groupName,
       isOpen: true,
-      baseCourseId: (course.baseCourseId && +course.baseCourseId) || undefined
+      baseCourseId: baseCourseIndex !== undefined ? baseCourses![baseCourseIndex].id : undefined,
     }
     try {
       setCourseIsLoading(true)
       const courseId = await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel)
-      setCourse((prevState) => ({
-        ...prevState,
-        isLoading: false,
-        courseId: courseId.toString(),
-      }))
+      navigate(`/courses/${courseId}/editHomeWorks`)
     }
     catch (e) {
-      setCourseIsLoading(false)
       console.error("Ошибка при создании курса:", e)
       const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
       enqueueSnackbar(responseErrors[0], {variant: "error"})
+    }
+
+    setCourseIsLoading(false)
+  }
+
+  const handleStep = (step: CreateCourseSteps) => {
+    switch (step) {
+      case CreateCourseSteps.SelectBaseCourseStep:
+        return <SelectBaseCourse
+          baseCourses={baseCourses!}
+          baseCourseIndex={baseCourseIndex}
+          setBaseCourseIndex={setBaseCourseIndex}
+          handleNext={selectBaseCourseHandleNext}
+          handleSkip={selectBaseCourseHandleSkip}
+        />
+      case CreateCourseSteps.AddCourseInfoStep:
+        return <AddCourseInfo
+          courseName={courseName}
+          groupName={groupName}
+          courseIsLoading={courseIsLoading}
+          setCourseName={setCourseName}
+          setGroupName={setGroupName}
+          handleBack={handleBack}
+        />
+      default:
+        console.error(`Шаг создания курса неопределён: ${step}`)
     }
   }
 
@@ -120,123 +143,46 @@ const CreateCourse: FC = () => {
 
   if (!ApiSingleton.authService.isLecturer()) {
     return (
-        <Typography component="h1" variant="h5">
-          Страница не доступна
-        </Typography>
+      <Typography component="h1" variant="h5">
+        Страница не доступна
+      </Typography>
     )
   }
-  return course.courseId !== "" ?
-      <Navigate to={`/courses/${course.courseId}/editHomeworks`}/>
-      :
-      (<Container component="main" maxWidth="xs">
-        <div className={classes.paper}>
-          <GroupIcon
-              fontSize='large'
-              style={{ color: 'white', backgroundColor: '#ecb50d' }}
-              className={classes.avatar}
-          />
-          <Typography component="h1" variant="h5">
-            Создать курс
-          </Typography>
-          <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                    required
-                    label="Название курса"
-                    variant="outlined"
-                    fullWidth
-                    name={course.name}
-                    onChange={(e) =>
-                    {
-                      e.persist()
-                      setCourse((prevState) => ({
-                        ...prevState,
-                        name: e.target.value
-                      }))
-                    }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                    label="Номер группы"
-                    variant="outlined"
-                    fullWidth
-                    value={course.groupName}
-                    onChange={(e) =>
-                    {
-                      e.persist()
-                      setCourse((prevState) => ({
-                        ...prevState,
-                        groupName: e.target.value
-                      }))
-                    }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  label="На основе существующего курса"
-                  control={
-                    <Checkbox
-                      checked={baseCoursesEnabled}
-                      onChange={(e) =>
-                      {
-                        e.persist()
-                        setBaseCoursesEnabled(e.target.checked)
-                        setBaseCourseId("")
-                      }}
-                    />
-                  }
-                />
-                <TextField
-                  select
-                  disabled={!baseCoursesEnabled}
-                  label="Базовый курс"
-                  variant="outlined"
-                  fullWidth
-                  value={course.baseCourseId}
-                  onChange={(e) =>
-                  {
-                    e.persist()
-                    setBaseCourseId(e.target.value)
-                  }}
-                >
-                  {!baseCourses &&
-                    <Grid item style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                      <CircularProgress/>
-                      <Typography>Загрузка курсов...</Typography>
-                    </Grid>
-                  }
-                  {baseCourses && !baseCourses.length &&
-                    <Typography>
-                      Базовых курсов не найдено &#128532;<br/>
-                      Попробуйте создать курс с нуля
-                    </Typography>
-                  }
-                  {baseCourses &&
-                    baseCourses.map(course =>
-                      <MenuItem value={course.id!}>
-                        <Typography style={{ fontSize: "18px" }}>
-                          {NameBuilder.getCourseFullName(course.name!, course.groupName)}
-                        </Typography>
-                      </MenuItem>
-                    ).reverse()
-                  }
-                </TextField>
-              </Grid>
-            </Grid>
-            <LoadingButton
-                style={{ marginTop: '16px', color: "white", backgroundColor: "#3f51b5" }}
-                fullWidth
-                variant="contained"
-                type="submit"
-                loading={course.isLoading}
-            >
-              Создать курс
-            </LoadingButton>
-          </form>
-        </div>
-      </Container>
+  return baseCourses ? (
+    <Container component="main" maxWidth="sm">
+      <div className={classes.paper}>
+        <GroupIcon
+          fontSize="large"
+          style={{ color: "white", backgroundColor: "#ecb50d" }}
+          className={classes.avatar}
+        />
+        <Typography component="h1" variant="h5">
+          Создать курс
+        </Typography>
+        <form onSubmit={handleSubmit} className={classes.form}>
+          <Stepper alternativeLabel activeStep={activeStep}>
+            {stepLabels.map((label, step) => {
+              const optionalLabel = stepIsOptional(step) ? (
+                <Typography variant="caption">
+                  Опционально
+                </Typography>
+              ) : undefined
+              return (
+                <Step key={label} style={{ textAlign: "center" }}>
+                  <StepLabel optional={optionalLabel}>{label}</StepLabel>
+                </Step>
+              )
+            })}
+          </Stepper>
+          {handleStep(activeStep)}
+        </form>
+      </div>
+    </Container>
+  ) : (
+    <div className="container">
+      <p>Загрузка...</p>
+      <CircularProgress/>
+    </div>
   )
 }
 
