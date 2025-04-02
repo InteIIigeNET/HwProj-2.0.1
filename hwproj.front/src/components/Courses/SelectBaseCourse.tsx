@@ -87,7 +87,7 @@ const SelectBaseCourse: FC<ISelectBaseCourseProps> = (props: ISelectBaseCoursePr
           Пропустить
         </Button>
         <Button
-          variant="outlined"
+          variant="text"
           color="primary"
           size="large" 
           disabled={state.baseCourseIndex === undefined}

@@ -112,16 +112,18 @@ const CreateCourse: FC = () => {
   const stepIsCompleted = (step: CreateCourseStep) =>
     step < state.activeStep && !state.skippedSteps.has(step)
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const baseCourse = state.baseCourseIndex !== undefined
+  const getBaseCourse = () =>
+    state.baseCourseIndex !== undefined
       ? state.baseCourses![state.baseCourseIndex]
       : undefined
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     const courseViewModel = {
       name: state.courseName,
       groupName: state.groupName,
       isOpen: true,
-      baseCourseId: baseCourse?.id,
+      baseCourseId: getBaseCourse()?.id,
     }
     try {
       setCourseIsLoading(true)
@@ -162,7 +164,7 @@ const CreateCourse: FC = () => {
             {stepLabels.map((label, step) => {
               const optionalLabel = stepIsOptional(step) ? (
                 <Typography variant="caption">
-                  Опционально
+                  Необязательно
                 </Typography>
               ) : undefined
               return (

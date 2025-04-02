@@ -6,8 +6,8 @@ export enum CreateCourseStep {
 }
 
 export const stepLabels = [
-  "Взять за основу существующий курс",
-  "Заполнить данные о курсе",
+  "Выберите шаблон курса",
+  "Заполните данные курса",
 ]
 
 export const stepIsOptional = (step: CreateCourseStep) =>
