@@ -14,8 +14,12 @@ import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import * as React from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import {LoadingButton} from "@mui/lab";
+import FileInfoConverter from "../Utils/FileInfoConverter";
+import ErrorsHandler from "../Utils/ErrorsHandler";
+import {enqueueSnackbar} from "notistack";
+import {GroupWorkTag} from "../Common/HomeworkTags";
 
-interface HomeworkAndFilesInfo {
+export interface HomeworkAndFilesInfo {
     homework: HomeworkViewModel,
     filesInfo: IFileInfo[]
 }
@@ -35,11 +39,11 @@ interface IEditFilesState {
 
 const CourseHomeworkEditor: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
-    onUpdate: (update: HomeworkViewModel) => void
+    onUpdate: (update: HomeworkAndFilesInfo) => void
 }> = (props) => {
     const homework = props.homeworkAndFilesInfo.homework
     const filesInfo = props.homeworkAndFilesInfo.filesInfo
-    const homeworkId = homework.id
+    const homeworkId = homework.id!
     const courseId = homework.courseId!
 
     const isPublished = !homework.isDeferred
@@ -72,14 +76,14 @@ const CourseHomeworkEditor: FC<{
         e.preventDefault()
         setHandleSubmitLoading(true)
         const updatedHomework = {
-            title: title,
+            id: homeworkId,
+            title: title!,
             description: description,
             tags: tags,
             hasDeadline: metadata.hasDeadline,
             deadlineDate: metadata.deadlineDate,
             isDeadlineStrict: metadata.isDeadlineStrict,
-            publicationDate: metadata.publicationDate,
-            isPublished: isPublished,
+            publicationDate: metadata.publicationDate
         }
         await ApiSingleton.homeworksApi.homeworksUpdateHomework(+homeworkId!, updatedHomework)
 
@@ -105,7 +109,27 @@ const CourseHomeworkEditor: FC<{
 
         // Дожидаемся удаления и загрузки необходимых файлов
         await Promise.all([...deleteOperations, ...uploadOperations])
-        props.onUpdate(updatedHomework)
+
+        const updatedHomework2: HomeworkViewModel = {
+            ...homework,
+            ...updatedHomework,
+            isDeferred: !isPublished,
+            isGroupWork: tags.includes(GroupWorkTag),
+        }
+
+        if (deleteOperations.length === 0 && uploadOperations.length === 0) {
+            props.onUpdate({homework: updatedHomework2, filesInfo: filesControlState.selectedFilesInfo})
+        } else {
+            try {
+                const newFilesDtos = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, homeworkId!)
+                const newFilesInfo = FileInfoConverter.fromFileInfoDTOArray(newFilesDtos)
+                props.onUpdate({homework: updatedHomework2, filesInfo: newFilesInfo})
+            } catch (e) {
+                const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
+                enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
+                props.onUpdate({homework: updatedHomework2, filesInfo: filesControlState.selectedFilesInfo})
+            }
+        }
     }
 
     const isSomeTaskSoonerThanHomework = changedTaskPublicationDates.some(d => d < metadata.publicationDate)
@@ -200,7 +224,7 @@ const CourseHomeworkEditor: FC<{
 const CourseHomeworkExperimental: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
     isMentor: boolean,
-    onUpdate: (x: HomeworkViewModel) => void
+    onUpdate: (x: HomeworkAndFilesInfo) => void
 }> = (props) => {
     const {homework, filesInfo} = props.homeworkAndFilesInfo
     const deferredHomeworks = homework.tasks!.filter(t => t.isDeferred!)
@@ -214,9 +238,9 @@ const CourseHomeworkExperimental: FC<{
 
     if (editMode) return <CourseHomeworkEditor
         homeworkAndFilesInfo={{homework, filesInfo}}
-        onUpdate={() => {
+        onUpdate={update => {
             setEditMode(false)
-            props.onUpdate(homework)
+            props.onUpdate(update)
         }}
     />
 
