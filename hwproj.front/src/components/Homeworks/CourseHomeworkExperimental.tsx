@@ -120,7 +120,7 @@ const CourseHomeworkEditor: FC<{
                         fullWidth
                         style={{width: '300px'}} //TODO
                         label="Название задания"
-                        variant="outlined"
+                        variant="standard"
                         margin="normal"
                         value={title}
                         onChange={(e) => {
