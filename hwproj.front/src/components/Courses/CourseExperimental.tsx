@@ -20,13 +20,10 @@ import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 import {Card, CardActions, CardContent, Chip, Divider, Paper, Stack, Tooltip} from "@mui/material";
 import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import Utils from "../../services/Utils";
 import {getTip} from "../Common/HomeworkTags";
 import {MarkdownPreview} from "../Common/MarkdownEditor";
-import FilesPreviewList from "components/Files/FilesPreviewList";
-import {IFileInfo} from "components/Files/IFileInfo"
-import ApiSingleton from "api/ApiSingleton";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
+import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExperimental";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -36,14 +33,13 @@ interface ICourseExperimentalProps {
     isStudentAccepted: boolean
     userId: string
     selectedHomeworkId: number | undefined
+    onUpdate: () => void
 }
 
 interface ICourseExperimentalState {
     selectedItem: {
         isHomework: boolean,
         id: number | undefined,
-        data: HomeworkViewModel | HomeworkTaskViewModel | undefined,
-        homeworkFilesInfo: IFileInfo[],
     }
 }
 
@@ -58,13 +54,10 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         selectedItem: {
             isHomework: true,
             id: defaultHomework?.id,
-            data: defaultHomework,
-            homeworkFilesInfo: defaultHomework?.id
-                ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, defaultHomework.id) : []
         }
     })
 
-    const {data, id, isHomework, homeworkFilesInfo} = state.selectedItem
+    const {id, isHomework} = state.selectedItem
 
     const renderDate = (date: Date) => {
         date = new Date(date)
@@ -88,46 +81,6 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const getStyle = (itemIsHomework: boolean, itemId: number) =>
         itemIsHomework === isHomework && itemId === id ? hoveredItemStyle : {}
-
-    const renderHomework = (homework: HomeworkViewModel, localFilesInfo: IFileInfo[]) => {
-        const deferredHomeworks = homework.tasks!.filter(t => t.isDeferred!)
-        const tasksCount = homework.tasks!.length
-        return <CardContent>
-            <Grid container spacing={2}>
-                <Grid item>
-                    <Typography variant="h6" component="div">
-                        {homework.title}
-                    </Typography>
-                </Grid>
-                {props.isMentor && deferredHomeworks!.length > 0 &&
-                    <Grid item><Chip label={"🕘 " + deferredHomeworks!.length}/></Grid>
-                }
-                {tasksCount > 0 && <Grid item>
-                    <Chip
-                        label={tasksCount + " " + Utils.pluralizeHelper(["Задание", "Задания", "Заданий"], tasksCount)}/>
-                </Grid>}
-                {homework.tags?.filter(t => t !== '').map((tag, index) => (
-                    <Grid item key={index}>
-                        <Chip key={index} label={tag}/>
-                    </Grid>
-                ))}
-            </Grid>
-            <Divider style={{marginTop: 15, marginBottom: 15}}/>
-            <Typography component="div" style={{color: "#454545"}} gutterBottom variant="body1">
-                <MarkdownPreview value={homework.description!}/>
-            </Typography>
-            {localFilesInfo && localFilesInfo.length > 0 &&
-                <div>
-                    <FilesPreviewList
-                        filesInfo={localFilesInfo}
-                        onClickFileInfo={async (fileInfo: IFileInfo) => {
-                            var url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.key!)
-                            window.open(url, '_blank');
-                        }}
-                    />
-                </div>}
-        </CardContent>
-    }
 
     const renderTask = (task: HomeworkTaskViewModel) => {
         return <CardContent>
@@ -183,14 +136,19 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     const renderSelectedItem = () => {
-        if (!data) return null
+        if (isHomework) {
+            const homework = homeworks.find(x => x.id === id) as HomeworkViewModel
+            const filesInfo = defaultHomework?.id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, defaultHomework.id) : []
+            return homework && <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
+                <CourseHomeworkExperimental
+                    homeworkAndFilesInfo={{homework, filesInfo}}
+                    isMentor={isMentor}
+                    onUpdate={() => props.onUpdate()}/>
+            </Card>
+        }
 
-        if (isHomework) return <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
-            {renderHomework(data as HomeworkViewModel, homeworkFilesInfo)}
-        </Card>
-
-        const task = data as HomeworkTaskViewModel
-        return <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
+        const task = (homeworks.flatMap(x => x.tasks).find(x => x!.id == id)) as HomeworkTaskViewModel
+        return task && <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
             {renderTask(task)}
             {!props.isMentor && props.isStudentAccepted && < CardActions>
                 <Link

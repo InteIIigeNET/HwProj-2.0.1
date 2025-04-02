@@ -34,6 +34,7 @@ export default function Tags({tags, onTagsChange, requestTags, isElementSmall}: 
     return (
         <Autocomplete
             multiple
+            fullWidth
             id="tags-filled"
             options={allTags}
             value={value}
