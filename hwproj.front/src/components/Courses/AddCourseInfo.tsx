@@ -76,7 +76,7 @@ const AddCourseInfo: FC<IAddCourseInfoProps> = (props: IAddCourseInfoProps) => {
           type="submit"
           variant="contained"
           size="large"
-          style={{ color: "white", backgroundColor: "#3f51b5" }}
+          sx={{ background: "#3f51b5", color: "white" }}
           disabled={!state.courseName}
           loading={state.courseIsLoading}
         >

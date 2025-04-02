@@ -55,10 +55,11 @@ const CreateCourse: FC = () => {
   const navigate = useNavigate()
   const {enqueueSnackbar} = useSnackbar()
 
-  const toNextStep = () =>
+  const skipCurrentStep = () =>
     setState((prevState) => ({
       ...prevState,
       activeStep: prevState.activeStep + 1,
+      skippedSteps: prevState.skippedSteps.add(prevState.activeStep),
     }))
 
   const setBaseCourses = (courses?: CoursePreviewView[]) =>
@@ -77,11 +78,11 @@ const CreateCourse: FC = () => {
     const loadBaseCourses = async () => {
       try {
         const userCourses = await ApiSingleton.coursesApi.coursesGetAllUserCourses()
-        if (!userCourses.length) toNextStep()
+        if (!userCourses.length) skipCurrentStep()
         setBaseCourses(userCourses)
       }
       catch (e) {
-        toNextStep()
+        skipCurrentStep()
         setBaseCourses([])
         console.error("Ошибка при загрузке курсов лектора:", e)
         enqueueSnackbar("Не удалось загрузить существующие курсы", {variant: "warning", autoHideDuration: 4000})
