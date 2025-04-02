@@ -4,7 +4,7 @@ import FilesPreviewList from "components/Files/FilesPreviewList";
 import {IFileInfo} from "components/Files/IFileInfo";
 import {FC, useEffect, useState} from "react"
 import Utils from "services/Utils";
-import {HomeworkViewModel} from "../../api";
+import {FileInfoDTO, HomeworkViewModel} from "../../api";
 import ApiSingleton from "../../api/ApiSingleton";
 import UpdateFilesUtils from "../Utils/UpdateFilesUtils";
 import Tags from "../Common/Tags";
@@ -14,7 +14,6 @@ import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import * as React from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import {LoadingButton} from "@mui/lab";
-import FileInfoConverter from "../Utils/FileInfoConverter";
 import ErrorsHandler from "../Utils/ErrorsHandler";
 import {enqueueSnackbar} from "notistack";
 import {GroupWorkTag} from "../Common/HomeworkTags";
@@ -39,7 +38,7 @@ interface IEditFilesState {
 
 const CourseHomeworkEditor: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
-    onUpdate: (update: HomeworkAndFilesInfo) => void
+    onUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] }) => void
 }> = (props) => {
     const homework = props.homeworkAndFilesInfo.homework
     const filesInfo = props.homeworkAndFilesInfo.filesInfo
@@ -118,16 +117,15 @@ const CourseHomeworkEditor: FC<{
         }
 
         if (deleteOperations.length === 0 && uploadOperations.length === 0) {
-            props.onUpdate({homework: updatedHomework2, filesInfo: filesControlState.selectedFilesInfo})
+            props.onUpdate({homework: updatedHomework2, fileInfos: filesControlState.selectedFilesInfo})
         } else {
             try {
                 const newFilesDtos = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, homeworkId!)
-                const newFilesInfo = FileInfoConverter.fromFileInfoDTOArray(newFilesDtos)
-                props.onUpdate({homework: updatedHomework2, filesInfo: newFilesInfo})
+                props.onUpdate({homework: updatedHomework2, fileInfos: newFilesDtos})
             } catch (e) {
                 const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
                 enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
-                props.onUpdate({homework: updatedHomework2, filesInfo: filesControlState.selectedFilesInfo})
+                props.onUpdate({homework: updatedHomework2, fileInfos: filesControlState.selectedFilesInfo})
             }
         }
     }
@@ -224,7 +222,7 @@ const CourseHomeworkEditor: FC<{
 const CourseHomeworkExperimental: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
     isMentor: boolean,
-    onUpdate: (x: HomeworkAndFilesInfo) => void
+    onUpdate: (x: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] }) => void
 }> = (props) => {
     const {homework, filesInfo} = props.homeworkAndFilesInfo
     const deferredHomeworks = homework.tasks!.filter(t => t.isDeferred!)

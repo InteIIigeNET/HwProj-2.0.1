@@ -23,7 +23,7 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {getTip} from "../Common/HomeworkTags";
 import {MarkdownPreview} from "../Common/MarkdownEditor";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
-import CourseHomeworkExperimental, {HomeworkAndFilesInfo} from "components/Homeworks/CourseHomeworkExperimental";
+import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExperimental";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -33,7 +33,7 @@ interface ICourseExperimentalProps {
     isStudentAccepted: boolean
     userId: string
     selectedHomeworkId: number | undefined
-    onUpdate: (update: HomeworkAndFilesInfo) => void
+    onUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] }) => void
 }
 
 interface ICourseExperimentalState {

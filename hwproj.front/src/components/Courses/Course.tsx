@@ -405,12 +405,12 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                     isStudentAccepted={isAcceptedStudent}
                                     selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
                                     userId={userId!}
-                                    onUpdate={({filesInfo, homework}) => {
+                                    onUpdate={({fileInfos, homework}) => {
                                         const homeworkIndex = courseState.courseHomework.findIndex(x => x.id === homework.id)
                                         const homeworks = [...courseState.courseHomework]
                                         homeworks[homeworkIndex] = homework
 
-                                        const newCourseFiles = courseFilesInfo.filter(x => x.homeworkId !== homework.id).concat(filesInfo)
+                                        const newCourseFiles = courseFilesInfo.filter(x => x.homeworkId !== homework.id).concat(fileInfos)
 
                                         setCourseState(prevState => ({
                                             ...prevState,
