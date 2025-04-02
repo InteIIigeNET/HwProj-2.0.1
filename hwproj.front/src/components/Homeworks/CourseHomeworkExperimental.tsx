@@ -38,6 +38,7 @@ const CourseHomeworkEditor: FC<{
     onUpdate: (update: HomeworkViewModel) => void
 }> = (props) => {
     const homework = props.homeworkAndFilesInfo.homework
+    const filesInfo = props.homeworkAndFilesInfo.filesInfo
     const homeworkId = homework.id
     const courseId = homework.courseId!
 
@@ -59,8 +60,8 @@ const CourseHomeworkEditor: FC<{
     const [tags, setTags] = useState<string[]>(homework.tags!)
     const [description, setDescription] = useState<string>(homework.description!)
     const [filesControlState, setFilesControlState] = useState<IEditFilesState>({
-        initialFilesInfo: props.homeworkAndFilesInfo.filesInfo,
-        selectedFilesInfo: [],
+        initialFilesInfo: filesInfo,
+        selectedFilesInfo: filesInfo,
         isLoadingInfo: false
     });
     const [hasErrors, setHasErrors] = useState<boolean>(false)
