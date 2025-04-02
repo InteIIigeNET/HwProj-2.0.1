@@ -65,9 +65,9 @@ const AddCourseInfo: FC<IAddCourseInfoProps> = (props: IAddCourseInfoProps) => {
       </Grid>
       <Grid item xs={12} style={{ marginTop: 8, display: "flex", justifyContent: "space-between" }}>
         <Button
-          variant="outlined"
-          color="primary"
+          variant="text"
           size="large"
+          hidden={!state.baseCourses?.length}
           onClick={handleBack}
         >
           Назад
@@ -76,7 +76,7 @@ const AddCourseInfo: FC<IAddCourseInfoProps> = (props: IAddCourseInfoProps) => {
           type="submit"
           variant="contained"
           size="large"
-          sx={{ background: "#3f51b5", color: "white" }}
+          sx={{ marginLeft: "auto", background: "#3f51b5", color: "white" }}
           disabled={!state.courseName}
           loading={state.courseIsLoading}
         >
