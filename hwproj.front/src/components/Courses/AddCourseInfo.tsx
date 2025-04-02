@@ -1,30 +1,46 @@
-import {FC, ChangeEvent} from "react"
+import {FC, Dispatch, SetStateAction, ChangeEvent} from "react"
 import {
   Grid,
   TextField,
   Button,
 } from "@material-ui/core";
 import {LoadingButton} from "@mui/lab";
+import {ICreateCourseState} from "./ICreateCourseState";
 
 interface IAddCourseInfoProps {
-  courseName: string;
-  groupName: string;
-  courseIsLoading: boolean;
-  setCourseName: (name: string) => void;
-  setGroupName: (name: string) => void;
-  handleBack: () => void;
+  state: ICreateCourseState;
+  setState: Dispatch<SetStateAction<ICreateCourseState>>;
 }
 
 const AddCourseInfo: FC<IAddCourseInfoProps> = (props: IAddCourseInfoProps) => {
+  const state = props.state
+
   const handleCourseNameChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     e.persist()
-    props.setCourseName(e.target.value)
+    props.setState((prevState) => ({
+      ...prevState,
+      courseName: e.target.value,
+    }))
   }
 
   const handleGroupNameChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     e.persist()
-    props.setGroupName(e.target.value)
+    props.setState((prevState) => ({
+      ...prevState,
+      groupName: e.target.value,
+    }))
   }
+
+  const handleBack = () =>
+    props.setState((prevState) => {
+      const newSkippedSteps = prevState.skippedSteps
+      newSkippedSteps.delete(prevState.activeStep - 1)
+      return ({
+        ...prevState,
+        activeStep: prevState.activeStep - 1,
+        skippedSteps: newSkippedSteps,
+      })
+    })
 
   return (
     <Grid container spacing={2}>
@@ -34,7 +50,7 @@ const AddCourseInfo: FC<IAddCourseInfoProps> = (props: IAddCourseInfoProps) => {
           label="Название курса"
           variant="outlined"
           fullWidth
-          value={props.courseName}
+          value={state.courseName}
           onChange={handleCourseNameChange}
         />
       </Grid>
@@ -43,16 +59,16 @@ const AddCourseInfo: FC<IAddCourseInfoProps> = (props: IAddCourseInfoProps) => {
           label="Номер группы"
           variant="outlined"
           fullWidth
-          value={props.groupName}
+          value={state.groupName}
           onChange={handleGroupNameChange}
         />
       </Grid>
-      <Grid item style={{ marginTop: 8, display: "flex", justifyContent: "space-between", width: "100%" }}>
+      <Grid item xs={12} style={{ marginTop: 8, display: "flex", justifyContent: "space-between" }}>
         <Button
           variant="outlined"
           color="primary"
           size="large"
-          onClick={props.handleBack}
+          onClick={handleBack}
         >
           Назад
         </Button>
@@ -61,7 +77,8 @@ const AddCourseInfo: FC<IAddCourseInfoProps> = (props: IAddCourseInfoProps) => {
           variant="contained"
           size="large"
           style={{ color: "white", backgroundColor: "#3f51b5" }}
-          loading={props.courseIsLoading}
+          disabled={!state.courseName}
+          loading={state.courseIsLoading}
         >
           Создать курс
         </LoadingButton>
