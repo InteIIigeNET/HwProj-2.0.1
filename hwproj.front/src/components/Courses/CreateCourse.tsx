@@ -7,26 +7,22 @@ import {
 } from "@material-ui/core";
 import {FC, FormEvent, useState, useEffect} from "react";
 import ApiSingleton from "../../api/ApiSingleton";
+import {CoursePreviewView} from "api";
 import "./Styles/CreateCourse.css";
 import GroupIcon from "@material-ui/icons/Group";
 import {makeStyles} from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import {CoursePreviewView} from "api";
 import {useNavigate} from "react-router-dom";
 import {useSnackbar} from "notistack";
 import ErrorsHandler from "components/Utils/ErrorsHandler";
+import {
+  ICreateCourseState,
+  CreateCourseStep,
+  stepLabels,
+  stepIsOptional
+} from "./ICreateCourseState";
 import SelectBaseCourse from "./SelectBaseCourse";
 import AddCourseInfo from "./AddCourseInfo";
-
-enum CreateCourseSteps {
-  SelectBaseCourseStep = 0,
-  AddCourseInfoStep = 1,
-}
-
-const stepLabels = ["Взять за основу существующий курс", "Заполнить данные о курсе"]
-
-const stepIsOptional = (step: CreateCourseSteps) =>
-  step === CreateCourseSteps.SelectBaseCourseStep
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -48,27 +44,44 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const CreateCourse: FC = () => {
-  const [courseName, setCourseName] = useState<string>("")
-  const [groupName, setGroupName] = useState<string>("")
-  const [courseIsLoading, setCourseIsLoading] = useState<boolean>(false)
-
-  const [baseCourses, setBaseCourses] = useState<CoursePreviewView[]>()
-  const [baseCourseIndex, setBaseCourseIndex] = useState<number>()
-
-  const [activeStep, setActiveStep] = useState<CreateCourseSteps>(CreateCourseSteps.SelectBaseCourseStep)
+  const [state, setState] = useState<ICreateCourseState>({
+    activeStep: CreateCourseStep.SelectBaseCourseStep,
+    skippedSteps: new Set (),
+    courseName: "",
+    groupName: "",
+    courseIsLoading: false,
+  })
 
   const navigate = useNavigate()
   const {enqueueSnackbar} = useSnackbar()
+
+  const toNextStep = () =>
+    setState((prevState) => ({
+      ...prevState,
+      activeStep: prevState.activeStep + 1,
+    }))
+
+  const setBaseCourses = (courses?: CoursePreviewView[]) =>
+    setState((prevState) => ({
+      ...prevState,
+      baseCourses: courses,
+    }))
+
+  const setCourseIsLoading = (isLoading: boolean) =>
+    setState((prevState) => ({
+      ...prevState,
+      courseIsLoading: isLoading,
+    }))
 
   useEffect(() => {
     const loadBaseCourses = async () => {
       try {
         const userCourses = await ApiSingleton.coursesApi.coursesGetAllUserCourses()
-        if (!userCourses.length) setActiveStep(CreateCourseSteps.AddCourseInfoStep)
+        if (!userCourses.length) toNextStep()
         setBaseCourses(userCourses)
       }
       catch (e) {
-        setActiveStep(CreateCourseSteps.AddCourseInfoStep)
+        toNextStep()
         setBaseCourses([])
         console.error("Ошибка при загрузке курсов лектора:", e)
         enqueueSnackbar("Не удалось загрузить существующие курсы", {variant: "warning", autoHideDuration: 4000})
@@ -78,28 +91,36 @@ const CreateCourse: FC = () => {
     loadBaseCourses()
   }, [])
 
-  const handleBack = () => setActiveStep(activeStep - 1)
-  const handleNext = () => setActiveStep(activeStep + 1)
-
-  const selectBaseCourseHandleNext = () => {
-    const baseCourse = baseCourseIndex !== undefined ? baseCourses![baseCourseIndex] : undefined
-    setCourseName(baseCourse?.name || "")
-    setGroupName(baseCourse?.groupName || "")
-    handleNext()
+  const handleStep = (step: CreateCourseStep) => {
+    switch (step) {
+      case CreateCourseStep.SelectBaseCourseStep:
+        return <SelectBaseCourse
+          state={state}
+          setState={setState}
+        />
+      case CreateCourseStep.AddCourseInfoStep:
+        return <AddCourseInfo
+          state={state}
+          setState={setState}
+        />
+      default:
+        console.error(`Шаг создания курса неопределён: ${step}`)
+    }
   }
 
-  const selectBaseCourseHandleSkip = () => {
-    setBaseCourseIndex(undefined)
-    selectBaseCourseHandleNext()
-  }
+  const stepIsCompleted = (step: CreateCourseStep) =>
+    step < state.activeStep && !state.skippedSteps.has(step)
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    const baseCourse = state.baseCourseIndex !== undefined
+      ? state.baseCourses![state.baseCourseIndex]
+      : undefined
     const courseViewModel = {
-      name: courseName,
-      groupName: groupName,
+      name: state.courseName,
+      groupName: state.groupName,
       isOpen: true,
-      baseCourseId: baseCourseIndex !== undefined ? baseCourses![baseCourseIndex].id : undefined,
+      baseCourseId: baseCourse?.id,
     }
     try {
       setCourseIsLoading(true)
@@ -115,30 +136,6 @@ const CreateCourse: FC = () => {
     setCourseIsLoading(false)
   }
 
-  const handleStep = (step: CreateCourseSteps) => {
-    switch (step) {
-      case CreateCourseSteps.SelectBaseCourseStep:
-        return <SelectBaseCourse
-          baseCourses={baseCourses!}
-          baseCourseIndex={baseCourseIndex}
-          setBaseCourseIndex={setBaseCourseIndex}
-          handleNext={selectBaseCourseHandleNext}
-          handleSkip={selectBaseCourseHandleSkip}
-        />
-      case CreateCourseSteps.AddCourseInfoStep:
-        return <AddCourseInfo
-          courseName={courseName}
-          groupName={groupName}
-          courseIsLoading={courseIsLoading}
-          setCourseName={setCourseName}
-          setGroupName={setGroupName}
-          handleBack={handleBack}
-        />
-      default:
-        console.error(`Шаг создания курса неопределён: ${step}`)
-    }
-  }
-
   const classes = useStyles()
 
   if (!ApiSingleton.authService.isLecturer()) {
@@ -148,7 +145,7 @@ const CreateCourse: FC = () => {
       </Typography>
     )
   }
-  return baseCourses ? (
+  return state.baseCourses ? (
     <Container component="main" maxWidth="sm">
       <div className={classes.paper}>
         <GroupIcon
@@ -160,7 +157,7 @@ const CreateCourse: FC = () => {
           Создать курс
         </Typography>
         <form onSubmit={handleSubmit} className={classes.form}>
-          <Stepper alternativeLabel activeStep={activeStep}>
+          <Stepper alternativeLabel activeStep={state.activeStep}>
             {stepLabels.map((label, step) => {
               const optionalLabel = stepIsOptional(step) ? (
                 <Typography variant="caption">
@@ -168,13 +165,17 @@ const CreateCourse: FC = () => {
                 </Typography>
               ) : undefined
               return (
-                <Step key={label} style={{ textAlign: "center" }}>
+                <Step
+                  key={label}
+                  completed={stepIsCompleted(step)}
+                  style={{ textAlign: "center" }}
+                >
                   <StepLabel optional={optionalLabel}>{label}</StepLabel>
                 </Step>
               )
             })}
           </Stepper>
-          {handleStep(activeStep)}
+          {handleStep(state.activeStep)}
         </form>
       </div>
     </Container>
