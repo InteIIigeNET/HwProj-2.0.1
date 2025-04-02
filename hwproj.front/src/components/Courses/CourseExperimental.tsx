@@ -138,7 +138,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const renderSelectedItem = () => {
         if (isHomework) {
             const homework = homeworks.find(x => x.id === id) as HomeworkViewModel
-            const filesInfo = defaultHomework?.id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, defaultHomework.id) : []
+            const filesInfo = id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, id) : []
             return homework && <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
                 <CourseHomeworkExperimental
                     homeworkAndFilesInfo={{homework, filesInfo}}
