@@ -151,12 +151,7 @@ namespace HwProj.AuthService.API.Services
                 : _userManager.CreateAsync(user, Guid.NewGuid().ToString());
 
             var result = await createUserTask
-                .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole))
-                .Then(() =>
-                {
-                    user.EmailConfirmed = true;
-                    return _userManager.UpdateAsync(user);
-                });
+                .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole));
 
             if (result.Succeeded)
             {
@@ -251,6 +246,12 @@ namespace HwProj.AuthService.API.Services
             var removeTokenResult = await _aspUserManager.RemoveAuthenticationTokenAsync(user,
                 _aspUserManager.Options.Tokens.PasswordResetTokenProvider,
                 UserManager<User>.ResetPasswordTokenPurpose);
+
+            if (!user.EmailConfirmed)
+            {
+                user.EmailConfirmed = true;
+                await _aspUserManager.UpdateAsync(user);
+            }
 
             return removeTokenResult.Succeeded
                 ? Result.Success()
