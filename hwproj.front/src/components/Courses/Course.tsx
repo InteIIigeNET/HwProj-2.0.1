@@ -404,9 +404,9 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                     studentSolutions={studentSolutions}
                                     isStudentAccepted={isAcceptedStudent}
                                     selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
-                                    userId={userId!}/>
-                                :
-                                <div>
+                                    userId={userId!}
+                                    onUpdate={() => setCurrentState()}/>
+                                : <div>
                                     {createHomework && (
                                         <div>
                                             <Grid container>
