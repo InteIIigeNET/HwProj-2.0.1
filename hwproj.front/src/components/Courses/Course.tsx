@@ -405,7 +405,10 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                     isStudentAccepted={isAcceptedStudent}
                                     selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
                                     userId={userId!}
-                                    onUpdate={() => setCurrentState()}/>
+                                    onUpdate={() => {
+                                        setCurrentState()
+                                        getCourseFilesInfo()
+                                    }}/>
                                 : <div>
                                     {createHomework && (
                                         <div>
