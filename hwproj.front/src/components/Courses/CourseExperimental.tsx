@@ -17,7 +17,7 @@ import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
-import {Card, CardActions, CardContent, Chip, Divider, Paper, Stack, Tooltip} from "@mui/material";
+import {Alert, Card, CardActions, CardContent, Chip, Divider, Paper, Stack, Tooltip} from "@mui/material";
 import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {getTip} from "../Common/HomeworkTags";
@@ -44,7 +44,9 @@ interface ICourseExperimentalState {
 }
 
 const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
-    const homeworks = props.homeworks.slice().reverse()
+    const [hideDeferred, setHideDeferred] = useState<boolean>(false)
+
+    const homeworks = props.homeworks.slice().reverse().filter(x => !hideDeferred || !x.isDeferred)
     const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId, courseFilesInfo} = props
 
     const defaultHomeworkIndex = Math.max(selectedHomeworkId ? homeworks?.findIndex(x => x.id === selectedHomeworkId) : 0, 0)
@@ -56,7 +58,6 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             id: defaultHomework?.id,
         }
     })
-
     const {id, isHomework} = state.selectedItem
 
     const renderDate = (date: Date) => {
@@ -77,10 +78,17 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return date.toLocaleString("ru-RU", options)
     }
 
-    const hoveredItemStyle = {backgroundColor: "ghostwhite", borderRadius: "10px", cursor: "pointer"}
+    const clickedItemStyle = {
+        backgroundColor: "ghostwhite",
+        borderRadius: "10px",
+        cursor: "pointer",
+        border: "1px solid lightgrey"
+    }
+
+    const hoveredItemStyle = {...clickedItemStyle, border: "1px solid lightgrey"}
 
     const getStyle = (itemIsHomework: boolean, itemId: number) =>
-        itemIsHomework === isHomework && itemId === id ? hoveredItemStyle : {}
+        itemIsHomework === isHomework && itemId === id ? clickedItemStyle : {}
 
     const renderTask = (task: HomeworkTaskViewModel) => {
         return <CardContent>
@@ -135,36 +143,62 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return <TimelineDot variant={"outlined"}/>
     }
 
+    const getAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel) => {
+        if (!entity.isDeferred) return null
+        return <Alert severity={"info"}
+                      action={
+                          <Button
+                              color="inherit"
+                              size="small"
+                              onClick={() => setHideDeferred(true)}
+                          >
+                              Скрыть
+                          </Button>}>
+            {isHomework ? "Задание ещё не опубликовано" : "Задача ещё не опубликована"}.
+            Будет опубликовано {renderDate(entity.publicationDate!) + " " + renderTime(entity.publicationDate!)}
+        </Alert>
+    }
+
     const renderSelectedItem = () => {
         if (isHomework) {
             const homework = homeworks.find(x => x.id === id) as HomeworkViewModel
             const filesInfo = id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, id) : []
-            return homework && <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
-                <CourseHomeworkExperimental
-                    homeworkAndFilesInfo={{homework, filesInfo}}
-                    isMentor={isMentor}
-                    onUpdate={update => props.onUpdate(update)}/>
-            </Card>
+            return homework && <Grid container direction={"column"} spacing={1} style={{marginTop: 2}}>
+                <Grid item>{getAlert(homework)}</Grid>
+                <Grid item>
+                    <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
+                        <CourseHomeworkExperimental
+                            homeworkAndFilesInfo={{homework, filesInfo}}
+                            isMentor={isMentor}
+                            onUpdate={update => props.onUpdate(update)}/>
+                    </Card>
+                </Grid>
+            </Grid>
         }
 
         const task = (homeworks.flatMap(x => x.tasks).find(x => x!.id == id)) as HomeworkTaskViewModel
-        return task && <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
-            {renderTask(task)}
-            {!props.isMentor && props.isStudentAccepted && < CardActions>
-                <Link
-                    style={{color: '#212529'}}
-                    to={"/task/" + task.id!.toString()}>
-                    <Button
-                        style={{width: '150px'}}
-                        size="small"
-                        variant="contained"
-                        color="primary"
-                    >
-                        Решения
-                    </Button>
-                </Link>
-            </CardActions>}
-        </Card>
+        return task && <Grid container direction={"column"} spacing={1} style={{marginTop: 2}}>
+            <Grid item>{getAlert(task)}</Grid>
+            <Grid item>
+                <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
+                    {renderTask(task)}
+                    {!props.isMentor && props.isStudentAccepted && < CardActions>
+                        <Link
+                            style={{color: '#212529'}}
+                            to={"/task/" + task.id!.toString()}>
+                            <Button
+                                style={{width: '150px'}}
+                                size="small"
+                                variant="contained"
+                                color="primary"
+                            >
+                                Решения
+                            </Button>
+                        </Link>
+                    </CardActions>}
+                </Card>
+            </Grid>
+        </Grid>
     }
 
     return <Grid container direction={"row"} spacing={1}>
@@ -192,7 +226,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             justifyContent="center"
                             alignContent={"center"}
                             sx={{":hover": hoveredItemStyle}}
-                            style={{...getStyle(true, x.id!), marginTop: 10, marginBottom: 10, minHeight: 50}}
+                            style={{...getStyle(true, x.id!), marginBottom: 2, minHeight: 50}}
                             onClick={() => {
                                 setState(prevState => ({
                                     ...prevState,
@@ -204,7 +238,8 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                     }
                                 }))
                             }}>
-                            <Typography variant="h6" style={{fontSize: 18}} align={"center"}>
+                            <Typography variant="h6" style={{fontSize: 18}} align={"center"}
+                                        color={x.isDeferred ? "textSecondary" : "textPrimary"}>
                                 {x.title}{getTip(x)}
                             </Typography>
                             {x.isDeferred &&
@@ -231,7 +266,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                     }
                                 }))
                             }}
-                            style={{...getStyle(false, t.id!)}}
+                            style={{...getStyle(false, t.id!), marginBottom: 2}}
                             sx={{":hover": hoveredItemStyle}}>
                             <TimelineOppositeContent color="textSecondary">
                                 {t.deadlineDate ? renderDate(t.deadlineDate) : ""}
@@ -243,7 +278,8 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 <TimelineConnector/>
                             </TimelineSeparator>
                             <TimelineContent alignItems={"center"}>
-                                <Typography className="antiLongWords">
+                                <Typography className="antiLongWords"
+                                            color={t.isDeferred ? "textSecondary" : "textPrimary"}>
                                     {t.title}{getTip(x)}
                                 </Typography>
                             </TimelineContent>

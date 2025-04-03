@@ -49,7 +49,7 @@ interface ICourseProps {
 interface ICourseState {
     isFound: boolean;
     course: CourseViewModel;
-    courseHomework: HomeworkViewModel[];
+    courseHomeworks: HomeworkViewModel[];
     createHomework: boolean;
     mentors: AccountDataDto[];
     acceptedStudents: AccountDataDto[];
@@ -80,7 +80,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     const [courseState, setCourseState] = useState<ICourseState>({
         isFound: false,
         course: {},
-        courseHomework: [],
+        courseHomeworks: [],
         createHomework: false,
         mentors: [],
         acceptedStudents: [],
@@ -105,6 +105,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         acceptedStudents,
         isReadingMode,
         studentSolutions,
+        courseHomeworks,
     } = courseState;
 
     const getPostedHomeworks = (homeworks: HomeworkViewModel[]) =>
@@ -119,10 +120,6 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     const isExpert = ApiSingleton.authService.isExpert()
     const isMentor = isLecturer || isExpert
     const isCourseMentor = mentors.some(t => t.userId === userId)
-
-    const courseHomeworks = isCourseMentor && isReadingMode
-        ? getPostedHomeworks(courseState.courseHomework)
-        : courseState.courseHomework
 
     const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
 
@@ -164,7 +161,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
             ...prevState,
             isFound: true,
             course: course,
-            courseHomework: course.homeworks!,
+            courseHomeworks: course.homeworks!,
             courseFilesInfo: courseFilesInfo,
             createHomework: false,
             mentors: course.mentors!,
@@ -406,15 +403,15 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                     selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
                                     userId={userId!}
                                     onUpdate={({fileInfos, homework}) => {
-                                        const homeworkIndex = courseState.courseHomework.findIndex(x => x.id === homework.id)
-                                        const homeworks = [...courseState.courseHomework]
+                                        const homeworkIndex = courseState.courseHomeworks.findIndex(x => x.id === homework.id)
+                                        const homeworks = [...courseState.courseHomeworks]
                                         homeworks[homeworkIndex] = homework
 
                                         const newCourseFiles = courseFilesInfo.filter(x => x.homeworkId !== homework.id).concat(fileInfos)
 
                                         setCourseState(prevState => ({
                                             ...prevState,
-                                            courseHomework: homeworks
+                                            courseHomeworks: homeworks
                                         }))
                                         setCourseFilesInfo(newCourseFiles)
                                     }}/>
@@ -427,7 +424,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                                         id={+courseId!}
                                                         onCancel={() => setCurrentState()}
                                                         onSubmit={() => setCurrentState()}
-                                                        previousHomeworks={courseState.courseHomework}
+                                                        previousHomeworks={courseState.courseHomeworks}
                                                     />
                                                 </Grid>
                                                 <Grid item xs={12}>
