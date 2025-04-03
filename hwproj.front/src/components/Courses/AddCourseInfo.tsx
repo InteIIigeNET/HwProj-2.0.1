@@ -1,18 +1,13 @@
-import {FC, Dispatch, SetStateAction, ChangeEvent} from "react"
+import {FC, ChangeEvent} from "react"
 import {
   Grid,
   TextField,
   Button,
 } from "@material-ui/core";
 import {LoadingButton} from "@mui/lab";
-import {ICreateCourseState} from "./ICreateCourseState";
+import {IStepComponentProps} from "./ICreateCourseState";
 
-interface IAddCourseInfoProps {
-  state: ICreateCourseState;
-  setState: Dispatch<SetStateAction<ICreateCourseState>>;
-}
-
-const AddCourseInfo: FC<IAddCourseInfoProps> = (props: IAddCourseInfoProps) => {
+const AddCourseInfo: FC<IStepComponentProps> = (props) => {
   const state = props.state
 
   const handleCourseNameChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -76,7 +71,11 @@ const AddCourseInfo: FC<IAddCourseInfoProps> = (props: IAddCourseInfoProps) => {
           type="submit"
           variant="contained"
           size="large"
-          sx={{ marginLeft: "auto", background: "#3f51b5", color: "white" }}
+          sx={{
+            marginLeft: "auto",
+            background: "#3f51b5",
+            ":hover": { background: "#383c9c" },
+          }}
           disabled={!state.courseName}
           loading={state.courseIsLoading}
         >

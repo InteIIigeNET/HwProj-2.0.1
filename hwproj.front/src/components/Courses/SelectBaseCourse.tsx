@@ -1,4 +1,4 @@
-import {FC, Dispatch, SetStateAction, ChangeEvent} from "react"
+import {FC, ChangeEvent} from "react"
 import {
   Grid,
   Box,
@@ -7,21 +7,22 @@ import {
   MenuItem,
   Typography,
 } from "@material-ui/core";
-import {ICreateCourseState} from "./ICreateCourseState";
+import {Link} from "react-router-dom";
+import {IStepComponentProps} from "./ICreateCourseState";
 import NameBuilder from "../Utils/NameBuilder";
 
-interface ISelectBaseCourseProps {
-  state: ICreateCourseState;
-  setState: Dispatch<SetStateAction<ICreateCourseState>>;
-}
-
-const SelectBaseCourse: FC<ISelectBaseCourseProps> = (props: ISelectBaseCourseProps) => {
+const SelectBaseCourse: FC<IStepComponentProps> = (props) => {
   const state = props.state
+
   const baseCourses = state.baseCourses!
+
+  const baseCourseId = state.baseCourseIndex !== undefined
+    ? baseCourses[state.baseCourseIndex].id
+    : undefined
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     e.persist()
-    const index = e.target.value ? +e.target.value : undefined
+    const index = e.target.value as unknown as (number | undefined)
     props.setState((prevState) => ({
       ...prevState,
       baseCourseIndex: index,
@@ -57,11 +58,11 @@ const SelectBaseCourse: FC<ISelectBaseCourseProps> = (props: ISelectBaseCoursePr
           label="Базовый курс"
           fullWidth
           variant="outlined"
-          value={state.baseCourseIndex || ""}
+          value={state.baseCourseIndex !== undefined ? state.baseCourseIndex : ""}
           onChange={handleChange}
         >
           {!baseCourses.length &&
-            <MenuItem value="" key={null}>
+            <MenuItem value={undefined} key={undefined}>
               <Typography>
                 Базовых курсов не найдено &#128532;<br/>
                 Попробуйте создать курс с нуля
@@ -77,24 +78,33 @@ const SelectBaseCourse: FC<ISelectBaseCourseProps> = (props: ISelectBaseCoursePr
           ).reverse()}
         </TextField>
       </Grid>
-      <Grid item xs={12} style={{ marginTop: 8, display: "flex", justifyContent: "flex-end" }}>
-        <Button
-          variant="text"
-          size="large"
-          style={{ marginRight: 8 }}
-          onClick={handleSkip}
-        >
-          Пропустить
-        </Button>
-        <Button
-          variant="text"
-          color="primary"
-          size="large" 
-          disabled={state.baseCourseIndex === undefined}
-          onClick={handleNext}
-        >
-          Далее
-        </Button>
+      <Grid item xs={12} style={{ marginTop: 8, display: "flex", justifyContent: "space-between" }}>
+        {baseCourseId !== undefined &&
+          <Link to={`/courses/${baseCourseId}`}>
+            <Button variant="text" size="large">
+              Посмотреть курс
+            </Button>
+          </Link>
+        }
+        <Box style={{ marginLeft: "auto" }}>
+          <Button
+            variant="text"
+            size="large"
+            style={{ marginRight: 8 }}
+            onClick={handleSkip}
+          >
+            Пропустить
+          </Button>
+          <Button
+            variant="text"
+            color="primary"
+            size="large" 
+            disabled={state.baseCourseIndex === undefined}
+            onClick={handleNext}
+          >
+            Далее
+          </Button>
+        </Box>
       </Grid>
     </Grid>
   )
