@@ -4,14 +4,16 @@ using HwProj.CoursesService.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HwProj.CoursesService.API.Migrations
 {
     [DbContext(typeof(CourseContext))]
-    partial class CourseContextModelSnapshot : ModelSnapshot
+    [Migration("20250403145122_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,8 +51,6 @@ namespace HwProj.CoursesService.API.Migrations
                     b.Property<string>("InviteCode");
 
                     b.Property<bool>("IsCompleted");
-
-                    b.Property<bool>("IsLimitedVisible");
 
                     b.Property<bool>("IsOpen");
 

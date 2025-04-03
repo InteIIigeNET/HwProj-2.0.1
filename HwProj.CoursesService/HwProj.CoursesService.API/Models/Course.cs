@@ -12,6 +12,7 @@ namespace HwProj.CoursesService.API.Models
         public bool IsOpen { get; set; }
         public string InviteCode { get; set; }
         public bool IsCompleted { get; set; }
+        public bool IsLimitedVisible { get; set; }
         public string MentorIds { get; set; }
         public List<CourseMate> CourseMates { get; set; } = new List<CourseMate>();
         public List<Homework> Homeworks { get; set; } = new List<Homework>();
