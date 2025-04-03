@@ -154,8 +154,8 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                           >
                               Скрыть
                           </Button>}>
-            {isHomework ? "Задание ещё не опубликовано" : "Задача ещё не опубликована"}.
-            Будет опубликовано {renderDate(entity.publicationDate!) + " " + renderTime(entity.publicationDate!)}
+            {isHomework ? "Задание будет опубликовано " : "Задача будет опубликована "}
+            {renderDate(entity.publicationDate!) + " " + renderTime(entity.publicationDate!)}
         </Alert>
     }
 
