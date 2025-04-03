@@ -70,6 +70,7 @@ namespace HwProj.CoursesService.API.Domains
                 Name = course.Name,
                 GroupName = course.GroupName,
                 IsCompleted = course.IsCompleted,
+                IsLimitedVisible = course.IsLimitedVisible,
                 MentorIds = course.MentorIds.Split("/"),
                 IsOpen = course.IsOpen,
                 InviteCode = course.InviteCode,

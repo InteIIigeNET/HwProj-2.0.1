@@ -14,6 +14,7 @@ interface IEditCourseState {
     name: string,
     groupName?: string,
     isCompleted: boolean,
+    isLimitedVisible: boolean,
     mentors: AccountDataDto[],
     edited: boolean,
     deleted: boolean,
@@ -59,6 +60,7 @@ const EditCourse: FC = () => {
         name: "",
         groupName: "",
         isCompleted: false,
+        isLimitedVisible: false,
         mentors: [],
         edited: false,
         deleted: false,
@@ -78,6 +80,7 @@ const EditCourse: FC = () => {
             groupName: course.groupName!,
             isOpen: course.isOpen!,
             isCompleted: course.isCompleted!,
+            isLimitedVisible: course.isLimitedVisible!,
             mentors: course.mentors!,
         }))
     }
@@ -88,7 +91,8 @@ const EditCourse: FC = () => {
             name: courseState.name,
             groupName: courseState.groupName,
             isOpen: true,
-            isCompleted: courseState.isCompleted
+            isCompleted: courseState.isCompleted,
+            isLimitedVisible: courseState.isLimitedVisible
         };
 
         await ApiSingleton.coursesApi.coursesUpdateCourse(+courseId!, courseViewModel)
@@ -169,26 +173,44 @@ const EditCourse: FC = () => {
                                     }))
                                 }}
                             />
-                                <Grid>
-                                    <FormControlLabel
-                                        style={{margin: 0}}
-                                        control={
-                                            <Checkbox
-                                                defaultChecked
-                                                color="primary"
-                                                checked={courseState.isCompleted}
-                                                onChange={(e) => {
-                                                    e.persist()
-                                                    setCourseState((prevState) => ({
-                                                        ...prevState,
-                                                        isCompleted: e.target.checked
-                                                    }))
-                                                }}
-                                            />
-                                        }
-                                        label="Завершённый курс"
-                                    />
-                                </Grid>
+                            <Grid>
+                                <FormControlLabel
+                                    style={{margin: 0}}
+                                    control={
+                                        <Checkbox
+                                            defaultChecked
+                                            color="primary"
+                                            checked={courseState.isCompleted}
+                                            onChange={(e) => {
+                                                e.persist()
+                                                setCourseState((prevState) => ({
+                                                    ...prevState,
+                                                    isCompleted: e.target.checked
+                                                }))
+                                            }}
+                                        />
+                                    }
+                                    label="Завершённый курс"
+                                />
+                                <FormControlLabel
+                                    style={{ margin: 0 }}
+                                    control={
+                                        <Checkbox
+                                            defaultChecked
+                                            color="primary"
+                                            checked={courseState.isLimitedVisible}
+                                            onChange={(e) => {
+                                                e.persist()
+                                                setCourseState((prevState) => ({
+                                                    ...prevState,
+                                                    isLimitedVisible: e.target.checked
+                                                }))
+                                            }}
+                                        />
+                                    }
+                                    label="Ограниченно видимый курс"
+                                />
+                            </Grid>
                             <Grid className={classes.item} style={{alignItems: 'center'}}>
                                 <Button
                                     fullWidth

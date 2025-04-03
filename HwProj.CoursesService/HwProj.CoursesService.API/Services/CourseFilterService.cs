@@ -113,6 +113,7 @@ namespace HwProj.CoursesService.API.Services
                 Name = courseDto.Name,
                 GroupName = courseDto.GroupName,
                 IsCompleted = courseDto.IsCompleted,
+                IsLimitedVisible = courseDto.IsLimitedVisible,
                 IsOpen = courseDto.IsOpen,
                 InviteCode = courseDto.InviteCode,
                 Groups =
