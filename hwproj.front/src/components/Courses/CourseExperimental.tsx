@@ -9,7 +9,7 @@ import {
     Grid,
     Typography
 } from "@material-ui/core";
-import {FC, useState} from "react";
+import {FC, useEffect, useState} from "react";
 import Timeline from '@mui/lab/Timeline';
 import TimelineItem from '@mui/lab/TimelineItem';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
@@ -49,15 +49,14 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const homeworks = props.homeworks.slice().reverse().filter(x => !hideDeferred || !x.isDeferred)
     const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId, courseFilesInfo} = props
 
-    const defaultHomeworkIndex = Math.max(selectedHomeworkId ? homeworks?.findIndex(x => x.id === selectedHomeworkId) : 0, 0)
-    const defaultHomework = homeworks?.[defaultHomeworkIndex]
+    const [state, setState] = useState<ICourseExperimentalState>({selectedItem: {id: undefined, isHomework: false}})
 
-    const [state, setState] = useState<ICourseExperimentalState>({
-        selectedItem: {
-            isHomework: true,
-            id: defaultHomework?.id,
-        }
-    })
+    useEffect(() => {
+        const defaultHomeworkIndex = Math.max(selectedHomeworkId ? homeworks?.findIndex(x => x.id === selectedHomeworkId) : 0, 0)
+        const defaultHomework = homeworks?.[defaultHomeworkIndex]
+        setState({selectedItem: {isHomework: true, id: defaultHomework?.id}})
+    }, [hideDeferred])
+
     const {id, isHomework} = state.selectedItem
 
     const renderDate = (date: Date) => {
@@ -146,6 +145,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const getAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel) => {
         if (!entity.isDeferred) return null
         return <Alert severity={"info"}
+                      style={{marginTop: 2}}
                       action={
                           <Button
                               color="inherit"
@@ -163,7 +163,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         if (isHomework) {
             const homework = homeworks.find(x => x.id === id) as HomeworkViewModel
             const filesInfo = id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, id) : []
-            return homework && <Grid container direction={"column"} spacing={1} style={{marginTop: 2}}>
+            return homework && <Grid container direction={"column"} spacing={1}>
                 <Grid item>{getAlert(homework)}</Grid>
                 <Grid item>
                     <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
@@ -177,7 +177,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         }
 
         const task = (homeworks.flatMap(x => x.tasks).find(x => x!.id == id)) as HomeworkTaskViewModel
-        return task && <Grid container direction={"column"} spacing={1} style={{marginTop: 2}}>
+        return task && <Grid container direction={"column"} spacing={1}>
             <Grid item>{getAlert(task)}</Grid>
             <Grid item>
                 <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
