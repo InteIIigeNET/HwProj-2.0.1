@@ -1,3 +1,4 @@
+import {Dispatch, SetStateAction} from "react"
 import {CoursePreviewView} from "api";
 
 export enum CreateCourseStep {
@@ -6,8 +7,8 @@ export enum CreateCourseStep {
 }
 
 export const stepLabels = [
-  "Выберите шаблон курса",
-  "Заполните данные курса",
+  "Выберите шаблон",
+  "Заполните данные",
 ]
 
 export const stepIsOptional = (step: CreateCourseStep) =>
@@ -24,4 +25,9 @@ export interface ICreateCourseState {
   groupName: string;
 
   courseIsLoading: boolean;
+}
+
+export interface IStepComponentProps {
+  state: ICreateCourseState;
+  setState: Dispatch<SetStateAction<ICreateCourseState>>;
 }

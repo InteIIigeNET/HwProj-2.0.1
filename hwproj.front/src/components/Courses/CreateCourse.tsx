@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
   },
   form: {
     marginTop: theme.spacing(3),
-    width: '100%'
+    width: '100%',
   },
   button: {
     marginTop: theme.spacing(1),
@@ -51,6 +51,11 @@ const CreateCourse: FC = () => {
     groupName: "",
     courseIsLoading: false,
   })
+
+  const baseCourse =
+    state.baseCourses && state.baseCourseIndex !== undefined
+      ? state.baseCourses[state.baseCourseIndex]
+      : undefined
 
   const navigate = useNavigate()
   const {enqueueSnackbar} = useSnackbar()
@@ -85,7 +90,10 @@ const CreateCourse: FC = () => {
         skipCurrentStep()
         setBaseCourses([])
         console.error("Ошибка при загрузке курсов лектора:", e)
-        enqueueSnackbar("Не удалось загрузить существующие курсы", {variant: "warning", autoHideDuration: 4000})
+        enqueueSnackbar(
+          "Не удалось загрузить существующие курсы",
+          {variant: "warning", autoHideDuration: 4000},
+        )
       }
     };
 
@@ -112,18 +120,13 @@ const CreateCourse: FC = () => {
   const stepIsCompleted = (step: CreateCourseStep) =>
     step < state.activeStep && !state.skippedSteps.has(step)
 
-  const getBaseCourse = () =>
-    state.baseCourseIndex !== undefined
-      ? state.baseCourses![state.baseCourseIndex]
-      : undefined
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const courseViewModel = {
       name: state.courseName,
       groupName: state.groupName,
       isOpen: true,
-      baseCourseId: getBaseCourse()?.id,
+      baseCourseId: baseCourse?.id,
     }
     try {
       setCourseIsLoading(true)
