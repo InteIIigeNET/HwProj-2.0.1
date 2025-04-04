@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -63,12 +64,11 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpPut("update/{taskId}")]
         [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(Result<HomeworkTaskViewModel>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> UpdateTask(long taskId, CreateTaskViewModel taskViewModel)
         {
             var result = await _coursesClient.UpdateTask(taskId, taskViewModel);
-            return result.Succeeded
-                ? Ok() as IActionResult
-                : BadRequest(result.Errors);
+            return Ok(result);
         }
 
         [HttpPost("addQuestion")]

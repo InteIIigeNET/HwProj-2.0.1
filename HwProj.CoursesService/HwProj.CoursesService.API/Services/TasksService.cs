@@ -63,9 +63,11 @@ namespace HwProj.CoursesService.API.Services
             await _tasksRepository.DeleteAsync(taskId);
         }
 
-        public async Task UpdateTaskAsync(long taskId, HomeworkTask update)
+        public async Task<HomeworkTask> UpdateTaskAsync(long taskId, HomeworkTask update)
         {
             var task = await _tasksRepository.GetWithHomeworkAsync(taskId);
+            if (task == null) throw new InvalidOperationException("Task not found");
+
             var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(task.Homework.CourseId);
 
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
@@ -82,6 +84,11 @@ namespace HwProj.CoursesService.API.Services
                 IsDeadlineStrict = update.IsDeadlineStrict,
                 PublicationDate = update.PublicationDate
             });
+
+            var updatedTask = await _tasksRepository.GetAsync(taskId);
+            updatedTask.Homework = task.Homework;
+            CourseDomain.FillTask(updatedTask.Homework, updatedTask);
+            return updatedTask;
         }
     }
 }

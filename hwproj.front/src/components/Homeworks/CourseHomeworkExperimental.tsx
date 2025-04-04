@@ -16,7 +16,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import {LoadingButton} from "@mui/lab";
 import ErrorsHandler from "../Utils/ErrorsHandler";
 import {enqueueSnackbar} from "notistack";
-import {GroupWorkTag} from "../Common/HomeworkTags";
 
 export interface HomeworkAndFilesInfo {
     homework: HomeworkViewModel,
@@ -40,7 +39,21 @@ const CourseHomeworkEditor: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
     onUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] }) => void
 }> = (props) => {
-    const homework = props.homeworkAndFilesInfo.homework
+    const speculativeHomework = props.homeworkAndFilesInfo.homework
+
+    const [homeworkData, setHomeworkData] = useState<{
+        homework: HomeworkViewModel,
+        isLoaded: boolean
+    }>({homework: speculativeHomework, isLoaded: false})
+
+    useEffect(() => {
+        ApiSingleton.homeworksApi
+            .homeworksGetForEditingHomework(speculativeHomework.id!)
+            .then(homework => setHomeworkData({homework, isLoaded: true}))
+    }, [])
+
+    const {homework, isLoaded} = homeworkData
+
     const filesInfo = props.homeworkAndFilesInfo.filesInfo
     const homeworkId = homework.id!
     const courseId = homework.courseId!
@@ -74,8 +87,7 @@ const CourseHomeworkEditor: FC<{
     const handleSubmit = async (e: any) => {
         e.preventDefault()
         setHandleSubmitLoading(true)
-        const updatedHomework = {
-            id: homeworkId,
+        const updatedHomework = await ApiSingleton.homeworksApi.homeworksUpdateHomework(+homeworkId!, {
             title: title!,
             description: description,
             tags: tags,
@@ -83,8 +95,7 @@ const CourseHomeworkEditor: FC<{
             deadlineDate: metadata.deadlineDate,
             isDeadlineStrict: metadata.isDeadlineStrict,
             publicationDate: metadata.publicationDate
-        }
-        await ApiSingleton.homeworksApi.homeworksUpdateHomework(+homeworkId!, updatedHomework)
+        })
 
         // Если какие-то файлы из ранее добавленных больше не выбраны, удаляем их из хранилища
         const deleteOperations = filesControlState.initialFilesInfo
@@ -109,29 +120,22 @@ const CourseHomeworkEditor: FC<{
         // Дожидаемся удаления и загрузки необходимых файлов
         await Promise.all([...deleteOperations, ...uploadOperations])
 
-        const updatedHomework2: HomeworkViewModel = {
-            ...homework,
-            ...updatedHomework,
-            isDeferred: !isPublished,
-            isGroupWork: tags.includes(GroupWorkTag),
-        }
-
         if (deleteOperations.length === 0 && uploadOperations.length === 0) {
-            props.onUpdate({homework: updatedHomework2, fileInfos: filesControlState.selectedFilesInfo})
+            props.onUpdate({homework: updatedHomework.value!, fileInfos: filesControlState.selectedFilesInfo})
         } else {
             try {
                 const newFilesDtos = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, homeworkId!)
-                props.onUpdate({homework: updatedHomework2, fileInfos: newFilesDtos})
+                props.onUpdate({homework: updatedHomework.value!, fileInfos: newFilesDtos})
             } catch (e) {
                 const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
                 enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
-                props.onUpdate({homework: updatedHomework2, fileInfos: filesControlState.selectedFilesInfo})
+                props.onUpdate({homework: updatedHomework.value!, fileInfos: filesControlState.selectedFilesInfo})
             }
         }
     }
 
     const isSomeTaskSoonerThanHomework = changedTaskPublicationDates.some(d => d < metadata.publicationDate)
-    const isDisabled = isSomeTaskSoonerThanHomework || hasErrors
+    const isDisabled = isSomeTaskSoonerThanHomework || hasErrors || !isLoaded
 
     return (
         <CardContent>

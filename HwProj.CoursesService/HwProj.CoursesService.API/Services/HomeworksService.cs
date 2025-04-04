@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
@@ -49,7 +50,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<Homework> GetForEditingHomeworkAsync(long homeworkId)
         {
-            var result =  await _homeworksRepository.GetWithTasksAsync(homeworkId);
+            var result = await _homeworksRepository.GetWithTasksAsync(homeworkId);
             return result;
         }
 
@@ -58,12 +59,12 @@ namespace HwProj.CoursesService.API.Services
             await _homeworksRepository.DeleteAsync(homeworkId);
         }
 
-        public async Task UpdateHomeworkAsync(long homeworkId, Homework update)
+        public async Task<Homework> UpdateHomeworkAsync(long homeworkId, Homework update)
         {
             var homework = await _homeworksRepository.GetAsync(homeworkId);
-            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(homework.CourseId);
+            var course = await _coursesRepository.GetWithCourseMates(homework.CourseId);
 
-            var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
+            var studentIds = course!.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
             if (update.PublicationDate <= DateTime.UtcNow)
                 _eventBus.Publish(new UpdateHomeworkEvent(update.Title, course.Id, course.Name, studentIds));
@@ -78,6 +79,10 @@ namespace HwProj.CoursesService.API.Services
                 IsDeadlineStrict = update.IsDeadlineStrict,
                 Tags = update.Tags
             });
+
+            var updatedHomework = await _homeworksRepository.GetWithTasksAsync(homeworkId);
+            CourseDomain.FillTasksInHomework(updatedHomework);
+            return updatedHomework;
         }
     }
 }

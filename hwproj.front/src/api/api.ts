@@ -1102,6 +1102,31 @@ export interface HomeworkTaskViewModel {
 /**
  *
  * @export
+ * @interface HomeworkTaskViewModelResult
+ */
+export interface HomeworkTaskViewModelResult {
+    /**
+     *
+     * @type {HomeworkTaskViewModel}
+     * @memberof HomeworkTaskViewModelResult
+     */
+    value?: HomeworkTaskViewModel;
+    /**
+     *
+     * @type {boolean}
+     * @memberof HomeworkTaskViewModelResult
+     */
+    succeeded?: boolean;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof HomeworkTaskViewModelResult
+     */
+    errors?: Array<string>;
+}
+/**
+ *
+ * @export
  * @interface HomeworkUserTaskSolutions
  */
 export interface HomeworkUserTaskSolutions {
@@ -1196,6 +1221,31 @@ export interface HomeworkViewModel {
      * @memberof HomeworkViewModel
      */
     tasks?: Array<HomeworkTaskViewModel>;
+}
+/**
+ *
+ * @export
+ * @interface HomeworkViewModelResult
+ */
+export interface HomeworkViewModelResult {
+    /**
+     *
+     * @type {HomeworkViewModel}
+     * @memberof HomeworkViewModelResult
+     */
+    value?: HomeworkViewModel;
+    /**
+     *
+     * @type {boolean}
+     * @memberof HomeworkViewModelResult
+     */
+    succeeded?: boolean;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof HomeworkViewModelResult
+     */
+    errors?: Array<string>;
 }
 /**
  *
@@ -6476,12 +6526,12 @@ export const HomeworksApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        homeworksUpdateHomework(homeworkId: number, body?: CreateHomeworkViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+        homeworksUpdateHomework(homeworkId: number, body?: CreateHomeworkViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkViewModelResult> {
             const localVarFetchArgs = HomeworksApiFetchParamCreator(configuration).homeworksUpdateHomework(homeworkId, body, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
-                        return response;
+                        return response.json();
                     } else {
                         throw response;
                     }
@@ -8752,12 +8802,12 @@ export const TasksApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tasksUpdateTask(taskId: number, body?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+        tasksUpdateTask(taskId: number, body?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModelResult> {
             const localVarFetchArgs = TasksApiFetchParamCreator(configuration).tasksUpdateTask(taskId, body, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
-                        return response;
+                        return response.json();
                     } else {
                         throw response;
                     }

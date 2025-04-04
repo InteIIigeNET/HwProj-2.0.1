@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using HwProj.Exceptions;
 using HwProj.HttpUtils;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService;
@@ -241,7 +242,7 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<HomeworkViewModel>();
         }
 
-        public async Task<Result> UpdateHomework(long homeworkId, CreateHomeworkViewModel model)
+        public async Task<Result<HomeworkViewModel>> UpdateHomework(long homeworkId, CreateHomeworkViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
@@ -257,10 +258,14 @@ namespace HwProj.CoursesService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return response.StatusCode switch
             {
-                HttpStatusCode.Forbidden => Result.Failed(),
-                HttpStatusCode.OK => Result.Success(),
-                HttpStatusCode.BadRequest => Result.Failed(await response.DeserializeAsync<string[]>()),
-                _ => Result.Failed(),
+                HttpStatusCode.Forbidden => throw new ForbiddenException(),
+                HttpStatusCode.OK => Result<HomeworkViewModel>.Success(
+                    await response.DeserializeAsync<HomeworkViewModel>()
+                ),
+                HttpStatusCode.BadRequest => Result<HomeworkViewModel>.Failed(
+                    await response.DeserializeAsync<string[]>()
+                ),
+                _ => Result<HomeworkViewModel>.Failed(),
             };
         }
 
@@ -334,7 +339,7 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<Result> UpdateTask(long taskId, CreateTaskViewModel taskViewModel)
+        public async Task<Result<HomeworkTaskViewModel>> UpdateTask(long taskId, CreateTaskViewModel taskViewModel)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
@@ -350,10 +355,14 @@ namespace HwProj.CoursesService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return response.StatusCode switch
             {
-                HttpStatusCode.Forbidden => Result.Failed(),
-                HttpStatusCode.OK => Result.Success(),
-                HttpStatusCode.BadRequest => Result.Failed(await response.DeserializeAsync<string[]>()),
-                _ => Result.Failed(),
+                HttpStatusCode.Forbidden => throw new ForbiddenException(),
+                HttpStatusCode.OK => Result<HomeworkTaskViewModel>.Success(
+                    await response.DeserializeAsync<HomeworkTaskViewModel>()
+                ),
+                HttpStatusCode.BadRequest => Result<HomeworkTaskViewModel>.Failed(
+                    await response.DeserializeAsync<string[]>()
+                ),
+                _ => Result<HomeworkTaskViewModel>.Failed(),
             };
         }
 
@@ -500,7 +509,7 @@ namespace HwProj.CoursesService.Client
                 ? Result<AccountDataDto[]>.Success(await response.DeserializeAsync<AccountDataDto[]>())
                 : Result<AccountDataDto[]>.Failed(response.ReasonPhrase);
         }
-        
+
         public async Task<string[]> GetCourseLecturersIds(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(

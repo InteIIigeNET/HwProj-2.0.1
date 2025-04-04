@@ -402,7 +402,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                     isStudentAccepted={isAcceptedStudent}
                                     selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
                                     userId={userId!}
-                                    onUpdate={({fileInfos, homework}) => {
+                                    onHomeworkUpdate={({fileInfos, homework}) => {
                                         const homeworkIndex = courseState.courseHomeworks.findIndex(x => x.id === homework.id)
                                         const homeworks = [...courseState.courseHomeworks]
                                         homeworks[homeworkIndex] = homework
@@ -414,7 +414,19 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                             courseHomeworks: homeworks
                                         }))
                                         setCourseFilesInfo(newCourseFiles)
-                                    }}/>
+                                    }}
+                                    onTaskUpdate={task => {
+                                        const homeworks = courseState.courseHomeworks
+                                        const homework = homeworks.find(x => x.id === task.homeworkId)!
+                                        const taskIndex = homework.tasks!.findIndex(x => x!.id === task.id)
+                                        homework.tasks![taskIndex] = task
+
+                                        setCourseState(prevState => ({
+                                            ...prevState,
+                                            courseHomeworks: homeworks
+                                        }))
+                                    }}
+                                />
                                 : <div>
                                     {createHomework && (
                                         <div>

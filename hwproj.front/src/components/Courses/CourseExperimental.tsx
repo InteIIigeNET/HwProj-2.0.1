@@ -17,13 +17,13 @@ import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
-import {Alert, Card, CardActions, CardContent, Chip, Divider, Paper, Stack, Tooltip} from "@mui/material";
+import {Alert, Card, CardActions, Chip, Paper, Stack, Tooltip} from "@mui/material";
 import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {getTip} from "../Common/HomeworkTags";
-import {MarkdownPreview} from "../Common/MarkdownEditor";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
 import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExperimental";
+import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -33,7 +33,8 @@ interface ICourseExperimentalProps {
     isStudentAccepted: boolean
     userId: string
     selectedHomeworkId: number | undefined
-    onUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] }) => void
+    onHomeworkUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] }) => void
+    onTaskUpdate: (update: HomeworkTaskViewModel) => void
 }
 
 interface ICourseExperimentalState {
@@ -88,28 +89,6 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const getStyle = (itemIsHomework: boolean, itemId: number) =>
         itemIsHomework === isHomework && itemId === id ? clickedItemStyle : {}
-
-    const renderTask = (task: HomeworkTaskViewModel) => {
-        return <CardContent>
-            <Grid container spacing={1} alignItems={"center"}>
-                <Grid item style={{marginRight: 1}}>
-                    <Typography variant="h6" component="div">
-                        {task.title}
-                    </Typography>
-                </Grid>
-                {task.isGroupWork && <Grid item>
-                    <Chip color={"info"} label="Командное"/>
-                </Grid>}
-                <Grid item>
-                    <Typography>{"⭐ " + task.maxRating}</Typography>
-                </Grid>
-            </Grid>
-            <Divider style={{marginTop: 15, marginBottom: 15}}/>
-            <Typography component="div" style={{color: "#454545"}} gutterBottom variant="body1">
-                <MarkdownPreview value={task.description!}/>
-            </Typography>
-        </CardContent>
-    }
 
     const taskSolutionsMap = new Map<number, Solution[]>()
 
@@ -170,18 +149,21 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         <CourseHomeworkExperimental
                             homeworkAndFilesInfo={{homework, filesInfo}}
                             isMentor={isMentor}
-                            onUpdate={update => props.onUpdate(update)}/>
+                            onUpdate={update => props.onHomeworkUpdate(update)}/>
                     </Card>
                 </Grid>
             </Grid>
         }
 
-        const task = (homeworks.flatMap(x => x.tasks).find(x => x!.id == id)) as HomeworkTaskViewModel
+        const homework = homeworks.find(x => x.tasks!.some(t => t.id === id))
+        const task = homework?.tasks!.find(x => x.id === id) as HomeworkTaskViewModel
         return task && <Grid container direction={"column"} spacing={1}>
             <Grid item>{getAlert(task)}</Grid>
             <Grid item>
                 <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
-                    {renderTask(task)}
+                    <CourseTaskExperimental task={task} isMentor={isMentor}
+                                            homework={homework!}
+                                            onUpdate={update => props.onTaskUpdate(update)}/>
                     {!props.isMentor && props.isStudentAccepted && < CardActions>
                         <Link
                             style={{color: '#212529'}}

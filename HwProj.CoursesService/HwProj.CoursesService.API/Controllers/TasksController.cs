@@ -92,14 +92,10 @@ namespace HwProj.CoursesService.API.Controllers
             var validationResult = Validator.ValidateTask(taskViewModel,
                 await _homeworksService.GetForEditingHomeworkAsync(previousState.HomeworkId), previousState);
 
-            if (validationResult.Any())
-            {
-                return BadRequest(validationResult);
-            }
+            if (validationResult.Any()) return BadRequest(validationResult);
 
-            await _tasksService.UpdateTaskAsync(taskId, taskViewModel.ToHomeworkTask());
-
-            return Ok();
+            var updatedTask = await _tasksService.UpdateTaskAsync(taskId, taskViewModel.ToHomeworkTask());
+            return Ok(updatedTask.ToHomeworkTaskViewModel());
         }
 
         [HttpPost("addQuestion")]
