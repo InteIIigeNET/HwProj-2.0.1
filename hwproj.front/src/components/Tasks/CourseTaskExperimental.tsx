@@ -1,7 +1,7 @@
 ﻿import {CardContent, Chip, Divider, Grid, IconButton, TextField, Typography} from "@mui/material";
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
 import {FC, useEffect, useState} from "react"
-import {CreateTaskViewModel, HomeworkTaskViewModel, HomeworkViewModel} from "../../api";
+import {HomeworkTaskViewModel, HomeworkViewModel} from "../../api";
 import ApiSingleton from "../../api/ApiSingleton";
 import * as React from "react";
 import EditIcon from "@mui/icons-material/Edit";
@@ -213,7 +213,7 @@ const CourseTaskExperimental: FC<{
                     setEditMode(true)
                     setShowEditMode(false)
                 }}>
-                    <EditIcon color={"primary"} fontSize={"small"}/>
+                    <EditIcon color={"primary"} style={{fontSize: 17}}/>
                 </IconButton>
             </Grid>}
         </Grid>

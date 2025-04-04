@@ -275,7 +275,7 @@ const CourseHomeworkExperimental: FC<{
                     setEditMode(true)
                     setShowEditMode(false)
                 }}>
-                    <EditIcon color={"primary"} fontSize={"small"}/>
+                    <EditIcon color={"primary"} style={{fontSize: 17}}/>
                 </IconButton>
             </Grid>}
         </Grid>
