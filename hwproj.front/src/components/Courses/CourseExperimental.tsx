@@ -184,7 +184,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     return <Grid container direction={"row"} spacing={1}>
-        <Grid item lg={4}>
+        <Grid item xs={12} sm={12} md={4} lg={4}>
             <Timeline style={{maxHeight: "75vh", overflow: 'auto', paddingLeft: 0, paddingRight: 8}}
                       sx={{
                           '&::-webkit-scrollbar': {
@@ -271,7 +271,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Timeline>
         </Grid>
 
-        <Grid item lg={8}>
+        <Grid item xs={12} sm={12} md={8} lg={8}>
             {renderSelectedItem()}
         </Grid>
     </Grid>
