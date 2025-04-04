@@ -262,7 +262,7 @@ const CourseHomeworkExperimental: FC<{
                 }
                 {tasksCount > 0 && <Grid item>
                     <Chip
-                        label={tasksCount + " " + Utils.pluralizeHelper(["Задание", "Задания", "Заданий"], tasksCount)}/>
+                        label={tasksCount + " " + Utils.pluralizeHelper(["Задача", "Задачи", "Задач"], tasksCount)}/>
                 </Grid>}
                 {homework.tags?.filter(t => t !== '').map((tag, index) => (
                     <Grid item key={index}>
