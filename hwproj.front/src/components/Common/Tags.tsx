@@ -51,8 +51,8 @@ export default function Tags({tags, onTagsChange, requestTags, isElementSmall}: 
             renderInput={(params) => (
                 <TextField
                     {...params}
-                    label = "Тэги"
-                    placeholder = "Добавить тэг"
+                    label="Свойства"
+                    placeholder="Добавить свойство"
                 />
             )}
         />
