@@ -14,7 +14,7 @@ CHANGED_FILES=$(git diff --name-only $PREV_COMMIT)
 SERVICES=()
 
 # Привязка файлов к сервисам
-if echo "$CHANGED_FILES" | grep -q "HwProj.ApiGateway/"; then
+if echo "$CHANGED_FILES" | grep -q "HwProj.APIGateway/"; then
     SERVICES+=(hwproj.apigateway.api)
 fi
 if echo "$CHANGED_FILES" | grep -q "HwProj.AuthService/"; then
