@@ -251,7 +251,7 @@ const StudentSolutionsPage: FC = () => {
                     </Grid>
                 </Grid>
                 <Grid container spacing={3} style={{marginTop: '1px'}} direction={"row"}>
-                    <Grid item lg={3}>
+                    <Grid item xs={12} sm={12} md={4} lg={3}>
                         <Stack direction={"row"} alignItems={"center"}>
                             <Checkbox
                                 onChange={handleFilterChange}
@@ -314,7 +314,7 @@ const StudentSolutionsPage: FC = () => {
                             })}
                         </List>
                     </Grid>
-                    <Grid item lg={9} spacing={2}>
+                    <Grid item xs={12} sm={12} md={8} lg={9} spacing={2}>
                         {currentHomeworksGroup && taskIndexInHomework !== -1 && currentHomeworksGroup.statsForHomeworks!.length > 1 &&
                             <Tabs
                                 onChange={(_, value) => navigate(`/task/${currentHomeworksGroup!.statsForHomeworks![value].statsForTasks![taskIndexInHomework]!.taskId!}/${currentStudentId}`)}
