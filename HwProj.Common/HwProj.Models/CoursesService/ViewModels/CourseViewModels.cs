@@ -15,6 +15,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string GroupName { get; set; }
 
         [Required] public bool IsOpen { get; set; }
+
+        public long? BaseCourseId { get; set; }
     }
 
     public class UpdateCourseViewModel

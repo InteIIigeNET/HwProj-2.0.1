@@ -494,6 +494,12 @@ export interface CreateCourseViewModel {
      * @memberof CreateCourseViewModel
      */
     isOpen: boolean;
+    /**
+     *
+     * @type {number}
+     * @memberof CreateCourseViewModel
+     */
+    baseCourseId?: number;
 }
 /**
  *

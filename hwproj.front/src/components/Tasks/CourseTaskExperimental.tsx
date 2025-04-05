@@ -7,6 +7,7 @@ import * as React from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import {LoadingButton} from "@mui/lab";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
+import Utils from "services/Utils";
 
 interface IEditTaskMetadataState {
     hasDeadline: boolean | undefined;
@@ -78,6 +79,8 @@ const CourseTaskEditor: FC<{
 
     const isDisabled = hasErrors || !isLoaded
 
+    const homeworkPublicationDateIsSet = !Utils.isMaxSupportedDate(new Date(homework.publicationDate!))
+
     return (
         <CardContent>
             <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
@@ -126,26 +129,28 @@ const CourseTaskEditor: FC<{
                         }}
                     />
                 </Grid>
-                {metadata && <Grid item xs={12} style={{marginBottom: "15px"}}>
-                    <TaskPublicationAndDeadlineDates
-                        homework={homework}
-                        hasDeadline={metadata.hasDeadline}
-                        isDeadlineStrict={metadata.isDeadlineStrict}
-                        publicationDate={metadata.publicationDate}
-                        deadlineDate={metadata.deadlineDate}
-                        disabledPublicationDate={metadata.isPublished}
-                        onChange={(state) => {
-                            setMetadata({
-                                hasDeadline: state.hasDeadline,
-                                isDeadlineStrict: state.isDeadlineStrict,
-                                publicationDate: state.publicationDate,
-                                deadlineDate: state.deadlineDate,
-                                isPublished: metadata.isPublished, // Остается прежним
-                            })
-                            setHasErrors(state.hasErrors)
-                        }}
-                    />
-                </Grid>}
+                {metadata && homeworkPublicationDateIsSet &&
+                    <Grid item xs={12} style={{marginBottom: "15px"}}>
+                        <TaskPublicationAndDeadlineDates
+                            homework={homework}
+                            hasDeadline={metadata.hasDeadline}
+                            isDeadlineStrict={metadata.isDeadlineStrict}
+                            publicationDate={metadata.publicationDate}
+                            deadlineDate={metadata.deadlineDate}
+                            disabledPublicationDate={metadata.isPublished}
+                            onChange={(state) => {
+                                setMetadata({
+                                    hasDeadline: state.hasDeadline,
+                                    isDeadlineStrict: state.isDeadlineStrict,
+                                    publicationDate: state.publicationDate,
+                                    deadlineDate: state.deadlineDate,
+                                    isPublished: metadata.isPublished, // Остается прежним
+                                })
+                                setHasErrors(state.hasErrors)
+                            }}
+                        />
+                    </Grid>
+                }
                 <LoadingButton
                     fullWidth
                     onClick={handleSubmit}

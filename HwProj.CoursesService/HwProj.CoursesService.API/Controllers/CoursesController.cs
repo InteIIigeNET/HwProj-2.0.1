@@ -10,7 +10,6 @@ using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
-using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
@@ -92,12 +91,21 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel,
-            [FromQuery] string mentorId)
+        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel)
         {
-            var course = _mapper.Map<Course>(courseViewModel);
-            var id = await _coursesService.AddAsync(course, mentorId);
-            return Ok(id);
+            var mentorId = Request.GetUserIdFromHeader();
+            CourseDTO? baseCourse = null;
+
+            if (courseViewModel.BaseCourseId != null)
+            {
+                baseCourse = await _coursesService.GetAsync((long)courseViewModel.BaseCourseId);
+                if (baseCourse == null) return NotFound();
+
+                if (!baseCourse.MentorIds.Contains(mentorId)) return Forbid();
+            }
+
+            var courseId = await _coursesService.AddAsync(courseViewModel, baseCourse, mentorId);
+            return Ok(courseId);
         }
 
         [HttpDelete("{courseId}")]

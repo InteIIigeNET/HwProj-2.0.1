@@ -32,6 +32,7 @@ namespace HwProj.CoursesService.API.Domains
         public static HomeworkTaskViewModel ToHomeworkTaskViewModel(this HomeworkTask task)
         {
             var tags = task.Homework.Tags?.Split(';') ?? Array.Empty<string>();
+            var publicationDate = task.PublicationDate ?? task.Homework.PublicationDate;
             return new HomeworkTaskViewModel()
             {
                 Id = task.Id,
@@ -42,7 +43,7 @@ namespace HwProj.CoursesService.API.Domains
                 DeadlineDate = task.DeadlineDate,
                 IsDeadlineStrict = task.IsDeadlineStrict,
                 PublicationDate = task.PublicationDate,
-                IsDeferred = DateTime.UtcNow < task.PublicationDate,
+                IsDeferred = DateTime.UtcNow < publicationDate,
                 IsGroupWork = tags.Contains(HomeworkTags.GroupWork),
                 HomeworkId = task.HomeworkId,
                 Tags = tags,
@@ -110,6 +111,77 @@ namespace HwProj.CoursesService.API.Domains
                 PublicationDate = createHomeworkViewModel.PublicationDate,
                 Tasks = createHomeworkViewModel.Tasks.Select(t => t.ToHomeworkTask()).ToList(),
                 Tags = createHomeworkViewModel.Tags.Join(";"),
+            };
+
+        public static CourseTemplate ToCourseTemplate(this CreateCourseViewModel createCourseViewModel)
+            => new CourseTemplate()
+            {
+                Name = createCourseViewModel.Name,
+                GroupName = createCourseViewModel.GroupName,
+                IsOpen = createCourseViewModel.IsOpen,
+            };
+
+        public static CourseTemplate ToCourseTemplate(this CourseDTO course)
+            => new CourseTemplate()
+            {
+                Name = course.Name,
+                GroupName = course.GroupName,
+                IsOpen = course.IsOpen,
+                Homeworks = course.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList(),
+            };
+
+        public static HomeworkTemplate ToHomeworkTemplate(this HomeworkViewModel homework)
+            => new HomeworkTemplate()
+            {
+                Title = homework.Title,
+                Description = homework.Description,
+                HasDeadline = homework.HasDeadline,
+                IsDeadlineStrict = homework.IsDeadlineStrict,
+                Tags = homework.Tags.Join(";"),
+                Tasks = homework.Tasks.Select(t => t.ToHomeworkTaskTemplate()).ToList(),
+            };
+
+        public static HomeworkTaskTemplate ToHomeworkTaskTemplate(this HomeworkTaskViewModel task)
+            => new HomeworkTaskTemplate()
+            {
+                Title = task.Title,
+                Description = task.Description,
+                MaxRating = task.MaxRating,
+                HasDeadline = task.HasDeadline,
+                IsDeadlineStrict = task.IsDeadlineStrict,
+            };
+
+        public static Course ToCourse(this CourseTemplate courseTemplate)
+            => new Course()
+            {
+                Name = courseTemplate.Name,
+                GroupName = courseTemplate.GroupName,
+                IsOpen = courseTemplate.IsOpen,
+            };
+
+        public static Homework ToHomework(
+            this HomeworkTemplate homeworkTemplate, long courseId, DateTime publicationDate)
+            => new Homework()
+            {
+                Title = homeworkTemplate.Title,
+                Description = homeworkTemplate.Description,
+                HasDeadline = homeworkTemplate.HasDeadline,
+                IsDeadlineStrict = homeworkTemplate.IsDeadlineStrict,
+                Tags = homeworkTemplate.Tags,
+                CourseId = courseId,
+                PublicationDate = publicationDate,
+            };
+
+        public static HomeworkTask ToHomeworkTask(
+            this HomeworkTaskTemplate taskTemplate, long homeworkId)
+            => new HomeworkTask()
+            {
+                Title = taskTemplate.Title,
+                Description = taskTemplate.Description,
+                MaxRating = taskTemplate.MaxRating,
+                HasDeadline = taskTemplate.HasDeadline,
+                IsDeadlineStrict = taskTemplate.IsDeadlineStrict,
+                HomeworkId = homeworkId,
             };
     }
 }

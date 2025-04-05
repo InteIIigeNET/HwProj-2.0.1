@@ -131,8 +131,8 @@ namespace HwProj.SolutionsService.IntegrationTests
         private async Task<long> CreateCourse(CoursesServiceClient courseClient, string userId)
         {
             var newCourseViewModel = GenerateCreateCourseViewModel();
-            var courseId = await courseClient.CreateCourse(newCourseViewModel, userId);
-            return courseId;
+            var courseId = await courseClient.CreateCourse(newCourseViewModel);
+            return courseId.Value;
         }
 
         private async Task SignStudentInCourse(

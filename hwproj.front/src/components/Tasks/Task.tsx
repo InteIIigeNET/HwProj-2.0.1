@@ -33,16 +33,14 @@ const useStyles = makeStyles(theme => ({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    tool: {
-        marginRight: theme.spacing(2),
-        marginLeft: theme.spacing(2),
-    },
     text: {
         marginTop: '16px',
     }
 }))
 
 const Task: FC<ITaskProp> = (props) => {
+    const publicationDate = new Date(props.task.publicationDate!)
+    const deadlineDate = new Date(props.task.deadlineDate!)
 
     const [isOpenDialogDeleteTask, setIsOpenDialogDeleteTask] = useState<boolean>(false)
 
@@ -61,10 +59,13 @@ const Task: FC<ITaskProp> = (props) => {
 
     const {task} = props
 
-    const publicationDate = Utils.renderReadableDate(new Date(task.publicationDate!))
-    const deadlineDate = Utils.renderReadableDate(new Date(task.deadlineDate!))
+    const publicationDateIsSet = !Utils.isMaxSupportedDate(publicationDate)
+
+    const publicationDateString = Utils.renderReadableDate(publicationDate)
+    const deadlineDateString = Utils.renderReadableDate(deadlineDate)
 
     const classes = useStyles()
+
     return (
         <div style={{width: '100%'}}>
             <Accordion expanded={props.isExpanded ? true : undefined}>
@@ -75,33 +76,47 @@ const Task: FC<ITaskProp> = (props) => {
                     style={{backgroundColor: task.isDeferred! ? "#d3d5db" : "#eceef8"}}
                 >
                     <div className={classes.tools}>
-                        <Grid container direction={"row"} spacing={1} alignItems={"center"}>
-                            <Grid item>
-                                <Typography style={{fontSize: '18px', marginRight: 1}}>
-                                    {task.title}{getTip(task)}
-                                </Typography>
-                            </Grid>
-                            <Grid item><Chip label={<Stack direction={"row"} alignItems={"center"} spacing={0.5}>
-                                <StarIcon style={{fontSize: 15}}/>
-                                <div>{task.maxRating}</div>
-                            </Stack>}
-                                             variant={"outlined"}
-                                             style={{fontWeight: "bold"}}
-                                             color={"success"}/></Grid>
-                            {task.isGroupWork && <Grid item><Chip variant={"outlined"} color={"info"} label="Командное"/></Grid>}
-                            {props.forMentor &&
-                                <Grid item><Chip variant={"outlined"} label={"🕘 " + publicationDate}/></Grid>}
-                            {task.hasDeadline &&
-                                <Tooltip arrow
-                                         title={task.isDeadlineStrict ? "Нельзя публиковать решения после дедлайна" : "Дедлайн"}>
-                                    <Grid item>
-                                        <Chip variant={"outlined"}
-                                              label={(task.isDeadlineStrict ? "⛔ До" : "До") + " " + deadlineDate}/>
-                                    </Grid>
+                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                            <Typography style={{fontSize: '18px', marginRight: 1}}>
+                                {task.title}{getTip(task)}
+                            </Typography>
+                            <Chip
+                                label={
+                                    <Stack direction={"row"} alignItems={"center"} spacing={0.5}>
+                                        <StarIcon style={{fontSize: 15}}/>
+                                        <div>{task.maxRating}</div>
+                                    </Stack>
+                                }
+                                variant={"outlined"}
+                                style={{fontWeight: "bold"}}
+                                color={"success"}
+                            />
+                            {task.isGroupWork && <Chip variant={"outlined"} color={"info"} label="Комадное"/>}
+                            {props.forMentor && publicationDateIsSet &&
+                                <Chip variant={"outlined"} label={"🕘 " + publicationDateString}/>
+                            }
+                            {task.hasDeadline && task.deadlineDate &&
+                                <Tooltip
+                                    arrow
+                                    title={task.isDeadlineStrict ? "Нельзя публиковать решения после дедлайна" : "Дедлайн"}
+                                >
+                                    <Chip
+                                        variant={"outlined"}
+                                        label={(task.isDeadlineStrict ? "⛔ До" : "До") + " " + deadlineDateString}
+                                    />
                                 </Tooltip>
                             }
-                            {!task.hasDeadline && <Grid item><Chip variant={"outlined"} label={"без дедлайна"}/></Grid>}
-                            {props.forMentor && !props.isReadingMode && <Grid item>
+                            {props.forMentor && publicationDateIsSet && task.hasDeadline && !task.deadlineDate &&
+                                <Tooltip arrow title={"Дата дедлайна не выставлена"}>
+                                    <Chip
+                                        label={"⚠️"}
+                                        variant="outlined"
+                                        style={{ background: "#3b3b3b", borderWidth: 2, borderColor: "#ffbf00" }}
+                                    />
+                                </Tooltip>
+                            }
+                            {!task.hasDeadline && <Chip variant={"outlined"} label={"без дедлайна"}/>}
+                            {props.forMentor && !props.isReadingMode &&
                                 <div>
                                     <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>
                                         <DeleteIcon fontSize="small"/>
@@ -110,9 +125,8 @@ const Task: FC<ITaskProp> = (props) => {
                                         <EditIcon fontSize="small"/>
                                     </RouterLink>
                                 </div>
-                            </Grid>
                             }
-                        </Grid>
+                        </Stack>
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>

@@ -49,6 +49,9 @@ interface IHomeworkState {
 }
 
 const Homework: FC<IHomeworkProps> = (props) => {
+    const publicationDate = new Date(props.homework.publicationDate!)
+    const deadlineDate = new Date(props.homework.deadlineDate!)
+
     const [homeworkState, setHomeworkState] = useState<IHomeworkState>({
         createTask: false,
     })
@@ -73,7 +76,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
 
         props.onUpdateClick()
     }
-    
+
     const getDeleteMessage = (homeworkName: string, filesInfo: IFileInfo[]) => {
         let message = `Вы точно хотите удалить задание "${homeworkName}"?`;
         if (filesInfo.length > 0) {
@@ -86,12 +89,13 @@ const Homework: FC<IHomeworkProps> = (props) => {
         return message;
     };
 
+    const publicationDateIsSet = !Utils.isMaxSupportedDate(publicationDate)
+
+    const publicationDateString = Utils.renderReadableDate(publicationDate)
+    const deadlineDateString = Utils.renderReadableDate(deadlineDate)
+    const tasksCount = props.homework.tasks!.length
 
     const classes = useStyles()
-
-    const homeworkPublicationDateString = Utils.renderReadableDate(new Date(props.homework.publicationDate!))
-    const homeworkDeadlineDateString = Utils.renderReadableDate(new Date(props.homework.deadlineDate!))
-    const tasksCount = props.homework.tasks!.length
 
     return (
         <div style={{width: '100%'}}>
@@ -107,11 +111,29 @@ const Homework: FC<IHomeworkProps> = (props) => {
                             <Typography style={{fontSize: '18px'}}>
                                 {props.homework.title}
                             </Typography>
-                            {props.forMentor &&
-                                <Chip label={"🕘 " + homeworkPublicationDateString}/>
+                            {props.forMentor && publicationDateIsSet &&
+                                <Chip label={"🕘 " + publicationDateString}/>
                             }
-                            {props.homework.hasDeadline &&
-                                <Chip label={"⌛ " + homeworkDeadlineDateString}/>
+                            {props.forMentor && !publicationDateIsSet &&
+                                <Tooltip arrow title={"Дата публикации не выставлена"}>
+                                    <Chip
+                                        label={"⚠️"}
+                                        variant="outlined"
+                                        style={{ background: "#3b3b3b", borderWidth: 2, borderColor: "#ffbf00" }}
+                                    />
+                                </Tooltip>
+                            }
+                            {props.homework.hasDeadline && props.homework.deadlineDate &&
+                                <Chip label={"⌛ " + deadlineDateString}/>
+                            }
+                            {props.forMentor && props.homework.hasDeadline && !props.homework.deadlineDate &&
+                                <Tooltip arrow title={"Дата дедлайна не выставлена"}>
+                                    <Chip
+                                        label={"⚠️"}
+                                        variant="outlined"
+                                        style={{ background: "#3b3b3b", borderWidth: 2, borderColor: "#ffbf00" }}
+                                    />
+                                </Tooltip>
                             }
                             {props.forMentor && props.homework.isDeadlineStrict &&
                                 <Tooltip arrow title={"Нельзя публиковать решения после дедлайна"}>
