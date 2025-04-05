@@ -88,9 +88,7 @@ const EditHomework: FC = () => {
     const getHomework = async () => {
         const homework = await ApiSingleton.homeworksApi.homeworksGetForEditingHomework(+homeworkId!)
         const course = await ApiSingleton.coursesApi.coursesGetCourseData(homework.courseId!)
-        const deadline = homework.deadlineDate == null
-            ? undefined
-            : new Date(homework.deadlineDate)
+        const deadline = homework.deadlineDate ? new Date(homework.deadlineDate) : undefined
 
         setEditHomework((prevState) => ({
             ...prevState,
