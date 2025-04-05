@@ -112,6 +112,8 @@ namespace HwProj.APIGateway.API.Controllers
                     {
                         return studentId;
                     }
+
+                    var newPassword = Guid.NewGuid().ToString();
                     
                     var registerModel = new RegisterViewModel
                     {
@@ -119,8 +121,8 @@ namespace HwProj.APIGateway.API.Controllers
                         Name = student.Name,
                         Surname = student.Surname,
                         MiddleName = student.MiddleName,
-                        Password = "123456",
-                        PasswordConfirm = "123456"
+                        Password = newPassword,
+                        PasswordConfirm = newPassword
                     };
 
                     await AuthServiceClient.Register(registerModel);
