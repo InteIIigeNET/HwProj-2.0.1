@@ -124,7 +124,7 @@ const EditTask: FC = () => {
         }
 
         const homeworkPublicationDate = new Date(taskState.homework!.publicationDate!)
-        const homeworkPublicationDateIsSet = !Utils.isMaxAllowedDate(homeworkPublicationDate)
+        const homeworkPublicationDateIsSet = !Utils.isMaxSupportedDate(homeworkPublicationDate)
 
         return (
             <div className="container">

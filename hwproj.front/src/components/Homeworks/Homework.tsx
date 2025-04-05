@@ -89,7 +89,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
         return message;
     };
 
-    const publicationDateIsSet = !Utils.isMaxAllowedDate(publicationDate)
+    const publicationDateIsSet = !Utils.isMaxSupportedDate(publicationDate)
 
     const publicationDateString = Utils.renderReadableDate(publicationDate)
     const deadlineDateString = Utils.renderReadableDate(deadlineDate)

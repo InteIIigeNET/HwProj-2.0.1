@@ -125,7 +125,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     const hasSetPublicationDate = (entity: HomeworkViewModel | HomeworkTaskViewModel) =>
-        !Utils.isMaxAllowedDate(new Date(entity.publicationDate!))
+        !Utils.isMaxSupportedDate(new Date(entity.publicationDate!))
 
     const getAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel) => {
         if (!entity.isDeferred) return null
