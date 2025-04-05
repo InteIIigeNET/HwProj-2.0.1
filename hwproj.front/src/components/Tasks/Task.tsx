@@ -33,16 +33,14 @@ const useStyles = makeStyles(theme => ({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    tool: {
-        marginRight: theme.spacing(2),
-        marginLeft: theme.spacing(2),
-    },
     text: {
         marginTop: '16px',
     }
 }))
 
 const Task: FC<ITaskProp> = (props) => {
+    const publicationDate = new Date(props.task.publicationDate!)
+    const deadlineDate = new Date(props.task.deadlineDate!)
 
     const [isOpenDialogDeleteTask, setIsOpenDialogDeleteTask] = useState<boolean>(false)
 
@@ -61,10 +59,13 @@ const Task: FC<ITaskProp> = (props) => {
 
     const {task} = props
 
-    const publicationDate = Utils.renderReadableDate(new Date(task.publicationDate!))
-    const deadlineDate = Utils.renderReadableDate(new Date(task.deadlineDate!))
+    const publicationDateIsSet = publicationDate.getTime() !== Utils.maxAllowedDate.getTime()
+
+    const publicationDateString = Utils.renderReadableDate(publicationDate)
+    const deadlineDateString = Utils.renderReadableDate(deadlineDate)
 
     const classes = useStyles()
+
     return (
         <div style={{width: '100%'}}>
             <Accordion expanded={props.isExpanded ? true : undefined}>
@@ -129,7 +130,7 @@ const Task: FC<ITaskProp> = (props) => {
                                     </RouterLink>
                                 </Grid>
                             }
-                        </Grid>
+                        </Stack>
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>

@@ -80,9 +80,9 @@ const SelectBaseCourse: FC<IStepComponentProps> = (props) => {
       </Grid>
       <Grid item xs={12} style={{ marginTop: 8, display: "flex", justifyContent: "space-between" }}>
         {baseCourseId !== undefined &&
-          <Link to={`/courses/${baseCourseId}`}>
+          <Link to={`/courses/${baseCourseId}`} target="_blank" rel="noopener noreferrer">
             <Button variant="text" size="large">
-              Посмотреть курс
+              Открыть курс
             </Button>
           </Link>
         }

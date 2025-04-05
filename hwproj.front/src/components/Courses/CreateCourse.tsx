@@ -9,7 +9,6 @@ import {FC, FormEvent, useState, useEffect} from "react";
 import ApiSingleton from "../../api/ApiSingleton";
 import {CoursePreviewView} from "api";
 import "./Styles/CreateCourse.css";
-import GroupIcon from "@material-ui/icons/Group";
 import {makeStyles} from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import {useNavigate} from "react-router-dom";
@@ -30,9 +29,6 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
   },
   form: {
     marginTop: theme.spacing(3),
@@ -154,11 +150,6 @@ const CreateCourse: FC = () => {
   return state.baseCourses ? (
     <Container component="main" maxWidth="sm">
       <div className={classes.paper}>
-        <GroupIcon
-          fontSize="large"
-          style={{ color: "white", backgroundColor: "#ecb50d" }}
-          className={classes.avatar}
-        />
         <Typography component="h1" variant="h5">
           Создать курс
         </Typography>

@@ -170,7 +170,6 @@ namespace HwProj.CoursesService.API.Domains
                 Tags = homeworkTemplate.Tags,
                 CourseId = courseId,
                 PublicationDate = publicationDate,
-                DeadlineDate = homeworkTemplate.HasDeadline ? publicationDate : (DateTime?)null
             };
 
         public static HomeworkTask ToHomeworkTask(

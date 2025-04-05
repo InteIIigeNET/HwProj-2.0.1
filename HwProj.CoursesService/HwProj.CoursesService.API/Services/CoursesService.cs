@@ -82,7 +82,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, string mentorId)
         {
-            var publicationDate = DateTime.UtcNow + TimeSpan.FromDays(365);
+            var publicationDate = DateTime.MaxValue;
 
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 

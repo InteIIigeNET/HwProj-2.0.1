@@ -49,6 +49,9 @@ interface IHomeworkState {
 }
 
 const Homework: FC<IHomeworkProps> = (props) => {
+    const publicationDate = new Date(props.homework.publicationDate!)
+    const deadlineDate = new Date(props.homework.deadlineDate!)
+
     const [homeworkState, setHomeworkState] = useState<IHomeworkState>({
         createTask: false,
     })
@@ -73,7 +76,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
 
         props.onUpdateClick()
     }
-    
+
     const getDeleteMessage = (homeworkName: string, filesInfo: IFileInfo[]) => {
         let message = `Вы точно хотите удалить задание "${homeworkName}"?`;
         if (filesInfo.length > 0) {
@@ -86,12 +89,13 @@ const Homework: FC<IHomeworkProps> = (props) => {
         return message;
     };
 
+    const publicationDateIsSet = publicationDate.getTime() !== Utils.maxAllowedDate.getTime()
+
+    const publicationDateString = Utils.renderReadableDate(publicationDate)
+    const deadlineDateString = Utils.renderReadableDate(deadlineDate)
+    const tasksCount = props.homework.tasks!.length
 
     const classes = useStyles()
-
-    const homeworkPublicationDateString = Utils.renderReadableDate(new Date(props.homework.publicationDate!))
-    const homeworkDeadlineDateString = Utils.renderReadableDate(new Date(props.homework.deadlineDate!))
-    const tasksCount = props.homework.tasks!.length
 
     return (
         <div style={{width: '100%'}}>
