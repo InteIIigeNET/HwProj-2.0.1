@@ -28,13 +28,8 @@ namespace HwProj.APIGateway.API
         {
             services.ConfigureHwProjServices("API Gateway");
             
-            services.Configure<StudentsInfoOptions>(Configuration.GetSection("StudentsInfo"));
-            
             services.AddSingleton<IStudentsInformation>(provider =>
-            {
-                var options = provider.GetRequiredService<IOptions<StudentsInfoOptions>>().Value;
-                return new StudentsInformation(options.Login, options.Password);
-            });
+                new StudentsInformation(Configuration["StudentsInfo:Login"], Configuration["StudentsInfo:Password"]));
             
             const string authenticationProviderKey = "GatewayKey";
             
@@ -66,12 +61,5 @@ namespace HwProj.APIGateway.API
         {
             app.ConfigureHwProj(env, "API Gateway");
         }
-    }
-
-    public class StudentsInfoOptions
-    {
-        public string DefaultPassword { get; set; }
-        public string Login { get; set; }
-        public string Password { get; set; }
     }
 }

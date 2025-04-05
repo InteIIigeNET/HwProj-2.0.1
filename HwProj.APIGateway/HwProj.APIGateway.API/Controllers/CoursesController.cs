@@ -25,19 +25,16 @@ namespace HwProj.APIGateway.API.Controllers
     {
         private readonly ICoursesServiceClient _coursesClient;
         private readonly IMapper _mapper;
-        private readonly StudentsInfoOptions _studentsInfoOptions;
         private readonly IStudentsInformation _studentsInfo;
 
         public CoursesController(
             ICoursesServiceClient coursesClient,
             IAuthServiceClient authServiceClient,
             IMapper mapper,
-            IOptions<StudentsInfoOptions> studentsInfoOptions,
             IStudentsInformation studentsInfo) : base(authServiceClient)
         {
             _coursesClient = coursesClient;
             _mapper = mapper;
-            _studentsInfoOptions = studentsInfoOptions.Value;
             _studentsInfo = studentsInfo;
         }
 
@@ -122,8 +119,8 @@ namespace HwProj.APIGateway.API.Controllers
                         Name = student.Name,
                         Surname = student.Surname,
                         MiddleName = student.MiddleName,
-                        Password = _studentsInfoOptions.DefaultPassword,
-                        PasswordConfirm = _studentsInfoOptions.DefaultPassword
+                        Password = "123456",
+                        PasswordConfirm = "123456"
                     };
 
                     await AuthServiceClient.Register(registerModel);
