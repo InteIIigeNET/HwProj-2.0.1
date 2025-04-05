@@ -151,16 +151,15 @@ namespace HwProj.CoursesService.API.Services
             return true;
         }
         
-        public async Task<bool> AddAndAcceptStudentsAsync(Course course, IEnumerable<string> studentIds)
+        public async Task<object> AddAndAcceptStudentsAsync(long courseId, IEnumerable<string> studentIds)
         {
-            var id = course.Id;
             foreach (var studentId in studentIds)
             {
-                await AddStudentAsync(id, studentId);
-                await AcceptCourseMateAsync(id, studentId);
+                await AddStudentAsync(courseId, studentId);
+                await AcceptCourseMateAsync(courseId, studentId);
             }
 
-            return true;
+            return null;
         }
 
         public async Task<bool> RejectCourseMateAsync(long courseId, string studentId)

@@ -25,19 +25,16 @@ namespace HwProj.APIGateway.API.Controllers
     {
         private readonly ICoursesServiceClient _coursesClient;
         private readonly IMapper _mapper;
-        private readonly StudentsInfoOptions _studentsInfoOptions;
-        private readonly IStudentsInformation _studentsInfo;
+        private readonly IStudentsInformationProvider _studentsInfo;
 
         public CoursesController(
             ICoursesServiceClient coursesClient,
             IAuthServiceClient authServiceClient,
             IMapper mapper,
-            IOptions<StudentsInfoOptions> studentsInfoOptions,
-            IStudentsInformation studentsInfo) : base(authServiceClient)
+            IStudentsInformationProvider studentsInfo) : base(authServiceClient)
         {
             _coursesClient = coursesClient;
             _mapper = mapper;
-            _studentsInfoOptions = studentsInfoOptions.Value;
             _studentsInfo = studentsInfo;
         }
 
@@ -71,6 +68,22 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.DeleteCourse(courseId);
             return Ok();
         }
+        
+        [HttpGet("getGroups")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(List<GroupModel>), (int)HttpStatusCode.OK)]
+        public  IActionResult GetGroups(string programName)
+        {
+            return Ok(_studentsInfo.GetGroups(programName));
+        }
+        
+        [HttpGet("getProgramNames")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(List<ProgramModel>), (int)HttpStatusCode.OK)]
+        public  IActionResult GetProgramNames()
+        {   
+            return Ok(_studentsInfo.GetProgramNames());
+        }
 
         [HttpPost("create")]
         [Authorize(Roles = Roles.LecturerRole)]
@@ -99,6 +112,8 @@ namespace HwProj.APIGateway.API.Controllers
                     {
                         return studentId;
                     }
+
+                    var newPassword = Guid.NewGuid().ToString();
                     
                     var registerModel = new RegisterViewModel
                     {
@@ -106,8 +121,8 @@ namespace HwProj.APIGateway.API.Controllers
                         Name = student.Name,
                         Surname = student.Surname,
                         MiddleName = student.MiddleName,
-                        Password = _studentsInfoOptions.DefaultPassword,
-                        PasswordConfirm = _studentsInfoOptions.DefaultPassword
+                        Password = newPassword,
+                        PasswordConfirm = newPassword
                     };
 
                     await AuthServiceClient.Register(registerModel);
@@ -115,7 +130,7 @@ namespace HwProj.APIGateway.API.Controllers
                 }).ToList();
     
             var studentIds = await Task.WhenAll(registrationTasks);
-            model.studentIDs = studentIds.ToList();
+            model.StudentIDs = studentIds.ToList();
 
             var resultCourse = await _coursesClient.CreateCourse(model, UserId);
             return Ok(resultCourse);
@@ -176,7 +191,6 @@ namespace HwProj.APIGateway.API.Controllers
                 ? Ok(result) as IActionResult
                 : BadRequest(result.Errors);
         }
-
         
         [HttpGet("getLecturersAvailableForCourse/{courseId}")]
         [Authorize(Roles = Roles.LecturerRole)]
@@ -248,20 +262,6 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(workspace);
         }
         
-        [HttpGet("getGroups")]
-        [ProducesResponseType(typeof(List<GroupModel>), (int)HttpStatusCode.OK)]
-        public  IActionResult GetGroups(string programName)
-        {
-            return Ok(_studentsInfo.GetGroups(programName));
-        }
-        
-        [HttpGet("getProgramNames")]
-        [ProducesResponseType(typeof(List<ProgramModel>), (int)HttpStatusCode.OK)]
-        public  IActionResult GetProgramNames()
-        {   
-            return Ok(_studentsInfo.GetProgramNames());
-        }
-
         private async Task<CourseViewModel> ToCourseViewModel(CourseDTO course)
         {
             var studentIds = course.CourseMates.Select(t => t.StudentId).ToArray();

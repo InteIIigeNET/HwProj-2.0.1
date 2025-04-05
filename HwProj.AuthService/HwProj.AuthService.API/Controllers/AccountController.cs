@@ -65,8 +65,12 @@ namespace HwProj.AuthService.API.Controllers
         {
             var newModel = _mapper.Map<RegisterDataDTO>(model);
             var result = await _accountService.RegisterUserAsync(newModel);
-            var passwordRecoveryModel = new RequestPasswordRecoveryViewModel();
-            passwordRecoveryModel.Email = model.Email;
+            
+            var passwordRecoveryModel = new RequestPasswordRecoveryViewModel()
+            {
+                Email = model.Email
+            };
+            
             await RequestPasswordRecovery(passwordRecoveryModel);
             return Ok(result);
         }
