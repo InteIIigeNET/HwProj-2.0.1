@@ -144,8 +144,8 @@ namespace HwProj.CoursesService.Tests
             return (course.courseId, homework, homeworkResult, course.client);
         }
         
-        private async Task<(Result editResult, HomeworkTaskForEditingViewModel tasksFromDb)> AddTaskToHomeworkAndUpdate(
-            CreateTaskViewModel firstTaskState, CreateTaskViewModel secondTaskState)
+        private async Task<(Result<HomeworkTaskViewModel> editResult, HomeworkTaskForEditingViewModel tasksFromDb)>
+            AddTaskToHomeworkAndUpdate(CreateTaskViewModel firstTaskState, CreateTaskViewModel secondTaskState)
         {
             var homework = GenerateDefaultHomeworkViewModel();
             var homeworkResult = await client.AddHomeworkToCourse(homework, courseId);

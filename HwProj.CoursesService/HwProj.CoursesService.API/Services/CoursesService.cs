@@ -20,27 +20,29 @@ namespace HwProj.CoursesService.API.Services
     public class CoursesService : ICoursesService
     {
         private readonly ICoursesRepository _coursesRepository;
+        private readonly IHomeworksRepository _homeworksRepository;
+        private readonly ITasksRepository _tasksRepository;
         private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IEventBus _eventBus;
         private readonly IAuthServiceClient _authServiceClient;
-        private readonly ITasksRepository _tasksRepository;
         private readonly IGroupsRepository _groupsRepository;
         private readonly ICourseFilterService _courseFilterService;
 
         public CoursesService(ICoursesRepository coursesRepository,
+            IHomeworksRepository homeworksRepository,
+            ITasksRepository tasksRepository,
             ICourseMatesRepository courseMatesRepository,
             IEventBus eventBus,
             IAuthServiceClient authServiceClient,
-            ITasksRepository tasksRepository,
-            IHomeworksRepository homeworksRepository,
             IGroupsRepository groupsRepository,
             ICourseFilterService courseFilterService)
         {
             _coursesRepository = coursesRepository;
+            _homeworksRepository = homeworksRepository;
+            _tasksRepository = tasksRepository;
             _courseMatesRepository = courseMatesRepository;
             _eventBus = eventBus;
             _authServiceClient = authServiceClient;
-            _tasksRepository = tasksRepository;
             _groupsRepository = groupsRepository;
             _courseFilterService = courseFilterService;
         }
