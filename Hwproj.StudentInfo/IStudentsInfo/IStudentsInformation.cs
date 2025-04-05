@@ -32,7 +32,7 @@ namespace IStudentsInfo
     /// Класс, который содержит функциональность по получению образовательных программ, учебных групп
     /// и информации о студентах
     /// </summary>
-    public interface IStudentsInformation
+    public interface IStudentsInformationProvider
     {
         /// <summary>
         /// По данному названию образовательной программы возвращает список соответствующих учебных групп

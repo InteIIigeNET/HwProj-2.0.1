@@ -25,13 +25,13 @@ namespace HwProj.APIGateway.API.Controllers
     {
         private readonly ICoursesServiceClient _coursesClient;
         private readonly IMapper _mapper;
-        private readonly IStudentsInformation _studentsInfo;
+        private readonly IStudentsInformationProvider _studentsInfo;
 
         public CoursesController(
             ICoursesServiceClient coursesClient,
             IAuthServiceClient authServiceClient,
             IMapper mapper,
-            IStudentsInformation studentsInfo) : base(authServiceClient)
+            IStudentsInformationProvider studentsInfo) : base(authServiceClient)
         {
             _coursesClient = coursesClient;
             _mapper = mapper;

@@ -8,12 +8,12 @@ namespace StudentsInfo.Tests
     {
         private const string TestLogin = "";
         private const string TestPassword = "";
-        private StudentsInformation _studentsInformation;
+        private StudentsInformationProvider _studentsInformation;
         
         [SetUp]
         public void SetUp()
         {
-            _studentsInformation = new StudentsInformation(TestLogin, TestPassword);
+            _studentsInformation = new StudentsInformationProvider(TestLogin, TestPassword);
         }
 
         [Test]

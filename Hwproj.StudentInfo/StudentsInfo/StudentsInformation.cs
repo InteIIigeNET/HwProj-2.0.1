@@ -8,7 +8,7 @@ using IStudentsInfo;
 namespace StudentsInfo
 {
     /// <inheritdoc/>
-    public class StudentsInformation : IStudentsInformation
+    public class StudentsInformationProvider : IStudentsInformationProvider
     {
         private readonly Dictionary<string, List<string>> _programsGroups = new Dictionary<string, List<string>>();
         private readonly string _ldapHost = "ad.pu.ru";
@@ -89,7 +89,7 @@ namespace StudentsInfo
                 .ToList();
         }
 
-        public StudentsInformation(string username, string password)
+        public StudentsInformationProvider(string username, string password)
         {
             this._username = username;
             this._password = password;
