@@ -59,7 +59,7 @@ const Task: FC<ITaskProp> = (props) => {
 
     const {task} = props
 
-    const publicationDateIsSet = publicationDate.getTime() !== Utils.maxAllowedDate.getTime()
+    const publicationDateIsSet = !Utils.isMaxAllowedDate(publicationDate)
 
     const publicationDateString = Utils.renderReadableDate(publicationDate)
     const deadlineDateString = Utils.renderReadableDate(deadlineDate)
