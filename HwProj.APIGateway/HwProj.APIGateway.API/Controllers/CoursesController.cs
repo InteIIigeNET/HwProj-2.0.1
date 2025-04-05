@@ -130,7 +130,7 @@ namespace HwProj.APIGateway.API.Controllers
                 }).ToList();
     
             var studentIds = await Task.WhenAll(registrationTasks);
-            model.studentIDs = studentIds.ToList();
+            model.StudentIDs = studentIds.ToList();
 
             var resultCourse = await _coursesClient.CreateCourse(model, UserId);
             return Ok(resultCourse);
