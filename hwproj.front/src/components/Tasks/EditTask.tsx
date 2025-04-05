@@ -9,6 +9,7 @@ import {Typography, TextField, Grid} from "@mui/material";
 import {MarkdownEditor} from "../Common/MarkdownEditor";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import {HomeworkViewModel} from "../../api";
+import Utils from "services/Utils";
 
 interface IEditTaskState {
     isLoaded: boolean;
@@ -69,13 +70,13 @@ const EditTask: FC = () => {
         const task = taskForEditing.task!
         const course = await ApiSingleton.coursesApi.coursesGetCourseData(homework.courseId!)
 
-        const publication = task.publicationDate == null
-            ? undefined
-            : new Date(task.publicationDate)
+        const publicationDate = task.publicationDate
+            ? new Date(task.publicationDate)
+            : undefined
 
-        const deadline = task.deadlineDate == null
-            ? undefined
-            : new Date(task.deadlineDate)
+        const deadlineDate = task.deadlineDate
+            ? new Date(task.deadlineDate)
+            : undefined
 
         setTaskState((prevState) => ({
             ...prevState,
@@ -85,9 +86,9 @@ const EditTask: FC = () => {
             maxRating: task.maxRating!,
             courseId: homework.courseId!,
             hasDeadline: task.hasDeadline!,
-            deadlineDate: deadline,
+            deadlineDate: deadlineDate,
             isDeadlineStrict: task.isDeadlineStrict!,
-            publicationDate: publication,
+            publicationDate: publicationDate,
             homeworkId: task.homeworkId!,
             courseMentorIds: course.mentors!.map(x => x.userId!),
             homework: homework,
@@ -121,6 +122,11 @@ const EditTask: FC = () => {
                 </Typography>
             );
         }
+
+        const homeworkPublicationDate = new Date(taskState.homework!.publicationDate!)
+        const homeworkPublicationDateIsSet =
+            homeworkPublicationDate.getTime() !== Utils.maxAllowedDate.getTime()
+
         return (
             <div className="container">
                 <Grid container xs={12} justifyContent="center">
@@ -204,24 +210,26 @@ const EditTask: FC = () => {
                                         }}
                                     />
                                 </Grid>
-                                <Grid item style={{width: "90%", marginBottom: "10px"}}>
-                                    <TaskPublicationAndDeadlineDates
-                                        homework={taskState.homework!}
-                                        hasDeadline={taskState.hasDeadline}
-                                        isDeadlineStrict={taskState.isDeadlineStrict}
-                                        publicationDate={taskState.publicationDate}
-                                        deadlineDate={taskState.deadlineDate}
-                                        disabledPublicationDate={taskState.isTaskPublished}
-                                        onChange={(state) => setTaskState(prevState => ({
-                                            ...prevState,
-                                            hasDeadline: state.hasDeadline,
-                                            isDeadlineStrict: state.isDeadlineStrict,
-                                            publicationDate: state.publicationDate,
-                                            deadlineDate: state.deadlineDate,
-                                            hasErrors: state.hasErrors
-                                        }))}
-                                    />
-                                </Grid>
+                                {homeworkPublicationDateIsSet &&
+                                    <Grid item style={{width: "90%", marginBottom: "10px"}}>
+                                        <TaskPublicationAndDeadlineDates
+                                            homework={taskState.homework!}
+                                            hasDeadline={taskState.hasDeadline}
+                                            isDeadlineStrict={taskState.isDeadlineStrict}
+                                            publicationDate={taskState.publicationDate}
+                                            deadlineDate={taskState.deadlineDate}
+                                            disabledPublicationDate={taskState.isTaskPublished}
+                                            onChange={(state) => setTaskState(prevState => ({
+                                                ...prevState,
+                                                hasDeadline: state.hasDeadline,
+                                                isDeadlineStrict: state.isDeadlineStrict,
+                                                publicationDate: state.publicationDate,
+                                                deadlineDate: state.deadlineDate,
+                                                hasErrors: state.hasErrors
+                                            }))}
+                                        />
+                                    </Grid>
+                                }
                                 <Grid item xs={12}>
                                     <Button
                                         fullWidth
