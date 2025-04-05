@@ -131,7 +131,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                               size="small"
                               onClick={() => setHideDeferred(true)}
                           >
-                              Скрыть
+                              Скрыть неопубликованное
                           </Button>}>
             {isHomework ? "Задание будет опубликовано " : "Задача будет опубликована "}
             {renderDate(entity.publicationDate!) + " " + renderTime(entity.publicationDate!)}
