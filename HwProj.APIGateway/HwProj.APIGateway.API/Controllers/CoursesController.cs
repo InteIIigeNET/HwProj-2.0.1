@@ -191,7 +191,6 @@ namespace HwProj.APIGateway.API.Controllers
                 ? Ok(result) as IActionResult
                 : BadRequest(result.Errors);
         }
-
         
         [HttpGet("getLecturersAvailableForCourse/{courseId}")]
         [Authorize(Roles = Roles.LecturerRole)]
