@@ -95,15 +95,6 @@ const Task: FC<ITaskProp> = (props) => {
                             {props.forMentor && publicationDateIsSet &&
                                 <Chip variant={"outlined"} label={"🕘 " + publicationDateString}/>
                             }
-                            {props.forMentor && !publicationDateIsSet &&
-                                <Tooltip arrow title={"Дата публикации не выставлена"}>
-                                    <Chip
-                                        label={"⚠️"}
-                                        variant="outlined"
-                                        style={{ background: "#3b3b3b", borderWidth: 2, borderColor: "#ffbf00" }}
-                                    />
-                                </Tooltip>
-                            }
                             {task.hasDeadline && task.deadlineDate &&
                                 <Tooltip
                                     arrow
@@ -115,7 +106,7 @@ const Task: FC<ITaskProp> = (props) => {
                                     />
                                 </Tooltip>
                             }
-                            {task.hasDeadline && !task.deadlineDate &&
+                            {task.hasDeadline && !task.deadlineDate && publicationDateIsSet &&
                                 <Tooltip arrow title={"Дата дедлайна не выставлена"}>
                                     <Chip
                                         label={"⚠️"}
