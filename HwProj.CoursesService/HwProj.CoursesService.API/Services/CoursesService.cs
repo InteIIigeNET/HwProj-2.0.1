@@ -82,6 +82,20 @@ namespace HwProj.CoursesService.API.Services
             return result;
         }
 
+        public async Task<long> AddAsync(CreateCourseViewModel courseViewModel,
+            CourseDTO? baseCourse,
+            string mentorId)
+        {
+            var courseTemplate = courseViewModel.ToCourseTemplate();
+
+            if (baseCourse != null)
+            {
+                courseTemplate.Homeworks = baseCourse.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList();
+            }
+
+            return await AddFromTemplateAsync(courseTemplate, mentorId);
+        }
+
         public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, string mentorId)
         {
             var publicationDate = DateTime.MaxValue;
