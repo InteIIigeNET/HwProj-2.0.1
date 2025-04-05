@@ -86,6 +86,8 @@ const CourseTaskEditor: FC<{
 
     const isDisabled = hasErrors || !isLoaded
 
+    const homeworkPublicationDateIsSet = !Utils.isMaxAllowedDate(new Date(homework.publicationDate!))
+
     return (
         <CardContent>
             <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
@@ -134,26 +136,28 @@ const CourseTaskEditor: FC<{
                         }}
                     />
                 </Grid>
-                {metadata && <Grid item xs={12} style={{marginBottom: "15px"}}>
-                    <TaskPublicationAndDeadlineDates
-                        homework={homework}
-                        hasDeadline={metadata.hasDeadline}
-                        isDeadlineStrict={metadata.isDeadlineStrict}
-                        publicationDate={metadata.publicationDate}
-                        deadlineDate={metadata.deadlineDate}
-                        disabledPublicationDate={metadata.isPublished}
-                        onChange={(state) => {
-                            setMetadata({
-                                hasDeadline: state.hasDeadline,
-                                isDeadlineStrict: state.isDeadlineStrict,
-                                publicationDate: state.publicationDate,
-                                deadlineDate: state.deadlineDate,
-                                isPublished: metadata.isPublished, // Остается прежним
-                            })
-                            setHasErrors(state.hasErrors)
-                        }}
-                    />
-                </Grid>}
+                {metadata && homeworkPublicationDateIsSet &&
+                    <Grid item xs={12} style={{marginBottom: "15px"}}>
+                        <TaskPublicationAndDeadlineDates
+                            homework={homework}
+                            hasDeadline={metadata.hasDeadline}
+                            isDeadlineStrict={metadata.isDeadlineStrict}
+                            publicationDate={metadata.publicationDate}
+                            deadlineDate={metadata.deadlineDate}
+                            disabledPublicationDate={metadata.isPublished}
+                            onChange={(state) => {
+                                setMetadata({
+                                    hasDeadline: state.hasDeadline,
+                                    isDeadlineStrict: state.isDeadlineStrict,
+                                    publicationDate: state.publicationDate,
+                                    deadlineDate: state.deadlineDate,
+                                    isPublished: metadata.isPublished, // Остается прежним
+                                })
+                                setHasErrors(state.hasErrors)
+                            }}
+                        />
+                    </Grid>
+                }
             </Grid>
             <CardActions>
                 <LoadingButton

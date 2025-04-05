@@ -60,17 +60,16 @@ const CourseHomeworkEditor: FC<{
     const homeworkId = homework.id!
     const courseId = homework.courseId!
 
+    const deadlineDate = homework.deadlineDate ? new Date(homework.deadlineDate) : undefined
+
     const isPublished = !homework.isDeferred
-    const deadline = homework.deadlineDate == null
-        ? undefined
-        : new Date(homework.deadlineDate)
     const changedTaskPublicationDates = homework.tasks!
         .filter(t => t.publicationDate != null)
         .map(t => new Date(t.publicationDate!))
 
     const [metadata, setMetadata] = useState<IEditHomeworkState>({
         hasDeadline: homework.hasDeadline!,
-        deadlineDate: deadline,
+        deadlineDate: deadlineDate,
         isDeadlineStrict: homework.isDeadlineStrict!,
         publicationDate: new Date(homework.publicationDate!),
     })

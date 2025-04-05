@@ -38,7 +38,7 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
 
     const [state, setState] = useState<IDateFieldsState>(() => {
         const publicationDate =
-            props.publicationDate && props.publicationDate.getTime() !== Utils.maxAllowedDate.getTime()
+            props.publicationDate && !Utils.isMaxAllowedDate(props.publicationDate)
                 ? props.publicationDate
                 : getInitialPublicationDate()
 

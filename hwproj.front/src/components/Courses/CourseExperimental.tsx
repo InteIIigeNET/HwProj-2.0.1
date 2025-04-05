@@ -24,6 +24,7 @@ import {getTip} from "../Common/HomeworkTags";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
 import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExperimental";
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
+import Utils from "services/Utils";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -123,9 +124,25 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return <TimelineDot variant={"outlined"}/>
     }
 
+    const hasSetPublicationDate = (entity: HomeworkViewModel | HomeworkTaskViewModel) =>
+        !Utils.isMaxAllowedDate(new Date(entity.publicationDate!))
+
     const getAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel) => {
         if (!entity.isDeferred) return null
-        return <Alert severity={"info"}
+
+        if (!hasSetPublicationDate(entity)) return (
+            <Alert severity="warning">
+                {"Дата публикации задания не выставлена"}
+            </Alert>
+        )
+
+        if (entity.hasDeadline && !entity.deadlineDate) return (
+            <Alert severity="warning">
+                {"Дата дедлайна не выставлена"}
+            </Alert>
+        )
+
+        return <Alert severity="info"
                       style={{marginTop: 2}}
                       action={
                           <Button
@@ -244,7 +261,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         color={x.isDeferred ? "textSecondary" : "textPrimary"}>
                                 {x.title}{getTip(x)}
                             </Typography>
-                            {x.isDeferred &&
+                            {x.isDeferred && hasSetPublicationDate(x) &&
                                 <Typography style={{fontSize: "14px"}} align={"center"}>
                                     {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}
                                 </Typography>}
