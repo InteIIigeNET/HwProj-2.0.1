@@ -89,7 +89,7 @@ namespace HwProj.CoursesService.API.Controllers
     
             if (courseViewModel.StudentIDs?.Any() == true)
             {
-                await _coursesService.AddAndAcceptStudentsAsync(course, courseViewModel.StudentIDs);
+                await _coursesService.AddAndAcceptStudentsAsync(course.Id, courseViewModel.StudentIDs);
             }
     
             return Ok(id);
