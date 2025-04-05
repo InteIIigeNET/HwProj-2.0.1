@@ -1,4 +1,8 @@
 export default class Utils {
+    static get maxAllowedDate() {
+        return new Date("9999-12-31T23:59:59.9999999Z")
+    }
+
     static convertLocalDateToUTCDate(d: Date) {
         let date = new Date(d)
         return new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000)
