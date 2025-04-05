@@ -71,6 +71,22 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.DeleteCourse(courseId);
             return Ok();
         }
+        
+        [HttpGet("getGroups")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(List<GroupModel>), (int)HttpStatusCode.OK)]
+        public  IActionResult GetGroups(string programName)
+        {
+            return Ok(_studentsInfo.GetGroups(programName));
+        }
+        
+        [HttpGet("getProgramNames")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(List<ProgramModel>), (int)HttpStatusCode.OK)]
+        public  IActionResult GetProgramNames()
+        {   
+            return Ok(_studentsInfo.GetProgramNames());
+        }
 
         [HttpPost("create")]
         [Authorize(Roles = Roles.LecturerRole)]
@@ -248,20 +264,6 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(workspace);
         }
         
-        [HttpGet("getGroups")]
-        [ProducesResponseType(typeof(List<GroupModel>), (int)HttpStatusCode.OK)]
-        public  IActionResult GetGroups(string programName)
-        {
-            return Ok(_studentsInfo.GetGroups(programName));
-        }
-        
-        [HttpGet("getProgramNames")]
-        [ProducesResponseType(typeof(List<ProgramModel>), (int)HttpStatusCode.OK)]
-        public  IActionResult GetProgramNames()
-        {   
-            return Ok(_studentsInfo.GetProgramNames());
-        }
-
         private async Task<CourseViewModel> ToCourseViewModel(CourseDTO course)
         {
             var studentIds = course.CourseMates.Select(t => t.StudentId).ToArray();
