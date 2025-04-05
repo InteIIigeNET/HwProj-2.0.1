@@ -4,6 +4,8 @@ import {
   Button,
   Typography,
   Grid,
+  Checkbox,
+  FormControlLabel,
 } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import './Styles/CreateCourse.css';
@@ -17,6 +19,7 @@ interface ICreateCourseState {
   name: string;
   groupName?: string;
   courseId: string;
+  isLimitedVisible: boolean;
   errors: string[];
 }
 
@@ -44,6 +47,7 @@ const CreateCourse: FC = () => {
     name: "",
     groupName: "",
     courseId: "",
+    isLimitedVisible: false,
     errors: [],
   })
 
@@ -53,6 +57,7 @@ const CreateCourse: FC = () => {
       name: course.name,
       groupName: course.groupName,
       isOpen: true,
+      isLimitedVisible: course.isLimitedVisible,
     }
     try {
       const courseId = await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel)
@@ -124,6 +129,26 @@ const CreateCourse: FC = () => {
                         groupName: e.target.value
                       }))
                     }}
+                />
+              </Grid>
+              <Grid>
+                <FormControlLabel
+                    style={{ margin: 0 }}
+                    control={
+                        <Checkbox
+                            defaultChecked
+                            color="primary"
+                            checked={course.isLimitedVisible}
+                            onChange={(e) => {
+                                e.persist()
+                                setCourse((prevState) => ({
+                                    ...prevState,
+                                    isLimitedVisible: e.target.checked
+                                }))
+                            }}
+                        />
+                    }
+                    label="Ограниченно видимый курс"
                 />
               </Grid>
             </Grid>
