@@ -7,7 +7,6 @@ using IStudentsInfo;
 
 namespace StudentsInfo
 {
-    /// <inheritdoc/>
     public class StudentsInformationProvider : IStudentsInformationProvider
     {
         private readonly Dictionary<string, List<string>> _programsGroups = new Dictionary<string, List<string>>();
@@ -17,8 +16,7 @@ namespace StudentsInfo
 
         private string _username;
         private string _password;
-    
-        /// <inheritdoc/>
+        
         public List<GroupModel> GetGroups(string programName)
         {
             return _programsGroups.ContainsKey(programName)
@@ -29,8 +27,7 @@ namespace StudentsInfo
                     .ToList()
                 : new List<GroupModel>();
         }
-
-        /// <inheritdoc/>
+        
         public List<StudentModel> GetStudentInformation(string groupName)
         {
             // Формируем фильтр для поиска студентов в LDAP.
@@ -80,8 +77,7 @@ namespace StudentsInfo
 
             return studentsList;
         }
-
-        /// <inheritdoc/>
+        
         public List<ProgramModel> GetProgramNames()
         {
             return _programsGroups.Keys
