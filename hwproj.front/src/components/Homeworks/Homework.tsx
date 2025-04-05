@@ -89,7 +89,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
         return message;
     };
 
-    const publicationDateIsSet = !Utils.isMaxAllowedDate(publicationDate)
+    const publicationDateIsSet = !Utils.isMaxSupportedDate(publicationDate)
 
     const publicationDateString = Utils.renderReadableDate(publicationDate)
     const deadlineDateString = Utils.renderReadableDate(deadlineDate)
@@ -126,7 +126,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                             {props.homework.hasDeadline && props.homework.deadlineDate &&
                                 <Chip label={"⌛ " + deadlineDateString}/>
                             }
-                            {props.homework.hasDeadline && !props.homework.deadlineDate &&
+                            {props.forMentor && props.homework.hasDeadline && !props.homework.deadlineDate &&
                                 <Tooltip arrow title={"Дата дедлайна не выставлена"}>
                                     <Chip
                                         label={"⚠️"}

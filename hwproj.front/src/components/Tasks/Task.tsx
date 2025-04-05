@@ -59,7 +59,7 @@ const Task: FC<ITaskProp> = (props) => {
 
     const {task} = props
 
-    const publicationDateIsSet = !Utils.isMaxAllowedDate(publicationDate)
+    const publicationDateIsSet = !Utils.isMaxSupportedDate(publicationDate)
 
     const publicationDateString = Utils.renderReadableDate(publicationDate)
     const deadlineDateString = Utils.renderReadableDate(deadlineDate)
@@ -106,7 +106,7 @@ const Task: FC<ITaskProp> = (props) => {
                                     />
                                 </Tooltip>
                             }
-                            {task.hasDeadline && !task.deadlineDate && publicationDateIsSet &&
+                            {props.forMentor && publicationDateIsSet && task.hasDeadline && !task.deadlineDate &&
                                 <Tooltip arrow title={"Дата дедлайна не выставлена"}>
                                     <Chip
                                         label={"⚠️"}
