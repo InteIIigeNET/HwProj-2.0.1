@@ -75,42 +75,59 @@ const Task: FC<ITaskProp> = (props) => {
                     style={{backgroundColor: task.isDeferred! ? "#d3d5db" : "#eceef8"}}
                 >
                     <div className={classes.tools}>
-                        <Grid container direction={"row"} spacing={1} alignItems={"center"}>
+                        <Grid container direction="row" spacing={1} alignItems="center">
                             <Grid item>
                                 <Typography style={{fontSize: '18px', marginRight: 1}}>
                                     {task.title}{getTip(task)}
                                 </Typography>
                             </Grid>
-                            <Grid item><Chip label={<Stack direction={"row"} alignItems={"center"} spacing={0.5}>
-                                <StarIcon style={{fontSize: 15}}/>
-                                <div>{task.maxRating}</div>
-                            </Stack>}
-                                             variant={"outlined"}
-                                             style={{fontWeight: "bold"}}
-                                             color={"success"}/></Grid>
-                            {task.isGroupWork && <Grid item><Chip variant={"outlined"} color={"info"} label="Командное"/></Grid>}
+                            <Grid item>
+                                <Chip
+                                    label={
+                                        <Stack direction="row" alignItems="center" spacing={0.5}>
+                                            <StarIcon style={{fontSize: 15}}/>
+                                            <div>{task.maxRating}</div>
+                                        </Stack>
+                                    }
+                                    variant={"outlined"}
+                                    style={{fontWeight: "bold"}}
+                                    color={"success"}
+                                />
+                            </Grid>
+                            {task.isGroupWork &&
+                                <Grid item>
+                                    <Chip variant="outlined" color="info" label="Командное"/>
+                                </Grid>}
                             {props.forMentor &&
-                                <Grid item><Chip variant={"outlined"} label={"🕘 " + publicationDate}/></Grid>}
+                                <Grid item>
+                                    <Chip variant="outlined" label={"🕘 " + publicationDate}/>
+                                </Grid>}
                             {task.hasDeadline &&
-                                <Tooltip arrow
-                                         title={task.isDeadlineStrict ? "Нельзя публиковать решения после дедлайна" : "Дедлайн"}>
-                                    <Grid item>
-                                        <Chip variant={"outlined"}
-                                              label={(task.isDeadlineStrict ? "⛔ До" : "До") + " " + deadlineDate}/>
-                                    </Grid>
-                                </Tooltip>
+                                <Grid item>
+                                    <Tooltip 
+                                        arrow
+                                        title={task.isDeadlineStrict ? "Нельзя публиковать решения после дедлайна" : "Дедлайн"}
+                                    >
+                                        <Chip
+                                            variant="outlined"
+                                            label={(task.isDeadlineStrict ? "⛔ До" : "До") + " " + deadlineDate}
+                                        />
+                                    </Tooltip>
+                                </Grid>
                             }
-                            {!task.hasDeadline && <Grid item><Chip variant={"outlined"} label={"без дедлайна"}/></Grid>}
-                            {props.forMentor && !props.isReadingMode && <Grid item>
-                                <div>
+                            {!task.hasDeadline &&
+                                <Grid item>
+                                    <Chip variant="outlined" label="без дедлайна"/>
+                                </Grid>}
+                            {props.forMentor && !props.isReadingMode &&
+                                <Grid item>
                                     <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>
                                         <DeleteIcon fontSize="small"/>
                                     </IconButton>
                                     <RouterLink to={'/task/' + task.id!.toString() + '/edit'}>
                                         <EditIcon fontSize="small"/>
                                     </RouterLink>
-                                </div>
-                            </Grid>
+                                </Grid>
                             }
                         </Grid>
                     </div>
