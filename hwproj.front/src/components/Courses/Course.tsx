@@ -418,8 +418,13 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                     onTaskUpdate={task => {
                                         const homeworks = courseState.courseHomeworks
                                         const homework = homeworks.find(x => x.id === task.homeworkId)!
-                                        const taskIndex = homework.tasks!.findIndex(x => x!.id === task.id)
-                                        homework.tasks![taskIndex] = task
+                                        const tasks = [...homework.tasks!]
+                                        const taskIndex = tasks.findIndex(x => x!.id === task.id)
+
+                                        if (task.isDelete) tasks.splice(taskIndex, 1)
+                                        else tasks![taskIndex] = task
+
+                                        homework.tasks = tasks
 
                                         setCourseState(prevState => ({
                                             ...prevState,

@@ -1,12 +1,14 @@
-﻿import {CardContent, Chip, Divider, Grid, IconButton, TextField, Typography} from "@mui/material";
+﻿import {CardActions, CardContent, Chip, Divider, Grid, IconButton, TextField, Typography} from "@mui/material";
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
 import {FC, useEffect, useState} from "react"
 import {HomeworkTaskViewModel, HomeworkViewModel} from "../../api";
 import ApiSingleton from "../../api/ApiSingleton";
 import * as React from "react";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {LoadingButton} from "@mui/lab";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
+import DeletionConfirmation from "../DeletionConfirmation";
 
 interface IEditTaskMetadataState {
     hasDeadline: boolean | undefined;
@@ -19,7 +21,7 @@ interface IEditTaskMetadataState {
 const CourseTaskEditor: FC<{
     speculativeTask: HomeworkTaskViewModel,
     speculativeHomework: HomeworkViewModel,
-    onUpdate: (update: HomeworkTaskViewModel) => void
+    onUpdate: (update: HomeworkTaskViewModel & { isDelete?: boolean }) => void
 }> = (props) => {
     const [taskData, setTaskData] = useState<{
         task: HomeworkTaskViewModel,
@@ -60,6 +62,7 @@ const CourseTaskEditor: FC<{
     const [maxRating, setMaxRating] = useState<number>(task.maxRating!)
     const [description, setDescription] = useState<string>(task.description!)
     const [hasErrors, setHasErrors] = useState<boolean>(false)
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false)
 
     const [handleSubmitLoading, setHandleSubmitLoading] = useState(false);
 
@@ -74,6 +77,11 @@ const CourseTaskEditor: FC<{
         })
 
         props.onUpdate(updatedTask.value!)
+    }
+
+    const deleteTask = async () => {
+        await ApiSingleton.tasksApi.tasksDeleteTask(id!)
+        props.onUpdate({...task, isDelete: true})
     }
 
     const isDisabled = hasErrors || !isLoaded
@@ -146,6 +154,8 @@ const CourseTaskEditor: FC<{
                         }}
                     />
                 </Grid>}
+            </Grid>
+            <CardActions>
                 <LoadingButton
                     fullWidth
                     onClick={handleSubmit}
@@ -160,7 +170,19 @@ const CourseTaskEditor: FC<{
                 >
                     Редактировать задачу
                 </LoadingButton>
-            </Grid>
+                <IconButton aria-label="delete" color="error" onClick={() => setShowDeleteConfirmation(true)}>
+                    <DeleteIcon/>
+                </IconButton>
+            </CardActions>
+            <DeletionConfirmation
+                onCancel={() => setShowDeleteConfirmation(false)}
+                onSubmit={deleteTask}
+                isOpen={showDeleteConfirmation}
+                dialogTitle={'Удаление задачи'}
+                dialogContentText={`Вы точно хотите удалить задачу "${task.title}"?`}
+                confirmationWord={''}
+                confirmationText={''}
+            />
         </CardContent>
     )
 }
@@ -169,7 +191,7 @@ const CourseTaskExperimental: FC<{
     task: HomeworkTaskViewModel,
     homework: HomeworkViewModel,
     isMentor: boolean,
-    onUpdate: (x: HomeworkTaskViewModel) => void
+    onUpdate: (x: HomeworkTaskViewModel & { isDelete?: boolean }) => void
 }> = (props) => {
     const {task, homework} = props
     const [showEditMode, setShowEditMode] = useState(false)

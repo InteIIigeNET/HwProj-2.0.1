@@ -34,7 +34,7 @@ interface ICourseExperimentalProps {
     userId: string
     selectedHomeworkId: number | undefined
     onHomeworkUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] }) => void
-    onTaskUpdate: (update: HomeworkTaskViewModel) => void
+    onTaskUpdate: (update: HomeworkTaskViewModel & { isDelete?: boolean }) => void
 }
 
 interface ICourseExperimentalState {
@@ -163,7 +163,15 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
                     <CourseTaskExperimental task={task} isMentor={isMentor}
                                             homework={homework!}
-                                            onUpdate={update => props.onTaskUpdate(update)}/>
+                                            onUpdate={update => {
+                                                props.onTaskUpdate(update)
+                                                if (update.isDelete) setState({
+                                                    selectedItem: {
+                                                        isHomework: true,
+                                                        id: homework!.id
+                                                    }
+                                                })
+                                            }}/>
                     {!props.isMentor && props.isStudentAccepted && < CardActions>
                         <Link
                             style={{color: '#212529'}}
