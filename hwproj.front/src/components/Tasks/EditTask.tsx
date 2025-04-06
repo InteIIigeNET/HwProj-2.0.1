@@ -123,8 +123,7 @@ const EditTask: FC = () => {
             );
         }
 
-        const homeworkPublicationDate = new Date(taskState.homework!.publicationDate!)
-        const homeworkPublicationDateIsSet = !Utils.isMaxSupportedDate(homeworkPublicationDate)
+        const homeworkPublicationDateIsSet = !taskState.homework?.publicationDateNotSet
 
         return (
             <div className="container">

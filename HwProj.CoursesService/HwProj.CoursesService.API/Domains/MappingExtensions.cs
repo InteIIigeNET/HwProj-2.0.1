@@ -21,6 +21,7 @@ namespace HwProj.CoursesService.API.Domains
                 DeadlineDate = homework.DeadlineDate,
                 IsDeadlineStrict = homework.IsDeadlineStrict,
                 PublicationDate = homework.PublicationDate,
+                PublicationDateNotSet = homework.PublicationDate == DateTime.MaxValue,
                 CourseId = homework.CourseId,
                 IsGroupWork = tags.Contains(HomeworkTags.GroupWork),
                 IsDeferred = DateTime.UtcNow < homework.PublicationDate,
@@ -43,6 +44,7 @@ namespace HwProj.CoursesService.API.Domains
                 DeadlineDate = task.DeadlineDate,
                 IsDeadlineStrict = task.IsDeadlineStrict,
                 PublicationDate = task.PublicationDate,
+                PublicationDateNotSet = task.PublicationDate == DateTime.MaxValue,
                 IsDeferred = DateTime.UtcNow < evaluatedPublicationDate,
                 IsGroupWork = tags.Contains(HomeworkTags.GroupWork),
                 HomeworkId = task.HomeworkId,
@@ -159,8 +161,7 @@ namespace HwProj.CoursesService.API.Domains
                 IsOpen = courseTemplate.IsOpen,
             };
 
-        public static Homework ToHomework(
-            this HomeworkTemplate homeworkTemplate, long courseId, DateTime publicationDate)
+        public static Homework ToHomework(this HomeworkTemplate homeworkTemplate, long courseId)
             => new Homework()
             {
                 Title = homeworkTemplate.Title,
@@ -169,11 +170,10 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = homeworkTemplate.IsDeadlineStrict,
                 Tags = homeworkTemplate.Tags,
                 CourseId = courseId,
-                PublicationDate = publicationDate,
+                PublicationDate = DateTime.MaxValue,
             };
 
-        public static HomeworkTask ToHomeworkTask(
-            this HomeworkTaskTemplate taskTemplate, long homeworkId)
+        public static HomeworkTask ToHomeworkTask(this HomeworkTaskTemplate taskTemplate, long homeworkId)
             => new HomeworkTask()
             {
                 Title = taskTemplate.Title,

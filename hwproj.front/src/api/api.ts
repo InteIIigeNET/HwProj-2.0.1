@@ -1088,6 +1088,12 @@ export interface HomeworkTaskViewModel {
     publicationDate?: Date;
     /**
      *
+     * @type {boolean}
+     * @memberof HomeworkTaskViewModel
+     */
+    publicationDateNotSet?: boolean;
+    /**
+     *
      * @type {number}
      * @memberof HomeworkTaskViewModel
      */
@@ -1197,6 +1203,12 @@ export interface HomeworkViewModel {
      * @memberof HomeworkViewModel
      */
     publicationDate?: Date;
+    /**
+     *
+     * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    publicationDateNotSet?: boolean;
     /**
      *
      * @type {number}

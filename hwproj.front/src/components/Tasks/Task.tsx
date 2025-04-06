@@ -42,6 +42,8 @@ const Task: FC<ITaskProp> = (props) => {
     const publicationDate = new Date(props.task.publicationDate!)
     const deadlineDate = new Date(props.task.deadlineDate!)
 
+    const publicationDateIsSet = !props.task.publicationDateNotSet
+
     const [isOpenDialogDeleteTask, setIsOpenDialogDeleteTask] = useState<boolean>(false)
 
     const openDialogDeleteTask = () => {
@@ -58,8 +60,6 @@ const Task: FC<ITaskProp> = (props) => {
     }
 
     const {task} = props
-
-    const publicationDateIsSet = !Utils.isMaxSupportedDate(publicationDate)
 
     const publicationDateString = Utils.renderReadableDate(publicationDate)
     const deadlineDateString = Utils.renderReadableDate(deadlineDate)

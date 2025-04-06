@@ -43,6 +43,8 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public DateTime PublicationDate { get; set; }
 
+        public bool PublicationDateNotSet { get; set; }
+
         public long CourseId { get; set; }
 
         public bool IsDeferred { get; set; }

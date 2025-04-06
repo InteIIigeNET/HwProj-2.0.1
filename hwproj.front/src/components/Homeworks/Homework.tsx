@@ -52,6 +52,8 @@ const Homework: FC<IHomeworkProps> = (props) => {
     const publicationDate = new Date(props.homework.publicationDate!)
     const deadlineDate = new Date(props.homework.deadlineDate!)
 
+    const publicationDateIsSet = !props.homework.publicationDateNotSet
+
     const [homeworkState, setHomeworkState] = useState<IHomeworkState>({
         createTask: false,
     })
@@ -88,8 +90,6 @@ const Homework: FC<IHomeworkProps> = (props) => {
 
         return message;
     };
-
-    const publicationDateIsSet = !Utils.isMaxSupportedDate(publicationDate)
 
     const publicationDateString = Utils.renderReadableDate(publicationDate)
     const deadlineDateString = Utils.renderReadableDate(deadlineDate)

@@ -86,7 +86,7 @@ const CourseTaskEditor: FC<{
 
     const isDisabled = hasErrors || !isLoaded
 
-    const homeworkPublicationDateIsSet = !Utils.isMaxSupportedDate(new Date(homework.publicationDate!))
+    const homeworkPublicationDateIsSet = !homework.publicationDateNotSet
 
     return (
         <CardContent>

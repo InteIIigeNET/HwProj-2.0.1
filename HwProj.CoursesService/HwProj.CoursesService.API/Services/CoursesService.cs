@@ -98,8 +98,6 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, string mentorId)
         {
-            var publicationDate = DateTime.MaxValue;
-
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var course = courseTemplate.ToCourse();
@@ -108,7 +106,7 @@ namespace HwProj.CoursesService.API.Services
             var courseId = await _coursesRepository.AddAsync(course);
 
             var homeworks = courseTemplate.Homeworks.Select(
-                hwTemplate => hwTemplate.ToHomework(courseId, publicationDate));
+                hwTemplate => hwTemplate.ToHomework(courseId));
             var homeworkIds = await _homeworksRepository.AddRangeAsync(homeworks);
 
             var tasks = courseTemplate.Homeworks.SelectMany((hwTemplate, i) =>

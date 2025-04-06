@@ -124,13 +124,10 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return <TimelineDot variant={"outlined"}/>
     }
 
-    const hasSetPublicationDate = (entity: HomeworkViewModel | HomeworkTaskViewModel) =>
-        !Utils.isMaxSupportedDate(new Date(entity.publicationDate!))
-
     const getAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel) => {
         if (!entity.isDeferred) return null
 
-        if (!hasSetPublicationDate(entity)) return (
+        if (entity.publicationDateNotSet) return (
             <Alert severity="warning">
                 {"Дата публикации задания не выставлена"}
             </Alert>
@@ -261,7 +258,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         color={x.isDeferred ? "textSecondary" : "textPrimary"}>
                                 {x.title}{getTip(x)}
                             </Typography>
-                            {x.isDeferred && hasSetPublicationDate(x) &&
+                            {x.isDeferred && !x.publicationDateNotSet &&
                                 <Typography style={{fontSize: "14px"}} align={"center"}>
                                     {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}
                                 </Typography>}
