@@ -33,8 +33,10 @@ interface ICourseExperimentalProps {
     isStudentAccepted: boolean
     userId: string
     selectedHomeworkId: number | undefined
-    onHomeworkUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] }) => void
-    onTaskUpdate: (update: HomeworkTaskViewModel & { isDelete?: boolean }) => void
+    onHomeworkUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] } & {
+        isDeleted?: boolean
+    }) => void
+    onTaskUpdate: (update: HomeworkTaskViewModel & { isDeleted?: boolean }) => void
 }
 
 interface ICourseExperimentalState {
@@ -149,7 +151,17 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         <CourseHomeworkExperimental
                             homeworkAndFilesInfo={{homework, filesInfo}}
                             isMentor={isMentor}
-                            onUpdate={update => props.onHomeworkUpdate(update)}/>
+                            onUpdate={update => {
+                                props.onHomeworkUpdate(update)
+                                if (update.isDeleted) {
+                                    setState({
+                                        selectedItem: {
+                                            isHomework: true,
+                                            id: undefined
+                                        }
+                                    })
+                                }
+                            }}/>
                     </Card>
                 </Grid>
             </Grid>
@@ -165,7 +177,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                             homework={homework!}
                                             onUpdate={update => {
                                                 props.onTaskUpdate(update)
-                                                if (update.isDelete) setState({
+                                                if (update.isDeleted) setState({
                                                     selectedItem: {
                                                         isHomework: true,
                                                         id: homework!.id

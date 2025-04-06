@@ -1,4 +1,4 @@
-﻿import {CardContent, Chip, Divider, Grid, IconButton, TextField, Typography} from "@mui/material";
+﻿import {CardActions, CardContent, Chip, Divider, Grid, IconButton, TextField, Typography} from "@mui/material";
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
 import FilesPreviewList from "components/Files/FilesPreviewList";
 import {IFileInfo} from "components/Files/IFileInfo";
@@ -16,6 +16,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import {LoadingButton} from "@mui/lab";
 import ErrorsHandler from "../Utils/ErrorsHandler";
 import {enqueueSnackbar} from "notistack";
+import DeletionConfirmation from "../DeletionConfirmation";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export interface HomeworkAndFilesInfo {
     homework: HomeworkViewModel,
@@ -37,7 +39,7 @@ interface IEditFilesState {
 
 const CourseHomeworkEditor: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
-    onUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] }) => void
+    onUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] } & { isDeleted?: boolean }) => void
 }> = (props) => {
     const speculativeHomework = props.homeworkAndFilesInfo.homework
 
@@ -82,7 +84,30 @@ const CourseHomeworkEditor: FC<{
     });
     const [hasErrors, setHasErrors] = useState<boolean>(false)
 
-    const [handleSubmitLoading, setHandleSubmitLoading] = useState(false);
+    const [handleSubmitLoading, setHandleSubmitLoading] = useState(false)
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+
+    const deleteHomework = async () => {
+        await ApiSingleton.homeworksApi.homeworksDeleteHomework(homeworkId)
+
+        // Удаляем файлы домашней работы из хранилища
+        const deleteOperations = filesInfo.map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(courseId!, initialFile))
+        await Promise.all(deleteOperations)
+
+        props.onUpdate({homework, fileInfos: [], isDeleted: true})
+    }
+
+    const getDeleteMessage = (homeworkName: string, filesInfo: IFileInfo[]) => {
+        let message = `Вы точно хотите удалить задание "${homeworkName}"?`;
+        if (filesInfo.length > 0) {
+            message += ` Будет также удален файл ${filesInfo[0].name}`;
+            if (filesInfo.length > 1) {
+                message += ` и другие прикрепленные файлы`;
+            }
+        }
+
+        return message;
+    }
 
     const handleSubmit = async (e: any) => {
         e.preventDefault()
@@ -204,6 +229,8 @@ const CourseHomeworkEditor: FC<{
                         />
                     </Grid>
                 </Grid>
+            </Grid>
+            <CardActions>
                 <LoadingButton
                     fullWidth
                     onClick={handleSubmit}
@@ -218,7 +245,19 @@ const CourseHomeworkEditor: FC<{
                 >
                     Редактировать задание
                 </LoadingButton>
-            </Grid>
+                <IconButton aria-label="delete" color="error" onClick={() => setShowDeleteConfirmation(true)}>
+                    <DeleteIcon/>
+                </IconButton>
+            </CardActions>
+            <DeletionConfirmation
+                onCancel={() => setShowDeleteConfirmation(false)}
+                onSubmit={deleteHomework}
+                isOpen={showDeleteConfirmation}
+                dialogTitle={'Удаление задания'}
+                dialogContentText={getDeleteMessage(homework.title!, filesInfo)}
+                confirmationWord={''}
+                confirmationText={''}
+            />
         </CardContent>
     )
 }
@@ -226,7 +265,7 @@ const CourseHomeworkEditor: FC<{
 const CourseHomeworkExperimental: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
     isMentor: boolean,
-    onUpdate: (x: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] }) => void
+    onUpdate: (x: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] } & { isDeleted?: boolean }) => void
 }> = (props) => {
     const {homework, filesInfo} = props.homeworkAndFilesInfo
     const deferredHomeworks = homework.tasks!.filter(t => t.isDeferred!)

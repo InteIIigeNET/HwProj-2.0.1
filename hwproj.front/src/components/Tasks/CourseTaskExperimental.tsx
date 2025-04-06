@@ -21,7 +21,7 @@ interface IEditTaskMetadataState {
 const CourseTaskEditor: FC<{
     speculativeTask: HomeworkTaskViewModel,
     speculativeHomework: HomeworkViewModel,
-    onUpdate: (update: HomeworkTaskViewModel & { isDelete?: boolean }) => void
+    onUpdate: (update: HomeworkTaskViewModel & { isDeleted?: boolean }) => void
 }> = (props) => {
     const [taskData, setTaskData] = useState<{
         task: HomeworkTaskViewModel,
@@ -81,7 +81,7 @@ const CourseTaskEditor: FC<{
 
     const deleteTask = async () => {
         await ApiSingleton.tasksApi.tasksDeleteTask(id!)
-        props.onUpdate({...task, isDelete: true})
+        props.onUpdate({...task, isDeleted: true})
     }
 
     const isDisabled = hasErrors || !isLoaded
@@ -191,7 +191,7 @@ const CourseTaskExperimental: FC<{
     task: HomeworkTaskViewModel,
     homework: HomeworkViewModel,
     isMentor: boolean,
-    onUpdate: (x: HomeworkTaskViewModel & { isDelete?: boolean }) => void
+    onUpdate: (x: HomeworkTaskViewModel & { isDeleted?: boolean }) => void
 }> = (props) => {
     const {task, homework} = props
     const [showEditMode, setShowEditMode] = useState(false)

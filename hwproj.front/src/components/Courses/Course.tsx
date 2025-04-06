@@ -402,12 +402,16 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                     isStudentAccepted={isAcceptedStudent}
                                     selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
                                     userId={userId!}
-                                    onHomeworkUpdate={({fileInfos, homework}) => {
+                                    onHomeworkUpdate={({fileInfos, homework, isDeleted}) => {
                                         const homeworkIndex = courseState.courseHomeworks.findIndex(x => x.id === homework.id)
                                         const homeworks = [...courseState.courseHomeworks]
-                                        homeworks[homeworkIndex] = homework
 
-                                        const newCourseFiles = courseFilesInfo.filter(x => x.homeworkId !== homework.id).concat(fileInfos)
+                                        if (isDeleted) homeworks.splice(homeworkIndex, 1)
+                                        else homeworks[homeworkIndex] = homework
+
+                                        const newCourseFiles = courseFilesInfo
+                                            .filter(x => x.homeworkId !== homework.id)
+                                            .concat(isDeleted ? [] : fileInfos)
 
                                         setCourseState(prevState => ({
                                             ...prevState,
@@ -421,7 +425,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                         const tasks = [...homework.tasks!]
                                         const taskIndex = tasks.findIndex(x => x!.id === task.id)
 
-                                        if (task.isDelete) tasks.splice(taskIndex, 1)
+                                        if (task.isDeleted) tasks.splice(taskIndex, 1)
                                         else tasks![taskIndex] = task
 
                                         homework.tasks = tasks
