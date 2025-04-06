@@ -10,6 +10,7 @@ namespace HwProj.CoursesService.API.Services
     {
         Task<Course[]> GetAllAsync();
         Task<CourseDTO?> GetAsync(long id, string userId = "");
+        Task<CourseDTO?> GetForEditingAsync(long id);
         Task<CourseDTO?> GetByTaskAsync(long taskId, string userId);
         Task<long> AddAsync(CreateCourseViewModel courseViewModel, CourseDTO? baseCourse, string mentorId);
         Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, string mentorId);

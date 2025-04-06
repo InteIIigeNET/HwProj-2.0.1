@@ -19,6 +19,13 @@ namespace HwProj.CoursesService.API.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
 
+        public async Task<Course?> GetWithHomeworksAsync(long id)
+            => await Context.Set<Course>()
+                .Include(c => c.Homeworks)
+                .ThenInclude(h => h.Tasks)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == id);
+
         public async Task<Course?> GetWithCourseMatesAndHomeworksAsync(long id)
         {
             var course = await Context.Set<Course>()

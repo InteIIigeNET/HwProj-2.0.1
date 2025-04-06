@@ -82,6 +82,12 @@ namespace HwProj.CoursesService.API.Services
             return result;
         }
 
+        public async Task<CourseDTO?> GetForEditingAsync(long id)
+        {
+            var course = await _coursesRepository.GetWithHomeworksAsync(id);
+            return course?.ToCourseDto();
+        }
+
         public async Task<long> AddAsync(CreateCourseViewModel courseViewModel,
             CourseDTO? baseCourse,
             string mentorId)

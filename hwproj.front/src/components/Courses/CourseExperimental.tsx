@@ -129,13 +129,13 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
         if (entity.publicationDateNotSet) return (
             <Alert severity="warning">
-                {"Дата публикации задания не выставлена"}
+                {"Не выставлена дата публикации"}
             </Alert>
         )
 
         if (entity.hasDeadline && !entity.deadlineDate) return (
             <Alert severity="warning">
-                {"Дата дедлайна не выставлена"}
+                {"Не выставлена дата дедлайна"}
             </Alert>
         )
 

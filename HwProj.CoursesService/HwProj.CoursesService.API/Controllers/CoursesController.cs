@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
@@ -27,16 +26,13 @@ namespace HwProj.CoursesService.API.Controllers
         private readonly ICoursesService _coursesService;
         private readonly ICourseFilterService _courseFilterService;
         private readonly IHomeworksRepository _homeworksRepository;
-        private readonly IMapper _mapper;
 
         public CoursesController(ICoursesService coursesService,
             IHomeworksRepository homeworksRepository,
-            IMapper mapper,
             ICourseFilterService courseFilterService)
         {
             _coursesService = coursesService;
             _homeworksRepository = homeworksRepository;
-            _mapper = mapper;
             _courseFilterService = courseFilterService;
         }
 
@@ -98,7 +94,7 @@ namespace HwProj.CoursesService.API.Controllers
 
             if (courseViewModel.BaseCourseId != null)
             {
-                baseCourse = await _coursesService.GetAsync((long)courseViewModel.BaseCourseId);
+                baseCourse = await _coursesService.GetForEditingAsync((long)courseViewModel.BaseCourseId);
                 if (baseCourse == null) return NotFound();
 
                 if (!baseCourse.MentorIds.Contains(mentorId)) return Forbid();
