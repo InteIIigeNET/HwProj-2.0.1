@@ -26,9 +26,9 @@ interface IEditHomeworkState {
     courseMentorIds: string[];
     edited: boolean;
     hasDeadline: boolean;
-    deadlineDate: Date | undefined;
+    deadlineDate?: Date;
     isDeadlineStrict: boolean;
-    publicationDate: Date;
+    publicationDate?: Date;
     isPublished: boolean;
     isGroupWork: boolean;
     hasErrors: boolean;
@@ -67,7 +67,6 @@ const EditHomework: FC = () => {
         hasDeadline: false,
         deadlineDate: undefined,
         isDeadlineStrict: false,
-        publicationDate: new Date(),
         isPublished: false,
         hasErrors: false,
         tags: [],
@@ -90,6 +89,10 @@ const EditHomework: FC = () => {
         const course = await ApiSingleton.coursesApi.coursesGetCourseData(homework.courseId!)
         const deadline = homework.deadlineDate ? new Date(homework.deadlineDate) : undefined
 
+        const publicationDate = homework.publicationDateNotSet
+            ? undefined
+            : new Date(homework.publicationDate!)
+
         setEditHomework((prevState) => ({
             ...prevState,
             isLoaded: true,
@@ -101,7 +104,7 @@ const EditHomework: FC = () => {
             hasDeadline: homework.hasDeadline!,
             deadlineDate: deadline,
             isDeadlineStrict: homework.isDeadlineStrict!,
-            publicationDate: new Date(homework.publicationDate!),
+            publicationDate: publicationDate,
             isPublished: !homework.isDeferred,
             hasErrors: false,
             tags: homework.tags!,
@@ -179,7 +182,7 @@ const EditHomework: FC = () => {
     const classes = useStyles()
 
     const isSomeTaskSoonerThanHomework = editHomework.changedTaskPublicationDates
-        .some(d => d < editHomework.publicationDate)
+        .some(d => d < editHomework.publicationDate!)
 
     if (editHomework.edited) {
         return <Navigate to={`/courses/${editHomework.courseId}/editHomeworks`}/>;

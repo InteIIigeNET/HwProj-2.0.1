@@ -25,10 +25,10 @@ export interface HomeworkAndFilesInfo {
 }
 
 interface IEditHomeworkState {
+    publicationDate?: Date;
     hasDeadline: boolean;
-    deadlineDate: Date | undefined;
+    deadlineDate?: Date;
     isDeadlineStrict: boolean;
-    publicationDate: Date;
 }
 
 interface IEditFilesState {
@@ -67,11 +67,15 @@ const CourseHomeworkEditor: FC<{
         .filter(t => t.publicationDate != null)
         .map(t => new Date(t.publicationDate!))
 
+    const publicationDate = homework.publicationDateNotSet
+        ? undefined
+        : new Date(homework.publicationDate!)
+
     const [metadata, setMetadata] = useState<IEditHomeworkState>({
+        publicationDate: publicationDate,
         hasDeadline: homework.hasDeadline!,
         deadlineDate: deadlineDate,
         isDeadlineStrict: homework.isDeadlineStrict!,
-        publicationDate: new Date(homework.publicationDate!),
     })
     const [title, setTitle] = useState<string>(homework.title!)
     const [tags, setTags] = useState<string[]>(homework.tags!)
@@ -158,7 +162,7 @@ const CourseHomeworkEditor: FC<{
         }
     }
 
-    const isSomeTaskSoonerThanHomework = changedTaskPublicationDates.some(d => d < metadata.publicationDate)
+    const isSomeTaskSoonerThanHomework = changedTaskPublicationDates.some(d => d < metadata.publicationDate!)
     const isDisabled = isSomeTaskSoonerThanHomework || hasErrors || !isLoaded
 
     return (
