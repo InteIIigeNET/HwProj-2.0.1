@@ -106,13 +106,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         isReadingMode,
         studentSolutions,
         courseHomeworks,
-    } = courseState;
-
-    const getPostedHomeworks = (homeworks: HomeworkViewModel[]) =>
-        homeworks.filter(h => !h.isDeferred).map(h => ({
-            ...h,
-            tasks: h.tasks?.filter(t => !t.isDeferred)
-        }))
+    } = courseState
 
     const userId = ApiSingleton.authService.getUserId()
 
