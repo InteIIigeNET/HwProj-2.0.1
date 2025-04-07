@@ -14,13 +14,13 @@ import {
     Chip,
     Accordion,
     AccordionSummary,
+    Grid,
     Typography,
     IconButton,
     Button,
     AccordionDetails,
     Tooltip
 } from '@material-ui/core';
-import {Stack} from '@mui/material';
 import Utils from "../../services/Utils";
 import {MarkdownPreview} from "../Common/MarkdownEditor";
 import {IFileInfo} from 'components/Files/IFileInfo';
@@ -103,36 +103,51 @@ const Homework: FC<IHomeworkProps> = (props) => {
                     style={{backgroundColor: props.homework.isDeferred ? "#d3d5db" : "#c6cceb"}}
                 >
                     <div className={classes.tools}>
-                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                            <Typography style={{fontSize: '18px'}}>
-                                {props.homework.title}
-                            </Typography>
+                        <Grid container direction="row" spacing={1} alignItems="center">
+                            <Grid item>
+                                <Typography style={{fontSize: '18px'}}>
+                                    {props.homework.title}
+                                </Typography>
+                            </Grid>
                             {props.forMentor &&
-                                <Chip label={"🕘 " + homeworkPublicationDateString}/>
+                                <Grid item>
+                                    <Chip label={"🕘 " + homeworkPublicationDateString}/>
+                                </Grid>
                             }
                             {props.homework.hasDeadline &&
-                                <Chip label={"⌛ " + homeworkDeadlineDateString}/>
+                                <Grid item>
+                                    <Chip label={"⌛ " + homeworkDeadlineDateString}/>
+                                </Grid>
                             }
                             {props.forMentor && props.homework.isDeadlineStrict &&
-                                <Tooltip arrow title={"Нельзя публиковать решения после дедлайна"}>
-                                    <Chip label={"⛔"}/>
-                                </Tooltip>
+                                <Grid item>
+                                    <Tooltip arrow title={"Нельзя публиковать решения после дедлайна"}>
+                                        <Chip label={"⛔"}/>
+                                    </Tooltip>
+                                </Grid>
                             }
-                            {tasksCount > 0 && <Chip label={tasksCount + " заданий"}/>}
+                            {tasksCount > 0 &&
+                                <Grid item>
+                                    <Chip label={tasksCount + " заданий"}/>
+                                </Grid>
+                            }
                             {props.homework.tags?.filter(t => t !== '').map((tag, index) => (
-                                <Chip key={index} label={tag}/>
+                                <Grid item>
+                                    <Chip key={index} label={tag}/>
+                                </Grid>
                             ))}
-                            {props.forMentor && !props.isReadingMode && <div>
-                                <IconButton aria-label="Delete" onClick={openDialogDeleteHomework}>
-                                    <DeleteIcon fontSize="small"/>
-                                </IconButton>
+                            {props.forMentor && !props.isReadingMode &&
+                                <Grid item>
+                                    <IconButton aria-label="Delete" onClick={openDialogDeleteHomework}>
+                                        <DeleteIcon fontSize="small"/>
+                                    </IconButton>
 
-                                <RouterLink to={'/homework/' + props.homework.id!.toString() + '/edit'}>
-                                    <EditIcon fontSize="small"/>
-                                </RouterLink>
-                            </div>
+                                    <RouterLink to={'/homework/' + props.homework.id!.toString() + '/edit'}>
+                                        <EditIcon fontSize="small"/>
+                                    </RouterLink>
+                                </Grid>
                             }
-                        </Stack>
+                        </Grid>
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>
