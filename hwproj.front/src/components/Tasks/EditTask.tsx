@@ -213,7 +213,7 @@ const EditTask: FC = () => {
                                     />
                                 </Grid>
                                 {homeworkPublicationDateIsSet &&
-                                    <Grid item style={{width: "90%", marginBottom: "10px"}}>
+                                    <Grid item xs={12} style={{width: "90%", marginBottom: "10px"}}>
                                         <TaskPublicationAndDeadlineDates
                                             homework={taskState.homework!}
                                             hasDeadline={taskState.hasDeadline}

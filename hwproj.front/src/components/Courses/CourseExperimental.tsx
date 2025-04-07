@@ -97,6 +97,12 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const hoveredItemStyle = {...clickedItemStyle, border: "1px solid lightgrey"}
 
+    const warningTimelineDotStyle = {
+        borderWidth: 0,
+        margin: 0,
+        padding: "4px 0px",
+    }
+
     const getStyle = (itemIsHomework: boolean, itemId: number) =>
         itemIsHomework === isHomework && itemId === id ? clickedItemStyle : {}
 
@@ -110,25 +116,34 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             .forEach(x => taskSolutionsMap.set(x.id!, x.solution!))
     }
 
-    const renderTaskStatus = (taskId: number, taskMaxRating: number) => {
-        if (taskSolutionsMap.has(taskId)) {
-            const solutions = taskSolutionsMap.get(taskId)
+    const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel) => {
+        const deadlineDateNotSet = entity.hasDeadline && !entity.deadlineDate
+        return isMentor && (entity.publicationDateNotSet || deadlineDateNotSet)
+    }
+
+    const renderTaskStatus = (task: HomeworkTaskViewModel) => {
+        if (taskSolutionsMap.has(task.id!)) {
+            const solutions = taskSolutionsMap.get(task.id!)
             const {
                 lastSolution,
                 lastRatedSolution,
                 color,
                 solutionsDescription
-            } = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)
-            return lastSolution == null
-                ? <TimelineDot variant={"outlined"}/>
-                : <Tooltip arrow disableInteractive enterDelay={1000}
+            } = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, task.maxRating!)
+            if (lastSolution != null) return (
+                <Tooltip arrow disableInteractive enterDelay={1000}
                            title={<span style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
                     <Chip style={{backgroundColor: color, marginTop: '11.5px'}}
                           size={"small"}
                           label={lastRatedSolution == null ? "?" : lastRatedSolution.rating}/>
                 </Tooltip>
+            )
         }
-        return <TimelineDot variant={"outlined"}/>
+        return showWarningsForEntity(task) ? (
+            <Typography color={task.isDeferred ? "textSecondary" : "textPrimary"}>
+                <TimelineDot variant="outlined" style={warningTimelineDotStyle}>⚠️</TimelineDot>
+            </Typography>
+        ) : <TimelineDot variant="outlined"/>
     }
 
     const onSelectedItemMount = () =>
@@ -144,33 +159,33 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         })
 
     const getAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel) => {
-        if (!entity.isDeferred) return null
-
         if (entity.publicationDateNotSet) return (
             <Alert severity="warning">
                 {"Не выставлена дата публикации"}
             </Alert>
         )
 
-        if (entity.hasDeadline && !entity.deadlineDate) return (
+        if (isMentor && entity.hasDeadline && !entity.deadlineDate) return (
             <Alert severity="warning">
                 {"Не выставлена дата дедлайна"}
             </Alert>
         )
 
-        return <Alert severity="info"
-                      style={{marginTop: 2}}
-                      action={
-                          <Button
-                              color="inherit"
-                              size="small"
-                              onClick={() => setHideDeferred(true)}
-                          >
-                              Скрыть неопубликованное
-                          </Button>}>
-            {isHomework ? "Задание будет опубликовано " : "Задача будет опубликована "}
-            {renderDate(entity.publicationDate!) + " " + renderTime(entity.publicationDate!)}
-        </Alert>
+        if (entity.isDeferred) return (
+            <Alert severity="info"
+                   style={{marginTop: 2}}
+                   action={
+                        <Button
+                            color="inherit"
+                            size="small"
+                            onClick={() => setHideDeferred(true)}
+                        >
+                            Скрыть неопубликованное
+                        </Button>}>
+                {isHomework ? "Задание будет опубликовано " : "Задача будет опубликована "}
+                {renderDate(entity.publicationDate!) + " " + renderTime(entity.publicationDate!)}
+            </Alert>
+        )
     }
 
     const renderSelectedItem = () => {
@@ -283,6 +298,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             }}>
                             <Typography variant="h6" style={{fontSize: 18}} align={"center"}
                                         color={x.isDeferred ? "textSecondary" : "textPrimary"}>
+                                {showWarningsForEntity(x) && <div>⚠️<br/></div>}
                                 {x.title}{getTip(x)}
                             </Typography>
                             {x.isDeferred && !x.publicationDateNotSet &&
@@ -317,7 +333,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 {t.deadlineDate ? renderTime(t.deadlineDate) : ""}
                             </TimelineOppositeContent>
                             <TimelineSeparator>
-                                {renderTaskStatus(t.id!, t.maxRating!)}
+                                {renderTaskStatus(t)}
                                 <TimelineConnector/>
                             </TimelineSeparator>
                             <TimelineContent alignItems={"center"}>
