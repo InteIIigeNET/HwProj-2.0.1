@@ -4,7 +4,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from "@material-ui/styles";
-import {Button} from "@material-ui/core";
+import {Button, CircularProgress} from "@material-ui/core";
 import {Typography, TextField, Grid} from "@mui/material";
 import {MarkdownEditor} from "../Common/MarkdownEditor";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
@@ -242,8 +242,9 @@ const EditTask: FC = () => {
     }
 
     return (
-        <div>
-
+        <div className="container">
+            <p>Загрузка...</p>
+            <CircularProgress/>
         </div>
     )
 }

@@ -16,6 +16,7 @@ import UpdateFilesUtils from "components/Utils/UpdateFilesUtils";
 import {LoadingButton} from "@mui/lab";
 import ErrorsHandler from "components/Utils/ErrorsHandler";
 import {useSnackbar} from 'notistack';
+import {CircularProgress} from "@material-ui/core";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -307,10 +308,11 @@ const EditHomework: FC = () => {
         )
     }
     return (
-        <div>
-
+        <div className="container">
+            <p>Загрузка...</p>
+            <CircularProgress/>
         </div>
-    );
+    )
 }
 
 export default EditHomework
