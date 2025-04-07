@@ -38,6 +38,7 @@ interface IHomeworkProps {
 
 const useStyles = makeStyles(_ => ({
     tools: {
+        width: "100%",
         display: "flex",
         flexDirection: 'row',
         alignItems: 'center',
@@ -113,14 +114,28 @@ const Homework: FC<IHomeworkProps> = (props) => {
                                     {props.homework.title}
                                 </Typography>
                             </Grid>
-                            {props.forMentor &&
+                            {props.forMentor && publicationDateIsSet &&
                                 <Grid item>
-                                    <Chip label={"🕘 " + homeworkPublicationDateString}/>
+                                    <Chip label={"🕘 " + publicationDateString}/>
                                 </Grid>
                             }
-                            {props.homework.hasDeadline &&
+                            {props.forMentor && !publicationDateIsSet &&
                                 <Grid item>
-                                    <Chip label={"⌛ " + homeworkDeadlineDateString}/>
+                                    <Tooltip arrow title={"Не выставлена дата публикации"}>
+                                        <Chip label={"⚠️"}/>
+                                    </Tooltip>
+                                </Grid>
+                            }
+                            {props.homework.hasDeadline && props.homework.deadlineDate &&
+                                <Grid item>
+                                    <Chip label={"⌛ " + deadlineDateString}/>
+                                </Grid>
+                            }
+                            {props.forMentor && props.homework.hasDeadline && !props.homework.deadlineDate &&
+                                <Grid item>
+                                    <Tooltip arrow title={"Не выставлена дата дедлайна"}>
+                                        <Chip label={"⚠️"}/>
+                                    </Tooltip>
                                 </Grid>
                             }
                             {props.forMentor && props.homework.isDeadlineStrict &&

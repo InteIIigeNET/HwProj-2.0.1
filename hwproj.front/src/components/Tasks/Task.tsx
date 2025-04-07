@@ -29,6 +29,7 @@ interface ITaskProp {
 
 const useStyles = makeStyles(theme => ({
     tools: {
+        width: "100%",
         display: "flex",
         flexDirection: 'row',
         alignItems: 'center',
@@ -98,12 +99,14 @@ const Task: FC<ITaskProp> = (props) => {
                             {task.isGroupWork &&
                                 <Grid item>
                                     <Chip variant="outlined" color="info" label="Командное"/>
-                                </Grid>}
-                            {props.forMentor &&
+                                </Grid>
+                            }
+                            {props.forMentor && publicationDateIsSet &&
                                 <Grid item>
-                                    <Chip variant="outlined" label={"🕘 " + publicationDate}/>
-                                </Grid>}
-                            {task.hasDeadline &&
+                                    <Chip variant="outlined" label={"🕘 " + publicationDateString}/>
+                                </Grid>
+                            }
+                            {task.hasDeadline && task.deadlineDate &&
                                 <Grid item>
                                     <Tooltip 
                                         arrow
@@ -111,15 +114,23 @@ const Task: FC<ITaskProp> = (props) => {
                                     >
                                         <Chip
                                             variant="outlined"
-                                            label={(task.isDeadlineStrict ? "⛔ До" : "До") + " " + deadlineDate}
+                                            label={(task.isDeadlineStrict ? "⛔ До" : "До") + " " + deadlineDateString}
                                         />
+                                    </Tooltip>
+                                </Grid>
+                            }
+                            {props.forMentor && publicationDateIsSet && task.hasDeadline && !task.deadlineDate &&
+                                <Grid item>
+                                    <Tooltip arrow title={"Не выставлена дата дедлайна"}>
+                                        <Chip label={"⚠️"} variant="outlined"/>
                                     </Tooltip>
                                 </Grid>
                             }
                             {!task.hasDeadline &&
                                 <Grid item>
                                     <Chip variant="outlined" label="без дедлайна"/>
-                                </Grid>}
+                                </Grid>
+                            }
                             {props.forMentor && !props.isReadingMode &&
                                 <Grid item>
                                     <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>
@@ -130,7 +141,7 @@ const Task: FC<ITaskProp> = (props) => {
                                     </RouterLink>
                                 </Grid>
                             }
-                        </Stack>
+                        </Grid>
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>

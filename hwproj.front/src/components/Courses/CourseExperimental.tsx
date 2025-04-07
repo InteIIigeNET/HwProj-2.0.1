@@ -188,14 +188,14 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             onMount={onSelectedItemMount}
                             onUpdate={update => {
                                 props.onHomeworkUpdate(update)
-                                if (update.isDeleted) {
-                                    setState({
+                                if (update.isDeleted) 
+                                    setState((prevState) => ({
+                                        ...prevState,
                                         selectedItem: {
                                             isHomework: true,
                                             id: undefined
                                         }
-                                    })
-                                }
+                                    }))
                             }}/>
                     </Card>
                 </Grid>
@@ -214,15 +214,15 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                             initialEditMode={initialEditMode}
                                             onMount={onSelectedItemMount}
                                             onUpdate={update => {
-                                                props.onHomeworkUpdate(update)
-                                                if (update.isDeleted) {
-                                                    setState({
+                                                props.onTaskUpdate(update)
+                                                if (update.isDeleted)
+                                                    setState((prevState) => ({
+                                                        ...prevState,
                                                         selectedItem: {
                                                             isHomework: true,
-                                                            id: undefined
+                                                            id: homework!.id
                                                         }
-                                                    })
-                                                }
+                                                    }))
                                             }}
                                             toEditHomework={() => toEditHomework(homework!)}/>
                     {!props.isMentor && props.isStudentAccepted && < CardActions>

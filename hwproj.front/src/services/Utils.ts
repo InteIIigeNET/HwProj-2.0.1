@@ -94,9 +94,4 @@ export default class Utils {
 
         return (new Date(date)).toLocaleString(undefined, options)
     }
-
-    static isMaxSupportedDate(date: Date) {
-        const maxDate = new Date("9999-12-31T23:59:59.9999999Z")
-        return date.getTime() === maxDate.getTime()
-    }
 }
