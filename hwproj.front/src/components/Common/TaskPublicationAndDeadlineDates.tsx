@@ -54,13 +54,14 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
         return deadlineDate < (taskPublicationDate || homeworkPublicationDate)
     }
 
+    const deadlineDateNotSet = state.hasDeadline && !state.deadlineDate
     const taskSoonerThanHomework = !!state.publicationDate && isTaskSoonerThanHomework(state.publicationDate)
     const deadlineSoonerThanPublication = (!!state.deadlineDate || !!homeworkDeadlineDate) && isDeadlineSoonerThanPublication(state.publicationDate, state.deadlineDate)
 
     const showDeadlineEdit = hasDeadline == null ? homework.hasDeadline : hasDeadline
 
     useEffect(() => {
-        const validationResult =
+        const validationResult = deadlineDateNotSet ||
             !!state.publicationDate && isTaskSoonerThanHomework(state.publicationDate) ||
             (!!state.deadlineDate || !!homeworkDeadlineDate) && isDeadlineSoonerThanPublication(state.publicationDate, state.deadlineDate)
 
