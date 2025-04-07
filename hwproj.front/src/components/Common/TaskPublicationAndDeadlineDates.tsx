@@ -174,8 +174,9 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             type="datetime-local"
                             variant="standard"
                             error={deadlineSoonerThanPublication}
-                            helperText={deadlineSoonerThanPublication ? `Дедлайн задачи раньше ее публикации: ${Utils.renderDateWithoutSeconds(state.publicationDate!)}` :
-                                deadlineDate != null
+                            helperText={deadlineSoonerThanPublication
+                                ? `Дедлайн задачи раньше ее публикации: ${Utils.renderDateWithoutSeconds(state.publicationDate || homeworkPublicationDate)}`
+                                : deadlineDate != null
                                     ? props.homework.hasDeadline
                                         ? `Было ${Utils.renderDateWithoutSeconds(props.homework.deadlineDate!)}`
                                         : `Было без дедлайна`
