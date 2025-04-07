@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace StudentsInfo.Tests
 {
@@ -21,7 +22,7 @@ namespace StudentsInfo.Tests
         }
 
         [Test]
-        public void Constructor_ShouldPopulateProgramGroups()
+        public async Task Constructor_ShouldPopulateProgramGroups()
         {
             var programNamesModels = _studentsInformation.GetProgramNames();
             var programNames = programNamesModels.Select(model => model.ProgramName).ToList();
@@ -32,11 +33,11 @@ namespace StudentsInfo.Tests
         }
 
         [Test]
-        public void GetGroups_ShouldReturnGroups_WhenProgramNameExists()
+        public async Task GetGroups_ShouldReturnGroups_WhenProgramNameExists()
         {
             string programName = "Программная инженерия";
             
-            var groupsModels = _studentsInformation.GetGroups(programName);
+            var groupsModels = await _studentsInformation.GetGroups(programName);
             var groups = groupsModels.Select(model => model.GroupName).ToList();
             
             Assert.IsNotEmpty(groups);
@@ -45,44 +46,45 @@ namespace StudentsInfo.Tests
         }
 
         [Test]
-        public void GetGroups_ShouldReturnEmptyList_WhenProgramNameDoesNotExist()
+        public async Task GetGroups_ShouldReturnEmptyList_WhenProgramNameDoesNotExist()
         {
             string programName = "Экономика";
             
-            var groups = _studentsInformation.GetGroups(programName);
+            var groups = await _studentsInformation.GetGroups(programName);
             
             Assert.IsEmpty(groups);
         }
         
         [Test]
-        public void GetStudentsInformation_ShouldReturnStudentsInformation_IfGroupNameExists()
+        public async Task GetStudentsInformation_ShouldReturnStudentsInformation_IfGroupNameExists()
         {
             Assume.That(!string.IsNullOrEmpty(TestLogin), "Логин не был указан");
             Assume.That(!string.IsNullOrEmpty(TestPassword), "Пароль не был указан");
             string programName = "Экономика";
             
-            var groups = _studentsInformation.GetGroups(programName);
+            var groups = await _studentsInformation.GetGroups(programName);
 
             Assert.IsEmpty(groups);
         }
         
-        // Для тестирования получения данных по LDAP необходимо указать st-почту и пароль (TestLogin, TestPassword)
         [Test]
-        public void GetStudentsInformation_ShouldReturnNonEmptyDictionary_IfGroupNameExists()
+        public async Task GetStudentsInformation_ShouldReturnNonEmptyDictionary_IfGroupNameExists()
         {
             Assume.That(!string.IsNullOrEmpty(TestLogin), "Логин не был указан");
             Assume.That(!string.IsNullOrEmpty(TestPassword), "Пароль не был указан");
 
-            Assert.AreEqual(_studentsInformation.GetStudentInformation("22.Б11-мм").Count, 37);
+            var studentInfo = _studentsInformation.GetStudentInformation("22.Б11-мм");
+            Assert.AreEqual(37, studentInfo.Count);
         }
         
         [Test]
-        public void GetStudentsInformation_ShouldReturnEmptyDictionary_IfGroupNameDoesntExists()
+        public async Task GetStudentsInformation_ShouldReturnEmptyDictionary_IfGroupNameDoesntExists()
         {
             Assume.That(!string.IsNullOrEmpty(TestLogin), "Логин не был указан");
             Assume.That(!string.IsNullOrEmpty(TestPassword), "Пароль не был указан");
 
-            Assert.AreEqual(_studentsInformation.GetStudentInformation("Группа").Count, 0);
+            var studentInfo = _studentsInformation.GetStudentInformation("Группа");
+            Assert.AreEqual(0, studentInfo.Count);
         }
     }
 }

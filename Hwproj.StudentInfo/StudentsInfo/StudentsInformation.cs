@@ -18,15 +18,18 @@ namespace StudentsInfo
         private string _username;
         private string _password;
         
-        public List<GroupModel> GetGroups(string programName)
+        public async Task<List<GroupModel>> GetGroups(string programName)
         {
-            return _lazyProgramsGroups.Value.ContainsKey(programName)
-                ? _lazyProgramsGroups.Value[programName]
-                    .Aggregate((current, next) => current + "," + next) 
-                    .Split(',')
-                    .Select(group => new GroupModel { GroupName = group.Trim() })
-                    .ToList()
-                : new List<GroupModel>();
+            return await Task.Run(() => 
+            {
+                return _lazyProgramsGroups.Value.ContainsKey(programName)
+                    ? _lazyProgramsGroups.Value[programName]
+                        .Aggregate((current, next) => current + "," + next) 
+                        .Split(',')
+                        .Select(group => new GroupModel { GroupName = group.Trim() })
+                        .ToList()
+                    : new List<GroupModel>();
+            });
         }
         
         public List<StudentModel> GetStudentInformation(string groupName)

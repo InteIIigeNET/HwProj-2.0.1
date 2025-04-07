@@ -72,9 +72,10 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpGet("getGroups")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(List<GroupModel>), (int)HttpStatusCode.OK)]
-        public  IActionResult GetGroups(string programName)
+        public async Task<IActionResult> GetGroups(string programName)
         {
-            return Ok(_studentsInfo.GetGroups(programName));
+            var groups = await _studentsInfo.GetGroups(programName);
+            return Ok(groups);
         }
         
         [HttpGet("getProgramNames")]
