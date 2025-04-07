@@ -31,27 +31,24 @@ namespace StudentsInfo
         
         public List<StudentModel> GetStudentInformation(string groupName)
         {
-            // Формируем фильтр для поиска студентов в LDAP.
             var searchFilter = $"(&(objectClass=person)(memberOf=CN=АкадемГруппа_{groupName},OU=АкадемГруппа,OU=Группы,DC=ad,DC=pu,DC=ru))";
             var studentsList = new List<StudentModel>();
+            LdapConnection connection = null;
             
             try
             {
-                // Создаем подключение к LDAP серверу.
-                var connection = new LdapConnection();
+                connection = new LdapConnection();
                 connection.Connect(_ldapHost, _ldapPort);
                 connection.Bind(_username, _password);
 
-                // Выполняем поиск по LDAP с заданным фильтром.
                 var results = connection.Search(
                     _searchBase,
                     LdapConnection.SCOPE_SUB,
                     searchFilter,
-                    new[] { "cn", "displayName" }, // Получаем атрибуты "cn" (st студента) и "displayName" (ФИО студента)
+                    new[] { "cn", "displayName" },
                     false
                 );
 
-                // Проходим по результатам поиска.
                 while (results.hasMore())
                 {
                     var entry = results.next();
@@ -61,22 +58,59 @@ namespace StudentsInfo
                     if (cn != null && displayName != null)
                     {
                         string[] splitNames = displayName.Split(' ');
-                        var newStudent = new StudentModel();
-                        newStudent.Name = splitNames[0];
-                        newStudent.Surname = splitNames.Length > 1 ? splitNames[1] : "";
-                        newStudent.MiddleName = splitNames.Length > 2 ? splitNames[2] : "";
-                        newStudent.Email = cn + "@student.spbu.ru";
+                        var newStudent = new StudentModel
+                        {
+                            Name = splitNames[0],
+                            Surname = splitNames.Length > 1 ? splitNames[1] : "",
+                            MiddleName = splitNames.Length > 2 ? splitNames[2] : "",
+                            Email = cn + "@student.spbu.ru"
+                        };
                         studentsList.Add(newStudent);
                     }
                 }
-                
-                connection.Disconnect();
             }
             catch (LdapReferralException)
             {
             }
+            catch (LdapException ldapEx)
+            {
+                Console.WriteLine($"LDAP Error: {ldapEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+            finally
+            {
+                try
+                {
+                    if (connection != null && connection.Connected)
+                    {
+                            SafeDisconnect(connection);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error during disconnect: {ex.Message}");
+                }
+            }
 
             return studentsList;
+        }
+
+        private void SafeDisconnect(LdapConnection connection)
+        {
+            try
+            {
+                connection.Disconnect();
+            }
+            catch (PlatformNotSupportedException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"SafeDisconnect error: {ex.Message}");
+            }
         }
         
         public List<ProgramModel> GetProgramNames()
@@ -109,11 +143,9 @@ namespace StudentsInfo
                         return true;
                     };
 
-                    // Загружаем HTML-страницу расписания.
                     var doc = web.Load(url);
                     var programNodes = doc.DocumentNode.SelectNodes("//li[contains(@class, 'common-list-item row')]");
 
-                    // Проходим по всем найденным программам.
                     foreach (var programNode in programNodes)
                     {
                         var programNameNode = programNode.SelectSingleNode(".//div[contains(@class, 'col-sm-5')]");
@@ -124,7 +156,6 @@ namespace StudentsInfo
                         if (titleNodes != null && programName != null)
                         {
                             var titles = new List<string>();
-                            // Получаем все названия групп по этой программе.
                             foreach (var titleNode in titleNodes)
                             {
                                 var title = titleNode.SelectSingleNode(".//a")?.Attributes["title"]?.Value;
@@ -147,6 +178,7 @@ namespace StudentsInfo
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine($"Error loading programs: {ex.Message}");
                 }
 
                 return programsGroups;
