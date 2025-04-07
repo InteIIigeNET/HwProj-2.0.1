@@ -9,6 +9,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import Lecturers from "./Lecturers";
 import {AccountDataDto} from "../../api";
 import {appBarStateManager} from "../AppBar";
+import {CircularProgress} from '@material-ui/core';
 
 interface IEditCourseState {
     isLoaded: boolean,
@@ -205,8 +206,9 @@ const EditCourse: FC = () => {
     }
 
     return (
-        <div>
-
+        <div className="container">
+            <p>Загрузка...</p>
+            <CircularProgress/>
         </div>
     )
 }
