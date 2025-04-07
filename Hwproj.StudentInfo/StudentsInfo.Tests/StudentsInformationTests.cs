@@ -8,12 +8,16 @@ namespace StudentsInfo.Tests
     {
         private const string TestLogin = "";
         private const string TestPassword = "";
+        private const string TestLdapHost = "ad.pu.ru";
+        private const int TestLdapPort = 389;
+        private const string TestSearchBase = "DC=ad,DC=pu,DC=ru";
         private StudentsInformationProvider _studentsInformation;
         
         [SetUp]
         public void SetUp()
         {
-            _studentsInformation = new StudentsInformationProvider(TestLogin, TestPassword);
+            _studentsInformation = new StudentsInformationProvider(TestLogin, TestPassword, TestLdapHost,
+                TestLdapPort, TestSearchBase);
         }
 
         [Test]

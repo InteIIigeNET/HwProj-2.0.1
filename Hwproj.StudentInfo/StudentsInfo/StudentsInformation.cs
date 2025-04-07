@@ -85,10 +85,13 @@ namespace StudentsInfo
                 .ToList();
         }
 
-        public StudentsInformationProvider(string username, string password)
+        public StudentsInformationProvider(string username, string password, string ldapHost, int ldapPort, string searchBase)
         {
             this._username = username;
             this._password = password;
+            this._ldapHost = ldapHost;
+            this._ldapPort = ldapPort;
+            this._searchBase = searchBase;
 
             try
             {
