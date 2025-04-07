@@ -59,10 +59,11 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     const isDeadlineSoonerThanPublication = (publicationDate: Date, deadlineDate: Date | undefined) =>
         deadlineDate != null && deadlineDate < publicationDate;
 
-    const deadlineSoonerThatHomework = isDeadlineSoonerThanPublication(state.publicationDate, state.deadlineDate)
+    const deadlineDateNotSet = state.hasDeadline && !state.deadlineDate
+    const deadlineSoonerThanHomework = isDeadlineSoonerThanPublication(state.publicationDate, state.deadlineDate)
 
     useEffect(() => {
-        const validationResult = isDeadlineSoonerThanPublication(state.publicationDate, state.deadlineDate)
+        const validationResult = deadlineDateNotSet || deadlineSoonerThanHomework
 
         props.onChange({...state, hasErrors: validationResult})
     }, [state])
@@ -152,8 +153,8 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             id="datetime-local"
                             label="Дедлайн задания"
                             type="datetime-local"
-                            error={deadlineSoonerThatHomework}
-                            helperText={deadlineSoonerThatHomework
+                            error={deadlineSoonerThanHomework}
+                            helperText={deadlineSoonerThanHomework
                                 ? "Дедлайн задания не может быть раньше даты публикации"
                                 : deadlineChosenAutomatically
                                     ? "На основе дедлайнов предыдущих работ"
