@@ -28,7 +28,7 @@ namespace IStudentsInfo
     {
         /// По данному названию образовательной программы возвращает список соответствующих учебных групп
         List<GroupModel> GetGroups(string programName);
-        
+
         /// По данному названию учебной группы возвращает информацию о студентах в виде словаря,
         /// в котором ключи - почты студентов, значения - ФИО
         List<StudentModel> GetStudentInformation(string groupName);

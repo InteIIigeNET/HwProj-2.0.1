@@ -27,7 +27,8 @@ namespace HwProj.APIGateway.API
         {
             services.ConfigureHwProjServices("API Gateway");
             services.AddSingleton<IStudentsInformationProvider>(provider =>
-                new StudentsInformationProvider(Configuration["StudentsInfo:Login"], Configuration["StudentsInfo:Password"]));
+                new StudentsInformationProvider(Configuration["StudentsInfo:Login"], Configuration["StudentsInfo:Password"],
+                    Configuration["StudentsInfo:LdapHost"], int.Parse(Configuration["StudentsInfo:LdapPort"]), Configuration["StudentsInfo:SearchBase"]));
             const string authenticationProviderKey = "GatewayKey";
             
             services.AddAuthentication()
