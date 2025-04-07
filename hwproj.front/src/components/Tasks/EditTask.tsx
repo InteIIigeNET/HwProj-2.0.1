@@ -1,15 +1,14 @@
 import * as React from "react";
-import {Navigate, Link, useParams} from "react-router-dom";
+import {Navigate, Link, useParams, useNavigate} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from "@material-ui/styles";
 import {Button, CircularProgress} from "@material-ui/core";
-import {Typography, TextField, Grid} from "@mui/material";
+import {Typography, TextField, Grid, Alert} from "@mui/material";
 import {MarkdownEditor} from "../Common/MarkdownEditor";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import {HomeworkViewModel} from "../../api";
-import Utils from "services/Utils";
 
 interface IEditTaskState {
     isLoaded: boolean;
@@ -96,6 +95,11 @@ const EditTask: FC = () => {
             isTaskPublished: !task.isDeferred,
         }))
     }
+
+    const navigate = useNavigate()
+
+    const toEditHomework = () =>
+        navigate(`/homework/${taskState.homeworkId}/edit`)
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -226,6 +230,25 @@ const EditTask: FC = () => {
                                                 hasErrors: state.hasErrors
                                             }))}
                                         />
+                                    </Grid>
+                                }
+                                {!homeworkPublicationDateIsSet &&
+                                    <Grid item xs={12} style={{width: "90%", marginBottom: "10px"}}>
+                                        <Alert
+                                            severity="info"
+                                            icon={false}
+                                            action={
+                                                <Button
+                                                    color="inherit"
+                                                    size="small"
+                                                    onClick={toEditHomework}
+                                                >
+                                                    К заданию
+                                                </Button>
+                                            }
+                                        >
+                                            Для изменения дат укажите дату публикации домашнего задания
+                                        </Alert>
                                     </Grid>
                                 }
                                 <Grid item xs={12}>

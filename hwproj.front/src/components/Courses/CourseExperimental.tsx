@@ -24,7 +24,6 @@ import {getTip} from "../Common/HomeworkTags";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
 import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExperimental";
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
-import Utils from "services/Utils";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -41,6 +40,7 @@ interface ICourseExperimentalProps {
 }
 
 interface ICourseExperimentalState {
+    initialEditMode: boolean,
     selectedItem: {
         isHomework: boolean,
         id: number | undefined,
@@ -53,14 +53,21 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const homeworks = props.homeworks.slice().reverse().filter(x => !hideDeferred || !x.isDeferred)
     const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId, courseFilesInfo} = props
 
-    const [state, setState] = useState<ICourseExperimentalState>({selectedItem: {id: undefined, isHomework: false}})
+    const [state, setState] = useState<ICourseExperimentalState>({
+        initialEditMode: false,
+        selectedItem: {id: undefined, isHomework: false},
+    })
 
     useEffect(() => {
         const defaultHomeworkIndex = Math.max(selectedHomeworkId ? homeworks?.findIndex(x => x.id === selectedHomeworkId) : 0, 0)
         const defaultHomework = homeworks?.[defaultHomeworkIndex]
-        setState({selectedItem: {isHomework: true, id: defaultHomework?.id}})
+        setState((prevState) => ({
+            ...prevState,
+            selectedItem: {isHomework: true, id: defaultHomework?.id},
+        }))
     }, [hideDeferred])
 
+    const initialEditMode = state.initialEditMode
     const {id, isHomework} = state.selectedItem
 
     const renderDate = (date: Date) => {
@@ -124,6 +131,18 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return <TimelineDot variant={"outlined"}/>
     }
 
+    const onSelectedItemMount = () =>
+        setState((prevState) => ({
+            ...prevState,
+            initialEditMode: false,
+        }))
+
+    const toEditHomework = (homework: HomeworkViewModel) =>
+        setState({
+            initialEditMode: true,
+            selectedItem: {id: homework.id!, isHomework: true},
+        })
+
     const getAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel) => {
         if (!entity.isDeferred) return null
 
@@ -165,6 +184,8 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         <CourseHomeworkExperimental
                             homeworkAndFilesInfo={{homework, filesInfo}}
                             isMentor={isMentor}
+                            initialEditMode={initialEditMode}
+                            onMount={onSelectedItemMount}
                             onUpdate={update => {
                                 props.onHomeworkUpdate(update)
                                 if (update.isDeleted) {
@@ -187,17 +208,23 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             <Grid item>{getAlert(task)}</Grid>
             <Grid item>
                 <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
-                    <CourseTaskExperimental task={task} isMentor={isMentor}
+                    <CourseTaskExperimental task={task}
                                             homework={homework!}
+                                            isMentor={isMentor}
+                                            initialEditMode={initialEditMode}
+                                            onMount={onSelectedItemMount}
                                             onUpdate={update => {
-                                                props.onTaskUpdate(update)
-                                                if (update.isDeleted) setState({
-                                                    selectedItem: {
-                                                        isHomework: true,
-                                                        id: homework!.id
-                                                    }
-                                                })
-                                            }}/>
+                                                props.onHomeworkUpdate(update)
+                                                if (update.isDeleted) {
+                                                    setState({
+                                                        selectedItem: {
+                                                            isHomework: true,
+                                                            id: undefined
+                                                        }
+                                                    })
+                                                }
+                                            }}
+                                            toEditHomework={() => toEditHomework(homework!)}/>
                     {!props.isMentor && props.isStudentAccepted && < CardActions>
                         <Link
                             style={{color: '#212529'}}

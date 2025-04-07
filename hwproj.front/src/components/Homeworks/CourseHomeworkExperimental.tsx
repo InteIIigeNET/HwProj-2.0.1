@@ -270,6 +270,8 @@ const CourseHomeworkEditor: FC<{
 const CourseHomeworkExperimental: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
     isMentor: boolean,
+    initialEditMode: boolean,
+    onMount: () => void,
     onUpdate: (x: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] } & { isDeleted?: boolean }) => void
 }> = (props) => {
     const {homework, filesInfo} = props.homeworkAndFilesInfo
@@ -279,7 +281,8 @@ const CourseHomeworkExperimental: FC<{
     const [editMode, setEditMode] = useState(false)
 
     useEffect(() => {
-        setEditMode(false)
+        setEditMode(props.initialEditMode)
+        props.onMount()
     }, [homework.id])
 
     if (editMode) return <CourseHomeworkEditor

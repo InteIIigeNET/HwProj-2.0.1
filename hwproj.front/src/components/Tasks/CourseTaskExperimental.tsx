@@ -1,4 +1,4 @@
-﻿import {CardActions, CardContent, Chip, Divider, Grid, IconButton, TextField, Typography} from "@mui/material";
+import {Alert, CardActions, CardContent, Chip, Divider, Grid, IconButton, TextField, Typography} from "@mui/material";
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
 import {FC, useEffect, useState} from "react"
 import {HomeworkTaskViewModel, HomeworkViewModel} from "../../api";
@@ -6,6 +6,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import * as React from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import {Button} from "@material-ui/core";
 import {LoadingButton} from "@mui/lab";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import DeletionConfirmation from "../DeletionConfirmation";
@@ -21,7 +22,8 @@ interface IEditTaskMetadataState {
 const CourseTaskEditor: FC<{
     speculativeTask: HomeworkTaskViewModel,
     speculativeHomework: HomeworkViewModel,
-    onUpdate: (update: HomeworkTaskViewModel & { isDeleted?: boolean }) => void
+    onUpdate: (update: HomeworkTaskViewModel & { isDeleted?: boolean }) => void,
+    toEditHomework: () => void,
 }> = (props) => {
     const [taskData, setTaskData] = useState<{
         task: HomeworkTaskViewModel,
@@ -158,6 +160,25 @@ const CourseTaskEditor: FC<{
                         />
                     </Grid>
                 }
+                {metadata && !homeworkPublicationDateIsSet &&
+                    <Grid item xs={12} style={{marginBottom: "15px"}}>
+                        <Alert
+                            severity="info"
+                            icon={false}
+                            action={
+                                <Button
+                                    color="inherit"
+                                    size="small"
+                                    onClick={props.toEditHomework}
+                                >
+                                    К заданию
+                                </Button>
+                            }
+                        >
+                            Для изменения дат укажите дату публикации домашнего задания
+                        </Alert>
+                    </Grid>
+                }
             </Grid>
             <CardActions>
                 <LoadingButton
@@ -195,14 +216,18 @@ const CourseTaskExperimental: FC<{
     task: HomeworkTaskViewModel,
     homework: HomeworkViewModel,
     isMentor: boolean,
+    initialEditMode: boolean,
+    onMount: () => void,
     onUpdate: (x: HomeworkTaskViewModel & { isDeleted?: boolean }) => void
+    toEditHomework: () => void,
 }> = (props) => {
     const {task, homework} = props
     const [showEditMode, setShowEditMode] = useState(false)
     const [editMode, setEditMode] = useState(false)
 
     useEffect(() => {
-        setEditMode(false)
+        setEditMode(props.initialEditMode)
+        props.onMount()
     }, [task.id])
 
     if (editMode) {
@@ -213,6 +238,7 @@ const CourseTaskExperimental: FC<{
                 setEditMode(false)
                 props.onUpdate(update)
             }}
+            toEditHomework={props.toEditHomework}
         />
     }
 
