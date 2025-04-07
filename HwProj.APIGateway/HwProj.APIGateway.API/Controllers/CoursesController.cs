@@ -90,50 +90,50 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
-            if (string.IsNullOrEmpty(model.GroupName) || (!model.FetchStudents))
+            // Initialize empty list of student IDs
+            model.StudentIDs = new List<string>();
+
+            if (!string.IsNullOrEmpty(model.GroupName) && model.FetchStudents)
             {
-                var result = await _coursesClient.CreateCourse(model, UserId);
-                return Ok(result);
+                var students = _studentsInfo.GetStudentInformation(model.GroupName);
+                var studentEmails = students
+                    .Where(student => !string.IsNullOrEmpty(student.Email))
+                    .Select(student => student.Email)
+                    .ToList();
+        
+                var emailToIdMap = await AuthServiceClient.FindByEmailsAsync(studentEmails);
+
+                var registrationTasks = students
+                    .Where(student => !string.IsNullOrEmpty(student.Email))
+                    .Select(async student =>
+                    {
+                        if (emailToIdMap.TryGetValue(student.Email, out var studentId))
+                        {
+                            return studentId;
+                        }
+
+                        var newPassword = Guid.NewGuid().ToString();
+                
+                        var registerModel = new RegisterViewModel
+                        {
+                            Email = student.Email,
+                            Name = student.Name,
+                            Surname = student.Surname,
+                            MiddleName = student.MiddleName,
+                            Password = newPassword,
+                            PasswordConfirm = newPassword
+                        };
+
+                        await AuthServiceClient.Register(registerModel);
+                        return await AuthServiceClient.FindByEmailAsync(student.Email);
+                    }).ToList();
+
+                var studentIds = await Task.WhenAll(registrationTasks);
+                model.StudentIDs = studentIds.ToList();
             }
-    
-            var students = _studentsInfo.GetStudentInformation(model.GroupName);
-            var studentEmails = students
-                .Where(student => !string.IsNullOrEmpty(student.Email))
-                .Select(student => student.Email)
-                .ToList();
-            
-            var emailToIdMap = await AuthServiceClient.FindByEmailsAsync(studentEmails);
-    
-            var registrationTasks = students
-                .Where(student => !string.IsNullOrEmpty(student.Email))
-                .Select(async student =>
-                {
-                    if (emailToIdMap.TryGetValue(student.Email, out var studentId))
-                    {
-                        return studentId;
-                    }
 
-                    var newPassword = Guid.NewGuid().ToString();
-                    
-                    var registerModel = new RegisterViewModel
-                    {
-                        Email = student.Email,
-                        Name = student.Name,
-                        Surname = student.Surname,
-                        MiddleName = student.MiddleName,
-                        Password = newPassword,
-                        PasswordConfirm = newPassword
-                    };
-
-                    await AuthServiceClient.Register(registerModel);
-                    return await AuthServiceClient.FindByEmailAsync(student.Email);
-                }).ToList();
-    
-            var studentIds = await Task.WhenAll(registrationTasks);
-            model.StudentIDs = studentIds.ToList();
-
-            var resultCourse = await _coursesClient.CreateCourse(model, UserId);
-            return Ok(resultCourse);
+            var result = await _coursesClient.CreateCourse(model, UserId);
+            return Ok(result);
         }
 
         [HttpPost("update/{courseId}")]
