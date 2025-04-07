@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using HtmlAgilityPack;
@@ -66,9 +66,10 @@ namespace StudentsInfo
                         newStudent.MiddleName = splitNames.Length > 2 ? splitNames[2] : "";
                         newStudent.Email = cn + "@student.spbu.ru";
                         studentsList.Add(newStudent);
-                        connection.Disconnect();
                     }
                 }
+                
+                connection.Disconnect();
             }
             catch (LdapReferralException)
             {
@@ -135,9 +136,8 @@ namespace StudentsInfo
                         }
                     }
                 }
-
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
             }
         }
