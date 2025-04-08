@@ -171,7 +171,7 @@ const EditCourse: FC = () => {
                                     }))
                                 }}
                             />
-                            <Grid item xs={12}>
+                            <Grid xs={6}>
                                 <FormControlLabel
                                     style={{margin: 0}}
                                     control={
@@ -206,7 +206,7 @@ const EditCourse: FC = () => {
                                             }}
                                         />
                                     }
-                                    label="Ограниченно видимый курс"
+                                    label="Открытый курс"
                                 />
                             </Grid>
                             <Grid className={classes.item} style={{alignItems: 'center'}}>

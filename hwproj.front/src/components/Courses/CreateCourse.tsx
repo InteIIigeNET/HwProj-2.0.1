@@ -130,7 +130,7 @@ const CreateCourse: FC = () => {
                     }}
                 />
               </Grid>
-              <Grid>
+              <Grid xs={6}>
                 <FormControlLabel
                     style={{ margin: 0 }}
                     control={
@@ -147,7 +147,7 @@ const CreateCourse: FC = () => {
                             }}
                         />
                     }
-                    label="Ограниченно видимый курс"
+                    label="Открытый курс"
                 />
               </Grid>
             </Grid>
