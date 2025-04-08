@@ -153,10 +153,27 @@ namespace HwProj.CoursesService.API.Services
         
         public async Task<object> AddAndAcceptStudentsAsync(long courseId, IEnumerable<string> studentIds)
         {
+            var course = await _coursesRepository.GetAsync(courseId);
+            if (course == null) return null;
+
             foreach (var studentId in studentIds)
             {
-                await AddStudentAsync(courseId, studentId);
-                await AcceptCourseMateAsync(courseId, studentId);
+                var cm = await _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
+                if (cm != null) continue;
+
+                var courseMate = new CourseMate
+                {
+                    CourseId = courseId,
+                    StudentId = studentId,
+                    IsAccepted = false
+                };
+
+                await _courseMatesRepository.AddAsync(courseMate);
+                
+                cm = await _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
+                if (cm == null) continue;
+
+                await _courseMatesRepository.UpdateAsync(cm.Id, cm => new CourseMate { IsAccepted = true });
             }
 
             return null;
