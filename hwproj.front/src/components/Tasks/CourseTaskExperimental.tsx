@@ -45,13 +45,13 @@ const CourseTaskEditor: FC<{
                 })
                 setMetadata({
                     hasDeadline: task.hasDeadline!,
-                    deadlineDate: task.deadlineDate == null
+                    deadlineDate: task.deadlineDateNotSet
                         ? undefined
-                        : new Date(task.deadlineDate),
+                        : new Date(task.deadlineDate!),
                     isDeadlineStrict: task.isDeadlineStrict!,
-                    publicationDate: task.publicationDate == null
+                    publicationDate: task.publicationDateNotSet
                         ? undefined
-                        : new Date(task.publicationDate),
+                        : new Date(task.publicationDate!),
                     isPublished: !task.isDeferred
                 });
             })

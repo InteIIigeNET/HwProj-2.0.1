@@ -9,6 +9,8 @@ namespace HwProj.CoursesService.API.Domains
 {
     public static class MappingExtensions
     {
+        private static readonly DateTime DateToOverride = DateTime.MaxValue;
+
         public static HomeworkViewModel ToHomeworkViewModel(this Homework homework)
         {
             var tags = homework.Tags?.Split(';') ?? Array.Empty<string>();
@@ -21,7 +23,8 @@ namespace HwProj.CoursesService.API.Domains
                 DeadlineDate = homework.DeadlineDate,
                 IsDeadlineStrict = homework.IsDeadlineStrict,
                 PublicationDate = homework.PublicationDate,
-                PublicationDateNotSet = homework.PublicationDate == DateTime.MaxValue,
+                PublicationDateNotSet = homework.PublicationDate == DateToOverride,
+                DeadlineDateNotSet = homework.DeadlineDate == null || homework.DeadlineDate == DateToOverride,
                 CourseId = homework.CourseId,
                 IsGroupWork = tags.Contains(HomeworkTags.GroupWork),
                 IsDeferred = DateTime.UtcNow < homework.PublicationDate,
@@ -44,7 +47,8 @@ namespace HwProj.CoursesService.API.Domains
                 DeadlineDate = task.DeadlineDate,
                 IsDeadlineStrict = task.IsDeadlineStrict,
                 PublicationDate = task.PublicationDate,
-                PublicationDateNotSet = task.PublicationDate == DateTime.MaxValue,
+                PublicationDateNotSet = task.PublicationDate == null || task.PublicationDate == DateToOverride,
+                DeadlineDateNotSet = task.DeadlineDate == null || task.DeadlineDate == DateToOverride,
                 IsDeferred = DateTime.UtcNow < evaluatedPublicationDate,
                 IsGroupWork = tags.Contains(HomeworkTags.GroupWork),
                 HomeworkId = task.HomeworkId,
@@ -151,6 +155,8 @@ namespace HwProj.CoursesService.API.Domains
                 MaxRating = task.MaxRating,
                 HasDeadline = task.HasDeadline,
                 IsDeadlineStrict = task.IsDeadlineStrict,
+                HasSpecialPublicationDate = task.PublicationDate != null,
+                HasSpecialDeadlineDate = task.DeadlineDate != null,
             };
 
         public static Course ToCourse(this CourseTemplate courseTemplate)
@@ -170,7 +176,7 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = homeworkTemplate.IsDeadlineStrict,
                 Tags = homeworkTemplate.Tags,
                 CourseId = courseId,
-                PublicationDate = DateTime.MaxValue,
+                PublicationDate = DateToOverride,
             };
 
         public static HomeworkTask ToHomeworkTask(this HomeworkTaskTemplate taskTemplate, long homeworkId)
@@ -182,6 +188,8 @@ namespace HwProj.CoursesService.API.Domains
                 HasDeadline = taskTemplate.HasDeadline,
                 IsDeadlineStrict = taskTemplate.IsDeadlineStrict,
                 HomeworkId = homeworkId,
+                PublicationDate = taskTemplate.HasSpecialPublicationDate ? DateToOverride : (DateTime?)null,
+                DeadlineDate = taskTemplate.HasSpecialDeadlineDate ? DateToOverride : (DateTime?)null,
             };
     }
 }

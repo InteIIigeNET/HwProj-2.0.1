@@ -116,10 +116,8 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             .forEach(x => taskSolutionsMap.set(x.id!, x.solution!))
     }
 
-    const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel) => {
-        const deadlineDateNotSet = entity.hasDeadline && !entity.deadlineDate
-        return isMentor && (entity.publicationDateNotSet || deadlineDateNotSet)
-    }
+    const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel) =>
+        isMentor && (entity.publicationDateNotSet || entity.hasDeadline && entity.deadlineDateNotSet)
 
     const renderTaskStatus = (task: HomeworkTaskViewModel) => {
         if (taskSolutionsMap.has(task.id!)) {
@@ -165,7 +163,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Alert>
         )
 
-        if (isMentor && entity.hasDeadline && !entity.deadlineDate) return (
+        if (isMentor && entity.hasDeadline && entity.deadlineDateNotSet) return (
             <Alert severity="warning">
                 {"Не выставлена дата дедлайна"}
             </Alert>
@@ -298,7 +296,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             }}>
                             <Typography variant="h6" style={{fontSize: 18}} align={"center"}
                                         color={x.isDeferred ? "textSecondary" : "textPrimary"}>
-                                {showWarningsForEntity(x) && <div>⚠️<br/></div>}
+                                {showWarningsForEntity(x) && <div style={{ fontSize: 16 }}>⚠️<br/></div>}
                                 {x.title}{getTip(x)}
                             </Typography>
                             {x.isDeferred && !x.publicationDateNotSet &&
@@ -327,11 +325,13 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             }}
                             style={{...getStyle(false, t.id!), marginBottom: 2}}
                             sx={{":hover": hoveredItemStyle}}>
-                            <TimelineOppositeContent color="textSecondary">
-                                {t.deadlineDate ? renderDate(t.deadlineDate) : ""}
-                                <br/>
-                                {t.deadlineDate ? renderTime(t.deadlineDate) : ""}
-                            </TimelineOppositeContent>
+                            {!t.deadlineDateNotSet &&
+                                <TimelineOppositeContent color="textSecondary">
+                                    {t.deadlineDate ? renderDate(t.deadlineDate) : ""}
+                                    <br/>
+                                    {t.deadlineDate ? renderTime(t.deadlineDate) : ""}
+                                </TimelineOppositeContent>
+                            }
                             <TimelineSeparator>
                                 {renderTaskStatus(t)}
                                 <TimelineConnector/>

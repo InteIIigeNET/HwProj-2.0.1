@@ -44,6 +44,7 @@ const Task: FC<ITaskProp> = (props) => {
     const deadlineDate = new Date(props.task.deadlineDate!)
 
     const publicationDateIsSet = !props.task.publicationDateNotSet
+    const deadlineDateIsSet = !props.task.deadlineDateNotSet
 
     const [isOpenDialogDeleteTask, setIsOpenDialogDeleteTask] = useState<boolean>(false)
 
@@ -106,7 +107,14 @@ const Task: FC<ITaskProp> = (props) => {
                                     <Chip variant="outlined" label={"🕘 " + publicationDateString}/>
                                 </Grid>
                             }
-                            {task.hasDeadline && task.deadlineDate &&
+                            {props.forMentor && !publicationDateIsSet &&
+                                <Grid item>
+                                    <Tooltip arrow title={"Не выставлена дата публикации"}>
+                                        <Chip label={"⚠️"} variant="outlined"/>
+                                    </Tooltip>
+                                </Grid>
+                            }
+                            {task.hasDeadline && deadlineDateIsSet &&
                                 <Grid item>
                                     <Tooltip 
                                         arrow
@@ -119,7 +127,7 @@ const Task: FC<ITaskProp> = (props) => {
                                     </Tooltip>
                                 </Grid>
                             }
-                            {props.forMentor && publicationDateIsSet && task.hasDeadline && !task.deadlineDate &&
+                            {props.forMentor && task.hasDeadline && !deadlineDateIsSet &&
                                 <Grid item>
                                     <Tooltip arrow title={"Не выставлена дата дедлайна"}>
                                         <Chip label={"⚠️"} variant="outlined"/>

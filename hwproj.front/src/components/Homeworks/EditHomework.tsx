@@ -92,9 +92,9 @@ const EditHomework: FC = () => {
             ? undefined
             : new Date(homework.publicationDate!)
 
-        const deadlineDate = homework.deadlineDate
-            ? new Date(homework.deadlineDate)
-            : undefined
+        const deadlineDate = homework.deadlineDateNotSet
+            ? undefined
+            : new Date(homework.deadlineDate!)
 
         setEditHomework((prevState) => ({
             ...prevState,

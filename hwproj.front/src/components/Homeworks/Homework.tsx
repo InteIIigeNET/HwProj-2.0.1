@@ -54,6 +54,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
     const deadlineDate = new Date(props.homework.deadlineDate!)
 
     const publicationDateIsSet = !props.homework.publicationDateNotSet
+    const deadlineDateIsSet = !props.homework.deadlineDateNotSet
 
     const [homeworkState, setHomeworkState] = useState<IHomeworkState>({
         createTask: false,
@@ -126,12 +127,12 @@ const Homework: FC<IHomeworkProps> = (props) => {
                                     </Tooltip>
                                 </Grid>
                             }
-                            {props.homework.hasDeadline && props.homework.deadlineDate &&
+                            {props.homework.hasDeadline && deadlineDateIsSet &&
                                 <Grid item>
                                     <Chip label={"⌛ " + deadlineDateString}/>
                                 </Grid>
                             }
-                            {props.forMentor && props.homework.hasDeadline && !props.homework.deadlineDate &&
+                            {props.forMentor && props.homework.hasDeadline && !deadlineDateIsSet &&
                                 <Grid item>
                                     <Tooltip arrow title={"Не выставлена дата дедлайна"}>
                                         <Chip label={"⚠️"}/>

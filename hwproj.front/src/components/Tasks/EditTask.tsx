@@ -69,13 +69,13 @@ const EditTask: FC = () => {
         const task = taskForEditing.task!
         const course = await ApiSingleton.coursesApi.coursesGetCourseData(homework.courseId!)
 
-        const publicationDate = task.publicationDate
-            ? new Date(task.publicationDate)
-            : undefined
+        const publicationDate = task.publicationDateNotSet
+            ? undefined
+            : new Date(task.publicationDate!)
 
-        const deadlineDate = task.deadlineDate
-            ? new Date(task.deadlineDate)
-            : undefined
+        const deadlineDate = task.deadlineDateNotSet
+            ? undefined
+            : new Date(task.deadlineDate!)
 
         setTaskState((prevState) => ({
             ...prevState,
@@ -127,7 +127,7 @@ const EditTask: FC = () => {
             );
         }
 
-        const homeworkPublicationDateIsSet = !taskState.homework?.publicationDateNotSet
+        const homeworkPublicationDateIsSet = !taskState.homework!.publicationDateNotSet
 
         return (
             <div className="container">

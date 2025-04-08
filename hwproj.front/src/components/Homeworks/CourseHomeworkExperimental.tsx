@@ -64,9 +64,9 @@ const CourseHomeworkEditor: FC<{
         ? undefined
         : new Date(homework.publicationDate!)
 
-    const deadlineDate = homework.deadlineDate
-        ? new Date(homework.deadlineDate)
-        : undefined
+    const deadlineDate = homework.deadlineDateNotSet
+        ? undefined
+        : new Date(homework.deadlineDate!)
 
     const isPublished = !homework.isDeferred
     const changedTaskPublicationDates = homework.tasks!

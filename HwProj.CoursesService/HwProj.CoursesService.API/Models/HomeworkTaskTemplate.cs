@@ -11,5 +11,9 @@ namespace HwProj.CoursesService.API.Models
         public bool? HasDeadline { get; set; }
 
         public bool? IsDeadlineStrict { get; set; }
+
+        public bool HasSpecialPublicationDate { get; set; }
+
+        public bool HasSpecialDeadlineDate { get; set; }
     }
 }
