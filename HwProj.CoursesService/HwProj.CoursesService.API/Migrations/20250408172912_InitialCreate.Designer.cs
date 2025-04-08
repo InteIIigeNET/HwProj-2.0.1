@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HwProj.CoursesService.API.Migrations
 {
     [DbContext(typeof(CourseContext))]
-    [Migration("20250403150219_AddLimitedVisibilityToCourse")]
-    partial class AddLimitedVisibilityToCourse
+    [Migration("20250408172912_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -51,8 +51,6 @@ namespace HwProj.CoursesService.API.Migrations
                     b.Property<string>("InviteCode");
 
                     b.Property<bool>("IsCompleted");
-
-                    b.Property<bool>("IsLimitedVisible");
 
                     b.Property<bool>("IsOpen");
 

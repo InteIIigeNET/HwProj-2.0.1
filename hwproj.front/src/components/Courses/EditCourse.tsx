@@ -14,7 +14,7 @@ interface IEditCourseState {
     name: string,
     groupName?: string,
     isCompleted: boolean,
-    isLimitedVisible: boolean,
+    isOpen: boolean,
     mentors: AccountDataDto[],
     edited: boolean,
     deleted: boolean,
@@ -60,7 +60,7 @@ const EditCourse: FC = () => {
         name: "",
         groupName: "",
         isCompleted: false,
-        isLimitedVisible: false,
+        isOpen: false,
         mentors: [],
         edited: false,
         deleted: false,
@@ -80,7 +80,6 @@ const EditCourse: FC = () => {
             groupName: course.groupName!,
             isOpen: course.isOpen!,
             isCompleted: course.isCompleted!,
-            isLimitedVisible: course.isLimitedVisible!,
             mentors: course.mentors!,
         }))
     }
@@ -90,9 +89,8 @@ const EditCourse: FC = () => {
         const courseViewModel = {
             name: courseState.name,
             groupName: courseState.groupName,
-            isOpen: true,
-            isCompleted: courseState.isCompleted,
-            isLimitedVisible: courseState.isLimitedVisible
+            isOpen: courseState.isOpen,
+            isCompleted: courseState.isCompleted
         };
 
         await ApiSingleton.coursesApi.coursesUpdateCourse(+courseId!, courseViewModel)
@@ -173,7 +171,7 @@ const EditCourse: FC = () => {
                                     }))
                                 }}
                             />
-                            <Grid>
+                            <Grid item xs={12}>
                                 <FormControlLabel
                                     style={{margin: 0}}
                                     control={
@@ -198,12 +196,12 @@ const EditCourse: FC = () => {
                                         <Checkbox
                                             defaultChecked
                                             color="primary"
-                                            checked={courseState.isLimitedVisible}
+                                            checked={courseState.isOpen}
                                             onChange={(e) => {
                                                 e.persist()
                                                 setCourseState((prevState) => ({
                                                     ...prevState,
-                                                    isLimitedVisible: e.target.checked
+                                                    isOpen: e.target.checked
                                                 }))
                                             }}
                                         />

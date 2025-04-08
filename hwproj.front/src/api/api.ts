@@ -447,12 +447,6 @@ export interface CourseViewModel {
     isCompleted?: boolean;
     /**
      *
-     * @type {boolean}
-     * @memberof CourseViewModel
-     */
-    isLimitedVisible?: boolean;
-    /**
-     *
      * @type {Array<AccountDataDto>}
      * @memberof CourseViewModel
      */

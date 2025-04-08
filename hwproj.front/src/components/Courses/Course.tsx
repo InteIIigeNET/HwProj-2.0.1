@@ -43,7 +43,7 @@ interface ICourseState {
     acceptedStudents: AccountDataDto[];
     newStudents: AccountDataDto[];
     isReadingMode: boolean;
-    isLimitedVisible: boolean;
+    isOpen: boolean;
     studentSolutions: StatisticsCourseMatesModel[];
     showQrCode: boolean;
 }
@@ -76,7 +76,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         acceptedStudents: [],
         newStudents: [],
         isReadingMode: props.isReadingMode ?? true,
-        isLimitedVisible: false,
+        isOpen: false,
         studentSolutions: [],
         showQrCode: false
     })
@@ -94,7 +94,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         newStudents,
         acceptedStudents,
         isReadingMode,
-        isLimitedVisible,
+        isOpen,
         studentSolutions,
     } = courseState;
 
@@ -121,10 +121,6 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
 
     const showStatsTab = isCourseMentor || isAcceptedStudent
     const showApplicationsTab = isCourseMentor
-
-    const hasAccessToMaterials = courseState.isLimitedVisible
-        ? isAcceptedStudent || isCourseMentor
-        : true
 
     const changeTab = (newTab: string) => {
         if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
@@ -174,7 +170,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
             createHomework: false,
             mentors: course.mentors!,
             acceptedStudents: course.acceptedStudents!,
-            isLimitedVisible: course.isLimitedVisible!,
+            isOpen: course.isOpen!,
             newStudents: course.newStudents!,
             studentSolutions: solutions
         }))
@@ -297,119 +293,87 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                             }
                         </Grid>
                     </Grid>
-                    {hasAccessToMaterials &&
-                        <Grid>
-                            <Tabs
-                                style={{ marginBottom: 10 }}
-                                variant="scrollable"
-                                scrollButtons={"auto"}
-                                value={tabValue === "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
-                                indicatorColor="primary"
-                                onChange={(event, value) => {
-                                    if (value === 0 && !isExpert) navigate(`/courses/${courseId}/homeworks`)
-                                    if (value === 1) navigate(`/courses/${courseId}/stats`)
-                                    if (value === 2 && !isExpert) navigate(`/courses/${courseId}/applications`)
-                                }}
-                            >
-                            {!isExpert &&
-                                <Tab
-                                    label={
-                                        <Stack direction="row" spacing={1} alignItems="center">
-                                            <div>Задания</div>
-                                            <IconButton
-                                                size="small"
-                                                onClick={() =>
-                                                    setCourseState(prevState => ({
-                                                        ...prevState,
-                                                        isReadingMode: !isReadingMode
-                                                    })
-                                                    )}
-                                                style={{ backgroundColor: '#f1f1f1', padding: 3, marginLeft: 8 }}
-                                            >
-                                                <Tooltip arrow placement={"top"}
-                                                    PopperProps={{
-                                                        modifiers: [{ name: "offset", options: { offset: [0, -5], } }]
-                                                    }}
-                                                    title={isReadingMode ? "В режим редактирования" : "В режим чтения"}>
-                                                    {isReadingMode
-                                                        ? <EditIcon style={{ fontSize: 17 }} />
-                                                        : <VisibilityIcon style={{ fontSize: 18.5 }} />}
-                                                </Tooltip>
-                                            </IconButton>
-                                        </Stack>
-                                    }
-                                />}
-                            {showStatsTab && <Tab label={
-                                <Stack direction="row" spacing={1}>
-                                    <div>Решения</div>
-                                    <Chip size={"small"} color={"default"}
-                                        label={unratedSolutionsCount} />
-                                </Stack>
-                            } />}
-                            {showApplicationsTab && !isExpert && <Tab label={
-                                <Stack direction="row" spacing={1}>
-                                    <div>Заявки</div>
-                                    <Chip size={"small"} color={"default"}
-                                        label={newStudents.length} />
-                                </Stack>} />}
-                        </Tabs>
-                            {tabValue === "homeworks" && <div>
-                                {
-                                    isReadingMode
-                                        ?
-                                        <CourseExperimental
-                                            homeworks={courseHomeworks}
-                                            courseFilesInfo={courseFilesInfo}
-                                            isMentor={isCourseMentor}
-                                            studentSolutions={studentSolutions}
-                                            isStudentAccepted={isAcceptedStudent}
-                                            selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
-                                            userId={userId!} />
-                                        :
-                                        <div>
-                                            {createHomework && (
-                                                <div>
-                                                    <Grid container>
-                                                        <Grid item xs={12}>
-                                                            <AddHomework
-                                                                id={+courseId!}
-                                                                onCancel={() => setCurrentState()}
-                                                                onSubmit={() => setCurrentState()}
-                                                                previousHomeworks={courseState.courseHomework}
-                                                            />
-                                                        </Grid>
-                                                        <Grid item xs={12}>
-                                                            <CourseHomework
-                                                                onUpdate={() => setCurrentState()}
-                                                                isStudent={isAcceptedStudent}
-                                                                isMentor={isCourseMentor}
-                                                                isReadingMode={isReadingMode}
-                                                                homework={courseHomeworks}
-                                                                courseFilesInfo={courseState.courseFilesInfo}
-                                                            />
-                                                        </Grid>
+                    <Grid>
+                        <Tabs
+                            style={{ marginBottom: 10 }}
+                            variant="scrollable"
+                            scrollButtons={"auto"}
+                            value={tabValue === "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
+                            indicatorColor="primary"
+                            onChange={(event, value) => {
+                                if (value === 0 && !isExpert) navigate(`/courses/${courseId}/homeworks`)
+                                if (value === 1) navigate(`/courses/${courseId}/stats`)
+                                if (value === 2 && !isExpert) navigate(`/courses/${courseId}/applications`)
+                            }}
+                        >
+                        {!isExpert &&
+                            <Tab
+                                label={
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <div>Задания</div>
+                                        <IconButton
+                                            size="small"
+                                            onClick={() =>
+                                                setCourseState(prevState => ({
+                                                    ...prevState,
+                                                    isReadingMode: !isReadingMode
+                                                })
+                                                )}
+                                            style={{ backgroundColor: '#f1f1f1', padding: 3, marginLeft: 8 }}
+                                        >
+                                            <Tooltip arrow placement={"top"}
+                                                PopperProps={{
+                                                    modifiers: [{ name: "offset", options: { offset: [0, -5], } }]
+                                                }}
+                                                title={isReadingMode ? "В режим редактирования" : "В режим чтения"}>
+                                                {isReadingMode
+                                                    ? <EditIcon style={{ fontSize: 17 }} />
+                                                    : <VisibilityIcon style={{ fontSize: 18.5 }} />}
+                                            </Tooltip>
+                                        </IconButton>
+                                    </Stack>
+                                }
+                            />}
+                        {showStatsTab && <Tab label={
+                            <Stack direction="row" spacing={1}>
+                                <div>Решения</div>
+                                <Chip size={"small"} color={"default"}
+                                    label={unratedSolutionsCount} />
+                            </Stack>
+                        } />}
+                        {showApplicationsTab && !isExpert && <Tab label={
+                            <Stack direction="row" spacing={1}>
+                                <div>Заявки</div>
+                                <Chip size={"small"} color={"default"}
+                                    label={newStudents.length} />
+                            </Stack>} />}
+                    </Tabs>
+                        {tabValue === "homeworks" && <div>
+                            {
+                                isReadingMode
+                                    ?
+                                    <CourseExperimental
+                                        homeworks={courseHomeworks}
+                                        courseFilesInfo={courseFilesInfo}
+                                        isMentor={isCourseMentor}
+                                        studentSolutions={studentSolutions}
+                                        isStudentAccepted={isAcceptedStudent}
+                                        selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
+                                        userId={userId!} />
+                                    :
+                                    <div>
+                                        {createHomework && (
+                                            <div>
+                                                <Grid container>
+                                                    <Grid item xs={12}>
+                                                        <AddHomework
+                                                            id={+courseId!}
+                                                            onCancel={() => setCurrentState()}
+                                                            onSubmit={() => setCurrentState()}
+                                                            previousHomeworks={courseState.courseHomework}
+                                                        />
                                                     </Grid>
-                                                </div>
-                                            )}
-                                            {isLecturer && !createHomework && (
-                                                <div>
-                                                    <Grid container>
-                                                        {!isReadingMode! &&
-                                                            <Button
-                                                                style={{ marginBottom: 15 }}
-                                                                size="small"
-                                                                variant="contained"
-                                                                color="primary"
-                                                                onClick={() => {
-                                                                    setCourseState(prevState => ({
-                                                                        ...prevState,
-                                                                        createHomework: true
-                                                                    }));
-                                                                }}
-                                                            >
-                                                                Добавить задание
-                                                            </Button>
-                                                        }
+                                                    <Grid item xs={12}>
                                                         <CourseHomework
                                                             onUpdate={() => setCurrentState()}
                                                             isStudent={isAcceptedStudent}
@@ -419,42 +383,73 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                                             courseFilesInfo={courseState.courseFilesInfo}
                                                         />
                                                     </Grid>
-                                                </div>
-                                            )}
-                                            {!isCourseMentor && (
-                                                <CourseHomework
-                                                    onUpdate={() => setCurrentState()}
-                                                    homework={courseHomeworks}
-                                                    isStudent={isAcceptedStudent}
-                                                    isMentor={isCourseMentor}
-                                                    isReadingMode={isReadingMode}
-                                                    courseFilesInfo={courseState.courseFilesInfo}
-                                                />
-                                            )}
-                                        </div>
-                                }
-                            </div>}
-                            {tabValue === "stats" &&
-                                <Grid container style={{ marginBottom: "15px" }}>
-                                    <Grid item xs={12}>
-                                        <StudentStats
-                                            homeworks={courseHomeworks}
-                                            userId={userId as string}
-                                            isMentor={isCourseMentor}
-                                            course={courseState.course}
-                                            solutions={studentSolutions}
-                                        />
-                                    </Grid>
-                                </Grid>}
-                            {tabValue === "applications" && showApplicationsTab &&
-                                <NewCourseStudents
-                                    onUpdate={() => setCurrentState()}
-                                    course={courseState.course}
-                                    students={courseState.newStudents}
-                                    courseId={courseId!}
-                                />
+                                                </Grid>
+                                            </div>
+                                        )}
+                                        {isLecturer && !createHomework && (
+                                            <div>
+                                                <Grid container>
+                                                    {!isReadingMode! &&
+                                                        <Button
+                                                            style={{ marginBottom: 15 }}
+                                                            size="small"
+                                                            variant="contained"
+                                                            color="primary"
+                                                            onClick={() => {
+                                                                setCourseState(prevState => ({
+                                                                    ...prevState,
+                                                                    createHomework: true
+                                                                }));
+                                                            }}
+                                                        >
+                                                            Добавить задание
+                                                        </Button>
+                                                    }
+                                                    <CourseHomework
+                                                        onUpdate={() => setCurrentState()}
+                                                        isStudent={isAcceptedStudent}
+                                                        isMentor={isCourseMentor}
+                                                        isReadingMode={isReadingMode}
+                                                        homework={courseHomeworks}
+                                                        courseFilesInfo={courseState.courseFilesInfo}
+                                                    />
+                                                </Grid>
+                                            </div>
+                                        )}
+                                        {!isCourseMentor && (
+                                            <CourseHomework
+                                                onUpdate={() => setCurrentState()}
+                                                homework={courseHomeworks}
+                                                isStudent={isAcceptedStudent}
+                                                isMentor={isCourseMentor}
+                                                isReadingMode={isReadingMode}
+                                                courseFilesInfo={courseState.courseFilesInfo}
+                                            />
+                                        )}
+                                    </div>
                             }
-                        </Grid>}
+                        </div>}
+                        {tabValue === "stats" &&
+                            <Grid container style={{ marginBottom: "15px" }}>
+                                <Grid item xs={12}>
+                                    <StudentStats
+                                        homeworks={courseHomeworks}
+                                        userId={userId as string}
+                                        isMentor={isCourseMentor}
+                                        course={courseState.course}
+                                        solutions={studentSolutions}
+                                    />
+                                </Grid>
+                            </Grid>}
+                        {tabValue === "applications" && showApplicationsTab &&
+                            <NewCourseStudents
+                                onUpdate={() => setCurrentState()}
+                                course={courseState.course}
+                                students={courseState.newStudents}
+                                courseId={courseId!}
+                            />
+                        }
+                    </Grid>
                 </Grid>
             </div>
         );

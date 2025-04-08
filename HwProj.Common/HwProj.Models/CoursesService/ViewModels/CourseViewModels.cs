@@ -15,8 +15,6 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string GroupName { get; set; }
 
         [Required] public bool IsOpen { get; set; }
-
-        public bool IsLimitedVisible { get; set; }
     }
 
     public class UpdateCourseViewModel
@@ -30,8 +28,6 @@ namespace HwProj.Models.CoursesService.ViewModels
         [Required] public bool IsOpen { get; set; }
 
         public bool IsCompleted { get; set; }
-
-        public bool IsLimitedVisible { get; set; }
     }
 
     public class CourseDTO : CoursePreview
@@ -52,7 +48,6 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string GroupName { get; set; }
         public bool IsOpen { get; set; }
         public bool IsCompleted { get; set; }
-        public bool IsLimitedVisible { get; set; }
 
         public AccountDataDto[] Mentors { get; set; }
         public AccountDataDto[] AcceptedStudents { get; set; }
@@ -67,7 +62,6 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string Name { get; set; }
         public string GroupName { get; set; }
         public bool IsCompleted { get; set; }
-        public bool IsLimitedVisible { get; set; }
         public string[] MentorIds { get; set; }
         public long? TaskId { get; set; }
     }

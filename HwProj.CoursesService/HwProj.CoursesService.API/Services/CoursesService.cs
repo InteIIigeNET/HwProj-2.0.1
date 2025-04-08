@@ -100,7 +100,6 @@ namespace HwProj.CoursesService.API.Services
                 Name = updated.Name,
                 GroupName = updated.GroupName,
                 IsCompleted = updated.IsCompleted,
-                IsLimitedVisible = updated.IsLimitedVisible,
                 IsOpen = updated.IsOpen
             });
         }

@@ -19,7 +19,7 @@ interface ICreateCourseState {
   name: string;
   groupName?: string;
   courseId: string;
-  isLimitedVisible: boolean;
+  isOpen: boolean;
   errors: string[];
 }
 
@@ -47,7 +47,7 @@ const CreateCourse: FC = () => {
     name: "",
     groupName: "",
     courseId: "",
-    isLimitedVisible: false,
+    isOpen: false,
     errors: [],
   })
 
@@ -56,8 +56,7 @@ const CreateCourse: FC = () => {
     const courseViewModel = {
       name: course.name,
       groupName: course.groupName,
-      isOpen: true,
-      isLimitedVisible: course.isLimitedVisible,
+      isOpen: course.isOpen,
     }
     try {
       const courseId = await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel)
@@ -138,12 +137,12 @@ const CreateCourse: FC = () => {
                         <Checkbox
                             defaultChecked
                             color="primary"
-                            checked={course.isLimitedVisible}
+                            checked={course.isOpen}
                             onChange={(e) => {
                                 e.persist()
                                 setCourse((prevState) => ({
                                     ...prevState,
-                                    isLimitedVisible: e.target.checked
+                                    isOpen: e.target.checked
                                 }))
                             }}
                         />

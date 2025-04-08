@@ -50,8 +50,6 @@ namespace HwProj.CoursesService.API.Migrations
 
                     b.Property<bool>("IsCompleted");
 
-                    b.Property<bool>("IsLimitedVisible");
-
                     b.Property<bool>("IsOpen");
 
                     b.Property<string>("MentorIds");

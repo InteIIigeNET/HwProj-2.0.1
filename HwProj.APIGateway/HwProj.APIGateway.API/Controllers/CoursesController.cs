@@ -235,7 +235,6 @@ namespace HwProj.APIGateway.API.Controllers
                 NewStudents = newStudents.ToArray(),
                 Homeworks = course.Homeworks,
                 IsCompleted = course.IsCompleted,
-                IsLimitedVisible = course.IsLimitedVisible,
                 IsOpen = course.IsOpen,
             };
         }
