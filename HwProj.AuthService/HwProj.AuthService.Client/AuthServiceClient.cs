@@ -10,6 +10,7 @@ using HwProj.Models.Result;
 using Microsoft.Extensions.Configuration;
 using System.Collections; 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HwProj.AuthService.Client
 {
@@ -74,6 +75,17 @@ namespace HwProj.AuthService.Client
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<TokenCredentials>>();
+        }
+        public async Task<List<string>> RegisterStudentsBatchAsync(IEnumerable<RegisterViewModel> registrationModels)
+        {
+            var registrationTasks = registrationModels.Select(async model =>
+            {
+                    var registerResult = await Register(model);
+                    return await FindByEmailAsync(model.Email);
+            });
+
+            var results = await Task.WhenAll(registrationTasks);
+            return results.Where(id => id != null).ToList();
         }
 
         public async Task<Result<TokenCredentials>> Login(LoginViewModel model)
