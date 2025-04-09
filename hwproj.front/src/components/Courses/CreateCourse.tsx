@@ -1,24 +1,27 @@
-import * as React from "react";
 import {
-  TextField,
-  Button,
+  Stepper,
+  Step,
+  StepLabel,
   Typography,
-  Grid,
+  CircularProgress,
 } from "@material-ui/core";
+import {FC, FormEvent, useState, useEffect} from "react";
 import ApiSingleton from "../../api/ApiSingleton";
-import './Styles/CreateCourse.css';
-import {FC, FormEvent, useState} from "react";
-import GroupIcon from '@material-ui/icons/Group';
-import {makeStyles} from '@material-ui/core/styles';
+import {CoursePreviewView} from "api";
+import "./Styles/CreateCourse.css";
+import {makeStyles} from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import {Navigate} from "react-router-dom";
-
-interface ICreateCourseState {
-  name: string;
-  groupName?: string;
-  courseId: string;
-  errors: string[];
-}
+import {useNavigate} from "react-router-dom";
+import {useSnackbar} from "notistack";
+import ErrorsHandler from "components/Utils/ErrorsHandler";
+import {
+  ICreateCourseState,
+  CreateCourseStep,
+  stepLabels,
+  stepIsOptional
+} from "./ICreateCourseState";
+import SelectBaseCourse from "./SelectBaseCourse";
+import AddCourseInfo from "./AddCourseInfo";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -27,118 +30,157 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     alignItems: 'center',
   },
-  avatar: {
-    margin: theme.spacing(1),
-  },
   form: {
     marginTop: theme.spacing(3),
-    width: '100%'
+    width: '100%',
   },
   button: {
-    marginTop: theme.spacing(1)
+    marginTop: theme.spacing(1),
   },
 }))
 
 const CreateCourse: FC = () => {
-  const [course, setCourse] = useState<ICreateCourseState>({
-    name: "",
+  const [state, setState] = useState<ICreateCourseState>({
+    activeStep: CreateCourseStep.SelectBaseCourseStep,
+    skippedSteps: new Set (),
+    courseName: "",
     groupName: "",
-    courseId: "",
-    errors: [],
+    courseIsLoading: false,
   })
+
+  const baseCourse =
+    state.baseCourses && state.baseCourseIndex !== undefined
+      ? state.baseCourses[state.baseCourseIndex]
+      : undefined
+
+  const navigate = useNavigate()
+  const {enqueueSnackbar} = useSnackbar()
+
+  const skipCurrentStep = () =>
+    setState((prevState) => ({
+      ...prevState,
+      activeStep: prevState.activeStep + 1,
+      skippedSteps: prevState.skippedSteps.add(prevState.activeStep),
+    }))
+
+  const setBaseCourses = (courses?: CoursePreviewView[]) =>
+    setState((prevState) => ({
+      ...prevState,
+      baseCourses: courses,
+    }))
+
+  const setCourseIsLoading = (isLoading: boolean) =>
+    setState((prevState) => ({
+      ...prevState,
+      courseIsLoading: isLoading,
+    }))
+
+  useEffect(() => {
+    const loadBaseCourses = async () => {
+      try {
+        const userCourses = await ApiSingleton.coursesApi.coursesGetAllUserCourses()
+        if (!userCourses.length) skipCurrentStep()
+        setBaseCourses(userCourses)
+      }
+      catch (e) {
+        skipCurrentStep()
+        setBaseCourses([])
+        console.error("Ошибка при загрузке курсов лектора:", e)
+        enqueueSnackbar(
+          "Не удалось загрузить существующие курсы",
+          {variant: "warning", autoHideDuration: 4000},
+        )
+      }
+    };
+
+    loadBaseCourses()
+  }, [])
+
+  const handleStep = (step: CreateCourseStep) => {
+    switch (step) {
+      case CreateCourseStep.SelectBaseCourseStep:
+        return <SelectBaseCourse
+          state={state}
+          setState={setState}
+        />
+      case CreateCourseStep.AddCourseInfoStep:
+        return <AddCourseInfo
+          state={state}
+          setState={setState}
+        />
+      default:
+        console.error(`Шаг создания курса неопределён: ${step}`)
+    }
+  }
+
+  const stepIsCompleted = (step: CreateCourseStep) =>
+    step < state.activeStep && !state.skippedSteps.has(step)
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const courseViewModel = {
-      name: course.name,
-      groupName: course.groupName,
+      name: state.courseName,
+      groupName: state.groupName,
       isOpen: true,
+      baseCourseId: baseCourse?.id,
     }
     try {
+      setCourseIsLoading(true)
       const courseId = await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel)
-      setCourse((prevState) => ({
-        ...prevState,
-        courseId: courseId.toString(),
-      }))
+      navigate(`/courses/${courseId}/editHomeWorks`)
     }
     catch (e) {
-      setCourse((prevState) => ({
-        ...prevState,
-        errors: ['Сервис недоступен'],
-      }))
+      console.error("Ошибка при создании курса:", e)
+      const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
+      enqueueSnackbar(responseErrors[0], {variant: "error"})
     }
+
+    setCourseIsLoading(false)
   }
 
   const classes = useStyles()
 
   if (!ApiSingleton.authService.isLecturer()) {
     return (
-        <Typography component="h1" variant="h5">
-          Страница не доступна
-        </Typography>
+      <Typography component="h1" variant="h5">
+        Страница не доступна
+      </Typography>
     )
   }
-  return course.courseId !== "" ?
-      <Navigate to={`/courses/${course.courseId}/editHomeworks`}/>
-      :
-      (<Container component="main" maxWidth="xs">
-        <div className={classes.paper}>
-          <GroupIcon
-              fontSize='large'
-              style={{ color: 'white', backgroundColor: '#ecb50d' }}
-              className={classes.avatar}
-          />
-          <Typography component="h1" variant="h5">
-            Создать курс
-          </Typography>
-          <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                    required
-                    label="Название курса"
-                    variant="outlined"
-                    fullWidth
-                    name={course.name}
-                    onChange={(e) =>
-                    {
-                      e.persist()
-                      setCourse((prevState) => ({
-                        ...prevState,
-                        name: e.target.value
-                      }))
-                    }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                    label="Номер группы"
-                    variant="outlined"
-                    fullWidth
-                    value={course.groupName}
-                    onChange={(e) =>
-                    {
-                      e.persist()
-                      setCourse((prevState) => ({
-                        ...prevState,
-                        groupName: e.target.value
-                      }))
-                    }}
-                />
-              </Grid>
-            </Grid>
-            <Button
-                style={{ marginTop: '16px'}}
-                fullWidth
-                variant="contained"
-                color="primary"
-                type="submit"
-            >
-              Создать курс
-            </Button>
-          </form>
-        </div>
-      </Container>
+  return state.baseCourses ? (
+    <Container component="main" maxWidth="sm">
+      <div className={classes.paper}>
+        <Typography component="h1" variant="h5">
+          Создать курс
+        </Typography>
+        <form onSubmit={handleSubmit} className={classes.form}>
+          <Stepper alternativeLabel activeStep={state.activeStep}>
+            {stepLabels.map((label, step) => {
+              const optionalLabel = stepIsOptional(step) ? (
+                <Typography variant="caption">
+                  Необязательно
+                </Typography>
+              ) : undefined
+              return (
+                <Step
+                  key={label}
+                  completed={stepIsCompleted(step)}
+                  style={{ textAlign: "center" }}
+                >
+                  <StepLabel optional={optionalLabel}>{label}</StepLabel>
+                </Step>
+              )
+            })}
+          </Stepper>
+          {handleStep(state.activeStep)}
+        </form>
+      </div>
+    </Container>
+  ) : (
+    <div className="container">
+      <p>Загрузка...</p>
+      <CircularProgress/>
+    </div>
   )
 }
 

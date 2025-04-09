@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
@@ -10,7 +9,6 @@ using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
-using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
@@ -28,16 +26,13 @@ namespace HwProj.CoursesService.API.Controllers
         private readonly ICoursesService _coursesService;
         private readonly ICourseFilterService _courseFilterService;
         private readonly IHomeworksRepository _homeworksRepository;
-        private readonly IMapper _mapper;
 
         public CoursesController(ICoursesService coursesService,
             IHomeworksRepository homeworksRepository,
-            IMapper mapper,
             ICourseFilterService courseFilterService)
         {
             _coursesService = coursesService;
             _homeworksRepository = homeworksRepository;
-            _mapper = mapper;
             _courseFilterService = courseFilterService;
         }
 
@@ -92,12 +87,21 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel,
-            [FromQuery] string mentorId)
+        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel)
         {
-            var course = _mapper.Map<Course>(courseViewModel);
-            var id = await _coursesService.AddAsync(course, mentorId);
-            return Ok(id);
+            var mentorId = Request.GetUserIdFromHeader();
+            CourseDTO? baseCourse = null;
+
+            if (courseViewModel.BaseCourseId != null)
+            {
+                baseCourse = await _coursesService.GetForEditingAsync((long)courseViewModel.BaseCourseId);
+                if (baseCourse == null) return NotFound();
+
+                if (!baseCourse.MentorIds.Contains(mentorId)) return Forbid();
+            }
+
+            var courseId = await _coursesService.AddAsync(courseViewModel, baseCourse, mentorId);
+            return Ok(courseId);
         }
 
         [HttpDelete("{courseId}")]

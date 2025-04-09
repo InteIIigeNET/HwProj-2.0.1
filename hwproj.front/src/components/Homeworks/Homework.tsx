@@ -38,6 +38,7 @@ interface IHomeworkProps {
 
 const useStyles = makeStyles(_ => ({
     tools: {
+        width: "100%",
         display: "flex",
         flexDirection: 'row',
         alignItems: 'center',
@@ -49,6 +50,12 @@ interface IHomeworkState {
 }
 
 const Homework: FC<IHomeworkProps> = (props) => {
+    const publicationDate = new Date(props.homework.publicationDate!)
+    const deadlineDate = new Date(props.homework.deadlineDate!)
+
+    const publicationDateIsSet = !props.homework.publicationDateNotSet
+    const deadlineDateIsSet = !props.homework.deadlineDateNotSet
+
     const [homeworkState, setHomeworkState] = useState<IHomeworkState>({
         createTask: false,
     })
@@ -73,7 +80,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
 
         props.onUpdateClick()
     }
-    
+
     const getDeleteMessage = (homeworkName: string, filesInfo: IFileInfo[]) => {
         let message = `Вы точно хотите удалить задание "${homeworkName}"?`;
         if (filesInfo.length > 0) {
@@ -86,12 +93,11 @@ const Homework: FC<IHomeworkProps> = (props) => {
         return message;
     };
 
+    const publicationDateString = Utils.renderReadableDate(publicationDate)
+    const deadlineDateString = Utils.renderReadableDate(deadlineDate)
+    const tasksCount = props.homework.tasks!.length
 
     const classes = useStyles()
-
-    const homeworkPublicationDateString = Utils.renderReadableDate(new Date(props.homework.publicationDate!))
-    const homeworkDeadlineDateString = Utils.renderReadableDate(new Date(props.homework.deadlineDate!))
-    const tasksCount = props.homework.tasks!.length
 
     return (
         <div style={{width: '100%'}}>
@@ -109,14 +115,28 @@ const Homework: FC<IHomeworkProps> = (props) => {
                                     {props.homework.title}
                                 </Typography>
                             </Grid>
-                            {props.forMentor &&
+                            {props.forMentor && publicationDateIsSet &&
                                 <Grid item>
-                                    <Chip label={"🕘 " + homeworkPublicationDateString}/>
+                                    <Chip label={"🕘 " + publicationDateString}/>
                                 </Grid>
                             }
-                            {props.homework.hasDeadline &&
+                            {props.forMentor && !publicationDateIsSet &&
                                 <Grid item>
-                                    <Chip label={"⌛ " + homeworkDeadlineDateString}/>
+                                    <Tooltip arrow title={"Не выставлена дата публикации"}>
+                                        <Chip label={"⚠️"}/>
+                                    </Tooltip>
+                                </Grid>
+                            }
+                            {props.homework.hasDeadline && deadlineDateIsSet &&
+                                <Grid item>
+                                    <Chip label={"⌛ " + deadlineDateString}/>
+                                </Grid>
+                            }
+                            {props.forMentor && props.homework.hasDeadline && !deadlineDateIsSet &&
+                                <Grid item>
+                                    <Tooltip arrow title={"Не выставлена дата дедлайна"}>
+                                        <Chip label={"⚠️"}/>
+                                    </Tooltip>
                                 </Grid>
                             }
                             {props.forMentor && props.homework.isDeadlineStrict &&

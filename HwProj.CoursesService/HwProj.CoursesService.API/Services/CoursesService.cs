@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Transactions;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Events;
@@ -19,27 +20,29 @@ namespace HwProj.CoursesService.API.Services
     public class CoursesService : ICoursesService
     {
         private readonly ICoursesRepository _coursesRepository;
+        private readonly IHomeworksRepository _homeworksRepository;
+        private readonly ITasksRepository _tasksRepository;
         private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IEventBus _eventBus;
         private readonly IAuthServiceClient _authServiceClient;
-        private readonly ITasksRepository _tasksRepository;
         private readonly IGroupsRepository _groupsRepository;
         private readonly ICourseFilterService _courseFilterService;
 
         public CoursesService(ICoursesRepository coursesRepository,
+            IHomeworksRepository homeworksRepository,
+            ITasksRepository tasksRepository,
             ICourseMatesRepository courseMatesRepository,
             IEventBus eventBus,
             IAuthServiceClient authServiceClient,
-            ITasksRepository tasksRepository,
-            IHomeworksRepository homeworksRepository,
             IGroupsRepository groupsRepository,
             ICourseFilterService courseFilterService)
         {
             _coursesRepository = coursesRepository;
+            _homeworksRepository = homeworksRepository;
+            _tasksRepository = tasksRepository;
             _courseMatesRepository = courseMatesRepository;
             _eventBus = eventBus;
             _authServiceClient = authServiceClient;
-            _tasksRepository = tasksRepository;
             _groupsRepository = groupsRepository;
             _courseFilterService = courseFilterService;
         }
@@ -79,11 +82,45 @@ namespace HwProj.CoursesService.API.Services
             return result;
         }
 
-        public async Task<long> AddAsync(Course course, string mentorId)
+        public async Task<CourseDTO?> GetForEditingAsync(long id)
         {
+            var course = await _coursesRepository.GetWithHomeworksAsync(id);
+            return course?.ToCourseDto();
+        }
+
+        public async Task<long> AddAsync(CreateCourseViewModel courseViewModel,
+            CourseDTO? baseCourse,
+            string mentorId)
+        {
+            var courseTemplate = courseViewModel.ToCourseTemplate();
+
+            if (baseCourse != null)
+            {
+                courseTemplate.Homeworks = baseCourse.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList();
+            }
+
+            return await AddFromTemplateAsync(courseTemplate, mentorId);
+        }
+
+        public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, string mentorId)
+        {
+            using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            var course = courseTemplate.ToCourse();
             course.MentorIds = mentorId;
             course.InviteCode = Guid.NewGuid().ToString();
-            return await _coursesRepository.AddAsync(course);
+            var courseId = await _coursesRepository.AddAsync(course);
+
+            var homeworks = courseTemplate.Homeworks.Select(
+                hwTemplate => hwTemplate.ToHomework(courseId));
+            var homeworkIds = await _homeworksRepository.AddRangeAsync(homeworks);
+
+            var tasks = courseTemplate.Homeworks.SelectMany((hwTemplate, i) =>
+                hwTemplate.Tasks.Select(taskTemplate => taskTemplate.ToHomeworkTask(homeworkIds[i])));
+            await _tasksRepository.AddRangeAsync(tasks);
+
+            transactionScope.Complete();
+            return courseId;
         }
 
         public async Task DeleteAsync(long id)

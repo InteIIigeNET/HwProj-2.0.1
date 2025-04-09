@@ -26,9 +26,9 @@ interface IEditHomeworkState {
     courseMentorIds: string[];
     edited: boolean;
     hasDeadline: boolean;
-    deadlineDate: Date | undefined;
+    deadlineDate?: Date;
     isDeadlineStrict: boolean;
-    publicationDate: Date;
+    publicationDate?: Date;
     isPublished: boolean;
     isGroupWork: boolean;
     hasErrors: boolean;
@@ -67,7 +67,6 @@ const EditHomework: FC = () => {
         hasDeadline: false,
         deadlineDate: undefined,
         isDeadlineStrict: false,
-        publicationDate: new Date(),
         isPublished: false,
         hasErrors: false,
         tags: [],
@@ -88,9 +87,14 @@ const EditHomework: FC = () => {
     const getHomework = async () => {
         const homework = await ApiSingleton.homeworksApi.homeworksGetForEditingHomework(+homeworkId!)
         const course = await ApiSingleton.coursesApi.coursesGetCourseData(homework.courseId!)
-        const deadline = homework.deadlineDate == null
+
+        const publicationDate = homework.publicationDateNotSet
             ? undefined
-            : new Date(homework.deadlineDate)
+            : new Date(homework.publicationDate!)
+
+        const deadlineDate = homework.deadlineDateNotSet
+            ? undefined
+            : new Date(homework.deadlineDate!)
 
         setEditHomework((prevState) => ({
             ...prevState,
@@ -101,9 +105,9 @@ const EditHomework: FC = () => {
             courseId: homework.courseId!,
             courseMentorIds: course.mentors!.map(x => x.userId!),
             hasDeadline: homework.hasDeadline!,
-            deadlineDate: deadline,
+            deadlineDate: deadlineDate,
             isDeadlineStrict: homework.isDeadlineStrict!,
-            publicationDate: new Date(homework.publicationDate!),
+            publicationDate: publicationDate,
             isPublished: !homework.isDeferred,
             hasErrors: false,
             tags: homework.tags!,
@@ -181,7 +185,7 @@ const EditHomework: FC = () => {
     const classes = useStyles()
 
     const isSomeTaskSoonerThanHomework = editHomework.changedTaskPublicationDates
-        .some(d => d < editHomework.publicationDate)
+        .some(d => d < editHomework.publicationDate!)
 
     if (editHomework.edited) {
         return <Navigate to={`/courses/${editHomework.courseId}/editHomeworks`}/>;
