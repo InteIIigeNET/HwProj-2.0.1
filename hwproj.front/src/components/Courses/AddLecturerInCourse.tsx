@@ -10,6 +10,7 @@ import ApiSingleton from 'api/ApiSingleton'
 import React, {FC, FormEvent, useEffect, useState} from 'react'
 import {AccountDataDto} from "../../api";
 import {Autocomplete} from "@material-ui/lab";
+import ValidationUtils from "../Utils/ValidationUtils";
 
 interface AddLecturerInCourseProps {
     onClose: any;
@@ -34,14 +35,9 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
         data: [],
     })
 
-    const isCorrectEmail = (email: string) => {
-        const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,5}))$/;
-        return re.test(email);
-    }
-
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (!isCorrectEmail(lecturerState.email)) {
+        if (!ValidationUtils.isCorrectEmail(lecturerState.email)) {
             setLecturerState((prevState) => ({
                 ...prevState,
                 errors: ['Некорректный адрес электронной почты']
@@ -49,10 +45,8 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
             return
         }
         try {
-            await ApiSingleton.coursesApi
-                .apiCoursesAcceptLecturerByCourseIdByLecturerEmailGet(+props.courseId, lecturerState.email)
-            const data = await ApiSingleton.coursesApi
-                .apiCoursesGetLecturersAvailableForCourseByCourseIdGet(+props.courseId);
+            await ApiSingleton.coursesApi.coursesAcceptLecturer(+props.courseId, lecturerState.email)
+            const data = await ApiSingleton.coursesApi.coursesGetLecturersAvailableForCourse(+props.courseId);
             setLecturerState((prevState) => ({
                 ...prevState,
                 info: ['Преподаватель добавлен'],
@@ -79,8 +73,7 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
     }
 
     const setCurrentState = async () => {
-        const data = await ApiSingleton.coursesApi
-            .apiCoursesGetLecturersAvailableForCourseByCourseIdGet(+props.courseId);
+        const data = await ApiSingleton.coursesApi.coursesGetLecturersAvailableForCourse(+props.courseId);
         setLecturerState({
             errors: [],
             email: '',
@@ -104,7 +97,7 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
                     Добавить преподавателя в курс
                 </DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
+                    <DialogContentText component="div">
                         <Typography>
                             Для добавления преподавателя в курс, введите его адрес элекстронной почты.
                             Пользователь должен быть зарегистрированным и иметь статус лектора.

@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
@@ -9,6 +10,7 @@ using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
+using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
@@ -24,17 +26,27 @@ namespace HwProj.CoursesService.API.Controllers
     public class CoursesController : Controller
     {
         private readonly ICoursesService _coursesService;
+        private readonly ICourseFilterService _courseFilterService;
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly IMapper _mapper;
 
         public CoursesController(ICoursesService coursesService,
             IHomeworksRepository homeworksRepository,
-            IMapper mapper)
+            IMapper mapper,
+            ICourseFilterService courseFilterService)
         {
             _coursesService = coursesService;
             _homeworksRepository = homeworksRepository;
             _mapper = mapper;
-            
+            _courseFilterService = courseFilterService;
+        }
+
+        [HttpGet]
+        public async Task<CoursePreview[]> GetAll()
+        {
+            var coursesFromDb = await _coursesService.GetAllAsync();
+            var courses = coursesFromDb.Select(c => c.ToCoursePreview()).ToArray();
+            return courses;
         }
 
         [CourseDataFilter]
@@ -173,6 +185,14 @@ namespace HwProj.CoursesService.API.Controllers
                 ? NotFound() as IActionResult
                 : Ok(result);
         }
+        
+        [HttpGet("getCourseLecturers/{courseId}")]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCourseLecturersIds(long courseId)
+        {
+            var result = await _coursesService.GetCourseLecturers(courseId);
+            return Ok(result);
+        }
 
         //TODO: optimize
         [HttpGet("taskDeadlines")]
@@ -229,6 +249,15 @@ namespace HwProj.CoursesService.API.Controllers
             result = result.Concat(defaultTags).Distinct().ToArray();
 
             return Ok(result);
+        }
+
+        [HttpGet("getMentorsToStudents/{courseId}")]
+        [ProducesResponseType(typeof(MentorToAssignedStudentsDTO), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetMentorsToAssignedStudents(long courseId)
+        {
+            var mentorIds = await _coursesService.GetCourseLecturers(courseId);
+            var mentorsToAssignedStudents = await _courseFilterService.GetAssignedStudentsIds(courseId, mentorIds);
+            return Ok(mentorsToAssignedStudents);
         }
     }
 }

@@ -2,8 +2,7 @@
 import {AccountDataDto} from "../../api";
 import {Typography} from "@material-ui/core";
 import * as React from "react";
-import {Chip, Stack, Tooltip} from "@mui/material";
-import SchoolIcon from '@mui/icons-material/School';
+import {Badge, Stack, Tooltip} from "@mui/material";
 
 const MentorsList: FC<{
     mentors: AccountDataDto[]
@@ -12,22 +11,24 @@ const MentorsList: FC<{
     const {mentors} = props
     const mentorsToShow = mentors.length > count ? mentors.slice(0, count) : mentors
     const mentorsToHide = mentors.length > count ? mentors.slice(count) : []
+    const fontSize = 18
 
     return <Stack direction={"row"} alignItems={"center"} spacing={1}>
-        <Typography style={{fontSize: "18px", color: "GrayText"}}>
+        <Typography style={{fontSize: fontSize, color: "GrayText"}}>
             {mentorsToShow.map(t => `${t.name} ${t.surname}`).join(", ")}
         </Typography>
         {mentorsToHide.length > 0 && <Tooltip arrow title={
             <span style={{whiteSpace: 'pre-line'}}>
-                <Typography variant={"body1"}>
-                    {mentorsToHide.map(t => `${t.name} ${t.surname}`).join("\n")}
+                <Typography component="div" variant={"body1"}>
+                    {mentorsToHide.map((t, index) => <div key={index}>{`${t.name} ${t.surname}`}
+                        <sub style={{color: "powderblue"}}> {t.companyName}</sub>
+                    </div>)}
                 </Typography>
             </span>}>
-            <Chip size={"small"}
-                  label={<Stack alignItems={"center"} direction={"row"} spacing={0.5}>
-                      <div style={{color: "GrayText"}}>+{mentorsToHide.length}</div>
-                      <SchoolIcon style={{color: "GrayText"}} fontSize={"small"}/>
-                  </Stack>}/>
+            <Badge showZero={false} badgeContent={mentorsToHide.length} color="primary"
+                   sx={{"& .MuiBadge-badge": {fontSize: 9, height: 15, minWidth: 10, backgroundColor: "darkgray"}}}>
+                <div style={{width: 3, height: fontSize}}/>
+            </Badge>
         </Tooltip>}
     </Stack>
 }

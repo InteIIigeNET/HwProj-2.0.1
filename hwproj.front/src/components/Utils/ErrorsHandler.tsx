@@ -7,13 +7,14 @@
 
     static async getErrorMessages(response: Response): Promise<string[]> {
         try {
-            const message = await response.text();
-            if (this.isStringNullOrEmpty(message)) {
-                return [this.defaultErrorMessage];
+            const contentType = response.headers.get("Content-Type");
+            
+            if (contentType?.includes("application/json")) {
+                return await response.json();
+            } else {
+                return [await response.text()];
             }
-
-            return [message];
-        } catch {
+        } catch (e) {
             return [this.defaultErrorMessage];
         }
     }

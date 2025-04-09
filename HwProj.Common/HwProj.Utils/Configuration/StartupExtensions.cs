@@ -18,11 +18,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace HwProj.Utils.Configuration
 {
@@ -37,27 +37,7 @@ namespace HwProj.Utils.Configuration
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Info { Title = serviceName, Version = "v1" });
-
-                if (serviceName == "API Gateway")
-                {
-                    c.AddSecurityDefinition("Bearer",
-                        new ApiKeyScheme
-                        {
-                            In = "header",
-                            Description = "Please enter into field the word 'Bearer' following by space and JWT",
-                            Name = "Authorization",
-                            Type = "apiKey"
-                        });
-                    c.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
-                    {
-                        { "Bearer", Enumerable.Empty<string>() },
-                    });
-                }
-            });
-
+            services.ConfigureHwProjServiceSwaggerGen(serviceName);
             if (serviceName != "AuthService API")
             {
                 services.AddAuthentication(options =>
@@ -85,6 +65,45 @@ namespace HwProj.Utils.Configuration
             services.AddHttpContextAccessor();
 
             return services;
+        }
+
+        private static void ConfigureHwProjServiceSwaggerGen(this IServiceCollection services, string serviceName)
+        {
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = serviceName, Version = "v1" });
+                c.CustomOperationIds(apiDesc =>
+                {
+                    var controllerName = apiDesc.ActionDescriptor.RouteValues["controller"];
+                    var actionName = apiDesc.ActionDescriptor.RouteValues["action"];
+                    return $"{controllerName}{actionName}";
+                });
+                if (serviceName == "API Gateway")
+                {
+                    c.AddSecurityDefinition("Bearer",
+                        new OpenApiSecurityScheme()
+                        {
+                            In = ParameterLocation.Header,
+                            Description = "Please enter into field the word 'Bearer' following by space and JWT",
+                            Name = "Authorization",
+                            Type = SecuritySchemeType.ApiKey
+                        });
+                    c.AddSecurityRequirement(
+                        new OpenApiSecurityRequirement
+                        {
+                            { new OpenApiSecurityScheme
+                                {
+                                    Reference = new OpenApiReference
+                                    {
+                                        Id = "Bearer",
+                                        Type = ReferenceType.SecurityScheme
+                                    }
+                                },
+                                new List<string>()
+                            }
+                        });
+                }
+            });
         }
 
         public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
@@ -158,7 +177,7 @@ namespace HwProj.Utils.Configuration
                     context.Database.EnsureCreated();
                     return app;
                 }
-                
+
                 var logger = app.ApplicationServices
                     .GetService<ILoggerFactory>()
                     .CreateLogger(typeof(StartupExtensions));

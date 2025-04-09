@@ -1,6 +1,6 @@
 import React, {useMemo, useState} from 'react';
 import {
-    Solution,
+    SolutionState,
     CourseViewModel,
     HomeworkViewModel,
     StatisticsCourseMatesModel,
@@ -122,7 +122,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
 
         const tasksGroupedByLastSolution = new Map<number, StatisticsCourseTasksModel[]>()
         tasks.forEach(task => {
-            const lastSolution = task.solution!.filter(s => s.state != Solution.StateEnum.NUMBER_0).slice(-1)[0];
+            const lastSolution = task.solution!.filter(s => s.state != SolutionState.NUMBER_0).slice(-1)[0];
             const publicationDate = new Date(lastSolution.publicationDate!);
             publicationDate.setHours(0, 0, 0, 0);
             const publicationDateTime = publicationDate.getTime();
@@ -151,7 +151,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
                 const date = new Date(tasks[0].solution!.slice(-1)[0].publicationDate!);
                 date.setHours(0, 0, 0, 0);
                 const tasksChartView : ITaskChartView[] = tasks.map(task => {
-                    const lastSolution = task.solution!.filter(s => s.state != Solution.StateEnum.NUMBER_0).slice(-1)[0];
+                    const lastSolution = task.solution!.filter(s => s.state != SolutionState.NUMBER_0).slice(-1)[0];
                     totalStudentRating += lastSolution.rating ? lastSolution.rating : 0;
                     const taskView = courseTasks.find(t => t.id === task.id)!;
 
@@ -257,6 +257,7 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
                 {Array.from(studentCharts.entries()).map(([studentId, line]) => {
                     const studentName = fullNameById(studentId);
                     return <Line
+                        key={studentId}
                         onClick={_ => setHighlightStudent(studentName)}
                         activeDot={{
                             onMouseOver: () => {

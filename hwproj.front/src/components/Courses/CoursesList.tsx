@@ -21,14 +21,14 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                     {courses.map((course, i) => (
                         <Grid item key={course.id}>
                             <ListItem
-                                style={{padding: 0}}
+                                style={{padding: 0, marginBottom: 5}}
                             >
                                 <NavLink
                                     to={isExpert ? "/task/" + course.taskId!.toString() + "/default"
                                         : "/courses/" + course.id!.toString()}
                                     style={{color: "#212529"}}
                                 >
-                                    <Typography style={{fontSize: "20px"}}>
+                                    <Typography component="div" style={{fontSize: "20px"}}>
                                         {NameBuilder.getCourseFullName(course.name!, course.groupName)}
                                     </Typography>
                                 </NavLink>

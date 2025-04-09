@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {makeStyles} from '@material-ui/styles';
+import {makeStyles} from '@material-ui/core/styles';
 import AppBar from "@material-ui/core/AppBar";
 import {Link} from "react-router-dom";
 import {Badge, Grid, IconButton, MenuItem, Typography} from "@material-ui/core";
@@ -27,17 +27,44 @@ const styles = makeStyles(theme => ({
     }
 }));
 
+export type AppBarContextAction = { actionName: string, link: string } | null | "Default"
+
+class AppBarStateManager {
+    private _handler: ((state: AppBarContextAction) => void) | undefined = undefined
+
+    public setOnContextActionChange(handler: (state: AppBarContextAction) => void) {
+        this._handler = handler;
+    }
+
+    public setContextAction(action: AppBarContextAction) {
+        this._handler!(action)
+    }
+
+    public reset() {
+        this._handler!("Default")
+    }
+}
+
+let appBarStateManager = new AppBarStateManager()
+export {appBarStateManager}
+
+
 interface AppBarProps {
     loggedIn: boolean;
     isLecturer: boolean;
     isExpert: boolean;
     newNotificationsCount: number;
     onLogout: () => void;
+    contextAction: AppBarContextAction;
 }
 
 export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
     const [isOpenInviteLecturer, setIsOpenInviteLecturer] = useState<boolean>(false)
+    const contextAction = props.contextAction === "Default" ? {
+        actionName: "Курсы",
+        link: "/courses"
+    } : props.contextAction
 
     const closeInviteLecturer = () => {
         setIsOpenInviteLecturer(false)
@@ -55,20 +82,22 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
     const handleClose = () => {
         setAnchorEl(null)
     }
-    
+
     const isLecturer = props.isLecturer
     const isExpert = props.isExpert
 
     return (
         <div>
-            <AppBar style={{position: "static", width: "100vw", maxWidth: "100%", alignItems: "center",
-                minHeight: "5vh", justifyContent: "center"}}>
+            <AppBar style={{
+                position: "static", width: "100vw", maxWidth: "100%", alignItems: "center",
+                minHeight: "5vh", justifyContent: "center"
+            }}>
                 <div className={"container"} style={{display: "flex", alignItems: "center"}}>
                     <Grid container spacing={1} alignItems={"center"}>
                         <Grid item>
                             <Link to={"/"}>
                                 <Typography variant="h6" style={{color: 'white', fontFamily: "Helvetica"}}>
-                                    HW
+                                    HW😺
                                 </Typography>
                             </Link>
                         </Grid>
@@ -77,7 +106,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                                 <Link to={"/notifications"}>
                                     <IconButton>
                                         {props.newNotificationsCount > 0
-                                            ? <Badge badgeContent={props.newNotificationsCount} color="primary">
+                                            ? <Badge overlap="rectangular" badgeContent={props.newNotificationsCount} color="primary">
                                                 <MailIcon fontSize={"small"} htmlColor={"white"}/>
                                             </Badge>
                                             : <MailIcon fontSize={"small"} htmlColor={"white"}/>
@@ -88,15 +117,15 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                         }
                         {props.loggedIn &&
                             <Grid item>
-                                <Link
+                                {contextAction && <Link
                                     style={{color: 'white', fontFamily: "Helvetica", textDecoration: "none"}}
-                                    to={("/courses")}>
+                                    to={(contextAction.link)}>
                                     <Button>
                                         <Typography style={{color: 'white', fontFamily: "Helvetica"}}>
-                                            Курсы
+                                            {contextAction.actionName}
                                         </Typography>
                                     </Button>
-                                </Link>
+                                </Link>}
                             </Grid>
                         }
                     </Grid>

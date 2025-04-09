@@ -14,8 +14,8 @@ const HelpPopoverChartInfo: React.FC<IHelpPopoverChartInfoProps> = (prop) => {
                      style={{paddingTop: 3, paddingBottom: 3, marginLeft: -10, marginRight: -10}}/>
 
             <List sx={{listStyleType: 'disclosure-closed', pl: 3}}>
-                {listItems.map(item => (
-                    <ListItem sx={{display: 'list-item', padding: 0}}>
+                {listItems.map((item, index) => (
+                    <ListItem key={index} sx={{display: 'list-item', padding: 0}}>
                         {item}
                     </ListItem>
                 ))}

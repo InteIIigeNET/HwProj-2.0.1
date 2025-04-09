@@ -201,6 +201,33 @@ namespace HwProj.CoursesService.API.Migrations
                     b.ToTable("TasksModels");
                 });
 
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.TaskQuestion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Answer")
+                        .HasMaxLength(1000);
+
+                    b.Property<bool>("IsPrivate");
+
+                    b.Property<string>("LecturerId");
+
+                    b.Property<string>("StudentId");
+
+                    b.Property<long>("TaskId");
+
+                    b.Property<string>("Text")
+                        .HasMaxLength(1000);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("Questions");
+                });
+
             modelBuilder.Entity("HwProj.CoursesService.API.Models.UserToCourseFilter", b =>
                 {
                     b.Property<long>("CourseId");

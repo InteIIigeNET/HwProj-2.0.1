@@ -1,17 +1,19 @@
 import * as React from "react";
 import ListItem from "@material-ui/core/ListItem";
 import List from "@material-ui/core/List";
-import {Grid, Typography} from "@material-ui/core";
-import {HomeworkViewModel} from "../../api";
+import {Grid} from "@material-ui/core";
+import {FileInfoDTO, HomeworkViewModel} from "../../api";
 import Homework from "./Homework";
 import {FC} from "react";
+import FileInfoConverter from "components/Utils/FileInfoConverter";
 
 interface ICourseHomeworkProps {
     homework: HomeworkViewModel[];
     isMentor: boolean;
     isStudent: boolean;
     isReadingMode: boolean;
-    onDelete: () => void;
+    onUpdate: () => void;
+    courseFilesInfo: FileInfoDTO[]
 }
 
 const CourseHomework: FC<ICourseHomeworkProps> = (props) => {
@@ -25,7 +27,8 @@ const CourseHomework: FC<ICourseHomeworkProps> = (props) => {
                     forStudent={props.isStudent}
                     forMentor={props.isMentor}
                     isReadingMode={props.isReadingMode}
-                    onDeleteClick={() => props.onDelete()}
+                    onUpdateClick={() => props.onUpdate()}
+                    homeworkFilesInfo={FileInfoConverter.getHomeworkFilesInfo(props.courseFilesInfo, hw.id!)}
                 />
 
             </ListItem>

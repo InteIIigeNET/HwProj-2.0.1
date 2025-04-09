@@ -1,13 +1,19 @@
 import * as React from "react";
 import Task from "../Tasks/Task";
 import Typography from "@material-ui/core/Typography";
-import AddSolution from "./AddSolution";
+import AddOrEditSolution from "./AddOrEditSolution";
 import Button from "@material-ui/core/Button";
 import TaskSolutions from "./TaskSolutions";
-import {AccountDataDto, HomeworkTaskViewModel, UserTaskSolutions2} from "../../api/";
+import {
+    AccountDataDto,
+    HomeworksGroupUserTaskSolutions,
+    HomeworkTaskViewModel,
+    Solution,
+    SolutionState
+} from "../../api/";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
-import {Grid} from "@material-ui/core";
+import {Grid, Tab, Tabs} from "@material-ui/core";
 import {
     Checkbox,
     Chip,
@@ -15,18 +21,19 @@ import {
     Stack,
     Tooltip
 } from "@mui/material";
-import {useParams, Link} from "react-router-dom";
+import {useParams, Link, useNavigate} from "react-router-dom";
 import Step from "@mui/material/Step";
 import StepButton from "@mui/material/StepButton";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {getTip} from "../Common/HomeworkTags";
+import Lodash from "lodash";
+import {appBarStateManager} from "../AppBar";
 
 interface ITaskSolutionsState {
     isLoaded: boolean
-    task: HomeworkTaskViewModel
     addSolution: boolean
     courseId: number
-    allTaskSolutions: UserTaskSolutions2[]
+    homeworkGroupedSolutions: HomeworksGroupUserTaskSolutions[]
     courseMates: AccountDataDto[]
 }
 
@@ -45,22 +52,22 @@ const FilterProps = {
 
 const TaskSolutionsPage: FC = () => {
     const {taskId} = useParams()
+    const navigate = useNavigate()
 
     const userId = ApiSingleton.authService.getUserId()
+    const [task, setTask] = useState<HomeworkTaskViewModel>({})
     const [taskSolutionPage, setTaskSolutionPage] = useState<ITaskSolutionsState>({
         isLoaded: false,
-        task: {},
         courseId: 0,
         addSolution: false,
-        allTaskSolutions: [],
+        homeworkGroupedSolutions: [],
         courseMates: []
     })
 
     const [filterState, setFilterState] = React.useState<Filter[]>(
-        localStorage.getItem(FilterStorageKey)?.split(", ").filter(x => x != "").map(x => x as Filter) || []
+        localStorage.getItem(FilterStorageKey)?.split(", ").filter(x => x !== "").map(x => x as Filter) || []
     )
     const handleFilterChange = (event: SelectChangeEvent<typeof filterState>) => {
-        const {target: {value}} = event
         const filters = filterState.length > 0 ? [] : ["Только нерешенные" as Filter]
         localStorage.setItem(FilterStorageKey, filters.join(", "))
         setFilterState(filters)
@@ -69,28 +76,90 @@ const TaskSolutionsPage: FC = () => {
     const showOnlyNotSolved = filterState.some(x => x === "Только нерешенные")
 
     useEffect(() => {
+        getSolutions()
+    }, [])
+
+    useEffect(() => {
         getTask()
     }, [taskId])
 
     const getTask = async () => {
-        const pageData = await ApiSingleton.solutionsApi.apiSolutionsTaskSolutionByTaskIdByStudentIdGet(+taskId!, userId);
+        const task = await ApiSingleton.tasksApi.tasksGetTask(+taskId!)
+        setTask(task)
+    }
+
+    const getSolutions = async () => {
+        const pageData = await ApiSingleton.solutionsApi.solutionsGetStudentSolution(+taskId!, userId);
         setTaskSolutionPage({
             isLoaded: true,
             addSolution: false,
             courseId: pageData.courseId!,
-            task: pageData.task!,
-            allTaskSolutions: pageData.taskSolutions!,
+            homeworkGroupedSolutions: pageData.taskSolutions!,
             courseMates: pageData.courseMates!,
         })
     }
 
-    const {allTaskSolutions, courseId, task, courseMates} = taskSolutionPage
+    const {homeworkGroupedSolutions, courseId, courseMates} = taskSolutionPage
     const student = courseMates.find(x => x.userId === userId)!
-    const currentTaskSolutions = allTaskSolutions.find(x => x.taskId === taskId)?.solutions || []
+
+    useEffect(() => {
+        appBarStateManager.setContextAction({actionName: "К курсу", link: `/courses/${courseId}`})
+        return () => appBarStateManager.reset()
+    }, [courseId])
+
+    //TODO: unify
+    const taskSolutionsWithPreview = homeworkGroupedSolutions
+        .map(x => ({
+            ...x,
+            homeworkSolutions: x.homeworkSolutions!.map(t =>
+                ({
+                    homeworkTitle: t.homeworkTitle,
+                    previews: t.studentSolutions!.map(y =>
+                        ({...y, ...StudentStatsUtils.calculateLastRatedSolutionInfo(y.solutions!, y.maxRating!)}))
+                }))
+        }))
+
+    const taskSolutionsPreview = taskSolutionsWithPreview.flatMap(x => {
+        if (!x.homeworkSolutions) return []
+        const firstHomeworkTasks = x.homeworkSolutions[0]?.previews || []
+        return firstHomeworkTasks.map((t, i) => {
+            const solutions = Lodash(x.homeworkSolutions).maxBy(h => h.previews![i].lastRatedSolution?.rating || -1)
+            const preview = solutions!.previews[i]
+            return ({
+                lastRatedSolution: preview.lastRatedSolution,
+                color: preview.color,
+                taskId: preview.taskId,
+                lastSolution: preview.lastSolution,
+                solutionsDescription: preview.solutionsDescription,
+                tags: preview.tags,
+                title: x.homeworkSolutions.length === 1 ? preview.title : "(" + x.groupTitle! + ") " + `Задача ${i + 1}`,
+            });
+        });
+    })
+
+    const currentHomeworksGroup = taskSolutionsWithPreview
+        .find(x => x.homeworkSolutions!
+            .some(h => h.previews!
+                .some(t => t.taskId === taskId)))
+
+    const homeworkSolutions = currentHomeworksGroup?.homeworkSolutions || []
+
+    const versionOfTask = homeworkSolutions.findIndex(x => x.previews!.some(t => t.taskId === taskId))
+
+    const taskIndexInHomework = versionOfTask === -1
+        ? -1
+        : homeworkSolutions[versionOfTask].previews!.findIndex(t => t.taskId === taskId)
+
+    const versionsOfCurrentTask = taskIndexInHomework === -1
+        ? []
+        : homeworkSolutions.map(h => h.previews![taskIndexInHomework].taskId!)
+
+    const currentTaskSolutions = taskIndexInHomework === -1 ? [] : homeworkSolutions[versionOfTask].previews[taskIndexInHomework].solutions!
     const lastSolution = currentTaskSolutions[currentTaskSolutions.length - 1]
-    const taskSolutions = showOnlyNotSolved
-        ? allTaskSolutions.filter(x => x.solutions?.length == 0)
-        : allTaskSolutions
+
+    const taskSolutionsPreviewFiltered = showOnlyNotSolved
+        ? taskSolutionsPreview.filter(x => x.lastSolution === undefined)
+        : taskSolutionsPreview
 
     const onCancelAddSolution = () => {
         setTaskSolutionPage((prevState) => ({
@@ -99,19 +168,28 @@ const TaskSolutionsPage: FC = () => {
         }))
     }
 
+    const renderRatingChip = (solutionsDescription: string, color: string, lastRatedSolution: Solution) => {
+        return <Tooltip arrow disableInteractive enterDelay={1000} title={<span
+            style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
+            <Chip style={{backgroundColor: color}}
+                  size={"small"}
+                  label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
+        </Tooltip>
+    }
+
     return taskSolutionPage.isLoaded ? <div className={"container"} style={{marginBottom: '50px'}}>
         <Grid container justify="center" style={{marginTop: '20px'}}>
             <Grid container spacing={2} xs={12}>
                 <Grid item xs={12}>
                     <Stack direction={"row"} spacing={1}
                            style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
-                        {taskSolutions.map((t, index) => {
-                            const isCurrent = taskId === String(t.taskId)
+                        {taskSolutionsPreviewFiltered.map((t, index) => {
+                            const isCurrent = versionsOfCurrentTask.includes(t.taskId!.toString())
                             const {
                                 color,
                                 lastRatedSolution,
                                 solutionsDescription
-                            } = StudentStatsUtils.calculateLastRatedSolutionInfo(t.solutions!, t.maxRating!)
+                            } = t
                             return <Stack direction={"row"} spacing={1} alignItems={"center"}>
                                 {index > 0 && <hr style={{width: 100}}/>}
                                 <Step active={isCurrent}>
@@ -122,12 +200,7 @@ const TaskSolutionsPage: FC = () => {
                                                 if (isCurrent) ref?.scrollIntoView({inline: "nearest"})
                                             }}
                                             color={color}
-                                            icon={<Tooltip arrow disableInteractive enterDelay={1000} title={<span
-                                                style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
-                                                <Chip style={{backgroundColor: color}}
-                                                      size={"small"}
-                                                      label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
-                                            </Tooltip>}>
+                                            icon={renderRatingChip(solutionsDescription, color, lastRatedSolution)}>
                                             {t.title}{getTip(t)}
                                         </StepButton>
                                     </Link>
@@ -159,23 +232,38 @@ const TaskSolutionsPage: FC = () => {
                                 }))
                             }}
                         >
-                            Добавить решение
+                            {lastSolution?.state === SolutionState.NUMBER_0 ? "Изменить решение" : "Добавить решение"}
                         </Button></Grid>}
-                        <Grid item>
-                            <Link
-                                style={{color: '#212529'}}
-                                to={`/courses/${courseId}`}
-                            >
-                                <Typography>
-                                    Назад к курсу
-                                </Typography>
-                            </Link>
-                        </Grid>
                     </Grid>
                     <Grid container item lg={9}>
                         <Grid item xs={12}>
+                            {currentHomeworksGroup && taskIndexInHomework !== -1 && currentHomeworksGroup.homeworkSolutions!.length > 1 &&
+                                <Tabs
+                                    onChange={(_, value) => navigate(`/task/${currentHomeworksGroup!.homeworkSolutions![value].previews[taskIndexInHomework]!.taskId!}`)}
+                                    variant="scrollable"
+                                    scrollButtons={"auto"}
+                                    value={versionOfTask}
+                                    indicatorColor="primary"
+                                >
+                                    {currentHomeworksGroup.homeworkSolutions?.map(h => {
+                                        const {
+                                            color,
+                                            lastRatedSolution,
+                                            solutionsDescription
+                                        } = h.previews[taskIndexInHomework]!
+                                        return <Tab
+                                            style={{textTransform: "none"}}
+                                            label={<Stack direction={"row"} spacing={1} alignItems={"center"}>
+                                                {renderRatingChip(color, solutionsDescription, lastRatedSolution)}
+                                                <div>{h.homeworkTitle}</div>
+                                            </Stack>}/>;
+                                    })}
+                                </Tabs>
+                            }
+                        </Grid>
+                        <Grid item xs={12}>
                             <Task
-                                task={taskSolutionPage.task}
+                                task={task}
                                 forStudent={true}
                                 forMentor={false}
                                 isReadingMode={true}
@@ -196,14 +284,13 @@ const TaskSolutionsPage: FC = () => {
                     </Grid>
                 </Grid>
             </Grid>
-            {taskSolutionPage.addSolution && <AddSolution
+            {taskSolutionPage.addSolution && <AddOrEditSolution
                 userId={userId}
-                taskId={+taskId!}
-                onAdd={getTask}
+                task={task}
+                onAdd={getSolutions}
                 onCancel={onCancelAddSolution}
-                lastSolutionUrl={lastSolution?.githubUrl}
+                lastSolution={lastSolution}
                 students={courseMates}
-                lastGroup={lastSolution?.groupMates?.map(s => s.userId!) || []}
                 supportsGroup={task.isGroupWork!}/>}
         </Grid>
     </div> : (

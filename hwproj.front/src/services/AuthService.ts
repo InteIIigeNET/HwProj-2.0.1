@@ -1,4 +1,4 @@
-import {LoginViewModel, AccountApi, RegisterViewModel, RegisterExpertViewModel} from './../api/';
+import {LoginViewModel, AccountApi, RegisterViewModel} from '../api';
 import ApiSingleton from "../api/ApiSingleton";
 import decode from "jwt-decode";
 
@@ -21,7 +21,7 @@ export default class AuthService {
     }
 
     async login(user: LoginViewModel) {
-        const token = await ApiSingleton.accountApi.apiAccountLoginPost(user)
+        const token = await ApiSingleton.accountApi.accountLogin(user)
         if (token.errors) {
             return {
                 error: token.errors,
@@ -36,20 +36,12 @@ export default class AuthService {
     }
 
     async register(user: RegisterViewModel) {
-        const token = await ApiSingleton.accountApi.apiAccountRegisterPost(user)
-        if (!token.succeeded) {
-            return {
-                loggedIn: false,
-                error: token.errors
-            }
-        }
-        this.setToken(token.value?.accessToken!)
+        const result = await ApiSingleton.accountApi.accountRegister(user)
         return {
-            loggedIn: true,
-            error: []
+            isRegistered: result.succeeded,
+            error: result.errors
         }
     }
-
 
     isLoggedIn() {
         const token = this.getToken();
@@ -91,9 +83,9 @@ export default class AuthService {
 
     getUserId = () => this.getProfile()._id;
 
-    isExpertProfileEdited = async () => await ApiSingleton.expertsApi.apiExpertsIsProfileEditedGet();
+    isExpertProfileEdited = async () => await ApiSingleton.expertsApi.expertsGetIsProfileEdited();
 
-    setIsExpertProfileEdited = async () => await ApiSingleton.expertsApi.apiExpertsSetProfileIsEditedPost();
+    setIsExpertProfileEdited = async () => await ApiSingleton.expertsApi.expertsSetProfileIsEdited();
 
     loggedIn = () => this.getToken() !== null
 
@@ -108,7 +100,7 @@ export default class AuthService {
         if (this.getToken() === null) {
             return false
         }
-        
+
         const role = this.getProfile()["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
         return role === "Lecturer" || role === "Expert";
     }

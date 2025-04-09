@@ -1,11 +1,20 @@
 import * as React from 'react';
 import {FC, useEffect, useState} from 'react';
 import TaskSolutionComponent from "./TaskSolutionComponent";
-import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, Solution} from '../../api';
+import {
+    AccountDataDto,
+    GetSolutionModel,
+    GetTaskQuestionDto,
+    HomeworkTaskViewModel,
+    SolutionState
+} from '../../api';
 import {Grid, Tab, Tabs} from "@material-ui/core";
-import {Chip, Divider, Stack, Tooltip} from "@mui/material";
+import {Chip, Divider, Stack, Tooltip, Badge} from "@mui/material";
 import Utils from "../../services/Utils";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
+import {QuestionMark} from "@mui/icons-material";
+import TaskQuestions from "../Tasks/TaskQuestions";
+import ApiSingleton from "../../api/ApiSingleton";
 
 interface ITaskSolutionsProps {
     task: HomeworkTaskViewModel
@@ -21,27 +30,42 @@ interface ITaskSolutionsState {
 
 const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     const [state, setState] = useState<ITaskSolutionsState>({
-        tabValue: 0
+        tabValue: 1
     })
 
     const onSolutionRateClick = async () => {
         props.onSolutionRateClick?.()
     }
 
-    useEffect(() => setState({tabValue: 0}), [props.student.userId, props.task.id])
+    const [questionsState, setQuestionsState] = useState<GetTaskQuestionDto[]>([])
+
+    const getQuestions = async () => {
+        const questions = await ApiSingleton.tasksApi.tasksGetQuestionsForTask(props.task.id!)
+        setQuestionsState(questions.reverse())
+    }
+
+    useEffect(() => {
+        setState({tabValue: 1})
+    }, [props.student.userId, props.task.id])
+
+    useEffect(() => {
+        getQuestions()
+    }, [props.task.id]);
 
     const {tabValue} = state
     const {solutions, student, forMentor, task} = props
     const lastSolution = solutions[solutions.length - 1]
     const arrayOfRatedSolutions = solutions.slice(0, solutions.length - 1)
     const previousSolution = arrayOfRatedSolutions && arrayOfRatedSolutions[arrayOfRatedSolutions.length - 1]
-    const lastRating = previousSolution && previousSolution.state !== Solution.StateEnum.NUMBER_0 // != Posted
+    const lastRating = previousSolution && previousSolution.state !== SolutionState.NUMBER_0 // != Posted
         ? previousSolution.rating
         : undefined
 
+    const newQuestions = questionsState.filter(x => x.answer === null).length
+
     const renderSolutionsRate = () => {
         const ratedSolutions = solutions
-            .filter(x => x.state !== Solution.StateEnum.NUMBER_0)
+            .filter(x => x.state !== SolutionState.NUMBER_0)
             .map(x => ({
                 publicationTime: new Date(x.publicationDate!),
                 rating: x.rating,
@@ -69,7 +93,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                         ? startTime
                         : ratedSolutions[i - 1].publicationTime.getTime()
                     const currentTime = publicationTime.getTime()
-                    const element = <Stack direction={"row"} alignItems={"center"}>
+                    const element = <Stack key={i} direction={"row"} alignItems={"center"}>
                         <Chip
                             label={rating}
                             size={"small"}
@@ -118,6 +142,8 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     return <Grid container alignItems="stretch" direction="column">
         {renderSolutionsRate()}
         <Tabs
+            variant="scrollable"
+            scrollButtons={"auto"}
             value={tabValue}
             style={{marginTop: 3}}
             indicatorColor="primary"
@@ -128,10 +154,21 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                 }));
             }}
         >
+            <Tab style={{minWidth: 3}} textColor={"primary"}
+                 label={<Badge badgeContent={newQuestions} variant="dot" showZero={questionsState.length > 0}
+                               color={newQuestions === 0 ? "success" : "primary"}>
+                     <QuestionMark style={{fontSize: 15}}/>
+                 </Badge>}/>
             <Tab label="Последнее решение"/>
             {arrayOfRatedSolutions.length > 0 && <Tab label="Предыдущие попытки"/>}
         </Tabs>
-        {tabValue === 0 && <Grid item style={{marginTop: '16px'}}>
+        {tabValue === 0 && <Grid item style={{marginTop: '5px'}}>
+            <TaskQuestions forMentor={forMentor}
+                           taskId={task.id!}
+                           student={student}
+                           questions={questionsState} onChange={getQuestions}/>
+        </Grid>}
+        {tabValue === 1 && <Grid item style={{marginTop: '16px'}}>
             {lastSolution || forMentor
                 ? <TaskSolutionComponent
                     task={props.task}
@@ -144,9 +181,9 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                 />
                 : "Студент не отправил ни одного решения."}
         </Grid>}
-        {tabValue === 1 &&
+        {tabValue === 2 &&
             arrayOfRatedSolutions.reverse().map((x, i) =>
-                <Grid item style={{marginTop: '16px'}}>
+                <Grid key={x.id} item style={{marginTop: '16px'}}>
                     <TaskSolutionComponent
                         task={props.task}
                         forMentor={false}

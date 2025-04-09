@@ -28,7 +28,7 @@ const SystemInfoComponent: FC = () => {
 
     const getSystemStatus = async () => {
         try {
-            const status = await ApiSingleton.systemApi.apiSystemStatusGet()
+            const status = await ApiSingleton.systemApi.systemStatus()
             setSystemInfo({
                 isLoaded: true,
                 isApiGatewayAvailable: true,

@@ -15,6 +15,10 @@ namespace HwProj.APIGateway.API
                     config.SetBasePath(hostingContext.HostingEnvironment.ContentRootPath)
                         .AddEnvironmentVariables();
                 })
+                .ConfigureKestrel(options =>
+                {
+                    options.Limits.MaxRequestBodySize = 200 * 1024 * 1024;
+                })
                 .Build()
                 .Run();
         }

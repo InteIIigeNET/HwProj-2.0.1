@@ -61,7 +61,7 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<AccountDataDto[]>();
         }
 
-        public async Task<Result<TokenCredentials>> Register(RegisterViewModel model)
+        public async Task<Result> Register(RegisterViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -74,7 +74,7 @@ namespace HwProj.AuthService.Client
             };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result<TokenCredentials>>();
+            return await response.DeserializeAsync<Result>();
         }
         public async Task<List<string>> RegisterStudentsBatchAsync(IEnumerable<RegisterViewModel> registrationModels)
         {

@@ -14,15 +14,17 @@ import {
     Chip,
     Accordion,
     AccordionSummary,
+    Grid,
     Typography,
     IconButton,
     Button,
     AccordionDetails,
     Tooltip
 } from '@material-ui/core';
-import {Stack} from '@mui/material';
-import {ReactMarkdownWithCodeHighlighting} from "../Common/TextFieldWithPreview";
 import Utils from "../../services/Utils";
+import {MarkdownPreview} from "../Common/MarkdownEditor";
+import {IFileInfo} from 'components/Files/IFileInfo';
+import UpdateFilesUtils from 'components/Utils/UpdateFilesUtils';
 
 interface IHomeworkProps {
     homework: HomeworkViewModel,
@@ -30,7 +32,8 @@ interface IHomeworkProps {
     forStudent: boolean,
     isReadingMode: boolean,
     isExpanded: boolean,
-    onDeleteClick: () => void
+    onUpdateClick: () => void
+    homeworkFilesInfo: IFileInfo[]
 }
 
 const useStyles = makeStyles(_ => ({
@@ -61,9 +64,28 @@ const Homework: FC<IHomeworkProps> = (props) => {
     }
 
     const deleteHomework = async () => {
-        await ApiSingleton.homeworksApi.apiHomeworksDeleteByHomeworkIdDelete(props.homework.id!)
-        props.onDeleteClick()
+        await ApiSingleton.homeworksApi.homeworksDeleteHomework(props.homework.id!)
+
+        // Удаляем файлы домашней работы из хранилища
+        const deleteOperations = props.homeworkFilesInfo
+            .map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(props.homework.courseId!, initialFile))
+        await Promise.all(deleteOperations)
+
+        props.onUpdateClick()
     }
+    
+    const getDeleteMessage = (homeworkName: string, filesInfo: IFileInfo[]) => {
+        let message = `Вы точно хотите удалить задание "${homeworkName}"?`;
+        if (filesInfo.length > 0) {
+            message += ` Будет также удален файл ${filesInfo[0].name}`;
+            if (filesInfo.length > 1) {
+                message += ` и другие прикрепленные файлы`;
+            }
+        }
+
+        return message;
+    };
+
 
     const classes = useStyles()
 
@@ -81,45 +103,60 @@ const Homework: FC<IHomeworkProps> = (props) => {
                     style={{backgroundColor: props.homework.isDeferred ? "#d3d5db" : "#c6cceb"}}
                 >
                     <div className={classes.tools}>
-                        <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                            <Typography style={{fontSize: '18px'}}>
-                                {props.homework.title}
-                            </Typography>
+                        <Grid container direction="row" spacing={1} alignItems="center">
+                            <Grid item>
+                                <Typography style={{fontSize: '18px'}}>
+                                    {props.homework.title}
+                                </Typography>
+                            </Grid>
                             {props.forMentor &&
-                                <Chip label={"🕘 " + homeworkPublicationDateString}/>
+                                <Grid item>
+                                    <Chip label={"🕘 " + homeworkPublicationDateString}/>
+                                </Grid>
                             }
                             {props.homework.hasDeadline &&
-                                <Chip label={"⌛ " + homeworkDeadlineDateString}/>
+                                <Grid item>
+                                    <Chip label={"⌛ " + homeworkDeadlineDateString}/>
+                                </Grid>
                             }
                             {props.forMentor && props.homework.isDeadlineStrict &&
-                                <Tooltip arrow title={"Нельзя публиковать решения после дедлайна"}>
-                                    <Chip label={"⛔"}/>
-                                </Tooltip>
+                                <Grid item>
+                                    <Tooltip arrow title={"Нельзя публиковать решения после дедлайна"}>
+                                        <Chip label={"⛔"}/>
+                                    </Tooltip>
+                                </Grid>
                             }
-                            {tasksCount > 0 && <Chip label={tasksCount + " заданий"}/>}
-                            {props.homework.tags?.filter(t => t != '').map((tag, index) => (
-                                <Chip key={index} label={tag} />
+                            {tasksCount > 0 &&
+                                <Grid item>
+                                    <Chip label={tasksCount + " заданий"}/>
+                                </Grid>
+                            }
+                            {props.homework.tags?.filter(t => t !== '').map((tag, index) => (
+                                <Grid item>
+                                    <Chip key={index} label={tag}/>
+                                </Grid>
                             ))}
-                            {props.forMentor && !props.isReadingMode && <div>
-                                <IconButton aria-label="Delete" onClick={openDialogDeleteHomework}>
-                                    <DeleteIcon fontSize="small"/>
-                                </IconButton>
+                            {props.forMentor && !props.isReadingMode &&
+                                <Grid item>
+                                    <IconButton aria-label="Delete" onClick={openDialogDeleteHomework}>
+                                        <DeleteIcon fontSize="small"/>
+                                    </IconButton>
 
-                                <RouterLink to={'/homework/' + props.homework.id!.toString() + '/edit'}>
-                                    <EditIcon fontSize="small"/>
-                                </RouterLink>
-                            </div>
+                                    <RouterLink to={'/homework/' + props.homework.id!.toString() + '/edit'}>
+                                        <EditIcon fontSize="small"/>
+                                    </RouterLink>
+                                </Grid>
                             }
-                        </Stack>
+                        </Grid>
                     </div>
                 </AccordionSummary>
                 <AccordionDetails>
                     <div style={{width: '100%'}}>
-                        <ReactMarkdownWithCodeHighlighting value={props.homework.description!}/>
+                        <MarkdownPreview value={props.homework.description!}/>
                         {(props.forMentor && homeworkState.createTask) &&
                             <div style={{width: '100%'}}>
                                 <HomeworkTasks
-                                    onDelete={() => props.onDeleteClick()}
+                                    onDelete={() => props.onUpdateClick()}
                                     tasks={props.homework.tasks!}
                                     forStudent={props.forStudent}
                                     forMentor={props.forMentor}
@@ -127,18 +164,17 @@ const Homework: FC<IHomeworkProps> = (props) => {
                                 />
                                 <AddTask
                                     homework={props.homework}
-                                    onAdding={() => window.location.reload()}
-                                    onCancel={() => setHomeworkState({
+                                    onAdding={() => props.onUpdateClick()}
+                                    onClose={() => setHomeworkState({
                                         createTask: false
                                     })}
-                                    update={() => props.onDeleteClick()}
                                 />
                             </div>
                         }
                         {(props.forMentor && !homeworkState.createTask) &&
                             <div style={{width: '100%'}}>
                                 <HomeworkTasks
-                                    onDelete={() => props.onDeleteClick()}
+                                    onDelete={() => props.onUpdateClick()}
                                     tasks={props.homework.tasks!}
                                     forStudent={props.forStudent}
                                     forMentor={props.forMentor}
@@ -162,7 +198,7 @@ const Homework: FC<IHomeworkProps> = (props) => {
                         }
                         {!props.forMentor &&
                             <HomeworkTasks
-                                onDelete={() => props.onDeleteClick()}
+                                onDelete={() => props.onUpdateClick()}
                                 tasks={props.homework.tasks!}
                                 forStudent={props.forStudent}
                                 forMentor={props.forMentor}
@@ -176,8 +212,8 @@ const Homework: FC<IHomeworkProps> = (props) => {
                 onCancel={closeDialogDeleteHomework}
                 onSubmit={deleteHomework}
                 isOpen={isOpenDialogDeleteHomework}
-                dialogTitle={'Удаление домашнего задания'}
-                dialogContentText={`Вы точно хотите удалить домашнее задание "${props.homework.title}"?`}
+                dialogTitle={'Удаление задания'}
+                dialogContentText={getDeleteMessage(props.homework.title!, props.homeworkFilesInfo)}
                 confirmationWord={''}
                 confirmationText={''}
             />

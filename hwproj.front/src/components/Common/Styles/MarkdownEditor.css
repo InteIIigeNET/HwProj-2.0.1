@@ -1,0 +1,13 @@
+﻿.w-md-editor-text-pre > code,
+.w-md-editor-text-input {
+    font-size: 16px !important;
+    line-height: 19px !important;
+}
+
+.markdown-preview{
+    font-size: 1rem;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0.00938em;
+}

@@ -1,7 +1,7 @@
-﻿import {Navigate, Outlet, useParams} from 'react-router-dom';
+﻿import {Navigate, useParams} from 'react-router-dom';
 import React, {FC, useEffect, useState} from "react";
 import ApiSingleton from "./../../api/ApiSingleton";
-import {Box, CircularProgress, Paper, Typography} from "@material-ui/core";
+import {Box, CircularProgress, Typography} from "@material-ui/core";
 import {Center} from "@skbkontur/react-ui";
 import {TokenCredentials} from "api/api";
 
@@ -22,7 +22,7 @@ const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutPr
         const checkToken = async () => {
             const isExpired = ApiSingleton.authService.isTokenExpired(token);
             if (!isExpired) {
-                const isExpertLoggedIn = await ApiSingleton.expertsApi.apiExpertsLoginPost(credentials)
+                const isExpertLoggedIn = await ApiSingleton.expertsApi.expertsLogin(credentials)
                 if (isExpertLoggedIn.succeeded) {
                     ApiSingleton.authService.setToken(token!);
                     setIsTokenValid(true);

@@ -12,7 +12,7 @@ namespace HwProj.AuthService.Client
         Task<AccountDataDto> GetAccountData(string userId);
         Task<AccountDataDto> GetAccountDataByEmail(string email);
         Task<AccountDataDto[]> GetAccountsData(string[] userId);
-        Task<Result<TokenCredentials>> Register(RegisterViewModel model);
+        Task<Result> Register(RegisterViewModel model);
         Task<Result<TokenCredentials>> Login(LoginViewModel model);
         Task<Result<TokenCredentials>> RefreshToken(string userId);
         Task<Result> Edit(EditAccountViewModel model, string userId);

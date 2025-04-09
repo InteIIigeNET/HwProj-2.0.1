@@ -23,7 +23,6 @@ namespace HwProj.CoursesService.API.Services
         private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IEventBus _eventBus;
         private readonly IAuthServiceClient _authServiceClient;
-        private readonly IHomeworksRepository _homeworksRepository;
         private readonly ITasksRepository _tasksRepository;
         private readonly IGroupsRepository _groupsRepository;
         private readonly ICourseFilterService _courseFilterService;
@@ -41,21 +40,24 @@ namespace HwProj.CoursesService.API.Services
             _courseMatesRepository = courseMatesRepository;
             _eventBus = eventBus;
             _authServiceClient = authServiceClient;
-            _homeworksRepository = homeworksRepository;
             _tasksRepository = tasksRepository;
             _groupsRepository = groupsRepository;
             _courseFilterService = courseFilterService;
         }
 
+        public async Task<Course[]> GetAllAsync()
+        {
+            var courses = await _coursesRepository.GetAllWithCourseMatesAndHomeworks().ToArrayAsync();
+            CourseDomain.FillTasksInCourses(courses);
+            return courses;
+        }
+
         public async Task<CourseDTO?> GetByTaskAsync(long taskId, string userId)
         {
-            var task = await _tasksRepository.GetAsync(taskId);
+            var task = await _tasksRepository.GetWithHomeworkAsync(taskId);
             if (task == null) return null;
 
-            var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
-            if (homework == null) return null;
-
-            return await GetAsync(homework.CourseId, userId);
+            return await GetAsync(task.Homework.CourseId, userId);
         }
 
         public async Task<CourseDTO?> GetAsync(long id, string userId = "")
@@ -74,8 +76,7 @@ namespace HwProj.CoursesService.API.Services
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
 
-            var result = userId == string.Empty ?
-                courseDto : await _courseFilterService.ApplyFilter(courseDto, userId);
+            var result = userId == string.Empty ? courseDto : await _courseFilterService.ApplyFilter(courseDto, userId);
             return result;
         }
 
@@ -263,6 +264,12 @@ namespace HwProj.CoursesService.API.Services
             return course.MentorIds
                 .Split('/')
                 .ToArray();
+        }
+
+        public async Task<bool> HasStudent(long courseId, string studentId)
+        {
+            var student = await _courseMatesRepository.FindAsync(x => x.StudentId == studentId);
+            return student != null;
         }
 
         public async Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId)

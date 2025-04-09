@@ -27,15 +27,11 @@ namespace HwProj.CoursesService.API.Filters
                 {
                     var currentDate = DateTime.UtcNow;
 
-                    var isCourseStudent = false;
-                    courseDto.CourseMates = courseDto.CourseMates
-                        .Where(t =>
-                        {
-                            if (!t.IsAccepted) return t.StudentId == userId;
-                            if (t.StudentId == userId) isCourseStudent = true;
-                            return true;
-                        })
-                        .ToArray();
+                    var isCourseStudent = courseDto.AcceptedStudents.Any(t => t.StudentId == userId);
+
+                    courseDto.CourseMates = isCourseStudent
+                        ? courseDto.CourseMates
+                        : courseDto.CourseMates.Where(t => t.StudentId == userId).ToArray();
 
                     courseDto.Homeworks = courseDto.Homeworks
                         .Where(h =>

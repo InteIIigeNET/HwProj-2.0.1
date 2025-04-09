@@ -31,7 +31,7 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({taskDeadlines, onGiveUpClick}) 
     );
 
     const giveUp = async (taskId: number) => {
-        await ApiSingleton.solutionsApi.apiSolutionsGiveUpByTaskIdPost(taskId);
+        await ApiSingleton.solutionsApi.solutionsGiveUp(taskId);
         setShowGiveUpModalForTaskId(undefined);
         onGiveUpClick();
     };
@@ -89,7 +89,7 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({taskDeadlines, onGiveUpClick}) 
                     <Stack direction={"row"} spacing={10} alignItems={"baseline"} justifyContent={"space-between"}
                            style={{height: 27}}>
                         {Utils.renderReadableDate(deadline!.deadlineDate!)}
-                        {hoveredElement === i && solutionState == undefined && (
+                        {hoveredElement === i && solutionState == null && (
                             <Typography variant={"caption"}>
                                 <LinkText
                                     style={{textDecoration: "none", cursor: "pointer"}}

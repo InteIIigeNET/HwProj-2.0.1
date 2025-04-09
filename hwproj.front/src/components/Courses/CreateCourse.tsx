@@ -12,6 +12,8 @@ import { FC, FormEvent, useState, useEffect } from "react";
 import GroupIcon from '@material-ui/icons/Group';
 import makeStyles from "@material-ui/styles/makeStyles";
 import Autocomplete from "@material-ui/lab/Autocomplete";
+import {Navigate} from "react-router-dom";
+
 
 interface ICreateCourseState {
   name: string;
@@ -27,20 +29,18 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    padding: theme.spacing(3),
-    backgroundColor: theme.palette.background.paper,
   },
   avatar: {
     margin: theme.spacing(1),
   },
   form: {
     marginTop: theme.spacing(3),
-    width: '100%',
+    width: '100%'
   },
   button: {
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(1)
   },
-}));
+}))
 
 const CreateCourse: FC = () => {
   const [course, setCourse] = useState<ICreateCourseState>({
@@ -62,7 +62,7 @@ const CreateCourse: FC = () => {
   useEffect(() => {
     const fetchProgramNames = async () => {
       try {
-        const response = await ApiSingleton.coursesApi.apiCoursesGetProgramNamesGet();
+        const response = await ApiSingleton.coursesApi.coursesGetProgramNames();
         const programNames = response.map(model => model.programName).filter((name): name is string => name !== undefined);
         setProgramNames(programNames); 
       } catch (e) {
@@ -79,7 +79,7 @@ const CreateCourse: FC = () => {
       if (!program) return;
       setFetchingGroups(true); 
       try {
-        const response = await ApiSingleton.coursesApi.apiCoursesGetGroupsGet(program);
+        const response = await ApiSingleton.coursesApi.coursesGetGroups(program);
         const data = response.map(model => model.groupName).filter((name): name is string => name !== undefined);
         setGroupNames(data); 
       } catch (e) {
@@ -109,7 +109,7 @@ const CreateCourse: FC = () => {
     };
     
     try {
-      const courseId = await ApiSingleton.coursesApi.apiCoursesCreatePost(courseViewModel);
+      const courseId = await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel);
       setCourse((prevState) => ({
         ...prevState,
         courseId: courseId.toString(),
@@ -253,7 +253,7 @@ const CreateCourse: FC = () => {
             color="primary"
             type="submit"
             style={{ marginTop: '16px' }}
-            disabled={isCreatingCourse} // Отключить кнопку при загрузке
+            disabled={isCreatingCourse}
           >
             {isCreatingCourse ? 'Создание...' : 'Создать курс'}
           </Button>

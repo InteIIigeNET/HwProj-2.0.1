@@ -24,7 +24,7 @@ const DeletionConfirmation: FC<DeletionConfirmationProps> = (props) => {
     const [error, setError] = useState<string>('')
 
     const onDelete = () => {
-        if (currentWord === props.confirmationWord){
+        if (currentWord === props.confirmationWord) {
             props.onSubmit()
             return
         }
@@ -51,7 +51,7 @@ const DeletionConfirmation: FC<DeletionConfirmationProps> = (props) => {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        <Typography>
+                        <Typography color={"primary"}>
                             {props.dialogContentText}
                         </Typography>
                         {props.confirmationWord &&
@@ -82,16 +82,16 @@ const DeletionConfirmation: FC<DeletionConfirmationProps> = (props) => {
                     <Button
                         onClick={onDelete}
                         color="secondary"
-                        variant="contained"
-                        size="small"
+                        variant="text"
+                        size="medium"
                     >
                         Удалить
                     </Button>
                     <Button
                         onClick={onCancel}
                         color="primary"
-                        variant="contained"
-                        size="large"
+                        variant="text"
+                        size="medium"
                     >
                         Закрыть
                     </Button>

@@ -7,12 +7,11 @@ import {
     HomeworksApi,
     TasksApi,
     StatisticsApi,
-    SystemApi
+    SystemApi,
+    FilesApi
 } from ".";
-import {Configuration} from './configuration';
 import AuthService from "../services/AuthService";
-import Utils from "../services/Utils";
-
+import CustomFilesApi from "./CustomFilesApi";
 
 class Api {
     auth = new AuthService()
@@ -26,6 +25,8 @@ class Api {
     readonly statisticsApi: StatisticsApi;
     readonly systemApi: SystemApi;
     readonly authService: AuthService;
+    readonly customFilesApi: CustomFilesApi;
+    readonly filesApi: FilesApi;
 
     constructor(
         accountApi: AccountApi,
@@ -37,7 +38,9 @@ class Api {
         tasksApi: TasksApi,
         statisticsApi: StatisticsApi,
         systemApi: SystemApi,
-        authService: AuthService
+        authService: AuthService,
+        customFilesApi: CustomFilesApi,
+        filesApi: FilesApi
     ) {
         this.accountApi = accountApi;
         this.expertsApi = expertsApi;
@@ -49,6 +52,8 @@ class Api {
         this.statisticsApi = statisticsApi;
         this.systemApi = systemApi;
         this.authService = authService;
+        this.customFilesApi = customFilesApi;
+        this.filesApi = filesApi;
     }
 }
 
@@ -67,5 +72,7 @@ ApiSingleton = new Api(
     new StatisticsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
     new SystemApi({basePath: basePath}),
     authService,
+    new CustomFilesApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
+    new FilesApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!})
 );
 export default ApiSingleton;

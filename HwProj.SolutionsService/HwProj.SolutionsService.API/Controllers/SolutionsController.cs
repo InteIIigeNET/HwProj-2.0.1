@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService;
+using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Domains;
@@ -73,11 +75,10 @@ namespace HwProj.SolutionsService.API.Controllers
         public async Task<IActionResult> PostSolution(long taskId, [FromBody] PostSolutionModel solutionModel)
         {
             var task = await _coursesClient.GetTask(taskId);
-            if (!task.CanSendSolution) 
+            if (!task.CanSendSolution)
                 return BadRequest();
 
             var solution = _mapper.Map<Solution>(solutionModel);
-            solution.TaskId = taskId;
             var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
 
             return Ok(solutionId);
@@ -110,9 +111,9 @@ namespace HwProj.SolutionsService.API.Controllers
             solution.LecturerId = Request.GetUserIdFromHeader()!;
             if (solution.LecturerId == solution.StudentId)
                 solution.LecturerId = null;
-            
+
             await _solutionsService.PostEmptySolutionWithRateAsync(taskId, solution);
-            
+
             return Ok();
         }
 
@@ -165,21 +166,32 @@ namespace HwProj.SolutionsService.API.Controllers
                 .Where(s => !string.IsNullOrEmpty(s.LecturerId))
                 .GroupBy(s => s.LecturerId)
                 .Select(group =>
-            {
-                var lecturerId = group.Key;
-                var numberOfSolutions = group.Count();
-
-                var numberOfUniqueSolutions = group
-                    .GroupBy(s => (s.TaskId, s.GroupId?.ToString() ?? s.StudentId))
-                    .Count();
-
-                return new StatisticsLecturerDTO
                 {
-                    LecturerId = lecturerId!,
-                    NumberOfCheckedSolutions = numberOfSolutions,
-                    NumberOfCheckedUniqueSolutions = numberOfUniqueSolutions
-                };
-            }).ToArray();
+                    var lecturerId = group.Key;
+                    var numberOfSolutions = group.Count();
+
+                    var numberOfUniqueSolutions = group
+                        .GroupBy(s => (s.TaskId, s.GroupId?.ToString() ?? s.StudentId))
+                        .Count();
+
+                    return new StatisticsLecturerDTO
+                    {
+                        LecturerId = lecturerId!,
+                        NumberOfCheckedSolutions = numberOfSolutions,
+                        NumberOfCheckedUniqueSolutions = numberOfUniqueSolutions
+                    };
+                }).ToList();
+
+            // Дополняем статистику менторами, не проверившими ни одного решения
+            var lecturerStatIds = lecturerStat.Select(mentor => mentor.LecturerId);
+            var additionalStats = course.MentorIds.Except(lecturerStatIds)
+                .Select(mentorId => new StatisticsLecturerDTO
+                {
+                    LecturerId = mentorId,
+                    NumberOfCheckedSolutions = 0,
+                    NumberOfCheckedUniqueSolutions = 0
+                });
+            lecturerStat.AddRange(additionalStats);
 
             return Ok(lecturerStat);
         }
@@ -221,15 +233,15 @@ namespace HwProj.SolutionsService.API.Controllers
         {
             var course = await _coursesClient.GetCourseById(courseId);
             if (course == null) return NotFound();
-            
+
             var taskIds = course.Homeworks
                 .SelectMany(t => t.Tasks)
                 .Select(t => t.Id)
                 .ToArray();
             var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
-            
+
             var averageStudentSolutions = solutions
-                .GroupBy(e => new { Id = e.GroupId is {} groupId ? groupId.ToString() : e.StudentId, e.TaskId })
+                .GroupBy(e => new { Id = e.GroupId is { } groupId ? groupId.ToString() : e.StudentId, e.TaskId })
                 .Select(e => e
                     .OrderByDescending(s => s.PublicationDate)
                     .FirstOrDefault(s => s.State != SolutionState.Posted))
@@ -245,7 +257,7 @@ namespace HwProj.SolutionsService.API.Controllers
                         PublicationDate = new DateTime((long)e.Sum(s => s.PublicationDate.Ticks / solutionCount))
                     };
                 }).ToArray();
-            
+
             var bestStudentSolutions = course.Homeworks
                 .SelectMany(e => e.Tasks)
                 .Where(e => !e.Tags.Contains(HomeworkTags.BonusTask))

@@ -1,6 +1,6 @@
 ﻿import ReactMarkdown from "react-markdown";
 import * as React from "react";
-import {FC, useState} from "react";
+import {ChangeEvent, FC, useState} from "react";
 import {Tabs, Tab, TextField} from "@material-ui/core";
 import {TextFieldProps} from "@material-ui/core/TextField/TextField";
 import {Card, CardContent} from "@mui/material";
@@ -32,6 +32,8 @@ const TextFieldWithPreview: FC<TextFieldProps & {
 
     return <>
         {isEditable && <Tabs
+            variant="scrollable"
+            scrollButtons={"auto"}
             indicatorColor={"primary"}
             value={isPreview ? 1 : 0}
             onChange={(_, newValue) => setState(prevState => ({
@@ -46,7 +48,7 @@ const TextFieldWithPreview: FC<TextFieldProps & {
         {isPreview
             ? <Card variant={props.previewStyle ? "outlined" : "elevation"}
                     style={props.previewStyle || {backgroundColor: "ghostwhite"}}>
-                <CardContent>
+                <CardContent style={{paddingBottom: 0, marginBottom: 0}}>
                     <ReactMarkdownWithCodeHighlighting value={props.value as string}/>
                 </CardContent>
             </Card>

@@ -4,22 +4,19 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import {Navigate} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
-import { RegisterViewModel } from "../../api/";
+import {RegisterViewModel} from "../../api/";
 import "./Styles/Register.css";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
-import makeStyles from "@material-ui/styles/makeStyles";
+import {makeStyles} from '@material-ui/core/styles';
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Avatar from "@material-ui/core/Avatar";
 import ValidationUtils from "../Utils/ValidationUtils";
+import {Alert, AlertTitle} from "@mui/material";
 
-interface  ICommonState {
-    loggedIn: boolean;
+interface ICommonState {
     error: string[];
-}
-
-interface LoginProps {
-    onLogin: () => void;
+    isRegistered: boolean;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -41,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-const Register: FC<LoginProps> = (props) => {
+const Register: FC = () => {
 
     const classes = useStyles()
     const [registerState, setRegisterState] = useState<RegisterViewModel>({
@@ -49,25 +46,17 @@ const Register: FC<LoginProps> = (props) => {
         surname: "",
         email: "",
         middleName: "",
-        password: "",
-        passwordConfirm: "",
     })
 
     const [commonState, setCommonState] = useState<ICommonState>({
-        loggedIn: ApiSingleton.authService.isLoggedIn(),
         error: [],
+        isRegistered: false,
     })
-    const [passwordError, setPasswordError] = useState<string>(""); // Состояние для ошибки паролей
     const [emailError, setEmailError] = useState<string>(""); // Состояние для ошибки электронной почты
     const [isRegisterButtonDisabled, setIsRegisterButtonDisabled] = useState<boolean>(false); // Состояние для блокировки кнопки
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-       if (registerState.password !== registerState.passwordConfirm) {
-            setPasswordError("Пароли не совпадают");
-            setIsRegisterButtonDisabled(true);
-            return;
-        }
         if (!ValidationUtils.isCorrectEmail(registerState.email)) {
             setEmailError("Некорректный адрес электронной почты");
             setIsRegisterButtonDisabled(true);
@@ -79,39 +68,39 @@ const Register: FC<LoginProps> = (props) => {
             setCommonState((prevState) => ({
                 ...prevState,
                 error: result!.error!,
-                loggedIn: result.loggedIn
+                isRegistered: result.isRegistered!
             }))
-            if (result.loggedIn) {
-                props.onLogin()
-            }
-        }
-        catch (e) {
+        } catch (e) {
             setCommonState((prevState) => ({
                 ...prevState,
                 error: ['Сервис недоступен'],
                 loggedIn: false
             }))
         }
-        if (commonState.loggedIn) {
-            window.location.assign("/")
-        }
     }
 
-    if (commonState.loggedIn) {
-      return <Navigate to={"/"} />;
+    if (commonState.isRegistered) {
+        return <Container component="main" maxWidth="xs">
+            <div className={classes.paper}>
+                <Alert severity="success" sx={{mt: 1}}>
+                    <AlertTitle>Подтведите почту</AlertTitle>
+                    Ссылка для подтверждение профиля отправлена на указанную при регистрации почту
+                </Alert>
+            </div>
+        </Container>
     }
 
     return (
         <Container component="main" maxWidth="xs">
             <div className={classes.paper}>
-                <Avatar className={classes.avatar} style={{ color: 'white', backgroundColor: '#ba2e2e' }}>
-                    <LockOutlinedIcon />
+                <Avatar className={classes.avatar} style={{color: 'white', backgroundColor: '#ba2e2e'}}>
+                    <LockOutlinedIcon/>
                 </Avatar>
                 <Typography component="h1" variant="h5">
                     Регистрация
                 </Typography>
                 {commonState.error.length > 0 && (
-                    <p style={{ color: "red", marginBottom: "0" }}>{commonState.error}</p>
+                    <p style={{color: "red", marginBottom: "0"}}>{commonState.error}</p>
                 )}
                 <form onSubmit={handleSubmit} className={classes.form}>
                     <Grid container spacing={2}>
@@ -122,8 +111,7 @@ const Register: FC<LoginProps> = (props) => {
                                 label="Имя"
                                 variant="outlined"
                                 name={registerState.name}
-                                onChange={(e) =>
-                                {
+                                onChange={(e) => {
                                     e.persist()
                                     setRegisterState((prevState) => ({
                                         ...prevState,
@@ -139,8 +127,7 @@ const Register: FC<LoginProps> = (props) => {
                                 label="Фамилия"
                                 variant="outlined"
                                 name={registerState.surname}
-                                onChange={(e) =>
-                                {
+                                onChange={(e) => {
                                     e.persist()
                                     setRegisterState((prevState) => ({
                                         ...prevState,
@@ -155,8 +142,7 @@ const Register: FC<LoginProps> = (props) => {
                                 label="Отчество"
                                 variant="outlined"
                                 name={registerState.middleName}
-                                onChange={(e) =>
-                                {
+                                onChange={(e) => {
                                     e.persist()
                                     setRegisterState((prevState) => ({
                                         ...prevState,
@@ -173,8 +159,7 @@ const Register: FC<LoginProps> = (props) => {
                                 label="Электронная почта"
                                 variant="outlined"
                                 name={registerState.email}
-                                onChange={(e) =>
-                                {
+                                onChange={(e) => {
                                     e.persist()
                                     setRegisterState((prevState) => ({
                                         ...prevState,
@@ -187,49 +172,9 @@ const Register: FC<LoginProps> = (props) => {
                                 helperText={emailError}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                required
-                                fullWidth
-                                type="password"
-                                label="Пароль"
-                                variant="outlined"
-                                value={registerState.password}
-                                onChange={(e) =>
-                                {
-                                    e.persist()
-                                    setRegisterState((prevState) => ({
-                                        ...prevState,
-                                        password: e.target.value
-                                    }))
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                required
-                                fullWidth
-                                type="password"
-                                label="Подтвердите пароль"
-                                variant="outlined"
-                                value={registerState.passwordConfirm}
-                                onChange={(e) =>
-                                {
-                                    e.persist()
-                                    setRegisterState((prevState) => ({
-                                        ...prevState,
-                                        passwordConfirm: e.target.value
-                                    }))
-                                    setPasswordError("");
-                                    setIsRegisterButtonDisabled(false);
-                                }}
-                                error={passwordError !== ""}
-                                helperText={passwordError}
-                            />
-                        </Grid>
                     </Grid>
                     <Button
-                        style={{ marginTop: '15px'}}
+                        style={{marginTop: '15px'}}
                         fullWidth
                         variant="contained"
                         color="primary"

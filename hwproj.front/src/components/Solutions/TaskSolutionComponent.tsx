@@ -7,21 +7,23 @@ import {
     AccountDataDto,
     GetSolutionModel,
     HomeworkTaskViewModel,
-    Solution,
+    SolutionState,
     SolutionActualityDto,
     SolutionActualityPart
 } from '../../api'
 import ApiSingleton from "../../api/ApiSingleton";
-import {Alert, Avatar, Rating, Stack, Tooltip} from "@mui/material";
+import {Alert, Avatar, Rating, Stack, Tooltip, Card, CardContent, CardActions, IconButton, Chip} from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
-import {Edit, GradingTwoTone} from "@mui/icons-material";
-import {ReactMarkdownWithCodeHighlighting, TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import {Edit, ThumbDown, ThumbUp} from "@mui/icons-material";
+import {MarkdownEditor, MarkdownPreview} from "../Common/MarkdownEditor";
 import {LoadingButton} from "@mui/lab";
 import CheckIcon from '@mui/icons-material/Done';
 import WarningIcon from '@mui/icons-material/Warning';
 import CloseIcon from '@mui/icons-material/Close';
+import {useSnackbar} from 'notistack';
+import StudentStatsUtils from "../../services/StudentStatsUtils";
 
 interface ISolutionProps {
     solution: GetSolutionModel | undefined,
@@ -58,6 +60,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const [rateInProgress, setRateInProgressState] = useState<boolean | undefined>(false)
     const [solutionActuality, setSolutionActuality] = useState<SolutionActualityDto | undefined>(undefined)
 
+    const {enqueueSnackbar} = useSnackbar()
+
     useEffect(() => {
         setState(getDefaultState())
         getAchievementState()
@@ -75,11 +79,20 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         RatingStorage.clean(storageKey)
     }, [state.clickedForRate]);
 
+    const checkTestsActuality = props.solution &&
+        props.isLastSolution &&
+        props.solution.githubUrl &&
+        props.solution.githubUrl.startsWith("https://github.com/")
+
+    const checkAchievement = props.solution && props.isLastSolution && props.solution.state !== SolutionState.NUMBER_0
+
     const getAchievementState = async () => {
-        if (props.solution && props.isLastSolution && props.solution.rating) {
-            const achievement = await ApiSingleton.solutionsApi.apiSolutionsSolutionAchievementGet(task.id, props.solution.id)
+        setAchievementState(undefined)
+        if (checkAchievement) {
+            const achievement =
+                await ApiSingleton.solutionsApi.solutionsGetSolutionAchievement(task.id, props.solution!.id)
             setAchievementState(achievement)
-        } else setAchievementState(undefined)
+        }
     }
 
     const clearUrl = (url: string) => {
@@ -89,50 +102,44 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         return match ? match[1] : url;
     }
 
-    const checkTestsActuality = props.solution &&
-        props.isLastSolution &&
-        props.forMentor &&
-        props.solution.githubUrl &&
-        props.solution.githubUrl.startsWith("https://github.com/")
-
     const getActuality = async () => {
+        setSolutionActuality(undefined)
         if (checkTestsActuality) {
-            const actualityDto = await ApiSingleton.solutionsApi.apiSolutionsActualityBySolutionIdGet(props.solution!.id!)
+            const actualityDto = await ApiSingleton.solutionsApi.solutionsGetSolutionActuality(props.solution!.id!)
             setSolutionActuality(actualityDto)
-        } else setSolutionActuality(undefined)
+        }
     }
 
     const rateSolution = async () => {
         setRateInProgressState(true)
         if (props.solution) {
-            await ApiSingleton.solutionsApi
-                .apiSolutionsRateSolutionBySolutionIdPost(
-                    props.solution.id!,
-                    {
-                        rating: points,
-                        lecturerComment: lecturerComment
-                    }
-                )
-        } else await ApiSingleton.solutionsApi
-            .apiSolutionsRateEmptySolutionByTaskIdPost(
-                props.task.id!,
+            await ApiSingleton.solutionsApi.solutionsRateSolution(
+                props.solution.id!,
                 {
-                    comment: "",
-                    githubUrl: "",
-                    lecturerComment: state.lecturerComment,
-                    publicationDate: undefined,
-                    rating: state.points,
-                    studentId: props.student.userId
+                    rating: points,
+                    lecturerComment: lecturerComment
                 }
             )
+        } else await ApiSingleton.solutionsApi.solutionsPostEmptySolutionWithRate(
+            props.task.id!,
+            {
+                comment: "",
+                githubUrl: "",
+                lecturerComment: state.lecturerComment,
+                publicationDate: undefined,
+                rating: state.points,
+                studentId: props.student.userId
+            }
+        )
         setState(prevState => ({...prevState, clickedForRate: false}))
+        enqueueSnackbar('Решение успешно оценено', {variant: "success", autoHideDuration: 1700});
         props.onRateSolutionClick?.()
     }
 
     const {solution, lastRating, student, task} = props
     const maxRating = task.maxRating!
     //TODO: enum instead of string
-    const isRated = solution && solution.state !== Solution.StateEnum.NUMBER_0 // != Posted
+    const isRated = solution && solution.state !== SolutionState.NUMBER_0 // != Posted
     const {points, lecturerComment, addBonusPoints} = state
     const postedSolutionTime = solution && Utils.renderReadableDate(solution.publicationDate!)
     const ratingTime = solution && solution.ratingDate && Utils.renderReadableDate(solution.ratingDate!)
@@ -161,16 +168,35 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     }
 
     const renderRateInput = () => {
+        const showThumbs = maxRating === 1
+        const isEditable = props.forMentor && (!isRated || state.clickedForRate)
+        const thumbsHandler = (rating: number) => {
+            setState((prevState) => ({
+                ...prevState,
+                points: rating,
+                clickedForRate: isEditable
+            }))
+        }
         if (maxRating <= 10 && points <= maxRating && !addBonusPoints)
-            return (<Grid container item direction={"row"} spacing={1} alignItems={"center"} style={{marginTop: 5}}>
-                <Grid item>
+            return (<Grid container item direction={"row"} spacing={1} alignItems={"center"}>
+                {showThumbs && <Grid item><
+                    Stack direction={"row"} alignItems={"center"}>
+                    <IconButton disabled={!isEditable} onClick={() => thumbsHandler(1)}>
+                        <ThumbUp color={points === 1 ? "success" : "disabled"}/>
+                    </IconButton>
+                    <IconButton disabled={!isEditable} onClick={() => thumbsHandler(0)}>
+                        <ThumbDown color={(isRated || state.clickedForRate) && points === 0 ? "error" : "disabled"}/>
+                    </IconButton>
+                </Stack>
+                </Grid>}
+                {!showThumbs && <Grid item>
                     <Rating
                         name="customized"
                         size="large"
                         defaultValue={2}
                         max={maxRating}
                         value={points}
-                        disabled={!props.forMentor}
+                        readOnly={!isEditable}
                         onChange={(_, newValue) => {
                             setState((prevState) => ({
                                 ...prevState,
@@ -180,11 +206,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             }))
                         }}
                     />
-                </Grid>
-                <Grid item>
+                </Grid>}
+                {!showThumbs && <Grid item>
                     {points + " / " + maxRating}
-                </Grid>
-                {!addBonusPoints && props.forMentor && <Grid item>
+                </Grid>}
+                {!addBonusPoints && props.forMentor && state.clickedForRate && <Grid item>
                     <Tooltip arrow title={"Позволяет поставить оценку выше максимальной"}>
                         <Typography variant={"caption"}>
                             <Link onClick={() => setState(prevState => ({...prevState, addBonusPoints: true}))}>
@@ -194,34 +220,38 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     </Tooltip>
                 </Grid>}
             </Grid>)
-        return (<Grid container item direction={"row"} spacing={1} alignItems={"center"} style={{marginTop: 5}}>
+        return (<Grid container item direction={"row"} spacing={1} alignItems={"center"}>
             <Grid item>
-                <TextField
-                    style={{width: 100}}
-                    required
-                    label="Баллы"
-                    variant="outlined"
-                    margin="normal"
-                    type="number"
-                    fullWidth
-                    disabled={!props.forMentor}
-                    InputProps={{
-                        readOnly: !props.forMentor,
-                        inputProps: {min: 0, value: points},
-                    }}
-                    maxRows={10}
-                    onChange={(e) => {
-                        e.persist()
-                        setState((prevState) => ({
-                            ...prevState,
-                            points: +e.target.value
-                        }))
-                    }}
-                    onClick={() => setState((prevState) => ({
-                        ...prevState,
-                        clickedForRate: props.forMentor && true
-                    }))}
-                />
+                {isEditable
+                    ? <TextField
+                        style={{width: 100}}
+                        required
+                        label="Баллы"
+                        variant="outlined"
+                        margin="normal"
+                        type="number"
+                        fullWidth
+                        InputProps={{
+                            readOnly: !props.forMentor || !state.clickedForRate,
+                            inputProps: {min: 0, value: points},
+                        }}
+                        maxRows={10}
+                        onChange={(e) => {
+                            e.persist()
+                            setState((prevState) => ({
+                                ...prevState,
+                                points: +e.target.value
+                            }))
+                        }}
+                        onClick={() => {
+                            if (isRated) return
+                            setState((prevState) => ({
+                                ...prevState,
+                                clickedForRate: props.forMentor
+                            }));
+                        }}
+                    />
+                    : <Chip label={<Typography variant={"h6"}>{points}</Typography>} size={"medium"}/>}
             </Grid>
             <Grid item>
                 {" / " + maxRating}
@@ -230,6 +260,115 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     }
 
     const sentAfterDeadline = solution && task.hasDeadline && getDatesDiff(solution.publicationDate!, task.deadlineDate!)
+
+    const renderRatingCard = () => {
+        const rating = points * 100 / maxRating
+        const {backgroundColor, color} =
+            state.clickedForRate || !isRated ? {backgroundColor: undefined, color: undefined}
+                : rating >= 70
+                    ? {backgroundColor: "rgb(237,247,237)", color: "rgb(30,70,32)"}
+                    : rating <= 34
+                        ? {backgroundColor: "rgb(253,237,237)", color: "rgb(95,33,32)"}
+                        : {backgroundColor: "rgb(255,244,229)", color: "rgb(102,60,0)"}
+        return <Card variant={"outlined"}
+                     sx={{
+                         borderColor: state.clickedForRate || isRated ? StudentStatsUtils.getRatingColor(points, maxRating) : "",
+                         width: "100%",
+                         backgroundColor: backgroundColor,
+                         color: color
+                     }}>
+            <CardContent style={{paddingBottom: 5, marginBottom: 0}}>
+                <Grid container direction={"column"} spacing={1}>
+                    <Grid item>
+                        {renderRateInput()}
+                    </Grid>
+                    {lastRating !== undefined && state.clickedForRate &&
+                        <Grid item>
+                            <Typography variant={"caption"} style={{color: "GrayText", marginTop: -10}}>
+                                Оценка за предыдущее решение: {lastRating} ⭐
+                            </Typography>
+                        </Grid>}
+                    {lecturerName && isRated &&
+                        <Grid item>
+                            <Stack direction={"row"} alignItems={"center"} spacing={1} style={{marginTop: 5}}>
+                                {state.clickedForRate ? <Avatar><Edit/></Avatar> :
+                                    <Avatar {...AvatarUtils.stringAvatar(lecturer!)}/>}
+                                <Stack direction={"column"}>
+                                    <Typography variant={"body1"}>
+                                        {state.clickedForRate ? "..." :
+                                            <div style={{color: "black"}}>{lecturerName}
+                                                <sub style={{color: "#3f51b5"}}> {lecturer!.companyName}</sub>
+                                            </div>}
+                                    </Typography>
+                                    {ratingTime && <Typography variant={"caption"} style={{color: "GrayText"}}>
+                                        {ratingTime}
+                                    </Typography>}
+                                </Stack>
+                            </Stack>
+                        </Grid>}
+                    {state.clickedForRate
+                        ? <Grid item style={{marginBottom: -7, marginTop: -8}}>
+                            <MarkdownEditor
+                                label="Комментарий преподавателя"
+                                value={state.lecturerComment}
+                                onChange={(value) => {
+                                    setState((prevState) => ({
+                                        ...prevState,
+                                        lecturerComment: value
+                                    }))
+                                }}
+                            />
+                        </Grid>
+                        : isRated &&
+                        <Grid item>
+                            <MarkdownPreview
+                                value={lecturerComment}
+                                backgroundColor={backgroundColor}
+                                textColor={color}
+                            />
+                        </Grid>
+                    }
+                </Grid>
+            </CardContent>
+            {props.forMentor && state.clickedForRate && <CardActions>
+                <LoadingButton
+                    endIcon={<span style={{width: rateInProgress ? 17 : 0}}/>}
+                    style={{color: "#3f51b5"}}
+                    loading={rateInProgress}
+                    loadingPosition="end"
+                    size="small"
+                    onClick={rateSolution}
+                >
+                    {isRated ? "Изменить оценку" : "Оценить решение"}
+                </LoadingButton>
+                {!rateInProgress && <Button
+                    size="small"
+                    onClick={() => {
+                        setState(prevState => ({
+                            ...prevState,
+                            points: props.solution?.rating || 0,
+                            lecturerComment: props.solution?.lecturerComment || "",
+                            clickedForRate: false
+                        }))
+                    }}
+                >Отмена</Button>
+                }
+            </CardActions>}
+            {props.forMentor && isRated && !state.clickedForRate && <CardActions>
+                <Button
+                    color={"primary"}
+                    size="small"
+                    onClick={() => {
+                        setState(prevState => ({
+                            ...prevState,
+                            clickedForRate: true
+                        }))
+                    }}>
+                    Изменить оценку
+                </Button>
+            </CardActions>}
+        </Card>
+    }
 
     return <Grid container direction="column" spacing={2} style={{marginTop: -16}}>
         {solution &&
@@ -269,7 +408,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     ? renderTestsStatus(solutionActuality.testsActuality)
                                     : <CircularProgress size={12}/>)}
                             </Stack>
-                            <Typography style={{color: "GrayText"}}>
+                            <Typography variant={"caption"} style={{color: "GrayText"}}>
                                 {postedSolutionTime}
                             </Typography>
                         </Grid>
@@ -277,7 +416,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 </Grid>
                 {solution.comment &&
                     <Grid item style={{marginBottom: -16}}>
-                        <ReactMarkdownWithCodeHighlighting value={solution.comment as string}/>
+                        <MarkdownPreview value={solution.comment}/>
                     </Grid>
                 }
             </Grid>
@@ -292,106 +431,17 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 Решение оценено выше максимального балла.
             </Alert>
         </Grid>}
-        {achievement !== undefined && <Grid item>
-            <Alert variant="outlined" severity={achievement >= 80 ? "success" : "info"}>
-                Лучше {achievement}% других решений по задаче.
+        {checkAchievement && <Grid item>
+            <Alert variant="outlined"
+                   icon={achievement !== undefined ? null : <CircularProgress size={20} color={"inherit"}/>}
+                   severity={achievement !== undefined && achievement >= 80 ? "success" : "info"}>
+                {achievement !== undefined ? `Лучше ${achievement}% других решений по задаче.` : "Смотрим на решения..."}
             </Alert>
         </Grid>}
         {(props.forMentor || isRated) &&
-            <Grid item container direction={"column"}>
-                {lecturerName && isRated &&
-                    <Stack direction={"row"} alignItems={"center"} spacing={1} style={{marginTop: 5}}>
-                        {state.clickedForRate ? <Avatar><Edit/></Avatar> :
-                            <Avatar {...AvatarUtils.stringAvatar(lecturer!)}/>}
-                        <Stack direction={"column"}>
-                            <Typography variant={"body1"}>
-                                {state.clickedForRate ? "..." :
-                                    <div>{lecturerName}
-                                        <sub style={{color: "#3f51b5"}}> {lecturer!.companyName}</sub>
-                                    </div>}
-                            </Typography>
-                            {ratingTime && <Typography style={{color: "GrayText"}}>
-                                {ratingTime}
-                            </Typography>}
-                        </Stack>
-                    </Stack>}
-                {renderRateInput()}
-                {lastRating !== undefined &&
-                    <Typography style={{color: "GrayText", fontSize: "medium", marginBottom: 5}}>
-                        Оценка за предыдущее решение: {lastRating} ⭐
-                    </Typography>}
+            <Grid xs={12} container item style={{marginTop: '10px'}}>
+                {renderRatingCard()}
             </Grid>}
-        {((isRated && lecturerComment) || state.clickedForRate) &&
-            <Grid item style={{marginTop: -15, marginBottom: -15}}>
-                <TextFieldWithPreview
-                    multiline
-                    fullWidth
-                    InputProps={{
-                        readOnly: !props.forMentor || !state.clickedForRate
-                    }}
-                    rows="4"
-                    rowsMax="15"
-                    label="Комментарий преподавателя"
-                    variant="outlined"
-                    margin="normal"
-                    isEditable={props.forMentor}
-                    value={state.lecturerComment}
-                    previewStyle={{borderColor: "GrayText"}}
-                    onClick={() => {
-                        if (!state.clickedForRate)
-                            setState((prevState) => ({
-                                ...prevState,
-                                clickedForRate: true
-                            }))
-                    }}
-                    onChange={(e) => {
-                        e.persist()
-                        setState((prevState) => ({
-                            ...prevState,
-                            lecturerComment: e.target.value
-                        }))
-                    }}
-                />
-                {props.forMentor && state.clickedForRate && <Typography variant={"caption"}>
-                    Промежуточное оценивание будет сохранено локально
-                </Typography>}
-            </Grid>
-        }
-        {props.forMentor && state.clickedForRate &&
-            <Grid container item spacing={1} style={{marginTop: '10px'}}>
-                <Grid item>
-                    <LoadingButton
-                        loading={rateInProgress}
-                        endIcon={<GradingTwoTone/>}
-                        loadingPosition="end"
-                        size="small"
-                        variant="contained"
-                        style={rateInProgress ? undefined : {backgroundColor: "#3f51b5"}}
-                        onClick={rateSolution}
-                    >
-                        {isRated ? "Изменить оценку" : "Оценить решение"}
-                    </LoadingButton>
-                </Grid>
-                <Grid item>
-                    {!rateInProgress &&
-                        <Button
-                            size="small"
-                            variant="contained"
-                            color="primary"
-                            onClick={() => {
-                                setState(prevState => ({
-                                    ...prevState,
-                                    points: props.solution?.rating || 0,
-                                    lecturerComment: props.solution?.lecturerComment || "",
-                                    clickedForRate: false
-                                }))
-                            }}
-                        >
-                            Отмена
-                        </Button>}
-                </Grid>
-            </Grid>
-        }
     </Grid>
 }
 

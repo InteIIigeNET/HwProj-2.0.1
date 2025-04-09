@@ -26,7 +26,7 @@ export default function Tags({tags, onTagsChange, requestTags, isElementSmall}: 
             console.error('Ошибка при получении данных:', error);
         }
     };
-    const [value, setValue] = useState<string[]>(tags.filter(t => t != ''));
+    const [value, setValue] = useState<string[]>(tags.filter(t => t !== ''));
     const handleOptionSelect = (event: SyntheticEvent<Element, Event>, newValue: string[]) => {
         setValue(newValue);
         onTagsChange(newValue);
@@ -34,6 +34,7 @@ export default function Tags({tags, onTagsChange, requestTags, isElementSmall}: 
     return (
         <Autocomplete
             multiple
+            fullWidth
             id="tags-filled"
             options={allTags}
             value={value}
@@ -50,8 +51,8 @@ export default function Tags({tags, onTagsChange, requestTags, isElementSmall}: 
             renderInput={(params) => (
                 <TextField
                     {...params}
-                    label = "Тэги"
-                    placeholder = "Добавить тэг"
+                    label="Свойства"
+                    placeholder="Добавить свойство"
                 />
             )}
         />

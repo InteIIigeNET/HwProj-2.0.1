@@ -4,9 +4,9 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from "@material-ui/styles";
-import {Button} from "@material-ui/core";
+import {Button, CircularProgress} from "@material-ui/core";
 import {Typography, TextField, Grid} from "@mui/material";
-import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import {MarkdownEditor} from "../Common/MarkdownEditor";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import {HomeworkViewModel} from "../../api";
 
@@ -64,16 +64,16 @@ const EditTask: FC = () => {
     }, [])
 
     const getTask = async () => {
-        const taskForEditing = await ApiSingleton.tasksApi.apiTasksGetForEditingByTaskIdGet(+taskId!)
+        const taskForEditing = await ApiSingleton.tasksApi.tasksGetForEditingTask(+taskId!)
         const homework = taskForEditing.homework!
         const task = taskForEditing.task!
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
+        const course = await ApiSingleton.coursesApi.coursesGetCourseData(homework.courseId!)
 
-        const publication = task.publicationDate == undefined
+        const publication = task.publicationDate == null
             ? undefined
             : new Date(task.publicationDate)
 
-        const deadline = task.deadlineDate == undefined
+        const deadline = task.deadlineDate == null
             ? undefined
             : new Date(task.deadlineDate)
 
@@ -99,7 +99,7 @@ const EditTask: FC = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
-        await ApiSingleton.tasksApi.apiTasksUpdateByTaskIdPut(+taskId!, taskState)
+        await ApiSingleton.tasksApi.tasksUpdateTask(+taskId!, taskState)
 
         setTaskState((prevState) => ({
             ...prevState,
@@ -110,7 +110,7 @@ const EditTask: FC = () => {
     const classes = useStyles()
 
     if (taskState.edited) {
-        return <Navigate to={"/courses/" + taskState.courseId}/>;
+        return <Navigate to={`/courses/${taskState.courseId}/editHomeworks`}/>;
     }
 
     if (taskState.isLoaded) {
@@ -190,21 +190,16 @@ const EditTask: FC = () => {
                                         />
                                     </Grid>
                                 </Grid>
-                                <Grid item xs={12}>
-                                    <TextFieldWithPreview
-                                        multiline
-                                        fullWidth
-                                        minRows={7}
-                                        maxRows="20"
-                                        label="Условие задачи"
-                                        variant="outlined"
-                                        margin="normal"
+                                <Grid item xs={12} marginBottom={-1} marginTop={-1}>
+                                    <MarkdownEditor
+                                        label={"Условие задачи"}
+                                        height={240}
+                                        maxHeight={400}
                                         value={taskState.description}
-                                        onChange={(e) => {
-                                            e.persist()
+                                        onChange={(value) => {
                                             setTaskState((prevState) => ({
                                                 ...prevState,
-                                                description: e.target.value
+                                                description: value
                                             }))
                                         }}
                                     />
@@ -247,8 +242,9 @@ const EditTask: FC = () => {
     }
 
     return (
-        <div>
-
+        <div className="container">
+            <p>Загрузка...</p>
+            <CircularProgress/>
         </div>
     )
 }

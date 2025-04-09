@@ -1,6 +1,6 @@
 import * as React from "react";
-import {Link as RouterLink, useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
+import {useSearchParams} from "react-router-dom";
+import {AccountDataDto, CourseViewModel, FileInfoDTO, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
@@ -8,11 +8,21 @@ import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
 import {Button, Grid, Tab, Tabs, Typography, IconButton, CircularProgress} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
-import {useEffect, useState} from "react";
+import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
-import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import {Alert, AlertTitle, Chip, Dialog, DialogContent, DialogTitle, Stack} from "@mui/material";
+import {
+    Alert,
+    AlertTitle,
+    Chip,
+    Dialog,
+    DialogContent,
+    DialogTitle, ListItemIcon, ListItemText,
+    Menu,
+    MenuItem,
+    Stack,
+    Tooltip
+} from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
 import MentorsList from "../Common/MentorsList";
@@ -21,6 +31,10 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import NameBuilder from "../Utils/NameBuilder";
 import {QRCodeSVG} from 'qrcode.react';
 import {Center} from "@skbkontur/react-ui";
+import ErrorsHandler from "components/Utils/ErrorsHandler";
+import {useSnackbar} from 'notistack';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
+import {MoreVert} from "@mui/icons-material";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -28,10 +42,14 @@ function isAcceptableTabValue(str: string): str is TabValue {
     return str === "homeworks" || str === "stats" || str === "applications";
 }
 
+interface ICourseProps {
+    isReadingMode?: boolean;
+}
+
 interface ICourseState {
     isFound: boolean;
     course: CourseViewModel;
-    courseHomework: HomeworkViewModel[];
+    courseHomeworks: HomeworkViewModel[];
     createHomework: boolean;
     mentors: AccountDataDto[];
     acceptedStudents: AccountDataDto[];
@@ -52,24 +70,27 @@ const styles = makeStyles(() => ({
     },
 }))
 
-const Course: React.FC = () => {
+const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     const {courseId, tab} = useParams()
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [searchParams] = useSearchParams()
     const navigate = useNavigate()
     const classes = styles()
+    const {enqueueSnackbar} = useSnackbar()
 
     const [courseState, setCourseState] = useState<ICourseState>({
         isFound: false,
         course: {},
-        courseHomework: [],
+        courseHomeworks: [],
         createHomework: false,
         mentors: [],
         acceptedStudents: [],
         newStudents: [],
-        isReadingMode: true,
+        isReadingMode: props.isReadingMode ?? true,
         studentSolutions: [],
         showQrCode: false
     })
+
+    const [courseFilesInfo, setCourseFilesInfo] = useState<FileInfoDTO[]>([])
 
     const [pageState, setPageState] = useState<IPageState>({
         tabValue: "homeworks"
@@ -84,13 +105,8 @@ const Course: React.FC = () => {
         acceptedStudents,
         isReadingMode,
         studentSolutions,
-    } = courseState;
-
-    const getPostedHomeworks = (homeworks: HomeworkViewModel[]) =>
-        homeworks.filter(h => !h.isDeferred).map(h => ({
-            ...h,
-            tasks: h.tasks?.filter(t => !t.isDeferred)
-        }))
+        courseHomeworks,
+    } = courseState
 
     const userId = ApiSingleton.authService.getUserId()
 
@@ -98,10 +114,6 @@ const Course: React.FC = () => {
     const isExpert = ApiSingleton.authService.isExpert()
     const isMentor = isLecturer || isExpert
     const isCourseMentor = mentors.some(t => t.userId === userId)
-
-    const courseHomeworks = isCourseMentor && isReadingMode
-        ? getPostedHomeworks(courseState.courseHomework)
-        : courseState.courseHomework
 
     const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
 
@@ -123,7 +135,7 @@ const Course: React.FC = () => {
     }
 
     const setCurrentState = async () => {
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(+courseId!)
+        const course = await ApiSingleton.coursesApi.coursesGetCourseData(+courseId!)
 
         // У пользователя изменилась роль (иначе он не может стать лектором в курсе),
         // однако он все ещё использует токен с прежней ролью
@@ -132,18 +144,19 @@ const Course: React.FC = () => {
             course &&
             course.mentors!.some(t => t.userId === userId)
         if (shouldRefreshToken) {
-            const newToken = await ApiSingleton.accountApi.apiAccountRefreshTokenGet()
+            const newToken = await ApiSingleton.accountApi.accountRefreshToken()
             newToken.value && ApiSingleton.authService.refreshToken(newToken.value.accessToken!)
             return
         }
 
-        const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+courseId!)
+        const solutions = await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
 
         setCourseState(prevState => ({
             ...prevState,
             isFound: true,
             course: course,
-            courseHomework: course.homeworks!,
+            courseHomeworks: course.homeworks!,
+            courseFilesInfo: courseFilesInfo,
             createHomework: false,
             mentors: course.mentors!,
             acceptedStudents: course.acceptedStudents!,
@@ -152,15 +165,31 @@ const Course: React.FC = () => {
         }))
     }
 
+    const getCourseFilesInfo = async () => {
+        // В случае, если сервис файлов недоступен, показываем пользователю сообщение
+        // и не блокируем остальную функциональность системы
+        let courseFilesInfo = [] as FileInfoDTO[]
+        try {
+            courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
+        } catch (e) {
+            const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
+            enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
+        }
+        setCourseFilesInfo(courseFilesInfo)
+    }
+
     useEffect(() => {
         setCurrentState()
     }, [])
 
+    useEffect(() => {
+        getCourseFilesInfo()
+    }, [courseId])
+
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
 
     const joinCourse = async () => {
-        await ApiSingleton.coursesApi
-            .apiCoursesSignInCourseByCourseIdPost(+courseId!)
+        await ApiSingleton.coursesApi.coursesSignInCourse(+courseId!)
             .then(() => setCurrentState());
     }
 
@@ -174,6 +203,62 @@ const Course: React.FC = () => {
         .length
 
     const [lecturerStatsState, setLecturerStatsState] = useState(false);
+
+    const CourseMenu: FC = () => {
+        const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+        const open = Boolean(anchorEl);
+        const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+            setAnchorEl(event.currentTarget);
+        };
+        const handleClose = () => {
+            setAnchorEl(null);
+        };
+
+        return (
+            <div style={{paddingTop: 4}}>
+                <IconButton
+                    aria-label="more"
+                    id="long-button"
+                    size={"small"}
+                    onClick={handleClick}
+                >
+                    <MoreVert fontSize={"small"}/>
+                </IconButton>
+                <Menu
+                    id="long-menu"
+                    MenuListProps={{
+                        'aria-labelledby': 'long-button',
+                    }}
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                >
+                    {isCourseMentor && isLecturer &&
+                        <MenuItem onClick={() => navigate(`/courses/${courseId}/editInfo`)}>
+                            <ListItemIcon>
+                                <EditIcon fontSize="small"/>
+                            </ListItemIcon>
+                            <ListItemText>Управление</ListItemText>
+                        </MenuItem>}
+                    <MenuItem onClick={() => setCourseState(prevState => ({
+                        ...prevState,
+                        showQrCode: true
+                    }))}>
+                        <ListItemIcon>
+                            <QrCode2Icon fontSize="small"/>
+                        </ListItemIcon>
+                        <ListItemText>Поделиться</ListItemText>
+                    </MenuItem>
+                    {isCourseMentor && isLecturer && <MenuItem onClick={() => setLecturerStatsState(true)}>
+                        <ListItemIcon>
+                            <AssessmentIcon fontSize="small"/>
+                        </ListItemIcon>
+                        <ListItemText>Статистика <br/>по преподавателям</ListItemText>
+                    </MenuItem>}
+                </Menu>
+            </div>
+        );
+    }
 
     if (isFound) {
         return (
@@ -206,38 +291,11 @@ const Course: React.FC = () => {
                         <Grid item container xs={12} className={classes.info} alignItems="center"
                               justifyContent="space-between">
                             <Grid item>
-                                <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                    <Typography style={{fontSize: '22px', cursor: "pointer"}} onClick={() => setCourseState(prevState => ({
-                                        ...prevState,
-                                        showQrCode: true
-                                    }))}>
+                                <Stack direction={"row"} spacing={1} alignItems={"start"}>
+                                    <Typography component="div" style={{fontSize: '22px'}}>
                                         {NameBuilder.getCourseFullName(course.name!, course.groupName)}
                                     </Typography>
-                                    {isLecturer &&
-                                        <IconButton
-                                            size="small"
-                                            onClick={() =>
-                                                setCourseState(prevState => ({
-                                                        ...prevState,
-                                                        isReadingMode: !isReadingMode
-                                                    })
-                                                )}
-                                        >
-                                            {isReadingMode
-                                                ? <VisibilityIcon
-                                                    titleAccess="Режим чтения включен"
-                                                    fontSize={"small"}/>
-                                                : <VisibilityOffIcon
-                                                    titleAccess="Режим чтения выключен"
-                                                    fontSize={"small"}
-                                                />}
-                                        </IconButton>
-                                    }
-                                    {isCourseMentor && isLecturer && !isReadingMode! && (
-                                        <RouterLink to={`/courses/${courseId}/edit`}>
-                                            <EditIcon fontSize="small"/>
-                                        </RouterLink>
-                                    )}
+                                    <CourseMenu/>
                                 </Stack>
                             </Grid>
                             <Grid item>
@@ -245,16 +303,6 @@ const Course: React.FC = () => {
                                     <Grid item>
                                         <MentorsList mentors={mentors}/>
                                     </Grid>
-                                    {isCourseMentor && isLecturer && isReadingMode &&
-                                        <Grid item>
-                                            <IconButton size="small" style={{marginLeft: 5}}
-                                                        onClick={() => setLecturerStatsState(true)}>
-                                                <AssessmentIcon>
-                                                    Статистика лекторов по курсу
-                                                </AssessmentIcon>
-                                            </IconButton>
-                                        </Grid>
-                                    }
                                     {lecturerStatsState &&
                                         <LecturerStatistics
                                             courseId={+courseId!}
@@ -283,7 +331,10 @@ const Course: React.FC = () => {
                         </Grid>
                     </Grid>
                     <Tabs
-                        value={tabValue == "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
+                        style={{marginBottom: 10}}
+                        variant="scrollable"
+                        scrollButtons={"auto"}
+                        value={tabValue === "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
                         indicatorColor="primary"
                         onChange={(event, value) => {
                             if (value === 0 && !isExpert) navigate(`/courses/${courseId}/homeworks`)
@@ -291,7 +342,34 @@ const Course: React.FC = () => {
                             if (value === 2 && !isExpert) navigate(`/courses/${courseId}/applications`)
                         }}
                     >
-                        {!isExpert && <Tab label="Домашние задания"/>}
+                        {!isExpert &&
+                            <Tab
+                                label={
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <div>Задания</div>
+                                        {isCourseMentor && <IconButton
+                                            size="small"
+                                            onClick={() =>
+                                                setCourseState(prevState => ({
+                                                        ...prevState,
+                                                        isReadingMode: !isReadingMode
+                                                    })
+                                                )}
+                                            style={{backgroundColor: '#f1f1f1', padding: 3, marginLeft: 8}}
+                                        >
+                                            <Tooltip arrow placement={"top"}
+                                                     PopperProps={{
+                                                         modifiers: [{name: "offset", options: {offset: [0, -5],}}]
+                                                     }}
+                                                     title={isReadingMode ? "В режим редактирования" : "В режим чтения"}>
+                                                {isReadingMode
+                                                    ? <EditIcon style={{fontSize: 15}}/>
+                                                    : <VisibilityIcon style={{fontSize: 15}}/>}
+                                            </Tooltip>
+                                        </IconButton>}
+                                    </Stack>
+                                }
+                            />}
                         {showStatsTab && <Tab label={
                             <Stack direction="row" spacing={1}>
                                 <div>Решения</div>
@@ -306,20 +384,53 @@ const Course: React.FC = () => {
                                       label={newStudents.length}/>
                             </Stack>}/>}
                     </Tabs>
-                    <br/>
                     {tabValue === "homeworks" && <div>
                         {
                             isReadingMode
                                 ?
                                 <CourseExperimental
                                     homeworks={courseHomeworks}
+                                    courseFilesInfo={courseFilesInfo}
                                     isMentor={isCourseMentor}
                                     studentSolutions={studentSolutions}
                                     isStudentAccepted={isAcceptedStudent}
                                     selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
-                                    userId={userId!}/>
-                                :
-                                <div>
+                                    userId={userId!}
+                                    onHomeworkUpdate={({fileInfos, homework, isDeleted}) => {
+                                        const homeworkIndex = courseState.courseHomeworks.findIndex(x => x.id === homework.id)
+                                        const homeworks = [...courseState.courseHomeworks]
+
+                                        if (isDeleted) homeworks.splice(homeworkIndex, 1)
+                                        else homeworks[homeworkIndex] = homework
+
+                                        const newCourseFiles = courseFilesInfo
+                                            .filter(x => x.homeworkId !== homework.id)
+                                            .concat(isDeleted ? [] : fileInfos)
+
+                                        setCourseState(prevState => ({
+                                            ...prevState,
+                                            courseHomeworks: homeworks
+                                        }))
+                                        setCourseFilesInfo(newCourseFiles)
+                                    }}
+                                    onTaskUpdate={task => {
+                                        const homeworks = courseState.courseHomeworks
+                                        const homework = homeworks.find(x => x.id === task.homeworkId)!
+                                        const tasks = [...homework.tasks!]
+                                        const taskIndex = tasks.findIndex(x => x!.id === task.id)
+
+                                        if (task.isDeleted) tasks.splice(taskIndex, 1)
+                                        else tasks![taskIndex] = task
+
+                                        homework.tasks = tasks
+
+                                        setCourseState(prevState => ({
+                                            ...prevState,
+                                            courseHomeworks: homeworks
+                                        }))
+                                    }}
+                                />
+                                : <div>
                                     {createHomework && (
                                         <div>
                                             <Grid container>
@@ -328,15 +439,17 @@ const Course: React.FC = () => {
                                                         id={+courseId!}
                                                         onCancel={() => setCurrentState()}
                                                         onSubmit={() => setCurrentState()}
+                                                        previousHomeworks={courseState.courseHomeworks}
                                                     />
                                                 </Grid>
                                                 <Grid item xs={12}>
                                                     <CourseHomework
-                                                        onDelete={() => setCurrentState()}
+                                                        onUpdate={() => setCurrentState()}
                                                         isStudent={isAcceptedStudent}
                                                         isMentor={isCourseMentor}
                                                         isReadingMode={isReadingMode}
                                                         homework={courseHomeworks}
+                                                        courseFilesInfo={courseFilesInfo}
                                                     />
                                                 </Grid>
                                             </Grid>
@@ -362,22 +475,24 @@ const Course: React.FC = () => {
                                                     </Button>
                                                 }
                                                 <CourseHomework
-                                                    onDelete={() => setCurrentState()}
+                                                    onUpdate={() => setCurrentState()}
                                                     isStudent={isAcceptedStudent}
                                                     isMentor={isCourseMentor}
                                                     isReadingMode={isReadingMode}
                                                     homework={courseHomeworks}
+                                                    courseFilesInfo={courseFilesInfo}
                                                 />
                                             </Grid>
                                         </div>
                                     )}
                                     {!isCourseMentor && (
                                         <CourseHomework
-                                            onDelete={() => setCurrentState()}
+                                            onUpdate={() => setCurrentState()}
                                             homework={courseHomeworks}
                                             isStudent={isAcceptedStudent}
                                             isMentor={isCourseMentor}
                                             isReadingMode={isReadingMode}
+                                            courseFilesInfo={courseFilesInfo}
                                         />
                                     )}
                                 </div>

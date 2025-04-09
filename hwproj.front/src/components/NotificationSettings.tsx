@@ -15,12 +15,12 @@ const NotificationSettings: FC<{
         return ""
     }
     const getSettings = async () => {
-        const settings = await ApiSingleton.notificationsApi.apiNotificationsSettingsGet()
+        const settings = await ApiSingleton.notificationsApi.notificationsGetSettings()
         setSettings(settings)
     }
 
     const changeSetting = async (setting: NotificationsSettingDto, enabled: boolean) => {
-        await ApiSingleton.notificationsApi.apiNotificationsSettingsPut({...setting, isEnabled: enabled})
+        await ApiSingleton.notificationsApi.notificationsChangeSetting({...setting, isEnabled: enabled})
         await getSettings()
     }
 
@@ -34,8 +34,9 @@ const NotificationSettings: FC<{
         </DialogTitle>
         <DialogContent>
             <FormGroup style={{marginTop: 10}}>
-                {settings.map(s =>
+                {settings.map((s, index) =>
                     <FormControlLabel
+                        key={index}
                         control={<Switch
                             onChange={(_, checked) => changeSetting(s, checked)}
                             checked={s.isEnabled}/>}

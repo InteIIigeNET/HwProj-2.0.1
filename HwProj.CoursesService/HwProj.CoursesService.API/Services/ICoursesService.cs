@@ -9,6 +9,7 @@ namespace HwProj.CoursesService.API.Services
 {
     public interface ICoursesService
     {
+        Task<Course[]> GetAllAsync();
         Task<CourseDTO?> GetAsync(long id, string userId = "");
         Task<CourseDTO?> GetByTaskAsync(long taskId, string userId);
         Task<long> AddAsync(Course course, string mentorId);
@@ -22,5 +23,6 @@ namespace HwProj.CoursesService.API.Services
         Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId);
         Task<string[]> GetCourseLecturers(long courseId);
         Task<object> AddAndAcceptStudentsAsync(long courseId, IEnumerable<string> studentIds);
+        Task<bool> HasStudent(long courseId, string studentId);
     }
 }

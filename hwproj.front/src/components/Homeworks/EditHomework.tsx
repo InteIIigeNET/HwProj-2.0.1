@@ -4,12 +4,19 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import EditIcon from '@material-ui/icons/Edit';
-import {Button} from "@material-ui/core";
-import {TextFieldWithPreview} from "../Common/TextFieldWithPreview";
+import {MarkdownEditor} from "../Common/MarkdownEditor";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import Tags from "../Common/Tags";
 import {Grid, Typography, TextField} from "@mui/material";
 import apiSingleton from "../../api/ApiSingleton";
+import FilesUploader from "components/Files/FilesUploader";
+import {IFileInfo} from "components/Files/IFileInfo";
+import FileInfoConverter from "components/Utils/FileInfoConverter";
+import UpdateFilesUtils from "components/Utils/UpdateFilesUtils";
+import {LoadingButton} from "@mui/lab";
+import ErrorsHandler from "components/Utils/ErrorsHandler";
+import {useSnackbar} from 'notistack';
+import {CircularProgress} from "@material-ui/core";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -27,6 +34,12 @@ interface IEditHomeworkState {
     hasErrors: boolean;
     changedTaskPublicationDates: Date[];
     tags: string[]
+}
+
+interface IHomeworkFilesState {
+    initialFilesInfo: IFileInfo[]
+    selectedFilesInfo: IFileInfo[]
+    isLoadingInfo: boolean
 }
 
 const useStyles = makeStyles(theme => ({
@@ -60,17 +73,22 @@ const EditHomework: FC = () => {
         tags: [],
         changedTaskPublicationDates: []
     })
+    const [filesControlState, setFilesControlState] = useState<IHomeworkFilesState>({
+        initialFilesInfo: [],
+        selectedFilesInfo: [],
+        isLoadingInfo: true
+    });
+    const [handleSubmitLoading, setHandleSubmitLoading] = useState(false);
+    const {enqueueSnackbar} = useSnackbar()
 
     useEffect(() => {
         getHomework()
     }, [])
 
     const getHomework = async () => {
-        const homework = await ApiSingleton.homeworksApi.apiHomeworksGetForEditingByHomeworkIdGet(+homeworkId!)
-
-        const course = await ApiSingleton.coursesApi.apiCoursesByCourseIdGet(homework.courseId!)
-
-        const deadline = homework.deadlineDate == undefined
+        const homework = await ApiSingleton.homeworksApi.homeworksGetForEditingHomework(+homeworkId!)
+        const course = await ApiSingleton.coursesApi.coursesGetCourseData(homework.courseId!)
+        const deadline = homework.deadlineDate == null
             ? undefined
             : new Date(homework.deadlineDate)
 
@@ -90,15 +108,62 @@ const EditHomework: FC = () => {
             hasErrors: false,
             tags: homework.tags!,
             changedTaskPublicationDates: homework.tasks!
-                .filter(t => t.publicationDate != undefined)
+                .filter(t => t.publicationDate != null)
                 .map(t => new Date(t.publicationDate!))
         }))
+
+        fetchAndSetHomeworkFiles(homework.courseId!, homework.id!)
+    }
+
+    const fetchAndSetHomeworkFiles = async (courseId: number, homeworkId: number) => {
+        try {
+            const homeworkFiles = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, homeworkId)
+            if (homeworkFiles.length > 0) {
+                const filesInfo = FileInfoConverter.fromFileInfoDTOArray(homeworkFiles)
+                setFilesControlState({
+                    initialFilesInfo: filesInfo,
+                    selectedFilesInfo: filesInfo,
+                    isLoadingInfo: false
+                })
+            }
+        } catch (e) {
+            const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
+            enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
+        } finally {
+            setFilesControlState(prevState => ({
+                ...prevState,
+                isLoadingInfo: false
+            }))
+        }
     }
 
     const handleSubmit = async (e: any) => {
         e.preventDefault()
+        setHandleSubmitLoading(true)
+        await ApiSingleton.homeworksApi.homeworksUpdateHomework(+homeworkId!, editHomework)
 
-        await ApiSingleton.homeworksApi.apiHomeworksUpdateByHomeworkIdPut(+homeworkId!, editHomework)
+        // Если какие-то файлы из ранее добавленных больше не выбраны, удаляем их из хранилища
+        const deleteOperations = filesControlState.initialFilesInfo
+            .filter(initialFile =>
+                initialFile.key &&
+                !filesControlState.selectedFilesInfo.some(s => s.key === initialFile.key)
+            )
+            .map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(editHomework.courseId, initialFile));
+
+        // Если какие-то файлы из выбранных сейчас не были добавлены раньше, загружаем их в хранилище
+        const uploadOperations = filesControlState.selectedFilesInfo
+            .filter(selectedFile =>
+                selectedFile.file &&
+                !filesControlState.initialFilesInfo.some(i => i.key === selectedFile.key)
+            )
+            .map(selectedFile => UpdateFilesUtils.uploadFileWithErrorsHadling(
+                selectedFile.file!,
+                editHomework.courseId,
+                +homeworkId!)
+            );
+
+        // Дожидаемся удаления и загрузки необходимых файлов
+        await Promise.all([...deleteOperations, ...uploadOperations]);
 
         setEditHomework((prevState) => ({
             ...prevState,
@@ -119,14 +184,14 @@ const EditHomework: FC = () => {
         .some(d => d < editHomework.publicationDate)
 
     if (editHomework.edited) {
-        return <Navigate to={"/courses/" + editHomework.courseId}/>;
+        return <Navigate to={`/courses/${editHomework.courseId}/editHomeworks`}/>;
     }
 
     if (editHomework.isLoaded) {
         if (!editHomework.courseMentorIds.includes(ApiSingleton.authService.getUserId())) {
             return (
                 <Typography variant="h6" gutterBottom>
-                    Только преподаватель может редактировать домашнюю работу
+                    Только преподаватель может редактировать задание
                 </Typography>
             );
         }
@@ -147,11 +212,11 @@ const EditHomework: FC = () => {
 
                 <div className={classes.logo}>
                     <div>
-                        <EditIcon color='primary' style={{ marginRight: '0.5rem' }}/>
+                        <EditIcon color='primary' style={{marginRight: '0.5rem'}}/>
                     </div>
                     <div>
-                        <Typography style={{ fontSize: '22px' }}>
-                            Редактировать домашнее задание
+                        <Typography style={{fontSize: '22px'}}>
+                            Редактировать задание
                         </Typography>
                     </div>
                 </div>
@@ -178,62 +243,76 @@ const EditHomework: FC = () => {
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={12} style={{marginBottom: "10px"}}>
-                            <TextFieldWithPreview
-                                multiline
-                                fullWidth
-                                minRows={7}
-                                maxRows="20"
-                                label="Условие задания"
-                                variant="outlined"
-                                margin="normal"
+                        <Grid item xs={12} style={{marginBottom: "5px", marginTop: -2}}>
+                            <MarkdownEditor
+                                label={"Условие задания"}
+                                height={240}
+                                maxHeight={400}
                                 value={editHomework.description}
-                                onChange={(e) => {
-                                    e.persist()
+                                onChange={(value) => {
                                     setEditHomework((prevState) => ({
                                         ...prevState,
-                                        description: e.target.value
+                                        description: value
                                     }))
                                 }}
                             />
                         </Grid>
                         <Grid item xs={12} style={{marginBottom: "15px"}}>
                             <Tags tags={editHomework.tags} onTagsChange={handleTagsChange} isElementSmall={false}
-                                  requestTags={() => apiSingleton.coursesApi.apiCoursesTagsByCourseIdGet(editHomework.courseId)}/>
-                            <PublicationAndDeadlineDates
-                                hasDeadline={editHomework.hasDeadline}
-                                isDeadlineStrict={editHomework.isDeadlineStrict}
-                                publicationDate={editHomework.publicationDate}
-                                deadlineDate={editHomework.deadlineDate}
-                                disabledPublicationDate={editHomework.isPublished}
-                                onChange={(state) => setEditHomework(prevState => ({
-                                    ...prevState,
-                                    hasDeadline: state.hasDeadline,
-                                    isDeadlineStrict: state.isDeadlineStrict,
-                                    publicationDate: state.publicationDate,
-                                    deadlineDate: state.deadlineDate,
-                                    hasErrors: state.hasErrors
-                                }))}
-                            />
+                                  requestTags={() => apiSingleton.coursesApi.coursesGetAllTagsForCourse(editHomework.courseId)}/>
+                            <Grid container direction="column">
+                                <FilesUploader
+                                    initialFilesInfo={filesControlState.selectedFilesInfo}
+                                    isLoading={filesControlState.isLoadingInfo}
+                                    onChange={(filesInfo) => {
+                                        setFilesControlState((prevState) => ({
+                                            ...prevState,
+                                            selectedFilesInfo: filesInfo
+                                        }))
+                                    }}
+                                />
+                                <PublicationAndDeadlineDates
+                                    hasDeadline={editHomework.hasDeadline}
+                                    isDeadlineStrict={editHomework.isDeadlineStrict}
+                                    publicationDate={editHomework.publicationDate}
+                                    deadlineDate={editHomework.deadlineDate}
+                                    autoCalculatedDeadline={undefined}
+                                    disabledPublicationDate={editHomework.isPublished}
+                                    onChange={(state) => setEditHomework(prevState => ({
+                                        ...prevState,
+                                        hasDeadline: state.hasDeadline,
+                                        isDeadlineStrict: state.isDeadlineStrict,
+                                        publicationDate: state.publicationDate,
+                                        deadlineDate: state.deadlineDate,
+                                        hasErrors: state.hasErrors
+                                    }))}
+                                />
+                            </Grid>
                         </Grid>
-                        <Button
+                        <LoadingButton
                             fullWidth
                             color="primary"
                             variant="contained"
                             type="submit"
-                            disabled={isSomeTaskSoonerThanHomework || editHomework.hasErrors}>
-                                Редактировать домашнее задание
-                        </Button>
+                            disabled={isSomeTaskSoonerThanHomework || editHomework.hasErrors}
+                            loadingPosition="end"
+                            endIcon={<span style={{width: 17}}/>}
+                            loading={handleSubmitLoading}
+                            style={{color: "white", backgroundColor: "#3f51b5"}}
+                        >
+                            Редактировать задание
+                        </LoadingButton>
                     </Grid>
                 </form>
             </Grid>
         )
     }
     return (
-        <div>
-
+        <div className="container">
+            <p>Загрузка...</p>
+            <CircularProgress/>
         </div>
-    );
+    )
 }
 
 export default EditHomework

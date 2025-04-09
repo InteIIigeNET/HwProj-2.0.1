@@ -87,7 +87,7 @@ const ExpertsNotebook: FC = () => {
 
     useEffect(() => {
         const fetchExperts = async () => {
-            const allExperts = await ApiSingleton.expertsApi.apiExpertsGetAllGet();
+            const allExperts = await ApiSingleton.expertsApi.expertsGetAll();
             setAllExperts(allExperts);
             setLoadedState(true);
         };
@@ -135,7 +135,7 @@ const ExpertsNotebook: FC = () => {
                 expertId: expert.id,
                 tags: expert.tags
             }
-            ApiSingleton.expertsApi.apiExpertsUpdateTagsPost(dto);
+            ApiSingleton.expertsApi.expertsUpdateTags(dto);
         }
         setTagsEditingState({
             isOpen: false,
@@ -223,7 +223,7 @@ const ExpertsNotebook: FC = () => {
             <div className="container" style={{marginBottom: '50px'}}>
                 <Grid container style={{marginTop: "15px"}} spacing={2}>
                     <Grid item container justifyContent={"space-between"} direction={"row"}>
-                        <Grid item direction={"row"} spacing={2} style={{display: "flex"}}>
+                        <Grid item style={{display: "flex"}}>
                             <Typography style={{fontSize: '22px'}}>
                                 Эксперты
                             </Typography>

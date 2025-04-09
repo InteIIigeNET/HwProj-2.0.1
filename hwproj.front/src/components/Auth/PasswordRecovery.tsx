@@ -6,7 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Register.css";
 import {useState} from "react";
-import makeStyles from "@material-ui/styles/makeStyles";
+import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import {Alert, AlertTitle} from "@mui/material";
 import ValidationUtils from "../Utils/ValidationUtils";
@@ -66,7 +66,7 @@ const PasswordRecovery: FC = () => {
         }
 
         try {
-            const result = await ApiSingleton.accountApi.apiAccountRequestPasswordRecoveryPost({email: recoverState.email})
+            const result = await ApiSingleton.accountApi.accountRequestPasswordRecovery({email: recoverState.email})
             setRecoverState(prevState => ({
                 ...prevState,
                 error: result.errors,

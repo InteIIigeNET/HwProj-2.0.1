@@ -48,9 +48,9 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
     useEffect(() => {
         const fetchCourseDataForMentor = async () => {
             try {
-                const courseViewModel = await ApiSingleton.coursesApi.apiCoursesGetAllDataByCourseIdGet(props.courseId);
+                const courseViewModel = await ApiSingleton.coursesApi.coursesGetAllCourseData(props.courseId);
                 const mentorWorkspace =
-                    await ApiSingleton.coursesApi.apiCoursesGetMentorWorkspaceByCourseIdByMentorIdGet(props.courseId, props.mentorId);
+                    await ApiSingleton.coursesApi.coursesGetMentorWorkspace(props.courseId, props.mentorId);
 
                 props.onSelectedStudentsChange(mentorWorkspace.students ?? [])
                 props.onSelectedHomeworksChange(mentorWorkspace.homeworks ?? [])
@@ -73,7 +73,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                 setIsLoading(false);
                 props.onWorkspaceInitialize(true);
             } catch (e) {
-                const errors = await ErrorsHandler.getErrorMessages(e);
+                const errors = await ErrorsHandler.getErrorMessages(e as Response);
                 setState((prevState) => ({
                     ...prevState,
                     errors: errors
@@ -111,17 +111,18 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                 fullWidth
                                 options={state.courseHomeworks}
                                 getOptionLabel={(option: HomeworkViewModel) => option.title ?? "Без названия"}
+                                getOptionKey={(option: HomeworkViewModel) => option.id ?? 0}
                                 filterSelectedOptions
                                 isOptionEqualToValue={(option, value) => option.id === value.id}
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
                                         variant="outlined"
-                                        label={state.selectedHomeworks.length === 0 ? "" : "Домашние работы"}
-                                        placeholder={state.selectedHomeworks.length === 0 ? "Все домашние работы" : ""}
+                                        label={state.selectedHomeworks.length === 0 ? "" : "Работы"}
+                                        placeholder={state.selectedHomeworks.length === 0 ? "Все работы" : ""}
                                     />
                                 )}
-                                noOptionsText={'На курсе больше нет домашних работ'}
+                                noOptionsText={'На курсе больше нет работ'}
                                 value={state.selectedHomeworks}
                                 onChange={(_, values) => {
                                     setState((prevState) => ({
@@ -147,6 +148,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                     fullWidth
                                     options={state.courseStudents}
                                     getOptionLabel={(option: AccountDataDto) => option.name + ' ' + option.surname}
+                                    getOptionKey={(option: AccountDataDto) => option.userId ?? ""}
                                     filterSelectedOptions
                                     isOptionEqualToValue={(option, value) => option.userId === value.userId}
                                     renderInput={(params) => (

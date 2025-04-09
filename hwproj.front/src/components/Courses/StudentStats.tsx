@@ -3,7 +3,7 @@ import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "..
 import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Button, Chip} from "@mui/material";
+import {Alert, Button, Chip, Typography} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
@@ -73,24 +73,22 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         return undefined
     }
 
-    //TODO: Bonus tag?
-    const groupTestsByTags = (homeworks: HomeworkViewModel[]) =>
-        Lodash(homeworks.filter(h => h.tags!.includes(TestTag)))
-            .groupBy(h => {
-                const key = h.tags!.find(t => !DefaultTags.includes(t))
-                return key || h.id!.toString();
-            })
-            .values()
-            .value();
+    const notTests = homeworks.filter(h => !h.tags!.includes(TestTag))
 
-    const homeworksMaxSum = homeworks.filter(h => !h.tags!.includes(BonusTag))
-        .filter(h => !h.tags!.includes(TestTag))
+    const homeworksMaxSum = notTests
+        .filter(h => !h.tags!.includes(BonusTag))
         .flatMap(homework => homework.tasks)
         .reduce((sum, task) => {
             return sum + (task!.maxRating || 0);
         }, 0)
 
-    const testGroups = groupTestsByTags(homeworks)
+    const testGroups = Lodash(homeworks.filter(h => h.tags!.includes(TestTag)))
+        .groupBy((h: HomeworkViewModel) => {
+            const key = h.tags!.find(t => !DefaultTags.includes(t))
+            return key || h.id!.toString();
+        })
+        .values()
+        .value();
 
     const testsMaxSum = testGroups
         .map(h => h[0])
@@ -128,6 +126,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                             </TableCell>}
                             {homeworks.map((homework, idx) =>
                                 <TableCell
+                                    key={homework.id}
                                     padding="checkbox"
                                     component="td"
                                     align="center"
@@ -189,8 +188,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                     </TableHead>
                     <TableBody>
                         {solutions.map((cm, index) => {
-                            const homeworksSum = homeworks
-                                .filter(h => !h.tags!.includes(TestTag))
+                            const homeworksSum = notTests
                                 .flatMap(homework =>
                                     solutions
                                         .find(s => s.id === cm.id)?.homeworks!
@@ -226,6 +224,18 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         variant={"head"}
                                     >
                                         {cm.surname} {cm.name}
+                                        <Typography
+                                            style={{
+                                                color: "GrayText",
+                                                fontSize: "12px",
+                                                lineHeight: '1.2'
+                                            }}
+                                        >
+                                            {cm.reviewers && cm.reviewers
+                                                .filter(r => r.userId !== props.userId)
+                                                .map(r => `${r.name} ${r.surname}`)
+                                                .join(', ')}
+                                        </Typography>
                                     </TableCell>
                                     {hasHomeworks && <TableCell
                                         align="center"
@@ -267,10 +277,10 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         homework.tasks!.map((task, i) => {
                                             const additionalStyles = i === 0 && homeworkStyles(homeworks, idx)
                                             return <StudentStatsCell
-                                                solutions={solutions
-                                                    .find(s => s.id == cm.id)!.homeworks!
-                                                    .find(h => h.id == homework.id)!.tasks!
-                                                    .find(t => t.id == task.id)!.solution!}
+                                                key={`${cm.id}-${homework.id}-${task.id}`}
+                                                solutions={cm.homeworks
+                                                    ?.find(h => h.id === homework.id)?.tasks
+                                                    ?.find(t => t.id === task.id)?.solution || []}
                                                 userId={props.userId}
                                                 forMentor={props.isMentor}
                                                 studentId={String(cm.id)}

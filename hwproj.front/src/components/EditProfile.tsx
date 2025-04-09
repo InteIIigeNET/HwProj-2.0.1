@@ -7,7 +7,7 @@ import {Button, Container, Grid, TextField, Typography, Link} from "@material-ui
 import ApiSingleton from "../api/ApiSingleton";
 import {useSearchParams} from 'react-router-dom';
 import EditIcon from "@material-ui/icons/Edit";
-import makeStyles from "@material-ui/styles/makeStyles";
+import {makeStyles} from '@material-ui/core/styles';
 import {EditAccountViewModel} from "../api";
 
 interface IEditProfileProps {
@@ -79,13 +79,15 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
             companyName: profile.company
         }
         try {
-            const result = await ApiSingleton.accountApi.apiAccountEditPut(editForm)
+            const result = await ApiSingleton.accountApi.accountEdit(editForm)
             if (result.succeeded) {
                 setProfile((prevState) => ({
                     ...prevState,
                     edited: true,
                 }));
-                await ApiSingleton.authService.setIsExpertProfileEdited();
+                if (props.isExpert) {
+                    await ApiSingleton.authService.setIsExpertProfileEdited();
+                }
             } else {
                 setProfile((prevState) => ({
                     ...prevState,
@@ -112,7 +114,7 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
 
         if (code) {
             try {
-                githubId = (await ApiSingleton.accountApi.apiAccountGithubAuthorizePost(code)).githubId
+                githubId = (await ApiSingleton.accountApi.accountAuthorizeGithub(code)).githubId
             } catch (e) {
                 setProfile((prevState) => ({
                     ...prevState,
@@ -125,8 +127,8 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
         }
 
         try {
-            const githubLoginUrl = (await ApiSingleton.accountApi.apiAccountGithubUrlPost({url: window.location.href})).url
-            const currentUser = (await ApiSingleton.accountApi.apiAccountGetUserDataGet()).userData!
+            const githubLoginUrl = (await ApiSingleton.accountApi.accountGetGithubLoginUrl({url: window.location.href})).url
+            const currentUser = (await ApiSingleton.accountApi.accountGetUserData()).userData!
             githubId = githubId ? githubId : currentUser.githubId
 
             setProfile((prevState) => ({
@@ -135,12 +137,12 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                 email: currentUser.email!,
                 name: currentUser.name!,
                 surname: currentUser.surname!,
-                middleName: currentUser.middleName!,
-                bio: currentUser.bio!,
-                company: currentUser.companyName!,
+                middleName: currentUser.middleName || "",
+                bio: currentUser.bio || "",
+                company: currentUser.companyName || "",
                 isExternalAuth: currentUser.isExternalAuth,
                 githubId: githubId,
-                githubLoginUrl: githubLoginUrl!
+                githubLoginUrl: githubLoginUrl
             }))
         } catch (e) {
             setProfile((prevState) => ({

@@ -7,7 +7,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {RegisterExpertViewModel} from "../../api/";
 import "../Auth/Styles/Register.css";
 import Grid from "@material-ui/core/Grid";
-import makeStyles from "@material-ui/styles/makeStyles";
+import {makeStyles} from '@material-ui/core/styles';
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import Avatar from "@material-ui/core/Avatar";
 import Tags from "../Common/Tags";
@@ -76,7 +76,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
             return
         }
         try {
-            const result = await ApiSingleton.expertsApi.apiExpertsRegisterPost(registerState);
+            const result = await ApiSingleton.expertsApi.expertsRegister(registerState);
             setCommonState((prevState) => ({
                 ...prevState,
                 errors: result!.errors ?? [],

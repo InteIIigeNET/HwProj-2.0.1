@@ -32,6 +32,7 @@ namespace HwProj.CoursesService.API.Domains
         public static HomeworkTaskViewModel ToHomeworkTaskViewModel(this HomeworkTask task)
         {
             var tags = task.Homework.Tags?.Split(';') ?? Array.Empty<string>();
+            var evaluatedPublicationDate = task.PublicationDate ?? task.Homework.PublicationDate;
             return new HomeworkTaskViewModel()
             {
                 Id = task.Id,
@@ -42,7 +43,7 @@ namespace HwProj.CoursesService.API.Domains
                 DeadlineDate = task.DeadlineDate,
                 IsDeadlineStrict = task.IsDeadlineStrict,
                 PublicationDate = task.PublicationDate,
-                IsDeferred = DateTime.UtcNow < task.PublicationDate,
+                IsDeferred = DateTime.UtcNow < evaluatedPublicationDate,
                 IsGroupWork = tags.Contains(HomeworkTags.GroupWork),
                 HomeworkId = task.HomeworkId,
                 Tags = tags,

@@ -13,14 +13,24 @@ namespace HwProj.CoursesService.API.Repositories
         {
         }
 
+        public Task<Course?> GetWithCourseMates(long id) =>
+            Context.Set<Course>()
+                .Include(c => c.CourseMates)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == id);
+
         public async Task<Course?> GetWithCourseMatesAndHomeworksAsync(long id)
         {
-            return await Context.Set<Course>()
+            var course = await Context.Set<Course>()
                 .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks)
                 .ThenInclude(c => c.Tasks)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
+
+            // todo: перенести OrderBy в Include после обновления до EF Core 5.x
+            course.Homeworks = course.Homeworks.OrderBy(h => h.PublicationDate).ToList();
+            return course;
         }
 
         public IQueryable<Course> GetAllWithCourseMatesAndHomeworks()

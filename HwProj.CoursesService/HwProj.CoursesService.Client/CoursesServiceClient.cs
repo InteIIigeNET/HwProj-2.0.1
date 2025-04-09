@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using HwProj.Exceptions;
 using HwProj.HttpUtils;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService;
@@ -28,6 +29,16 @@ namespace HwProj.CoursesService.Client
             _httpClient = clientFactory.CreateClient();
             _httpContextAccessor = httpContextAccessor;
             _coursesServiceUri = new Uri(configuration.GetSection("Services")["Courses"]);
+        }
+
+        public async Task<CoursePreview[]> GetAllCourses()
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + "api/Courses");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<CoursePreview[]>();
         }
 
         public async Task<CourseDTO?> GetCourseByTask(long taskId)
@@ -231,7 +242,7 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<HomeworkViewModel>();
         }
 
-        public async Task<Result> UpdateHomework(long homeworkId, CreateHomeworkViewModel model)
+        public async Task<Result<HomeworkViewModel>> UpdateHomework(long homeworkId, CreateHomeworkViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
@@ -247,10 +258,14 @@ namespace HwProj.CoursesService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return response.StatusCode switch
             {
-                HttpStatusCode.Forbidden => Result.Failed(),
-                HttpStatusCode.OK => Result.Success(),
-                HttpStatusCode.BadRequest => Result.Failed(await response.DeserializeAsync<string[]>()),
-                _ => Result.Failed(),
+                HttpStatusCode.Forbidden => throw new ForbiddenException(),
+                HttpStatusCode.OK => Result<HomeworkViewModel>.Success(
+                    await response.DeserializeAsync<HomeworkViewModel>()
+                ),
+                HttpStatusCode.BadRequest => Result<HomeworkViewModel>.Failed(
+                    await response.DeserializeAsync<string[]>()
+                ),
+                _ => Result<HomeworkViewModel>.Failed(),
             };
         }
 
@@ -324,7 +339,7 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<Result> UpdateTask(long taskId, CreateTaskViewModel taskViewModel)
+        public async Task<Result<HomeworkTaskViewModel>> UpdateTask(long taskId, CreateTaskViewModel taskViewModel)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
@@ -340,10 +355,14 @@ namespace HwProj.CoursesService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return response.StatusCode switch
             {
-                HttpStatusCode.Forbidden => Result.Failed(),
-                HttpStatusCode.OK => Result.Success(),
-                HttpStatusCode.BadRequest => Result.Failed(await response.DeserializeAsync<string[]>()),
-                _ => Result.Failed(),
+                HttpStatusCode.Forbidden => throw new ForbiddenException(),
+                HttpStatusCode.OK => Result<HomeworkTaskViewModel>.Success(
+                    await response.DeserializeAsync<HomeworkTaskViewModel>()
+                ),
+                HttpStatusCode.BadRequest => Result<HomeworkTaskViewModel>.Failed(
+                    await response.DeserializeAsync<string[]>()
+                ),
+                _ => Result<HomeworkTaskViewModel>.Failed(),
             };
         }
 
@@ -491,6 +510,17 @@ namespace HwProj.CoursesService.Client
                 : Result<AccountDataDto[]>.Failed(response.ReasonPhrase);
         }
 
+        public async Task<string[]> GetCourseLecturersIds(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/getCourseLecturers/{courseId}");
+            httpRequest.TryAddUserId(_httpContextAccessor);
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<string[]>();
+        }
+
         public async Task<Result<string[]>> GetAllTagsForCourse(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -523,6 +553,56 @@ namespace HwProj.CoursesService.Client
                 HttpStatusCode.BadRequest => Result<long>.Failed(await response.Content.ReadAsStringAsync()),
                 _ => Result<long>.Failed(),
             };
+        }
+
+        public async Task AddQuestionForTask(AddTaskQuestionDto question)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + "api/Tasks/addQuestion");
+            httpRequest.Content = new StringContent(
+                JsonConvert.SerializeObject(question),
+                Encoding.UTF8,
+                "application/json");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            await _httpClient.SendAsync(httpRequest);
+        }
+
+        public async Task<GetTaskQuestionDto[]> GetQuestionsForTask(long taskId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Tasks/questions/{taskId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<GetTaskQuestionDto[]>();
+        }
+
+        public async Task AddAnswerForQuestion(AddAnswerForQuestionDto answer)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + "api/Tasks/addAnswer");
+            httpRequest.Content = new StringContent(
+                JsonConvert.SerializeObject(answer),
+                Encoding.UTF8,
+                "application/json");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            await _httpClient.SendAsync(httpRequest);
+        }
+
+        public async Task<MentorToAssignedStudentsDTO[]> GetMentorsToAssignedStudents(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/getMentorsToStudents/{courseId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<MentorToAssignedStudentsDTO[]>();
         }
 
         public async Task<bool> Ping()

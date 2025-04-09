@@ -9,6 +9,7 @@ namespace HwProj.CoursesService.Client
 {
     public interface ICoursesServiceClient
     {
+        Task<CoursePreview[]> GetAllCourses();
         Task<CourseDTO?> GetCourseById(long courseId);
         Task<Result<CourseDTO>> GetCourseByIdForMentor(long courseId, string mentorId);
         Task<Result<CourseDTO>> GetAllCourseData(long courseId);
@@ -24,13 +25,13 @@ namespace HwProj.CoursesService.Client
         Task<Result<long>> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId);
         Task<HomeworkViewModel> GetHomework(long homeworkId);
         Task<HomeworkViewModel> GetForEditingHomework(long homeworkId);
-        Task<Result> UpdateHomework(long homeworkId, CreateHomeworkViewModel model);
+        Task<Result<HomeworkViewModel>> UpdateHomework(long homeworkId, CreateHomeworkViewModel model);
         Task<Result> DeleteHomework(long homeworkId);
         Task<HomeworkTaskViewModel> GetTask(long taskId);
         Task<HomeworkTaskForEditingViewModel> GetForEditingTask(long taskId);
         Task<Result<long>> AddTask(long homeworkId, CreateTaskViewModel taskViewModel);
         Task<Result> DeleteTask(long taskId);
-        Task<Result> UpdateTask(long taskId, CreateTaskViewModel taskViewModel);
+        Task<Result<HomeworkTaskViewModel>> UpdateTask(long taskId, CreateTaskViewModel taskViewModel);
         Task<GroupViewModel[]> GetAllCourseGroups(long courseId);
         Task<long> CreateCourseGroup(CreateGroupViewModel model, long courseId);
         Task DeleteCourseGroup(long courseId, long groupId);
@@ -42,8 +43,13 @@ namespace HwProj.CoursesService.Client
         Task<long[]> GetGroupTasks(long groupId);
         Task<Result> AcceptLecturer(long courseId, string lecturerEmail, string lecturerId);
         Task<Result<AccountDataDto[]>> GetLecturersAvailableForCourse(long courseId);
+        Task<string[]> GetCourseLecturersIds(long courseId);
         Task<Result<string[]>> GetAllTagsForCourse(long courseId);
         Task<Result<long>> CreateOrUpdateCourseFilter(long courseId, CreateCourseFilterDTO model);
+        Task AddQuestionForTask(AddTaskQuestionDto question);
+        Task<GetTaskQuestionDto[]> GetQuestionsForTask(long taskId);
+        Task AddAnswerForQuestion(AddAnswerForQuestionDto answer);
+        Task<MentorToAssignedStudentsDTO[]> GetMentorsToAssignedStudents(long courseId);
         Task<bool> Ping();
     }
 }

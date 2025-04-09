@@ -1,16 +1,14 @@
 import * as React from "react";
 import ApiSingleton from "../../api/ApiSingleton";
-import Utils from "../../services/Utils";
-import {FC, useEffect, useState} from "react";
-import {Grid, Checkbox, Button, TextField, Typography, Tooltip, Link} from "@material-ui/core";
+import {useState} from "react";
+import {Grid, Button, Typography} from "@material-ui/core";
 import CreateTask from "./CreateTask";
-import {HomeworkViewModel, CreateTaskViewModel} from "../../api";
+import {HomeworkViewModel} from "../../api";
 
 interface IAddTaskProps {
     homework: HomeworkViewModel;
     onAdding: () => void;
-    onCancel: () => void;
-    update: () => void;
+    onClose: () => void;
 }
 
 interface IAddTaskState {
@@ -39,8 +37,9 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
-        await ApiSingleton.tasksApi.apiTasksAddByHomeworkIdPost(props.homework.id!, state);
+        await ApiSingleton.tasksApi.tasksAddTask(props.homework.id!, state);
         props.onAdding()
+        props.onClose()
     }
 
     return (
@@ -69,7 +68,7 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
                             Добавить задачу
                         </Button>
                         <Button
-                            onClick={() => props.onCancel()}
+                            onClick={() => props.onClose()}
                             size="small"
                             variant="contained"
                             color="primary"

@@ -62,7 +62,7 @@ const StudentStatsChart: React.FC = () => {
 
     const setCurrentState = async () => {
         const params =
-            await ApiSingleton.statisticsApi.apiStatisticsByCourseIdChartsGet(+courseId!);
+            await ApiSingleton.statisticsApi.statisticsGetChartStatistics(+courseId!);
 
         const homeworks = params.homeworks!.filter(hw => hw.tasks && hw.tasks.length > 0)
         const tasksWithDeadline = [...new Set(homeworks.map(hw => hw.tasks!).flat())]
@@ -132,7 +132,7 @@ const StudentStatsChart: React.FC = () => {
                           }}>
                         <Grid item container direction='column' xs={"auto"}>
                             <Grid item>
-                                <Typography style={{fontSize: '22px'}}>
+                                <Typography component="div" style={{fontSize: '22px'}}>
                                     {NameBuilder.getCourseFullName(state.course.name!, state.course.groupName)}
                                     <sup style={{color: "#2979ff"}}> бета</sup>
                                 </Typography>
