@@ -122,6 +122,10 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     const showStatsTab = isCourseMentor || isAcceptedStudent
     const showApplicationsTab = isCourseMentor
 
+    const hasAccess = isOpen
+        ? true
+        : isCourseMentor || isAcceptedStudent
+
     const changeTab = (newTab: string) => {
         if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
             if (newTab === "stats" && !showStatsTab) return;
@@ -294,7 +298,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                         </Grid>
                     </Grid>
                     <Grid>
-                        <Tabs
+                        {hasAccess && <Tabs
                             style={{ marginBottom: 10 }}
                             variant="scrollable"
                             scrollButtons={"auto"}
@@ -306,12 +310,12 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                 if (value === 2 && !isExpert) navigate(`/courses/${courseId}/applications`)
                             }}
                         >
-                        {!isExpert &&
-                            <Tab
-                                label={
-                                    <Stack direction="row" spacing={1} alignItems="center">
+                            {!isExpert &&
+                                <Tab
+                                    label={
+                                        <Stack direction="row" spacing={1} alignItems="center">
                                         <div>Задания</div>
-                                        <IconButton
+                                        {isCourseMentor && < IconButton
                                             size="small"
                                             onClick={() =>
                                                 setCourseState(prevState => ({
@@ -330,24 +334,24 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                                     ? <EditIcon style={{ fontSize: 17 }} />
                                                     : <VisibilityIcon style={{ fontSize: 18.5 }} />}
                                             </Tooltip>
-                                        </IconButton>
-                                    </Stack>
-                                }
-                            />}
-                        {showStatsTab && <Tab label={
-                            <Stack direction="row" spacing={1}>
-                                <div>Решения</div>
-                                <Chip size={"small"} color={"default"}
-                                    label={unratedSolutionsCount} />
-                            </Stack>
-                        } />}
-                        {showApplicationsTab && !isExpert && <Tab label={
-                            <Stack direction="row" spacing={1}>
-                                <div>Заявки</div>
-                                <Chip size={"small"} color={"default"}
-                                    label={newStudents.length} />
-                            </Stack>} />}
-                    </Tabs>
+                                        </IconButton>}
+                                        </Stack>
+                                    }
+                                />}
+                            {showStatsTab && <Tab label={
+                                <Stack direction="row" spacing={1}>
+                                    <div>Решения</div>
+                                    <Chip size={"small"} color={"default"}
+                                        label={unratedSolutionsCount} />
+                                </Stack>
+                            } />}
+                            {showApplicationsTab && !isExpert && <Tab label={
+                                <Stack direction="row" spacing={1}>
+                                    <div>Заявки</div>
+                                    <Chip size={"small"} color={"default"}
+                                        label={newStudents.length} />
+                                </Stack>} />}
+                        </Tabs>}
                         {tabValue === "homeworks" && <div>
                             {
                                 isReadingMode
