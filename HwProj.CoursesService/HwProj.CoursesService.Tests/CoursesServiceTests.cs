@@ -122,8 +122,8 @@ namespace HwProj.CoursesService.Tests
         private static async Task<long> CreateCourse(CoursesServiceClient courseClient, string userId)
         {
             var newCourseViewModel = GenerateCreateCourseViewModel();
-            var courseId = await courseClient.CreateCourse(newCourseViewModel, userId);
-            return courseId;
+            var courseId = await courseClient.CreateCourse(newCourseViewModel);
+            return courseId.Value;
         }
 
         private async Task<(long courseId, CoursesServiceClient client)> CreateClientAndCourse()
@@ -144,8 +144,8 @@ namespace HwProj.CoursesService.Tests
             return (course.courseId, homework, homeworkResult, course.client);
         }
         
-        private async Task<(Result editResult, HomeworkTaskForEditingViewModel tasksFromDb)> AddTaskToHomeworkAndUpdate(
-            CreateTaskViewModel firstTaskState, CreateTaskViewModel secondTaskState)
+        private async Task<(Result<HomeworkTaskViewModel> editResult, HomeworkTaskForEditingViewModel tasksFromDb)>
+            AddTaskToHomeworkAndUpdate(CreateTaskViewModel firstTaskState, CreateTaskViewModel secondTaskState)
         {
             var homework = GenerateDefaultHomeworkViewModel();
             var homeworkResult = await client.AddHomeworkToCourse(homework, courseId);

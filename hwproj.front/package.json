@@ -63,7 +63,13 @@
   "eslintConfig": {
     "extends": "react-app",
     "rules": {
-      "eqeqeq": [1, "always", { "null": "ignore" }]
+      "eqeqeq": [
+        1,
+        "always",
+        {
+          "null": "ignore"
+        }
+      ]
     }
   },
   "browserslist": [

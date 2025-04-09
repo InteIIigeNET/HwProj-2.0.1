@@ -17,6 +17,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         public List<string> StudentIDs { get; set; }  = new List<string>();
         public bool FetchStudents { get; set; } 
         [Required] public bool IsOpen { get; set; }
+
+        public long? BaseCourseId { get; set; }
     }
 
     public class UpdateCourseViewModel

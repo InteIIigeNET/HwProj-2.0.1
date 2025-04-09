@@ -37,18 +37,17 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     }
 
     const [state, setState] = useState<IDateFieldsState>(() => {
-        const publicationDate = props.publicationDate === undefined
-            ? getInitialPublicationDate()
-            : props.publicationDate
+        const publicationDate = props.publicationDate || getInitialPublicationDate()
+
+        const deadlineDate =
+            props.hasDeadline
+                ? props.deadlineDate || props.autoCalculatedDeadline || getInitialDeadlineDate(publicationDate)
+                : undefined
 
         return {
             hasDeadline: props.hasDeadline,
-            publicationDate: props.publicationDate === undefined
-                ? getInitialPublicationDate()
-                : props.publicationDate,
-            deadlineDate: props.hasDeadline
-                ? props.deadlineDate || props.autoCalculatedDeadline || getInitialDeadlineDate(publicationDate)
-                : undefined,
+            publicationDate: publicationDate,
+            deadlineDate: deadlineDate,
             isDeadlineStrict: props.isDeadlineStrict,
         }
     });

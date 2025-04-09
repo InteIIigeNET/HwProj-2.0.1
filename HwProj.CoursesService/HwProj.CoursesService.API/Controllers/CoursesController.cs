@@ -92,19 +92,27 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> AddCourse(
-            [FromBody] CreateCourseViewModel courseViewModel,
-            [FromQuery] string mentorId)
+        public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel)
         {
-            var course = _mapper.Map<Course>(courseViewModel);
-            var id = await _coursesService.AddAsync(course, mentorId);
-    
+            var mentorId = Request.GetUserIdFromHeader();
+            CourseDTO? baseCourse = null;
+
+            if (courseViewModel.BaseCourseId != null)
+            {
+                baseCourse = await _coursesService.GetForEditingAsync((long)courseViewModel.BaseCourseId);
+                if (baseCourse == null) return NotFound();
+
+                if (!baseCourse.MentorIds.Contains(mentorId)) return Forbid();
+            }
+
+            var courseId = await _coursesService.AddAsync(courseViewModel, baseCourse, mentorId);
+            
             if (courseViewModel.StudentIDs?.Any() == true)
             {
-                await _coursesService.AddAndAcceptStudentsAsync(course.Id, courseViewModel.StudentIDs);
+                await _coursesService.AddAndAcceptStudentsAsync(courseId, courseViewModel.StudentIDs);
             }
-    
-            return Ok(id);
+            
+            return Ok(courseId);
         }
 
         [HttpDelete("{courseId}")]

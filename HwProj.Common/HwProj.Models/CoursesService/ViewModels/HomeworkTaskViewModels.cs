@@ -26,6 +26,10 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public DateTime? PublicationDate { get; set; }
 
+        public bool PublicationDateNotSet { get; set; }
+
+        public bool DeadlineDateNotSet { get; set; }
+
         public long HomeworkId { get; set; }
 
         public bool IsGroupWork { get; set; }

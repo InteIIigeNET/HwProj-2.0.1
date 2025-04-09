@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -127,9 +126,11 @@ namespace HwProj.APIGateway.API.Controllers
                 var studentIds = await AuthServiceClient.RegisterStudentsBatchAsync(registrationModels);
                 model.StudentIDs = studentIds;
             }
-
-            var result = await _coursesClient.CreateCourse(model, UserId);
-            return Ok(result);
+            
+            var result = await _coursesClient.CreateCourse(model);
+            return result.Succeeded
+                ? Ok(result.Value) as IActionResult
+                : BadRequest(result.Errors);
         }
 
         [HttpPost("update/{courseId}")]

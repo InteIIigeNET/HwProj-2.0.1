@@ -1,11 +1,11 @@
 import * as React from "react";
-import {Navigate, Link, useParams} from "react-router-dom";
+import {Navigate, Link, useParams, useNavigate} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from "@material-ui/styles";
 import {Button, CircularProgress} from "@material-ui/core";
-import {Typography, TextField, Grid} from "@mui/material";
+import {Typography, TextField, Grid, Alert} from "@mui/material";
 import {MarkdownEditor} from "../Common/MarkdownEditor";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import {HomeworkViewModel} from "../../api";
@@ -69,13 +69,13 @@ const EditTask: FC = () => {
         const task = taskForEditing.task!
         const course = await ApiSingleton.coursesApi.coursesGetCourseData(homework.courseId!)
 
-        const publication = task.publicationDate == null
+        const publicationDate = task.publicationDateNotSet
             ? undefined
-            : new Date(task.publicationDate)
+            : new Date(task.publicationDate!)
 
-        const deadline = task.deadlineDate == null
+        const deadlineDate = task.deadlineDateNotSet
             ? undefined
-            : new Date(task.deadlineDate)
+            : new Date(task.deadlineDate!)
 
         setTaskState((prevState) => ({
             ...prevState,
@@ -85,9 +85,9 @@ const EditTask: FC = () => {
             maxRating: task.maxRating!,
             courseId: homework.courseId!,
             hasDeadline: task.hasDeadline!,
-            deadlineDate: deadline,
+            deadlineDate: deadlineDate,
             isDeadlineStrict: task.isDeadlineStrict!,
-            publicationDate: publication,
+            publicationDate: publicationDate,
             homeworkId: task.homeworkId!,
             courseMentorIds: course.mentors!.map(x => x.userId!),
             homework: homework,
@@ -95,6 +95,11 @@ const EditTask: FC = () => {
             isTaskPublished: !task.isDeferred,
         }))
     }
+
+    const navigate = useNavigate()
+
+    const toEditHomework = () =>
+        navigate(`/homework/${taskState.homeworkId}/edit`)
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -121,6 +126,9 @@ const EditTask: FC = () => {
                 </Typography>
             );
         }
+
+        const homeworkPublicationDateIsSet = !taskState.homework!.publicationDateNotSet
+
         return (
             <div className="container">
                 <Grid container xs={12} justifyContent="center">
@@ -204,24 +212,45 @@ const EditTask: FC = () => {
                                         }}
                                     />
                                 </Grid>
-                                <Grid item style={{width: "90%", marginBottom: "10px"}}>
-                                    <TaskPublicationAndDeadlineDates
-                                        homework={taskState.homework!}
-                                        hasDeadline={taskState.hasDeadline}
-                                        isDeadlineStrict={taskState.isDeadlineStrict}
-                                        publicationDate={taskState.publicationDate}
-                                        deadlineDate={taskState.deadlineDate}
-                                        disabledPublicationDate={taskState.isTaskPublished}
-                                        onChange={(state) => setTaskState(prevState => ({
-                                            ...prevState,
-                                            hasDeadline: state.hasDeadline,
-                                            isDeadlineStrict: state.isDeadlineStrict,
-                                            publicationDate: state.publicationDate,
-                                            deadlineDate: state.deadlineDate,
-                                            hasErrors: state.hasErrors
-                                        }))}
-                                    />
-                                </Grid>
+                                {homeworkPublicationDateIsSet &&
+                                    <Grid item xs={12} style={{width: "90%", marginBottom: "10px"}}>
+                                        <TaskPublicationAndDeadlineDates
+                                            homework={taskState.homework!}
+                                            hasDeadline={taskState.hasDeadline}
+                                            isDeadlineStrict={taskState.isDeadlineStrict}
+                                            publicationDate={taskState.publicationDate}
+                                            deadlineDate={taskState.deadlineDate}
+                                            disabledPublicationDate={taskState.isTaskPublished}
+                                            onChange={(state) => setTaskState(prevState => ({
+                                                ...prevState,
+                                                hasDeadline: state.hasDeadline,
+                                                isDeadlineStrict: state.isDeadlineStrict,
+                                                publicationDate: state.publicationDate,
+                                                deadlineDate: state.deadlineDate,
+                                                hasErrors: state.hasErrors
+                                            }))}
+                                        />
+                                    </Grid>
+                                }
+                                {!homeworkPublicationDateIsSet &&
+                                    <Grid item xs={12} style={{width: "90%", marginBottom: "10px"}}>
+                                        <Alert
+                                            severity="info"
+                                            icon={false}
+                                            action={
+                                                <Button
+                                                    color="inherit"
+                                                    size="small"
+                                                    onClick={toEditHomework}
+                                                >
+                                                    К заданию
+                                                </Button>
+                                            }
+                                        >
+                                            Для изменения дат укажите дату публикации домашнего задания
+                                        </Alert>
+                                    </Grid>
+                                }
                                 <Grid item xs={12}>
                                     <Button
                                         fullWidth

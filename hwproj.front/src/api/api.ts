@@ -506,6 +506,12 @@ export interface CreateCourseViewModel {
      * @memberof CreateCourseViewModel
      */
     isOpen: boolean;
+    /**
+     *
+     * @type {number}
+     * @memberof CreateCourseViewModel
+     */
+    baseCourseId?: number;
 }
 /**
  * 
@@ -1106,7 +1112,18 @@ export interface HomeworkTaskViewModel {
      */
     publicationDate?: Date;
     /**
-     * 
+     * * @type {boolean}
+     * @memberof HomeworkTaskViewModel
+     */
+    publicationDateNotSet?: boolean;
+    /**
+     *
+     * @type {boolean}
+     * @memberof HomeworkTaskViewModel
+     */
+    deadlineDateNotSet?: boolean;
+    /**
+     *
      * @type {number}
      * @memberof HomeworkTaskViewModel
      */
@@ -1217,7 +1234,18 @@ export interface HomeworkViewModel {
      */
     publicationDate?: Date;
     /**
-     * 
+     * * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    publicationDateNotSet?: boolean;
+    /**
+     *
+     * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    deadlineDateNotSet?: boolean;
+    /**
+     *
      * @type {number}
      * @memberof HomeworkViewModel
      */

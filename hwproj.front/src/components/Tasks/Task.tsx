@@ -29,13 +29,10 @@ interface ITaskProp {
 
 const useStyles = makeStyles(theme => ({
     tools: {
+        width: "100%",
         display: "flex",
         flexDirection: 'row',
         alignItems: 'center',
-    },
-    tool: {
-        marginRight: theme.spacing(2),
-        marginLeft: theme.spacing(2),
     },
     text: {
         marginTop: '16px',
@@ -43,6 +40,11 @@ const useStyles = makeStyles(theme => ({
 }))
 
 const Task: FC<ITaskProp> = (props) => {
+    const publicationDate = new Date(props.task.publicationDate!)
+    const deadlineDate = new Date(props.task.deadlineDate!)
+
+    const publicationDateIsSet = !props.task.publicationDateNotSet
+    const deadlineDateIsSet = !props.task.deadlineDateNotSet
 
     const [isOpenDialogDeleteTask, setIsOpenDialogDeleteTask] = useState<boolean>(false)
 
@@ -61,10 +63,11 @@ const Task: FC<ITaskProp> = (props) => {
 
     const {task} = props
 
-    const publicationDate = Utils.renderReadableDate(new Date(task.publicationDate!))
-    const deadlineDate = Utils.renderReadableDate(new Date(task.deadlineDate!))
+    const publicationDateString = Utils.renderReadableDate(publicationDate)
+    const deadlineDateString = Utils.renderReadableDate(deadlineDate)
 
     const classes = useStyles()
+
     return (
         <div style={{width: '100%'}}>
             <Accordion expanded={props.isExpanded ? true : undefined}>
@@ -97,12 +100,21 @@ const Task: FC<ITaskProp> = (props) => {
                             {task.isGroupWork &&
                                 <Grid item>
                                     <Chip variant="outlined" color="info" label="Командное"/>
-                                </Grid>}
-                            {props.forMentor &&
+                                </Grid>
+                            }
+                            {props.forMentor && publicationDateIsSet &&
                                 <Grid item>
-                                    <Chip variant="outlined" label={"🕘 " + publicationDate}/>
-                                </Grid>}
-                            {task.hasDeadline &&
+                                    <Chip variant="outlined" label={"🕘 " + publicationDateString}/>
+                                </Grid>
+                            }
+                            {props.forMentor && !publicationDateIsSet &&
+                                <Grid item>
+                                    <Tooltip arrow title={"Не выставлена дата публикации"}>
+                                        <Chip label={"⚠️"} variant="outlined"/>
+                                    </Tooltip>
+                                </Grid>
+                            }
+                            {task.hasDeadline && deadlineDateIsSet &&
                                 <Grid item>
                                     <Tooltip 
                                         arrow
@@ -110,15 +122,23 @@ const Task: FC<ITaskProp> = (props) => {
                                     >
                                         <Chip
                                             variant="outlined"
-                                            label={(task.isDeadlineStrict ? "⛔ До" : "До") + " " + deadlineDate}
+                                            label={(task.isDeadlineStrict ? "⛔ До" : "До") + " " + deadlineDateString}
                                         />
+                                    </Tooltip>
+                                </Grid>
+                            }
+                            {props.forMentor && task.hasDeadline && !deadlineDateIsSet &&
+                                <Grid item>
+                                    <Tooltip arrow title={"Не выставлена дата дедлайна"}>
+                                        <Chip label={"⚠️"} variant="outlined"/>
                                     </Tooltip>
                                 </Grid>
                             }
                             {!task.hasDeadline &&
                                 <Grid item>
                                     <Chip variant="outlined" label="без дедлайна"/>
-                                </Grid>}
+                                </Grid>
+                            }
                             {props.forMentor && !props.isReadingMode &&
                                 <Grid item>
                                     <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>

@@ -25,10 +25,10 @@ export interface HomeworkAndFilesInfo {
 }
 
 interface IEditHomeworkState {
+    publicationDate?: Date;
     hasDeadline: boolean;
-    deadlineDate: Date | undefined;
+    deadlineDate?: Date;
     isDeadlineStrict: boolean;
-    publicationDate: Date;
 }
 
 interface IEditFilesState {
@@ -60,19 +60,24 @@ const CourseHomeworkEditor: FC<{
     const homeworkId = homework.id!
     const courseId = homework.courseId!
 
-    const isPublished = !homework.isDeferred
-    const deadline = homework.deadlineDate == null
+    const publicationDate = homework.publicationDateNotSet
         ? undefined
-        : new Date(homework.deadlineDate)
+        : new Date(homework.publicationDate!)
+
+    const deadlineDate = homework.deadlineDateNotSet
+        ? undefined
+        : new Date(homework.deadlineDate!)
+
+    const isPublished = !homework.isDeferred
     const changedTaskPublicationDates = homework.tasks!
         .filter(t => t.publicationDate != null)
         .map(t => new Date(t.publicationDate!))
 
     const [metadata, setMetadata] = useState<IEditHomeworkState>({
+        publicationDate: publicationDate,
         hasDeadline: homework.hasDeadline!,
-        deadlineDate: deadline,
+        deadlineDate: deadlineDate,
         isDeadlineStrict: homework.isDeadlineStrict!,
-        publicationDate: new Date(homework.publicationDate!),
     })
     const [title, setTitle] = useState<string>(homework.title!)
     const [tags, setTags] = useState<string[]>(homework.tags!)
@@ -159,7 +164,7 @@ const CourseHomeworkEditor: FC<{
         }
     }
 
-    const isSomeTaskSoonerThanHomework = changedTaskPublicationDates.some(d => d < metadata.publicationDate)
+    const isSomeTaskSoonerThanHomework = changedTaskPublicationDates.some(d => d < metadata.publicationDate!)
     const isDisabled = isSomeTaskSoonerThanHomework || hasErrors || !isLoaded
 
     return (
@@ -265,6 +270,8 @@ const CourseHomeworkEditor: FC<{
 const CourseHomeworkExperimental: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
     isMentor: boolean,
+    initialEditMode: boolean,
+    onMount: () => void,
     onUpdate: (x: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] } & { isDeleted?: boolean }) => void
 }> = (props) => {
     const {homework, filesInfo} = props.homeworkAndFilesInfo
@@ -274,7 +281,8 @@ const CourseHomeworkExperimental: FC<{
     const [editMode, setEditMode] = useState(false)
 
     useEffect(() => {
-        setEditMode(false)
+        setEditMode(props.initialEditMode)
+        props.onMount()
     }, [homework.id])
 
     if (editMode) return <CourseHomeworkEditor
