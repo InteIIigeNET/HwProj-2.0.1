@@ -91,7 +91,6 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
-            // Initialize empty list of student IDs
             model.StudentIDs = new List<string>();
 
             if (!string.IsNullOrEmpty(model.GroupName) && model.FetchStudents)
@@ -101,21 +100,14 @@ namespace HwProj.APIGateway.API.Controllers
                     .Where(student => !string.IsNullOrEmpty(student.Email))
                     .Select(student => student.Email)
                     .ToList();
-        
-                var emailToIdMap = await AuthServiceClient.FindByEmailsAsync(studentEmails);
 
-                var registrationTasks = students
+                var registrationModels = students
                     .Where(student => !string.IsNullOrEmpty(student.Email))
-                    .Select(async student =>
+                    .Select(student =>
                     {
-                        if (emailToIdMap.TryGetValue(student.Email, out var studentId))
-                        {
-                            return studentId;
-                        }
-
                         var newPassword = Guid.NewGuid().ToString();
-                
-                        var registerModel = new RegisterViewModel
+        
+                        return new RegisterViewModel
                         {
                             Email = student.Email,
                             Name = student.Name,
@@ -124,13 +116,10 @@ namespace HwProj.APIGateway.API.Controllers
                             Password = newPassword,
                             PasswordConfirm = newPassword
                         };
-
-                        await AuthServiceClient.Register(registerModel);
-                        return await AuthServiceClient.FindByEmailAsync(student.Email);
                     }).ToList();
 
-                var studentIds = await Task.WhenAll(registrationTasks);
-                model.StudentIDs = studentIds.ToList();
+                var studentIds = await AuthServiceClient.RegisterStudentsBatchAsync(registrationModels);
+                model.StudentIDs = studentIds;
             }
 
             var result = await _coursesClient.CreateCourse(model, UserId);
