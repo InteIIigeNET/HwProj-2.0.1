@@ -31,17 +31,22 @@ namespace HwProj.CoursesService.API.Filters
                     courseDto.CourseMates = courseDto.CourseMates
                         .Where(t =>
                         {
-                            if (!t.IsAccepted) return t.StudentId == userId;
                             if (t.StudentId == userId) isCourseStudent = true;
-                            return true;
+                            return t.StudentId == userId;
                         })
                         .ToArray();
 
-                    courseDto.Homeworks = courseDto.Homeworks
+                    var hasAccess = courseDto.IsOpen
+                        ? true
+                        : courseDto.AcceptedStudents.Any(student => student.StudentId == userId);
+
+                    courseDto.Homeworks = hasAccess
+                        ? courseDto.Homeworks
                         .Where(h =>
                             currentDate >= h.PublicationDate &&
                             (isCourseStudent || !h.Tags.Contains(HomeworkTags.Test)))
-                        .ToArray();
+                        .ToArray()
+                        : Array.Empty<HomeworkViewModel>();
 
                     foreach (var homework in courseDto.Homeworks)
                     {
