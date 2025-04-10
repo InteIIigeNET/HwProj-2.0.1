@@ -239,9 +239,9 @@ const CourseHomeworkEditor: FC<{
                 </Grid>
             </Grid>
             <CardActions>
-                <ActionOptionsUI
+                {metadata.publicationDate && new Date() >= new Date(metadata.publicationDate) && <ActionOptionsUI
                     disabled={isDisabled || handleSubmitLoading}
-                    onChange={value => setEditOptions(value)}/>
+                    onChange={value => setEditOptions(value)}/>}
                 <LoadingButton
                     fullWidth
                     onClick={handleSubmit}

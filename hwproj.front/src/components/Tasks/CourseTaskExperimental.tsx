@@ -70,6 +70,8 @@ const CourseTaskEditor: FC<{
     const [handleSubmitLoading, setHandleSubmitLoading] = useState(false);
     const [editOptions, setEditOptions] = useState<ActionOptions>({sendNotification: false})
 
+    const publicationDate = metadata?.publicationDate || homework.publicationDate
+
     const handleSubmit = async (e: any) => {
         e.preventDefault()
         setHandleSubmitLoading(true)
@@ -184,9 +186,9 @@ const CourseTaskEditor: FC<{
                 }
             </Grid>
             <CardActions>
-                <ActionOptionsUI
+                {publicationDate && new Date() >= new Date(publicationDate) && <ActionOptionsUI
                     disabled={isDisabled || handleSubmitLoading}
-                    onChange={value => setEditOptions(value)}/>
+                    onChange={value => setEditOptions(value)}/>}
                 <LoadingButton
                     fullWidth
                     onClick={handleSubmit}
