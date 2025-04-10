@@ -6,6 +6,7 @@ using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Services;
+using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -94,7 +95,9 @@ namespace HwProj.CoursesService.API.Controllers
 
             if (validationResult.Any()) return BadRequest(validationResult);
 
-            var updatedTask = await _tasksService.UpdateTaskAsync(taskId, taskViewModel.ToHomeworkTask());
+            var updatedTask =
+                await _tasksService.UpdateTaskAsync(taskId, taskViewModel.ToHomeworkTask(),
+                    taskViewModel.ActionOptions ?? ActionOptions.Default);
             return Ok(updatedTask.ToHomeworkTaskViewModel());
         }
 

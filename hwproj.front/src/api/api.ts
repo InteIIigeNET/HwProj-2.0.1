@@ -147,6 +147,19 @@ export interface AccountDataDto {
 /**
  *
  * @export
+ * @interface ActionOptions
+ */
+export interface ActionOptions {
+    /**
+     *
+     * @type {boolean}
+     * @memberof ActionOptions
+     */
+    sendNotification?: boolean;
+}
+/**
+ *
+ * @export
  * @interface AddAnswerForQuestionDto
  */
 export interface AddAnswerForQuestionDto {
@@ -586,6 +599,12 @@ export interface CreateHomeworkViewModel {
      * @memberof CreateHomeworkViewModel
      */
     tasks?: Array<CreateTaskViewModel>;
+    /**
+     *
+     * @type {ActionOptions}
+     * @memberof CreateHomeworkViewModel
+     */
+    actionOptions?: ActionOptions;
 }
 /**
  *
@@ -635,6 +654,12 @@ export interface CreateTaskViewModel {
      * @memberof CreateTaskViewModel
      */
     maxRating: number;
+    /**
+     *
+     * @type {ActionOptions}
+     * @memberof CreateTaskViewModel
+     */
+    actionOptions?: ActionOptions;
 }
 /**
  *

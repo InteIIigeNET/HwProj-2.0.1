@@ -25,6 +25,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         public List<string> Tags { get; set; } = new List<string>();
 
         public List<CreateTaskViewModel> Tasks { get; set; } = new List<CreateTaskViewModel>();
+
+        public ActionOptions? ActionOptions { get; set; }
     }
 
     public class HomeworkViewModel

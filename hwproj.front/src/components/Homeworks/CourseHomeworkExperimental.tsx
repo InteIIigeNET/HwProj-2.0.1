@@ -4,7 +4,7 @@ import FilesPreviewList from "components/Files/FilesPreviewList";
 import {IFileInfo} from "components/Files/IFileInfo";
 import {FC, useEffect, useState} from "react"
 import Utils from "services/Utils";
-import {FileInfoDTO, HomeworkViewModel} from "../../api";
+import {FileInfoDTO, HomeworkViewModel, ActionOptions} from "../../api";
 import ApiSingleton from "../../api/ApiSingleton";
 import UpdateFilesUtils from "../Utils/UpdateFilesUtils";
 import Tags from "../Common/Tags";
@@ -18,6 +18,7 @@ import ErrorsHandler from "../Utils/ErrorsHandler";
 import {enqueueSnackbar} from "notistack";
 import DeletionConfirmation from "../DeletionConfirmation";
 import DeleteIcon from "@mui/icons-material/Delete";
+import ActionOptionsUI from "components/Common/ActionOptions";
 
 export interface HomeworkAndFilesInfo {
     homework: HomeworkViewModel,
@@ -91,6 +92,7 @@ const CourseHomeworkEditor: FC<{
 
     const [handleSubmitLoading, setHandleSubmitLoading] = useState(false)
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+    const [editOptions, setEditOptions] = useState<ActionOptions>({sendNotification: false})
 
     const deleteHomework = async () => {
         await ApiSingleton.homeworksApi.homeworksDeleteHomework(homeworkId)
@@ -124,7 +126,8 @@ const CourseHomeworkEditor: FC<{
             hasDeadline: metadata.hasDeadline,
             deadlineDate: metadata.deadlineDate,
             isDeadlineStrict: metadata.isDeadlineStrict,
-            publicationDate: metadata.publicationDate
+            publicationDate: metadata.publicationDate,
+            actionOptions: editOptions,
         })
 
         // Если какие-то файлы из ранее добавленных больше не выбраны, удаляем их из хранилища
@@ -236,19 +239,22 @@ const CourseHomeworkEditor: FC<{
                 </Grid>
             </Grid>
             <CardActions>
+                <ActionOptionsUI
+                    disabled={isDisabled}
+                    onChange={value => setEditOptions(value)}/>
                 <LoadingButton
                     fullWidth
                     onClick={handleSubmit}
                     color="primary"
-                    variant="contained"
+                    variant="text"
                     type="submit"
                     disabled={isDisabled}
                     loadingPosition="end"
+                    size={"large"}
                     endIcon={<span style={{width: 17}}/>}
                     loading={handleSubmitLoading}
-                    style={isDisabled ? undefined : {color: "white", backgroundColor: "#3f51b5"}}
                 >
-                    Редактировать задание
+                    Редактировать задание ({editOptions.sendNotification ? "с уведомлением" : "без уведомления"})
                 </LoadingButton>
                 <IconButton aria-label="delete" color="error" onClick={() => setShowDeleteConfirmation(true)}>
                     <DeleteIcon/>

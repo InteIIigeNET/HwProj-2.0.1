@@ -5,6 +5,7 @@ using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using HwProj.Models;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -66,7 +67,8 @@ namespace HwProj.CoursesService.API.Controllers
             if (validationResult.Any()) return BadRequest(validationResult);
 
             var updatedHomework =
-                await _homeworksService.UpdateHomeworkAsync(homeworkId, homeworkViewModel.ToHomework());
+                await _homeworksService.UpdateHomeworkAsync(homeworkId, homeworkViewModel.ToHomework(),
+                    homeworkViewModel.ActionOptions ?? ActionOptions.Default);
             return Ok(updatedHomework.ToHomeworkViewModel());
         }
     }
