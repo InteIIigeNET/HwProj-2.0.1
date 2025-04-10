@@ -240,7 +240,7 @@ const CourseHomeworkEditor: FC<{
             </Grid>
             <CardActions>
                 <ActionOptionsUI
-                    disabled={isDisabled}
+                    disabled={isDisabled || handleSubmitLoading}
                     onChange={value => setEditOptions(value)}/>
                 <LoadingButton
                     fullWidth
