@@ -115,16 +115,12 @@ namespace HwProj.APIGateway.API.Controllers
                     .Where(student => !string.IsNullOrEmpty(student.Email))
                     .Select(student =>
                     {
-                        var newPassword = Guid.NewGuid().ToString();
-        
                         return new RegisterViewModel
                         {
                             Email = student.Email,
                             Name = student.Name,
                             Surname = student.Surname,
-                            MiddleName = student.MiddleName,
-                            Password = newPassword,
-                            PasswordConfirm = newPassword
+                            MiddleName = student.MiddleName
                         };
                     }).ToList();
 
