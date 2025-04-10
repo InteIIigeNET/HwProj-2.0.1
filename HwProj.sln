@@ -68,13 +68,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.ContentService.API",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.ContentService.Client", "HwProj.ContentService\HwProj.ContentService.Client\HwProj.ContentService.Client.csproj", "{B83E7583-A891-451F-B4C4-C09FB6BFABCC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentsInfo", "Hwproj.StudentInfo\StudentsInfo\StudentsInfo.csproj", "{EF10DFB6-C5E8-40A0-A9D0-BFDD0F9BF9DD}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hwproj.StudentsInfo", "Hwproj.StudentsInfo", "{CCA598FB-F8A9-4F20-BCE5-BE21725156BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IStudentsInfo", "Hwproj.StudentInfo\IStudentsInfo\IStudentsInfo.csproj", "{F895B62E-63D9-441E-8A22-6A242EC17BE0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentsInfo", "StudentsInfo\StudentsInfo.csproj", "{886E6A4F-9F11-482D-AADF-CCB1049B6C14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentsInfo.Tests", "Hwproj.StudentInfo\StudentsInfo.Tests\StudentsInfo.Tests.csproj", "{9A0A0F74-E078-4867-9C6A-3DCD375627FA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IStudentsInfo", "IStudentsInfo\IStudentsInfo.csproj", "{72A4C047-1F47-45DA-9BD6-54E62E7CFB78}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hwproj.StudentInfo", "Hwproj.StudentInfo", "{001E8235-7954-4D05-BFC6-F8EADD681361}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentInfo.Tests", "StudentInfo.Tests\StudentInfo.Tests.csproj", "{8DE955D7-FD97-4F11-B6D4-414E631B9F83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
