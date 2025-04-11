@@ -7,12 +7,10 @@ import {
 import {LoadingButton} from "@mui/lab";
 import {IStepComponentProps} from "./ICreateCourseState";
 
-const AddCourseInfo: FC<IStepComponentProps> = (props) => {
-  const state = props.state
-
+const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
   const handleCourseNameChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     e.persist()
-    props.setState((prevState) => ({
+    setState((prevState) => ({
       ...prevState,
       courseName: e.target.value,
     }))
@@ -20,14 +18,14 @@ const AddCourseInfo: FC<IStepComponentProps> = (props) => {
 
   const handleGroupNameChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     e.persist()
-    props.setState((prevState) => ({
+    setState((prevState) => ({
       ...prevState,
       groupName: e.target.value,
     }))
   }
 
   const handleBack = () =>
-    props.setState((prevState) => {
+    setState((prevState) => {
       const newSkippedSteps = prevState.skippedSteps
       newSkippedSteps.delete(prevState.activeStep - 1)
       return ({

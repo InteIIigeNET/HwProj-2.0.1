@@ -48,10 +48,7 @@ const CreateCourse: FC = () => {
     courseIsLoading: false,
   })
 
-  const baseCourse =
-    state.baseCourses && state.baseCourseIndex !== undefined
-      ? state.baseCourses[state.baseCourseIndex]
-      : undefined
+  const {baseCourses, selectedBaseCourse} = state
 
   const navigate = useNavigate()
   const {enqueueSnackbar} = useSnackbar()
@@ -122,7 +119,7 @@ const CreateCourse: FC = () => {
       name: state.courseName,
       groupName: state.groupName,
       isOpen: true,
-      baseCourseId: baseCourse?.id,
+      baseCourseId: selectedBaseCourse?.id,
     }
     try {
       setCourseIsLoading(true)
@@ -147,7 +144,7 @@ const CreateCourse: FC = () => {
       </Typography>
     )
   }
-  return state.baseCourses ? (
+  return baseCourses ? (
     <Container component="main" maxWidth="sm">
       <div className={classes.paper}>
         <Typography component="h1" variant="h5">

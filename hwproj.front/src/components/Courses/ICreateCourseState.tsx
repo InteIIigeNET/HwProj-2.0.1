@@ -19,7 +19,7 @@ export interface ICreateCourseState {
   skippedSteps: Set<CreateCourseStep>;
 
   baseCourses?: CoursePreviewView[];
-  baseCourseIndex?: number;
+  selectedBaseCourse?: CoursePreviewView;
 
   courseName: string;
   groupName: string;
