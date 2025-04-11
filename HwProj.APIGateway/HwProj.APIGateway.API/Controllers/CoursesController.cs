@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -7,12 +7,15 @@ using HwProj.APIGateway.API.Models;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using IStudentsInfo;
 
 namespace HwProj.APIGateway.API.Controllers
 {
@@ -22,13 +25,17 @@ namespace HwProj.APIGateway.API.Controllers
     {
         private readonly ICoursesServiceClient _coursesClient;
         private readonly IMapper _mapper;
+        private readonly IStudentsInformationProvider _studentsInfo;
 
-        public CoursesController(ICoursesServiceClient coursesClient,
+        public CoursesController(
+            ICoursesServiceClient coursesClient,
             IAuthServiceClient authServiceClient,
-            IMapper mapper) : base(authServiceClient)
+            IMapper mapper,
+            IStudentsInformationProvider studentsInfo) : base(authServiceClient)
         {
             _coursesClient = coursesClient;
             _mapper = mapper;
+            _studentsInfo = studentsInfo;
         }
 
         [HttpGet]
@@ -70,12 +77,62 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.DeleteCourse(courseId);
             return Ok();
         }
+        
+        [HttpGet("getGroups")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(List<GroupModel>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetGroups(string programName)
+        {
+            var groups = await _studentsInfo.GetGroups(programName);
+            return Ok(groups);
+        }
+        
+        [HttpGet("getProgramNames")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ProducesResponseType(typeof(List<ProgramModel>), (int)HttpStatusCode.OK)]
+        public  IActionResult GetProgramNames()
+        {   
+            return Ok(_studentsInfo.GetProgramNames());
+        }
 
         [HttpPost("create")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
+            model.StudentIDs = new List<string>();
+
+            if (!string.IsNullOrEmpty(model.GroupName) && model.FetchStudents)
+            {
+                var students = _studentsInfo.GetStudentInformation(model.GroupName);
+                
+                var sortedStudents = students
+                    .Where(student => !string.IsNullOrEmpty(student.Email))
+                    .OrderBy(student => student.Surname)
+                    .ThenBy(student => student.Name)
+                    .ToList();
+
+                var studentEmails = sortedStudents
+                    .Select(student => student.Email)
+                    .ToList();
+
+                var registrationModels = sortedStudents
+                    .Select(student => new RegisterViewModel
+                    {
+                        Email = student.Email,
+                        Name = student.Name,
+                        Surname = student.Surname,
+                        MiddleName = student.MiddleName
+                    }).ToList();
+
+                var regResult = await AuthServiceClient.RegisterStudentsBatchAsync(registrationModels);
+        
+                if (regResult.Succeeded)
+                {
+                    model.StudentIDs = regResult.Value.ToList();
+                }
+            }
+    
             var result = await _coursesClient.CreateCourse(model);
             return result.Succeeded
                 ? Ok(result.Value) as IActionResult
@@ -137,7 +194,7 @@ namespace HwProj.APIGateway.API.Controllers
                 ? Ok(result) as IActionResult
                 : BadRequest(result.Errors);
         }
-
+        
         [HttpGet("getLecturersAvailableForCourse/{courseId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
@@ -207,7 +264,7 @@ namespace HwProj.APIGateway.API.Controllers
             };
             return Ok(workspace);
         }
-
+        
         private async Task<CourseViewModel> ToCourseViewModel(CourseDTO course)
         {
             var studentIds = course.CourseMates.Select(t => t.StudentId).ToArray();

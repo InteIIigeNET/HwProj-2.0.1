@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -66,6 +67,13 @@ namespace HwProj.AuthService.API.Controllers
             var newModel = _mapper.Map<RegisterDataDTO>(model);
             var result = await _accountService.RegisterUserAsync(newModel);
             return Ok(result);
+        }
+        
+        [HttpPost("registerStudentsBatch")]
+        public async Task<Result<string[]>> RegisterStudentsBatch([FromBody] IEnumerable<RegisterViewModel> models)
+        {
+            var dtos = _mapper.Map<IEnumerable<RegisterDataDTO>>(models);
+            return await _accountService.RegisterStudentsBatchAsync(dtos);
         }
 
         [HttpPost("login")]

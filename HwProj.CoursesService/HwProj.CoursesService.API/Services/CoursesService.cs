@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using System.Threading.Tasks;
@@ -87,7 +88,7 @@ namespace HwProj.CoursesService.API.Services
             var course = await _coursesRepository.GetWithHomeworksAsync(id);
             return course?.ToCourseDto();
         }
-
+        
         public async Task<long> AddAsync(CreateCourseViewModel courseViewModel,
             CourseDTO? baseCourse,
             string mentorId)
@@ -101,7 +102,7 @@ namespace HwProj.CoursesService.API.Services
 
             return await AddFromTemplateAsync(courseTemplate, mentorId);
         }
-
+        
         public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, string mentorId)
         {
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
@@ -186,6 +187,34 @@ namespace HwProj.CoursesService.API.Services
             });
 
             return true;
+        }
+        
+        public async Task<object> AddAndAcceptStudentsAsync(long courseId, IEnumerable<string> studentIds)
+        {
+            var course = await _coursesRepository.GetAsync(courseId);
+            if (course == null) return null;
+
+            foreach (var studentId in studentIds)
+            {
+                var cm = await _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
+                if (cm != null) continue;
+
+                var courseMate = new CourseMate
+                {
+                    CourseId = courseId,
+                    StudentId = studentId,
+                    IsAccepted = false
+                };
+
+                await _courseMatesRepository.AddAsync(courseMate);
+                
+                cm = await _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
+                if (cm == null) continue;
+
+                await _courseMatesRepository.UpdateAsync(cm.Id, cm => new CourseMate { IsAccepted = true });
+            }
+
+            return null;
         }
 
         public async Task<bool> RejectCourseMateAsync(long courseId, string studentId)
