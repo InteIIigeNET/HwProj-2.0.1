@@ -41,6 +41,12 @@ namespace StudentsInfo
             try
             {
                 connection = new LdapConnection();
+                
+                if (!connection.Connected)
+                {
+                    return studentsList;
+                }
+                
                 connection.Connect(_ldapHost, _ldapPort);
                 connection.Bind(_username, _password);
 
