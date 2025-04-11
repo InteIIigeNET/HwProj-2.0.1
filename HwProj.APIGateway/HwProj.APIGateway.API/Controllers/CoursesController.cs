@@ -123,8 +123,12 @@ namespace HwProj.APIGateway.API.Controllers
                         };
                     }).ToList();
 
-                var studentIds = await AuthServiceClient.RegisterStudentsBatchAsync(registrationModels);
-                model.StudentIDs = studentIds;
+                var regResult = await AuthServiceClient.RegisterStudentsBatchAsync(registrationModels);
+                
+                if (regResult.Succeeded)
+                {
+                    model.StudentIDs = regResult.Value.ToList();
+                }
             }
             
             var result = await _coursesClient.CreateCourse(model);

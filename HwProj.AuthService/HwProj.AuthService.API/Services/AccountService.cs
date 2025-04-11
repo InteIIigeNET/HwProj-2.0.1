@@ -352,5 +352,51 @@ namespace HwProj.AuthService.API.Services
         {
             return Result<TokenCredentials>.Success(await _tokenService.GetTokenAsync(user).ConfigureAwait(false));
         }
+        
+        public async Task<Result<string[]>> RegisterStudentsBatchAsync(IEnumerable<RegisterDataDTO> models)
+        {
+            var results = new List<string>();
+            var errors = new List<string>();
+
+            foreach (var model in models)
+            {
+                if (await _userManager.FindByEmailAsync(model.Email) != null)
+                {
+                    errors.Add($"User with email {model.Email} already exists");
+                    continue;
+                }
+
+                var user = _mapper.Map<User>(model);
+                user.UserName = user.Email;
+
+                var createUserTask = model.IsExternalAuth 
+                    ? _userManager.CreateAsync(user)
+                    : _userManager.CreateAsync(user, Guid.NewGuid().ToString());
+
+                var result = await createUserTask
+                    .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole));
+
+                if (result.Succeeded)
+                {
+                    var newUser = await _userManager.FindByEmailAsync(model.Email);
+                    var changePasswordToken = await _aspUserManager.GeneratePasswordResetTokenAsync(user);
+                    var registerEvent = new StudentRegisterEvent(newUser.Id, newUser.Email, newUser.Name,
+                        newUser.Surname, newUser.MiddleName)
+                    {
+                        ChangePasswordToken = changePasswordToken
+                    };
+                    _eventBus.Publish(registerEvent);
+                    results.Add(newUser.Id);
+                }
+                else
+                {
+                    errors.AddRange(result.Errors.Select(e => $"{model.Email}: {e.Description}"));
+                }
+            }
+
+            return errors.Count > 0 
+                ? Result<string[]>.Failed(errors.ToArray()) 
+                : Result<string[]>.Success(results.ToArray());
+        }
     }
 }

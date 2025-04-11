@@ -76,16 +76,20 @@ namespace HwProj.AuthService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result>();
         }
-        public async Task<List<string>> RegisterStudentsBatchAsync(IEnumerable<RegisterViewModel> registrationModels)
+        public async Task<Result<string[]>> RegisterStudentsBatchAsync(IEnumerable<RegisterViewModel> registrationModels)
         {
-            var registrationTasks = registrationModels.Select(async model =>
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + "api/account/registerStudentsBatch")
             {
-                    var registerResult = await Register(model);
-                    return await FindByEmailAsync(model.Email);
-            });
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(registrationModels),
+                    Encoding.UTF8,
+                    "application/json")
+            };
 
-            var results = await Task.WhenAll(registrationTasks);
-            return results.Where(id => id != null).ToList();
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<string[]>>();
         }
 
         public async Task<Result<TokenCredentials>> Login(LoginViewModel model)

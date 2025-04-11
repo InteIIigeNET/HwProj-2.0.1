@@ -33,6 +33,6 @@ namespace HwProj.AuthService.Client
         Task<Result> SetExpertProfileIsEdited(string expertId);
         Task<ExpertDataDTO[]> GetAllExperts();
         Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto);
-        Task<List<string>> RegisterStudentsBatchAsync(IEnumerable<RegisterViewModel> registrationModels);
+        Task<Result<string[]>> RegisterStudentsBatchAsync(IEnumerable<RegisterViewModel> registrationModels);
     }
 }
