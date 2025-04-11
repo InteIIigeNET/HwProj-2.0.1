@@ -89,7 +89,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         studentSolutions: [],
         showQrCode: false
     })
-
+    const [studentSolutions, setStudentSolutions] = useState<StatisticsCourseMatesModel[]>([])
     const [courseFilesInfo, setCourseFilesInfo] = useState<FileInfoDTO[]>([])
 
     const [pageState, setPageState] = useState<IPageState>({
@@ -104,7 +104,6 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         newStudents,
         acceptedStudents,
         isReadingMode,
-        studentSolutions,
         courseHomeworks,
     } = courseState
 
@@ -149,8 +148,6 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
             return
         }
 
-        const solutions = await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
-
         setCourseState(prevState => ({
             ...prevState,
             isFound: true,
@@ -161,7 +158,6 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
             mentors: course.mentors!,
             acceptedStudents: course.acceptedStudents!,
             newStudents: course.newStudents!,
-            studentSolutions: solutions
         }))
     }
 
@@ -181,6 +177,11 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     useEffect(() => {
         setCurrentState()
     }, [])
+
+    useEffect(() => {
+        ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
+            .then(res => setStudentSolutions(res))
+    }, [courseId])
 
     useEffect(() => {
         getCourseFilesInfo()

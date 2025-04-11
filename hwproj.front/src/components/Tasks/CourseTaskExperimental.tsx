@@ -1,7 +1,7 @@
 import {Alert, CardActions, CardContent, Chip, Divider, Grid, IconButton, TextField, Typography} from "@mui/material";
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
 import {FC, useEffect, useState} from "react"
-import {HomeworkTaskViewModel, HomeworkViewModel} from "../../api";
+import {ActionOptions, HomeworkTaskViewModel, HomeworkViewModel} from "../../api";
 import ApiSingleton from "../../api/ApiSingleton";
 import * as React from "react";
 import EditIcon from "@mui/icons-material/Edit";
@@ -10,6 +10,7 @@ import {Button} from "@material-ui/core";
 import {LoadingButton} from "@mui/lab";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import DeletionConfirmation from "../DeletionConfirmation";
+import ActionOptionsUI from "../Common/ActionOptions";
 
 interface IEditTaskMetadataState {
     hasDeadline: boolean | undefined;
@@ -67,6 +68,9 @@ const CourseTaskEditor: FC<{
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false)
 
     const [handleSubmitLoading, setHandleSubmitLoading] = useState(false);
+    const [editOptions, setEditOptions] = useState<ActionOptions>({sendNotification: false})
+
+    const publicationDate = metadata?.publicationDate || homework.publicationDate
 
     const handleSubmit = async (e: any) => {
         e.preventDefault()
@@ -76,6 +80,7 @@ const CourseTaskEditor: FC<{
             title: title!,
             description: description,
             maxRating: maxRating,
+            actionOptions: editOptions,
         })
 
         props.onUpdate(updatedTask.value!)
@@ -181,19 +186,22 @@ const CourseTaskEditor: FC<{
                 }
             </Grid>
             <CardActions>
+                {publicationDate && new Date() >= new Date(publicationDate) && <ActionOptionsUI
+                    disabled={isDisabled || handleSubmitLoading}
+                    onChange={value => setEditOptions(value)}/>}
                 <LoadingButton
                     fullWidth
                     onClick={handleSubmit}
                     color="primary"
-                    variant="contained"
+                    variant="text"
                     type="submit"
                     disabled={isDisabled}
                     loadingPosition="end"
+                    size={"large"}
                     endIcon={<span style={{width: 17}}/>}
                     loading={handleSubmitLoading}
-                    style={isDisabled ? undefined : {color: "white", backgroundColor: "#3f51b5"}}
                 >
-                    Редактировать задачу
+                    Редактировать задачу ({editOptions.sendNotification ? "с уведомлением" : "без уведомления"})
                 </LoadingButton>
                 <IconButton aria-label="delete" color="error" onClick={() => setShowDeleteConfirmation(true)}>
                     <DeleteIcon/>

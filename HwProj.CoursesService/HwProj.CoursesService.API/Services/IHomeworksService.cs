@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
+using HwProj.Models;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -13,6 +14,6 @@ namespace HwProj.CoursesService.API.Services
 
         Task DeleteHomeworkAsync(long homeworkId);
 
-        Task<Homework> UpdateHomeworkAsync(long homeworkId, Homework update);
+        Task<Homework> UpdateHomeworkAsync(long homeworkId, Homework update, ActionOptions options);
     }
 }

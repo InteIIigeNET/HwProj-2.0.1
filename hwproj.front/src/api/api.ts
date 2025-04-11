@@ -147,6 +147,19 @@ export interface AccountDataDto {
 /**
  * 
  * @export
+ * @interface ActionOptions
+ */
+export interface ActionOptions {
+    /**
+     *
+     * @type {boolean}
+     * @memberof ActionOptions
+     */
+    sendNotification?: boolean;
+}
+/**
+ *
+ * @export
  * @interface AddAnswerForQuestionDto
  */
 export interface AddAnswerForQuestionDto {
@@ -598,6 +611,12 @@ export interface CreateHomeworkViewModel {
      * @memberof CreateHomeworkViewModel
      */
     tasks?: Array<CreateTaskViewModel>;
+    /**
+     *
+     * @type {ActionOptions}
+     * @memberof CreateHomeworkViewModel
+     */
+    actionOptions?: ActionOptions;
 }
 /**
  * 
@@ -647,6 +666,12 @@ export interface CreateTaskViewModel {
      * @memberof CreateTaskViewModel
      */
     maxRating: number;
+    /**
+     *
+     * @type {ActionOptions}
+     * @memberof CreateTaskViewModel
+     */
+    actionOptions?: ActionOptions;
 }
 /**
  * 
@@ -1124,6 +1149,18 @@ export interface HomeworkTaskViewModel {
     deadlineDateNotSet?: boolean;
     /**
      *
+     * @type {boolean}
+     * @memberof HomeworkTaskViewModel
+     */
+    publicationDateNotSet?: boolean;
+    /**
+     *
+     * @type {boolean}
+     * @memberof HomeworkTaskViewModel
+     */
+    deadlineDateNotSet?: boolean;
+    /**
+     *
      * @type {number}
      * @memberof HomeworkTaskViewModel
      */
@@ -1235,6 +1272,18 @@ export interface HomeworkViewModel {
     publicationDate?: Date;
     /**
      * * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    publicationDateNotSet?: boolean;
+    /**
+     *
+     * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    deadlineDateNotSet?: boolean;
+    /**
+     *
+     * @type {boolean}
      * @memberof HomeworkViewModel
      */
     publicationDateNotSet?: boolean;

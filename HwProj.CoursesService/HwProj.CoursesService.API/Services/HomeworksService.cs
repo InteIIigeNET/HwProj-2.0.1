@@ -7,6 +7,7 @@ using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Domains;
+using HwProj.Models;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -59,14 +60,14 @@ namespace HwProj.CoursesService.API.Services
             await _homeworksRepository.DeleteAsync(homeworkId);
         }
 
-        public async Task<Homework> UpdateHomeworkAsync(long homeworkId, Homework update)
+        public async Task<Homework> UpdateHomeworkAsync(long homeworkId, Homework update, ActionOptions options)
         {
             var homework = await _homeworksRepository.GetAsync(homeworkId);
             var course = await _coursesRepository.GetWithCourseMates(homework.CourseId);
 
             var studentIds = course!.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
-            if (update.PublicationDate <= DateTime.UtcNow)
+            if (options.SendNotification && update.PublicationDate <= DateTime.UtcNow)
                 _eventBus.Publish(new UpdateHomeworkEvent(update.Title, course.Id, course.Name, studentIds));
 
             await _homeworksRepository.UpdateAsync(homeworkId, hw => new Homework()

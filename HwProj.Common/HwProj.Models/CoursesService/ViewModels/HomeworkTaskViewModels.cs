@@ -61,5 +61,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public DateTime? PublicationDate { get; set; }
 
         [Required] public int MaxRating { get; set; }
+
+        public ActionOptions? ActionOptions { get; set; }
     }
 }

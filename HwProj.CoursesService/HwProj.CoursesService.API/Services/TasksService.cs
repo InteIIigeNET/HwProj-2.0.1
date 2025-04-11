@@ -6,6 +6,7 @@ using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.CoursesService.API.Domains;
 using System.Linq;
+using HwProj.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services
@@ -63,7 +64,7 @@ namespace HwProj.CoursesService.API.Services
             await _tasksRepository.DeleteAsync(taskId);
         }
 
-        public async Task<HomeworkTask> UpdateTaskAsync(long taskId, HomeworkTask update)
+        public async Task<HomeworkTask> UpdateTaskAsync(long taskId, HomeworkTask update, ActionOptions options)
         {
             var task = await _tasksRepository.GetWithHomeworkAsync(taskId);
             if (task == null) throw new InvalidOperationException("Task not found");
@@ -72,7 +73,9 @@ namespace HwProj.CoursesService.API.Services
 
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
-            _eventBus.Publish(new UpdateTaskMaxRatingEvent(course.Name, course.Id, task.Title, task.Id, studentIds));
+            if (options.SendNotification && update.PublicationDate <= DateTime.UtcNow)
+                _eventBus.Publish(new UpdateTaskMaxRatingEvent(course.Name, course.Id, task.Title, task.Id,
+                    studentIds));
 
             await _tasksRepository.UpdateAsync(taskId, t => new HomeworkTask()
             {
