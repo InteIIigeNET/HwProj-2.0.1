@@ -74,14 +74,15 @@ namespace StudentsInfo
             }
             catch (LdapReferralException)
             {
+                return studentsList;
             }
             catch (LdapException ldapEx)
             {
-                Console.WriteLine($"LDAP Error: {ldapEx.Message}");
+                return studentsList;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                return studentsList;
             }
             finally
             {

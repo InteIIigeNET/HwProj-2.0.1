@@ -1152,18 +1152,6 @@ export interface HomeworkTaskViewModel {
      * @type {boolean}
      * @memberof HomeworkTaskViewModel
      */
-    publicationDateNotSet?: boolean;
-    /**
-     *
-     * @type {boolean}
-     * @memberof HomeworkTaskViewModel
-     */
-    deadlineDateNotSet?: boolean;
-    /**
-     *
-     * @type {number}
-     * @memberof HomeworkTaskViewModel
-     */
     homeworkId?: number;
     /**
      * 
