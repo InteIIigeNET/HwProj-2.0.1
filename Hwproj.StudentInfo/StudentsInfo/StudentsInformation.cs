@@ -41,15 +41,14 @@ namespace StudentsInfo
             try
             {
                 connection = new LdapConnection();
-                
+                connection.Connect(_ldapHost, _ldapPort);
+                connection.Bind(_username, _password);
+
                 if (!connection.Connected)
                 {
                     return studentsList;
                 }
                 
-                connection.Connect(_ldapHost, _ldapPort);
-                connection.Bind(_username, _password);
-
                 var results = connection.Search(
                     _searchBase,
                     LdapConnection.SCOPE_SUB,

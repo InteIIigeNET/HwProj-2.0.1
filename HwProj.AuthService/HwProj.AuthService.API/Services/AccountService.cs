@@ -360,9 +360,10 @@ namespace HwProj.AuthService.API.Services
 
             foreach (var model in models)
             {
-                if (await _userManager.FindByEmailAsync(model.Email) != null)
+                var existingUser = await _userManager.FindByEmailAsync(model.Email);
+                if (existingUser != null)
                 {
-                    errors.Add($"User with email {model.Email} already exists");
+                    results.Add(existingUser.Id);
                     continue;
                 }
 

@@ -105,32 +105,34 @@ namespace HwProj.APIGateway.API.Controllers
             if (!string.IsNullOrEmpty(model.GroupName) && model.FetchStudents)
             {
                 var students = _studentsInfo.GetStudentInformation(model.GroupName);
-                var studentEmails = students
+                
+                var sortedStudents = students
                     .Where(student => !string.IsNullOrEmpty(student.Email))
+                    .OrderBy(student => student.Surname)
+                    .ThenBy(student => student.Name)
+                    .ToList();
+
+                var studentEmails = sortedStudents
                     .Select(student => student.Email)
                     .ToList();
 
-                var registrationModels = students
-                    .Where(student => !string.IsNullOrEmpty(student.Email))
-                    .Select(student =>
+                var registrationModels = sortedStudents
+                    .Select(student => new RegisterViewModel
                     {
-                        return new RegisterViewModel
-                        {
-                            Email = student.Email,
-                            Name = student.Name,
-                            Surname = student.Surname,
-                            MiddleName = student.MiddleName
-                        };
+                        Email = student.Email,
+                        Name = student.Name,
+                        Surname = student.Surname,
+                        MiddleName = student.MiddleName
                     }).ToList();
 
                 var regResult = await AuthServiceClient.RegisterStudentsBatchAsync(registrationModels);
-                
+        
                 if (regResult.Succeeded)
                 {
                     model.StudentIDs = regResult.Value.ToList();
                 }
             }
-            
+    
             var result = await _coursesClient.CreateCourse(model);
             return result.Succeeded
                 ? Ok(result.Value) as IActionResult
