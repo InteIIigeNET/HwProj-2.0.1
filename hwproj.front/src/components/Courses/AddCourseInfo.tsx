@@ -67,12 +67,12 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
         </Button>
         <LoadingButton
           type="submit"
-          variant="contained"
+          variant="text"
           size="large"
           sx={{
             marginLeft: "auto",
-            background: "#3f51b5",
-            ":hover": { background: "#383c9c" },
+            color: "#3f51b5",
+            ":hover": { background: "#f7f8fc" },
           }}
           disabled={!state.courseName}
           loading={state.courseIsLoading}
