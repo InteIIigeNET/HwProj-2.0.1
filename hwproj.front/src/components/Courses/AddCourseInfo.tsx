@@ -7,12 +7,10 @@ import {
 import {LoadingButton} from "@mui/lab";
 import {IStepComponentProps} from "./ICreateCourseState";
 
-const AddCourseInfo: FC<IStepComponentProps> = (props) => {
-  const state = props.state
-
+const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
   const handleCourseNameChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     e.persist()
-    props.setState((prevState) => ({
+    setState((prevState) => ({
       ...prevState,
       courseName: e.target.value,
     }))
@@ -20,20 +18,20 @@ const AddCourseInfo: FC<IStepComponentProps> = (props) => {
 
   const handleGroupNameChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     e.persist()
-    props.setState((prevState) => ({
+    setState((prevState) => ({
       ...prevState,
       groupName: e.target.value,
     }))
   }
 
   const handleBack = () =>
-    props.setState((prevState) => {
-      const newSkippedSteps = prevState.skippedSteps
-      newSkippedSteps.delete(prevState.activeStep - 1)
+    setState((prevState) => {
+      const newCompletedSteps = prevState.completedSteps
+      newCompletedSteps.delete(prevState.activeStep - 1)
       return ({
         ...prevState,
         activeStep: prevState.activeStep - 1,
-        skippedSteps: newSkippedSteps,
+        completedSteps: newCompletedSteps,
       })
     })
 
@@ -69,12 +67,12 @@ const AddCourseInfo: FC<IStepComponentProps> = (props) => {
         </Button>
         <LoadingButton
           type="submit"
-          variant="contained"
+          variant="text"
           size="large"
           sx={{
             marginLeft: "auto",
-            background: "#3f51b5",
-            ":hover": { background: "#383c9c" },
+            color: "#3f51b5",
+            ":hover": { background: "#f7f8fc" },
           }}
           disabled={!state.courseName}
           loading={state.courseIsLoading}

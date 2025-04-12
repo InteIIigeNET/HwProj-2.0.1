@@ -2,6 +2,7 @@ import {
   Stepper,
   Step,
   StepLabel,
+  StepButton,
   Typography,
   CircularProgress,
 } from "@material-ui/core";
@@ -18,7 +19,7 @@ import {
   ICreateCourseState,
   CreateCourseStep,
   stepLabels,
-  stepIsOptional
+  stepIsOptional,
 } from "./ICreateCourseState";
 import SelectBaseCourse from "./SelectBaseCourse";
 import AddCourseInfo from "./AddCourseInfo";
@@ -42,26 +43,16 @@ const useStyles = makeStyles((theme) => ({
 const CreateCourse: FC = () => {
   const [state, setState] = useState<ICreateCourseState>({
     activeStep: CreateCourseStep.SelectBaseCourseStep,
-    skippedSteps: new Set (),
+    completedSteps: new Set (),
     courseName: "",
     groupName: "",
     courseIsLoading: false,
   })
 
-  const baseCourse =
-    state.baseCourses && state.baseCourseIndex !== undefined
-      ? state.baseCourses[state.baseCourseIndex]
-      : undefined
+  const {activeStep, completedSteps, baseCourses, selectedBaseCourse} = state
 
   const navigate = useNavigate()
   const {enqueueSnackbar} = useSnackbar()
-
-  const skipCurrentStep = () =>
-    setState((prevState) => ({
-      ...prevState,
-      activeStep: prevState.activeStep + 1,
-      skippedSteps: prevState.skippedSteps.add(prevState.activeStep),
-    }))
 
   const setBaseCourses = (courses?: CoursePreviewView[]) =>
     setState((prevState) => ({
@@ -74,6 +65,20 @@ const CreateCourse: FC = () => {
       ...prevState,
       courseIsLoading: isLoading,
     }))
+
+  const goToStep = (step: CreateCourseStep) =>
+    setState((prevState) => ({
+      ...prevState,
+      activeStep: step,
+      completedSteps: prevState.completedSteps.intersection(new Set(Array(step).keys())),
+    }))
+
+  const skipCurrentStep = () => goToStep(activeStep + 1)
+
+  const stepIsCompleted = (step: CreateCourseStep) => completedSteps.has(step)
+
+  const stepIsDisabled = (step: CreateCourseStep) =>
+    step > activeStep || step === CreateCourseStep.SelectBaseCourseStep && !baseCourses?.length
 
   useEffect(() => {
     const loadBaseCourses = async () => {
@@ -113,16 +118,13 @@ const CreateCourse: FC = () => {
     }
   }
 
-  const stepIsCompleted = (step: CreateCourseStep) =>
-    step < state.activeStep && !state.skippedSteps.has(step)
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const courseViewModel = {
       name: state.courseName,
       groupName: state.groupName,
       isOpen: true,
-      baseCourseId: baseCourse?.id,
+      baseCourseId: selectedBaseCourse?.id,
     }
     try {
       setCourseIsLoading(true)
@@ -147,14 +149,14 @@ const CreateCourse: FC = () => {
       </Typography>
     )
   }
-  return state.baseCourses ? (
+  return baseCourses ? (
     <Container component="main" maxWidth="sm">
       <div className={classes.paper}>
         <Typography component="h1" variant="h5">
           Создать курс
         </Typography>
         <form onSubmit={handleSubmit} className={classes.form}>
-          <Stepper alternativeLabel activeStep={state.activeStep}>
+          <Stepper alternativeLabel activeStep={activeStep}>
             {stepLabels.map((label, step) => {
               const optionalLabel = stepIsOptional(step) ? (
                 <Typography variant="caption">
@@ -163,16 +165,19 @@ const CreateCourse: FC = () => {
               ) : undefined
               return (
                 <Step
-                  key={label}
+                  key={step}
                   completed={stepIsCompleted(step)}
+                  disabled={stepIsDisabled(step)}
                   style={{ textAlign: "center" }}
                 >
-                  <StepLabel optional={optionalLabel}>{label}</StepLabel>
+                  <StepButton optional={optionalLabel} onClick={() => goToStep(step)}>
+                    <StepLabel>{label}</StepLabel>
+                  </StepButton>
                 </Step>
               )
             })}
           </Stepper>
-          {handleStep(state.activeStep)}
+          {handleStep(activeStep)}
         </form>
       </div>
     </Container>
