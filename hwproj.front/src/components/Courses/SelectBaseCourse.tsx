@@ -23,16 +23,15 @@ const SelectBaseCourse: FC<IStepComponentProps> = ({state, setState}) => {
     }))
   }
 
-  const handleSkip = () => {
+  const handleSkip = () =>
     setState((prevState) => ({
       ...prevState,
       activeStep: prevState.activeStep + 1,
       courseName: "",
       groupName: "",
     }))
-  }
 
-  const handleNext = () => {
+  const handleNext = () =>
     setState((prevState) => ({
       ...prevState,
       activeStep: prevState.activeStep + 1,
@@ -40,7 +39,6 @@ const SelectBaseCourse: FC<IStepComponentProps> = ({state, setState}) => {
       courseName: selectedBaseCourse!.name!,
       groupName: selectedBaseCourse!.groupName!,
     }))
-  }
 
   return (
     <Grid container spacing={2}>
