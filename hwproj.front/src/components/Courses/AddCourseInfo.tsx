@@ -26,12 +26,12 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
 
   const handleBack = () =>
     setState((prevState) => {
-      const newSkippedSteps = prevState.skippedSteps
-      newSkippedSteps.delete(prevState.activeStep - 1)
+      const newCompletedSteps = prevState.completedSteps
+      newCompletedSteps.delete(prevState.activeStep - 1)
       return ({
         ...prevState,
         activeStep: prevState.activeStep - 1,
-        skippedSteps: newSkippedSteps,
+        completedSteps: newCompletedSteps,
       })
     })
 

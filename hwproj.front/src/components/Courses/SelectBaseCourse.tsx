@@ -12,7 +12,7 @@ import {IStepComponentProps} from "./ICreateCourseState";
 import NameBuilder from "../Utils/NameBuilder";
 
 const SelectBaseCourse: FC<IStepComponentProps> = ({state, setState}) => {
-  const baseCourses = state.baseCourses!.reverse()
+  const baseCourses = state.baseCourses!.toReversed()
   const selectedBaseCourse = state.selectedBaseCourse
 
   const handleChange = (e: SyntheticEvent<Element, Event>, value: CoursePreviewView | null) => {
@@ -27,8 +27,6 @@ const SelectBaseCourse: FC<IStepComponentProps> = ({state, setState}) => {
     setState((prevState) => ({
       ...prevState,
       activeStep: prevState.activeStep + 1,
-      skippedSteps: prevState.skippedSteps.add(prevState.activeStep),
-      baseCourseIndex: undefined,
       courseName: "",
       groupName: "",
     }))
@@ -38,6 +36,7 @@ const SelectBaseCourse: FC<IStepComponentProps> = ({state, setState}) => {
     setState((prevState) => ({
       ...prevState,
       activeStep: prevState.activeStep + 1,
+      completedSteps: prevState.completedSteps.add(prevState.activeStep),
       courseName: selectedBaseCourse!.name!,
       groupName: selectedBaseCourse!.groupName!,
     }))
