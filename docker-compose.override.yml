@@ -10,6 +10,7 @@ services:
   front:
     environment:
       - REACT_APP_BASE_PATH=http://localhost:5000
+      - REACT_APP_YANDEX_METRICA_ID=101061418
     ports:
       - "3000:3000"
 
