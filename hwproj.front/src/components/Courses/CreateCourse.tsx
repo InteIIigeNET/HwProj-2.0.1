@@ -70,7 +70,7 @@ const CreateCourse: FC = () => {
     setState((prevState) => ({
       ...prevState,
       activeStep: step,
-      completedSteps: prevState.completedSteps.intersection(new Set(Array(step).keys())),
+      completedSteps: new Set (Array.from(prevState.completedSteps).filter(s => s < step)),
     }))
 
   const skipCurrentStep = () => goToStep(activeStep + 1)
