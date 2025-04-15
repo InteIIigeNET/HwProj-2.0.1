@@ -1,4 +1,4 @@
-﻿import {ICommand} from '@uiw/react-md-editor/esm/commands';
+﻿import {ICommand} from '@uiw/react-md-editor';
 import {
     divider,
     group,
@@ -29,7 +29,7 @@ import {
     title6 as title6Init,
     table as tableInit,
     help as helpInit
-} from '@uiw/react-md-editor/esm/commands';
+} from '@uiw/react-md-editor';
 
 let bold: ICommand = {
     ...boldInit,

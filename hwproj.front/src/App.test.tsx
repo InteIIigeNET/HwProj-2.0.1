@@ -1,17 +1,15 @@
 import React from "react";
-import { Router } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
 import { createMemoryHistory } from "history";
 import { render, screen } from "@testing-library/react";
 
 import App from "./App";
 
 test("displays Login Page on /login url", () => {
-  const history = createMemoryHistory({ initialEntries: ["/login"] });
-
   render(
-    <Router history={history}>
+    <MemoryRouter initialEntries={["/login"]}>
       <App />
-    </Router>
+    </MemoryRouter>
   );
 
   const heading = screen.getByRole("heading", { name: "Войти" });
