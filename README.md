@@ -19,7 +19,7 @@ HwProj — это веб-сервис, созданный для автомат�
 - [.NET Core 2.2 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/2.2)
 - [MS SQL LocalDB](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb?view=sql-server-ver16)
 - - После скачивания SQL Server Installer запускаем его, выбираем Download Media, в следующем окне тыкаем на LocalDB
-- Node JS, [v16.12.0](https://nodejs.org/download/release/v16.12.0/)
+- Node JS, [v22.14.0](https://nodejs.org/download/release/v22.14.0/)
 - Rabbit MQ, [последняя актуальная версия](https://www.rabbitmq.com/download.html)
 0. Открыть `HwProj-2.0.1/HwProj.sln` в Rider / Visual Studio -> Собрать решение
 1. Вызвать `npm install` в `HwProj-2.0.1/hwproj.front` 
