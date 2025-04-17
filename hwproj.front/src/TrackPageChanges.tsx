@@ -12,9 +12,11 @@ const TrackPageChanges = () => {
         if (pathname.startsWith('/join')) return "/join/TOKEN"
         return pathname
             .split('/')
-            .map(segment => idRegex.test(segment) || uuidRegex.test(segment)
-                ? 'ID'
-                : segment)
+            .map(segment => {
+                if (idRegex.test(segment)) return "ID"
+                if (uuidRegex.test(segment)) return "USER_ID"
+                return segment
+            })
             .join('/')
     }
 
