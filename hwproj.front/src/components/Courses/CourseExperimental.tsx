@@ -8,7 +8,7 @@ import {
     Button,
     Grid,
     Typography
-} from "@material-ui/core";
+} from "@mui/material";
 import {FC, useEffect, useState} from "react";
 import Timeline from '@mui/lab/Timeline';
 import TimelineItem from '@mui/lab/TimelineItem';
@@ -187,13 +187,23 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         )
     }
 
-    const renderSelectedItem = () => {
-        if (isHomework) {
-            const homework = homeworks.find(x => x.id === id) as HomeworkViewModel
-            const filesInfo = id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, id) : []
-            return homework && <Grid container direction={"column"} spacing={1}>
+    const selectedItemHomework = isHomework
+        ? homeworks.find(x => x.id === id)
+        : homeworks.find(x => x.tasks!.some(t => t.id === id))
+
+    const selectedItem = isHomework
+        ? selectedItemHomework
+        : selectedItemHomework?.tasks!.find(x => x.id === id) as HomeworkTaskViewModel
+
+    const [showTasks, setShowTasks] = useState<boolean>(false)
+
+    const renderHomework = (homework: HomeworkViewModel) => {
+        const filesInfo = id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, id) : []
+        return homework && <div>
+            <div>
                 <Grid item>
-                    <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
+                    <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}
+                          raised={homework.tasks!.length! > 0}>
                         {getAlert(homework)}
                         <CourseHomeworkExperimental
                             homeworkAndFilesInfo={{homework, filesInfo}}
@@ -211,6 +221,16 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         }
                                     }))
                             }}/>
+                        {homework.tasks!.length! > 0 && <CardActions>
+                            <Button
+                                onClick={() => setShowTasks(!showTasks)}
+                                size="small"
+                                variant="text"
+                                color="primary"
+                            >
+                                Задачи
+                            </Button>
+                        </CardActions>}
                     </Card>
                 </Grid>
                 <Grid item>
@@ -220,14 +240,22 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         autoplay
                     />
                 </Grid>
-            </Grid>
-        }
+            </div>
+            {homework.tasks!.length! > 0 && showTasks &&
+                <Grid container direction={"column"}>{homework.tasks!.map((t, i) =>
+                    <div style={{
+                        marginTop: -15 * i, // Негативный отступ для наложения
+                        zIndex: homework.tasks!.length - i, // Управление слоями
+                        position: "relative", // Обеспечивает различное наложение карточек
+                    }}
+                    >{renderTask(t, homework)}</div>)}</Grid>}
+        </div>
+    }
 
-        const homework = homeworks.find(x => x.tasks!.some(t => t.id === id))
-        const task = homework?.tasks!.find(x => x.id === id) as HomeworkTaskViewModel
+    const renderTask = (task: HomeworkTaskViewModel, homework: HomeworkViewModel) => {
         return task && <Grid container direction={"column"} spacing={1}>
             <Grid item>
-                <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
+                <Card variant="elevation" style={{backgroundColor: "ghostwhite"}} raised={true}>
                     {getAlert(task)}
                     <CourseTaskExperimental task={task}
                                             homework={homework!}
@@ -364,7 +392,9 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Grid>
 
         <Grid item xs={12} sm={12} md={8} lg={8}>
-            {renderSelectedItem()}
+            {isHomework && selectedItem
+                ? renderHomework(selectedItem as HomeworkViewModel)
+                : renderTask(selectedItem as HomeworkTaskViewModel, selectedItemHomework!)}
         </Grid>
     </Grid>
 }
