@@ -51,7 +51,7 @@
     "rehype-sanitize": "^6.0.0"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run type-check && npm run lint && vite",
     "build": "vite build",
     "test": "vitest",
     "preview": "vite preview",
