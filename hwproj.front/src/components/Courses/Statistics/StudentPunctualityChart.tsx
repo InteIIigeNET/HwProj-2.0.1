@@ -217,37 +217,36 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
     const attemptTooltipRepresentation = new Map<number, [IDatesDeviation, string, boolean]>();
     
     const initial = tasks.length ? [{xAxisPosition: 0, yAxisPosition: null}] : [];
-    const solveAttempts = studentTaskSolutions.reduce
-    ((attemptAcc : IStudentAttempt[], task, i) => {
-        
-        const leftBorder = sectorRepresentation.get(task.id!)![0];
-        const deadlineTick = taskDeadlines.get(task.id!)!;
-        const courseTask = tasks.find(t => t.id === task.id)!;
-        const deadlineDate = courseTask.deadlineDate!;
-        const maxRating = courseTask.maxRating!;
-        const taskSolutions = task.solution!;
-        
-        const attempts = taskSolutions.reduce((currentAcc : IStudentAttempt[], solution, index) => {
-            const tick = leftBorder + index + 1;
-            const actualTick = tick >= deadlineTick ? tick + 1 : tick;
-            const fill = StudentStatsUtils.calculateLastRatedSolutionInfo([solution], maxRating).color;
-            const prevSolution = taskSolutions[index-1];
+    const solveAttempts = studentTaskSolutions
+        .reduce((attemptAcc : IStudentAttempt[], task, i) => {
+            const leftBorder = sectorRepresentation.get(task.id!)![0];
+            const deadlineTick = taskDeadlines.get(task.id!)!;
+            const courseTask = tasks.find(t => t.id === task.id)!;
+            const deadlineDate = courseTask.deadlineDate!;
+            const maxRating = courseTask.maxRating!;
+            const taskSolutions = task.solution!;
             
-            const measureDate = prevSolution?.rating && prevSolution?.ratingDate &&
-            prevSolution.ratingDate < solution.publicationDate! && prevSolution.ratingDate > deadlineDate
-                ? prevSolution.ratingDate : deadlineDate;
-            const deviation = getDatesDiff(solution.publicationDate!, measureDate);
-            const actuallyDeviation : {value: number, measure: "RatingDate" | "DeadlineDate"} = {
-                value: daysDifference(measureDate, solution.publicationDate!),
-                measure: measureDate === prevSolution?.ratingDate ? "RatingDate" : "DeadlineDate"
-            };
-            
-            const attempt = {fill, xAxisPosition: actualTick, yAxisPosition: deviation, link: solution.githubUrl};
-            attemptTooltipRepresentation
-                .set(actualTick, [actuallyDeviation, `${solution.rating}/${maxRating}`, solution.state != SolutionState.NUMBER_0]);
-            
-            return [...currentAcc, attempt];
-        }, [])
+            const attempts = taskSolutions.reduce((currentAcc : IStudentAttempt[], solution, index) => {
+                const tick = leftBorder + index + 1;
+                const actualTick = tick >= deadlineTick ? tick + 1 : tick;
+                const fill = StudentStatsUtils.calculateLastRatedSolutionInfo([solution], maxRating).color;
+                const prevSolution = taskSolutions[index-1];
+                
+                const measureDate = prevSolution?.rating && prevSolution?.ratingDate &&
+                prevSolution.ratingDate < solution.publicationDate! && prevSolution.ratingDate > deadlineDate
+                    ? prevSolution.ratingDate : deadlineDate;
+                const deviation = getDatesDiff(solution.publicationDate!, measureDate);
+                const actuallyDeviation : {value: number, measure: "RatingDate" | "DeadlineDate"} = {
+                    value: daysDifference(measureDate, solution.publicationDate!),
+                    measure: measureDate === prevSolution?.ratingDate ? "RatingDate" : "DeadlineDate"
+                };
+                
+                const attempt = {fill, xAxisPosition: actualTick, yAxisPosition: deviation, link: solution.githubUrl};
+                attemptTooltipRepresentation
+                    .set(actualTick, [actuallyDeviation, `${solution.rating}/${maxRating}`, solution.state != SolutionState.NUMBER_0]);
+                
+                return [...currentAcc, attempt];
+            }, [])
         const referenceLineFill : IStudentAttempt = {xAxisPosition: leftBorder + sectors.get(leftBorder)!.barsAmount + 2, yAxisPosition: null};
         const deadlineFill : IStudentAttempt = {xAxisPosition: deadlineTick, yAxisPosition: null, yAxisPositionDeadline: 0};
         const sectorItems = [...attempts, deadlineFill]
