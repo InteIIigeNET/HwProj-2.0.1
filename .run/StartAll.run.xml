@@ -6,7 +6,7 @@
     <toRun name="HwProj.CoursesService.API" type="LaunchSettings" />
     <toRun name="HwProj.NotificationsService.API" type="LaunchSettings" />
     <toRun name="HwProj.SolutionsService.API" type="LaunchSettings" />
-    <toRun name="start" type="js.build_tools.npm" />
+    <toRun name="dev" type="js.build_tools.npm" />
     <method v="2" />
   </configuration>
 </component>

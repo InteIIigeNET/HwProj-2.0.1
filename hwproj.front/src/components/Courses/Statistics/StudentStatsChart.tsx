@@ -189,8 +189,7 @@ const StudentStatsChart: React.FC = () => {
                                         <StudentPunctualityChart
                                             index={index + 1}
                                             tasks={state.tasksWithDeadline}
-                                            solutions={state.solutions.find
-                                            (solution => solution.id === studentId)!}
+                                            solutions={state.solutions.find(solution => solution.id === studentId)!}
                                             sectorSizes={sectorSizes}
                                         />
                                     </Paper>

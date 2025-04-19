@@ -57,7 +57,7 @@ class Api {
     }
 }
 
-const basePath = process.env.REACT_APP_BASE_PATH!
+const basePath = import.meta.env.VITE_BASE_PATH
 const authService = new AuthService()
 
 let ApiSingleton: Api;
