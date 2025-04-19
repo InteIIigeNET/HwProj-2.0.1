@@ -1,24 +1,30 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "lib": ["es6", "dom", "dom.iterable", "esnext"],
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
+    // Базовые настройки компиляции
+    "target": "ESNext",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "ESNext",
+    "moduleResolution": "Node",
+
+    // Проверки типов
+    "strict": true,
+
+    // Пути и их разрешение
     "baseUrl": "src",
+    "paths": { "@/*": ["*"] },
+    
+    // Системные настройки
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "jsx": "react-jsx",
+    "types": ["vite/client", "vite-plugin-svgr/client"],
+
     "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
-    "noFallthroughCasesInSwitch": true
+    //"noFallthroughCasesInSwitch": true,
   },
   "include": ["src"]
 }
