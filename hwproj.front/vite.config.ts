@@ -20,7 +20,10 @@ export default defineConfig({
             typescript: true,
             eslint: {
                 useFlatConfig: true,
-                lintCommand: 'eslint "./src/**/*.{ts,tsx}"'
+                lintCommand: 'eslint "./src/**/*.{ts,tsx}"',
+                dev: {
+                    logLevel: ['error']
+                }
             }
         }),
         environment(['NODE_ENV'])
