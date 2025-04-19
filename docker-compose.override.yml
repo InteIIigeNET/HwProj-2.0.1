@@ -9,8 +9,9 @@ services:
 
   front:
     environment:
-      - REACT_APP_BASE_PATH=http://localhost:5000
-      - REACT_APP_YANDEX_METRICA_ID=101061418
+      - VITE_BASE_PATH=http://localhost:5000
+      - VITE_YANDEX_METRICA_ID=101061418
+      - WDS_SOCKET_PORT=0
     ports:
       - "3000:3000"
 

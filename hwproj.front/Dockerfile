@@ -1,5 +1,7 @@
 FROM node:22.14.0-alpine
 
+RUN apk add --no-cache xdg-utils
+
 # Create app directory
 WORKDIR /usr/src/app
 
@@ -9,7 +11,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Устанавливаем зависимости в node_modules
-RUN npm ci
+RUN npm install
 
 # Bundle app source
 COPY . .

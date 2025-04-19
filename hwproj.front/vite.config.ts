@@ -29,8 +29,14 @@ export default defineConfig({
         environment(['NODE_ENV'])
     ],
     server: {
+        host: '0.0.0.0',
         port: 3000,
-        open: true
+        allowedHosts: ["hwproj.ru"],
+        hmr: {
+            host: 'localhost',
+            port: 3000,
+            protocol: 'wss'
+        }
     },
     build: {
         outDir: "dist",
