@@ -26,5 +26,5 @@
     "noEmit": true,
     //"noFallthroughCasesInSwitch": true,
   },
-  "include": ["src"]
+  "include": ["src", "src/globals.d.ts"]
 }
