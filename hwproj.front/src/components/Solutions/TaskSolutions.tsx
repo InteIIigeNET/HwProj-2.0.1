@@ -2,11 +2,10 @@ import * as React from 'react';
 import {FC, useEffect, useState} from 'react';
 import TaskSolutionComponent from "./TaskSolutionComponent";
 import {
-    AccountDataDto,
     GetSolutionModel,
     GetTaskQuestionDto,
     HomeworkTaskViewModel,
-    SolutionState
+    SolutionState, StudentDataDto
 } from '../../api';
 import {Grid, Tab, Tabs} from "@material-ui/core";
 import {Chip, Divider, Stack, Tooltip, Badge} from "@mui/material";
@@ -17,9 +16,10 @@ import TaskQuestions from "../Tasks/TaskQuestions";
 import ApiSingleton from "../../api/ApiSingleton";
 
 interface ITaskSolutionsProps {
+    courseId: number,
     task: HomeworkTaskViewModel
     solutions: GetSolutionModel[]
-    student: AccountDataDto
+    student: StudentDataDto
     forMentor: boolean
     onSolutionRateClick?: () => void
 }
@@ -178,7 +178,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     lastRating={lastRating}
                     onRateSolutionClick={onSolutionRateClick}
                     isLastSolution={true}
-                />
+                    courseId={props.courseId}/>
                 : "Студент не отправил ни одного решения."}
         </Grid>}
         {tabValue === 2 &&
@@ -191,7 +191,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                         student={student!}
                         onRateSolutionClick={onSolutionRateClick}
                         isLastSolution={false}
-                    />
+                        courseId={props.courseId}/>
                     {i < arrayOfRatedSolutions.length - 1 ?
                         <Divider style={{marginTop: 10, marginBottom: 4}}/> : null}
                 </Grid>)}

@@ -16,6 +16,7 @@ namespace HwProj.CoursesService.API.Repositories
         public Task<Course?> GetWithCourseMates(long id) =>
             Context.Set<Course>()
                 .Include(c => c.CourseMates)
+                .ThenInclude(c => c.Characteristics)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -30,6 +31,7 @@ namespace HwProj.CoursesService.API.Repositories
         {
             var course = await Context.Set<Course>()
                 .Include(c => c.CourseMates)
+                .ThenInclude(c => c.Characteristics)
                 .Include(c => c.Homeworks)
                 .ThenInclude(c => c.Tasks)
                 .AsNoTracking()
@@ -44,6 +46,7 @@ namespace HwProj.CoursesService.API.Repositories
         {
             return Context.Set<Course>()
                 .Include(c => c.CourseMates)
+                .ThenInclude(c => c.Characteristics)
                 .Include(c => c.Homeworks)
                 .ThenInclude(c => c.Tasks)
                 .AsNoTracking();

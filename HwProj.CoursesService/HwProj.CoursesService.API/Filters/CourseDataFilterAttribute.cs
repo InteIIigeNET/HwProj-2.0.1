@@ -33,6 +33,11 @@ namespace HwProj.CoursesService.API.Filters
                         ? courseDto.CourseMates
                         : courseDto.CourseMates.Where(t => t.StudentId == userId).ToArray();
 
+                    foreach (var courseMate in courseDto.CourseMates)
+                    {
+                        courseMate.Characteristics = null;
+                    }
+
                     courseDto.Homeworks = courseDto.Homeworks
                         .Where(h =>
                             currentDate >= h.PublicationDate &&

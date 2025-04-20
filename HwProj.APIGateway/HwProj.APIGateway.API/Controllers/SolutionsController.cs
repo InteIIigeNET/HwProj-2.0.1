@@ -9,6 +9,7 @@ using HwProj.APIGateway.API.Models.Solutions;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Models.SolutionsService;
@@ -152,9 +153,8 @@ namespace HwProj.APIGateway.API.Controllers
             //TODO: CourseMentorOnlyAttribute
             if (course == null || !course.MentorIds.Contains(UserId)) return Forbid();
 
-            var studentIds = course.AcceptedStudents
-                .Select(t => t.StudentId)
-                .ToArray();
+            var students = course.AcceptedStudents.ToDictionary(x => x.StudentId);
+            var studentIds = students.Keys.ToArray();
 
             var currentDateTime = DateTime.UtcNow;
             var actualHomeworks = course.Homeworks
@@ -222,10 +222,13 @@ namespace HwProj.APIGateway.API.Controllers
                                         t.GroupId is { } groupId ? groups[groupId] : null,
                                         t.LecturerId == null ? null : usersData[t.LecturerId])).ToArray()
                                     : Array.Empty<GetSolutionModel>(),
-                                User = usersData[studentId]
+                                Student = new StudentDataDto(usersData[studentId])
+                                {
+                                    Characteristics = students[studentId].Characteristics,
+                                }
                             })
-                            .OrderBy(t => t.User.Surname)
-                            .ThenBy(t => t.User.Name)
+                            .OrderBy(t => t.Student.Surname)
+                            .ThenBy(t => t.Student.Name)
                             .ToArray(),
                     };
                 }).ToArray(),

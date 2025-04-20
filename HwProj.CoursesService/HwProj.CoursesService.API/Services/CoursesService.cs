@@ -11,6 +11,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.CoursesService.API.Domains;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,7 @@ namespace HwProj.CoursesService.API.Services
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IGroupsRepository _groupsRepository;
         private readonly ICourseFilterService _courseFilterService;
+        private readonly CourseContext _context;
 
         public CoursesService(ICoursesRepository coursesRepository,
             IHomeworksRepository homeworksRepository,
@@ -35,7 +37,8 @@ namespace HwProj.CoursesService.API.Services
             IEventBus eventBus,
             IAuthServiceClient authServiceClient,
             IGroupsRepository groupsRepository,
-            ICourseFilterService courseFilterService)
+            ICourseFilterService courseFilterService,
+            CourseContext context)
         {
             _coursesRepository = coursesRepository;
             _homeworksRepository = homeworksRepository;
@@ -45,6 +48,7 @@ namespace HwProj.CoursesService.API.Services
             _authServiceClient = authServiceClient;
             _groupsRepository = groupsRepository;
             _courseFilterService = courseFilterService;
+            _context = context;
         }
 
         public async Task<Course[]> GetAllAsync()
@@ -111,8 +115,7 @@ namespace HwProj.CoursesService.API.Services
             course.InviteCode = Guid.NewGuid().ToString();
             var courseId = await _coursesRepository.AddAsync(course);
 
-            var homeworks = courseTemplate.Homeworks.Select(
-                hwTemplate => hwTemplate.ToHomework(courseId));
+            var homeworks = courseTemplate.Homeworks.Select(hwTemplate => hwTemplate.ToHomework(courseId));
             var homeworkIds = await _homeworksRepository.AddRangeAsync(homeworks);
 
             var tasks = courseTemplate.Homeworks.SelectMany((hwTemplate, i) =>
@@ -278,6 +281,34 @@ namespace HwProj.CoursesService.API.Services
         {
             var student = await _courseMatesRepository.FindAsync(x => x.StudentId == studentId);
             return student != null;
+        }
+
+        public async Task<bool> UpdateStudentCharacteristics(long courseId, string studentId,
+            StudentCharacteristicsDto characteristics)
+        {
+            var courseMate =
+                await _courseMatesRepository.FindAll(x => x.CourseId == courseId && x.StudentId == studentId)
+                    .Include(x => x.Characteristics)
+                    .SingleOrDefaultAsync();
+
+            if (courseMate == null) return false;
+
+            var tags = string.Join(";", characteristics.Tags.Distinct());
+
+            var hasCharacteristic = courseMate.Characteristics != null;
+
+            courseMate.Characteristics ??= new StudentCharacteristics();
+            courseMate.Characteristics.CourseMateId = courseMate.Id;
+            courseMate.Characteristics.Description = characteristics.Description;
+            courseMate.Characteristics.Tags = tags;
+
+            _context.Attach(courseMate);
+            _context.Entry(courseMate).State = EntityState.Modified;
+            _context.Entry(courseMate.Characteristics).State =
+                hasCharacteristic ? EntityState.Modified : EntityState.Added;
+
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId)

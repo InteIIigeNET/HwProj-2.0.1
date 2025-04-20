@@ -3,6 +3,7 @@ using HwProj.CoursesService.API.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using System;
 using HwProj.Models.CoursesService;
+using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HwProj.CoursesService.API.Domains
@@ -68,6 +69,13 @@ namespace HwProj.CoursesService.API.Domains
             {
                 StudentId = courseMate.StudentId,
                 IsAccepted = courseMate.IsAccepted,
+                Characteristics = courseMate.Characteristics is { } characteristics
+                    ? new StudentCharacteristicsDto()
+                    {
+                        Description = characteristics.Description,
+                        Tags = characteristics.Tags.Split(";", StringSplitOptions.RemoveEmptyEntries),
+                    }
+                    : null
             };
 
         public static CourseDTO ToCourseDto(this Course course)

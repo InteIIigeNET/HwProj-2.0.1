@@ -9,7 +9,6 @@ using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
-using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -114,6 +113,15 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok();
         }
 
+        [HttpPost("updateCharacteristics/{courseId}/{studentId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<IActionResult> UpdateStudentCharacteristics(long courseId, string studentId,
+            [FromBody] StudentCharacteristicsDto characteristics)
+        {
+            await _coursesClient.UpdateStudentCharacteristics(courseId, studentId, characteristics);
+            return Ok();
+        }
+
         [HttpGet("userCourses")]
         [Authorize]
         public async Task<CoursePreviewView[]> GetAllUserCourses()
@@ -129,7 +137,7 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var lecturer = await AuthServiceClient.GetAccountDataByEmail(lecturerEmail);
             if (lecturer == null) return NotFound("Преподаватель с такой почтой не найден");
-            if (lecturer.Role != Roles.LecturerRole && lecturer.Role != Roles.ExpertRole) 
+            if (lecturer.Role != Roles.LecturerRole && lecturer.Role != Roles.ExpertRole)
                 return BadRequest("Пользователь не является преподавателем");
 
             var result = await _coursesClient.AcceptLecturer(courseId, lecturerEmail, lecturer.UserId);
@@ -199,7 +207,7 @@ namespace HwProj.APIGateway.API.Controllers
 
             var studentIds = mentorCourseView.Value.CourseMates.Select(t => t.StudentId).ToArray();
             var students = await AuthServiceClient.GetAccountsData(studentIds);
-            
+
             var workspace = new WorkspaceViewModel
             {
                 Homeworks = mentorCourseView.Value.Homeworks,

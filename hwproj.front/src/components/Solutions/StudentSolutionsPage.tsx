@@ -176,7 +176,10 @@ const StudentSolutionsPage: FC = () => {
             taskId: ts.taskId!,
             studentSolutionsPreview: ts.studentSolutions!.map(studentSolutions => {
                 const ratedSolutionInfo = StudentStatsUtils.calculateLastRatedSolutionInfo(studentSolutions.solutions!, task.maxRating!)
-                return {student: studentSolutions.user!, ...ratedSolutionInfo, solutions: studentSolutions.solutions!}
+                return {
+                    student: studentSolutions.student!, ...ratedSolutionInfo,
+                    solutions: studentSolutions.solutions!
+                }
             })
         }))
 
@@ -341,6 +344,7 @@ const StudentSolutionsPage: FC = () => {
                             showForCourse={false}
                         />
                         {currentStudent && <TaskSolutions
+                            courseId={courseId}
                             forMentor={true}
                             task={studentSolutionsState.task}
                             solutions={currentStudent!.solutions}

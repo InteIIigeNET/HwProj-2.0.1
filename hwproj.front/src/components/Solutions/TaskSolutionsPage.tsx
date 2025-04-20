@@ -275,6 +275,7 @@ const TaskSolutionsPage: FC = () => {
                         {!taskSolutionPage.addSolution && (
                             <Grid item xs={12}>
                                 <TaskSolutions
+                                    courseId={courseId}
                                     task={task}
                                     forMentor={false}
                                     student={student}
