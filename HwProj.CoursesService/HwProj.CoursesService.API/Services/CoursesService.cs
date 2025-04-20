@@ -279,7 +279,8 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<bool> HasStudent(long courseId, string studentId)
         {
-            var student = await _courseMatesRepository.FindAsync(x => x.StudentId == studentId);
+            var student =
+                await _courseMatesRepository.FindAsync(x => x.CourseId == courseId && x.StudentId == studentId);
             return student != null;
         }
 
