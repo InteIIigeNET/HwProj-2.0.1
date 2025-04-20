@@ -99,7 +99,13 @@ const EditStudentCharacteristics: React.FC<Props & { onCancel: () => void, isOpe
         props.onChange(characteristics)
     }
     return (
-        <Dialog fullWidth open={props.isOpen} onClose={() => props.onCancel()} aria-labelledby="form-dialog-title">
+        <Dialog
+            fullWidth
+            maxWidth="md"
+            open={props.isOpen}
+            onClose={() => props.onCancel()}
+            aria-labelledby="form-dialog-title"
+        >
             <DialogTitle id="form-dialog-title">
                 Добавить характеристику студенту
             </DialogTitle>
