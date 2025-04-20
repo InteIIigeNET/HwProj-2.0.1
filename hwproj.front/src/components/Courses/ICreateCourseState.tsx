@@ -16,10 +16,10 @@ export const stepIsOptional = (step: CreateCourseStep) =>
 
 export interface ICreateCourseState {
   activeStep: CreateCourseStep;
-  skippedSteps: Set<CreateCourseStep>;
+  completedSteps: Set<CreateCourseStep>;
 
   baseCourses?: CoursePreviewView[];
-  baseCourseIndex?: number;
+  selectedBaseCourse?: CoursePreviewView;
 
   courseName: string;
   groupName: string;

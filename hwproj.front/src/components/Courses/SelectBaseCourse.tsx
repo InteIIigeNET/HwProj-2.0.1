@@ -1,86 +1,74 @@
-import {FC, ChangeEvent} from "react"
+import {FC, SyntheticEvent} from "react"
 import {
   Grid,
   Box,
   TextField,
   Button,
-  MenuItem,
-  Typography,
 } from "@material-ui/core";
+import {Autocomplete, MenuItem} from "@mui/material";
 import {Link} from "react-router-dom";
+import {CoursePreviewView} from "api";
 import {IStepComponentProps} from "./ICreateCourseState";
 import NameBuilder from "../Utils/NameBuilder";
 
-const SelectBaseCourse: FC<IStepComponentProps> = (props) => {
-  const state = props.state
+const SelectBaseCourse: FC<IStepComponentProps> = ({state, setState}) => {
+  const baseCourses = state.baseCourses!.slice().reverse()
+  const selectedBaseCourse = state.selectedBaseCourse
 
-  const baseCourses = state.baseCourses!
-
-  const baseCourseId = state.baseCourseIndex !== undefined
-    ? baseCourses[state.baseCourseIndex].id
-    : undefined
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: SyntheticEvent<Element, Event>, value: CoursePreviewView | null) => {
     e.persist()
-    const index = e.target.value as unknown as (number | undefined)
-    props.setState((prevState) => ({
+    setState((prevState) => ({
       ...prevState,
-      baseCourseIndex: index,
+      selectedBaseCourse: value || undefined,
     }))
   }
 
-  const handleSkip = () => {
-    props.setState((prevState) => ({
+  const handleSkip = () =>
+    setState((prevState) => ({
       ...prevState,
       activeStep: prevState.activeStep + 1,
-      skippedSteps: prevState.skippedSteps.add(prevState.activeStep),
-      baseCourseIndex: undefined,
       courseName: "",
       groupName: "",
     }))
-  }
 
-  const handleNext = () => {
-    const selectedCourse = baseCourses[state.baseCourseIndex!]
-    props.setState((prevState) => ({
+  const handleNext = () =>
+    setState((prevState) => ({
       ...prevState,
       activeStep: prevState.activeStep + 1,
-      courseName: selectedCourse.name!,
-      groupName: selectedCourse.groupName!,
+      completedSteps: prevState.completedSteps.add(prevState.activeStep),
+      courseName: selectedBaseCourse!.name!,
+      groupName: selectedBaseCourse!.groupName!,
     }))
-  }
 
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
-        <TextField
-          select
-          label="Базовый курс"
-          fullWidth
-          variant="outlined"
-          value={state.baseCourseIndex !== undefined ? state.baseCourseIndex : ""}
-          onChange={handleChange}
-        >
-          {!baseCourses.length &&
-            <MenuItem value={undefined} key={undefined}>
-              <Typography>
-                Базовых курсов не найдено &#128532;<br/>
-                Попробуйте создать курс с нуля
-              </Typography>
-            </MenuItem>
-          }
-          {baseCourses.map((course, index) =>
-            <MenuItem value={index} key={index}>
-              <Box style={{ fontSize: "20px" }}>
+        <Autocomplete<CoursePreviewView>
+          value={selectedBaseCourse || null}
+          options={baseCourses}
+          getOptionLabel={course => (course.groupName && course.groupName + ", ") + course.name!}
+          getOptionKey={course => course.id!}
+          renderInput={props => (
+            <TextField
+              {...props}
+              fullWidth
+              label="Базовый курс"
+              variant="outlined"
+            />
+          )}
+          renderOption={(props, course) => (
+            <MenuItem {...props}>
+              <Box style={{ fontSize: "18px" }}>
                 {NameBuilder.getCourseFullName(course.name!, course.groupName)}
               </Box>
             </MenuItem>
-          ).reverse()}
-        </TextField>
+          )}
+          onChange={handleChange}
+        />
       </Grid>
       <Grid item xs={12} style={{ marginTop: 8, display: "flex", justifyContent: "space-between" }}>
-        {baseCourseId !== undefined &&
-          <Link to={`/courses/${baseCourseId}`} target="_blank" rel="noopener noreferrer">
+        {selectedBaseCourse &&
+          <Link to={`/courses/${selectedBaseCourse.id!}`} target="_blank" rel="noopener noreferrer">
             <Button variant="text" size="large">
               Открыть курс
             </Button>
@@ -91,6 +79,7 @@ const SelectBaseCourse: FC<IStepComponentProps> = (props) => {
             variant="text"
             size="large"
             style={{ marginRight: 8 }}
+            hidden={!!selectedBaseCourse}
             onClick={handleSkip}
           >
             Пропустить
@@ -99,7 +88,7 @@ const SelectBaseCourse: FC<IStepComponentProps> = (props) => {
             variant="text"
             color="primary"
             size="large" 
-            disabled={state.baseCourseIndex === undefined}
+            disabled={!selectedBaseCourse}
             onClick={handleNext}
           >
             Далее

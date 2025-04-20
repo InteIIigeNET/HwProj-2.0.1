@@ -96,6 +96,14 @@ export default class AuthService {
         return this.getProfile()["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"]
     }
 
+    getRole = () => {
+        if (this.getToken() === null) {
+            return null
+        }
+
+        return  this.getProfile()["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+    }
+    
     isMentor() {
         if (this.getToken() === null) {
             return false

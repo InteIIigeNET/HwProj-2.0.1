@@ -3,6 +3,7 @@ import {
   Stepper,
   Step,
   StepLabel,
+  StepButton,
   Typography,
   CircularProgress,
   TextField,
@@ -19,6 +20,12 @@ import {makeStyles} from "@material-ui/core/styles";
 import {useNavigate} from "react-router-dom";
 import {useSnackbar} from "notistack";
 import ErrorsHandler from "components/Utils/ErrorsHandler";
+import {
+  ICreateCourseState,
+  CreateCourseStep,
+  stepLabels,
+  stepIsOptional,
+} from "./ICreateCourseState";
 import SelectBaseCourse from "./SelectBaseCourse";
 import AddCourseInfo from "./AddCourseInfo";
 import GroupIcon from '@material-ui/icons/Group';
@@ -70,6 +77,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const CreateCourse: FC = () => {
+//StudentsInfo
     const [state, setState] = useState<ICreateCourseState>({
         activeStep: CreateCourseStep.SelectBaseCourseStep,
         skippedSteps: new Set(),
@@ -276,6 +284,103 @@ const CreateCourse: FC = () => {
                         </div>
                     </div>
                 );
+//
+  const [state, setState] = useState<ICreateCourseState>({
+    activeStep: CreateCourseStep.SelectBaseCourseStep,
+    completedSteps: new Set (),
+    courseName: "",
+    groupName: "",
+    courseIsLoading: false,
+  })
+
+  const {activeStep, completedSteps, baseCourses, selectedBaseCourse} = state
+
+  const navigate = useNavigate()
+  const {enqueueSnackbar} = useSnackbar()
+
+  const setBaseCourses = (courses?: CoursePreviewView[]) =>
+    setState((prevState) => ({
+      ...prevState,
+      baseCourses: courses,
+    }))
+
+  const setCourseIsLoading = (isLoading: boolean) =>
+    setState((prevState) => ({
+      ...prevState,
+      courseIsLoading: isLoading,
+    }))
+
+  const goToStep = (step: CreateCourseStep) =>
+    setState((prevState) => ({
+      ...prevState,
+      activeStep: step,
+      completedSteps: new Set (Array.from(prevState.completedSteps).filter(s => s < step)),
+    }))
+
+  const skipCurrentStep = () => goToStep(activeStep + 1)
+
+  const stepIsCompleted = (step: CreateCourseStep) => completedSteps.has(step)
+
+  const stepIsDisabled = (step: CreateCourseStep) =>
+    step > activeStep || step === CreateCourseStep.SelectBaseCourseStep && !baseCourses?.length
+
+  useEffect(() => {
+    const loadBaseCourses = async () => {
+      try {
+        const userCourses = await ApiSingleton.coursesApi.coursesGetAllUserCourses()
+        if (!userCourses.length) skipCurrentStep()
+        setBaseCourses(userCourses)
+      }
+      catch (e) {
+        skipCurrentStep()
+        setBaseCourses([])
+        console.error("Ошибка при загрузке курсов лектора:", e)
+        enqueueSnackbar(
+          "Не удалось загрузить существующие курсы",
+          {variant: "warning", autoHideDuration: 4000},
+        )
+      }
+    };
+
+    loadBaseCourses()
+  }, [])
+
+  const handleStep = (step: CreateCourseStep) => {
+    switch (step) {
+      case CreateCourseStep.SelectBaseCourseStep:
+        return <SelectBaseCourse
+          state={state}
+          setState={setState}
+        />
+      case CreateCourseStep.AddCourseInfoStep:
+        return <AddCourseInfo
+          state={state}
+          setState={setState}
+        />
+      default:
+        console.error(`Шаг создания курса неопределён: ${step}`)
+    }
+  }
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const courseViewModel = {
+      name: state.courseName,
+      groupName: state.groupName,
+      isOpen: true,
+      baseCourseId: selectedBaseCourse?.id,
+    }
+    try {
+      setCourseIsLoading(true)
+      const courseId = await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel)
+      navigate(`/courses/${courseId}/editHomeWorks`)
+    }
+    catch (e) {
+      console.error("Ошибка при создании курса:", e)
+      const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
+      enqueueSnackbar(responseErrors[0], {variant: "error"})
+    }
+//
 
             case CreateCourseStep.SelectProgramAndGroupStep:
                 return (
@@ -397,6 +502,7 @@ const CreateCourse: FC = () => {
     }
 
     return (
+// StudentsInfo
         <Container component="main" maxWidth="sm">
             <div className={classes.paper}>
                 <GroupIcon
@@ -407,6 +513,52 @@ const CreateCourse: FC = () => {
                 <Typography component="h1" variant="h5">
                     Создать курс
                 </Typography>
+//
+      <Typography component="h1" variant="h5">
+        Страница не доступна
+      </Typography>
+    )
+  }
+  return baseCourses ? (
+    <Container component="main" maxWidth="sm">
+      <div className={classes.paper}>
+        <Typography component="h1" variant="h5">
+          Создать курс
+        </Typography>
+        <form onSubmit={handleSubmit} className={classes.form}>
+          <Stepper alternativeLabel activeStep={activeStep}>
+            {stepLabels.map((label, step) => {
+              const optionalLabel = stepIsOptional(step) ? (
+                <Typography variant="caption">
+                  Необязательно
+                </Typography>
+              ) : undefined
+              return (
+                <Step
+                  key={step}
+                  completed={stepIsCompleted(step)}
+                  disabled={stepIsDisabled(step)}
+                  style={{ textAlign: "center" }}
+                >
+                  <StepButton optional={optionalLabel} onClick={() => goToStep(step)}>
+                    <StepLabel>{label}</StepLabel>
+                  </StepButton>
+                </Step>
+              )
+            })}
+          </Stepper>
+          {handleStep(activeStep)}
+        </form>
+      </div>
+    </Container>
+  ) : (
+    <div className="container">
+      <p>Загрузка...</p>
+      <CircularProgress/>
+    </div>
+  )
+}
+// master
 
                 <form onSubmit={handleSubmit} className={classes.form}>
                     <Stepper alternativeLabel activeStep={state.activeStep}>

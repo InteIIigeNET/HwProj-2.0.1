@@ -1,4 +1,6 @@
-FROM node:16.12.0
+FROM node:22.14.0-alpine
+
+RUN apk add --no-cache xdg-utils
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -8,32 +10,15 @@ WORKDIR /usr/src/app
 # where available (npm@5+)
 COPY package*.json ./
 
+# Устанавливаем зависимости в node_modules
 RUN npm install
-
-# If you are building your code for production
-# RUN npm ci --only=production
 
 # Bundle app source
 COPY . .
 
+# Собираем проект в dist/ (сборка для production)
+# RUN npm run build
+
+# Запуск в development-режиме
 EXPOSE 3000
-CMD [ "npm", "start" ]
-
-# dockerfile for production
-
-# build environment
-#FROM node:10.19.0-alpine as build
-#WORKDIR /app
-#ENV PATH /app/node_modules/.bin:$PATH
-#COPY package.json ./
-#COPY package-lock.json ./
-#RUN npm ci --silent
-#RUN npm install react-scripts@3.4.1 -g --silent
-#COPY . .
-#RUN npm run build
-
-# production environment
-#FROM nginx:stable-alpine
-#COPY --from=build /app/build /usr/share/nginx/html
-#EXPOSE 80
-#CMD ["nginx", "-g", "daemon off;"]
+CMD [ "npm", "run", "dev" ]
