@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import {StudentCharacteristicsDto} from '@/api';
 import TextField from "@material-ui/core/TextField";
-import {MarkdownEditor} from "@/components/Common/MarkdownEditor";
+import {MarkdownEditor, MarkdownPreview} from "@/components/Common/MarkdownEditor";
 import ApiSingleton from "@/api/ApiSingleton";
 
 
@@ -81,7 +81,11 @@ export const StudentCharacteristics: React.FC<Props> = (props) => {
                             </Grid>
                         ))}
                     </Grid>
-                    {characteristics?.description && <Grid item>{characteristics.description}</Grid>}
+                    {characteristics?.description && <Grid item>
+                        <MarkdownPreview
+                            value={characteristics.description}
+                        />
+                    </Grid>}
                     <Grid item>{renderUpdateButton()}</Grid>
                 </Grid>
             </Alert>
