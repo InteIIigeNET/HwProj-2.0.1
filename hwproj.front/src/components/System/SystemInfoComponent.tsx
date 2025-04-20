@@ -8,9 +8,8 @@ import {
     TableHead,
     TableRow,
     Box, CircularProgress,
-} from "@material-ui/core";
+} from "@mui/material";
 import {useEffect, useState} from "react";
-import {Center} from "@skbkontur/react-ui";
 
 
 interface ISystemInfoState {
@@ -48,7 +47,9 @@ const SystemInfoComponent: FC = () => {
     }, [])
 
     const {isLoaded, isApiGatewayAvailable, systemStatus} = systemInfo;
-    return (<Center>
+    return (<div className={"container"}><Box
+        justifyContent="center"
+    >
         {isLoaded
             ? <TableContainer style={{marginTop: 15}}>
                 <Table>
@@ -80,7 +81,8 @@ const SystemInfoComponent: FC = () => {
                 <CircularProgress/>
                 <p>Пингуем сервера...</p>
             </Box>}
-    </Center>)
+    </Box>
+    </div>)
 }
 
 export default SystemInfoComponent;

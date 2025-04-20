@@ -2,7 +2,6 @@
 import React, {FC, useEffect, useState} from "react";
 import ApiSingleton from "./../../api/ApiSingleton";
 import {Box, CircularProgress, Typography} from "@material-ui/core";
-import {Center} from "@skbkontur/react-ui";
 import {TokenCredentials} from "api/api";
 
 interface IExpertAuthLayoutProps {
@@ -54,18 +53,17 @@ const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutPr
             isProfileAlreadyEdited ? (
                 <Navigate to={"/"}/>) : (<Navigate to={"/user/edit"}/>)
         ) : (
-            <Center>
-                <Box sx={{minWidth: 150, marginTop: 15}}>
-                    <Box p={2}>
-                        <Typography variant="h6" gutterBottom align="center">
-                            Ошибка в пригласительной ссылке
-                        </Typography>
-                        <Typography variant="body1">
-                            Ссылка просрочена или содержит опечатку. Обратитесь к выдавшему её преподавателю.
-                        </Typography>
-                    </Box>
+            <Box sx={{minWidth: 150, marginTop: 15}} display={'flex'} alignItems={'center'}
+                 justifyContent={'center'}>
+                <Box p={2}>
+                    <Typography variant="h6" gutterBottom align="center">
+                        Ошибка в пригласительной ссылке
+                    </Typography>
+                    <Typography variant="body1">
+                        Ссылка просрочена или содержит опечатку. Обратитесь к выдавшему её преподавателю.
+                    </Typography>
                 </Box>
-            </Center>
+            </Box>
         )
     );
 }

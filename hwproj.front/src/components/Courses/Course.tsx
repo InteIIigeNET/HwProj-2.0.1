@@ -13,7 +13,7 @@ import {makeStyles} from "@material-ui/styles";
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import {
     Alert,
-    AlertTitle,
+    AlertTitle, Box,
     Chip,
     Dialog,
     DialogContent,
@@ -30,7 +30,6 @@ import LecturerStatistics from "./Statistics/LecturerStatistics";
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import NameBuilder from "../Utils/NameBuilder";
 import {QRCodeSVG} from 'qrcode.react';
-import {Center} from "@skbkontur/react-ui";
 import ErrorsHandler from "components/Utils/ErrorsHandler";
 import {useSnackbar} from 'notistack';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
@@ -272,9 +271,11 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                         Поделитесь ссылкой на курс с помощью QR-кода
                     </DialogTitle>
                     <DialogContent>
-                        <Center>
+                        <Box display="flex"
+                             justifyContent="center"
+                             alignItems="center">
                             <QRCodeSVG size={200} value={window.location.href.replace(tabValue, "")}/>
-                        </Center>
+                        </Box>
                     </DialogContent>
                 </Dialog>
                 <Grid style={{marginTop: "15px"}}>
