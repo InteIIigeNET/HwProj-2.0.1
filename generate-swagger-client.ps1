@@ -67,4 +67,22 @@ if (-not (Test-Path -Path $apiDestination)) {
 Write-Host "Перемещаем api.ts в $apiDestination..."
 Move-Item -Path $apiFile.FullName -Destination $apiDestination -Force
 
-Write-Host "Готово! Файл api.ts перемещен в $apiDestination."
+Write-Host "Выполняем текстовые замены в api.ts..."
+$apiFilePath = Join-Path $apiDestination "api.ts"
+
+if (Test-Path -Path $apiFilePath) {
+    $apiContent = Get-Content -Path $apiFilePath -Raw
+
+    # 1. Замена импорта isomorphic-fetch на ESM-совместимый
+    $apiContent = $apiContent -replace 'import\s+\*\s+as\s+isomorphicFetch\s+from\s+"isomorphic-fetch";', 'import isomorphicFetch from "isomorphic-fetch";'
+
+    # 2. Делаем конфигурацию опциональной
+    $apiContent = $apiContent -replace 'configuration:\s*Configuration;', 'configuration: Configuration | undefined;'
+
+    # Сохраняем изменения
+    $apiContent | Set-Content -Path $apiFilePath -Encoding UTF8 -Force
+} else {
+    Write-Warning "Файл api.ts не найден по пути $apiFilePath для выполнения замен."
+}
+
+Write-Host "Готово! Файл api.ts подготовлен и обновлён."
