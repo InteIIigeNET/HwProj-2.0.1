@@ -1,12 +1,11 @@
 import * as React from "react";
 import {FC, useEffect, useState} from "react";
 import {
-    AccountDataDto,
     GetSolutionModel, HomeworksGroupSolutionStats,
     HomeworkTaskViewModel,
     Solution,
     TaskSolutionsStats,
-    SolutionState
+    SolutionState, StudentDataDto
 } from "../../api/";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
@@ -16,6 +15,8 @@ import {CircularProgress, Grid, Tabs, Tab} from "@material-ui/core";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import EditIcon from '@mui/icons-material/Edit';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import {
     Alert,
     Chip,
@@ -44,7 +45,7 @@ interface IStudentSolutionsPageState {
     taskStudentsSolutionsPreview: {
         taskId: number,
         studentSolutionsPreview: {
-            student: AccountDataDto,
+            student: StudentDataDto,
             solutions: GetSolutionModel[]
             lastSolution: GetSolutionModel,
             lastRatedSolution: Solution,
@@ -216,6 +217,23 @@ const StudentSolutionsPage: FC = () => {
             : <TaskAltIcon color={isSelected ? "primary" : "success"}/>
     }
 
+    const renderStudentListItem = (student: StudentDataDto) => {
+        if (!student.characteristics || student.characteristics.tags?.length === 0) return student.surname + " " + student.name
+        const tags = student.characteristics.tags!
+
+        const hasGoodCharacteristics = tags.some(x => x.startsWith("+"))
+        const hasBadCharacteristics = tags.some(x => x.startsWith("-"))
+
+        if (!hasGoodCharacteristics && !hasBadCharacteristics) return student.surname + " " + student.name
+
+        return <div>{student.surname + " " + student.name}
+            <sup style={{paddingLeft: 5}}>
+                {hasGoodCharacteristics && <ThumbUpIcon color={"success"} style={{fontSize: 14}}/>}
+                {hasBadCharacteristics && <ThumbDownIcon color={"error"} style={{fontSize: 14}}/>}
+            </sup>
+        </div>
+    }
+
     if (isLoaded) {
         return (
             <div className={"container"} style={{marginBottom: '50px', marginTop: '15px'}}>
@@ -268,12 +286,9 @@ const StudentSolutionsPage: FC = () => {
                                     color,
                                     solutionsDescription,
                                     lastRatedSolution,
-                                    student: {
-                                        name,
-                                        surname,
-                                        userId
-                                    }
+                                    student
                                 }, idx) => {
+                                const {userId} = student
                                 const storageKey = {
                                     taskId: +currentTaskId,
                                     studentId: userId!,
@@ -309,11 +324,10 @@ const StudentSolutionsPage: FC = () => {
                                                           size={"small"}
                                                           label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
                                                 </Tooltip>}
-                                            <ListItemText primary={surname + " " + name}/>
+                                            <ListItemText primary={renderStudentListItem(student)}/>
                                         </Stack>
                                     </ListItemButton>
                                 </Link>
-                                    ;
                             })}
                         </List>
                     </Grid>
