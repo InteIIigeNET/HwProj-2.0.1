@@ -41,7 +41,7 @@ export const StudentCharacteristics: React.FC<Props> = (props) => {
     const hasCharacteristics = characteristics && (characteristics.tags && characteristics.tags.length > 0 || characteristics.description)
 
     const renderUpdateButton = () => {
-        return <Typography color={"#1976d2"} variant={"caption"} style={{cursor: "pointer"}}
+        return <Typography color={"#3f51b5"} variant={"caption"} style={{cursor: "pointer"}}
                            onClick={() => setIsEdit(true)}>
             {hasCharacteristics ? "Изменить характеристику" : "Добавить характеристику студенту"}
         </Typography>
