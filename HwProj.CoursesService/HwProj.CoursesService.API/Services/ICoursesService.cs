@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
@@ -14,7 +12,6 @@ namespace HwProj.CoursesService.API.Services
         Task<CourseDTO?> GetForEditingAsync(long id);
         Task<CourseDTO?> GetByTaskAsync(long taskId, string userId);
         Task<long> AddAsync(CreateCourseViewModel courseViewModel, CourseDTO? baseCourse, string mentorId);
-        Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, string mentorId);
         Task DeleteAsync(long id);
         Task UpdateAsync(long courseId, Course updated);
         Task<bool> AddStudentAsync(long courseId, string studentId);
@@ -24,7 +21,6 @@ namespace HwProj.CoursesService.API.Services
         Task<bool> AcceptLecturerAsync(long courseId, string lecturerEmail, string lecturerId);
         Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId);
         Task<string[]> GetCourseLecturers(long courseId);
-        Task<object> AddAndAcceptStudentsAsync(long courseId, IEnumerable<string> studentIds);
         Task<bool> HasStudent(long courseId, string studentId);
     }
 }

@@ -107,11 +107,6 @@ namespace HwProj.CoursesService.API.Controllers
 
             var courseId = await _coursesService.AddAsync(courseViewModel, baseCourse, mentorId);
             
-            if (courseViewModel.StudentIDs?.Any() == true)
-            {
-                await _coursesService.AddAndAcceptStudentsAsync(courseId, courseViewModel.StudentIDs);
-            }
-            
             return Ok(courseId);
         }
 

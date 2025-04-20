@@ -88,7 +88,7 @@ namespace HwProj.CoursesService.API.Services
             var course = await _coursesRepository.GetWithHomeworksAsync(id);
             return course?.ToCourseDto();
         }
-        
+
         public async Task<long> AddAsync(CreateCourseViewModel courseViewModel,
             CourseDTO? baseCourse,
             string mentorId)
@@ -100,10 +100,11 @@ namespace HwProj.CoursesService.API.Services
                 courseTemplate.Homeworks = baseCourse.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList();
             }
 
-            return await AddFromTemplateAsync(courseTemplate, mentorId);
+            return await AddFromTemplateAsync(courseTemplate, courseViewModel.StudentIDs, mentorId);
         }
-        
-        public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, string mentorId)
+
+        public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, List<string> studentIds,
+            string mentorId)
         {
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -112,13 +113,35 @@ namespace HwProj.CoursesService.API.Services
             course.InviteCode = Guid.NewGuid().ToString();
             var courseId = await _coursesRepository.AddAsync(course);
 
-            var homeworks = courseTemplate.Homeworks.Select(
-                hwTemplate => hwTemplate.ToHomework(courseId));
+            var homeworks = courseTemplate.Homeworks.Select(hwTemplate => hwTemplate.ToHomework(courseId));
             var homeworkIds = await _homeworksRepository.AddRangeAsync(homeworks);
 
             var tasks = courseTemplate.Homeworks.SelectMany((hwTemplate, i) =>
                 hwTemplate.Tasks.Select(taskTemplate => taskTemplate.ToHomeworkTask(homeworkIds[i])));
             await _tasksRepository.AddRangeAsync(tasks);
+
+            if (studentIds.Any())
+            {
+                var students = studentIds.Select(studentId => new CourseMate
+                {
+                    CourseId = courseId,
+                    StudentId = studentId,
+                    IsAccepted = true
+                }).ToArray();
+
+                await _courseMatesRepository.AddRangeAsync(students);
+
+                foreach (var student in students)
+                {
+                    _eventBus.Publish(new LecturerAcceptToCourseEvent
+                    {
+                        CourseId = courseId,
+                        CourseName = course.Name,
+                        MentorIds = course.MentorIds,
+                        StudentId = student.StudentId
+                    });
+                }
+            }
 
             transactionScope.Complete();
             return courseId;
@@ -187,34 +210,6 @@ namespace HwProj.CoursesService.API.Services
             });
 
             return true;
-        }
-        
-        public async Task<object> AddAndAcceptStudentsAsync(long courseId, IEnumerable<string> studentIds)
-        {
-            var course = await _coursesRepository.GetAsync(courseId);
-            if (course == null) return null;
-
-            foreach (var studentId in studentIds)
-            {
-                var cm = await _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-                if (cm != null) continue;
-
-                var courseMate = new CourseMate
-                {
-                    CourseId = courseId,
-                    StudentId = studentId,
-                    IsAccepted = false
-                };
-
-                await _courseMatesRepository.AddAsync(courseMate);
-                
-                cm = await _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
-                if (cm == null) continue;
-
-                await _courseMatesRepository.UpdateAsync(cm.Id, cm => new CourseMate { IsAccepted = true });
-            }
-
-            return null;
         }
 
         public async Task<bool> RejectCourseMateAsync(long courseId, string studentId)
