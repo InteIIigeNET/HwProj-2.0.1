@@ -2,32 +2,43 @@ import {Dispatch, SetStateAction} from "react"
 import {CoursePreviewView} from "api";
 
 export enum CreateCourseStep {
-  SelectBaseCourseStep = 0,
-  AddCourseInfoStep = 1,
+    SelectBaseCourseStep = 0,
+    AddCourseInfoStep = 1,
+    SelectProgramAndGroupStep = 2
 }
 
 export const stepLabels = [
-  "Выберите шаблон",
-  "Заполните данные",
+    "Выберите шаблон",
+    "Заполните данные",
 ]
 
 export const stepIsOptional = (step: CreateCourseStep) =>
-  step === CreateCourseStep.SelectBaseCourseStep
+    step === CreateCourseStep.SelectBaseCourseStep
 
+//TODO: refactor
 export interface ICreateCourseState {
-  activeStep: CreateCourseStep;
-  completedSteps: Set<CreateCourseStep>;
+    activeStep: CreateCourseStep;
+    completedSteps: Set<CreateCourseStep>;
 
-  baseCourses?: CoursePreviewView[];
-  selectedBaseCourse?: CoursePreviewView;
+    baseCourses?: CoursePreviewView[];
+    selectedBaseCourse?: CoursePreviewView;
 
-  courseName: string;
-  groupName: string;
+    courseName: string;
 
-  courseIsLoading: boolean;
+    programNames: string[];
+    programName: string;
+
+    groupNames: string[];
+    groupName: string;
+    isGroupFromList: boolean;
+
+    fetchStudents: boolean;
+
+    fetchingGroups: boolean;
+    courseIsLoading: boolean;
 }
 
 export interface IStepComponentProps {
-  state: ICreateCourseState;
-  setState: Dispatch<SetStateAction<ICreateCourseState>>;
+    state: ICreateCourseState;
+    setState: Dispatch<SetStateAction<ICreateCourseState>>;
 }

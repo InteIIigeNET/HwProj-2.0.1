@@ -5,7 +5,7 @@ import "./components/Courses/Course";
 import Course from "./components/Courses/Course";
 import Courses from "./components/Courses/Courses";
 import StudentStatsChart from "./components/Courses/Statistics/StudentStatsChart";
-import CreateCourse from "./components/Courses/CreateCourse";
+import {CreateCourse} from "./components/Courses/CreateCourse";
 import Notifications from "./components/Notifications";
 import Workspace from "./components/Workspace";
 import TaskSolutionsPage from "./components/Solutions/TaskSolutionsPage";
@@ -103,7 +103,7 @@ class App extends Component<{ navigate: any }, AppState> {
                         isExpert={this.state.isExpert}
                         onLogout={this.logout}
                         contextAction={this.state.appBarContextAction}/>
-                <TrackPageChanges />
+                <TrackPageChanges/>
                 <Routes>
                     <Route element={<AuthLayout/>}>
                         <Route path="user/edit" element={<EditProfile isExpert={this.state.isExpert}/>}/>
