@@ -14,6 +14,7 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {QuestionMark} from "@mui/icons-material";
 import TaskQuestions from "../Tasks/TaskQuestions";
 import ApiSingleton from "../../api/ApiSingleton";
+import {DotLottieReact} from '@lottiefiles/dotlottie-react';
 
 interface ITaskSolutionsProps {
     courseId: number,
@@ -179,7 +180,14 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     onRateSolutionClick={onSolutionRateClick}
                     isLastSolution={true}
                     courseId={props.courseId}/>
-                : "Студент не отправил ни одного решения."}
+                : <div>
+                    Студент не отправил ни одного решения.
+                    <DotLottieReact
+                        src="https://lottie.host/cb0117df-e436-4d54-9d0b-aa2289732d29/enJE7uM1Dw.lottie"
+                        loop
+                        autoplay
+                    />
+                </div>}
         </Grid>}
         {tabValue === 2 &&
             arrayOfRatedSolutions.reverse().map((x, i) =>
