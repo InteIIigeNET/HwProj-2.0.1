@@ -133,7 +133,7 @@ const EditStudentCharacteristics: React.FC<Props & { onCancel: () => void, isOpe
                             multiple
                             freeSolo
                             id="tags-outlined"
-                            options={["- Списывает", "Удален с курса"]}
+                            options={["+ Талантливый студент", "- Списывает", "Удален с курса"]}
                             value={characteristics?.tags ?? []}
                             defaultValue={characteristics?.tags ?? []}
                             filterSelectedOptions
