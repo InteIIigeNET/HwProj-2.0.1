@@ -5,7 +5,7 @@ import {FC, useEffect, useState} from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from "@material-ui/styles";
 import {Button} from "@material-ui/core";
-import {Typography, TextField, Grid, Alert} from "@mui/material";
+import {Typography, TextField, Grid, Alert, AlertTitle} from "@mui/material";
 import {MarkdownEditor} from "../Common/MarkdownEditor";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import {HomeworkViewModel} from "../../api";
@@ -144,6 +144,16 @@ const EditTask: FC = () => {
                         </Link>
                     </Grid>
 
+                    <Grid item>
+                        <Alert severity="warning">
+                            <AlertTitle>Устаревшая страница редактирования</AlertTitle>
+                            Данная страница для редактирования задач является устаревшей и будет удалена в следующих
+                            версиях сервиса.
+                            Настоятельно рекомендуем использовать механизм редактирования задач в стандартном режиме
+                            отображения:
+                            Вы увидите кнопку редактирования в правом верхнем углу при наведении на выбранную задачу.
+                        </Alert>
+                    </Grid>
                     <Grid item className={classes.logo}>
                         <div>
                             <EditIcon color="primary" style={{marginRight: '0.5rem'}}/>
