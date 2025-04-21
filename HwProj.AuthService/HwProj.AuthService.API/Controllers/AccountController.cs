@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
-using HwProj.AuthService.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using HwProj.AuthService.API.Services;
 using HwProj.Models.AuthService.DTO;
@@ -61,19 +60,19 @@ namespace HwProj.AuthService.API.Controllers
         }
 
         [HttpPost("register")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Result<string>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
             var newModel = _mapper.Map<RegisterDataDTO>(model);
             var result = await _accountService.RegisterUserAsync(newModel);
             return Ok(result);
         }
-        
+
         [HttpPost("registerStudentsBatch")]
-        public async Task<Result<string[]>> RegisterStudentsBatch([FromBody] IEnumerable<RegisterViewModel> models)
+        public async Task<Result<string>[]> GetRegisterStudentsBatch([FromBody] IEnumerable<RegisterViewModel> models)
         {
             var dtos = _mapper.Map<IEnumerable<RegisterDataDTO>>(models);
-            return await _accountService.RegisterStudentsBatchAsync(dtos);
+            return await _accountService.GetOrRegisterStudentsBatchAsync(dtos);
         }
 
         [HttpPost("login")]
@@ -166,11 +165,11 @@ namespace HwProj.AuthService.API.Controllers
             [FromBody] UrlDto urlDto)
         {
             var sourceSection = configuration.GetSection("Github");
-            
+
             var clientId = sourceSection["ClientIdGitHub"];
             var scope = sourceSection["ScopeGitHub"];
             var redirectUrl = urlDto.Url;
-                
+
             var resultUrl =
                 $"https://github.com/login/oauth/authorize?client_id={clientId}&redirect_uri={redirectUrl}&scope={scope}";
 
@@ -178,7 +177,7 @@ namespace HwProj.AuthService.API.Controllers
             {
                 Url = resultUrl
             };
-            
+
             return Task.FromResult<IActionResult>(Ok(resultUrlDto));
         }
 

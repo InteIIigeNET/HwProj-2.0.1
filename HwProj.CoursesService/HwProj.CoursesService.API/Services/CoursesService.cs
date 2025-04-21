@@ -296,10 +296,7 @@ namespace HwProj.CoursesService.API.Services
         public async Task<string[]> GetCourseLecturers(long courseId)
         {
             var course = await _coursesRepository.GetAsync(courseId);
-
-            return course.MentorIds
-                .Split('/')
-                .ToArray();
+            return course.MentorIds.Split('/');
         }
 
         public async Task<bool> HasStudent(long courseId, string studentId)

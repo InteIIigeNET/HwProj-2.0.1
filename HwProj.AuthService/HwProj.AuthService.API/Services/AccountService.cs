@@ -93,6 +93,33 @@ namespace HwProj.AuthService.API.Services
             return await GetAccountDataAsync(user);
         }
 
+        public async Task<Result<string>> RegisterUserAsync(RegisterDataDTO model)
+        {
+            if (await _userManager.FindByEmailAsync(model.Email) != null)
+                return Result<string>.Failed("Пользователь уже зарегистрирован");
+
+            return await RegisterUserAsyncInternal(model);
+        }
+
+        public async Task<Result<string>[]> GetOrRegisterStudentsBatchAsync(IEnumerable<RegisterDataDTO> models)
+        {
+            var results = new List<Result<string>>();
+
+            foreach (var model in models)
+            {
+                if (await _userManager.FindByEmailAsync(model.Email) is { } user)
+                {
+                    results.Add(Result<string>.Success(user.Id));
+                    continue;
+                }
+
+                var result = await RegisterUserAsyncInternal(model);
+                results.Add(result);
+            }
+
+            return results.ToArray();
+        }
+
         public async Task<Result> EditAccountAsync(string id, EditDataDTO model)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -136,13 +163,8 @@ namespace HwProj.AuthService.API.Services
                 : await GetToken(user);
         }
 
-        public async Task<Result> RegisterUserAsync(RegisterDataDTO model)
+        private async Task<Result<string>> RegisterUserAsyncInternal(RegisterDataDTO model)
         {
-            if (await _userManager.FindByEmailAsync(model.Email) != null)
-            {
-                return Result.Failed("Пользователь уже зарегистрирован");
-            }
-
             var user = _mapper.Map<User>(model);
             user.UserName = user.Email;
 
@@ -163,10 +185,10 @@ namespace HwProj.AuthService.API.Services
                     ChangePasswordToken = changePasswordToken
                 };
                 _eventBus.Publish(registerEvent);
-                return Result.Success();
+                return Result<string>.Success(user.Id);
             }
 
-            return Result.Failed(result.Errors.Select(errors => errors.Description).ToArray());
+            return Result<string>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
         }
 
         public async Task<Result> InviteNewLecturer(string emailOfInvitedUser)
@@ -351,53 +373,6 @@ namespace HwProj.AuthService.API.Services
         private async Task<Result<TokenCredentials>> GetToken(User user)
         {
             return Result<TokenCredentials>.Success(await _tokenService.GetTokenAsync(user).ConfigureAwait(false));
-        }
-        
-        public async Task<Result<string[]>> RegisterStudentsBatchAsync(IEnumerable<RegisterDataDTO> models)
-        {
-            var results = new List<string>();
-            var errors = new List<string>();
-
-            foreach (var model in models)
-            {
-                var existingUser = await _userManager.FindByEmailAsync(model.Email);
-                if (existingUser != null)
-                {
-                    results.Add(existingUser.Id);
-                    continue;
-                }
-
-                var user = _mapper.Map<User>(model);
-                user.UserName = user.Email;
-
-                var createUserTask = model.IsExternalAuth 
-                    ? _userManager.CreateAsync(user)
-                    : _userManager.CreateAsync(user, Guid.NewGuid().ToString());
-
-                var result = await createUserTask
-                    .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole));
-
-                if (result.Succeeded)
-                {
-                    var newUser = await _userManager.FindByEmailAsync(model.Email);
-                    var changePasswordToken = await _aspUserManager.GeneratePasswordResetTokenAsync(user);
-                    var registerEvent = new StudentRegisterEvent(newUser.Id, newUser.Email, newUser.Name,
-                        newUser.Surname, newUser.MiddleName)
-                    {
-                        ChangePasswordToken = changePasswordToken
-                    };
-                    _eventBus.Publish(registerEvent);
-                    results.Add(newUser.Id);
-                }
-                else
-                {
-                    errors.AddRange(result.Errors.Select(e => $"{model.Email}: {e.Description}"));
-                }
-            }
-
-            return errors.Count > 0 
-                ? Result<string[]>.Failed(errors.ToArray()) 
-                : Result<string[]>.Success(results.ToArray());
         }
     }
 }

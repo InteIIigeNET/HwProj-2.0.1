@@ -2,7 +2,6 @@
 using HwProj.Models.AuthService.ViewModels;
 using System.Threading.Tasks;
 using HwProj.Models.Result;
-using System.Collections;      
 using System.Collections.Generic;
 
 namespace HwProj.AuthService.Client
@@ -12,7 +11,7 @@ namespace HwProj.AuthService.Client
         Task<AccountDataDto> GetAccountData(string userId);
         Task<AccountDataDto> GetAccountDataByEmail(string email);
         Task<AccountDataDto[]> GetAccountsData(string[] userId);
-        Task<Result> Register(RegisterViewModel model);
+        Task<Result<string>> Register(RegisterViewModel model);
         Task<Result<TokenCredentials>> Login(LoginViewModel model);
         Task<Result<TokenCredentials>> RefreshToken(string userId);
         Task<Result> Edit(EditAccountViewModel model, string userId);
@@ -33,6 +32,6 @@ namespace HwProj.AuthService.Client
         Task<Result> SetExpertProfileIsEdited(string expertId);
         Task<ExpertDataDTO[]> GetAllExperts();
         Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto);
-        Task<Result<string[]>> RegisterStudentsBatchAsync(IEnumerable<RegisterViewModel> registrationModels);
+        Task<Result<string>[]> GetOrRegisterStudentsBatchAsync(IEnumerable<RegisterViewModel> registrationModels);
     }
 }

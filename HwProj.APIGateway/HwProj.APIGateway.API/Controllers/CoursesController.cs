@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -76,7 +76,7 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.DeleteCourse(courseId);
             return Ok();
         }
-        
+
         [HttpGet("getGroups")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(List<GroupModel>), (int)HttpStatusCode.OK)]
@@ -85,12 +85,12 @@ namespace HwProj.APIGateway.API.Controllers
             var groups = await _studentsInfo.GetGroups(programName);
             return Ok(groups);
         }
-        
+
         [HttpGet("getProgramNames")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(List<ProgramModel>), (int)HttpStatusCode.OK)]
-        public  IActionResult GetProgramNames()
-        {   
+        public IActionResult GetProgramNames()
+        {
             return Ok(_studentsInfo.GetProgramNames());
         }
 
@@ -99,20 +99,14 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
-            model.StudentIDs = new List<string>();
-
             if (!string.IsNullOrEmpty(model.GroupName) && model.FetchStudents)
             {
                 var students = _studentsInfo.GetStudentInformation(model.GroupName);
-                
+
                 var sortedStudents = students
                     .Where(student => !string.IsNullOrEmpty(student.Email))
                     .OrderBy(student => student.Surname)
                     .ThenBy(student => student.Name)
-                    .ToList();
-
-                var studentEmails = sortedStudents
-                    .Select(student => student.Email)
                     .ToList();
 
                 var registrationModels = sortedStudents
@@ -124,14 +118,11 @@ namespace HwProj.APIGateway.API.Controllers
                         MiddleName = student.MiddleName
                     }).ToList();
 
-                var regResult = await AuthServiceClient.RegisterStudentsBatchAsync(registrationModels);
-        
-                if (regResult.Succeeded)
-                {
-                    model.StudentIDs = regResult.Value.ToList();
-                }
+                var userIds = await AuthServiceClient.GetOrRegisterStudentsBatchAsync(registrationModels);
+                model.StudentIDs = userIds.Where(x => x.Succeeded).Select(x => x.Value).ToList();
             }
-    
+
+            model.StudentIDs ??= new List<string>();
             var result = await _coursesClient.CreateCourse(model);
             return result.Succeeded
                 ? Ok(result.Value) as IActionResult
@@ -202,7 +193,7 @@ namespace HwProj.APIGateway.API.Controllers
                 ? Ok(result) as IActionResult
                 : BadRequest(result.Errors);
         }
-        
+
         [HttpGet("getLecturersAvailableForCourse/{courseId}")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
@@ -272,7 +263,7 @@ namespace HwProj.APIGateway.API.Controllers
             };
             return Ok(workspace);
         }
-        
+
         private async Task<CourseViewModel> ToCourseViewModel(CourseDTO course)
         {
             var studentIds = course.CourseMates.Select(t => t.StudentId).ToArray();
