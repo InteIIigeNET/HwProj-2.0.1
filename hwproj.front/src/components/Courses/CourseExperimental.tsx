@@ -24,6 +24,7 @@ import {getTip} from "../Common/HomeworkTags";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
 import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExperimental";
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -130,7 +131,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             } = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, task.maxRating!)
             if (lastSolution != null) return (
                 <Tooltip arrow disableInteractive enterDelay={1000}
-                           title={<span style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
+                         title={<span style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
                     <Chip style={{backgroundColor: color, marginTop: '11.5px'}}
                           size={"small"}
                           label={lastRatedSolution == null ? "?" : lastRatedSolution.rating}/>
@@ -173,13 +174,13 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             <Alert severity="info"
                    style={{marginTop: 2}}
                    action={
-                        <Button
-                            color="inherit"
-                            size="small"
-                            onClick={() => setHideDeferred(true)}
-                        >
-                            Скрыть неопубликованное
-                        </Button>}>
+                       <Button
+                           color="inherit"
+                           size="small"
+                           onClick={() => setHideDeferred(true)}
+                       >
+                           Скрыть неопубликованное
+                       </Button>}>
                 {isHomework ? "Задание будет опубликовано " : "Задача будет опубликована "}
                 {renderDate(entity.publicationDate!) + " " + renderTime(entity.publicationDate!)}
             </Alert>
@@ -201,7 +202,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             onMount={onSelectedItemMount}
                             onUpdate={update => {
                                 props.onHomeworkUpdate(update)
-                                if (update.isDeleted) 
+                                if (update.isDeleted)
                                     setState((prevState) => ({
                                         ...prevState,
                                         selectedItem: {
@@ -211,6 +212,13 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                     }))
                             }}/>
                     </Card>
+                </Grid>
+                <Grid item>
+                    <DotLottieReact
+                        src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
+                        loop
+                        autoplay
+                    />
                 </Grid>
             </Grid>
         }
@@ -254,6 +262,13 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     </CardActions>}
                 </Card>
             </Grid>
+            <Grid item>
+                <DotLottieReact
+                    src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
+                    loop
+                    autoplay
+                />
+            </Grid>
         </Grid>
     }
 
@@ -296,7 +311,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             }}>
                             <Typography variant="h6" style={{fontSize: 18}} align={"center"}
                                         color={x.isDeferred ? "textSecondary" : "textPrimary"}>
-                                {showWarningsForEntity(x) && <div style={{ fontSize: 16 }}>⚠️<br/></div>}
+                                {showWarningsForEntity(x) && <div style={{fontSize: 16}}>⚠️<br/></div>}
                                 {x.title}{getTip(x)}
                             </Typography>
                             {x.isDeferred && !x.publicationDateNotSet &&
