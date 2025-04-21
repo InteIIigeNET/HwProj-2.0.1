@@ -12,6 +12,7 @@ import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import ValidationUtils from "../Utils/ValidationUtils";
 import {Card, CardContent} from "@mui/material";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface LoginProps {
     onLogin: (returnUrl: string | null) => void;
@@ -134,7 +135,12 @@ const Login: FC<LoginProps> = (props) => {
 
     return (
         <Container component="main" maxWidth="xs">
-            <Card style={{marginTop: 40}} raised>
+            <DotLottieReact
+                src="https://lottie.host/919997f6-e82f-4995-b17d-bb3dad2376be/jDvgCK2W1q.lottie"
+                loop
+                autoplay
+            />
+            <Card raised>
                 <CardContent>
                     <Grid container className={classes.paper}>
                         <Avatar className={classes.avatar} style={{color: 'white', backgroundColor: '#ba2e2e'}}>
