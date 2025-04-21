@@ -1,9 +1,10 @@
 import * as React from "react";
-import {Tab, Tabs, CircularProgress} from "@material-ui/core";
+import {Tab, Tabs} from "@material-ui/core";
 import {CoursesList} from "./CoursesList";
 import {CoursePreviewView} from "../../api/";
 import ApiSingleton from "../../api/ApiSingleton";
 import {appBarStateManager} from "../AppBar";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface ICoursesState {
     isLoaded: boolean;
@@ -40,8 +41,11 @@ export default class Courses extends React.Component<Props, ICoursesState> {
         if (!isLoaded) {
             return (
                 <div className="container">
-                    <p>Загрузка курсов...</p>
-                    <CircularProgress/>
+                    <DotLottieReact
+                        src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                        loop
+                        autoplay
+                    />
                 </div>
             );
         }

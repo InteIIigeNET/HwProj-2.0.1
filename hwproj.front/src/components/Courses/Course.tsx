@@ -6,7 +6,7 @@ import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Grid, Tab, Tabs, Typography, IconButton, CircularProgress} from "@material-ui/core";
+import {Button, Grid, Tab, Tabs, Typography, IconButton} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
@@ -34,6 +34,7 @@ import ErrorsHandler from "components/Utils/ErrorsHandler";
 import {useSnackbar} from 'notistack';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import {MoreVert} from "@mui/icons-material";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -525,8 +526,11 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         );
     }
     return <div className="container">
-        <p>Загрузка...</p>
-        <CircularProgress/>
+        <DotLottieReact
+            src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+            loop
+            autoplay
+        />
     </div>
 }
 

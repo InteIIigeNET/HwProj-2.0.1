@@ -1,8 +1,9 @@
 ﻿import {Navigate, useParams} from 'react-router-dom';
 import React, {FC, useEffect, useState} from "react";
 import ApiSingleton from "./../../api/ApiSingleton";
-import {Box, CircularProgress, Typography} from "@material-ui/core";
+import {Box, Typography} from "@material-ui/core";
 import {TokenCredentials} from "api/api";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface IExpertAuthLayoutProps {
     onLogin: any;
@@ -46,7 +47,11 @@ const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutPr
     return isLoading ? (
         <div className="container">
             <p>Проверка токена...</p>
-            <CircularProgress/>
+            <DotLottieReact
+                src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                loop
+                autoplay
+            />
         </div>
     ) : (
         isTokenValid ? (

@@ -8,7 +8,7 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import {Typography, Grid, Button, Checkbox, FormControlLabel, CircularProgress, Snackbar} from "@material-ui/core";
+import {Typography, Grid, Button, Checkbox, FormControlLabel, Snackbar} from "@material-ui/core";
 import {ExpertDataDTO, UpdateExpertTagsDTO} from 'api/api';
 import ApiSingleton from "../../api/ApiSingleton";
 import RegisterExpertModal from "./RegisterModal";
@@ -19,6 +19,7 @@ import Tooltip from '@mui/material/Tooltip';
 import EditIcon from '@mui/icons-material/Edit';
 import NameBuilder from './../Utils/NameBuilder';
 import {Alert} from "@mui/material";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface InviteExpertState {
     isOpen: boolean;
@@ -161,7 +162,7 @@ const ExpertsNotebook: FC = () => {
                 key={expert.id}
                 onMouseEnter={() => setMouseHoveredRow(expert.id!)}
             >
-                <TableCell align={"left"} sx={{ fontWeight: 500 }}>
+                <TableCell align={"left"} sx={{fontWeight: 500}}>
                     {NameBuilder.getUserFullName(expert.name, expert.surname, expert.middleName)}
                     {isExpertControlled(expert.lecturerId!) && <ControlledExpertTip/>}
                 </TableCell>
@@ -303,8 +304,11 @@ const ExpertsNotebook: FC = () => {
     }
     return (
         <div className="container">
-            <p>Загрузка...</p>
-            <CircularProgress/>
+            <DotLottieReact
+                src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                loop
+                autoplay
+            />
         </div>
     )
 }

@@ -11,7 +11,7 @@ import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
-import {CircularProgress, Grid, Tabs, Tab} from "@material-ui/core";
+import {Grid, Tabs, Tab} from "@material-ui/core";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import EditIcon from '@mui/icons-material/Edit';
@@ -35,6 +35,7 @@ import StepButton from '@mui/material/StepButton';
 import {RatingStorage} from "../Storages/RatingStorage";
 import {getTip} from "../Common/HomeworkTags";
 import {appBarStateManager} from "../AppBar";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -377,8 +378,11 @@ const StudentSolutionsPage: FC = () => {
 
     return (
         <div className={"container"}>
-            <p>Загрузка решений...</p>
-            <CircularProgress/>
+            <DotLottieReact
+                src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                loop
+                autoplay
+            />
         </div>
     )
 }

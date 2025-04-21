@@ -16,7 +16,7 @@ import UpdateFilesUtils from "components/Utils/UpdateFilesUtils";
 import {LoadingButton} from "@mui/lab";
 import ErrorsHandler from "components/Utils/ErrorsHandler";
 import {useSnackbar} from 'notistack';
-import {CircularProgress} from "@material-ui/core";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -313,8 +313,11 @@ const EditHomework: FC = () => {
     }
     return (
         <div className="container">
-            <p>Загрузка...</p>
-            <CircularProgress/>
+            <DotLottieReact
+                src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                loop
+                autoplay
+            />
         </div>
     )
 }

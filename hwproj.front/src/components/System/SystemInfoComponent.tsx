@@ -7,9 +7,10 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    Box, CircularProgress,
+    Box,
 } from "@mui/material";
 import {useEffect, useState} from "react";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 
 interface ISystemInfoState {
@@ -78,7 +79,11 @@ const SystemInfoComponent: FC = () => {
                 </Table>
             </TableContainer>
             : <Box sx={{minWidth: 150, marginTop: 15}}>
-                <CircularProgress/>
+                <DotLottieReact
+                    src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                    loop
+                    autoplay
+                />
                 <p>Пингуем сервера...</p>
             </Box>}
     </Box>

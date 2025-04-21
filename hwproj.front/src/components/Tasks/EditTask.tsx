@@ -4,11 +4,12 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from "@material-ui/styles";
-import {Button, CircularProgress} from "@material-ui/core";
+import {Button} from "@material-ui/core";
 import {Typography, TextField, Grid, Alert} from "@mui/material";
 import {MarkdownEditor} from "../Common/MarkdownEditor";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import {HomeworkViewModel} from "../../api";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface IEditTaskState {
     isLoaded: boolean;
@@ -272,8 +273,11 @@ const EditTask: FC = () => {
 
     return (
         <div className="container">
-            <p>Загрузка...</p>
-            <CircularProgress/>
+            <DotLottieReact
+                src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                loop
+                autoplay
+            />
         </div>
     )
 }

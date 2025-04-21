@@ -9,12 +9,13 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import ApiSingleton from "../../api/ApiSingleton";
 import Typography from "@material-ui/core/Typography";
 import Grid from '@material-ui/core/Grid';
-import {CircularProgress, IconButton} from "@material-ui/core";
+import {IconButton} from "@material-ui/core";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import {CoursePreviewView, HomeworkViewModel, InviteExpertViewModel, AccountDataDto} from "../../api";
 import {Select, MenuItem, InputLabel, FormControl} from "@mui/material";
 import CourseFilter from "../Courses/CourseFilter";
 import NameBuilder from "../Utils/NameBuilder";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface IInviteExpertProps {
     isOpen: boolean;
@@ -159,8 +160,11 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                     </Grid>
                     {isCourseListLoading ? (
                         <div className="container">
-                            <p>Загружаем курсы...</p>
-                            <CircularProgress/>
+                            <DotLottieReact
+                                src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                                loop
+                                autoplay
+                            />
                         </div>
                     ) : (
                         <div>
