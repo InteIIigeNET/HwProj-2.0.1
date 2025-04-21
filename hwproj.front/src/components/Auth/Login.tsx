@@ -137,7 +137,6 @@ const Login: FC<LoginProps> = (props) => {
         <Container component="main" maxWidth="xs">
             <DotLottieReact
                 src="https://lottie.host/919997f6-e82f-4995-b17d-bb3dad2376be/jDvgCK2W1q.lottie"
-                loop
                 autoplay
             />
             <Card raised>
