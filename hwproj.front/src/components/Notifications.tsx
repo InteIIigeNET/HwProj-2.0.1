@@ -164,6 +164,11 @@ const Notifications: FC<IProfileProps> = (props) => {
     };
 
     const renderNotifications = (notifications: NotificationViewModel[]) => {
+        if (notifications.length === 0) return <DotLottieReact
+            src="https://lottie.host/53cc9814-9917-415b-bf4e-70d23b0324f1/4MkyAbEh14.lottie"
+            loop
+            autoplay
+        />
         return (
             <div>
                 {notifications.map((n, index) =>
