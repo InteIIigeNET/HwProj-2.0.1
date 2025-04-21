@@ -7,7 +7,6 @@ const WrongPath: FC = () => {
         <Grid container justifyContent={"center"} style={{marginTop: 10}}>
             <DotLottieReact
                 src="https://lottie.host/bf9a1867-8371-442a-8486-78f40fcd0171/CIvVkqnUVJ.lottie"
-                loop
                 autoplay
             />
         </Grid>
