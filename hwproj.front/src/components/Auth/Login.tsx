@@ -157,7 +157,7 @@ const Login: FC<LoginProps> = (props) => {
                     </Grid>
                     <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
                         <Grid container direction="column" justifyContent="center">
-                            <Grid>
+                            <Grid item>
                                 <TextField
                                     required
                                     type="email"
@@ -171,7 +171,7 @@ const Login: FC<LoginProps> = (props) => {
                                     helperText={emailError}
                                 />
                             </Grid>
-                            <Grid>
+                            <Grid item>
                                 <TextField
                                     required
                                     type="password"
@@ -183,7 +183,7 @@ const Login: FC<LoginProps> = (props) => {
                                     onChange={handleChangePassword}
                                 />
                             </Grid>
-                            <Grid className={classes.button}>
+                            <Grid item className={classes.button}>
                                 <Button
                                     fullWidth
                                     variant="contained"
