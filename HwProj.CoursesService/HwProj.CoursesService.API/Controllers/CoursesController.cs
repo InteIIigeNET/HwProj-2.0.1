@@ -150,6 +150,17 @@ namespace HwProj.CoursesService.API.Controllers
                 : NotFound();
         }
 
+        [HttpPost("updateCharacteristics")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> UpdateStudentCharacteristics([FromQuery] long courseId,
+            [FromQuery] string studentId,
+            [FromBody] StudentCharacteristicsDto characteristics)
+        {
+            return await _coursesService.UpdateStudentCharacteristics(courseId, studentId, characteristics)
+                ? Ok() as IActionResult
+                : NotFound();
+        }
+
         [HttpPost("rejectStudent/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] string studentId)
@@ -188,7 +199,7 @@ namespace HwProj.CoursesService.API.Controllers
                 ? NotFound() as IActionResult
                 : Ok(result);
         }
-        
+
         [HttpGet("getCourseLecturers/{courseId}")]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseLecturersIds(long courseId)

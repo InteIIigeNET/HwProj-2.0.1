@@ -11,6 +11,8 @@ import {LoginViewModel} from "../../api/"
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import ValidationUtils from "../Utils/ValidationUtils";
+import {Card, CardContent} from "@mui/material";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface LoginProps {
     onLogin: (returnUrl: string | null) => void;
@@ -25,7 +27,6 @@ interface ILoginState {
 
 const useStyles = makeStyles((theme) => ({
     paper: {
-        marginTop: theme.spacing(8),
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -134,75 +135,83 @@ const Login: FC<LoginProps> = (props) => {
 
     return (
         <Container component="main" maxWidth="xs">
-            <Grid container className={classes.paper}>
-                <Avatar className={classes.avatar} style={{color: 'white', backgroundColor: '#ba2e2e'}}>
-                    <LockOutlinedIcon/>
-                </Avatar>
-                <Typography component="h1" variant="h5">
-                    Войти
-                </Typography>
-                {loginState.error && (
-                    <p style={{color: "red", marginBottom: "0"}}>
-                        {loginState.error}
-                    </p>
-                )}
-            </Grid>
-            <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
-                <Grid container direction="column" justifyContent="center">
-                    <Grid>
-                        <TextField
-                            required
-                            type="email"
-                            fullWidth
-                            label="Электронная почта"
-                            variant="outlined"
-                            margin="normal"
-                            name={loginState.email}
-                            onChange={handleChangeEmail}
-                            error={emailError !== ""}
-                            helperText={emailError}
-                        />
+            <DotLottieReact
+                src="https://lottie.host/919997f6-e82f-4995-b17d-bb3dad2376be/jDvgCK2W1q.lottie"
+                autoplay
+            />
+            <Card raised>
+                <CardContent>
+                    <Grid container className={classes.paper}>
+                        <Avatar className={classes.avatar} style={{color: 'white', backgroundColor: '#ba2e2e'}}>
+                            <LockOutlinedIcon/>
+                        </Avatar>
+                        <Typography component="h1" variant="h5">
+                            Войти
+                        </Typography>
+                        {loginState.error && (
+                            <p style={{color: "red", marginBottom: "0"}}>
+                                {loginState.error}
+                            </p>
+                        )}
                     </Grid>
-                    <Grid>
-                        <TextField
-                            required
-                            type="password"
-                            fullWidth
-                            label="Пароль"
-                            variant="outlined"
-                            margin="normal"
-                            value={loginState.password}
-                            onChange={handleChangePassword}
-                        />
-                    </Grid>
+                    <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
+                        <Grid container direction="column" justifyContent="center">
+                            <Grid item>
+                                <TextField
+                                    required
+                                    type="email"
+                                    fullWidth
+                                    label="Электронная почта"
+                                    variant="outlined"
+                                    margin="normal"
+                                    name={loginState.email}
+                                    onChange={handleChangeEmail}
+                                    error={emailError !== ""}
+                                    helperText={emailError}
+                                />
+                            </Grid>
+                            <Grid item>
+                                <TextField
+                                    required
+                                    type="password"
+                                    fullWidth
+                                    label="Пароль"
+                                    variant="outlined"
+                                    margin="normal"
+                                    value={loginState.password}
+                                    onChange={handleChangePassword}
+                                />
+                            </Grid>
+                            <Grid item className={classes.button}>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    color="primary"
+                                    type="submit"
+                                    disabled={isLoginButtonDisabled}
+                                >
+                                    Войти
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </form>
                     <Grid className={classes.button}>
                         <Button
                             fullWidth
                             variant="contained"
                             color="primary"
-                            type="submit"
-                            disabled={isLoginButtonDisabled}
+                            onClick={() => window.location.assign("/register")}
                         >
-                            Войти
+                            Зарегистрироваться
                         </Button>
                     </Grid>
-                </Grid>
-            </form>
-            <Grid className={classes.button}>
-                <Button
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    onClick={() => window.location.assign("/register")}
-                >
-                    Зарегистрироваться
-                </Button>
-            </Grid>
-            <Grid className={classes.clickable_text}>
-                <Link to="/recovery" style={{textDecoration: "underline"}}>
-                    Забыли пароль?
-                </Link>
-            </Grid>
+                    <Grid className={classes.clickable_text}>
+                        <Link to="/recovery" style={{textDecoration: "underline"}}>
+                            Забыли пароль?
+                        </Link>
+                    </Grid>
+                </CardContent>
+            </Card>
         </Container>
     )
 }

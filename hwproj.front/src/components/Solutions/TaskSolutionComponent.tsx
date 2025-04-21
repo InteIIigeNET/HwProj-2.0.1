@@ -4,12 +4,11 @@ import {Button, CircularProgress, Grid, TextField, Typography} from "@material-u
 import Link from '@material-ui/core/Link'
 import './style.css'
 import {
-    AccountDataDto,
     GetSolutionModel,
     HomeworkTaskViewModel,
     SolutionState,
     SolutionActualityDto,
-    SolutionActualityPart
+    SolutionActualityPart, StudentDataDto
 } from '../../api'
 import ApiSingleton from "../../api/ApiSingleton";
 import {Alert, Avatar, Rating, Stack, Tooltip, Card, CardContent, CardActions, IconButton, Chip} from "@mui/material";
@@ -24,10 +23,12 @@ import WarningIcon from '@mui/icons-material/Warning';
 import CloseIcon from '@mui/icons-material/Close';
 import {useSnackbar} from 'notistack';
 import StudentStatsUtils from "../../services/StudentStatsUtils";
+import {StudentCharacteristics} from "@/components/Students/StudentCharacteristics";
 
 interface ISolutionProps {
+    courseId: number,
     solution: GetSolutionModel | undefined,
-    student: AccountDataDto,
+    student: StudentDataDto,
     task: HomeworkTaskViewModel,
     forMentor: boolean,
     lastRating?: number,
@@ -421,27 +422,42 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 }
             </Grid>
         }
-        {sentAfterDeadline && <Grid item>
-            <Alert variant="standard" severity="warning">
-                Решение сдано на {sentAfterDeadline} позже дедлайна.
-            </Alert>
+        {props.forMentor && props.isLastSolution && student && <Grid item>
+            <StudentCharacteristics
+                characteristics={student.characteristics}
+                onChange={x => props.onRateSolutionClick?.()} //TODO
+                courseId={props.courseId}
+                studentId={student.userId!}/>
         </Grid>}
-        {points > maxRating && <Grid item>
-            <Alert variant="standard" severity="info">
-                Решение оценено выше максимального балла.
-            </Alert>
-        </Grid>}
-        {checkAchievement && <Grid item>
-            <Alert variant="outlined"
-                   icon={achievement !== undefined ? null : <CircularProgress size={20} color={"inherit"}/>}
-                   severity={achievement !== undefined && achievement >= 80 ? "success" : "info"}>
-                {achievement !== undefined ? `Лучше ${achievement}% других решений по задаче.` : "Смотрим на решения..."}
-            </Alert>
-        </Grid>}
-        {(props.forMentor || isRated) &&
+        {
+            sentAfterDeadline && <Grid item>
+                <Alert variant="standard" severity="warning">
+                    Решение сдано на {sentAfterDeadline} позже дедлайна.
+                </Alert>
+            </Grid>
+        }
+        {
+            points > maxRating && <Grid item>
+                <Alert variant="standard" severity="info">
+                    Решение оценено выше максимального балла.
+                </Alert>
+            </Grid>
+        }
+        {
+            checkAchievement && <Grid item>
+                <Alert variant="outlined"
+                       icon={achievement !== undefined ? null : <CircularProgress size={20} color={"inherit"}/>}
+                       severity={achievement !== undefined && achievement >= 80 ? "success" : "info"}>
+                    {achievement !== undefined ? `Лучше ${achievement}% других решений по задаче.` : "Смотрим на решения..."}
+                </Alert>
+            </Grid>
+        }
+        {
+            (props.forMentor || isRated) &&
             <Grid xs={12} container item style={{marginTop: '10px'}}>
                 {renderRatingCard()}
-            </Grid>}
+            </Grid>
+        }
     </Grid>
 }
 

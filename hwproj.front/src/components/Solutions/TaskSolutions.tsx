@@ -2,11 +2,10 @@ import * as React from 'react';
 import {FC, useEffect, useState} from 'react';
 import TaskSolutionComponent from "./TaskSolutionComponent";
 import {
-    AccountDataDto,
     GetSolutionModel,
     GetTaskQuestionDto,
     HomeworkTaskViewModel,
-    SolutionState
+    SolutionState, StudentDataDto
 } from '../../api';
 import {Grid, Tab, Tabs} from "@material-ui/core";
 import {Chip, Divider, Stack, Tooltip, Badge} from "@mui/material";
@@ -15,11 +14,13 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {QuestionMark} from "@mui/icons-material";
 import TaskQuestions from "../Tasks/TaskQuestions";
 import ApiSingleton from "../../api/ApiSingleton";
+import {DotLottieReact} from '@lottiefiles/dotlottie-react';
 
 interface ITaskSolutionsProps {
+    courseId: number,
     task: HomeworkTaskViewModel
     solutions: GetSolutionModel[]
-    student: AccountDataDto
+    student: StudentDataDto
     forMentor: boolean
     onSolutionRateClick?: () => void
 }
@@ -178,8 +179,15 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     lastRating={lastRating}
                     onRateSolutionClick={onSolutionRateClick}
                     isLastSolution={true}
-                />
-                : "Студент не отправил ни одного решения."}
+                    courseId={props.courseId}/>
+                : <div>
+                    Студент не отправил ни одного решения.
+                    <DotLottieReact
+                        src="https://lottie.host/cb0117df-e436-4d54-9d0b-aa2289732d29/enJE7uM1Dw.lottie"
+                        loop
+                        autoplay
+                    />
+                </div>}
         </Grid>}
         {tabValue === 2 &&
             arrayOfRatedSolutions.reverse().map((x, i) =>
@@ -191,7 +199,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                         student={student!}
                         onRateSolutionClick={onSolutionRateClick}
                         isLastSolution={false}
-                    />
+                        courseId={props.courseId}/>
                     {i < arrayOfRatedSolutions.length - 1 ?
                         <Divider style={{marginTop: 10, marginBottom: 4}}/> : null}
                 </Grid>)}

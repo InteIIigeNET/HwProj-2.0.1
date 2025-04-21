@@ -1,4 +1,5 @@
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
@@ -8,7 +9,7 @@ namespace HwProj.APIGateway.API.Models.Solutions
     public class UserTaskSolutions
     {
         public GetSolutionModel[] Solutions { get; set; }
-        public AccountDataDto User { get; set; }
+        public StudentDataDto Student { get; set; }
     }
 
     public class UserTaskSolutions2
@@ -37,7 +38,7 @@ namespace HwProj.APIGateway.API.Models.Solutions
     public class HomeworksGroupUserTaskSolutions
     {
         public string? GroupTitle { get; set; }
-        public HomeworkUserTaskSolutions[] HomeworkSolutions  { get; set; }
+        public HomeworkUserTaskSolutions[] HomeworkSolutions { get; set; }
     }
 
     public class HomeworkUserTaskSolutions

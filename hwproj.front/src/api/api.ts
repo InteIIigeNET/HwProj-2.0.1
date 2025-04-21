@@ -151,14 +151,14 @@ export interface AccountDataDto {
  */
 export interface ActionOptions {
     /**
-     *
+     * 
      * @type {boolean}
      * @memberof ActionOptions
      */
     sendNotification?: boolean;
 }
 /**
- *
+ * 
  * @export
  * @interface AddAnswerForQuestionDto
  */
@@ -520,7 +520,7 @@ export interface CreateCourseViewModel {
      */
     isOpen: boolean;
     /**
-     *
+     * 
      * @type {number}
      * @memberof CreateCourseViewModel
      */
@@ -612,7 +612,7 @@ export interface CreateHomeworkViewModel {
      */
     tasks?: Array<CreateTaskViewModel>;
     /**
-     *
+     * 
      * @type {ActionOptions}
      * @memberof CreateHomeworkViewModel
      */
@@ -667,7 +667,7 @@ export interface CreateTaskViewModel {
      */
     maxRating: number;
     /**
-     *
+     * 
      * @type {ActionOptions}
      * @memberof CreateTaskViewModel
      */
@@ -1137,19 +1137,20 @@ export interface HomeworkTaskViewModel {
      */
     publicationDate?: Date;
     /**
-     * * @type {boolean}
+     * 
+     * @type {boolean}
      * @memberof HomeworkTaskViewModel
      */
     publicationDateNotSet?: boolean;
     /**
-     *
+     * 
      * @type {boolean}
      * @memberof HomeworkTaskViewModel
      */
     deadlineDateNotSet?: boolean;
     /**
-     *
-     * @type {boolean}
+     * 
+     * @type {number}
      * @memberof HomeworkTaskViewModel
      */
     homeworkId?: number;
@@ -1259,19 +1260,20 @@ export interface HomeworkViewModel {
      */
     publicationDate?: Date;
     /**
-     * * @type {boolean}
+     * 
+     * @type {boolean}
      * @memberof HomeworkViewModel
      */
     publicationDateNotSet?: boolean;
     /**
-     *
+     * 
      * @type {boolean}
      * @memberof HomeworkViewModel
      */
     deadlineDateNotSet?: boolean;
     /**
-     *
-     * @type {boolean}
+     * 
+     * @type {number}
      * @memberof HomeworkViewModel
      */
     courseId?: number;
@@ -2076,6 +2078,98 @@ export interface StatisticsLecturersModel {
 /**
  * 
  * @export
+ * @interface StudentCharacteristicsDto
+ */
+export interface StudentCharacteristicsDto {
+    /**
+     * 
+     * @type {Array<string>}
+     * @memberof StudentCharacteristicsDto
+     */
+    tags?: Array<string>;
+    /**
+     * 
+     * @type {string}
+     * @memberof StudentCharacteristicsDto
+     */
+    description?: string;
+}
+/**
+ * 
+ * @export
+ * @interface StudentDataDto
+ */
+export interface StudentDataDto {
+    /**
+     * 
+     * @type {StudentCharacteristicsDto}
+     * @memberof StudentDataDto
+     */
+    characteristics?: StudentCharacteristicsDto;
+    /**
+     * 
+     * @type {string}
+     * @memberof StudentDataDto
+     */
+    userId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StudentDataDto
+     */
+    name?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StudentDataDto
+     */
+    surname?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StudentDataDto
+     */
+    middleName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StudentDataDto
+     */
+    email?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StudentDataDto
+     */
+    role?: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof StudentDataDto
+     */
+    isExternalAuth?: boolean;
+    /**
+     * 
+     * @type {string}
+     * @memberof StudentDataDto
+     */
+    githubId?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StudentDataDto
+     */
+    bio?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StudentDataDto
+     */
+    companyName?: string;
+}
+/**
+ * 
+ * @export
  * @interface SystemInfo
  */
 export interface SystemInfo {
@@ -2443,10 +2537,10 @@ export interface UserTaskSolutions {
     solutions?: Array<GetSolutionModel>;
     /**
      * 
-     * @type {AccountDataDto}
+     * @type {StudentDataDto}
      * @memberof UserTaskSolutions
      */
-    user?: AccountDataDto;
+    student?: StudentDataDto;
 }
 /**
  * 
@@ -4824,6 +4918,53 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {string} studentId 
+         * @param {StudentCharacteristicsDto} [body] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        coursesUpdateStudentCharacteristics(courseId: number, studentId: string, body?: StudentCharacteristicsDto, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling coursesUpdateStudentCharacteristics.');
+            }
+            // verify required parameter 'studentId' is not null or undefined
+            if (studentId === null || studentId === undefined) {
+                throw new RequiredError('studentId','Required parameter studentId was null or undefined when calling coursesUpdateStudentCharacteristics.');
+            }
+            const localVarPath = `/api/Courses/updateCharacteristics/{courseId}/{studentId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
+                .replace(`{${"studentId"}}`, encodeURIComponent(String(studentId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"StudentCharacteristicsDto" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -5143,6 +5284,26 @@ export const CoursesApiFp = function(configuration?: Configuration) {
                 });
             };
         },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {string} studentId 
+         * @param {StudentCharacteristicsDto} [body] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        coursesUpdateStudentCharacteristics(courseId: number, studentId: string, body?: StudentCharacteristicsDto, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).coursesUpdateStudentCharacteristics(courseId, studentId, body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
     }
 };
 
@@ -5309,6 +5470,17 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         coursesUpdateCourse(courseId: number, body?: UpdateCourseViewModel, options?: any) {
             return CoursesApiFp(configuration).coursesUpdateCourse(courseId, body, options)(fetch, basePath);
         },
+        /**
+         * 
+         * @param {number} courseId 
+         * @param {string} studentId 
+         * @param {StudentCharacteristicsDto} [body] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        coursesUpdateStudentCharacteristics(courseId: number, studentId: string, body?: StudentCharacteristicsDto, options?: any) {
+            return CoursesApiFp(configuration).coursesUpdateStudentCharacteristics(courseId, studentId, body, options)(fetch, basePath);
+        },
     };
 };
 
@@ -5319,9 +5491,6 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
  * @extends {BaseAPI}
  */
 export class CoursesApi extends BaseAPI {
-    apiCoursesCreatePost(courseViewModel: { name: string; groupName: string | undefined; isOpen: boolean; fetchStudents: boolean; }) {
-      throw new Error("Method not implemented.");
-    }
     /**
      * 
      * @param {number} courseId 
@@ -5511,6 +5680,19 @@ export class CoursesApi extends BaseAPI {
      */
     public coursesUpdateCourse(courseId: number, body?: UpdateCourseViewModel, options?: any) {
         return CoursesApiFp(this.configuration).coursesUpdateCourse(courseId, body, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {number} courseId 
+     * @param {string} studentId 
+     * @param {StudentCharacteristicsDto} [body] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public coursesUpdateStudentCharacteristics(courseId: number, studentId: string, body?: StudentCharacteristicsDto, options?: any) {
+        return CoursesApiFp(this.configuration).coursesUpdateStudentCharacteristics(courseId, studentId, body, options)(this.fetch, this.basePath);
     }
 
 }
@@ -9230,3 +9412,4 @@ export class TasksApi extends BaseAPI {
     }
 
 }
+

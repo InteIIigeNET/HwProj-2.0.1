@@ -5,7 +5,7 @@ import {Autocomplete} from "@mui/material";
 import TextField from "@material-ui/core/TextField";
 import ApiSingleton from "../../api/ApiSingleton";
 import ErrorsHandler from "../Utils/ErrorsHandler";
-import {CircularProgress} from "@material-ui/core";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import Button from "@material-ui/core/Button";
 
 interface ICourseFilterProps {
@@ -98,8 +98,11 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
         <div>
             {isLoading ? (
                 <div className="container">
-                    <p>Загружаем данные...</p>
-                    <CircularProgress/>
+                    <DotLottieReact
+                        src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                        loop
+                        autoplay
+                    />
                 </div>
             ) : (
                 //TODO: унифицировать

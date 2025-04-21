@@ -5,7 +5,6 @@ import {
     Card,
     CardContent,
     Checkbox,
-    CircularProgress,
     Divider,
     FormControlLabel,
     FormGroup,
@@ -19,6 +18,7 @@ import parse from 'html-react-parser';
 import {Button} from "@mui/material";
 import NotificationSettings from "./NotificationSettings";
 import Utils from "../services/Utils";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 const dateTimeOptions = {year: '2-digit', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'};
 
@@ -164,6 +164,11 @@ const Notifications: FC<IProfileProps> = (props) => {
     };
 
     const renderNotifications = (notifications: NotificationViewModel[]) => {
+        if (notifications.length === 0) return <DotLottieReact
+            src="https://lottie.host/53cc9814-9917-415b-bf4e-70d23b0324f1/4MkyAbEh14.lottie"
+            loop
+            autoplay
+        />
         return (
             <div>
                 {notifications.map((n, index) =>
@@ -263,8 +268,11 @@ const Notifications: FC<IProfileProps> = (props) => {
         </div>
     }
     return <div className={"container"}>
-        <p>Загрузка...</p>
-        <CircularProgress/>
+        <DotLottieReact
+            src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+            loop
+            autoplay
+        />
     </div>
 }
 

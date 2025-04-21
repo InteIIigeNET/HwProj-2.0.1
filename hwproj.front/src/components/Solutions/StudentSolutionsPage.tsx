@@ -1,21 +1,22 @@
 import * as React from "react";
 import {FC, useEffect, useState} from "react";
 import {
-    AccountDataDto,
     GetSolutionModel, HomeworksGroupSolutionStats,
     HomeworkTaskViewModel,
     Solution,
     TaskSolutionsStats,
-    SolutionState
+    SolutionState, StudentDataDto
 } from "../../api/";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
-import {CircularProgress, Grid, Tabs, Tab} from "@material-ui/core";
+import {Grid, Tabs, Tab} from "@material-ui/core";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import EditIcon from '@mui/icons-material/Edit';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import {
     Alert,
     Chip,
@@ -34,6 +35,7 @@ import StepButton from '@mui/material/StepButton';
 import {RatingStorage} from "../Storages/RatingStorage";
 import {getTip} from "../Common/HomeworkTags";
 import {appBarStateManager} from "../AppBar";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -44,7 +46,7 @@ interface IStudentSolutionsPageState {
     taskStudentsSolutionsPreview: {
         taskId: number,
         studentSolutionsPreview: {
-            student: AccountDataDto,
+            student: StudentDataDto,
             solutions: GetSolutionModel[]
             lastSolution: GetSolutionModel,
             lastRatedSolution: Solution,
@@ -176,7 +178,10 @@ const StudentSolutionsPage: FC = () => {
             taskId: ts.taskId!,
             studentSolutionsPreview: ts.studentSolutions!.map(studentSolutions => {
                 const ratedSolutionInfo = StudentStatsUtils.calculateLastRatedSolutionInfo(studentSolutions.solutions!, task.maxRating!)
-                return {student: studentSolutions.user!, ...ratedSolutionInfo, solutions: studentSolutions.solutions!}
+                return {
+                    student: studentSolutions.student!, ...ratedSolutionInfo,
+                    solutions: studentSolutions.solutions!
+                }
             })
         }))
 
@@ -211,6 +216,23 @@ const StudentSolutionsPage: FC = () => {
             ? <Chip size={"small"} color={isSelected ? "primary" : "default"}
                     label={t.countUnratedSolutions}/>
             : <TaskAltIcon color={isSelected ? "primary" : "success"}/>
+    }
+
+    const renderStudentListItem = (student: StudentDataDto) => {
+        if (!student.characteristics || student.characteristics.tags?.length === 0) return student.surname + " " + student.name
+        const tags = student.characteristics.tags!
+
+        const hasGoodCharacteristics = tags.some(x => x.startsWith("+"))
+        const hasBadCharacteristics = tags.some(x => x.startsWith("-"))
+
+        if (!hasGoodCharacteristics && !hasBadCharacteristics) return student.surname + " " + student.name
+
+        return <div>{student.surname + " " + student.name}
+            <sup style={{paddingLeft: 5}}>
+                {hasGoodCharacteristics && <ThumbUpIcon color={"success"} style={{fontSize: 14}}/>}
+                {hasBadCharacteristics && <ThumbDownIcon color={"error"} style={{fontSize: 14}}/>}
+            </sup>
+        </div>
     }
 
     if (isLoaded) {
@@ -265,12 +287,9 @@ const StudentSolutionsPage: FC = () => {
                                     color,
                                     solutionsDescription,
                                     lastRatedSolution,
-                                    student: {
-                                        name,
-                                        surname,
-                                        userId
-                                    }
+                                    student
                                 }, idx) => {
+                                const {userId} = student
                                 const storageKey = {
                                     taskId: +currentTaskId,
                                     studentId: userId!,
@@ -306,11 +325,10 @@ const StudentSolutionsPage: FC = () => {
                                                           size={"small"}
                                                           label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
                                                 </Tooltip>}
-                                            <ListItemText primary={surname + " " + name}/>
+                                            <ListItemText primary={renderStudentListItem(student)}/>
                                         </Stack>
                                     </ListItemButton>
                                 </Link>
-                                    ;
                             })}
                         </List>
                     </Grid>
@@ -341,6 +359,7 @@ const StudentSolutionsPage: FC = () => {
                             showForCourse={false}
                         />
                         {currentStudent && <TaskSolutions
+                            courseId={courseId}
                             forMentor={true}
                             task={studentSolutionsState.task}
                             solutions={currentStudent!.solutions}
@@ -359,8 +378,11 @@ const StudentSolutionsPage: FC = () => {
 
     return (
         <div className={"container"}>
-            <p>Загрузка решений...</p>
-            <CircularProgress/>
+            <DotLottieReact
+                src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                loop
+                autoplay
+            />
         </div>
     )
 }

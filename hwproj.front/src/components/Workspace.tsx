@@ -1,5 +1,5 @@
 ﻿import * as React from "react";
-import {Typography, CircularProgress, Grid, Tabs, Tab} from "@material-ui/core";
+import {Typography, Grid, Tabs, Tab} from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
 import {UnratedSolutionPreviews, UserDataDto} from "../api/";
 import "./Styles/Profile.css";
@@ -12,6 +12,7 @@ import {Alert, Chip, Stack} from "@mui/material";
 import NewCourseEvents from "./Courses/NewCourseEvents";
 import {TestTag} from "./Common/HomeworkTags";
 import Utils from "../services/Utils";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 
 interface IWorkspaceState {
@@ -185,14 +186,24 @@ const Workspace: FC = () => {
                                                      onGiveUpClick={onGiveUpClick}/>)}
                         </div>
                     </Grid>}
+                    <Grid item>
+                        <DotLottieReact
+                            src="https://lottie.host/3f7405d2-3644-4abf-80de-cea68a618ca5/NYIk0RI1Mw.lottie"
+                            loop
+                            autoplay
+                        />
+                    </Grid>
                 </Grid>
             </div>
         )
     }
     return (
         <div className="container">
-            <p>Загрузка...</p>
-            <CircularProgress/>
+            <DotLottieReact
+                src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                loop
+                autoplay
+            />
         </div>
     )
 }

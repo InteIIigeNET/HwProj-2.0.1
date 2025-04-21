@@ -7,10 +7,10 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    Box, CircularProgress,
-} from "@material-ui/core";
+    Box,
+} from "@mui/material";
 import {useEffect, useState} from "react";
-import {Center} from "@skbkontur/react-ui";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 
 interface ISystemInfoState {
@@ -48,7 +48,9 @@ const SystemInfoComponent: FC = () => {
     }, [])
 
     const {isLoaded, isApiGatewayAvailable, systemStatus} = systemInfo;
-    return (<Center>
+    return (<div className={"container"}><Box
+        justifyContent="center"
+    >
         {isLoaded
             ? <TableContainer style={{marginTop: 15}}>
                 <Table>
@@ -77,10 +79,15 @@ const SystemInfoComponent: FC = () => {
                 </Table>
             </TableContainer>
             : <Box sx={{minWidth: 150, marginTop: 15}}>
-                <CircularProgress/>
+                <DotLottieReact
+                    src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                    loop
+                    autoplay
+                />
                 <p>Пингуем сервера...</p>
             </Box>}
-    </Center>)
+    </Box>
+    </div>)
 }
 
 export default SystemInfoComponent;

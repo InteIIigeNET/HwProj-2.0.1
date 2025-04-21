@@ -28,6 +28,7 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {getTip} from "../Common/HomeworkTags";
 import Lodash from "lodash";
 import {appBarStateManager} from "../AppBar";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface ITaskSolutionsState {
     isLoaded: boolean
@@ -275,6 +276,7 @@ const TaskSolutionsPage: FC = () => {
                         {!taskSolutionPage.addSolution && (
                             <Grid item xs={12}>
                                 <TaskSolutions
+                                    courseId={courseId}
                                     task={task}
                                     forMentor={false}
                                     student={student}
@@ -294,8 +296,12 @@ const TaskSolutionsPage: FC = () => {
                 supportsGroup={task.isGroupWork!}/>}
         </Grid>
     </div> : (
-        <div>
-
+        <div className="container">
+            <DotLottieReact
+                src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                loop
+                autoplay
+            />
         </div>
     );
 }

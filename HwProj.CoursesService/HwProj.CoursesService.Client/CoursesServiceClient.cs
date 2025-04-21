@@ -179,6 +179,24 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
 
+        public async Task<Result> UpdateStudentCharacteristics(long courseId, string studentId,
+            StudentCharacteristicsDto characteristics)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/Courses/updateCharacteristics?courseId={courseId}&studentId={studentId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(characteristics),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
+        }
+
         public async Task<CourseDTO[]> GetAllUserCourses()
         {
             var role = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role).Value;

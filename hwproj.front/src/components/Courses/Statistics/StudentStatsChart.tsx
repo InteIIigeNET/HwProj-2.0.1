@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {Link, useParams} from 'react-router-dom';
-import {Grid, Box, Typography, Paper, CircularProgress} from "@mui/material";
+import {Grid, Box, Typography, Paper} from "@mui/material";
 import {
     CourseViewModel, HomeworkTaskViewModel,
     HomeworkViewModel, StatisticsCourseHomeworksModel,
@@ -13,6 +13,7 @@ import StudentCheckboxList from "./StudentCheckboxList";
 import StudentProgressChart from "./StudentProgressChart";
 import StudentPunctualityChart from './StudentPunctualityChart';
 import NameBuilder from "../../Utils/NameBuilder";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface IStudentStatsChartState {
     isFound: boolean;
@@ -206,8 +207,11 @@ const StudentStatsChart: React.FC = () => {
     }
 
     return <div className="container">
-        <p>Загрузка...</p>
-        <CircularProgress/>
+        <DotLottieReact
+            src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+            loop
+            autoplay
+        />
     </div>
 }
 

@@ -7,7 +7,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import {MarkdownEditor} from "../Common/MarkdownEditor";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import Tags from "../Common/Tags";
-import {Grid, Typography, TextField} from "@mui/material";
+import {Grid, Typography, TextField, Alert, AlertTitle} from "@mui/material";
 import apiSingleton from "../../api/ApiSingleton";
 import FilesUploader from "components/Files/FilesUploader";
 import {IFileInfo} from "components/Files/IFileInfo";
@@ -16,7 +16,7 @@ import UpdateFilesUtils from "components/Utils/UpdateFilesUtils";
 import {LoadingButton} from "@mui/lab";
 import ErrorsHandler from "components/Utils/ErrorsHandler";
 import {useSnackbar} from 'notistack';
-import {CircularProgress} from "@material-ui/core";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface IEditHomeworkState {
     isLoaded: boolean;
@@ -214,6 +214,16 @@ const EditHomework: FC = () => {
                     </Grid>
                 </Grid>
 
+                <Grid item>
+                    <Alert severity="warning">
+                        <AlertTitle>Устаревшая страница редактирования</AlertTitle>
+                        Данная страница для редактирования заданий является устаревшей и будет удалена в следующих
+                        версиях сервиса.
+                        Настоятельно рекомендуем использовать механизм редактирования заданий в стандартном режиме
+                        отображения:
+                        Вы увидите кнопку редактирования в правом верхнем углу при наведении на выбранное задание.
+                    </Alert>
+                </Grid>
                 <div className={classes.logo}>
                     <div>
                         <EditIcon color='primary' style={{marginRight: '0.5rem'}}/>
@@ -313,8 +323,11 @@ const EditHomework: FC = () => {
     }
     return (
         <div className="container">
-            <p>Загрузка...</p>
-            <CircularProgress/>
+            <DotLottieReact
+                src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                loop
+                autoplay
+            />
         </div>
     )
 }

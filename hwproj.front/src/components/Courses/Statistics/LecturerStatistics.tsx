@@ -3,7 +3,7 @@ import {StatisticsLecturersModel} from "../../../api";
 import ApiSingleton from "../../../api/ApiSingleton";
 import {Dialog, DialogContent, DialogTitle, Typography, Grid, Tooltip, Chip} from "@mui/material";
 import * as React from "react";
-import {CircularProgress} from "@material-ui/core";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 const LecturerStatistics: FC<{
     courseId: number
@@ -33,8 +33,11 @@ const LecturerStatistics: FC<{
         <DialogContent>
             {isLoading ? (
                 <div className="container">
-                    <p>Загрузка...</p>
-                    <CircularProgress/>
+                    <DotLottieReact
+                        src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                        loop
+                        autoplay
+                    />
                 </div>
             ) : (
                 <Grid container spacing={2}>

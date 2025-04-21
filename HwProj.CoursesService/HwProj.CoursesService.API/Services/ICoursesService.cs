@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Services
@@ -22,5 +23,6 @@ namespace HwProj.CoursesService.API.Services
         Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId);
         Task<string[]> GetCourseLecturers(long courseId);
         Task<bool> HasStudent(long courseId, string studentId);
+        Task<bool> UpdateStudentCharacteristics(long courseId, string studentId, StudentCharacteristicsDto characteristics);
     }
 }

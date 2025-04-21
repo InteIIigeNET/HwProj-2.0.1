@@ -359,3 +359,4 @@ Files listing/
 StyleCop.Cache
 .idea/
 .env
+swagger-codegen

@@ -1,9 +1,9 @@
 ﻿import {Navigate, useParams} from 'react-router-dom';
 import React, {FC, useEffect, useState} from "react";
 import ApiSingleton from "./../../api/ApiSingleton";
-import {Box, CircularProgress, Typography} from "@material-ui/core";
-import {Center} from "@skbkontur/react-ui";
+import {Box, Typography} from "@material-ui/core";
 import {TokenCredentials} from "api/api";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface IExpertAuthLayoutProps {
     onLogin: any;
@@ -47,25 +47,28 @@ const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutPr
     return isLoading ? (
         <div className="container">
             <p>Проверка токена...</p>
-            <CircularProgress/>
+            <DotLottieReact
+                src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                loop
+                autoplay
+            />
         </div>
     ) : (
         isTokenValid ? (
             isProfileAlreadyEdited ? (
                 <Navigate to={"/"}/>) : (<Navigate to={"/user/edit"}/>)
         ) : (
-            <Center>
-                <Box sx={{minWidth: 150, marginTop: 15}}>
-                    <Box p={2}>
-                        <Typography variant="h6" gutterBottom align="center">
-                            Ошибка в пригласительной ссылке
-                        </Typography>
-                        <Typography variant="body1">
-                            Ссылка просрочена или содержит опечатку. Обратитесь к выдавшему её преподавателю.
-                        </Typography>
-                    </Box>
+            <Box sx={{minWidth: 150, marginTop: 15}} display={'flex'} alignItems={'center'}
+                 justifyContent={'center'}>
+                <Box p={2}>
+                    <Typography variant="h6" gutterBottom align="center">
+                        Ошибка в пригласительной ссылке
+                    </Typography>
+                    <Typography variant="body1">
+                        Ссылка просрочена или содержит опечатку. Обратитесь к выдавшему её преподавателю.
+                    </Typography>
                 </Box>
-            </Center>
+            </Box>
         )
     );
 }
