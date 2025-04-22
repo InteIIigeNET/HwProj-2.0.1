@@ -28,16 +28,15 @@ namespace HwProj.APIGateway.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<FormOptions>(options =>
-            {
-                options.MultipartBodyLengthLimit = 200 * 1024 * 1024;
-            });
+            services.Configure<FormOptions>(options => { options.MultipartBodyLengthLimit = 200 * 1024 * 1024; });
             services.ConfigureHwProjServices("API Gateway");
             services.AddSingleton<IStudentsInformationProvider>(provider =>
-                new StudentsInformationProvider(Configuration["StudentsInfo:Login"], Configuration["StudentsInfo:Password"],
-                    Configuration["StudentsInfo:LdapHost"], int.Parse(Configuration["StudentsInfo:LdapPort"]), Configuration["StudentsInfo:SearchBase"]));
+                new StudentsInformationProvider(Configuration["StudentsInfo:Login"],
+                    Configuration["StudentsInfo:Password"],
+                    Configuration["StudentsInfo:LdapHost"], int.Parse(Configuration["StudentsInfo:LdapPort"]),
+                    Configuration["StudentsInfo:SearchBase"]));
             const string authenticationProviderKey = "GatewayKey";
-            
+
             services.AddAuthentication()
                 .AddJwtBearer(authenticationProviderKey, x =>
                 {
@@ -52,15 +51,16 @@ namespace HwProj.APIGateway.API
                         ValidateIssuerSigningKey = true
                     };
                 });
-            
+
             services.AddHttpClient();
             services.AddHttpContextAccessor();
+
             services.AddAuthServiceClient();
             services.AddCoursesServiceClient();
             services.AddSolutionServiceClient();
             services.AddNotificationsServiceClient();
             services.AddContentServiceClient();
-            
+
             services.AddScoped<CourseMentorOnlyAttribute>();
         }
 

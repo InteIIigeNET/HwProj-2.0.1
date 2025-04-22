@@ -17,7 +17,6 @@ namespace HwProj.AuthService.Client
         Task<Result> Edit(EditAccountViewModel model, string userId);
         Task<Result> InviteNewLecturer(InviteLecturerViewModel model);
         Task<string> FindByEmailAsync(string email);
-        Task<Dictionary<string, string>> FindByEmailsAsync(IEnumerable<string> emails);
         Task<AccountDataDto[]> GetAllStudents();
         Task<User[]> GetAllLecturers();
         Task<bool> Ping();
