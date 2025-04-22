@@ -1,10 +1,10 @@
-import {Box, Button, Snackbar} from "@material-ui/core";
+import {Box, Snackbar} from "@material-ui/core";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import * as React from "react";
 import {styled} from "@mui/material/styles";
 import {useEffect, useState} from "react";
 import {IFileInfo} from "./IFileInfo";
-import {Alert, Grid} from "@mui/material";
+import {Alert, Button, Grid} from "@mui/material";
 import FilesPreviewList from "./FilesPreviewList";
 
 interface IFilesUploaderProps {
@@ -36,7 +36,7 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
             setSelectedFilesInfo(props.initialFilesInfo);
         }
     }, [props.initialFilesInfo]);
-    
+
     const validFileNameRegex = /^(?!.*[:*?"<>|!])[\p{L}0-9_\-\.() ]+(\.[\p{L}0-9]+)?$/u;
     const maxFileSizeInBytes = 100 * 1024 * 1024;
 
@@ -97,14 +97,14 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
                     size="small"
                     component="label"
                     role={undefined}
-                    variant="contained"
+                    variant="outlined"
                     tabIndex={-1}
                     startIcon={<CloudUploadIcon/>}
                     color="primary"
                     style={{marginTop: "10px"}}
                 >
                     Прикрепить файлы
-                   <VisuallyHiddenInput
+                    <VisuallyHiddenInput
                         type="file"
                         onChange={handleFileInputChange}
                         multiple
@@ -117,7 +117,7 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
                         <p>Получаем информацию о файлах...</p>
                     </Box>
                 </Grid>
-            }   
+            }
             <Grid item>
                 <FilesPreviewList
                     filesInfo={selectedFilesInfo}
