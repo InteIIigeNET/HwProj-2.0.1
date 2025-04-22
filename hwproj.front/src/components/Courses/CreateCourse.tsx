@@ -22,7 +22,7 @@ import {
 } from "./ICreateCourseState";
 import SelectBaseCourse from "./SelectBaseCourse";
 import AddCourseInfo from "./AddCourseInfo";
-import {Autocomplete, Button, Checkbox, Container, FormControlLabel, TextField} from "@mui/material";
+import {Container} from "@mui/material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 const useStyles = makeStyles((theme) => ({
@@ -123,108 +123,6 @@ export const CreateCourse: FC = () => {
                     state={state}
                     setState={setState}
                 />
-            case CreateCourseStep.SelectProgramAndGroupStep:
-                return <div style={{marginTop: 20}}>
-                    <Typography variant="h6" gutterBottom>
-                        Программа и группа
-                    </Typography>
-
-                    <Autocomplete
-                        freeSolo
-                        value={state.programName}
-                        onChange={(_, newValue) => {
-                            setState(prev => ({
-                                ...prev,
-                                programName: newValue || '',
-                                groupName: '',
-                                isGroupFromList: false,
-                            }));
-                        }}
-                        options={state.programNames}
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                label="Название программы"
-                                variant="outlined"
-                                fullWidth
-                                style={{marginBottom: 20}}
-                            />
-                        )}
-                        fullWidth
-                    />
-
-                    {state.programName ? (
-                        <Autocomplete
-                            freeSolo
-                            value={state.groupName}
-                            onChange={(_, newValue) => {
-                                const isFromList = state.groupNames.includes(newValue || '');
-                                setState(prev => ({
-                                    ...prev,
-                                    groupName: newValue || '',
-                                    isGroupFromList: isFromList,
-                                    fetchStudents: isFromList ? prev.fetchStudents : false,
-                                }));
-                            }}
-                            options={state.groupNames}
-                            loading={state.fetchingGroups}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    label="Название группы"
-                                    variant="outlined"
-                                    fullWidth
-                                    style={{marginBottom: 20}}
-                                />
-                            )}
-                            fullWidth
-                        />
-                    ) : (
-                        <TextField
-                            label="Название группы"
-                            variant="outlined"
-                            fullWidth
-                            value={state.groupName}
-                            onChange={(e) => {
-                                setState(prev => ({
-                                    ...prev,
-                                    groupName: e.target.value,
-                                    isGroupFromList: false,
-                                    fetchStudents: false,
-                                }));
-                            }}
-                            style={{marginBottom: 20}}
-                        />
-                    )}
-
-                    {state.isGroupFromList && (
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={state.fetchStudents}
-                                    onChange={(e, checked) => {
-                                        setState(prev => ({...prev, fetchStudents: checked}));
-                                    }}
-                                    color="primary"
-                                />
-                            }
-                            label="Добавить всех студентов из группы"
-                            style={{marginBottom: 20}}
-                        />
-                    )}
-
-                    <div style={{display: 'flex', justifyContent: 'space-between', marginTop: 20}}>
-                        <Button onClick={handleBack}>Назад</Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            type="submit"
-                            disabled={state.courseIsLoading || !state.groupName}
-                        >
-                            {state.courseIsLoading ? 'Создание...' : 'Создать курс'}
-                        </Button>
-                    </div>
-                </div>
             default:
                 console.error(`Шаг создания курса неопределён: ${step}`)
         }

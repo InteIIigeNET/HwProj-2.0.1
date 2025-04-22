@@ -3,8 +3,7 @@ import {CoursePreviewView} from "api";
 
 export enum CreateCourseStep {
     SelectBaseCourseStep = 0,
-    AddCourseInfoStep = 1,
-    SelectProgramAndGroupStep = 2
+    AddCourseInfoStep = 1
 }
 
 export const stepLabels = [
