@@ -204,20 +204,6 @@ export const CreateCourse: FC = () => {
         }
     }, [state.programName]);
 
-    const handleNext = () => {
-        setState(prev => ({
-            ...prev,
-            activeStep: prev.activeStep + 1,
-        }));
-    };
-
-    const handleBack = () => {
-        setState(prev => ({
-            ...prev,
-            activeStep: prev.activeStep - 1,
-        }));
-    };
-
     const classes = useStyles()
 
     if (!ApiSingleton.authService.isLecturer()) {
