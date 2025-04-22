@@ -1,16 +1,16 @@
+import React, {FC, FormEvent, useState, useEffect} from "react";
 import {
     Stepper,
     Step,
     StepLabel,
     StepButton,
     Typography,
+
 } from "@material-ui/core";
-import React, {FC, FormEvent, useState, useEffect} from "react";
 import ApiSingleton from "../../api/ApiSingleton";
 import {CoursePreviewView} from "api";
 import "./Styles/CreateCourse.css";
 import {makeStyles} from "@material-ui/core/styles";
-import Container from "@material-ui/core/Container";
 import {useNavigate} from "react-router-dom";
 import {useSnackbar} from "notistack";
 import ErrorsHandler from "components/Utils/ErrorsHandler";
@@ -22,6 +22,7 @@ import {
 } from "./ICreateCourseState";
 import SelectBaseCourse from "./SelectBaseCourse";
 import AddCourseInfo from "./AddCourseInfo";
+import {Container} from "@mui/material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 const useStyles = makeStyles((theme) => ({
@@ -31,6 +32,9 @@ const useStyles = makeStyles((theme) => ({
         flexDirection: 'column',
         alignItems: 'center',
     },
+    avatar: {
+        margin: theme.spacing(1),
+    },
     form: {
         marginTop: theme.spacing(3),
         width: '100%',
@@ -38,14 +42,21 @@ const useStyles = makeStyles((theme) => ({
     button: {
         marginTop: theme.spacing(1),
     },
-}))
+}));
 
-const CreateCourse: FC = () => {
+export const CreateCourse: FC = () => {
     const [state, setState] = useState<ICreateCourseState>({
         activeStep: CreateCourseStep.SelectBaseCourseStep,
         completedSteps: new Set(),
         courseName: "",
+        fetchStudents: false,
+        isGroupFromList: false,
+        programNames: [],
+        programName: "",
+        groupNames: [],
         groupName: "",
+
+        fetchingGroups: false,
         courseIsLoading: false,
     })
 
@@ -124,6 +135,7 @@ const CreateCourse: FC = () => {
             groupName: state.groupName,
             isOpen: true,
             baseCourseId: selectedBaseCourse?.id,
+            fetchStudents: state.isGroupFromList ? state.fetchStudents : false,
         }
         try {
             setCourseIsLoading(true)
@@ -134,9 +146,77 @@ const CreateCourse: FC = () => {
             const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
             enqueueSnackbar(responseErrors[0], {variant: "error"})
         }
-
-        setCourseIsLoading(false)
     }
+
+    // Load base courses and program names on mount
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                // Load base courses
+                const userCourses = await ApiSingleton.coursesApi.coursesGetAllUserCourses();
+                if (!userCourses.length) skipCurrentStep();
+                setBaseCourses(userCourses);
+
+                // Load program names
+                const programResponse = await ApiSingleton.coursesApi.coursesGetProgramNames();
+                const programNames = programResponse
+                    .map(model => model.programName)
+                    .filter((name): name is string => name !== undefined);
+                setState(prev => ({...prev, programNames}));
+            } catch (e) {
+                console.error("Error loading data:", e);
+                setBaseCourses([]);
+                enqueueSnackbar(
+                    "Не удалось загрузить данные",
+                    {variant: "warning", autoHideDuration: 4000},
+                );
+            }
+        };
+
+        loadData();
+    }, []);
+
+    const fetchGroups = async (program: string) => {
+        if (!program) {
+            setState(prev => ({...prev, groupNames: []}));
+            return;
+        }
+
+        setState(prev => ({...prev, fetchingGroups: true}));
+        try {
+            const response = await ApiSingleton.coursesApi.coursesGetGroups(program);
+            const data = response
+                .map(model => model.groupName)
+                .filter((name): name is string => name !== undefined);
+            setState(prev => ({...prev, groupNames: data}));
+        } catch (e) {
+            console.error("Error loading group names:", e);
+            setState(prev => ({...prev, groupNames: []}));
+        } finally {
+            setState(prev => ({...prev, fetchingGroups: false}));
+        }
+    };
+
+    // Load groups when program name changes
+    useEffect(() => {
+        if (state.programName) {
+            fetchGroups(state.programName);
+        }
+    }, [state.programName]);
+
+    const handleNext = () => {
+        setState(prev => ({
+            ...prev,
+            activeStep: prev.activeStep + 1,
+        }));
+    };
+
+    const handleBack = () => {
+        setState(prev => ({
+            ...prev,
+            activeStep: prev.activeStep - 1,
+        }));
+    };
 
     const classes = useStyles()
 
@@ -147,6 +227,7 @@ const CreateCourse: FC = () => {
             </Typography>
         )
     }
+
     return baseCourses ? (
         <Container component="main" maxWidth="sm">
             <div className={classes.paper}>
@@ -189,5 +270,3 @@ const CreateCourse: FC = () => {
         </div>
     )
 }
-
-export default CreateCourse

@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using System.Threading.Tasks;
@@ -103,10 +104,11 @@ namespace HwProj.CoursesService.API.Services
                 courseTemplate.Homeworks = baseCourse.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList();
             }
 
-            return await AddFromTemplateAsync(courseTemplate, mentorId);
+            return await AddFromTemplateAsync(courseTemplate, courseViewModel.StudentIDs, mentorId);
         }
 
-        public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, string mentorId)
+        public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, List<string> studentIds,
+            string mentorId)
         {
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -121,6 +123,29 @@ namespace HwProj.CoursesService.API.Services
             var tasks = courseTemplate.Homeworks.SelectMany((hwTemplate, i) =>
                 hwTemplate.Tasks.Select(taskTemplate => taskTemplate.ToHomeworkTask(homeworkIds[i])));
             await _tasksRepository.AddRangeAsync(tasks);
+
+            if (studentIds.Any())
+            {
+                var students = studentIds.Select(studentId => new CourseMate
+                {
+                    CourseId = courseId,
+                    StudentId = studentId,
+                    IsAccepted = true
+                }).ToArray();
+
+                await _courseMatesRepository.AddRangeAsync(students);
+
+                foreach (var student in students)
+                {
+                    _eventBus.Publish(new LecturerAcceptToCourseEvent
+                    {
+                        CourseId = courseId,
+                        CourseName = course.Name,
+                        MentorIds = course.MentorIds,
+                        StudentId = student.StudentId
+                    });
+                }
+            }
 
             transactionScope.Complete();
             return courseId;
@@ -271,10 +296,7 @@ namespace HwProj.CoursesService.API.Services
         public async Task<string[]> GetCourseLecturers(long courseId)
         {
             var course = await _coursesRepository.GetAsync(courseId);
-
-            return course.MentorIds
-                .Split('/')
-                .ToArray();
+            return course.MentorIds.Split('/');
         }
 
         public async Task<bool> HasStudent(long courseId, string studentId)

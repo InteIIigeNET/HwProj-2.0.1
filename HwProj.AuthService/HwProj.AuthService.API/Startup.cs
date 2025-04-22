@@ -32,11 +32,8 @@ namespace HwProj.AuthService.API
 
             //var appSettingsSection = Configuration.GetSection("AppSettings");
             //services.Configure<AppSettings>(appSettingsSection);
-            
-            services.AddAuthentication(options =>
-                {
-                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
+
+            services.AddAuthentication(options => { options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; })
                 .AddJwtBearer(x =>
                 {
                     x.RequireHttpsMetadata = false; //TODO: dev env setting
@@ -52,7 +49,7 @@ namespace HwProj.AuthService.API
                 });
 
             services.AddHttpClient();
-            
+
             var connectionString = ConnectionString.GetConnectionString(Configuration);
             services.AddDbContext<IdentityContext>(options =>
                 options.UseSqlServer(connectionString));
@@ -88,7 +85,8 @@ namespace HwProj.AuthService.API
             {
                 var userManager = scope.ServiceProvider.GetService(typeof(UserManager<User>)) as UserManager<User>;
 
-                var rolesManager = scope.ServiceProvider.GetService(typeof(RoleManager<IdentityRole>)) as RoleManager<IdentityRole>;
+                var rolesManager =
+                    scope.ServiceProvider.GetService(typeof(RoleManager<IdentityRole>)) as RoleManager<IdentityRole>;
                 var eventBus = scope.ServiceProvider.GetService<IEventBus>();
 
                 if (env.IsDevelopment())

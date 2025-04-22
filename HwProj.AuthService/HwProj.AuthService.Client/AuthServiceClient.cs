@@ -8,6 +8,7 @@ using HwProj.Models.AuthService.DTO;
 using Newtonsoft.Json;
 using HwProj.Models.Result;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 
 namespace HwProj.AuthService.Client
 {
@@ -58,7 +59,7 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<AccountDataDto[]>();
         }
 
-        public async Task<Result> Register(RegisterViewModel model)
+        public async Task<Result<string>> Register(RegisterViewModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -71,7 +72,24 @@ namespace HwProj.AuthService.Client
             };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result>();
+            return await response.DeserializeAsync<Result<string>>();
+        }
+
+        public async Task<Result<string>[]> GetOrRegisterStudentsBatchAsync(
+            IEnumerable<RegisterViewModel> registrationModels)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + "api/account/registerStudentsBatch")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(registrationModels),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<string>[]>();
         }
 
         public async Task<Result<TokenCredentials>> Login(LoginViewModel model)
@@ -229,7 +247,7 @@ namespace HwProj.AuthService.Client
                     Encoding.UTF8,
                     "application/json")
             };
-            
+
             var response = await _httpClient.SendAsync(httpRequest);
 
             var result = await response.DeserializeAsync<UrlDto>();
@@ -242,7 +260,7 @@ namespace HwProj.AuthService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _authServiceUri + $"api/account/github/authorize/{userId}?code={code}");
-            
+
             var response = await _httpClient.SendAsync(httpRequest);
 
             return await response.DeserializeAsync<GithubCredentials>();
@@ -295,7 +313,7 @@ namespace HwProj.AuthService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _authServiceUri + $"api/Experts/isProfileEdited/{expertId}");
-            
+
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<bool>>();
         }

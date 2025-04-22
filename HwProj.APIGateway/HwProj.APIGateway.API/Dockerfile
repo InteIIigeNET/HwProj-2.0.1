@@ -12,6 +12,10 @@ COPY ["HwProj.CoursesService/HwProj.CoursesService.Client/HwProj.CoursesService.
 COPY ["HwProj.AuthService/HwProj.AuthService.Client/HwProj.AuthService.Client.csproj", "HwProj.AuthService/HwProj.AuthService.Client/"]
 COPY ["HwProj.SolutionsService/HwProj.SolutionsService.Client/HwProj.SolutionsService.Client.csproj", "HwProj.SolutionsService/HwProj.SolutionsService.Client/"]
 COPY ["HwProj.Common/HwProj.Exceptions/HwProj.Exceptions.csproj", "HwProj.Common/HwProj.Exceptions/"]
+COPY ["HwProj.ContentService/HwProj.ContentService.Client/HwProj.ContentService.Client.csproj", "HwProj.ContentService/HwProj.ContentService.Client/"]
+COPY ["HwProj.StudentInfo/IStudentsInfo/IStudentsInfo.csproj", "HwProj.StudentInfo/IStudentsInfo/"]
+COPY ["HwProj.StudentInfo/StudentsInfo.Tests/StudentsInfo.Tests.csproj", "HwProj.StudentInfo/StudentsInfo.Tests/"]
+COPY ["HwProj.StudentInfo/StudentsInfo/StudentsInfo.csproj", "HwProj.StudentInfo/StudentsInfo/"]
 
 COPY . .
 

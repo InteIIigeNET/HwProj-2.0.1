@@ -503,6 +503,18 @@ export interface CreateCourseViewModel {
     groupName?: string;
     /**
      * 
+     * @type {Array<string>}
+     * @memberof CreateCourseViewModel
+     */
+    studentIDs?: Array<string>;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof CreateCourseViewModel
+     */
+    fetchStudents?: boolean;
+    /**
+     * 
      * @type {boolean}
      * @memberof CreateCourseViewModel
      */
@@ -987,6 +999,19 @@ export interface GroupMateViewModel {
      * @memberof GroupMateViewModel
      */
     studentId?: string;
+}
+/**
+ * 
+ * @export
+ * @interface GroupModel
+ */
+export interface GroupModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof GroupModel
+     */
+    groupName?: string;
 }
 /**
  * 
@@ -1482,6 +1507,19 @@ export interface NotificationsSettingDto {
      * @memberof NotificationsSettingDto
      */
     isEnabled?: boolean;
+}
+/**
+ * 
+ * @export
+ * @interface ProgramModel
+ */
+export interface ProgramModel {
+    /**
+     * 
+     * @type {string}
+     * @memberof ProgramModel
+     */
+    programName?: string;
 }
 /**
  * 
@@ -4620,6 +4658,41 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @param {string} [programName] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        coursesGetGroups(programName?: string, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Courses/getGroups`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (programName !== undefined) {
+                localVarQueryParameter['programName'] = programName;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {number} courseId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4673,6 +4746,36 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarPath = `/api/Courses/getMentorWorkspace/{courseId}/{mentorId}`
                 .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
                 .replace(`{${"mentorId"}}`, encodeURIComponent(String(mentorId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("Authorization")
+					: configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        coursesGetProgramNames(options: any = {}): FetchArgs {
+            const localVarPath = `/api/Courses/getProgramNames`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
@@ -5055,6 +5158,24 @@ export const CoursesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {string} [programName] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        coursesGetGroups(programName?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<GroupModel>> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).coursesGetGroups(programName, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
          * @param {number} courseId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5080,6 +5201,23 @@ export const CoursesApiFp = function(configuration?: Configuration) {
          */
         coursesGetMentorWorkspace(courseId: number, mentorId: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<WorkspaceViewModel> {
             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).coursesGetMentorWorkspace(courseId, mentorId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        coursesGetProgramNames(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<ProgramModel>> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).coursesGetProgramNames(options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -5269,6 +5407,15 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         },
         /**
          * 
+         * @param {string} [programName] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        coursesGetGroups(programName?: string, options?: any) {
+            return CoursesApiFp(configuration).coursesGetGroups(programName, options)(fetch, basePath);
+        },
+        /**
+         * 
          * @param {number} courseId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5285,6 +5432,14 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
          */
         coursesGetMentorWorkspace(courseId: number, mentorId: string, options?: any) {
             return CoursesApiFp(configuration).coursesGetMentorWorkspace(courseId, mentorId, options)(fetch, basePath);
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        coursesGetProgramNames(options?: any) {
+            return CoursesApiFp(configuration).coursesGetProgramNames(options)(fetch, basePath);
         },
         /**
          * 
@@ -5450,6 +5605,17 @@ export class CoursesApi extends BaseAPI {
 
     /**
      * 
+     * @param {string} [programName] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public coursesGetGroups(programName?: string, options?: any) {
+        return CoursesApiFp(this.configuration).coursesGetGroups(programName, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
      * @param {number} courseId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5469,6 +5635,16 @@ export class CoursesApi extends BaseAPI {
      */
     public coursesGetMentorWorkspace(courseId: number, mentorId: string, options?: any) {
         return CoursesApiFp(this.configuration).coursesGetMentorWorkspace(courseId, mentorId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public coursesGetProgramNames(options?: any) {
+        return CoursesApiFp(this.configuration).coursesGetProgramNames(options)(this.fetch, this.basePath);
     }
 
     /**

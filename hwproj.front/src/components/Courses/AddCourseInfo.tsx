@@ -1,87 +1,161 @@
-import {FC, ChangeEvent} from "react"
+import React, {FC, ChangeEvent} from "react"
 import {
-  Grid,
-  TextField,
-  Button,
+    Grid,
+    TextField,
+    Button, Typography,
 } from "@material-ui/core";
 import {LoadingButton} from "@mui/lab";
 import {IStepComponentProps} from "./ICreateCourseState";
+import {Alert, Autocomplete, Checkbox, FormControlLabel} from "@mui/material";
 
 const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
-  const handleCourseNameChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    e.persist()
-    setState((prevState) => ({
-      ...prevState,
-      courseName: e.target.value,
-    }))
-  }
+    const handleCourseNameChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+        e.persist()
+        setState((prevState) => ({
+            ...prevState,
+            courseName: e.target.value,
+        }))
+    }
 
-  const handleGroupNameChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    e.persist()
-    setState((prevState) => ({
-      ...prevState,
-      groupName: e.target.value,
-    }))
-  }
+    const handleBack = () =>
+        setState((prevState) => {
+            const newCompletedSteps = prevState.completedSteps
+            newCompletedSteps.delete(prevState.activeStep - 1)
+            return ({
+                ...prevState,
+                activeStep: prevState.activeStep - 1,
+                completedSteps: newCompletedSteps,
+            })
+        })
 
-  const handleBack = () =>
-    setState((prevState) => {
-      const newCompletedSteps = prevState.completedSteps
-      newCompletedSteps.delete(prevState.activeStep - 1)
-      return ({
-        ...prevState,
-        activeStep: prevState.activeStep - 1,
-        completedSteps: newCompletedSteps,
-      })
-    })
+    return (
+        <Grid container spacing={2}>
+            <Grid item xs={12}>
+                <TextField
+                    required
+                    label="Название курса"
+                    variant="outlined"
+                    fullWidth
+                    value={state.courseName}
+                    onChange={handleCourseNameChange}
+                />
+            </Grid>
+            <Grid item xs={12}>
+                <Autocomplete
+                    freeSolo
+                    value={state.programName}
+                    onChange={(_, newValue) => {
+                        setState(prev => ({
+                            ...prev,
+                            programName: newValue || '',
+                            groupName: '',
+                            isGroupFromList: false,
+                        }));
+                    }}
+                    options={state.programNames}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Название программы"
+                            required={false}
+                            variant="outlined"
+                            fullWidth
+                        />
+                    )}
+                    fullWidth
+                />
+                <Alert severity={"info"}>Выберите программу из списка, чтобы иметь возможность выбрать группу и
+                    студентов из базы студентов университета</Alert>
+            </Grid>
 
-  return (
-    <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <TextField
-          required
-          label="Название курса"
-          variant="outlined"
-          fullWidth
-          value={state.courseName}
-          onChange={handleCourseNameChange}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <TextField
-          label="Номер группы"
-          variant="outlined"
-          fullWidth
-          value={state.groupName}
-          onChange={handleGroupNameChange}
-        />
-      </Grid>
-      <Grid item xs={12} style={{ marginTop: 8, display: "flex", justifyContent: "space-between" }}>
-        <Button
-          variant="text"
-          size="large"
-          hidden={!state.baseCourses?.length}
-          onClick={handleBack}
-        >
-          Назад
-        </Button>
-        <LoadingButton
-          type="submit"
-          variant="text"
-          size="large"
-          sx={{
-            marginLeft: "auto",
-            color: "#3f51b5",
-            ":hover": { background: "#f7f8fc" },
-          }}
-          disabled={!state.courseName}
-          loading={state.courseIsLoading}
-        >
-          Создать курс
-        </LoadingButton>
-      </Grid>
-    </Grid>
-  )
+            {state.programName ? (
+                <Grid item xs={12}>
+                    <Autocomplete
+                        freeSolo
+                        value={state.groupName}
+                        onChange={(_, newValue) => {
+                            const isFromList = state.groupNames.includes(newValue || '');
+                            setState(prev => ({
+                                ...prev,
+                                groupName: newValue || '',
+                                isGroupFromList: isFromList,
+                                fetchStudents: isFromList ? prev.fetchStudents : false,
+                            }));
+                        }}
+                        options={state.groupNames}
+                        loading={state.fetchingGroups}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Название группы"
+                                variant="outlined"
+                                fullWidth
+                            />
+                        )}
+                        fullWidth
+                    />
+                </Grid>
+            ) : (
+                <Grid item xs={12}>
+                    <TextField
+                        label="Название группы"
+                        variant="outlined"
+                        fullWidth
+                        required={true}
+                        value={state.groupName}
+                        onChange={(e) => {
+                            setState(prev => ({
+                                ...prev,
+                                groupName: e.target.value,
+                                isGroupFromList: false,
+                                fetchStudents: false,
+                            }));
+                        }}
+                    />
+                </Grid>
+            )}
+            {state.isGroupFromList && (
+                <Grid item xs={12}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={state.fetchStudents}
+                                onChange={(e, checked) => {
+                                    setState(prev => ({...prev, fetchStudents: checked}));
+                                }}
+                                color="primary"
+                            />
+                        }
+                        label="Добавить всех студентов из группы"
+                    />
+                </Grid>
+            )}
+            <Grid item xs={12} style={{marginTop: 8, display: "flex", justifyContent: "space-between"}}>
+                <Button
+                    variant="text"
+                    size="large"
+                    hidden={!state.baseCourses?.length}
+                    onClick={handleBack}
+                >
+                    Назад
+                </Button>
+                <LoadingButton
+                    type="submit"
+                    variant="text"
+                    size="large"
+                    sx={{
+                        marginLeft: "auto",
+                        color: "#3f51b5",
+                        ":hover": {background: "#f7f8fc"},
+                    }}
+                    disabled={!state.courseName || !state.groupName}
+                    loading={state.courseIsLoading}
+                >
+                    Создать курс
+                </LoadingButton>
+            </Grid>
+        </Grid>
+    )
 }
 
 export default AddCourseInfo

@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using IStudentsInfo;
+using StudentsInfo;
 
 namespace HwProj.APIGateway.API
 {
@@ -26,14 +28,15 @@ namespace HwProj.APIGateway.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<FormOptions>(options =>
-            {
-                options.MultipartBodyLengthLimit = 200 * 1024 * 1024;
-            });
+            services.Configure<FormOptions>(options => { options.MultipartBodyLengthLimit = 200 * 1024 * 1024; });
             services.ConfigureHwProjServices("API Gateway");
-
+            services.AddSingleton<IStudentsInformationProvider>(provider =>
+                new StudentsInformationProvider(Configuration["StudentsInfo:Login"],
+                    Configuration["StudentsInfo:Password"],
+                    Configuration["StudentsInfo:LdapHost"], int.Parse(Configuration["StudentsInfo:LdapPort"]),
+                    Configuration["StudentsInfo:SearchBase"]));
             const string authenticationProviderKey = "GatewayKey";
-            
+
             services.AddAuthentication()
                 .AddJwtBearer(authenticationProviderKey, x =>
                 {
@@ -57,7 +60,7 @@ namespace HwProj.APIGateway.API
             services.AddSolutionServiceClient();
             services.AddNotificationsServiceClient();
             services.AddContentServiceClient();
-            
+
             services.AddScoped<CourseMentorOnlyAttribute>();
         }
 

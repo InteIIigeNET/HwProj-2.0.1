@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
@@ -9,6 +10,7 @@ using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
+using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
@@ -26,13 +28,16 @@ namespace HwProj.CoursesService.API.Controllers
         private readonly ICoursesService _coursesService;
         private readonly ICourseFilterService _courseFilterService;
         private readonly IHomeworksRepository _homeworksRepository;
+        private readonly IMapper _mapper;
 
         public CoursesController(ICoursesService coursesService,
             IHomeworksRepository homeworksRepository,
+            IMapper mapper,
             ICourseFilterService courseFilterService)
         {
             _coursesService = coursesService;
             _homeworksRepository = homeworksRepository;
+            _mapper = mapper;
             _courseFilterService = courseFilterService;
         }
 
@@ -101,6 +106,7 @@ namespace HwProj.CoursesService.API.Controllers
             }
 
             var courseId = await _coursesService.AddAsync(courseViewModel, baseCourse, mentorId);
+            
             return Ok(courseId);
         }
 
