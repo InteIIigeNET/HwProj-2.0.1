@@ -38,7 +38,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var user = await _authServiceClient.GetAccountData(@event.StudentId);
             var url = _configuration["Url"];
 
-            var mentorIds = @event.MentorIds.Split('/');
+            var mentorIds = @event.MentorIds;
             var mentors = await _authServiceClient.GetAccountsData(mentorIds);
 
             //TODO: fix

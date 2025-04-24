@@ -32,7 +32,7 @@ namespace HwProj.Repositories
             return await Context.FindAsync<TEntity>(id).ConfigureAwait(false);
         }
 
-        public async Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate)
+        public virtual async Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> predicate)
         {
             return await Context.Set<TEntity>().AsNoTracking().FirstOrDefaultAsync(predicate).ConfigureAwait(false);
         }

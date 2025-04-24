@@ -1,6 +1,7 @@
 <Project>
     <PropertyGroup>
         <CSharpLanguageVersion>8</CSharpLanguageVersion>
+        <WarningsAsErrors>0612</WarningsAsErrors>
     </PropertyGroup>
     
     <PropertyGroup>
