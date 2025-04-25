@@ -360,3 +360,4 @@ StyleCop.Cache
 .idea/
 .env
 swagger-codegen
+hwproj.front/static_dist/
