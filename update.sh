@@ -54,4 +54,15 @@ sudo docker compose build ${SERVICES[@]}
 echo "Starting services: ${SERVICES[@]}"
 sudo docker compose up -d ${SERVICES[@]}
 
+# Если были изменения для фронтенда, перезапускаем nginx
+if [[ " ${SERVICES[@]} " =~ " front " ]]; then
+    echo "Frontend updated. Reloading Nginx..."
+    if sudo systemctl reload nginx; then
+        echo "Nginx successfully reloaded"
+    else
+        echo "Nginx reload failed!" >&2
+        exit 1
+    fi
+fi
+
 echo "Done."
