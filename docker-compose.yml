@@ -8,6 +8,9 @@ services:
     build:
       context: ./hwproj.front
       dockerfile: ./Dockerfile
+    volumes:
+      - ./hwproj.front/static_dist:/static_output
+    command: sh -c "cp -r /static/* /static_output"
     depends_on:
       - hwproj.apigateway.api
 

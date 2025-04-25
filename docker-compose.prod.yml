@@ -14,10 +14,6 @@ services:
     ports:
       - "1433"
 
-  front:
-    ports:
-      - "3000"
-
   rabbitmq:
     container_name: rabbitmq
     #environment:
