@@ -31,7 +31,7 @@ HwProj — это веб-сервис, созданный для автомат�
 В Visual Studio - запустить сервисы ApiGateway.API, AuthService.API, CoursesService.API, SolutionsService.API, NotificationsService.API, ContentService.API
 
 #### Фронтенд
-0. Вызвать `npm start` в `HwProj-2.0.1/hwproj.front` (Start All в Rider запустит и фронтенд)
+0. Вызвать `npm run dev` в `HwProj-2.0.1/hwproj.front` (Start All в Rider запустит и фронтенд)
 
 ### Генерация ts-клиента после изменения контрактов ApiGateway 
 0. Запустить ApiGateway
