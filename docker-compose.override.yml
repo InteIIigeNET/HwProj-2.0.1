@@ -2,16 +2,24 @@ services:
   mssqllocaldb:
     container_name: mssqllocaldb
     environment:
-      SA_PASSWORD: "Your_password123"
+      SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
       ACCEPT_EULA: "Y"
     ports:
-      - "1488:1433"
+      - "${MSSQL_PORT}:1434"
+    user: root
+    volumes:
+      - "${MSSQL_DATA_VOLUME}:/var/opt/mssql/data"
 
   front:
     environment:
-      - VITE_BASE_PATH=http://localhost:5000
-      - VITE_YANDEX_METRICA_ID=101061418
+      - VITE_YANDEX_METRICA_ID=${YANDEX_METRICA_ID}
       - WDS_SOCKET_PORT=0
+      - VITE_BASE_PATH=https://hwproj.ru
+      - HTTPS=true
+      - REACT_APP_YANDEX_APPLICATION_NAME=${REACT_APP_YANDEX_APPLICATION_NAME}
+      - REACT_APP_YANDEX_CLIENT_ID=${REACT_APP_YANDEX_CLIENT_ID}
+      - REACT_APP_YANDEX_CLIENT_SECRET=${REACT_APP_YANDEX_CLIENT_SECRET}
+      - REACT_APP_YANDEX_AUTHORIZATION_TOKEN=${REACT_APP_YANDEX_AUTHORIZATION_TOKEN}
 
   rabbitmq:
     container_name: rabbitmq
@@ -19,8 +27,8 @@ services:
      #- RABBITMQ_DEFAULT_USER=guest
      #- RABBITMQ_DEFAULT_PASS=guest
     ports:
-      - "2000:5672"
-      - "2001:15672"
+      - "${RABBITMQ_5672_PORT}:5672"
+      - "${RABBITMQ_15672_PORT}:15672"
 
   hwproj.apigateway.api:
     environment:
@@ -31,14 +39,29 @@ services:
       - Services:Solutions=http://hwproj.solutionsservice.api
       - Services:Notifications=http://hwproj.notificationsservice.api
       - Services:Content=http://hwproj.contentservice.api
+      - EPPlus:ExcelPackage:LicenseContext=NonCommercial
+      - GoogleSheets:type=service_account
+      - GoogleSheets:project_id=${GOOGLE_SHEETS_PROJECT_ID}
+      - GoogleSheets:private_key_id=${GOOGLE_SHEETS_PRIVATE_KEY_ID}
+      - GoogleSheets:client_email=${GOOGLE_SHEETS_CLIENT_EMAIL}
+      - GoogleSheets:client_id=${GOOGLE_SHEETS_CLIENT_ID}
+      - GoogleSheets:auth_uri=https://accounts.google.com/o/oauth2/auth
+      - GoogleSheets:token_uri=https://oauth2.googleapis.com/token
+      - GoogleSheets:auth_provider_x509_cert_url=https://www.googleapis.com/oauth2/v1/certs
+      - GoogleSheets:client_x509_cert_url=${GOOGLE_SHEETS_CLIENT_X509_CERT_URL}
+      - GoogleSheets:private_key=${GOOGLE_SHEETS_PRIVATE_KEY}
     ports:
       - "5000:5000"
 
   hwproj.authservice.api:
     environment:
-      - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=AuthServiceDB;User=sa;Password=Your_password123;
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=AuthServiceDB;User=sa;Password=Your_password123;
+      - ASPNETCORE_ENVIRONMENT=Production
       - EventBus:EventBusHostName=rabbitmq
+      - Github:ClientIdGithub=${GITHUB_CLIENT_ID}
+      - Github:ClientSecretGithub=${GITHUB_CLIENT_SECRET}
+      - Github:ScopeGitHub=read:user
+      - Gtihub:OrganizationNameGithub=${GITHUB_ORGANIZATION_NAME}
     ports:
       - "5001:5001"
     #volumes:
@@ -47,8 +70,8 @@ services:
 
   hwproj.coursesservice.api:
     environment:
-      - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=CourseWorksServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=CourseWorksServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
+      - ASPNETCORE_ENVIRONMENT=Production
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
     ports:
@@ -56,26 +79,29 @@ services:
 
   hwproj.notificationsservice.api:
     environment:
-      - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=NotificationsServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
+      - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=NotificationsServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Development
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
       - Services:Courses=http://hwproj.coursesservice.api
       - Services:Solutions=http://hwproj.solutionsservice.api
+      - Notification:Mail=${NOTIFICATION_MAIL}
+      - Notification:ConnectSite=${NOTIFICATION_CONNECT_SITE}
+      - Notification:Password=NOTIFICATION_PASSWORD
+      - Notification:Url=https://hwproj.ru
     ports:
       - "5006:5006"
 
   hwproj.solutionsservice.api:
     environment:
-      - ConnectionStrings:DefaultConnection=Server=mssqllocaldb;Database=SolutionServiceDB;User=sa;Password=Your_password123;
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=SolutionServiceDB;User=sa;Password=Your_password123;
+      - ASPNETCORE_ENVIRONMENT=Production
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
       - Services:Courses=http://hwproj.coursesservice.api
+      - Github:Token=${GITHUB_TOKEN}
     ports:
       - "5007:5007"
-    #volumes:
-      #- ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
 
   hwproj.contentservice.api:
     environment:
@@ -83,5 +109,10 @@ services:
       - ASPNETCORE_HTTP_PORTS=80
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
+      - StorageClientConfiguration:AccessKeyId=${STORAGE_CLIENT_ACCESS_KEY_ID}
+      - StorageClientConfiguration:SecretKey=${STORAGE_CLIENT_SECRET_KEY}
+      - StorageClientConfiguration:Region=ru-central1
+      - StorageClientConfiguration:ServiceURL=https://storage.yandexcloud.net
+      - StorageClientConfiguration:DefaultBucketName=hwproj-files
     ports:
       - "5008:5008"
