@@ -1,23 +1,23 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
 WORKDIR /src
 
-COPY ["HwProj.APIGateway/HwProj.APIGateway.API/HwProj.APIGateway.API.csproj", "HwProj.APIGateway/HwProj.APIGateway.API/"]
-COPY ["HwProj.NotificationsService/HwProj.NotificationsService.Client/HwProj.NotificationsService.Client.csproj", "HwProj.NotificationsService/HwProj.NotificationsService.Client/"]
-COPY ["HwProj.Common/HwProj.Models/HwProj.Models.csproj", "HwProj.Common/HwProj.Models/"]
-COPY ["HwProj.Common/HwProj.Repositories/HwProj.Repositories.csproj", "HwProj.Common/HwProj.Repositories/"]
-COPY ["HwProj.Common/HwProj.HttpUtils/HwProj.HttpUtils.csproj", "HwProj.Common/HwProj.HttpUtils/"]
-COPY ["HwProj.Common/HwProj.Utils/HwProj.Utils.csproj", "HwProj.Common/HwProj.Utils/"]
-COPY ["HwProj.EventBus/HwProj.EventBus.Client/HwProj.EventBus.Client.csproj", "HwProj.EventBus/HwProj.EventBus.Client/"]
-COPY ["HwProj.CoursesService/HwProj.CoursesService.Client/HwProj.CoursesService.Client.csproj", "HwProj.CoursesService/HwProj.CoursesService.Client/"]
-COPY ["HwProj.AuthService/HwProj.AuthService.Client/HwProj.AuthService.Client.csproj", "HwProj.AuthService/HwProj.AuthService.Client/"]
-COPY ["HwProj.SolutionsService/HwProj.SolutionsService.Client/HwProj.SolutionsService.Client.csproj", "HwProj.SolutionsService/HwProj.SolutionsService.Client/"]
-COPY ["HwProj.Common/HwProj.Exceptions/HwProj.Exceptions.csproj", "HwProj.Common/HwProj.Exceptions/"]
-COPY ["HwProj.ContentService/HwProj.ContentService.Client/HwProj.ContentService.Client.csproj", "HwProj.ContentService/HwProj.ContentService.Client/"]
-COPY ["HwProj.StudentInfo/IStudentsInfo/IStudentsInfo.csproj", "HwProj.StudentInfo/IStudentsInfo/"]
-COPY ["HwProj.StudentInfo/StudentsInfo.Tests/StudentsInfo.Tests.csproj", "HwProj.StudentInfo/StudentsInfo.Tests/"]
-COPY ["HwProj.StudentInfo/StudentsInfo/StudentsInfo.csproj", "HwProj.StudentInfo/StudentsInfo/"]
+COPY ["Directory.Build.props", "Directory.Build.props"]
 
-COPY . .
+COPY ["HwProj.APIGateway/HwProj.APIGateway.API/", "HwProj.APIGateway/HwProj.APIGateway.API/"]
+COPY ["HwProj.NotificationsService/HwProj.NotificationsService.Client/", "HwProj.NotificationsService/HwProj.NotificationsService.Client/"]
+COPY ["HwProj.Common/HwProj.Models/", "HwProj.Common/HwProj.Models/"]
+COPY ["HwProj.Common/HwProj.Repositories/", "HwProj.Common/HwProj.Repositories/"]
+COPY ["HwProj.Common/HwProj.HttpUtils/", "HwProj.Common/HwProj.HttpUtils/"]
+COPY ["HwProj.Common/HwProj.Utils/", "HwProj.Common/HwProj.Utils/"]
+COPY ["HwProj.EventBus/HwProj.EventBus.Client/", "HwProj.EventBus/HwProj.EventBus.Client/"]
+COPY ["HwProj.CoursesService/HwProj.CoursesService.Client/", "HwProj.CoursesService/HwProj.CoursesService.Client/"]
+COPY ["HwProj.AuthService/HwProj.AuthService.Client/", "HwProj.AuthService/HwProj.AuthService.Client/"]
+COPY ["HwProj.SolutionsService/HwProj.SolutionsService.Client/", "HwProj.SolutionsService/HwProj.SolutionsService.Client/"]
+COPY ["HwProj.Common/HwProj.Exceptions/", "HwProj.Common/HwProj.Exceptions/"]
+COPY ["HwProj.ContentService/HwProj.ContentService.Client/", "HwProj.ContentService/HwProj.ContentService.Client/"]
+COPY ["HwProj.StudentInfo/IStudentsInfo/", "HwProj.StudentInfo/IStudentsInfo/"]
+COPY ["HwProj.StudentInfo/StudentsInfo.Tests/", "HwProj.StudentInfo/StudentsInfo.Tests/"]
+COPY ["HwProj.StudentInfo/StudentsInfo/", "HwProj.StudentInfo/StudentsInfo/"]
 
 WORKDIR "/src/HwProj.APIGateway/HwProj.APIGateway.API"
 RUN dotnet publish "HwProj.APIGateway.API.csproj" -c Release -o /app/publish
