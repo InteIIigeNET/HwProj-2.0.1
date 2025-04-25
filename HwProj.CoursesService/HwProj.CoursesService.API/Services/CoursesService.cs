@@ -114,9 +114,8 @@ namespace HwProj.CoursesService.API.Services
 
             var course = courseTemplate.ToCourse();
             course.InviteCode = Guid.NewGuid().ToString();
+            course.Mentors = new List<CourseMentor> { new CourseMentor { UserId = mentorId } };
             var courseId = await _coursesRepository.AddAsync(course);
-
-            await _context.Mentors.AddAsync(new CourseMentor() { CourseId = courseId, UserId = mentorId });
 
             var homeworks = courseTemplate.Homeworks.Select(hwTemplate => hwTemplate.ToHomework(courseId));
             var homeworkIds = await _homeworksRepository.AddRangeAsync(homeworks);
@@ -243,6 +242,7 @@ namespace HwProj.CoursesService.API.Services
                 : _coursesRepository.FindAll(c => c.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId));
 
             var coursesWithValues = await courses
+                .Include(c => c.Mentors)
                 .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
                 .ToArrayAsync();
@@ -269,9 +269,11 @@ namespace HwProj.CoursesService.API.Services
         {
             var course = await _coursesRepository.GetAsync(courseId);
             if (course == null) return false;
-            if (_context.Mentors.All(x => x.UserId != lecturerId))
+            if (course.Mentors.All(x => x.UserId != lecturerId))
             {
-                _context.Mentors.Add(new CourseMentor() { CourseId = courseId, UserId = lecturerId });
+                await _context.CourseMentors.AddAsync(new CourseMentor() { CourseId = courseId, UserId = lecturerId });
+                await _context.SaveChangesAsync();
+
                 _eventBus.Publish(new LecturerInvitedToCourseEvent
                 {
                     CourseId = courseId,

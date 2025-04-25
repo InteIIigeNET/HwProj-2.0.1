@@ -107,7 +107,7 @@ namespace HwProj.CoursesService.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CourseMentor");
+                    b.ToTable("CourseMentors");
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.Group", b =>
