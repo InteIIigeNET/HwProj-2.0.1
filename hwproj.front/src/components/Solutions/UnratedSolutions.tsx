@@ -2,19 +2,16 @@ import {AccountDataDto, SolutionPreviewView, UnratedSolutionPreviews} from "../.
 import * as React from "react";
 import {NavLink} from "react-router-dom";
 import {
-    FormControl,
-    InputLabel,
-    Select,
     Divider,
     Grid,
     ListItem,
-    MenuItem,
     Typography,
-    Chip, Card, CardContent
+    Chip, Card, CardContent, Autocomplete
 } from "@mui/material";
 import {FC, useState} from "react";
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
+import TextField from "@mui/material/TextField";
 
 interface IUnratedSolutionsProps {
     unratedSolutionsPreviews: UnratedSolutionPreviews
@@ -142,17 +139,20 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
     }
 
     const renderSelect = (name: string, filterName: FilterTitleName, value: string, options: string[]) => {
-        return (<FormControl fullWidth style={{minWidth: 220}}>
-            <InputLabel>{name}</InputLabel>
-            <Select
-                value={value}
-                onChange={(event) => handleFilterChange(filterName, event.target.value as string)}
-                label="demo-label"
-            >
-                <MenuItem value={""}>Все</MenuItem>
-                {options.map((t, index) => <MenuItem key={index} value={t}>{t}</MenuItem>)}
-            </Select>
-        </FormControl>)
+        return (<Autocomplete
+            fullWidth
+            options={options}
+            defaultValue={""}
+            value={value}
+            renderInput={params => <TextField
+                {...params}
+                fullWidth
+                style={{minWidth: 250, width: 55 + value.length * 10}}
+                label={name}
+            />}
+            key={name}
+            onChange={(_, newValue) => handleFilterChange(filterName, newValue || "")}
+        />)
     }
 
     const renderFilter = () => {
@@ -171,7 +171,7 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
                     {renderSelect("Студент", "studentsFilter", filtersState.studentsFilter, filtersState.students)}
                 </Grid>
             </Grid>
-            <Grid container direction={"row"} spacing={1} style={{marginTop: 10}}>
+            <Grid container direction={"row"} spacing={1} style={{marginTop: 5}}>
                 {filteredUnratedSolutions.length < unratedSolutions.length && <Grid item>
                     <Typography variant={"caption"} color={"GrayText"}>
                         {`${filteredUnratedSolutions.length} ${Utils.pluralizeHelper(solutionPlurals, filteredUnratedSolutions.length)} найдено по заданному фильтру`}
