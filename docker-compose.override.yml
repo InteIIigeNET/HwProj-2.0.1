@@ -3,7 +3,7 @@ services:
     container_name: mssqllocaldb
     environment:
       SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
-      ACCEPT_EULA: "${MSSQL_ACCEPT_EULA}"
+      ACCEPT_EULA: "Y"
     ports:
       - "${MSSQL_PORT}:1434"
     user: root
@@ -20,8 +20,6 @@ services:
       - REACT_APP_YANDEX_CLIENT_ID=${REACT_APP_YANDEX_CLIENT_ID}
       - REACT_APP_YANDEX_CLIENT_SECRET=${REACT_APP_YANDEX_CLIENT_SECRET}
       - REACT_APP_YANDEX_AUTHORIZATION_TOKEN=${REACT_APP_YANDEX_AUTHORIZATION_TOKEN}
-    ports:
-      - "3000:3000"
 
   rabbitmq:
     container_name: rabbitmq
