@@ -1,8 +1,5 @@
-FROM node:22.14.0-alpine
+FROM node:22.14.0-alpine AS builder
 
-RUN apk add --no-cache xdg-utils
-
-# Create app directory
 WORKDIR /usr/src/app
 
 # Install app dependencies
@@ -16,9 +13,9 @@ RUN npm install
 # Bundle app source
 COPY . .
 
-# Собираем проект в dist/ (сборка для production)
-# RUN npm run build
+# Собираем статику в /usr/src/app/dist
+RUN npm run build
 
-# Запуск в development-режиме
-EXPOSE 3000
-CMD [ "npm", "run", "dev" ]
+# Финализируем образ
+FROM alpine:latest
+COPY --from=builder /usr/src/app/dist /static
