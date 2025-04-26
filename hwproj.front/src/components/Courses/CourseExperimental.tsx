@@ -57,7 +57,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const [state, setState] = useState<ICourseExperimentalState>({
         initialEditMode: false,
-        selectedItem: {id: undefined, isHomework: false},
+        selectedItem: {id: undefined, isHomework: true},
     })
 
     useEffect(() => {
@@ -252,14 +252,15 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     const renderTask = (task: HomeworkTaskViewModel & { isModified?: boolean }, homework: HomeworkViewModel) => {
-        return task && <Card style={{backgroundColor: "ghostwhite"}} raised={task.id! < 0}>
+        const taskEditMode = task.id! < 0 || task.isModified === true
+        return task && <Card style={{backgroundColor: "ghostwhite"}} raised={taskEditMode}>
             {getAlert(task)}
             <CourseTaskExperimental
                 key={task.id}
                 task={task}
                 homework={homework!}
                 isMentor={isMentor}
-                initialEditMode={initialEditMode || task.id! < 0 || task.isModified === true}
+                initialEditMode={initialEditMode || taskEditMode}
                 onMount={onSelectedItemMount}
                 onUpdate={update => {
                     props.onTaskUpdate(update)
@@ -381,7 +382,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Timeline>
         </Grid>
         <Grid item xs={12} sm={12} md={8} lg={8}>
-            {isHomework && selectedItem
+            {isHomework
                 ? renderHomework(selectedItem as HomeworkViewModel)
                 : renderTask(selectedItem as HomeworkTaskViewModel, selectedItemHomework!)}
         </Grid>
