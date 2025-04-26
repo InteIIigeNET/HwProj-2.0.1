@@ -11,15 +11,10 @@ services:
       - "${MSSQL_DATA_VOLUME}:/var/opt/mssql/data"
 
   front:
-    environment:
-      - VITE_YANDEX_METRICA_ID=${YANDEX_METRICA_ID}
-      - WDS_SOCKET_PORT=0
-      - VITE_BASE_PATH=https://hwproj.ru
-      - HTTPS=true
-      - REACT_APP_YANDEX_APPLICATION_NAME=${REACT_APP_YANDEX_APPLICATION_NAME}
-      - REACT_APP_YANDEX_CLIENT_ID=${REACT_APP_YANDEX_CLIENT_ID}
-      - REACT_APP_YANDEX_CLIENT_SECRET=${REACT_APP_YANDEX_CLIENT_SECRET}
-      - REACT_APP_YANDEX_AUTHORIZATION_TOKEN=${REACT_APP_YANDEX_AUTHORIZATION_TOKEN}
+    build:
+      - args:
+        - VITE_YANDEX_METRICA_ID=${YANDEX_METRICA_ID}
+        - VITE_BASE_PATH=https://hwproj.ru
 
   rabbitmq:
     container_name: rabbitmq
