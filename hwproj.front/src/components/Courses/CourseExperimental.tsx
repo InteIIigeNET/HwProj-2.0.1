@@ -26,6 +26,7 @@ import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExper
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import EditIcon from "@mui/icons-material/Edit";
+import ErrorIcon from '@mui/icons-material/Error';
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -121,7 +122,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel) =>
         isMentor && (entity.publicationDateNotSet || entity.hasDeadline && entity.deadlineDateNotSet)
 
-    const renderTaskStatus = (task: HomeworkTaskViewModel & { isModified?: boolean }) => {
+    const renderTaskStatus = (task: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
         if (taskSolutionsMap.has(task.id!)) {
             const solutions = taskSolutionsMap.get(task.id!)
             const {
@@ -139,6 +140,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 </Tooltip>
             )
         }
+        if (task.hasErrors) return <ErrorIcon fontSize="small" color={"error"}/>
         if (task.isModified) return <EditIcon fontSize="small" color={"primary"}/>
         return showWarningsForEntity(task) ? (
             <Typography color={task.isDeferred ? "textSecondary" : "textPrimary"}>

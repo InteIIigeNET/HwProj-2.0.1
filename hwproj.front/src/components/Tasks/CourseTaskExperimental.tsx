@@ -21,7 +21,7 @@ interface IEditTaskMetadataState {
 }
 
 const CourseTaskEditor: FC<{
-    speculativeTask: HomeworkTaskViewModel & { isModified?: boolean },
+    speculativeTask: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean },
     speculativeHomework: HomeworkViewModel,
     onUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean, isSaved?: boolean }) => void,
     toEditHomework: () => void,
@@ -78,7 +78,7 @@ const CourseTaskEditor: FC<{
     const [title, setTitle] = useState<string>(task.title!)
     const [maxRating, setMaxRating] = useState<number>(task.maxRating!)
     const [description, setDescription] = useState<string>(task.description!)
-    const [hasErrors, setHasErrors] = useState<boolean>(false)
+    const [hasErrors, setHasErrors] = useState<boolean>(props.speculativeTask.hasErrors || false)
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false)
 
     const [handleSubmitLoading, setHandleSubmitLoading] = useState(false);
@@ -87,15 +87,16 @@ const CourseTaskEditor: FC<{
     const publicationDate = metadata?.publicationDate || homework.publicationDate
 
     useEffect(() => {
-        const update: HomeworkTaskViewModel = {
+        const update = {
             ...props.speculativeTask,
             ...metadata!,
             title: title!,
             description: description,
             maxRating: maxRating,
+            hasErrors: hasErrors
         }
         props.onUpdate({task: update})
-    }, [title, description, maxRating, metadata])
+    }, [title, description, maxRating, metadata, hasErrors])
 
     const handleSubmit = async (e: any) => {
         e.preventDefault()
@@ -126,7 +127,7 @@ const CourseTaskEditor: FC<{
         props.onUpdate({task, isDeleted: true})
     }
 
-    const isDisabled = hasErrors || !isLoaded || !title || !maxRating
+    const isDisabled = hasErrors || !isLoaded
 
     const homeworkPublicationDateIsSet = !homework.publicationDateNotSet
 
@@ -145,6 +146,7 @@ const CourseTaskEditor: FC<{
                         value={title}
                         onChange={(e) => {
                             e.persist()
+                            setHasErrors(!e.target.value)
                             setTitle(e.target.value)
                         }}
                     />
@@ -162,6 +164,7 @@ const CourseTaskEditor: FC<{
                         value={maxRating}
                         onChange={(e) => {
                             e.persist()
+                            setHasErrors(+e.target.value <= 0)
                             setMaxRating(+e.target.value)
                         }}
                     />
