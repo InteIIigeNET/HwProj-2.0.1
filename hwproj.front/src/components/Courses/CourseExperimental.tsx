@@ -251,7 +251,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Stack>
     }
 
-    const renderTask = (task: HomeworkTaskViewModel, homework: HomeworkViewModel) => {
+    const renderTask = (task: HomeworkTaskViewModel & { isModified?: boolean }, homework: HomeworkViewModel) => {
         return task && <Card style={{backgroundColor: "ghostwhite"}} raised={task.id! < 0}>
             {getAlert(task)}
             <CourseTaskExperimental
@@ -259,7 +259,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 task={task}
                 homework={homework!}
                 isMentor={isMentor}
-                initialEditMode={initialEditMode || task.id! < 0}
+                initialEditMode={initialEditMode || task.isModified === true}
                 onMount={onSelectedItemMount}
                 onUpdate={update => {
                     props.onTaskUpdate(update)
