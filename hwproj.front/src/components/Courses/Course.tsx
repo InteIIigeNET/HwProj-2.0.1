@@ -9,7 +9,6 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {Button, Tab, Tabs, IconButton} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {FC, useEffect, useState} from "react";
-import {makeStyles} from "@material-ui/styles";
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import {
     Alert,
@@ -64,18 +63,10 @@ interface IPageState {
     tabValue: TabValue
 }
 
-const styles = makeStyles(() => ({
-    info: {
-        display: "flex",
-        justifyContent: "space-between",
-    },
-}))
-
 const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     const {courseId, tab} = useParams()
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
-    const classes = styles()
     const {enqueueSnackbar} = useSnackbar()
 
     const [courseState, setCourseState] = useState<ICourseState>({
@@ -292,7 +283,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                         : !isMentor ? "Вы можете записаться на курс и отправлять решения." : ""}
                             </Alert>
                         </Grid>}
-                        <Grid item container xs={12} className={classes.info} alignItems="center"
+                        <Grid item container xs={12} alignItems="center"
                               justifyContent="space-between">
                             <Grid item>
                                 <Stack direction={"row"} spacing={1} alignItems={"start"}>
