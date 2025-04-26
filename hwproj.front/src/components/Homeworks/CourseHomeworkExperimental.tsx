@@ -315,7 +315,7 @@ const CourseHomeworkExperimental: FC<{
     return <CardContent
         onMouseEnter={() => setShowEditMode(props.isMentor)}
         onMouseLeave={() => setShowEditMode(false)}>
-        <Grid xs={12} container direction={"row"} alignItems={"center"} alignContent={"center"}
+        <Grid xs={12} container direction={"row"} alignItems={"start"} alignContent={"center"}
               justifyContent={"space-between"}>
             <Grid item container spacing={1} xs={10}>
                 <Grid item>
