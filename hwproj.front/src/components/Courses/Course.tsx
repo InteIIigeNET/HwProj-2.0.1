@@ -1,12 +1,12 @@
 import * as React from "react";
 import {useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, FileInfoDTO, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api";
+import {AccountDataDto, CourseViewModel, FileInfoDTO, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import CourseHomework from "../Homeworks/CourseHomework";
 import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Grid, Tab, Tabs, Typography, IconButton} from "@material-ui/core";
+import {Button, Tab, Tabs, IconButton} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
@@ -17,11 +17,12 @@ import {
     Chip,
     Dialog,
     DialogContent,
-    DialogTitle, ListItemIcon, ListItemText,
+    DialogTitle, Grid, ListItemIcon, ListItemText,
     Menu,
     MenuItem,
     Stack,
-    Tooltip
+    Tooltip,
+    Typography
 } from "@mui/material";
 import {CourseExperimental} from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
