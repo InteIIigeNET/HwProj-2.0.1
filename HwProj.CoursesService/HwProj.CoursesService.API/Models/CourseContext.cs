@@ -15,6 +15,7 @@ namespace HwProj.CoursesService.API.Models
         public DbSet<CourseFilter> CourseFilters { get; set; }
         public DbSet<UserToCourseFilter> UserToCourseFilters { get; set; }
         public DbSet<TaskQuestion> Questions { get; set; }
+        public DbSet<CourseDescription> CoursesDescriptions { get; set; }
 
         public CourseContext(DbContextOptions options)
             : base(options)
@@ -27,6 +28,7 @@ namespace HwProj.CoursesService.API.Models
             modelBuilder.Entity<Assignment>().HasIndex(a => a.CourseId);
             modelBuilder.Entity<UserToCourseFilter>().HasKey(u => new { u.CourseId, u.UserId });
             modelBuilder.Entity<TaskQuestion>().HasIndex(t => t.TaskId);
+            modelBuilder.Entity<CourseDescription>().HasIndex(t => t.CourseId);
         }
     }
 }
