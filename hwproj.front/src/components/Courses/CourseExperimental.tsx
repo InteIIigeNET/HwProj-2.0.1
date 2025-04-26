@@ -198,9 +198,17 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const [newTaskCounter, setNewTaskCounter] = useState<number>(-1)
 
-    const addNewTask = (homeworkId: number) => {
+    const addNewTask = (homework: HomeworkViewModel) => {
         const id = newTaskCounter
-        props.onTaskUpdate({task: {homeworkId: homeworkId, title: `Новая задача ${-id}`, id}})
+        props.onTaskUpdate({
+            task: {
+                homeworkId: homework.id,
+                title: `Новая задача`,
+                tags: homework.tags,
+                isDeferred: homework.isDeferred,
+                id
+            }
+        })
         setState((prevState) => ({
             ...prevState,
             selectedItem: {
@@ -232,9 +240,9 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 }
                             }))
                     }}/>
-                {isMentor && <CardActions>
+                {isMentor && <CardActions style={{justifyContent: 'center'}}>
                     <Button
-                        onClick={() => addNewTask(homework.id!)}
+                        onClick={() => addNewTask(homework)}
                         size="small"
                         variant="text"
                         color="primary"

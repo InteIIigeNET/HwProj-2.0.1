@@ -21,7 +21,7 @@ interface IEditTaskMetadataState {
 }
 
 const CourseTaskEditor: FC<{
-    speculativeTask: HomeworkTaskViewModel,
+    speculativeTask: HomeworkTaskViewModel & { isModified?: boolean },
     speculativeHomework: HomeworkViewModel,
     onUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean, isSaved?: boolean }) => void,
     toEditHomework: () => void,
@@ -33,22 +33,22 @@ const CourseTaskEditor: FC<{
     }>({
         task: props.speculativeTask,
         homework: props.speculativeHomework,
-        isLoaded: props.speculativeTask.id! < 0
+        isLoaded: props.speculativeTask.id! < 0 || props.speculativeTask.isModified === true
     })
 
     const isNewTask = taskData.task.id! < 0
 
     const [metadata, setMetadata] = useState<IEditTaskMetadataState | undefined>(
-        isNewTask ? {
+        isNewTask || taskData.isLoaded ? {
             publicationDate: taskData.task.publicationDate,
             hasDeadline: taskData.task.hasDeadline,
             deadlineDate: taskData.task.deadlineDate,
             isDeadlineStrict: taskData.task.isDeadlineStrict,
-            isPublished: taskData.task.isDeferred || false,
+            isPublished: taskData.task.isDeferred || !taskData.homework.isDeferred,
         } : undefined)
 
     useEffect(() => {
-        if (isNewTask) return
+        if (isNewTask || taskData.isLoaded) return
         ApiSingleton.tasksApi
             .tasksGetForEditingTask(task.id!)
             .then(r => {
@@ -70,7 +70,7 @@ const CourseTaskEditor: FC<{
                     isPublished: !task.isDeferred
                 });
             })
-    }, []) //TODO: LOAD AGAIN
+    }, [])
 
     const {task, homework, isLoaded} = taskData
     const {id} = task
