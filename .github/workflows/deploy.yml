@@ -13,6 +13,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 30m
           script: |
             cd /home/${{ secrets.SSH_USER }}/docker/HwProj-2.0.1
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S ./update.sh
