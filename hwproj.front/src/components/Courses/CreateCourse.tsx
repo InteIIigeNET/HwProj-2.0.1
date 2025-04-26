@@ -9,6 +9,7 @@ import {
 } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import './Styles/CreateCourse.css';
+import { MarkdownEditor } from "../Common/MarkdownEditor";
 import {FC, FormEvent, useState} from "react";
 import GroupIcon from '@material-ui/icons/Group';
 import {makeStyles} from '@material-ui/core/styles';
@@ -20,6 +21,7 @@ interface ICreateCourseState {
   groupName?: string;
   courseId: string;
   isOpen: boolean;
+  description: string,
   errors: string[];
 }
 
@@ -48,6 +50,7 @@ const CreateCourse: FC = () => {
     groupName: "",
     courseId: "",
     isOpen: false,
+    description: "",
     errors: [],
   })
 
@@ -57,6 +60,7 @@ const CreateCourse: FC = () => {
       name: course.name,
       groupName: course.groupName,
       isOpen: course.isOpen,
+      description: course.description,
     }
     try {
       const courseId = await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel)
@@ -149,6 +153,18 @@ const CreateCourse: FC = () => {
                     }
                     label="Открытый курс"
                 />
+              </Grid>
+              <Grid item xs={12}>
+                <MarkdownEditor
+                        label={"Описание курса"}
+                        value={course.description}
+                        onChange={(value) => {
+                            setCourse((prevState) => ({
+                                ...prevState,
+                                description: value
+                            }))
+                        }}
+                    />
               </Grid>
             </Grid>
             <Button

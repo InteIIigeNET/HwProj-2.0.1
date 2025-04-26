@@ -236,6 +236,7 @@ namespace HwProj.APIGateway.API.Controllers
                 Homeworks = course.Homeworks,
                 IsCompleted = course.IsCompleted,
                 IsOpen = course.IsOpen,
+                Description = course.Description,
             };
         }
     }

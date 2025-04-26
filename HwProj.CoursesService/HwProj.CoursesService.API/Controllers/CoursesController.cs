@@ -96,7 +96,7 @@ namespace HwProj.CoursesService.API.Controllers
             [FromQuery] string mentorId)
         {
             var course = _mapper.Map<Course>(courseViewModel);
-            var id = await _coursesService.AddAsync(course, mentorId);
+            var id = await _coursesService.AddAsync(course, mentorId, courseViewModel.Description);
             return Ok(id);
         }
 
@@ -118,7 +118,7 @@ namespace HwProj.CoursesService.API.Controllers
                 GroupName = courseViewModel.GroupName,
                 IsCompleted = courseViewModel.IsCompleted,
                 IsOpen = courseViewModel.IsOpen
-            });
+            }, courseViewModel.Description);
 
             return Ok();
         }

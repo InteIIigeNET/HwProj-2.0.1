@@ -13,6 +13,7 @@ using HwProj.CoursesService.API.Domains;
 using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Z.EntityFramework.Plus;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -26,6 +27,7 @@ namespace HwProj.CoursesService.API.Services
         private readonly ITasksRepository _tasksRepository;
         private readonly IGroupsRepository _groupsRepository;
         private readonly ICourseFilterService _courseFilterService;
+        private readonly CourseContext _courseContext;
 
         public CoursesService(ICoursesRepository coursesRepository,
             ICourseMatesRepository courseMatesRepository,
@@ -34,7 +36,8 @@ namespace HwProj.CoursesService.API.Services
             ITasksRepository tasksRepository,
             IHomeworksRepository homeworksRepository,
             IGroupsRepository groupsRepository,
-            ICourseFilterService courseFilterService)
+            ICourseFilterService courseFilterService,
+            CourseContext courseContext)
         {
             _coursesRepository = coursesRepository;
             _courseMatesRepository = courseMatesRepository;
@@ -44,6 +47,7 @@ namespace HwProj.CoursesService.API.Services
             _tasksRepository = tasksRepository;
             _groupsRepository = groupsRepository;
             _courseFilterService = courseFilterService;
+            _courseContext = courseContext;
         }
 
         public async Task<Course[]> GetAllAsync()
@@ -77,23 +81,43 @@ namespace HwProj.CoursesService.API.Services
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
 
+            courseDto.Description = (await _courseContext.CoursesDescriptions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(cd => cd.CourseId == id))?.Description ?? string.Empty;
+
             var result = userId == string.Empty ? courseDto : await _courseFilterService.ApplyFilter(courseDto, userId);
             return result;
         }
 
-        public async Task<long> AddAsync(Course course, string mentorId)
+        public async Task<long> AddAsync(Course course, string mentorId, string description)
         {
             course.MentorIds = mentorId;
             course.InviteCode = Guid.NewGuid().ToString();
-            return await _coursesRepository.AddAsync(course);
+            var id = await _coursesRepository.AddAsync(course);
+
+            await _courseContext.CoursesDescriptions
+                .AddAsync(new CourseDescription
+                {
+                    CourseId = id,
+                    Description = description,
+                });
+
+            await _courseContext.SaveChangesAsync();
+
+            return id;
         }
 
         public async Task DeleteAsync(long id)
         {
             await _coursesRepository.DeleteAsync(id);
+
+            await _courseContext.CoursesDescriptions
+                .Where(cd => cd.CourseId == id)
+                .DeleteAsync();
+            await _courseContext.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(long courseId, Course updated)
+        public async Task UpdateAsync(long courseId, Course updated, string description)
         {
             await _coursesRepository.UpdateAsync(courseId, c => new Course
             {
@@ -102,6 +126,24 @@ namespace HwProj.CoursesService.API.Services
                 IsCompleted = updated.IsCompleted,
                 IsOpen = updated.IsOpen
             });
+
+            var courseDescription = await _courseContext.CoursesDescriptions.FirstOrDefaultAsync(cd => cd.CourseId == courseId);
+
+            if (courseDescription is null)
+            {
+                await _courseContext.CoursesDescriptions
+                    .AddAsync(new CourseDescription
+                    {
+                        CourseId = courseId,
+                        Description = description,
+                    });
+            }
+            else
+            {
+                courseDescription.Description = description;
+            }
+
+            await _courseContext.SaveChangesAsync();
         }
 
         public async Task<bool> AddStudentAsync(long courseId, string studentId)

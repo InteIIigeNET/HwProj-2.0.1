@@ -447,6 +447,12 @@ export interface CourseViewModel {
     isCompleted?: boolean;
     /**
      *
+     * @type {string}
+     * @memberof CourseViewModel
+     */
+    description?: string;
+    /**
+     *
      * @type {Array<AccountDataDto>}
      * @memberof CourseViewModel
      */

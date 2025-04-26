@@ -2,6 +2,7 @@ import * as React from 'react';
 import {Navigate, useParams} from 'react-router-dom';
 import ApiSingleton from "../../api/ApiSingleton";
 import Button from '@material-ui/core/Button'
+import { MarkdownEditor } from "../Common/MarkdownEditor";
 import {Grid, Box, Checkbox, TextField, FormControlLabel, Link, Typography} from '@mui/material';
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
@@ -15,6 +16,7 @@ interface IEditCourseState {
     groupName?: string,
     isCompleted: boolean,
     isOpen: boolean,
+    description: string,
     mentors: AccountDataDto[],
     edited: boolean,
     deleted: boolean,
@@ -61,6 +63,7 @@ const EditCourse: FC = () => {
         groupName: "",
         isCompleted: false,
         isOpen: false,
+        description: "",
         mentors: [],
         edited: false,
         deleted: false,
@@ -80,6 +83,7 @@ const EditCourse: FC = () => {
             groupName: course.groupName!,
             isOpen: course.isOpen!,
             isCompleted: course.isCompleted!,
+            description: course.description!,
             mentors: course.mentors!,
         }))
     }
@@ -90,7 +94,8 @@ const EditCourse: FC = () => {
             name: courseState.name,
             groupName: courseState.groupName,
             isOpen: courseState.isOpen,
-            isCompleted: courseState.isCompleted
+            isCompleted: courseState.isCompleted,
+            description: courseState.description,
         };
 
         await ApiSingleton.coursesApi.coursesUpdateCourse(+courseId!, courseViewModel)
@@ -207,6 +212,18 @@ const EditCourse: FC = () => {
                                         />
                                     }
                                     label="Открытый курс"
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <MarkdownEditor
+                                    label={courseState.description}
+                                    value={courseState.description}
+                                    onChange={(value) => {
+                                        setCourseState((prevState) => ({
+                                            ...prevState,
+                                            description: value
+                                        }))
+                                    }}
                                 />
                             </Grid>
                             <Grid className={classes.item} style={{alignItems: 'center'}}>
