@@ -150,8 +150,8 @@ namespace HwProj.CoursesService.Tests
             var homework = GenerateDefaultHomeworkViewModel();
             var homeworkResult = await client.AddHomeworkToCourse(homework, courseId);
             var taskResult = await client.AddTask(homeworkResult.Value, firstTaskState);
-            var editResult = await client.UpdateTask(taskResult.Value, secondTaskState);
-            var taskFromDb = await client.GetForEditingTask(taskResult.Value);
+            var editResult = await client.UpdateTask(taskResult.Value.Id, secondTaskState);
+            var taskFromDb = await client.GetForEditingTask(taskResult.Value.Id);
 
             return (editResult, taskFromDb);
         }
@@ -217,7 +217,7 @@ namespace HwProj.CoursesService.Tests
             course?.Homeworks.Should().ContainEquivalentOf(homework,
                 option => option.ExcludingMissingMembers().Excluding(h => h.Tasks));
         }
-        
+
         [TestCaseSource(nameof(InvalidCreateTaskData))]
         public async Task AddTaskWithInvalidPropertiesShouldReturnFailedResult((CreateHomeworkViewModel homework, DateTime? publication, bool? hasDeadline, DateTime? deadline, bool? isStrict) data)
         {
@@ -370,8 +370,8 @@ namespace HwProj.CoursesService.Tests
             var newTask = GenerateCreateTaskViewModel(utcNow, false, null, false);
 
             var addTaskResult = await foreignClient.AddTask(homeworkResult.Value, oldTask);
-            var updateTaskResult = await client.UpdateTask(addTaskResult.Value, newTask);
-            var taskFromDb = await foreignClient.GetForEditingTask(addTaskResult.Value);
+            var updateTaskResult = await client.UpdateTask(addTaskResult.Value.Id, newTask);
+            var taskFromDb = await foreignClient.GetForEditingTask(addTaskResult.Value.Id);
             
             updateTaskResult.Succeeded.Should().BeFalse();
             taskFromDb.Should().BeEquivalentTo(oldTask,

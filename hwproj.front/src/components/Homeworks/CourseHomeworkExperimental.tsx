@@ -1,10 +1,21 @@
-﻿import {CardActions, CardContent, Chip, Divider, Grid, IconButton, TextField, Typography} from "@mui/material";
+﻿import {
+    CardActions,
+    CardContent,
+    Chip,
+    Divider,
+    Grid,
+    IconButton,
+    Stack,
+    TextField,
+    Tooltip,
+    Typography
+} from "@mui/material";
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
 import FilesPreviewList from "components/Files/FilesPreviewList";
 import {IFileInfo} from "components/Files/IFileInfo";
 import {FC, useEffect, useState} from "react"
 import Utils from "services/Utils";
-import {FileInfoDTO, HomeworkViewModel, ActionOptions} from "../../api";
+import {FileInfoDTO, HomeworkViewModel, ActionOptions} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import UpdateFilesUtils from "../Utils/UpdateFilesUtils";
 import Tags from "../Common/Tags";
@@ -13,6 +24,7 @@ import FilesUploader from "../Files/FilesUploader";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import * as React from "react";
 import EditIcon from "@mui/icons-material/Edit";
+import AddTaskIcon from '@mui/icons-material/AddTask';
 import {LoadingButton} from "@mui/lab";
 import ErrorsHandler from "../Utils/ErrorsHandler";
 import {enqueueSnackbar} from "notistack";
@@ -279,6 +291,7 @@ const CourseHomeworkExperimental: FC<{
     initialEditMode: boolean,
     onMount: () => void,
     onUpdate: (x: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] } & { isDeleted?: boolean }) => void
+    onAddTask: (homework: HomeworkViewModel) => void,
 }> = (props) => {
     const {homework, filesInfo} = props.homeworkAndFilesInfo
     const deferredHomeworks = homework.tasks!.filter(t => t.isDeferred!)
@@ -304,7 +317,7 @@ const CourseHomeworkExperimental: FC<{
         onMouseLeave={() => setShowEditMode(false)}>
         <Grid xs={12} container direction={"row"} alignItems={"center"} alignContent={"center"}
               justifyContent={"space-between"}>
-            <Grid item container spacing={1} xs={11}>
+            <Grid item container spacing={1} xs={10}>
                 <Grid item>
                     <Typography variant="h6" component="div">
                         {homework.title}
@@ -324,12 +337,21 @@ const CourseHomeworkExperimental: FC<{
                 ))}
             </Grid>
             {showEditMode && <Grid item>
-                <IconButton onClick={() => {
-                    setEditMode(true)
-                    setShowEditMode(false)
-                }}>
-                    <EditIcon color={"primary"} style={{fontSize: 17}}/>
-                </IconButton>
+                <Stack direction={"row"}>
+                    <Tooltip placement={"left"} arrow title={"Добавить задачу"}>
+                        <IconButton
+                            onClick={() => props.onAddTask(homework)}
+                        >
+                            <AddTaskIcon color={"primary"} style={{fontSize: 17}}/>
+                        </IconButton>
+                    </Tooltip>
+                    <IconButton onClick={() => {
+                        setEditMode(true)
+                        setShowEditMode(false)
+                    }}>
+                        <EditIcon color={"primary"} style={{fontSize: 17}}/>
+                    </IconButton>
+                </Stack>
             </Grid>}
         </Grid>
         <Divider style={{marginTop: 15, marginBottom: 15}}/>

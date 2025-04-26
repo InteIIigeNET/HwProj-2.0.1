@@ -3,12 +3,12 @@ import {
     FileInfoDTO,
     HomeworkTaskViewModel,
     HomeworkViewModel, Solution, StatisticsCourseMatesModel,
-} from "../../api";
+} from "@/api";
 import {
     Button,
     Grid,
     Typography
-} from "@material-ui/core";
+} from "@mui/material";
 import {FC, useEffect, useState} from "react";
 import Timeline from '@mui/lab/Timeline';
 import TimelineItem from '@mui/lab/TimelineItem';
@@ -25,6 +25,7 @@ import FileInfoConverter from "components/Utils/FileInfoConverter";
 import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExperimental";
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import EditIcon from "@mui/icons-material/Edit";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -37,7 +38,7 @@ interface ICourseExperimentalProps {
     onHomeworkUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] } & {
         isDeleted?: boolean
     }) => void
-    onTaskUpdate: (update: HomeworkTaskViewModel & { isDeleted?: boolean }) => void
+    onTaskUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => void
 }
 
 interface ICourseExperimentalState {
@@ -48,7 +49,7 @@ interface ICourseExperimentalState {
     }
 }
 
-const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
+export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const [hideDeferred, setHideDeferred] = useState<boolean>(false)
 
     const homeworks = props.homeworks.slice().reverse().filter(x => !hideDeferred || !x.isDeferred)
@@ -56,7 +57,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const [state, setState] = useState<ICourseExperimentalState>({
         initialEditMode: false,
-        selectedItem: {id: undefined, isHomework: false},
+        selectedItem: {id: undefined, isHomework: true},
     })
 
     useEffect(() => {
@@ -120,7 +121,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel) =>
         isMentor && (entity.publicationDateNotSet || entity.hasDeadline && entity.deadlineDateNotSet)
 
-    const renderTaskStatus = (task: HomeworkTaskViewModel) => {
+    const renderTaskStatus = (task: HomeworkTaskViewModel & { isModified?: boolean }) => {
         if (taskSolutionsMap.has(task.id!)) {
             const solutions = taskSolutionsMap.get(task.id!)
             const {
@@ -138,6 +139,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 </Tooltip>
             )
         }
+        if (task.isModified) return <EditIcon fontSize="small" color={"primary"}/>
         return showWarningsForEntity(task) ? (
             <Typography color={task.isDeferred ? "textSecondary" : "textPrimary"}>
                 <TimelineDot variant="outlined" style={warningTimelineDotStyle}>⚠️</TimelineDot>
@@ -170,9 +172,13 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Alert>
         )
 
+        if (entity.id! < 0)
+            return <Alert severity="info">
+                {"Новая задача будет добавлена после нажатия на 'Добавить задачу'"}
+            </Alert>
+
         if (entity.isDeferred) return (
             <Alert severity="info"
-                   style={{marginTop: 2}}
                    action={
                        <Button
                            color="inherit"
@@ -187,89 +193,106 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         )
     }
 
-    const renderSelectedItem = () => {
-        if (isHomework) {
-            const homework = homeworks.find(x => x.id === id) as HomeworkViewModel
-            const filesInfo = id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, id) : []
-            return homework && <Grid container direction={"column"} spacing={1}>
-                <Grid item>
-                    <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
-                        {getAlert(homework)}
-                        <CourseHomeworkExperimental
-                            homeworkAndFilesInfo={{homework, filesInfo}}
-                            isMentor={isMentor}
-                            initialEditMode={initialEditMode}
-                            onMount={onSelectedItemMount}
-                            onUpdate={update => {
-                                props.onHomeworkUpdate(update)
-                                if (update.isDeleted)
-                                    setState((prevState) => ({
-                                        ...prevState,
-                                        selectedItem: {
-                                            isHomework: true,
-                                            id: undefined
-                                        }
-                                    }))
-                            }}/>
-                    </Card>
-                </Grid>
-                <Grid item>
-                    <DotLottieReact
-                        src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
-                        loop
-                        autoplay
-                    />
-                </Grid>
-            </Grid>
-        }
+    const selectedItemHomework = isHomework
+        ? homeworks.find(x => x.id === id)!
+        : homeworks.find(x => x.tasks!.some(t => t.id === id))!
 
-        const homework = homeworks.find(x => x.tasks!.some(t => t.id === id))
-        const task = homework?.tasks!.find(x => x.id === id) as HomeworkTaskViewModel
-        return task && <Grid container direction={"column"} spacing={1}>
-            <Grid item>
-                <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
-                    {getAlert(task)}
-                    <CourseTaskExperimental task={task}
-                                            homework={homework!}
-                                            isMentor={isMentor}
-                                            initialEditMode={initialEditMode}
-                                            onMount={onSelectedItemMount}
-                                            onUpdate={update => {
-                                                props.onTaskUpdate(update)
-                                                if (update.isDeleted)
-                                                    setState((prevState) => ({
-                                                        ...prevState,
-                                                        selectedItem: {
-                                                            isHomework: true,
-                                                            id: homework!.id
-                                                        }
-                                                    }))
-                                            }}
-                                            toEditHomework={() => toEditHomework(homework!)}/>
-                    {!props.isMentor && props.isStudentAccepted && < CardActions>
-                        <Link
-                            style={{color: '#212529'}}
-                            to={"/task/" + task.id!.toString()}>
-                            <Button
-                                style={{width: '150px'}}
-                                size="small"
-                                variant="contained"
-                                color="primary"
-                            >
-                                Решения
-                            </Button>
-                        </Link>
-                    </CardActions>}
-                </Card>
-            </Grid>
-            <Grid item>
-                <DotLottieReact
-                    src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
-                    loop
-                    autoplay
-                />
-            </Grid>
-        </Grid>
+    const selectedItem = isHomework
+        ? selectedItemHomework
+        : selectedItemHomework?.tasks!.find(x => x.id === id) as HomeworkTaskViewModel
+
+    const [newTaskCounter, setNewTaskCounter] = useState<number>(-1)
+
+    const addNewTask = (homework: HomeworkViewModel) => {
+        const id = newTaskCounter
+        props.onTaskUpdate({
+            task: {
+                homeworkId: homework.id,
+                title: `Новая задача`,
+                tags: homework.tags,
+                isDeferred: homework.isDeferred,
+                id
+            }
+        })
+        setState((prevState) => ({
+            ...prevState,
+            selectedItem: {
+                isHomework: false,
+                id: id
+            }
+        }))
+        setNewTaskCounter(id - 1)
+    }
+
+    const renderHomework = (homework: HomeworkViewModel) => {
+        const filesInfo = id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, id) : []
+        return homework && <Stack direction={"column"} spacing={2}>
+            <Card style={{backgroundColor: "ghostwhite"}}>
+                {getAlert(homework)}
+                <CourseHomeworkExperimental
+                    homeworkAndFilesInfo={{homework, filesInfo}}
+                    isMentor={isMentor}
+                    initialEditMode={initialEditMode}
+                    onMount={onSelectedItemMount}
+                    onAddTask={addNewTask}
+                    onUpdate={update => {
+                        props.onHomeworkUpdate(update)
+                        if (update.isDeleted)
+                            setState((prevState) => ({
+                                ...prevState,
+                                selectedItem: {
+                                    isHomework: true,
+                                    id: undefined
+                                }
+                            }))
+                    }}/>
+            </Card>
+            <DotLottieReact
+                src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
+                loop
+                autoplay
+            />
+        </Stack>
+    }
+
+    const renderTask = (task: HomeworkTaskViewModel & { isModified?: boolean }, homework: HomeworkViewModel) => {
+        const taskEditMode = task && (task.id! < 0 || task.isModified === true)
+        return task && <Card style={{backgroundColor: "ghostwhite"}} raised={taskEditMode}>
+            {getAlert(task)}
+            <CourseTaskExperimental
+                key={task.id}
+                task={task}
+                homework={homework!}
+                isMentor={isMentor}
+                initialEditMode={initialEditMode || taskEditMode}
+                onMount={onSelectedItemMount}
+                onUpdate={update => {
+                    props.onTaskUpdate(update)
+                    if (update.isDeleted)
+                        setState((prevState) => ({
+                            ...prevState,
+                            selectedItem: {
+                                isHomework: true,
+                                id: homework!.id
+                            }
+                        }))
+                }}
+                toEditHomework={() => toEditHomework(homework!)}/>
+            {!props.isMentor && props.isStudentAccepted && < CardActions>
+                <Link
+                    style={{color: '#212529'}}
+                    to={"/task/" + task.id!.toString()}>
+                    <Button
+                        style={{width: '150px'}}
+                        size="small"
+                        variant="contained"
+                        color="primary"
+                    >
+                        Решения
+                    </Button>
+                </Link>
+            </CardActions>}
+        </Card>
     }
 
     return <Grid container direction={"row"} spacing={1}>
@@ -362,11 +385,10 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 })}
             </Timeline>
         </Grid>
-
         <Grid item xs={12} sm={12} md={8} lg={8}>
-            {renderSelectedItem()}
+            {isHomework
+                ? renderHomework(selectedItem as HomeworkViewModel)
+                : renderTask(selectedItem as HomeworkTaskViewModel, selectedItemHomework!)}
         </Grid>
     </Grid>
 }
-
-export default CourseExperimental

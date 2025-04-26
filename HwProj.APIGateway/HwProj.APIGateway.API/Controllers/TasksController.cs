@@ -45,13 +45,13 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpPost("add/{homeworkId}")]
         [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Result<HomeworkTaskViewModel>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> AddTask(long homeworkId, CreateTaskViewModel taskViewModel)
         {
             var result = await _coursesClient.AddTask(homeworkId, taskViewModel);
             return result.Succeeded
-                ? Ok(result.Value) as IActionResult
-                : BadRequest(result.Errors);
+                ? Ok(result) as IActionResult
+                : BadRequest(result);
         }
 
         [HttpDelete("delete/{taskId}")]

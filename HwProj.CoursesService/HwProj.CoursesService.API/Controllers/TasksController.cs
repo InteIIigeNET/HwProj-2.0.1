@@ -73,9 +73,9 @@ namespace HwProj.CoursesService.API.Controllers
             var validationResult = Validator.ValidateTask(taskViewModel, homework);
             if (validationResult.Any()) return BadRequest(validationResult);
 
-            var taskId = await _tasksService.AddTaskAsync(homeworkId, taskViewModel.ToHomeworkTask());
+            var task = await _tasksService.AddTaskAsync(homeworkId, taskViewModel.ToHomeworkTask());
 
-            return Ok(taskId);
+            return Ok(task);
         }
 
         [HttpDelete("delete/{taskId}")] //bug with rights

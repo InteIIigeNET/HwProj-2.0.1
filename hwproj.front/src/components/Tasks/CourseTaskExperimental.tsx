@@ -1,7 +1,7 @@
 import {Alert, CardActions, CardContent, Chip, Divider, Grid, IconButton, TextField, Typography} from "@mui/material";
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
 import {FC, useEffect, useState} from "react"
-import {ActionOptions, HomeworkTaskViewModel, HomeworkViewModel} from "../../api";
+import {ActionOptions, HomeworkTaskViewModel, HomeworkViewModel} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import * as React from "react";
 import EditIcon from "@mui/icons-material/Edit";
@@ -21,20 +21,34 @@ interface IEditTaskMetadataState {
 }
 
 const CourseTaskEditor: FC<{
-    speculativeTask: HomeworkTaskViewModel,
+    speculativeTask: HomeworkTaskViewModel & { isModified?: boolean },
     speculativeHomework: HomeworkViewModel,
-    onUpdate: (update: HomeworkTaskViewModel & { isDeleted?: boolean }) => void,
+    onUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean, isSaved?: boolean }) => void,
     toEditHomework: () => void,
 }> = (props) => {
     const [taskData, setTaskData] = useState<{
         task: HomeworkTaskViewModel,
         homework: HomeworkViewModel,
         isLoaded: boolean
-    }>({task: props.speculativeTask, homework: props.speculativeHomework, isLoaded: false})
+    }>({
+        task: props.speculativeTask,
+        homework: props.speculativeHomework,
+        isLoaded: props.speculativeTask.id! < 0 || props.speculativeTask.isModified === true
+    })
 
-    const [metadata, setMetadata] = useState<IEditTaskMetadataState | undefined>(undefined)
+    const isNewTask = taskData.task.id! < 0
+
+    const [metadata, setMetadata] = useState<IEditTaskMetadataState | undefined>(
+        isNewTask || taskData.isLoaded ? {
+            publicationDate: taskData.task.publicationDate,
+            hasDeadline: taskData.task.hasDeadline,
+            deadlineDate: taskData.task.deadlineDate,
+            isDeadlineStrict: taskData.task.isDeadlineStrict,
+            isPublished: taskData.task.isDeferred || !taskData.homework.isDeferred,
+        } : undefined)
 
     useEffect(() => {
+        if (isNewTask || taskData.isLoaded) return
         ApiSingleton.tasksApi
             .tasksGetForEditingTask(task.id!)
             .then(r => {
@@ -72,38 +86,59 @@ const CourseTaskEditor: FC<{
 
     const publicationDate = metadata?.publicationDate || homework.publicationDate
 
+    useEffect(() => {
+        const update: HomeworkTaskViewModel = {
+            ...props.speculativeTask,
+            ...metadata!,
+            title: title!,
+            description: description,
+            maxRating: maxRating,
+        }
+        props.onUpdate({task: update})
+    }, [title, description, maxRating, metadata])
+
     const handleSubmit = async (e: any) => {
         e.preventDefault()
         setHandleSubmitLoading(true)
-        const updatedTask = await ApiSingleton.tasksApi.tasksUpdateTask(+id!, {
+
+        const update = {
             ...metadata!,
             title: title!,
             description: description,
             maxRating: maxRating,
             actionOptions: editOptions,
-        })
+        }
 
-        props.onUpdate(updatedTask.value!)
+        const updatedTask = isNewTask
+            ? await ApiSingleton.tasksApi.tasksAddTask(homework.id!, update)
+            : await ApiSingleton.tasksApi.tasksUpdateTask(+id!, update)
+
+        if (isNewTask)
+            props.onUpdate({
+                task: props.speculativeTask,
+                isDeleted: true, //remove task with undefined id
+            })
+        props.onUpdate({task: updatedTask.value!, isSaved: true})
     }
 
     const deleteTask = async () => {
-        await ApiSingleton.tasksApi.tasksDeleteTask(id!)
-        props.onUpdate({...task, isDeleted: true})
+        if (!isNewTask) await ApiSingleton.tasksApi.tasksDeleteTask(id!)
+        props.onUpdate({task, isDeleted: true})
     }
 
-    const isDisabled = hasErrors || !isLoaded
+    const isDisabled = hasErrors || !isLoaded || !title || !maxRating
 
     const homeworkPublicationDateIsSet = !homework.publicationDateNotSet
 
     return (
         <CardContent>
             <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
-                  alignItems={"center"}>
-                <Grid item>
+                  alignItems={"start"} alignContent={"start"} style={{marginTop: -20}}>
+                <Grid item xs={8}>
                     <TextField
                         required
                         fullWidth
-                        style={{width: '300px'}} //TODO
+                        error={!title}
                         label="Название задачи"
                         variant="standard"
                         margin="normal"
@@ -118,7 +153,8 @@ const CourseTaskEditor: FC<{
                     <TextField
                         required
                         fullWidth
-                        style={{width: '75px'}}
+                        error={maxRating <= 0 || maxRating > 100}
+                        style={{width: '90px'}}
                         label="Баллы"
                         variant="outlined"
                         margin="normal"
@@ -201,7 +237,8 @@ const CourseTaskEditor: FC<{
                     endIcon={<span style={{width: 17}}/>}
                     loading={handleSubmitLoading}
                 >
-                    Редактировать задачу ({editOptions.sendNotification ? "с уведомлением" : "без уведомления"})
+                    {isNewTask && "Добавить задачу"}
+                    {!isNewTask && "Редактировать задачу " + (editOptions.sendNotification ? "с уведомлением" : "без уведомления")}
                 </LoadingButton>
                 <IconButton aria-label="delete" color="error" onClick={() => setShowDeleteConfirmation(true)}>
                     <DeleteIcon/>
@@ -212,7 +249,7 @@ const CourseTaskEditor: FC<{
                 onSubmit={deleteTask}
                 isOpen={showDeleteConfirmation}
                 dialogTitle={'Удаление задачи'}
-                dialogContentText={`Вы точно хотите удалить задачу "${task.title}"?`}
+                dialogContentText={`Вы точно хотите удалить задачу ${title || ""}?`}
                 confirmationWord={''}
                 confirmationText={''}
             />
@@ -226,7 +263,7 @@ const CourseTaskExperimental: FC<{
     isMentor: boolean,
     initialEditMode: boolean,
     onMount: () => void,
-    onUpdate: (x: HomeworkTaskViewModel & { isDeleted?: boolean }) => void
+    onUpdate: (x: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => void
     toEditHomework: () => void,
 }> = (props) => {
     const {task, homework} = props
@@ -240,11 +277,19 @@ const CourseTaskExperimental: FC<{
 
     if (editMode) {
         return <CourseTaskEditor
+            key={task.id}
             speculativeTask={task}
             speculativeHomework={homework}
             onUpdate={update => {
-                setEditMode(false)
-                props.onUpdate(update)
+                if (update.isSaved) setEditMode(false)
+                const updateFix = {
+                    ...update,
+                    task: {
+                        ...update.task,
+                        isModified: !update.isSaved
+                    }
+                }
+                props.onUpdate(updateFix)
             }}
             toEditHomework={props.toEditHomework}
         />
@@ -270,8 +315,8 @@ const CourseTaskExperimental: FC<{
             </Grid>
             {showEditMode && <Grid item>
                 <IconButton onClick={() => {
-                    setEditMode(true)
                     setShowEditMode(false)
+                    setEditMode(true)
                 }}>
                     <EditIcon color={"primary"} style={{fontSize: 17}}/>
                 </IconButton>
