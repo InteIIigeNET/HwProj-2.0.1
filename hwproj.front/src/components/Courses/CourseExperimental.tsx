@@ -202,8 +202,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return homework && <div>
             <div>
                 <Grid item>
-                    <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}
-                          raised={homework.tasks!.length! > 0}>
+                    <Card variant="elevation" style={{backgroundColor: "ghostwhite"}} elevation={homework.tasks!.length * 2}>
                         {getAlert(homework)}
                         <CourseHomeworkExperimental
                             homeworkAndFilesInfo={{homework, filesInfo}}
