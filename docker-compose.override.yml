@@ -12,7 +12,9 @@ services:
 
   front:
     build:
-      - args:
+      context: ./hwproj.front
+      dockerfile: ./Dockerfile
+      args:
         - VITE_YANDEX_METRICA_ID=${YANDEX_METRICA_ID}
         - VITE_BASE_PATH=https://hwproj.ru
 
