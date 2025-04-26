@@ -9,6 +9,7 @@ services:
     user: root
     volumes:
       - "${MSSQL_DATA_VOLUME}:/var/opt/mssql/data"
+      - "${MSSQL_BACKUPS_VOLUME}:/var/opt/mssql/backups"
 
   front:
     build:
