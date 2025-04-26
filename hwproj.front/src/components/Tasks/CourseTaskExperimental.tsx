@@ -26,6 +26,13 @@ const CourseTaskEditor: FC<{
     onUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean, isSaved?: boolean }) => void,
     toEditHomework: () => void,
 }> = (props) => {
+    const getDefaultTaskDataState = () => {
+        setTaskData({
+            task: props.speculativeTask,
+            homework: props.speculativeHomework,
+            isLoaded: props.speculativeTask.id! < 0
+        })
+    }
     const [taskData, setTaskData] = useState<{
         task: HomeworkTaskViewModel,
         homework: HomeworkViewModel,
@@ -70,7 +77,7 @@ const CourseTaskEditor: FC<{
                     isPublished: !task.isDeferred
                 });
             })
-    }, [])
+    }, []) //TODO: LOAD AGAIN
 
     const {task, homework, isLoaded} = taskData
     const {id} = task
@@ -126,7 +133,7 @@ const CourseTaskEditor: FC<{
         props.onUpdate({task, isDeleted: true})
     }
 
-    const isDisabled = hasErrors || !isLoaded
+    const isDisabled = hasErrors || !isLoaded || !title || !maxRating
 
     const homeworkPublicationDateIsSet = !homework.publicationDateNotSet
 
@@ -138,6 +145,7 @@ const CourseTaskEditor: FC<{
                     <TextField
                         required
                         fullWidth
+                        error={!title}
                         label="Название задачи"
                         variant="standard"
                         margin="normal"
@@ -152,7 +160,8 @@ const CourseTaskEditor: FC<{
                     <TextField
                         required
                         fullWidth
-                        style={{width: '75px'}}
+                        error={maxRating <= 0 || maxRating > 100}
+                        style={{width: '90px'}}
                         label="Баллы"
                         variant="outlined"
                         margin="normal"
@@ -275,11 +284,19 @@ const CourseTaskExperimental: FC<{
 
     if (editMode) {
         return <CourseTaskEditor
+            key={task.id}
             speculativeTask={task}
             speculativeHomework={homework}
             onUpdate={update => {
                 if (update.isSaved) setEditMode(false)
-                props.onUpdate(update);
+                const updateFix = {
+                    ...update,
+                    task: {
+                        ...update.task,
+                        isModified: !update.isSaved
+                    }
+                }
+                props.onUpdate(updateFix)
             }}
             toEditHomework={props.toEditHomework}
         />

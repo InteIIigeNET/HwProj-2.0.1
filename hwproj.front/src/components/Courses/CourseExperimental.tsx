@@ -25,6 +25,7 @@ import FileInfoConverter from "components/Utils/FileInfoConverter";
 import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExperimental";
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import EditIcon from "@mui/icons-material/Edit";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -120,7 +121,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel) =>
         isMentor && (entity.publicationDateNotSet || entity.hasDeadline && entity.deadlineDateNotSet)
 
-    const renderTaskStatus = (task: HomeworkTaskViewModel) => {
+    const renderTaskStatus = (task: HomeworkTaskViewModel & { isModified?: boolean }) => {
         if (taskSolutionsMap.has(task.id!)) {
             const solutions = taskSolutionsMap.get(task.id!)
             const {
@@ -138,6 +139,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 </Tooltip>
             )
         }
+        if (task.isModified) return <EditIcon fontSize="small" color={"primary"}/>
         return showWarningsForEntity(task) ? (
             <Typography color={task.isDeferred ? "textSecondary" : "textPrimary"}>
                 <TimelineDot variant="outlined" style={warningTimelineDotStyle}>⚠️</TimelineDot>
