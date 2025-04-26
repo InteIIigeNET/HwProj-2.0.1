@@ -172,6 +172,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Alert>
         )
 
+        if (entity.id! < 0)
+            return <Alert severity="info">
+                {"Новая задача будет добавлена после нажатия на 'Добавить задачу'"}
+            </Alert>
+
         if (entity.isDeferred) return (
             <Alert severity="info"
                    action={

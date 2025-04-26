@@ -133,7 +133,7 @@ const CourseTaskEditor: FC<{
     return (
         <CardContent>
             <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
-                  alignItems={"center"}>
+                  alignItems={"start"} alignContent={"start"} style={{marginTop: -20}}>
                 <Grid item xs={8}>
                     <TextField
                         required
