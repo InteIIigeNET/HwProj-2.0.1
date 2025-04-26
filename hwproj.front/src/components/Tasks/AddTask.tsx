@@ -4,6 +4,7 @@ import {useState} from "react";
 import {Grid, Button, Typography} from "@material-ui/core";
 import CreateTask from "./CreateTask";
 import {HomeworkViewModel} from "../../api";
+import {Alert, AlertTitle} from "@mui/material";
 
 interface IAddTaskProps {
     homework: HomeworkViewModel;
@@ -49,11 +50,24 @@ const AddTask: React.FC<IAddTaskProps> = (props) => {
             </Typography>
             <form onSubmit={(e) => handleSubmit(e)}>
                 <Grid container>
-                    <CreateTask
-                        homework={props.homework}
-                        onChange={(e) => setTaskState(e)}
-                    />
+                    <Grid item>
+                        <Alert severity="warning">
+                            <AlertTitle>Устаревшая страница добавления новой задачи</AlertTitle>
+                            Данная страница для добавления задач является устаревшей и будет удалена в следующих
+                            версиях сервиса.
+                            Настоятельно рекомендуем использовать механизм добавления задач в стандартном режиме
+                            отображения:
+                            Вы увидите кнопку добавления задачи в правом верхнем углу при наведении на выбранное задание.
+                        </Alert>
+                    </Grid>
+                    <Grid item>
+                        <CreateTask
+                            homework={props.homework}
+                            onChange={(e) => setTaskState(e)}
+                        />
+                    </Grid>
                     <Grid
+                        item
                         container
                         style={{marginTop: '16px'}}
                     >
