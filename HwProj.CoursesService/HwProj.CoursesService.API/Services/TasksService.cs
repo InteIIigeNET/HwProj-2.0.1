@@ -41,7 +41,7 @@ namespace HwProj.CoursesService.API.Services
             return await _tasksRepository.GetWithHomeworkAsync(taskId);
         }
 
-        public async Task<long> AddTaskAsync(long homeworkId, HomeworkTask task)
+        public async Task<HomeworkTask> AddTaskAsync(long homeworkId, HomeworkTask task)
         {
             task.HomeworkId = homeworkId;
 
@@ -56,7 +56,7 @@ namespace HwProj.CoursesService.API.Services
                 _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, deadlineDate, course.Name, course.Id,
                     studentIds));
 
-            return taskId;
+            return await GetTaskAsync(taskId);
         }
 
         public async Task DeleteTaskAsync(long taskId)

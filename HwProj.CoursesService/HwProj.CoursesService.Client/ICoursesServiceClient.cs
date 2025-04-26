@@ -32,7 +32,7 @@ namespace HwProj.CoursesService.Client
         Task<Result> DeleteHomework(long homeworkId);
         Task<HomeworkTaskViewModel> GetTask(long taskId);
         Task<HomeworkTaskForEditingViewModel> GetForEditingTask(long taskId);
-        Task<Result<long>> AddTask(long homeworkId, CreateTaskViewModel taskViewModel);
+        Task<Result<HomeworkTaskViewModel>> AddTask(long homeworkId, CreateTaskViewModel taskViewModel);
         Task<Result> DeleteTask(long taskId);
         Task<Result<HomeworkTaskViewModel>> UpdateTask(long taskId, CreateTaskViewModel taskViewModel);
         Task<GroupViewModel[]> GetAllCourseGroups(long courseId);

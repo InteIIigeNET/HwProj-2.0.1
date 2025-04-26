@@ -23,7 +23,7 @@ import {
     Stack,
     Tooltip
 } from "@mui/material";
-import CourseExperimental from "./CourseExperimental";
+import {CourseExperimental} from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
 import MentorsList from "../Common/MentorsList";
 import LecturerStatistics from "./Statistics/LecturerStatistics";
@@ -416,14 +416,16 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                         }))
                                         setCourseFilesInfo(newCourseFiles)
                                     }}
-                                    onTaskUpdate={task => {
+                                    onTaskUpdate={update => {
+                                        const task = update.task
                                         const homeworks = courseState.courseHomeworks
                                         const homework = homeworks.find(x => x.id === task.homeworkId)!
                                         const tasks = [...homework.tasks!]
                                         const taskIndex = tasks.findIndex(x => x!.id === task.id)
 
-                                        if (task.isDeleted) tasks.splice(taskIndex, 1)
-                                        else tasks![taskIndex] = task
+                                        if (update.isDeleted) tasks.splice(taskIndex, 1)
+                                        else if (taskIndex !== -1) tasks![taskIndex] = task
+                                        else tasks.push(task)
 
                                         homework.tasks = tasks
 

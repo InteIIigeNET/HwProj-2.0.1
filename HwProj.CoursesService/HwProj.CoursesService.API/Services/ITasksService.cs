@@ -8,7 +8,7 @@ namespace HwProj.CoursesService.API.Services
     {
         Task<HomeworkTask> GetTaskAsync(long taskId);
         Task<HomeworkTask> GetForEditingTaskAsync(long taskId);
-        Task<long> AddTaskAsync(long homeworkId, HomeworkTask task);
+        Task<HomeworkTask> AddTaskAsync(long homeworkId, HomeworkTask task);
         Task DeleteTaskAsync(long taskId);
         Task<HomeworkTask> UpdateTaskAsync(long taskId, HomeworkTask update, ActionOptions options);
     }

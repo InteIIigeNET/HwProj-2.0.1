@@ -329,7 +329,7 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<HomeworkTaskForEditingViewModel>();
         }
 
-        public async Task<Result<long>> AddTask(long homeworkId, CreateTaskViewModel taskViewModel)
+        public async Task<Result<HomeworkTaskViewModel>> AddTask(long homeworkId, CreateTaskViewModel taskViewModel)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -346,10 +346,12 @@ namespace HwProj.CoursesService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return response.StatusCode switch
             {
-                HttpStatusCode.Forbidden => Result<long>.Failed(),
-                HttpStatusCode.OK => Result<long>.Success(await response.DeserializeAsync<long>()),
-                HttpStatusCode.BadRequest => Result<long>.Failed(await response.DeserializeAsync<string[]>()),
-                _ => Result<long>.Failed(),
+                HttpStatusCode.Forbidden => Result<HomeworkTaskViewModel>.Failed(),
+                HttpStatusCode.OK => Result<HomeworkTaskViewModel>.Success(
+                    await response.DeserializeAsync<HomeworkTaskViewModel>()),
+                HttpStatusCode.BadRequest => Result<HomeworkTaskViewModel>.Failed(
+                    await response.DeserializeAsync<string[]>()),
+                _ => Result<HomeworkTaskViewModel>.Failed(),
             };
         }
 

@@ -9125,7 +9125,7 @@ export const TasksApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tasksAddTask(homeworkId: number, body?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+        tasksAddTask(homeworkId: number, body?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModelResult> {
             const localVarFetchArgs = TasksApiFetchParamCreator(configuration).tasksAddTask(homeworkId, body, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {

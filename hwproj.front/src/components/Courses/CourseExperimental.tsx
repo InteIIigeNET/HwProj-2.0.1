@@ -3,7 +3,7 @@ import {
     FileInfoDTO,
     HomeworkTaskViewModel,
     HomeworkViewModel, Solution, StatisticsCourseMatesModel,
-} from "../../api";
+} from "@/api";
 import {
     Button,
     Grid,
@@ -37,7 +37,7 @@ interface ICourseExperimentalProps {
     onHomeworkUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] } & {
         isDeleted?: boolean
     }) => void
-    onTaskUpdate: (update: HomeworkTaskViewModel & { isDeleted?: boolean }) => void
+    onTaskUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => void
 }
 
 interface ICourseExperimentalState {
@@ -48,7 +48,7 @@ interface ICourseExperimentalState {
     }
 }
 
-const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
+export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const [hideDeferred, setHideDeferred] = useState<boolean>(false)
 
     const homeworks = props.homeworks.slice().reverse().filter(x => !hideDeferred || !x.isDeferred)
@@ -172,7 +172,6 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
         if (entity.isDeferred) return (
             <Alert severity="info"
-                   style={{marginTop: 2}}
                    action={
                        <Button
                            color="inherit"
@@ -188,115 +187,104 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     const selectedItemHomework = isHomework
-        ? homeworks.find(x => x.id === id)
-        : homeworks.find(x => x.tasks!.some(t => t.id === id))
+        ? homeworks.find(x => x.id === id)!
+        : homeworks.find(x => x.tasks!.some(t => t.id === id))!
 
     const selectedItem = isHomework
         ? selectedItemHomework
         : selectedItemHomework?.tasks!.find(x => x.id === id) as HomeworkTaskViewModel
 
-    const [showTasks, setShowTasks] = useState<boolean>(false)
+    const [newTaskCounter, setNewTaskCounter] = useState<number>(-1)
+
+    const addNewTask = (homeworkId: number) => {
+        const id = newTaskCounter
+        props.onTaskUpdate({task: {homeworkId: homeworkId, title: `Новая задача ${-id}`, id}})
+        setState((prevState) => ({
+            ...prevState,
+            selectedItem: {
+                isHomework: false,
+                id: id
+            }
+        }))
+        setNewTaskCounter(id - 1)
+    }
 
     const renderHomework = (homework: HomeworkViewModel) => {
         const filesInfo = id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, id) : []
-        return homework && <div>
-            <div>
-                <Grid item>
-                    <Card variant="elevation" style={{backgroundColor: "ghostwhite"}} elevation={homework.tasks!.length * 2}>
-                        {getAlert(homework)}
-                        <CourseHomeworkExperimental
-                            homeworkAndFilesInfo={{homework, filesInfo}}
-                            isMentor={isMentor}
-                            initialEditMode={initialEditMode}
-                            onMount={onSelectedItemMount}
-                            onUpdate={update => {
-                                props.onHomeworkUpdate(update)
-                                if (update.isDeleted)
-                                    setState((prevState) => ({
-                                        ...prevState,
-                                        selectedItem: {
-                                            isHomework: true,
-                                            id: undefined
-                                        }
-                                    }))
-                            }}/>
-                        {homework.tasks!.length! > 0 && <CardActions>
-                            <Button
-                                onClick={() => setShowTasks(!showTasks)}
-                                size="small"
-                                variant="text"
-                                color="primary"
-                            >
-                                Задачи
-                            </Button>
-                        </CardActions>}
-                    </Card>
-                </Grid>
-                <Grid item>
-                    <DotLottieReact
-                        src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
-                        loop
-                        autoplay
-                    />
-                </Grid>
-            </div>
-            {homework.tasks!.length! > 0 && showTasks &&
-                <Grid container direction={"column"}>{homework.tasks!.map((t, i) =>
-                    <div style={{
-                        marginTop: -15 * i, // Негативный отступ для наложения
-                        zIndex: homework.tasks!.length - i, // Управление слоями
-                        position: "relative", // Обеспечивает различное наложение карточек
-                    }}
-                    >{renderTask(t, homework)}</div>)}</Grid>}
-        </div>
+        return homework && <Stack direction={"column"} spacing={2}>
+            <Card style={{backgroundColor: "ghostwhite"}}>
+                {getAlert(homework)}
+                <CourseHomeworkExperimental
+                    homeworkAndFilesInfo={{homework, filesInfo}}
+                    isMentor={isMentor}
+                    initialEditMode={initialEditMode}
+                    onMount={onSelectedItemMount}
+                    onUpdate={update => {
+                        props.onHomeworkUpdate(update)
+                        if (update.isDeleted)
+                            setState((prevState) => ({
+                                ...prevState,
+                                selectedItem: {
+                                    isHomework: true,
+                                    id: undefined
+                                }
+                            }))
+                    }}/>
+                {isMentor && <CardActions>
+                    <Button
+                        onClick={() => addNewTask(homework.id!)}
+                        size="small"
+                        variant="text"
+                        color="primary"
+                    >
+                        Добавить задачу
+                    </Button>
+                </CardActions>}
+            </Card>
+            <DotLottieReact
+                src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
+                loop
+                autoplay
+            />
+        </Stack>
     }
 
     const renderTask = (task: HomeworkTaskViewModel, homework: HomeworkViewModel) => {
-        return task && <Grid container direction={"column"} spacing={1}>
-            <Grid item>
-                <Card variant="elevation" style={{backgroundColor: "ghostwhite"}} raised={true}>
-                    {getAlert(task)}
-                    <CourseTaskExperimental task={task}
-                                            homework={homework!}
-                                            isMentor={isMentor}
-                                            initialEditMode={initialEditMode}
-                                            onMount={onSelectedItemMount}
-                                            onUpdate={update => {
-                                                props.onTaskUpdate(update)
-                                                if (update.isDeleted)
-                                                    setState((prevState) => ({
-                                                        ...prevState,
-                                                        selectedItem: {
-                                                            isHomework: true,
-                                                            id: homework!.id
-                                                        }
-                                                    }))
-                                            }}
-                                            toEditHomework={() => toEditHomework(homework!)}/>
-                    {!props.isMentor && props.isStudentAccepted && < CardActions>
-                        <Link
-                            style={{color: '#212529'}}
-                            to={"/task/" + task.id!.toString()}>
-                            <Button
-                                style={{width: '150px'}}
-                                size="small"
-                                variant="contained"
-                                color="primary"
-                            >
-                                Решения
-                            </Button>
-                        </Link>
-                    </CardActions>}
-                </Card>
-            </Grid>
-            <Grid item>
-                <DotLottieReact
-                    src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
-                    loop
-                    autoplay
-                />
-            </Grid>
-        </Grid>
+        return task && <Card style={{backgroundColor: "ghostwhite"}} raised={task.id! < 0}>
+            {getAlert(task)}
+            <CourseTaskExperimental
+                task={task}
+                homework={homework!}
+                isMentor={isMentor}
+                initialEditMode={initialEditMode || task.id! < 0}
+                onMount={onSelectedItemMount}
+                onUpdate={update => {
+                    props.onTaskUpdate(update)
+                    if (update.isDeleted)
+                        setState((prevState) => ({
+                            ...prevState,
+                            selectedItem: {
+                                isHomework: true,
+                                id: homework!.id
+                            }
+                        }))
+                }}
+                toEditHomework={() => toEditHomework(homework!)}/>
+            {!props.isMentor && props.isStudentAccepted && < CardActions>
+                <Link
+                    style={{color: '#212529'}}
+                    to={"/task/" + task.id!.toString()}>
+                    <Button
+                        style={{width: '150px'}}
+                        size="small"
+                        variant="contained"
+                        color="primary"
+                    >
+                        Решения
+                    </Button>
+                </Link>
+            </CardActions>}
+        </Card>
     }
 
     return <Grid container direction={"row"} spacing={1}>
@@ -389,7 +377,6 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 })}
             </Timeline>
         </Grid>
-
         <Grid item xs={12} sm={12} md={8} lg={8}>
             {isHomework && selectedItem
                 ? renderHomework(selectedItem as HomeworkViewModel)
@@ -397,5 +384,3 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Grid>
     </Grid>
 }
-
-export default CourseExperimental
