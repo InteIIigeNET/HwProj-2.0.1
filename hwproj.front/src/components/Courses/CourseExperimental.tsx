@@ -192,9 +192,9 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             const homework = homeworks.find(x => x.id === id) as HomeworkViewModel
             const filesInfo = id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, id) : []
             return homework && <Grid container direction={"column"} spacing={1}>
-                <Grid item>{getAlert(homework)}</Grid>
                 <Grid item>
                     <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
+                        {getAlert(homework)}
                         <CourseHomeworkExperimental
                             homeworkAndFilesInfo={{homework, filesInfo}}
                             isMentor={isMentor}
@@ -226,9 +226,9 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         const homework = homeworks.find(x => x.tasks!.some(t => t.id === id))
         const task = homework?.tasks!.find(x => x.id === id) as HomeworkTaskViewModel
         return task && <Grid container direction={"column"} spacing={1}>
-            <Grid item>{getAlert(task)}</Grid>
             <Grid item>
                 <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
+                    {getAlert(task)}
                     <CourseTaskExperimental task={task}
                                             homework={homework!}
                                             isMentor={isMentor}
