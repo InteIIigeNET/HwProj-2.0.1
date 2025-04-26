@@ -13,6 +13,11 @@ RUN npm install
 # Bundle app source
 COPY . .
 
+# Устанвливаем переменные для production-сборки
+# Актуальные значения подтягиваются из docker-compose.override.yml
+ARG VITE_YANDEX_METRICA_ID
+ARG VITE_BASE_PATH
+
 # Собираем статику в /usr/src/app/dist
 RUN npm run build
 
