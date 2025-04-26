@@ -259,7 +259,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 task={task}
                 homework={homework!}
                 isMentor={isMentor}
-                initialEditMode={initialEditMode || task.isModified === true}
+                initialEditMode={initialEditMode || task.id! < 0 || task.isModified === true}
                 onMount={onSelectedItemMount}
                 onUpdate={update => {
                     props.onTaskUpdate(update)
