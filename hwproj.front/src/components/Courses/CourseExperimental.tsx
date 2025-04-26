@@ -255,6 +255,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return task && <Card style={{backgroundColor: "ghostwhite"}} raised={task.id! < 0}>
             {getAlert(task)}
             <CourseTaskExperimental
+                key={task.id}
                 task={task}
                 homework={homework!}
                 isMentor={isMentor}
