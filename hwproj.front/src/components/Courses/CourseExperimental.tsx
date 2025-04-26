@@ -234,6 +234,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     isMentor={isMentor}
                     initialEditMode={initialEditMode}
                     onMount={onSelectedItemMount}
+                    onAddTask={addNewTask}
                     onUpdate={update => {
                         props.onHomeworkUpdate(update)
                         if (update.isDeleted)
@@ -245,16 +246,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 }
                             }))
                     }}/>
-                {isMentor && <CardActions style={{justifyContent: 'center'}}>
-                    <Button
-                        onClick={() => addNewTask(homework)}
-                        size="small"
-                        variant="text"
-                        color="primary"
-                    >
-                        Добавить задачу
-                    </Button>
-                </CardActions>}
             </Card>
             <DotLottieReact
                 src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
@@ -265,7 +256,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     const renderTask = (task: HomeworkTaskViewModel & { isModified?: boolean }, homework: HomeworkViewModel) => {
-        const taskEditMode = task.id! < 0 || task.isModified === true
+        const taskEditMode = task && (task.id! < 0 || task.isModified === true)
         return task && <Card style={{backgroundColor: "ghostwhite"}} raised={taskEditMode}>
             {getAlert(task)}
             <CourseTaskExperimental
