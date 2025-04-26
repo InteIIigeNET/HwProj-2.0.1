@@ -1,13 +1,13 @@
 ﻿import * as React from "react";
-import {Typography, Grid, Tabs, Tab} from "@material-ui/core";
+import {Tabs, Tab} from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
-import {UnratedSolutionPreviews, UserDataDto} from "../api/";
+import {UnratedSolutionPreviews, UserDataDto} from "@/api";
 import "./Styles/Profile.css";
 import {FC, useEffect, useState} from "react";
 import {Link, useParams} from "react-router-dom";
 import TaskDeadlines from "./Tasks/TaskDeadlines";
 import UnratedSolutions from "./Solutions/UnratedSolutions";
-import {Alert, Chip, Stack} from "@mui/material";
+import {Alert, Chip, Grid, Stack, Typography} from "@mui/material";
 import NewCourseEvents from "./Courses/NewCourseEvents";
 import {TestTag} from "./Common/HomeworkTags";
 import Utils from "../services/Utils";
