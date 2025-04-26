@@ -26,13 +26,6 @@ const CourseTaskEditor: FC<{
     onUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean, isSaved?: boolean }) => void,
     toEditHomework: () => void,
 }> = (props) => {
-    const getDefaultTaskDataState = () => {
-        setTaskData({
-            task: props.speculativeTask,
-            homework: props.speculativeHomework,
-            isLoaded: props.speculativeTask.id! < 0
-        })
-    }
     const [taskData, setTaskData] = useState<{
         task: HomeworkTaskViewModel,
         homework: HomeworkViewModel,
