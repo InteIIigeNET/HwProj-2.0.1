@@ -108,7 +108,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     const getStyle = (itemIsHomework: boolean, itemId: number) =>
-        itemIsHomework === isHomework && itemId === id ? clickedItemStyle : {}
+        itemIsHomework === isHomework && itemId === id ? clickedItemStyle : {borderRadius: 9}
 
     const taskSolutionsMap = new Map<number, Solution[]>()
 
@@ -378,7 +378,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     + Добавить задание
                 </Button>}
                 {homeworks.map((x: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
-                    return <div key={x.id}>
+                    return <div key={x.id} style={x.id! < 0 ? {
+                        border: "1px solid #3f51b5",
+                        borderRadius: 9,
+                    } : undefined}>
                         <Paper
                             key={x.id}
                             elevation={0}
