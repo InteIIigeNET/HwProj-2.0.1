@@ -124,9 +124,9 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         isMentor && (entity.publicationDateNotSet || entity.hasDeadline && entity.deadlineDateNotSet)
 
     const renderHomeworkStatus = (homework: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
-        const hasErrors = homework.hasErrors || homework.tasks!.some((t: HomeworkTaskViewModel & {
+        const hasErrors = homework.id! < 0 && (homework.hasErrors || homework.tasks!.some((t: HomeworkTaskViewModel & {
             hasErrors?: boolean
-        }) => t.hasErrors)
+        }) => t.hasErrors))
         if (hasErrors)
             return <div style={{fontSize: 16}}><ErrorIcon fontSize="small" color={"error"}/><br/></div>
         if (homework.isModified)
@@ -188,14 +188,27 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Alert>
         )
 
-        if (entity.id! < 0)
-            return <Alert severity="info">
-                {isHomework
-                    ? "Новое задание будет добавлено после нажатия на 'Добавить задание'"
-                    : (entity as HomeworkTaskViewModel)?.homeworkId! < 0
-                        ? "Создание нового задания"
-                        : "Новая задача будет добавлена после нажатия на 'Добавить задачу'"}
-            </Alert>
+        if (entity.id! < 0) {
+            if (isHomework)
+                return <Alert severity="info">Новое задание будет добавлено после нажатия на 'Добавить задание'</Alert>
+            if ((entity as HomeworkTaskViewModel)?.homeworkId! < 0)
+                return <Alert severity="info"
+                              action={
+                                  <Button
+                                      color="inherit"
+                                      size="small"
+                                      onClick={() => setState((prevState) => ({
+                                          ...prevState,
+                                          selectedItem: {
+                                              isHomework: true,
+                                              id: (entity as HomeworkTaskViewModel).homeworkId!
+                                          }
+                                      }))}
+                                  >
+                                      Перейти к заданию
+                                  </Button>}>Часть добавления нового задания</Alert>
+            return <Alert severity="info">Новая задача будет добавлена после нажатия на 'Добавить задачу'</Alert>
+        }
 
         if (entity.isDeferred) return (
             <Alert severity="info"
