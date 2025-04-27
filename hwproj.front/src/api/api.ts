@@ -6867,7 +6867,7 @@ export const HomeworksApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        homeworksAddHomework(courseId: number, body?: CreateHomeworkViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+        homeworksAddHomework(courseId: number, body?: CreateHomeworkViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkViewModelResult> {
             const localVarFetchArgs = HomeworksApiFetchParamCreator(configuration).homeworksAddHomework(courseId, body, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {

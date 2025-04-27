@@ -1,4 +1,5 @@
 ﻿import {
+    Alert,
     CardActions,
     CardContent,
     Chip,
@@ -15,7 +16,7 @@ import FilesPreviewList from "components/Files/FilesPreviewList";
 import {IFileInfo} from "components/Files/IFileInfo";
 import {FC, useEffect, useState} from "react"
 import Utils from "services/Utils";
-import {FileInfoDTO, HomeworkViewModel, ActionOptions} from "@/api";
+import {FileInfoDTO, HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, CreateTaskViewModel} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import UpdateFilesUtils from "../Utils/UpdateFilesUtils";
 import Tags from "../Common/Tags";
@@ -31,9 +32,11 @@ import {enqueueSnackbar} from "notistack";
 import DeletionConfirmation from "../DeletionConfirmation";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ActionOptionsUI from "components/Common/ActionOptions";
+import {isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
+import Lodash from "lodash";
 
 export interface HomeworkAndFilesInfo {
-    homework: HomeworkViewModel,
+    homework: HomeworkViewModel & { isModified?: boolean },
     filesInfo: IFileInfo[]
 }
 
@@ -42,6 +45,7 @@ interface IEditHomeworkState {
     hasDeadline: boolean;
     deadlineDate?: Date;
     isDeadlineStrict: boolean;
+    hasErrors: boolean;
 }
 
 interface IEditFilesState {
@@ -52,16 +56,22 @@ interface IEditFilesState {
 
 const CourseHomeworkEditor: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
-    onUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] } & { isDeleted?: boolean }) => void
+    getAllHomeworks: () => HomeworkViewModel[],
+    onUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] } & {
+        isDeleted?: boolean,
+        isSaved?: boolean
+    }) => void
 }> = (props) => {
     const speculativeHomework = props.homeworkAndFilesInfo.homework
+    const isNewHomework = speculativeHomework.id! < 0
 
     const [homeworkData, setHomeworkData] = useState<{
         homework: HomeworkViewModel,
         isLoaded: boolean
-    }>({homework: speculativeHomework, isLoaded: false})
+    }>({homework: speculativeHomework, isLoaded: isNewHomework || speculativeHomework.isModified == true})
 
     useEffect(() => {
+        if (homeworkData.isLoaded) return
         ApiSingleton.homeworksApi
             .homeworksGetForEditingHomework(speculativeHomework.id!)
             .then(homework => setHomeworkData({homework, isLoaded: true}))
@@ -86,11 +96,16 @@ const CourseHomeworkEditor: FC<{
         .filter(t => t.publicationDate != null)
         .map(t => new Date(t.publicationDate!))
 
+    const taskHasErrors = homework.tasks!.some((x: HomeworkTaskViewModel & {
+        hasErrors?: boolean
+    }) => x.hasErrors === true)
+
     const [metadata, setMetadata] = useState<IEditHomeworkState>({
         publicationDate: publicationDate,
         hasDeadline: homework.hasDeadline!,
         deadlineDate: deadlineDate,
         isDeadlineStrict: homework.isDeadlineStrict!,
+        hasErrors: false,
     })
     const [title, setTitle] = useState<string>(homework.title!)
     const [tags, setTags] = useState<string[]>(homework.tags!)
@@ -106,8 +121,62 @@ const CourseHomeworkEditor: FC<{
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
     const [editOptions, setEditOptions] = useState<ActionOptions>({sendNotification: false})
 
+    const [deadlineSuggestion, setDeadlineSuggestion] = useState<Date | undefined>(undefined)
+
+    useEffect(() => {
+        if (!isNewHomework || !metadata.publicationDate) return
+        const isTest = isTestWork(homework)
+        const isBonus = isBonusWork(homework)
+
+        const dateCandidate = Lodash(props.getAllHomeworks()
+            .filter(x => {
+                const xIsTest = isTestWork(x)
+                const xIsBonus = isBonusWork(x)
+                return x.hasDeadline && (isTest && xIsTest || isBonus && xIsBonus || !isTest && !isBonus && !xIsTest && !xIsBonus)
+            })
+            .map(x => {
+                const deadlineDate = new Date(x.deadlineDate!)
+                return ({
+                    deadlineDate: deadlineDate,
+                    daysDiff: Math.floor((deadlineDate.getTime() - new Date(x.publicationDate!).getTime()) / (1000 * 3600 * 24))
+                });
+            }))
+            .groupBy(x => [x.daysDiff, x.deadlineDate.getHours(), x.deadlineDate.getMinutes()])
+            .entries()
+            .sortBy(x => x[1].length).last()?.[1][0]
+        if (dateCandidate) {
+            const publicationDate = new Date(metadata.publicationDate)
+            const dateTime = dateCandidate.deadlineDate
+            publicationDate.setDate(publicationDate.getDate() + dateCandidate.daysDiff)
+            publicationDate.setHours(dateTime.getHours(), dateTime.getMinutes(), 0, 0)
+            setDeadlineSuggestion(publicationDate)
+        } else {
+            setDeadlineSuggestion(undefined)
+        }
+    }, [tags, metadata.publicationDate])
+
+    useEffect(() => {
+        const update = {
+            ...homework,
+            ...metadata,
+            tasks: props.homeworkAndFilesInfo.homework.tasks,
+            title: title,
+            description: description,
+            tags: tags,
+            hasErrors: hasErrors,
+            deadlineDateNotSet: metadata.hasDeadline && !metadata.deadlineDate,
+            isModified: true,
+        }
+
+        props.onUpdate({fileInfos: filesControlState.selectedFilesInfo, homework: update})
+    }, [title, description, tags, metadata, hasErrors, filesControlState.selectedFilesInfo])
+
+    useEffect(() => {
+        setHasErrors(!title || metadata.hasErrors)
+    }, [title, metadata.hasErrors])
+
     const deleteHomework = async () => {
-        await ApiSingleton.homeworksApi.homeworksDeleteHomework(homeworkId)
+        if (!isNewHomework) await ApiSingleton.homeworksApi.homeworksDeleteHomework(homeworkId)
 
         // Удаляем файлы домашней работы из хранилища
         const deleteOperations = filesInfo.map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(courseId!, initialFile))
@@ -131,7 +200,9 @@ const CourseHomeworkEditor: FC<{
     const handleSubmit = async (e: any) => {
         e.preventDefault()
         setHandleSubmitLoading(true)
-        const updatedHomework = await ApiSingleton.homeworksApi.homeworksUpdateHomework(+homeworkId!, {
+
+        const update = {
+            homeworkId: homeworkId,
             title: title!,
             description: description,
             tags: tags,
@@ -140,7 +211,19 @@ const CourseHomeworkEditor: FC<{
             isDeadlineStrict: metadata.isDeadlineStrict,
             publicationDate: metadata.publicationDate,
             actionOptions: editOptions,
-        })
+            tasks: homework.tasks!.map(t => {
+                const task: CreateTaskViewModel = {
+                    ...t,
+                    title: t.title!,
+                    maxRating: t.maxRating!
+                }
+                return task
+            })
+        }
+
+        const updatedHomework = isNewHomework
+            ? await ApiSingleton.homeworksApi.homeworksAddHomework(courseId!, update)
+            : await ApiSingleton.homeworksApi.homeworksUpdateHomework(+homeworkId!, update)
 
         // Если какие-то файлы из ранее добавленных больше не выбраны, удаляем их из хранилища
         const deleteOperations = filesControlState.initialFilesInfo
@@ -166,26 +249,38 @@ const CourseHomeworkEditor: FC<{
         await Promise.all([...deleteOperations, ...uploadOperations])
 
         if (deleteOperations.length === 0 && uploadOperations.length === 0) {
-            props.onUpdate({homework: updatedHomework.value!, fileInfos: filesControlState.selectedFilesInfo})
+            if (isNewHomework) props.onUpdate({
+                homework: update,
+                fileInfos: filesControlState.selectedFilesInfo,
+                isDeleted: true
+            }) // remove fake homework
+            props.onUpdate({
+                homework: updatedHomework.value!,
+                fileInfos: filesControlState.selectedFilesInfo,
+                isSaved: true
+            })
         } else {
             try {
                 const newFilesDtos = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, homeworkId!)
-                props.onUpdate({homework: updatedHomework.value!, fileInfos: newFilesDtos})
+                props.onUpdate({homework: updatedHomework.value!, fileInfos: newFilesDtos, isSaved: true})
             } catch (e) {
                 const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
                 enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
-                props.onUpdate({homework: updatedHomework.value!, fileInfos: filesControlState.selectedFilesInfo})
+                props.onUpdate({
+                    homework: updatedHomework.value!,
+                    fileInfos: filesControlState.selectedFilesInfo,
+                    isSaved: true
+                })
             }
         }
     }
 
-    const isSomeTaskSoonerThanHomework = changedTaskPublicationDates.some(d => d < metadata.publicationDate!)
-    const isDisabled = isSomeTaskSoonerThanHomework || hasErrors || !isLoaded
+    const isDisabled = hasErrors || !isLoaded || taskHasErrors
 
     return (
         <CardContent>
             <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
-                  alignItems={"center"}>
+                  alignItems={"center"} alignContent={"center"} style={{marginTop: -20}}>
                 <Grid item>
                     <TextField
                         required
@@ -194,9 +289,11 @@ const CourseHomeworkEditor: FC<{
                         label="Название задания"
                         variant="standard"
                         margin="normal"
+                        error={!title}
                         value={title}
                         onChange={(e) => {
                             e.persist()
+                            setHasErrors(prevState => prevState || !e.target.value)
                             setTitle(e.target.value)
                         }}
                     />
@@ -207,6 +304,11 @@ const CourseHomeworkEditor: FC<{
                 </Grid>
             </Grid>
             <Grid container>
+                {tags.includes(TestTag) &&
+                    <Grid item>
+                        <Alert severity="info">Вы можете сгруппировать контрольные работы и переписывания с помощью
+                            дополнительного тега. Например, 'КР 1'</Alert>
+                    </Grid>}
                 <Grid item xs={12} style={{marginBottom: "5px", marginTop: -2}}>
                     <MarkdownEditor
                         label={"Условие задания"}
@@ -235,20 +337,24 @@ const CourseHomeworkEditor: FC<{
                             isDeadlineStrict={metadata.isDeadlineStrict}
                             publicationDate={metadata.publicationDate}
                             deadlineDate={metadata.deadlineDate}
-                            autoCalculatedDeadline={undefined}
-                            disabledPublicationDate={isPublished}
+                            autoCalculatedDeadline={deadlineSuggestion}
+                            disabledPublicationDate={!isNewHomework && isPublished}
                             onChange={(state) => {
+                                const conflictsWithTasks = changedTaskPublicationDates.some(d => d < metadata.publicationDate!)
                                 setMetadata({
                                     hasDeadline: state.hasDeadline,
                                     isDeadlineStrict: state.isDeadlineStrict,
                                     publicationDate: state.publicationDate,
                                     deadlineDate: state.deadlineDate,
+                                    hasErrors: state.hasErrors || conflictsWithTasks,
                                 })
-                                setHasErrors(state.hasErrors)
                             }}
                         />
                     </Grid>
                 </Grid>
+                {taskHasErrors && <Grid item xs={12}>
+                    <Alert severity={"error"}>Одна или более вложенных задач содержит ошибки</Alert>
+                </Grid>}
             </Grid>
             <CardActions>
                 {metadata.publicationDate && new Date() >= new Date(metadata.publicationDate) && <ActionOptionsUI
@@ -266,7 +372,8 @@ const CourseHomeworkEditor: FC<{
                     endIcon={<span style={{width: 17}}/>}
                     loading={handleSubmitLoading}
                 >
-                    Редактировать задание ({editOptions.sendNotification ? "с уведомлением" : "без уведомления"})
+                    {isNewHomework && "Добавить задание"}
+                    {!isNewHomework && "Редактировать задание " + (editOptions.sendNotification ? "с уведомлением" : "без уведомления")}
                 </LoadingButton>
                 <IconButton aria-label="delete" color="error" onClick={() => setShowDeleteConfirmation(true)}>
                     <DeleteIcon/>
@@ -287,6 +394,7 @@ const CourseHomeworkEditor: FC<{
 
 const CourseHomeworkExperimental: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
+    getAllHomeworks: () => HomeworkViewModel[],
     isMentor: boolean,
     initialEditMode: boolean,
     onMount: () => void,
@@ -305,9 +413,10 @@ const CourseHomeworkExperimental: FC<{
     }, [homework.id])
 
     if (editMode) return <CourseHomeworkEditor
+        getAllHomeworks={props.getAllHomeworks}
         homeworkAndFilesInfo={{homework, filesInfo}}
         onUpdate={update => {
-            setEditMode(false)
+            if (update.isSaved) setEditMode(false)
             props.onUpdate(update)
         }}
     />
