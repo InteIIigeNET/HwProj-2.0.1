@@ -242,7 +242,7 @@ const CourseHomeworkEditor: FC<{
             .map(selectedFile => UpdateFilesUtils.uploadFileWithErrorsHadling(
                 selectedFile.file!,
                 courseId,
-                +homeworkId!)
+                updatedHomework.value!.id!)
             );
 
         // Дожидаемся удаления и загрузки необходимых файлов
