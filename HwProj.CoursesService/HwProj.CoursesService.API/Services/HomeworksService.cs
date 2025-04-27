@@ -8,6 +8,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Domains;
 using HwProj.Models;
+using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -25,7 +26,7 @@ namespace HwProj.CoursesService.API.Services
             _coursesRepository = coursesRepository;
         }
 
-        public async Task<long> AddHomeworkAsync(long courseId, Homework homework)
+        public async Task<Homework> AddHomeworkAsync(long courseId, Homework homework)
         {
             homework.CourseId = courseId;
 
@@ -37,7 +38,8 @@ namespace HwProj.CoursesService.API.Services
                     homework.DeadlineDate));
             }
 
-            return await _homeworksRepository.AddAsync(homework);
+            await _homeworksRepository.AddAsync(homework);
+            return await GetHomeworkAsync(homework.Id);
         }
 
         public async Task<Homework> GetHomeworkAsync(long homeworkId)

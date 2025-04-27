@@ -32,6 +32,7 @@ interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
     courseFilesInfo: FileInfoDTO[]
     studentSolutions: StatisticsCourseMatesModel[]
+    courseId: number
     isMentor: boolean
     isStudentAccepted: boolean
     userId: string
@@ -122,6 +123,17 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel) =>
         isMentor && (entity.publicationDateNotSet || entity.hasDeadline && entity.deadlineDateNotSet)
 
+    const renderHomeworkStatus = (homework: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
+        const hasErrors = homework.hasErrors || homework.tasks!.some((t: HomeworkTaskViewModel & {
+            hasErrors?: boolean
+        }) => t.hasErrors)
+        if (hasErrors)
+            return <div style={{fontSize: 16}}><ErrorIcon fontSize="small" color={"error"}/><br/></div>
+        if (homework.isModified)
+            return <div style={{fontSize: 16}}><EditIcon fontSize="small" color={"primary"}/><br/></div>
+        return showWarningsForEntity(homework) && <div style={{fontSize: 16}}>⚠️<br/></div>
+    }
+
     const renderTaskStatus = (task: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
         if (taskSolutionsMap.has(task.id!)) {
             const solutions = taskSolutionsMap.get(task.id!)
@@ -161,12 +173,14 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             selectedItem: {id: homework.id!, isHomework: true},
         })
 
-    const getAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel) => {
-        if (entity.publicationDateNotSet) return (
-            <Alert severity="warning">
-                {"Не выставлена дата публикации"}
-            </Alert>
-        )
+    const getAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
+        if (entity.publicationDateNotSet) {
+            return (
+                <Alert severity="warning">
+                    {"Не выставлена дата публикации"}
+                </Alert>
+            )
+        }
 
         if (isMentor && entity.hasDeadline && entity.deadlineDateNotSet) return (
             <Alert severity="warning">
@@ -176,7 +190,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
         if (entity.id! < 0)
             return <Alert severity="info">
-                {"Новая задача будет добавлена после нажатия на 'Добавить задачу'"}
+                {isHomework
+                    ? "Новое задание будет добавлено после нажатия на 'Добавить задание'"
+                    : (entity as HomeworkTaskViewModel)?.homeworkId! < 0
+                        ? "Создание нового задания"
+                        : "Новая задача будет добавлена после нажатия на 'Добавить задачу'"}
             </Alert>
 
         if (entity.isDeferred) return (
@@ -205,11 +223,37 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const [newTaskCounter, setNewTaskCounter] = useState<number>(-1)
 
+    const addNewHomework = () => {
+        props.onHomeworkUpdate({
+            homework: {
+                courseId: props.courseId,
+                title: "Новое задание",
+                publicationDate: new Date(),
+                hasDeadline: false,
+                id: -1,
+                isGroupWork: false,
+                deadlineDate: undefined,
+                isDeadlineStrict: false,
+                tasks: [],
+                tags: []
+            },
+            fileInfos: []
+        })
+        setState((prevState) => ({
+            ...prevState,
+            selectedItem: {
+                isHomework: true,
+                id: -1
+            }
+        }))
+    }
+
     const addNewTask = (homework: HomeworkViewModel) => {
         const id = newTaskCounter
         props.onTaskUpdate({
             task: {
                 homeworkId: homework.id,
+                maxRating: 10,
                 title: `Новая задача`,
                 tags: homework.tags,
                 isDeferred: homework.isDeferred,
@@ -226,27 +270,29 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         setNewTaskCounter(id - 1)
     }
 
-    const renderHomework = (homework: HomeworkViewModel) => {
+    const renderHomework = (homework: HomeworkViewModel & { isModified?: boolean }) => {
         const filesInfo = id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, id) : []
+        const homeworkEditMode = homework && (homework.id! < 0 || homework.isModified === true)
         return homework && <Stack direction={"column"} spacing={2}>
-            <Card style={{backgroundColor: "ghostwhite"}}>
-                {getAlert(homework)}
+            <Card style={{backgroundColor: "ghostwhite"}} raised={homeworkEditMode}>
+                {getAlert(homework, true)}
                 <CourseHomeworkExperimental
+                    key={homework.id}
+                    getAllHomeworks={() => homeworks}
                     homeworkAndFilesInfo={{homework, filesInfo}}
                     isMentor={isMentor}
-                    initialEditMode={initialEditMode}
+                    initialEditMode={initialEditMode || homeworkEditMode}
                     onMount={onSelectedItemMount}
                     onAddTask={addNewTask}
                     onUpdate={update => {
                         props.onHomeworkUpdate(update)
-                        if (update.isDeleted)
-                            setState((prevState) => ({
-                                ...prevState,
-                                selectedItem: {
-                                    isHomework: true,
-                                    id: undefined
-                                }
-                            }))
+                        setState((prevState) => ({
+                            ...prevState,
+                            selectedItem: {
+                                isHomework: true,
+                                id: update.isDeleted ? undefined : update.homework.id!
+                            }
+                        }))
                     }}/>
             </Card>
             <DotLottieReact
@@ -260,7 +306,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const renderTask = (task: HomeworkTaskViewModel & { isModified?: boolean }, homework: HomeworkViewModel) => {
         const taskEditMode = task && (task.id! < 0 || task.isModified === true)
         return task && <Card style={{backgroundColor: "ghostwhite"}} raised={taskEditMode}>
-            {getAlert(task)}
+            {getAlert(task, false)}
             <CourseTaskExperimental
                 key={task.id}
                 task={task}
@@ -313,7 +359,12 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                               borderRadius: 10
                           }
                       }}>
-                {homeworks.map(x => {
+                {props.isMentor && (homeworks[0]?.id || 0) > 0 && <Button
+                    onClick={addNewHomework}
+                    style={{borderRadius: 8, marginBottom: 10}} variant={"text"} size={"small"}>
+                    + Добавить задание
+                </Button>}
+                {homeworks.map((x: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
                     return <div key={x.id}>
                         <Paper
                             key={x.id}
@@ -336,7 +387,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             }}>
                             <Typography variant="h6" style={{fontSize: 18}} align={"center"}
                                         color={x.isDeferred ? "textSecondary" : "textPrimary"}>
-                                {showWarningsForEntity(x) && <div style={{fontSize: 16}}>⚠️<br/></div>}
+                                {renderHomeworkStatus(x)}
                                 {x.title}{getTip(x)}
                             </Typography>
                             {x.isDeferred && !x.publicationDateNotSet &&
@@ -383,6 +434,14 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 </Typography>
                             </TimelineContent>
                         </TimelineItem>)}
+                        {x.id! < 0 &&
+                            <Button fullWidth
+                                    onClick={() => addNewTask(x)}
+                                    style={{borderRadius: 8, marginBottom: 10, marginTop: 5}}
+                                    variant={"text"}
+                                    size={"small"}>
+                                + Добавить задачу
+                            </Button>}
                     </div>;
                 })}
             </Timeline>

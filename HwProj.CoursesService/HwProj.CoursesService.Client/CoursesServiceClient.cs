@@ -220,7 +220,7 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<TaskDeadlineDto[]>();
         }
 
-        public async Task<Result<long>> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId)
+        public async Task<Result<HomeworkViewModel>> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -238,10 +238,12 @@ namespace HwProj.CoursesService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return response.StatusCode switch
             {
-                HttpStatusCode.Forbidden => Result<long>.Failed(),
-                HttpStatusCode.OK => Result<long>.Success(await response.DeserializeAsync<long>()),
-                HttpStatusCode.BadRequest => Result<long>.Failed(await response.DeserializeAsync<string[]>()),
-                _ => Result<long>.Failed(),
+                HttpStatusCode.Forbidden => Result<HomeworkViewModel>.Failed(),
+                HttpStatusCode.OK => Result<HomeworkViewModel>.Success(
+                    await response.DeserializeAsync<HomeworkViewModel>()),
+                HttpStatusCode.BadRequest => Result<HomeworkViewModel>.Failed(
+                    await response.DeserializeAsync<string[]>()),
+                _ => Result<HomeworkViewModel>.Failed(),
             };
         }
 

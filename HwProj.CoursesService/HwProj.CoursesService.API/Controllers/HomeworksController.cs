@@ -29,8 +29,8 @@ namespace HwProj.CoursesService.API.Controllers
             if (validationResult.Any()) return BadRequest(validationResult);
 
             var homework = homeworkViewModel.ToHomework();
-            var homeworkId = await _homeworksService.AddHomeworkAsync(courseId, homework);
-            return Ok(homeworkId);
+            var newHomework = await _homeworksService.AddHomeworkAsync(courseId, homework);
+            return Ok(newHomework.ToHomeworkViewModel());
         }
 
         [HttpGet("get/{homeworkId}")]
