@@ -110,7 +110,7 @@ const CourseHomeworkEditor: FC<{
     const [title, setTitle] = useState<string>(homework.title!)
     const [tags, setTags] = useState<string[]>(homework.tags!)
     const [description, setDescription] = useState<string>(homework.description!)
-    const [filesControlState, setFilesControlState] = useState<IEditFilesState>({
+    const [filesState, setFilesState] = useState<IEditFilesState>({
         initialFilesInfo: filesInfo,
         selectedFilesInfo: filesInfo,
         isLoadingInfo: false
@@ -168,8 +168,8 @@ const CourseHomeworkEditor: FC<{
             isModified: true,
         }
 
-        props.onUpdate({fileInfos: [], homework: update})
-    }, [title, description, tags, metadata, hasErrors])
+        props.onUpdate({fileInfos: filesState.selectedFilesInfo, homework: update})
+    }, [title, description, tags, metadata, hasErrors, filesState.selectedFilesInfo])
 
     useEffect(() => {
         setHasErrors(!title || metadata.hasErrors)
@@ -228,18 +228,18 @@ const CourseHomeworkEditor: FC<{
         const updatedHomeworkId = updatedHomework.value!.id!
 
         // Если какие-то файлы из ранее добавленных больше не выбраны, удаляем их из хранилища
-        const deleteOperations = filesControlState.initialFilesInfo
+        const deleteOperations = filesState.initialFilesInfo
             .filter(initialFile =>
                 initialFile.key &&
-                !filesControlState.selectedFilesInfo.some(s => s.key === initialFile.key)
+                !filesState.selectedFilesInfo.some(s => s.key === initialFile.key)
             )
             .map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(courseId, initialFile));
 
         // Если какие-то файлы из выбранных сейчас не были добавлены раньше, загружаем их в хранилище
-        const uploadOperations = filesControlState.selectedFilesInfo
+        const uploadOperations = filesState.selectedFilesInfo
             .filter(selectedFile =>
                 selectedFile.file &&
-                !filesControlState.initialFilesInfo.some(i => i.key === selectedFile.key)
+                !filesState.initialFilesInfo.some(i => i.key === selectedFile.key)
             )
             .map(selectedFile => UpdateFilesUtils.uploadFileWithErrorsHadling(
                 selectedFile.file!,
@@ -253,12 +253,12 @@ const CourseHomeworkEditor: FC<{
         if (deleteOperations.length === 0 && uploadOperations.length === 0) {
             if (isNewHomework) props.onUpdate({
                 homework: update,
-                fileInfos: filesControlState.selectedFilesInfo,
+                fileInfos: [],
                 isDeleted: true
             }) // remove fake homework
             props.onUpdate({
                 homework: updatedHomework.value!,
-                fileInfos: filesControlState.selectedFilesInfo,
+                fileInfos: filesState.selectedFilesInfo,
                 isSaved: true
             })
         } else {
@@ -280,7 +280,7 @@ const CourseHomeworkEditor: FC<{
                 }) // remove fake homework
                 props.onUpdate({
                     homework: updatedHomework.value!,
-                    fileInfos: filesControlState.selectedFilesInfo,
+                    fileInfos: filesState.selectedFilesInfo,
                     isSaved: true
                 })
             }
@@ -335,15 +335,15 @@ const CourseHomeworkEditor: FC<{
                 <Grid item xs={12} style={{marginBottom: "15px"}}>
                     <Grid container direction="column">
                         <FilesUploader
-                            initialFilesInfo={filesControlState.selectedFilesInfo}
-                            isLoading={filesControlState.isLoadingInfo}
+                            initialFilesInfo={filesState.selectedFilesInfo}
+                            isLoading={filesState.isLoadingInfo}
                             onChange={(filesInfo) => {
-                                setFilesControlState((prevState) => ({
+                                setFilesState((prevState) => ({
                                     ...prevState,
                                     selectedFilesInfo: filesInfo
-                                }))
+                                }));
                             }}
-                        />
+                            homeworkId={homeworkId}/>
                         <PublicationAndDeadlineDates
                             hasDeadline={metadata.hasDeadline}
                             isDeadlineStrict={metadata.isDeadlineStrict}

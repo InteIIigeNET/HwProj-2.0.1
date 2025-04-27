@@ -1,5 +1,5 @@
 import {IFileInfo} from "components/Files/IFileInfo";
-import {FileInfoDTO} from "../../api"
+import {FileInfoDTO} from "@/api"
 
 export default class FileInfoConverter {
     public static fromFileInfoDTO(fileInfoDto: FileInfoDTO): IFileInfo {
@@ -11,9 +11,11 @@ export default class FileInfoConverter {
         }
 
         return {
+            ...fileInfoDto,
             name: fileInfoDto.name,
-            sizeInBytes: fileInfoDto.size,
-            key: fileInfoDto.key
+            size: fileInfoDto.size,
+            key: fileInfoDto.key,
+            homeworkId: fileInfoDto.homeworkId,
         };
     }
 

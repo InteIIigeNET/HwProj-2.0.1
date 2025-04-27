@@ -2,6 +2,8 @@ export interface IFileInfo {
     file?: File;
     type?: string;
     name: string;
-    sizeInBytes: number;
+    // В байтах
+    size: number;
+    homeworkId: number;
     key?: string;
 }

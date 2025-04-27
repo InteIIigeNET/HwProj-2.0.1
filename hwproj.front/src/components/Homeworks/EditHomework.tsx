@@ -282,9 +282,9 @@ const EditHomework: FC = () => {
                                         setFilesControlState((prevState) => ({
                                             ...prevState,
                                             selectedFilesInfo: filesInfo
-                                        }))
+                                        }));
                                     }}
-                                />
+                                    homeworkId={+homeworkId!}/>
                                 <PublicationAndDeadlineDates
                                     hasDeadline={editHomework.hasDeadline}
                                     isDeadlineStrict={editHomework.isDeadlineStrict}

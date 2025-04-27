@@ -126,7 +126,7 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
                     color="text.secondary"
                     sx={{fontSize: hasRemoveButton ? '0.7rem' : '0.65rem'}}
                 >
-                    {getFileSize(props.fileInfo.sizeInBytes)}
+                    {getFileSize(props.fileInfo.size)}
                 </Typography>
             </Box>
 
