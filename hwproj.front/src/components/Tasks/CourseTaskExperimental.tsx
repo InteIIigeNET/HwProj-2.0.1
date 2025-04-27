@@ -95,6 +95,7 @@ const CourseTaskEditor: FC<{
             ...metadata!,
             title: title!,
             description: description,
+            deadlineDateNotSet: metadata?.hasDeadline === true && !metadata.deadlineDate,
             maxRating: maxRating,
             hasErrors: hasErrors
         }
