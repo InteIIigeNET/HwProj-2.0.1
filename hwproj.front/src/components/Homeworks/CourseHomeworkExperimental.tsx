@@ -264,10 +264,20 @@ const CourseHomeworkEditor: FC<{
         } else {
             try {
                 const newFilesDtos = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, updatedHomeworkId)
+                if (isNewHomework) props.onUpdate({
+                    homework: update,
+                    fileInfos: filesControlState.selectedFilesInfo,
+                    isDeleted: true
+                }) // remove fake homework
                 props.onUpdate({homework: updatedHomework.value!, fileInfos: newFilesDtos, isSaved: true})
             } catch (e) {
                 const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
                 enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
+                if (isNewHomework) props.onUpdate({
+                    homework: update,
+                    fileInfos: filesControlState.selectedFilesInfo,
+                    isDeleted: true
+                }) // remove fake homework
                 props.onUpdate({
                     homework: updatedHomework.value!,
                     fileInfos: filesControlState.selectedFilesInfo,
