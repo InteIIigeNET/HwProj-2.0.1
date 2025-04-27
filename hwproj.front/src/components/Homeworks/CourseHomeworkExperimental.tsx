@@ -168,8 +168,8 @@ const CourseHomeworkEditor: FC<{
             isModified: true,
         }
 
-        props.onUpdate({fileInfos: filesControlState.selectedFilesInfo, homework: update})
-    }, [title, description, tags, metadata, hasErrors, filesControlState.selectedFilesInfo])
+        props.onUpdate({fileInfos: [], homework: update})
+    }, [title, description, tags, metadata, hasErrors])
 
     useEffect(() => {
         setHasErrors(!title || metadata.hasErrors)
@@ -266,7 +266,7 @@ const CourseHomeworkEditor: FC<{
                 const newFilesDtos = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, updatedHomeworkId)
                 if (isNewHomework) props.onUpdate({
                     homework: update,
-                    fileInfos: filesControlState.selectedFilesInfo,
+                    fileInfos: [],
                     isDeleted: true
                 }) // remove fake homework
                 props.onUpdate({homework: updatedHomework.value!, fileInfos: newFilesDtos, isSaved: true})
@@ -275,7 +275,7 @@ const CourseHomeworkEditor: FC<{
                 enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
                 if (isNewHomework) props.onUpdate({
                     homework: update,
-                    fileInfos: filesControlState.selectedFilesInfo,
+                    fileInfos: [],
                     isDeleted: true
                 }) // remove fake homework
                 props.onUpdate({

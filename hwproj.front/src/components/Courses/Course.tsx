@@ -399,15 +399,17 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                         else if (homeworkIndex === -1) homeworks.push(homework)
                                         else homeworks[homeworkIndex] = homework
 
-                                        const newCourseFiles = courseFilesInfo
-                                            .filter(x => x.homeworkId !== homework.id)
-                                            .concat(isDeleted ? [] : fileInfos)
-
                                         setCourseState(prevState => ({
                                             ...prevState,
                                             courseHomeworks: homeworks
                                         }))
-                                        setCourseFilesInfo(newCourseFiles)
+
+                                        if (fileInfos.length > 0 || isDeleted) {
+                                            const newCourseFiles = courseFilesInfo
+                                                .filter(x => x.homeworkId !== homework.id)
+                                                .concat(isDeleted ? [] : fileInfos)
+                                            setCourseFilesInfo(newCourseFiles)
+                                        }
                                     }}
                                     onTaskUpdate={update => {
                                         const task = update.task
