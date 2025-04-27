@@ -36,11 +36,11 @@ namespace HwProj.CoursesService.API.Filters
                         })
                         .ToArray();
 
-                    var hasAccess = courseDto.IsOpen
+                    var hasAccessToMaterials = courseDto.IsOpen
                         ? true
-                        : courseDto.AcceptedStudents.Any(student => student.StudentId == userId);
+                        : isCourseStudent;
 
-                    courseDto.Homeworks = hasAccess
+                    courseDto.Homeworks = hasAccessToMaterials
                         ? courseDto.Homeworks
                         .Where(h =>
                             currentDate >= h.PublicationDate &&

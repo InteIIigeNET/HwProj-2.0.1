@@ -6,12 +6,13 @@ import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
+import {MarkdownPreview} from "../Common/MarkdownEditor";
 import {Button, Grid, Tab, Tabs, Typography, IconButton, CircularProgress} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/styles";
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import {Alert, AlertTitle, Chip, Dialog, DialogContent, DialogTitle, Stack, Tooltip} from "@mui/material";
+import {Alert, AlertTitle, Chip, Dialog, DialogContent, DialogTitle, Stack, Tooltip, CardContent, Divider} from "@mui/material";
 import CourseExperimental from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
 import MentorsList from "../Common/MentorsList";
@@ -122,7 +123,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     const showStatsTab = isCourseMentor || isAcceptedStudent
     const showApplicationsTab = isCourseMentor
 
-    const hasAccess = isOpen
+    const hasAccessToMaterials = isOpen
         ? true
         : isCourseMentor || isAcceptedStudent
 
@@ -297,8 +298,19 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                             }
                         </Grid>
                     </Grid>
+                    {!hasAccessToMaterials && !isOpen && <CardContent>
+                        <Grid item>
+                            <Typography variant="h4" component="div">
+                                О курсе
+                            </Typography>
+                        </Grid>
+                        <Divider style={{ marginTop: 15, marginBottom: 15 }} />
+                        <Typography style={{ color: "#454545" }} gutterBottom variant="body1">
+                            <MarkdownPreview value={course.description!} />
+                        </Typography>
+                    </CardContent>}
                     <Grid>
-                        {hasAccess && <Tabs
+                        {hasAccessToMaterials && <Tabs
                             style={{ marginBottom: 10 }}
                             variant="scrollable"
                             scrollButtons={"auto"}
