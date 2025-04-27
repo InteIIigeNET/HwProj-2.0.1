@@ -135,6 +135,7 @@ const CourseTaskEditor: FC<{
     }
 
     const isDisabled = hasErrors || !isLoaded
+    const isNewHomework = taskData.task.homeworkId! < 0
 
     const homeworkPublicationDateIsSet = !homework.publicationDateNotSet
 
@@ -229,11 +230,11 @@ const CourseTaskEditor: FC<{
                     </Grid>
                 }
             </Grid>
-            {taskData.task.homeworkId! > 0 && <CardActions>
-                {publicationDate && new Date() >= new Date(publicationDate) && <ActionOptionsUI
+            <CardActions>
+                {!isNewHomework && publicationDate && new Date() >= new Date(publicationDate) && <ActionOptionsUI
                     disabled={isDisabled || handleSubmitLoading}
                     onChange={value => setEditOptions(value)}/>}
-                <LoadingButton
+                {!isNewHomework && <LoadingButton
                     fullWidth
                     onClick={handleSubmit}
                     color="primary"
@@ -247,17 +248,17 @@ const CourseTaskEditor: FC<{
                 >
                     {isNewTask && "Добавить задачу"}
                     {!isNewTask && "Редактировать задачу " + (editOptions.sendNotification ? "с уведомлением" : "без уведомления")}
-                </LoadingButton>
+                </LoadingButton>}
                 <IconButton aria-label="delete" color="error" onClick={() => setShowDeleteConfirmation(true)}>
                     <DeleteIcon/>
                 </IconButton>
-            </CardActions>}
+            </CardActions>
             <DeletionConfirmation
                 onCancel={() => setShowDeleteConfirmation(false)}
                 onSubmit={deleteTask}
                 isOpen={showDeleteConfirmation}
                 dialogTitle={'Удаление задачи'}
-                dialogContentText={`Вы точно хотите удалить задачу ${title || ""}?`}
+                dialogContentText={`Вы точно хотите удалить задачу '${title || ""}'?`}
                 confirmationWord={''}
                 confirmationText={''}
             />
