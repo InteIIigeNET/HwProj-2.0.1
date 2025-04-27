@@ -365,7 +365,7 @@ const CourseHomeworkEditor: FC<{
                     </Grid>
                 </Grid>
                 {taskHasErrors && <Grid item xs={12}>
-                    <Alert severity={"error"}>Одна или более вложенных задач содержит ошибки</Alert>
+                    <Alert severity={"error"}>Одна или более вложенных задач содержат ошибки</Alert>
                 </Grid>}
             </Grid>
             <CardActions>
