@@ -225,6 +225,8 @@ const CourseHomeworkEditor: FC<{
             ? await ApiSingleton.homeworksApi.homeworksAddHomework(courseId!, update)
             : await ApiSingleton.homeworksApi.homeworksUpdateHomework(+homeworkId!, update)
 
+        const updatedHomeworkId = updatedHomework.value!.id!
+
         // Если какие-то файлы из ранее добавленных больше не выбраны, удаляем их из хранилища
         const deleteOperations = filesControlState.initialFilesInfo
             .filter(initialFile =>
@@ -242,7 +244,7 @@ const CourseHomeworkEditor: FC<{
             .map(selectedFile => UpdateFilesUtils.uploadFileWithErrorsHadling(
                 selectedFile.file!,
                 courseId,
-                updatedHomework.value!.id!)
+                updatedHomeworkId)
             );
 
         // Дожидаемся удаления и загрузки необходимых файлов
@@ -261,7 +263,7 @@ const CourseHomeworkEditor: FC<{
             })
         } else {
             try {
-                const newFilesDtos = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, homeworkId!)
+                const newFilesDtos = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, updatedHomeworkId)
                 props.onUpdate({homework: updatedHomework.value!, fileInfos: newFilesDtos, isSaved: true})
             } catch (e) {
                 const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
