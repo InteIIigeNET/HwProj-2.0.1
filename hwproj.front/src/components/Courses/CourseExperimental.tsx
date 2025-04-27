@@ -378,7 +378,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     + Добавить задание
                 </Button>}
                 {homeworks.map((x: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
-                    return <div key={x.id} style={x.id! < 0 ? {
+                    return <div key={x.id} style={selectedItemHomework?.id === x.id ? {
                         border: "1px solid #3f51b5",
                         borderRadius: 9,
                     } : undefined}>
