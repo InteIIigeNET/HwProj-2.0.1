@@ -18,7 +18,6 @@ interface IEditTaskMetadataState {
     isDeadlineStrict: boolean | undefined;
     publicationDate: Date | undefined;
     isPublished: boolean;
-    hasErrors: boolean
 }
 
 const CourseTaskEditor: FC<{
@@ -46,7 +45,6 @@ const CourseTaskEditor: FC<{
             deadlineDate: taskData.task.deadlineDate,
             isDeadlineStrict: taskData.task.isDeadlineStrict,
             isPublished: taskData.task.isDeferred || !taskData.homework.isDeferred,
-            hasErrors: false
         } : undefined)
 
     useEffect(() => {
@@ -69,8 +67,7 @@ const CourseTaskEditor: FC<{
                     publicationDate: task.publicationDateNotSet
                         ? undefined
                         : new Date(task.publicationDate!),
-                    isPublished: !task.isDeferred,
-                    hasErrors: false,
+                    isPublished: !task.isDeferred
                 });
             })
     }, [])
@@ -100,10 +97,6 @@ const CourseTaskEditor: FC<{
         }
         props.onUpdate({task: update})
     }, [title, description, maxRating, metadata, hasErrors])
-
-    useEffect(() => {
-        setHasErrors(!title || maxRating <= 0 || metadata?.hasErrors === true)
-    }, [title, maxRating, metadata?.hasErrors])
 
     const handleSubmit = async (e: any) => {
         e.preventDefault()
@@ -153,6 +146,7 @@ const CourseTaskEditor: FC<{
                         value={title}
                         onChange={(e) => {
                             e.persist()
+                            setHasErrors(!e.target.value)
                             setTitle(e.target.value)
                         }}
                     />
@@ -170,6 +164,7 @@ const CourseTaskEditor: FC<{
                         value={maxRating}
                         onChange={(e) => {
                             e.persist()
+                            setHasErrors(+e.target.value <= 0)
                             setMaxRating(+e.target.value)
                         }}
                     />
@@ -203,8 +198,8 @@ const CourseTaskEditor: FC<{
                                     publicationDate: state.publicationDate,
                                     deadlineDate: state.deadlineDate,
                                     isPublished: metadata.isPublished, // Остается прежним
-                                    hasErrors: state.hasErrors
                                 })
+                                setHasErrors(state.hasErrors)
                             }}
                         />
                     </Grid>
@@ -229,7 +224,7 @@ const CourseTaskEditor: FC<{
                     </Grid>
                 }
             </Grid>
-            {taskData.task.homeworkId! > 0 && <CardActions>
+            <CardActions>
                 {publicationDate && new Date() >= new Date(publicationDate) && <ActionOptionsUI
                     disabled={isDisabled || handleSubmitLoading}
                     onChange={value => setEditOptions(value)}/>}
@@ -251,7 +246,7 @@ const CourseTaskEditor: FC<{
                 <IconButton aria-label="delete" color="error" onClick={() => setShowDeleteConfirmation(true)}>
                     <DeleteIcon/>
                 </IconButton>
-            </CardActions>}
+            </CardActions>
             <DeletionConfirmation
                 onCancel={() => setShowDeleteConfirmation(false)}
                 onSubmit={deleteTask}

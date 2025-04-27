@@ -382,8 +382,8 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                     {tabValue === "homeworks" && <div>
                         {
                             isReadingMode
-                                ? <CourseExperimental
-                                    courseId={+courseId!}
+                                ?
+                                <CourseExperimental
                                     homeworks={courseHomeworks}
                                     courseFilesInfo={courseFilesInfo}
                                     isMentor={isCourseMentor}
@@ -393,10 +393,9 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                     userId={userId!}
                                     onHomeworkUpdate={({fileInfos, homework, isDeleted}) => {
                                         const homeworkIndex = courseState.courseHomeworks.findIndex(x => x.id === homework.id)
-                                        const homeworks = courseState.courseHomeworks
+                                        const homeworks = [...courseState.courseHomeworks]
 
                                         if (isDeleted) homeworks.splice(homeworkIndex, 1)
-                                        else if (homeworkIndex === -1) homeworks.push(homework)
                                         else homeworks[homeworkIndex] = homework
 
                                         const newCourseFiles = courseFilesInfo
@@ -429,20 +428,6 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                     }}
                                 />
                                 : <div>
-                                    <Grid style={{paddingBottom: 10}}>
-                                        <Alert severity="warning">
-                                            <AlertTitle>Устаревшая страница редактирования</AlertTitle>
-                                            Данная страница для редактирования курса является устаревшей и будет
-                                            удалена в следующих
-                                            версиях сервиса.
-                                            Настоятельно рекомендуем использовать механизм редактирования задач
-                                            в стандартном режиме
-                                            отображения:
-                                            Вы увидите кнопку добавления новых заданий над списком, а кнопку
-                                            редактирования заданий в правом верхнем углу при наведении на
-                                            выбранное задание.
-                                        </Alert>
-                                    </Grid>
                                     {createHomework && (
                                         <div>
                                             <Grid container>

@@ -25,7 +25,7 @@ namespace HwProj.CoursesService.Client
 
         Task<CourseDTO[]> GetAllUserCourses();
         Task<TaskDeadlineDto[]> GetTaskDeadlines();
-        Task<Result<HomeworkViewModel>> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId);
+        Task<Result<long>> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId);
         Task<HomeworkViewModel> GetHomework(long homeworkId);
         Task<HomeworkViewModel> GetForEditingHomework(long homeworkId);
         Task<Result<HomeworkViewModel>> UpdateHomework(long homeworkId, CreateHomeworkViewModel model);

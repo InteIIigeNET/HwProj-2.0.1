@@ -6,7 +6,7 @@ namespace HwProj.CoursesService.API.Services
 {
     public interface IHomeworksService
     {
-        Task<Homework> AddHomeworkAsync(long courseId, Homework homework);
+        Task<long> AddHomeworkAsync(long courseId, Homework homework);
 
         Task<Homework> GetHomeworkAsync(long homeworkId);
 
