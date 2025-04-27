@@ -115,7 +115,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
         }))
         if (selectedFiles != null) {
             const uploadOperations = selectedFiles.map(
-                selectedFile => UpdateFilesUtils.uploadFileWithErrorsHadling(selectedFile, props.id, homeworkId));
+                selectedFile => UpdateFilesUtils.uploadFileWithErrorsHadling(selectedFile, props.id, homeworkId!.value!.id!));
 
             // Дожидаемся окончания обработки загрузки всех файлов
             await Promise.all(uploadOperations);
@@ -172,29 +172,29 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                     direction="column"
                     justifyContent="space-between"
                 >
-                        <FilesUploader
-                            onChange={(filesInfo) => {
-                                console.log(filesInfo);
-                                setSelectedFiles(filesInfo
-                                    .filter(fileInfo => fileInfo.file != undefined)
-                                    .map(fileInfo => fileInfo.file!))
-                            }}
-                        />
-                        <PublicationAndDeadlineDates
-                            hasDeadline={false}
-                            isDeadlineStrict={false}
-                            publicationDate={undefined}
-                            deadlineDate={undefined}
-                            autoCalculatedDeadline={deadlineSuggestion}
-                            onChange={(state) => setAddHomeworkState((prevState) => ({
-                                ...prevState,
-                                hasDeadline: state.hasDeadline,
-                                isDeadlineStrict: state.isDeadlineStrict,
-                                publicationDate: state.publicationDate,
-                                deadlineDate: state.deadlineDate,
-                                hasErrors: state.hasErrors,
-                            }))}
-                        />
+                    <FilesUploader
+                        onChange={(filesInfo) => {
+                            console.log(filesInfo);
+                            setSelectedFiles(filesInfo
+                                .filter(fileInfo => fileInfo.file != undefined)
+                                .map(fileInfo => fileInfo.file!))
+                        }}
+                    />
+                    <PublicationAndDeadlineDates
+                        hasDeadline={false}
+                        isDeadlineStrict={false}
+                        publicationDate={undefined}
+                        deadlineDate={undefined}
+                        autoCalculatedDeadline={deadlineSuggestion}
+                        onChange={(state) => setAddHomeworkState((prevState) => ({
+                            ...prevState,
+                            hasDeadline: state.hasDeadline,
+                            isDeadlineStrict: state.isDeadlineStrict,
+                            publicationDate: state.publicationDate,
+                            deadlineDate: state.deadlineDate,
+                            hasErrors: state.hasErrors,
+                        }))}
+                    />
                 </Grid>
                 <div>
                     <ol>
