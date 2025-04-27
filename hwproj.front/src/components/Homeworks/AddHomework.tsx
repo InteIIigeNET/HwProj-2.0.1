@@ -179,7 +179,7 @@ const AddHomework: React.FC<IAddHomeworkProps> = (props) => {
                                 .filter(fileInfo => fileInfo.file != undefined)
                                 .map(fileInfo => fileInfo.file!))
                         }}
-                    />
+                        homeworkId={props.id}/>
                     <PublicationAndDeadlineDates
                         hasDeadline={false}
                         isDeadlineStrict={false}
