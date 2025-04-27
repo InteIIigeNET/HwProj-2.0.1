@@ -253,7 +253,7 @@ const CourseHomeworkEditor: FC<{
         if (deleteOperations.length === 0 && uploadOperations.length === 0) {
             if (isNewHomework) props.onUpdate({
                 homework: update,
-                fileInfos: filesState.selectedFilesInfo,
+                fileInfos: [],
                 isDeleted: true
             }) // remove fake homework
             props.onUpdate({
@@ -266,7 +266,7 @@ const CourseHomeworkEditor: FC<{
                 const newFilesDtos = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, updatedHomeworkId)
                 if (isNewHomework) props.onUpdate({
                     homework: update,
-                    fileInfos: filesState.selectedFilesInfo,
+                    fileInfos: [],
                     isDeleted: true
                 }) // remove fake homework
                 props.onUpdate({homework: updatedHomework.value!, fileInfos: newFilesDtos, isSaved: true})
@@ -275,7 +275,7 @@ const CourseHomeworkEditor: FC<{
                 enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
                 if (isNewHomework) props.onUpdate({
                     homework: update,
-                    fileInfos: filesState.selectedFilesInfo,
+                    fileInfos: [],
                     isDeleted: true
                 }) // remove fake homework
                 props.onUpdate({
