@@ -79,7 +79,8 @@ const CourseHomeworkEditor: FC<{
 
     const {homework, isLoaded} = homeworkData
 
-    const filesInfo = props.homeworkAndFilesInfo.filesInfo
+    const initialFilesInfo = props.homeworkAndFilesInfo.filesInfo.filter(x => x.key !== "local")
+
     const homeworkId = homework.id!
     const courseId = homework.courseId!
 
@@ -111,8 +112,8 @@ const CourseHomeworkEditor: FC<{
     const [tags, setTags] = useState<string[]>(homework.tags!)
     const [description, setDescription] = useState<string>(homework.description!)
     const [filesState, setFilesState] = useState<IEditFilesState>({
-        initialFilesInfo: filesInfo,
-        selectedFilesInfo: filesInfo,
+        initialFilesInfo: initialFilesInfo,
+        selectedFilesInfo: props.homeworkAndFilesInfo.filesInfo,
         isLoadingInfo: false
     });
     const [hasErrors, setHasErrors] = useState<boolean>(false)
@@ -179,7 +180,7 @@ const CourseHomeworkEditor: FC<{
         if (!isNewHomework) await ApiSingleton.homeworksApi.homeworksDeleteHomework(homeworkId)
 
         // Удаляем файлы домашней работы из хранилища
-        const deleteOperations = filesInfo.map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(courseId!, initialFile))
+        const deleteOperations = initialFilesInfo.map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(courseId!, initialFile))
         await Promise.all(deleteOperations)
 
         props.onUpdate({homework, fileInfos: [], isDeleted: true})
@@ -396,7 +397,7 @@ const CourseHomeworkEditor: FC<{
                 onSubmit={deleteHomework}
                 isOpen={showDeleteConfirmation}
                 dialogTitle={'Удаление задания'}
-                dialogContentText={getDeleteMessage(homework.title!, filesInfo)}
+                dialogContentText={getDeleteMessage(homework.title!, initialFilesInfo)}
                 confirmationWord={''}
                 confirmationText={''}
             />
