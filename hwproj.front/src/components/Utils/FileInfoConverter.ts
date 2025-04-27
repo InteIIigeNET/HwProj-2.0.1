@@ -11,6 +11,7 @@ export default class FileInfoConverter {
         }
 
         return {
+            ...fileInfoDto,
             name: fileInfoDto.name,
             size: fileInfoDto.size,
             key: fileInfoDto.key,
