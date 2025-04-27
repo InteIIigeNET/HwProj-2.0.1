@@ -6,7 +6,7 @@ import {
 } from "@material-ui/core";
 import {LoadingButton} from "@mui/lab";
 import {IStepComponentProps} from "./ICreateCourseState";
-import {Alert, Autocomplete, Checkbox, FormControlLabel} from "@mui/material";
+import {Alert, Autocomplete, Checkbox, FormControlLabel, Chip} from "@mui/material";
 
 const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
     const handleCourseNameChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -28,6 +28,16 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
             })
         })
 
+    const handleGroupSelection = (event: React.SyntheticEvent, newValue: string[]) => {
+        const allGroupsFromList = newValue.every(group => state.groupNames.includes(group));
+        setState(prev => ({
+            ...prev,
+            selectedGroups: newValue,
+            isGroupFromList: allGroupsFromList,
+            fetchStudents: allGroupsFromList ? prev.fetchStudents : false,
+        }));
+    }
+
     return (
         <Grid container spacing={2}>
             <Grid item xs={12}>
@@ -48,7 +58,7 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                         setState(prev => ({
                             ...prev,
                             programName: newValue || '',
-                            groupName: '',
+                            selectedGroups: [],
                             isGroupFromList: false,
                         }));
                     }}
@@ -71,27 +81,29 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
             {state.programName ? (
                 <Grid item xs={12}>
                     <Autocomplete
+                        multiple
                         freeSolo
-                        value={state.groupName}
-                        onChange={(_, newValue) => {
-                            const isFromList = state.groupNames.includes(newValue || '');
-                            setState(prev => ({
-                                ...prev,
-                                groupName: newValue || '',
-                                isGroupFromList: isFromList,
-                                fetchStudents: isFromList ? prev.fetchStudents : false,
-                            }));
-                        }}
+                        value={state.selectedGroups}
+                        onChange={handleGroupSelection}
                         options={state.groupNames}
                         loading={state.fetchingGroups}
                         renderInput={(params) => (
                             <TextField
                                 {...params}
-                                label="Название группы"
+                                label="Название группы(групп)"
                                 variant="outlined"
                                 fullWidth
+                                placeholder="Выберите или введите название группы"
                             />
                         )}
+                        renderTags={(value, getTagProps) =>
+                            value.map((option, index) => (
+                                <Chip
+                                    label={option}
+                                    {...getTagProps({ index })}
+                                />
+                            ))
+                        }
                         fullWidth
                     />
                 </Grid>
@@ -102,11 +114,12 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                         variant="outlined"
                         fullWidth
                         required={true}
-                        value={state.groupName}
+                        value={state.selectedGroups.join(", ")}
                         onChange={(e) => {
+                            const groups = e.target.value.split(",").map(g => g.trim()).filter(g => g);
                             setState(prev => ({
                                 ...prev,
-                                groupName: e.target.value,
+                                selectedGroups: groups,
                                 isGroupFromList: false,
                                 fetchStudents: false,
                             }));
@@ -126,7 +139,7 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                                 color="primary"
                             />
                         }
-                        label="Добавить всех студентов из группы"
+                        label="Добавить всех студентов из выбранных групп"
                     />
                 </Grid>
             )}
@@ -148,7 +161,7 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                         color: "#3f51b5",
                         ":hover": {background: "#f7f8fc"},
                     }}
-                    disabled={!state.courseName || !state.groupName}
+                    disabled={!state.courseName || state.selectedGroups.length === 0}
                     loading={state.courseIsLoading}
                 >
                     Создать курс

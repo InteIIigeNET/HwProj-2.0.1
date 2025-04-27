@@ -5,7 +5,6 @@ import {
     StepLabel,
     StepButton,
     Typography,
-
 } from "@material-ui/core";
 import ApiSingleton from "../../api/ApiSingleton";
 import {CoursePreviewView} from "api";
@@ -54,8 +53,7 @@ export const CreateCourse: FC = () => {
         programNames: [],
         programName: "",
         groupNames: [],
-        groupName: "",
-
+        selectedGroups: [],
         fetchingGroups: false,
         courseIsLoading: false,
     })
@@ -130,9 +128,10 @@ export const CreateCourse: FC = () => {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+        const groupName = state.selectedGroups.join(", ")
         const courseViewModel = {
             name: state.courseName,
-            groupName: state.groupName,
+            groupName: groupName,
             isOpen: true,
             baseCourseId: selectedBaseCourse?.id,
             fetchStudents: state.isGroupFromList ? state.fetchStudents : false,
@@ -148,16 +147,13 @@ export const CreateCourse: FC = () => {
         }
     }
 
-    // Load base courses and program names on mount
     useEffect(() => {
         const loadData = async () => {
             try {
-                // Load base courses
                 const userCourses = await ApiSingleton.coursesApi.coursesGetAllUserCourses();
                 if (!userCourses.length) skipCurrentStep();
                 setBaseCourses(userCourses);
 
-                // Load program names
                 const programResponse = await ApiSingleton.coursesApi.coursesGetProgramNames();
                 const programNames = programResponse
                     .map(model => model.programName)
@@ -197,7 +193,6 @@ export const CreateCourse: FC = () => {
         }
     };
 
-    // Load groups when program name changes
     useEffect(() => {
         if (state.programName) {
             fetchGroups(state.programName);

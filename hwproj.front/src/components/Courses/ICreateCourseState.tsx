@@ -14,7 +14,6 @@ export const stepLabels = [
 export const stepIsOptional = (step: CreateCourseStep) =>
     step === CreateCourseStep.SelectBaseCourseStep
 
-//TODO: refactor
 export interface ICreateCourseState {
     activeStep: CreateCourseStep;
     completedSteps: Set<CreateCourseStep>;
@@ -28,9 +27,8 @@ export interface ICreateCourseState {
     programName: string;
 
     groupNames: string[];
-    groupName: string;
+    selectedGroups: string[];
     isGroupFromList: boolean;
-
     fetchStudents: boolean;
 
     fetchingGroups: boolean;
