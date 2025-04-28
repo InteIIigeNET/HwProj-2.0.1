@@ -90,10 +90,10 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                         renderInput={(params) => (
                             <TextField
                                 {...params}
-                                label="Название группы(групп)"
+                                label="Название группы (групп)"
                                 variant="outlined"
                                 fullWidth
-                                placeholder="Выберите или введите название группы"
+                                placeholder="Выберите или введите название группы или нескольких групп"
                             />
                         )}
                         renderTags={(value, getTagProps) =>
@@ -139,7 +139,7 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                                 color="primary"
                             />
                         }
-                        label="Добавить всех студентов из выбранных групп"
+                        label="Добавить студентов из выбранных групп"
                     />
                 </Grid>
             )}
