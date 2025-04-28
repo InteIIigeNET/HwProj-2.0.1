@@ -91,7 +91,7 @@ const Workspace: FC = () => {
 
         return (
             <div className="container" style={{marginBottom: '50px'}}>
-                <Grid container style={{marginTop: "15px"}} spacing={2}>
+                <Grid container style={{marginTop: "5px"}} spacing={2}>
                     <Grid item container direction={"row"} justifyContent={"space-between"}>
                         <Grid item direction={"row"} spacing={2}>
                             <Grid item>
@@ -126,7 +126,6 @@ const Workspace: FC = () => {
                             variant="scrollable"
                             scrollButtons={"auto"}
                             value={tabValue}
-                            style={{marginTop: 10}}
                             indicatorColor="primary"
                             onChange={(event, value) => {
                                 setProfileState(prevState => ({
