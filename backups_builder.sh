@@ -73,3 +73,11 @@ rm -rf $TMP_DIR
 rm -rf $MSSQL_BACKUPS_VOLUME/*
 
 echo -e "\n[SUCCESS] Все БД сохранены в архив: $BACKUPS_STORAGE/$ARCHIVE_NAME"
+
+
+
+# Если скрипт запущен с параметром выгрузки, вызываем скрипт для отправки бэкапа во внешнее хранилище
+if [[ "$1" == *"yandex"* ]]; then
+  echo -e "\nВыгружаем бэкап $BACKUP_FILE на диск в Yandex"
+  ${BASE_PATH}/send_to_yadisk.sh "$BACKUPS_STORAGE/$ARCHIVE_NAME"
+fi
