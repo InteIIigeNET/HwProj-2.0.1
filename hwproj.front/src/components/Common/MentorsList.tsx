@@ -1,8 +1,8 @@
 ﻿import {FC} from "react";
-import {AccountDataDto} from "../../api";
+import {AccountDataDto} from "@/api";
 import {Typography} from "@material-ui/core";
 import * as React from "react";
-import {Badge, Stack, Tooltip} from "@mui/material";
+import {Stack, Tooltip} from "@mui/material";
 
 const MentorsList: FC<{
     mentors: AccountDataDto[]
@@ -17,19 +17,19 @@ const MentorsList: FC<{
         <Typography style={{fontSize: fontSize, color: "GrayText"}}>
             {mentorsToShow.map(t => `${t.name} ${t.surname}`).join(", ")}
         </Typography>
-        {mentorsToHide.length > 0 && <Tooltip arrow title={
-            <span style={{whiteSpace: 'pre-line'}}>
+        {mentorsToHide.length > 0 &&
+            <Tooltip arrow title={
+                <span style={{whiteSpace: 'pre-line'}}>
                 <Typography component="div" variant={"body1"}>
                     {mentorsToHide.map((t, index) => <div key={index}>{`${t.name} ${t.surname}`}
                         <sub style={{color: "powderblue"}}> {t.companyName}</sub>
                     </div>)}
                 </Typography>
             </span>}>
-            <Badge showZero={false} badgeContent={mentorsToHide.length} color="primary"
-                   sx={{"& .MuiBadge-badge": {fontSize: 9, height: 15, minWidth: 10, backgroundColor: "darkgray"}}}>
-                <div style={{width: 3, height: fontSize}}/>
-            </Badge>
-        </Tooltip>}
+                <Typography style={{fontSize: fontSize, cursor: "default"}} color={"primary"}>
+                    и ещё {mentorsToHide.length}
+                </Typography>
+            </Tooltip>}
     </Stack>
 }
 
