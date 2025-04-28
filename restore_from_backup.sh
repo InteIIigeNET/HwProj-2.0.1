@@ -55,9 +55,9 @@ for BACKUP_FILE in $MSSQL_BACKUPS_VOLUME/*.bak; do
 
   # Проверка успешности выполнения
   if [ $? -eq 0 ]; then
-      echo -e "\n[$(date)] БД $DB_NAME успешно восстановлена" >> /var/log/mssql_backup.log
+      echo -e "\n[$(TZ=$TZ date)] БД $DB_NAME успешно восстановлена" >> /var/log/mssql_backup.log
   else
-      echo "[$(date)] Ошибка восстановления БД $DB_NAME !" >> /var/log/mssql_backup_error.log
+      echo "[$(TZ=$TZ date)] Ошибка восстановления БД $DB_NAME !" >> /var/log/mssql_backup_error.log
       exit 1
   fi
 done
