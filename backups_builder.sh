@@ -1,8 +1,11 @@
 #!/bin/bash
 
+# Нужен для запуска через cron. Актуализировать!
+BASE_PATH=/home/alex/docker/HwProj-2.0.1
+
 # Загрузка переменных из .env
 set -a  # Экспортируем все переменные, пропуская комментарии и пустые строки
-source <(grep -v '^\s*#' ./.env | grep -v '^\s*$') || { echo "Не удалось загрузить .env файл!" >&2; exit 1; }
+source <(grep -v '^\s*#' ${BASE_PATH}/.env | grep -v '^\s*$') || { echo "Не удалось загрузить .env файл!" >&2; exit 1; }
 set +a # Останавливаем экспорт переменных
 
 # Проверка, загружены ли необходимые переменные окружения
@@ -73,3 +76,11 @@ rm -rf $TMP_DIR
 rm -rf $MSSQL_BACKUPS_VOLUME/*
 
 echo -e "\n[SUCCESS] Все БД сохранены в архив: $BACKUPS_STORAGE/$ARCHIVE_NAME"
+
+
+
+# Если скрипт запущен с параметром выгрузки, вызываем скрипт для отправки бэкапа во внешнее хранилище
+if [[ "$1" == *"yandex"* ]]; then
+  echo -e "\nВыгружаем бэкап $BACKUP_FILE на диск в Yandex"
+  ${BASE_PATH}/send_to_yadisk.sh "$BACKUPS_STORAGE/$ARCHIVE_NAME"
+fi
