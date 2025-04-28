@@ -6,7 +6,9 @@ import {
   Grid,
   Checkbox,
   FormControlLabel,
+  Tooltip
 } from "@material-ui/core";
+import { HelpOutlineRounded } from "@mui/icons-material"
 import ApiSingleton from "../../api/ApiSingleton";
 import './Styles/CreateCourse.css';
 import { MarkdownEditor } from "../Common/MarkdownEditor";
@@ -165,6 +167,13 @@ const CreateCourse: FC = () => {
                         }
                         label="Общедоступный курс"
                     />
+                    <Tooltip arrow placement={"top"}
+                        PopperProps={{
+                            modifiers: [{ name: "offset", options: { offset: [0, -5], } }]
+                        }}
+                        title={"Материалы заданий и задач будут доступны только преподавателям и студентам курса"}>
+                        <HelpOutlineRounded />
+                    </Tooltip>
               </Grid>
             </Grid>
             <Button

@@ -3,7 +3,8 @@ import {Navigate, useParams} from 'react-router-dom';
 import ApiSingleton from "../../api/ApiSingleton";
 import Button from '@material-ui/core/Button'
 import { MarkdownEditor } from "../Common/MarkdownEditor";
-import {Grid, Box, Checkbox, TextField, FormControlLabel, Link, Typography} from '@mui/material';
+import {Grid, Box, Checkbox, TextField, FormControlLabel, Link, Typography, Tooltip} from '@mui/material';
+import { HelpOutlineRounded } from "@mui/icons-material"
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import EditIcon from "@material-ui/icons/Edit";
@@ -207,6 +208,13 @@ const EditCourse: FC = () => {
                                     }
                                     label="Общедоступный курс"
                                 />
+                                <Tooltip arrow placement={"top"}
+                                    PopperProps={{
+                                        modifiers: [{ name: "offset", options: { offset: [0, -5], } }]
+                                    }}
+                                    title={"Материалы заданий и задач будут доступны только преподавателям и студентам курса"}>
+                                    <HelpOutlineRounded/>
+                                </Tooltip>
                                 <FormControlLabel
                                     style={{ margin: 0 }}
                                     control={
