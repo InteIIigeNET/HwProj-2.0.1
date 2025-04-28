@@ -88,7 +88,7 @@ const CourseHomeworkEditor: FC<{
         ? undefined
         : new Date(homework.publicationDate!)
 
-    const deadlineDate = homework.deadlineDateNotSet
+    const deadlineDate = homework.deadlineDateNotSet || !homework.deadlineDate
         ? undefined
         : new Date(homework.deadlineDate!)
 

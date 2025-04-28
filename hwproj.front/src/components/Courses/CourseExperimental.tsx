@@ -241,10 +241,12 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             homework: {
                 courseId: props.courseId,
                 title: "Новое задание",
+                publicationDateNotSet: false,
                 publicationDate: new Date(),
                 hasDeadline: false,
                 id: -1,
                 isGroupWork: false,
+                deadlineDateNotSet: false,
                 deadlineDate: undefined,
                 isDeadlineStrict: false,
                 tasks: [],
