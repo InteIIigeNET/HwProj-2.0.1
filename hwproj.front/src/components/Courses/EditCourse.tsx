@@ -176,25 +176,19 @@ const EditCourse: FC = () => {
                                     }))
                                 }}
                             />
-                            <Grid xs={6}>
-                                <FormControlLabel
-                                    style={{margin: 0}}
-                                    control={
-                                        <Checkbox
-                                            defaultChecked
-                                            color="primary"
-                                            checked={courseState.isCompleted}
-                                            onChange={(e) => {
-                                                e.persist()
-                                                setCourseState((prevState) => ({
-                                                    ...prevState,
-                                                    isCompleted: e.target.checked
-                                                }))
-                                            }}
-                                        />
-                                    }
-                                    label="Завершённый курс"
+                            <Grid>
+                                <MarkdownEditor
+                                    label={"Описание курса"}
+                                    value={courseState.description}
+                                    onChange={(value) => {
+                                        setCourseState((prevState) => ({
+                                            ...prevState,
+                                            description: value
+                                        }))
+                                    }}
                                 />
+                            </Grid>
+                            <Grid xs={6}>
                                 <FormControlLabel
                                     style={{ margin: 0 }}
                                     control={
@@ -211,19 +205,25 @@ const EditCourse: FC = () => {
                                             }}
                                         />
                                     }
-                                    label="Открытый курс"
+                                    label="Общедоступный курс"
                                 />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <MarkdownEditor
-                                    label={courseState.description}
-                                    value={courseState.description}
-                                    onChange={(value) => {
-                                        setCourseState((prevState) => ({
-                                            ...prevState,
-                                            description: value
-                                        }))
-                                    }}
+                                <FormControlLabel
+                                    style={{ margin: 0 }}
+                                    control={
+                                        <Checkbox
+                                            defaultChecked
+                                            color="primary"
+                                            checked={courseState.isCompleted}
+                                            onChange={(e) => {
+                                                e.persist()
+                                                setCourseState((prevState) => ({
+                                                    ...prevState,
+                                                    isCompleted: e.target.checked
+                                                }))
+                                            }}
+                                        />
+                                    }
+                                    label="Завершённый курс"
                                 />
                             </Grid>
                             <Grid className={classes.item} style={{alignItems: 'center'}}>

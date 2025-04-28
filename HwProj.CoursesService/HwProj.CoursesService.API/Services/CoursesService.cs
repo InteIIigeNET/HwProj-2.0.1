@@ -52,7 +52,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<Course[]> GetAllAsync()
         {
-            var courses = await _coursesRepository.GetAllWithCourseMatesAndHomeworks().Where(c => c.IsOpen).ToArrayAsync();
+            var courses = await _coursesRepository.GetAllWithCourseMatesAndHomeworks().ToArrayAsync();
             CourseDomain.FillTasksInCourses(courses);
             return courses;
         }

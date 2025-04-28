@@ -280,6 +280,17 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                 </Grid>
                             </Grid>
                         </Grid>
+                        {!hasAccessToMaterials && !isOpen && <CardContent>
+                            <Grid item>
+                                <Typography variant="h4" component="div">
+                                    О курсе
+                                </Typography>
+                            </Grid>
+                            <Divider style={{ marginTop: 15, marginBottom: 15 }} />
+                            <Typography style={{ color: "#454545" }} gutterBottom variant="body1">
+                                <MarkdownPreview value={course.description!} />
+                            </Typography>
+                        </CardContent>}
                         <Grid item style={{width: 187}}>
                             {!isSignedInCourse && !isMentor && !isAcceptedStudent && (
                                 <Button
@@ -298,17 +309,6 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                             }
                         </Grid>
                     </Grid>
-                    {!hasAccessToMaterials && !isOpen && <CardContent>
-                        <Grid item>
-                            <Typography variant="h4" component="div">
-                                О курсе
-                            </Typography>
-                        </Grid>
-                        <Divider style={{ marginTop: 15, marginBottom: 15 }} />
-                        <Typography style={{ color: "#454545" }} gutterBottom variant="body1">
-                            <MarkdownPreview value={course.description!} />
-                        </Typography>
-                    </CardContent>}
                     <Grid>
                         {hasAccessToMaterials && <Tabs
                             style={{ marginBottom: 10 }}

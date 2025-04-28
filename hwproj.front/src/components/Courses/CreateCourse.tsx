@@ -134,27 +134,7 @@ const CreateCourse: FC = () => {
                     }}
                 />
               </Grid>
-              <Grid xs={6}>
-                <FormControlLabel
-                    style={{ margin: 0 }}
-                    control={
-                        <Checkbox
-                            defaultChecked
-                            color="primary"
-                            checked={course.isOpen}
-                            onChange={(e) => {
-                                e.persist()
-                                setCourse((prevState) => ({
-                                    ...prevState,
-                                    isOpen: e.target.checked
-                                }))
-                            }}
-                        />
-                    }
-                    label="Открытый курс"
-                />
-              </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} style={{marginTop: -15, marginBottom: -15}}>
                 <MarkdownEditor
                         label={"Описание курса"}
                         value={course.description}
@@ -164,6 +144,26 @@ const CreateCourse: FC = () => {
                                 description: value
                             }))
                         }}
+                    />
+              </Grid>
+              <Grid>
+                  <FormControlLabel
+                        style={{ margin: 0 }}
+                        control={
+                            <Checkbox
+                                defaultChecked
+                                color="primary"
+                                checked={course.isOpen}
+                                onChange={(e) => {
+                                    e.persist()
+                                    setCourse((prevState) => ({
+                                        ...prevState,
+                                        isOpen: e.target.checked
+                                    }))
+                                }}
+                            />
+                        }
+                        label="Общедоступный курс"
                     />
               </Grid>
             </Grid>
