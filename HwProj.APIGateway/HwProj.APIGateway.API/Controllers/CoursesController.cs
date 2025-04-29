@@ -103,32 +103,35 @@ namespace HwProj.APIGateway.API.Controllers
 
             if (model.GroupNames.Any() && model.FetchStudents)
             {
+                var allStudents = new List<StudentModel>();
+                
                 foreach (var groupName in model.GroupNames)
                 {
                     var students = _studentsInfo.GetStudentInformation(groupName);
                     if (students.Count > 0)
                     {
-                        var sortedStudents = students
-                            .Where(student => !string.IsNullOrEmpty(student.Email))
-                            .OrderBy(student => student.Surname)
-                            .ThenBy(student => student.Name)
-                            .ToList();
-
-                        var registrationModels = sortedStudents
-                            .Select(student => new RegisterViewModel
-                            {
-                                Email = student.Email,
-                                Name = student.Name,
-                                Surname = student.Surname,
-                                MiddleName = student.MiddleName
-                            }).ToList();
-
-                        var userIds = await AuthServiceClient.GetOrRegisterStudentsBatchAsync(registrationModels);
-                        foreach (var id in userIds.Where(x => x.Succeeded).Select(x => x.Value))
-                        {
-                            studentIds.Add(id);
-                        }
+                        allStudents.AddRange(students);
                     }
+                }
+                
+                var registrationModels = allStudents
+                    .Where(student => !string.IsNullOrEmpty(student.Email))
+                    .OrderBy(student => student.Surname)
+                    .ThenBy(student => student.Name)
+                    .Select(student => new RegisterViewModel
+                    {
+                        Email = student.Email,
+                        Name = student.Name,
+                        Surname = student.Surname,
+                        MiddleName = student.MiddleName
+                    })
+                    .Distinct()
+                    .ToList();
+
+                var userIds = await AuthServiceClient.GetOrRegisterStudentsBatchAsync(registrationModels);
+                foreach (var id in userIds.Where(x => x.Succeeded).Select(x => x.Value))
+                {
+                    studentIds.Add(id);
                 }
             }
 
