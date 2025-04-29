@@ -171,7 +171,7 @@ const CreateCourse: FC = () => {
                         PopperProps={{
                             modifiers: [{ name: "offset", options: { offset: [0, -5], } }]
                         }}
-                        title={"Материалы заданий и задач будут доступны только преподавателям и студентам курса"}>
+                        title={"Материалы заданий и задач будут доступны всем пользователям, которые просматривают курс"}>
                         <HelpOutlineRounded />
                     </Tooltip>
               </Grid>
