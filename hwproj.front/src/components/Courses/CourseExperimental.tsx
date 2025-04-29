@@ -242,7 +242,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 courseId: props.courseId,
                 title: "Новое задание",
                 publicationDateNotSet: false,
-                publicationDate: new Date(),
+                publicationDate: undefined,
                 hasDeadline: false,
                 id: -1,
                 isGroupWork: false,
@@ -374,7 +374,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                               borderRadius: 10
                           }
                       }}>
-                {props.isMentor && (homeworks[0]?.id || 0) > 0 && <Button
+                {props.isMentor && (homeworks[0]?.id || 1) > 0 && <Button
                     onClick={addNewHomework}
                     style={{borderRadius: 8, marginBottom: 10}} variant={"text"} size={"small"}>
                     + Добавить задание

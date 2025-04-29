@@ -32,7 +32,7 @@ import {enqueueSnackbar} from "notistack";
 import DeletionConfirmation from "../DeletionConfirmation";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ActionOptionsUI from "components/Common/ActionOptions";
-import {isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
+import {BonusTag, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
 import Lodash from "lodash";
 
 export interface HomeworkAndFilesInfo {
@@ -62,38 +62,38 @@ const CourseHomeworkEditor: FC<{
         isSaved?: boolean
     }) => void
 }> = (props) => {
-    const speculativeHomework = props.homeworkAndFilesInfo.homework
-    const isNewHomework = speculativeHomework.id! < 0
+    const homework = props.homeworkAndFilesInfo.homework
+    const isNewHomework = homework.id! < 0
 
     const [homeworkData, setHomeworkData] = useState<{
-        homework: HomeworkViewModel,
+        loadedHomework: HomeworkViewModel,
         isLoaded: boolean
-    }>({homework: speculativeHomework, isLoaded: isNewHomework || speculativeHomework.isModified == true})
+    }>({loadedHomework: homework, isLoaded: isNewHomework || homework.isModified == true})
 
     useEffect(() => {
         if (homeworkData.isLoaded) return
         ApiSingleton.homeworksApi
-            .homeworksGetForEditingHomework(speculativeHomework.id!)
-            .then(homework => setHomeworkData({homework, isLoaded: true}))
+            .homeworksGetForEditingHomework(homework.id!)
+            .then(homework => setHomeworkData({loadedHomework: homework, isLoaded: true}))
     }, [])
 
-    const {homework, isLoaded} = homeworkData
+    const {loadedHomework, isLoaded} = homeworkData
 
     const initialFilesInfo = props.homeworkAndFilesInfo.filesInfo.filter(x => x.key !== "local")
 
-    const homeworkId = homework.id!
-    const courseId = homework.courseId!
+    const homeworkId = loadedHomework.id!
+    const courseId = loadedHomework.courseId!
 
-    const publicationDate = homework.publicationDateNotSet
+    const publicationDate = loadedHomework.publicationDateNotSet || !loadedHomework.publicationDate
         ? undefined
-        : new Date(homework.publicationDate!)
+        : new Date(loadedHomework.publicationDate!)
 
-    const deadlineDate = homework.deadlineDateNotSet || !homework.deadlineDate
+    const deadlineDate = loadedHomework.deadlineDateNotSet || !loadedHomework.deadlineDate
         ? undefined
-        : new Date(homework.deadlineDate!)
+        : new Date(loadedHomework.deadlineDate!)
 
-    const isPublished = !homework.isDeferred
-    const changedTaskPublicationDates = homework.tasks!
+    const isPublished = !loadedHomework.isDeferred
+    const changedTaskPublicationDates = loadedHomework.tasks!
         .filter(t => t.publicationDate != null)
         .map(t => new Date(t.publicationDate!))
 
@@ -103,14 +103,14 @@ const CourseHomeworkEditor: FC<{
 
     const [metadata, setMetadata] = useState<IEditHomeworkState>({
         publicationDate: publicationDate,
-        hasDeadline: homework.hasDeadline!,
+        hasDeadline: loadedHomework.hasDeadline!,
         deadlineDate: deadlineDate,
-        isDeadlineStrict: homework.isDeadlineStrict!,
+        isDeadlineStrict: loadedHomework.isDeadlineStrict!,
         hasErrors: false,
     })
-    const [title, setTitle] = useState<string>(homework.title!)
-    const [tags, setTags] = useState<string[]>(homework.tags!)
-    const [description, setDescription] = useState<string>(homework.description!)
+    const [title, setTitle] = useState<string>(loadedHomework.title!)
+    const [tags, setTags] = useState<string[]>(loadedHomework.tags!)
+    const [description, setDescription] = useState<string>(loadedHomework.description!)
     const [filesState, setFilesState] = useState<IEditFilesState>({
         initialFilesInfo: initialFilesInfo,
         selectedFilesInfo: props.homeworkAndFilesInfo.filesInfo,
@@ -126,14 +126,14 @@ const CourseHomeworkEditor: FC<{
 
     useEffect(() => {
         if (!isNewHomework || !metadata.publicationDate) return
-        const isTest = isTestWork(homework)
-        const isBonus = isBonusWork(homework)
+        const isTest = tags.includes(TestTag)
+        const isBonus = tags.includes(BonusTag)
 
         const dateCandidate = Lodash(props.getAllHomeworks()
             .filter(x => {
                 const xIsTest = isTestWork(x)
                 const xIsBonus = isBonusWork(x)
-                return x.hasDeadline && (isTest && xIsTest || isBonus && xIsBonus || !isTest && !isBonus && !xIsTest && !xIsBonus)
+                return x.id! > 0 && x.hasDeadline && (isTest && xIsTest || isBonus && xIsBonus || !isTest && !isBonus && !xIsTest && !xIsBonus)
             })
             .map(x => {
                 const deadlineDate = new Date(x.deadlineDate!)
@@ -160,7 +160,7 @@ const CourseHomeworkEditor: FC<{
         const update = {
             ...homework,
             ...metadata,
-            tasks: props.homeworkAndFilesInfo.homework.tasks,
+            tasks: homework.tasks,
             title: title,
             description: description,
             tags: tags,
@@ -183,7 +183,7 @@ const CourseHomeworkEditor: FC<{
         const deleteOperations = initialFilesInfo.map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(courseId!, initialFile))
         await Promise.all(deleteOperations)
 
-        props.onUpdate({homework, fileInfos: [], isDeleted: true})
+        props.onUpdate({homework: loadedHomework, fileInfos: [], isDeleted: true})
     }
 
     const getDeleteMessage = (homeworkName: string, filesInfo: IFileInfo[]) => {
@@ -319,8 +319,10 @@ const CourseHomeworkEditor: FC<{
             <Grid container>
                 {tags.includes(TestTag) &&
                     <Grid item>
-                        <Alert severity="info">Вы можете сгруппировать контрольные работы и переписывания с помощью
-                            дополнительного тега. Например, 'КР 1'</Alert>
+                        <Alert severity="info" variant={"outlined"}>
+                            Вы можете сгруппировать контрольные работы и переписывания с помощью
+                            дополнительного тега. Например, 'КР 1'
+                        </Alert>
                     </Grid>}
                 <Grid item xs={12} style={{marginBottom: "5px", marginTop: -2}}>
                     <MarkdownEditor

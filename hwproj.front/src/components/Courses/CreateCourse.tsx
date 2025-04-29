@@ -140,7 +140,7 @@ export const CreateCourse: FC = () => {
         try {
             setCourseIsLoading(true)
             const courseId = await ApiSingleton.coursesApi.coursesCreateCourse(courseViewModel)
-            navigate(`/courses/${courseId}/editHomeWorks`)
+            navigate(`/courses/${courseId}`)
         } catch (e) {
             console.error("Ошибка при создании курса:", e)
             const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)

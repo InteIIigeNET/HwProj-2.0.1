@@ -3,7 +3,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {useEffect, useState} from "react";
 import {Grid, TextField, Button, Typography} from "@material-ui/core";
 import {MarkdownEditor} from "../Common/MarkdownEditor";
-import {CreateHomeworkViewModel, CreateTaskViewModel, HomeworkViewModel} from "../../api";
+import {CreateHomeworkViewModel, CreateTaskViewModel, HomeworkViewModel} from "@/api";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import CreateTask from "../Tasks/CreateTask"
 import Tags from "../Common/Tags";
