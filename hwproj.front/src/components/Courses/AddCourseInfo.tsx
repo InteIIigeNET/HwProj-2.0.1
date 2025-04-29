@@ -29,14 +29,15 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
         })
 
     const handleGroupSelection = (event: React.SyntheticEvent, newValue: string[]) => {
-        const allGroupsFromList = newValue.every(group => state.groupNames.includes(group));
         setState(prev => ({
             ...prev,
             selectedGroups: newValue,
-            isGroupFromList: allGroupsFromList,
-            fetchStudents: allGroupsFromList ? prev.fetchStudents : false,
+            isGroupFromList: newValue.some(group => state.groupNames.includes(group)),
+            fetchStudents: newValue.every(group => state.groupNames.includes(group)) ? prev.fetchStudents : false,
         }));
     }
+
+    const isGroupFromList = (group: string) => state.groupNames.includes(group);
 
     return (
         <Grid container spacing={2}>
@@ -101,6 +102,7 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                                 <Chip
                                     label={option}
                                     {...getTagProps({ index })}
+                                    color={isGroupFromList(option) ? "primary" : "default"}
                                 />
                             ))
                         }
