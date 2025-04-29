@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Нужен для запуска через cron. Актуализировать!
-BASE_PATH=/home/alex/docker/HwProj-2.0.1
+BASE_PATH=/home/hwproj_user/docker/HwProj-2.0.1
 
 # Загрузка переменных из .env
 set -a  # Экспортируем все переменные, пропуская комментарии и пустые строки
