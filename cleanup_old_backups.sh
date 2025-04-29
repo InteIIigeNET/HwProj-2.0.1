@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Директория для удаления файлов на диске (сервере)
-TARGET_DIR="/home/alex/docker/backups_storage"
+TARGET_DIR="/home/hwproj_user/docker/backups_storage"
 echo -e "\nУдаляем бэкапы в папке $TARGET_DIR старше 30 дней!"
 
 # Удаляем с диска файлы старше 30 дней, которые начинаются на backup
