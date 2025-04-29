@@ -12,12 +12,10 @@ namespace HwProj.Models.CoursesService.ViewModels
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
         public string Name { get; set; }
 
-        public string GroupName { get; set; }
-        
-        public List<string> StudentIDs { get; set; }  = new List<string>();
-        public bool FetchStudents { get; set; } 
+        public List<string> GroupNames { get; set; } = new List<string>();
+        public List<string> StudentIDs { get; set; } = new List<string>();
+        public bool FetchStudents { get; set; }
         [Required] public bool IsOpen { get; set; }
-
         public long? BaseCourseId { get; set; }
     }
 

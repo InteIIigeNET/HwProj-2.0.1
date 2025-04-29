@@ -99,16 +99,11 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
-            var studentIds = new HashSet<string>(); // Используем HashSet для автоматического устранения дубликатов
+            var studentIds = new HashSet<string>();
 
-            if (!string.IsNullOrEmpty(model.GroupName) && model.FetchStudents)
+            if (model.GroupNames.Any() && model.FetchStudents)
             {
-                var groupNames = model.GroupName.Split(',')
-                    .Select(x => x.Trim())
-                    .Where(x => !string.IsNullOrEmpty(x))
-                    .ToList();
-
-                foreach (var groupName in groupNames)
+                foreach (var groupName in model.GroupNames)
                 {
                     var students = _studentsInfo.GetStudentInformation(groupName);
                     if (students.Count > 0)
@@ -131,7 +126,7 @@ namespace HwProj.APIGateway.API.Controllers
                         var userIds = await AuthServiceClient.GetOrRegisterStudentsBatchAsync(registrationModels);
                         foreach (var id in userIds.Where(x => x.Succeeded).Select(x => x.Value))
                         {
-                            studentIds.Add(id); // HashSet автоматически игнорирует дубликаты
+                            studentIds.Add(id);
                         }
                     }
                 }

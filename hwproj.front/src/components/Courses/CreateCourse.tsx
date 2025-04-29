@@ -128,10 +128,9 @@ export const CreateCourse: FC = () => {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        const groupName = state.selectedGroups.join(", ")
         const courseViewModel = {
             name: state.courseName,
-            groupName: groupName,
+            groupNames: state.selectedGroups,
             isOpen: true,
             baseCourseId: selectedBaseCourse?.id,
             fetchStudents: state.isGroupFromList ? state.fetchStudents : false,

@@ -79,56 +79,38 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                     студентов из базы студентов университета</Alert>
             </Grid>
 
-            {state.programName ? (
-                <Grid item xs={12}>
-                    <Autocomplete
-                        multiple
-                        freeSolo
-                        value={state.selectedGroups}
-                        onChange={handleGroupSelection}
-                        options={state.groupNames}
-                        loading={state.fetchingGroups}
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                label="Название группы (групп)"
-                                variant="outlined"
-                                fullWidth
-                                placeholder="Выберите или введите название группы или нескольких групп"
+            <Grid item xs={12}>
+                <Autocomplete
+                    multiple
+                    freeSolo
+                    value={state.selectedGroups}
+                    onChange={handleGroupSelection}
+                    options={state.programName ? state.groupNames : []}
+                    loading={state.fetchingGroups}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Название группы (групп)"
+                            variant="outlined"
+                            fullWidth
+                            placeholder={state.programName 
+                                ? "Выберите или введите название группы или нескольких групп" 
+                                : "Введите название группы или нескольких групп"}
+                        />
+                    )}
+                    renderTags={(value, getTagProps) =>
+                        value.map((option, index) => (
+                            <Chip
+                                label={option}
+                                {...getTagProps({ index })}
+                                color={isGroupFromList(option) ? "primary" : "default"}
                             />
-                        )}
-                        renderTags={(value, getTagProps) =>
-                            value.map((option, index) => (
-                                <Chip
-                                    label={option}
-                                    {...getTagProps({ index })}
-                                    color={isGroupFromList(option) ? "primary" : "default"}
-                                />
-                            ))
-                        }
-                        fullWidth
-                    />
-                </Grid>
-            ) : (
-                <Grid item xs={12}>
-                    <TextField
-                        label="Название группы"
-                        variant="outlined"
-                        fullWidth
-                        required={true}
-                        value={state.selectedGroups.join(", ")}
-                        onChange={(e) => {
-                            const groups = e.target.value.split(",").map(g => g.trim()).filter(g => g);
-                            setState(prev => ({
-                                ...prev,
-                                selectedGroups: groups,
-                                isGroupFromList: false,
-                                fetchStudents: false,
-                            }));
-                        }}
-                    />
-                </Grid>
-            )}
+                        ))
+                    }
+                    fullWidth
+                />
+            </Grid>
+
             {state.isGroupFromList && (
                 <Grid item xs={12}>
                     <FormControlLabel
