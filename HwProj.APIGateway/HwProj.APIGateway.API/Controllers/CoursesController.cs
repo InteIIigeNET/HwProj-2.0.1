@@ -99,19 +99,17 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
-            var studentIds = new List<string>();
-
             if (model.GroupNames.Any() && model.FetchStudents)
             {
-                var allStudents = new List<StudentModel>();
-        
+                var studentCandidates = new List<StudentModel>();
+
                 foreach (var groupName in model.GroupNames)
                 {
                     var students = _studentsInfo.GetStudentInformation(groupName);
-                    allStudents.AddRange(students);
+                    studentCandidates.AddRange(students);
                 }
-        
-                var registrationModels = allStudents
+
+                var registrationModels = studentCandidates
                     .Where(student => !string.IsNullOrEmpty(student.Email))
                     .OrderBy(student => student.Surname)
                     .ThenBy(student => student.Name)
@@ -126,14 +124,20 @@ namespace HwProj.APIGateway.API.Controllers
                     .ToList();
 
                 var userIds = await AuthServiceClient.GetOrRegisterStudentsBatchAsync(registrationModels);
-                
+
                 var successfulIds = userIds
                     .Where(x => x.Succeeded)
                     .Select(x => x.Value)
                     .ToList();
-            
-                studentIds.AddRange(successfulIds);
+
+                model.StudentIDs = successfulIds;
             }
+
+            var result = await _coursesClient.CreateCourse(model);
+            return result.Succeeded
+                ? Ok(result.Value) as IActionResult
+                : BadRequest(result.Errors);
+        }
 
         [HttpPost("update/{courseId}")]
         [Authorize(Roles = Roles.LecturerRole)]
