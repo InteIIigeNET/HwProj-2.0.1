@@ -99,37 +99,41 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
         {
-            if (!string.IsNullOrEmpty(model.GroupName) && model.FetchStudents)
+            var studentIds = new List<string>();
+
+            if (model.GroupNames.Any() && model.FetchStudents)
             {
-                var students = _studentsInfo.GetStudentInformation(model.GroupName);
-                if (students.Count > 0)
+                var allStudents = new List<StudentModel>();
+        
+                foreach (var groupName in model.GroupNames)
                 {
-                    var sortedStudents = students
-                        .Where(student => !string.IsNullOrEmpty(student.Email))
-                        .OrderBy(student => student.Surname)
-                        .ThenBy(student => student.Name)
-                        .ToList();
-
-                    var registrationModels = sortedStudents
-                        .Select(student => new RegisterViewModel
-                        {
-                            Email = student.Email,
-                            Name = student.Name,
-                            Surname = student.Surname,
-                            MiddleName = student.MiddleName
-                        }).ToList();
-
-                    var userIds = await AuthServiceClient.GetOrRegisterStudentsBatchAsync(registrationModels);
-                    model.StudentIDs = userIds.Where(x => x.Succeeded).Select(x => x.Value).ToList();
+                    var students = _studentsInfo.GetStudentInformation(groupName);
+                    allStudents.AddRange(students);
                 }
-            }
+        
+                var registrationModels = allStudents
+                    .Where(student => !string.IsNullOrEmpty(student.Email))
+                    .OrderBy(student => student.Surname)
+                    .ThenBy(student => student.Name)
+                    .Select(student => new RegisterViewModel
+                    {
+                        Email = student.Email,
+                        Name = student.Name,
+                        Surname = student.Surname,
+                        MiddleName = student.MiddleName
+                    })
+                    .Distinct()
+                    .ToList();
 
-            model.StudentIDs ??= new List<string>();
-            var result = await _coursesClient.CreateCourse(model);
-            return result.Succeeded
-                ? Ok(result.Value) as IActionResult
-                : BadRequest(result.Errors);
-        }
+                var userIds = await AuthServiceClient.GetOrRegisterStudentsBatchAsync(registrationModels);
+                
+                var successfulIds = userIds
+                    .Where(x => x.Succeeded)
+                    .Select(x => x.Value)
+                    .ToList();
+            
+                studentIds.AddRange(successfulIds);
+            }
 
         [HttpPost("update/{courseId}")]
         [Authorize(Roles = Roles.LecturerRole)]

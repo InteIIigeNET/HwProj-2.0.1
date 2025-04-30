@@ -131,7 +131,7 @@ namespace HwProj.CoursesService.API.Domains
             => new CourseTemplate()
             {
                 Name = createCourseViewModel.Name,
-                GroupName = createCourseViewModel.GroupName,
+                GroupName = string.Join(", ", createCourseViewModel.GroupNames),
                 IsOpen = createCourseViewModel.IsOpen,
             };
 
