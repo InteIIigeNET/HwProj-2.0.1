@@ -340,7 +340,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             }
                         }))
                 }}
-                toEditHomework={() => toEditHomework(homework!)}/>
+                toEditHomework={() => toEditHomework(homework!)} getAllHomeworks={() => homeworks}/>
             {!props.isMentor && props.isStudentAccepted && < CardActions>
                 <Link
                     style={{color: '#212529'}}
