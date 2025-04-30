@@ -32,7 +32,7 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
         setState(prev => ({
             ...prev,
             selectedGroups: newValue,
-            isGroupFromList: newValue.some(group => state.groupNames.includes(group)),
+            isGroupFromList: newValue.some(group => isGroupFromList(group)),
             fetchStudents: newValue.every(group => state.groupNames.includes(group)) ? prev.fetchStudents : false,
         }));
     }
