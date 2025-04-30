@@ -1,6 +1,5 @@
-﻿import React, { FC, useState } from "react";
-import { ResultString } from "../../api";
-import { Alert, Box, Button, CircularProgress, Grid, MenuItem, Select, TextField } from "@mui/material";
+﻿import { FC, useState } from "react";
+import { Box, Button, Grid, TextField } from "@mui/material";
 import apiSingleton from "../../api/ApiSingleton";
 
 interface DownloadStatsProps {
@@ -46,7 +45,7 @@ const DownloadStats: FC<DownloadStatsProps> = (props: DownloadStatsProps) => {
                 <Box sx={{ m: 1, position: 'relative' }}>
                     <Button variant="text" color="primary" type="button"
                             onClick={() => {
-                                const fileData = apiSingleton.statisticsApi.apiStatisticsGetFileGet(
+                                const fileData = apiSingleton.statisticsApi.statisticsGetFile(
                                     props.courseId, props.userId, "Лист 1"
                                 );
                                 handleFileDownloading(fileData, fileName);

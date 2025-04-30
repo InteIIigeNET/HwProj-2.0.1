@@ -1,14 +1,9 @@
-import React, {FC, useState, useEffect} from "react";
-import {Alert, Box, Button, CircularProgress, Grid, MenuItem, Select, TextField} from "@mui/material";
-import SpeedDialIcon from '@mui/material/SpeedDialIcon';
+import {FC, useState, useEffect} from "react";
+import {Box} from "@mui/material";
 import GetAppIcon from '@material-ui/icons/GetApp';
 import SpeedDial from '@mui/material/SpeedDial';
 import SaveIcon from '@mui/icons-material/Save';
-import ShareIcon from '@mui/icons-material/Share';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
-import {ResultString} from "../../api";
-import apiSingleton from "../../api/ApiSingleton";
-import {green} from "@mui/material/colors";
 import ExportToGoogle from "components/Solutions/ExportToGoogle";
 import ExportToYandex from "components/Solutions/ExportToYandex";
 import DownloadStats from "components/Solutions/DownloadStats";
@@ -21,7 +16,6 @@ interface SaveStatsProps {
     yandexCode: string | null;
     onActionOpening: () => void;
     onActionClosing: () => void;
-
 }
 
 enum SpeedDialView {
@@ -29,7 +23,7 @@ enum SpeedDialView {
     Expanded,
     Download,
     ShareWithGoogle,
-    ShareWithYandex
+    ShareWithYandex,
 }
 
 interface SaveStatsState {
