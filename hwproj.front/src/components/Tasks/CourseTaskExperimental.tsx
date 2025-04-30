@@ -168,7 +168,6 @@ const CourseTaskEditor: FC<{
                         error={maxRating <= 0 || maxRating > 100}
                         style={{width: '90px'}}
                         label="Баллы"
-                        helperText={maxRating !== 10 ? "Вычислено" : undefined}
                         variant="outlined"
                         margin="normal"
                         type="number"
