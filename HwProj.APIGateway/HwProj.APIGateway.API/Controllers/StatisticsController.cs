@@ -12,7 +12,6 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
-using HwProj.CoursesService.Client;
 using HwProj.Models.Result;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
@@ -26,19 +25,18 @@ namespace HwProj.APIGateway.API.Controllers
     {
         private readonly ISolutionsServiceClient _solutionClient;
         private readonly ICoursesServiceClient _coursesClient;
-        private readonly ICoursesServiceClient _coursesClient;
         private readonly GoogleService _googleService;
 
         public StatisticsController(
             ISolutionsServiceClient solutionClient,
             ICoursesServiceClient coursesServiceClient,
             IAuthServiceClient authServiceClient,
-            ICoursesServiceClient coursesServiceClient,
             GoogleService googleService)
             : base(authServiceClient)
         {
             _solutionClient = solutionClient;
             _coursesClient = coursesServiceClient;
+            _googleService = googleService;
         }
 
         [HttpGet("{courseId}/lecturers")]
@@ -60,8 +58,6 @@ namespace HwProj.APIGateway.API.Controllers
             }).ToArray();
 
             return Ok(result);
-            _coursesClient = coursesServiceClient;
-            _googleService = googleService;
         }
 
         [HttpGet("{courseId}")]
@@ -104,7 +100,7 @@ namespace HwProj.APIGateway.API.Controllers
                     };
                 }).OrderBy(t => t.Surname).ThenBy(t => t.Name);
 
-            return Ok(result);
+            return result;
         }
 
         [HttpGet("{courseId}/charts")]
@@ -144,7 +140,7 @@ namespace HwProj.APIGateway.API.Controllers
                 BestStudentSolutions = statisticsMeasure.BestStudentSolutions
             };
 
-            return result;
+            return Ok(result);
         }
 
         /// <summary>
@@ -194,7 +190,7 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await _googleService.Export(course, statistics, sheetUrl, sheetName);
             return result;
         }
-        
+
         private async Task<Dictionary<string, AccountDataDto[]>> GetStudentsToMentorsDictionary(
             MentorToAssignedStudentsDTO[] mentorsToStudents)
         {
