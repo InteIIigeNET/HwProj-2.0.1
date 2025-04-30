@@ -30,7 +30,6 @@ namespace HwProj.APIGateway.API.TableGenerators
         public static (float Alpha, float Red, float Green, float Blue) BlueFloatArgbColor { get; set; } = (0, 0, 1, 1);
         public static string BlueArgbColor { get; set; } = "0000FFFF";
 
-
         /// <summary>
         /// Shade of gray used in the reports.
         /// </summary>
@@ -64,13 +63,17 @@ namespace HwProj.APIGateway.API.TableGenerators
             var worksheet = excelPackage.Workbook.Worksheets.Add(sheetName);
 
             var rowsNumber = 3 + courseMatesModels.Count;
+            var columnsNumber = 3 * course.Homeworks.SelectMany(h => h.Tasks).Count();
+
+            ExtendWorksheetIfNecessary(worksheet, columnsNumber);
+
             var position = new Position(1, 1);
 
             worksheet.Cells[position.Row, position.Column, position.Row + 2, position.Column].Merge = true;
             ++position.Column;
 
             AddHomeworksHeaders(worksheet, course, position, rowsNumber, SeparationColumnWidth);
-            var columnsNumber = position.Column - 2;
+            columnsNumber = position.Column - 2;
             position.ToNextRow(2);
 
             worksheet.Cells[1, 1, rowsNumber, columnsNumber].Style.Font.Size = FontSize;
@@ -95,6 +98,16 @@ namespace HwProj.APIGateway.API.TableGenerators
             range.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
             return excelPackage;
+        }
+
+        private static void ExtendWorksheetIfNecessary(ExcelWorksheet worksheet, int columnsNumber)
+        {
+            var currentColumnsNumber = worksheet.Columns.Count();
+            var columnsToAdd = columnsNumber - currentColumnsNumber;
+            if (columnsToAdd > 0)
+            {
+                worksheet.InsertColumn(currentColumnsNumber, columnsToAdd);
+            }
         }
 
         private static void AddBorderedSeparationColumn(ExcelWorksheet worksheet, Position position, int heightInCells, int columnWidth)
