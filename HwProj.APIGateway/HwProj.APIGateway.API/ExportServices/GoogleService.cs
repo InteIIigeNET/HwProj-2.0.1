@@ -6,10 +6,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
-using HwProj.APIGateway.API.Models;
+using HwProj.APIGateway.API.Models.Statistics;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
-using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 

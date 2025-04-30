@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using HwProj.APIGateway.API.Models;
+using HwProj.APIGateway.API.Models.Statistics;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using OfficeOpenXml;
