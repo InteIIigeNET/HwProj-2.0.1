@@ -1,15 +1,14 @@
-﻿import React, { FC, useState } from "react";
-import { useEffect } from 'react';
-import { ResultString } from "../../api";
+﻿import { FC, useState } from "react";
 import { Alert, Box, Button, CircularProgress, Grid, MenuItem, Select, TextField } from "@mui/material";
 import apiSingleton from "../../api/ApiSingleton";
 import { green, red } from "@material-ui/core/colors";
+import { StringArrayResult } from "@/api";
 
 enum LoadingStatus {
     None,
     Loading,
     Success,
-    Error
+    Error,
 }
 
 interface ExportToGoogleProps {
@@ -20,11 +19,10 @@ interface ExportToGoogleProps {
 
 interface ExportToGoogleState {
     url: string
-    googleSheetTitles: ResultString | undefined
+    googleSheetTitles: StringArrayResult | undefined
     selectedSheet: number
     loadingStatus: LoadingStatus
     error: string | null
-
 }
 
 const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => {
@@ -39,7 +37,7 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
     const {url, googleSheetTitles, selectedSheet, loadingStatus, error } = state
 
     const handleGoogleDocUrlChange = async (value: string) => {
-        const titles = await apiSingleton.statisticsApi.apiStatisticsGetSheetTitlesGet(value)
+        const titles = await apiSingleton.statisticsApi.statisticsGetSheetTitles(value)
         setState(prevState => ({ ...prevState, url: value, googleSheetTitles: titles }));
     }
 
@@ -99,7 +97,7 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
                     <Button variant="text" color="primary" type="button" sx={buttonSx}
                             onClick={async () => {
                                 setState((prevState) => ({...prevState, loadingStatus: LoadingStatus.Loading}))
-                                const result = await apiSingleton.statisticsApi.apiStatisticsExportToSheetGet(
+                                const result = await apiSingleton.statisticsApi.statisticsExportToGoogleSheets(
                                     props.courseId,
                                     url,
                                     getGoogleSheetName())

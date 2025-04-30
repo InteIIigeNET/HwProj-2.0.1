@@ -293,7 +293,7 @@ const Course: React.FC = () => {
             return
         }
 
-        const solutions = await ApiSingleton.statisticsApi.apiStatisticsByCourseIdGet(+validatedCourseId!)
+        const solutions = await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+validatedCourseId!)
 
         setCourseState(prevState => ({
             ...prevState,

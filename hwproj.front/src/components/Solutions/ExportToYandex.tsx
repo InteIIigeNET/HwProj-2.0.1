@@ -1,7 +1,6 @@
-﻿import React, { FC, useState } from "react";
+﻿import { FC, useState } from "react";
 import { useEffect } from 'react';
-import { ResultString } from "../../api";
-import { Alert, Box, Button, CircularProgress, Grid, Link, MenuItem, Select, TextField } from "@mui/material";
+import { Alert, Box, Button, CircularProgress, Grid, Link, TextField } from "@mui/material";
 import apiSingleton from "../../api/ApiSingleton";
 import { green, red } from "@material-ui/core/colors";
 
@@ -9,7 +8,7 @@ enum LoadingStatus {
     None,
     Loading,
     Success,
-    Error
+    Error,
 }
 
 interface LocalStorageKey {
@@ -95,7 +94,7 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
                 if (response.status >= 200 && response.status < 300) {
                     const jsonResponse = await response.json();
                     const url = jsonResponse.href;
-                    const fileData = await apiSingleton.statisticsApi.apiStatisticsGetFileGet(props.courseId, props.userId, "Лист 1");
+                    const fileData = await apiSingleton.statisticsApi.statisticsGetFile(props.courseId, props.userId, "Лист 1");
                     const data = await fileData.blob();
                     const fileExportResponse = await fetch(url,
                         {
