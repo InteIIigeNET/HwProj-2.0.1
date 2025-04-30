@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.StatisticsService;
-using HwProj.APIGateway.API.Models;
+using HwProj.APIGateway.API.Models.Statistics;
 using HwProj.APIGateway.API.TableGenerators;
 using System.Collections.Generic;
 using OfficeOpenXml;
