@@ -11,8 +11,6 @@ import {LoadingButton} from "@mui/lab";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import DeletionConfirmation from "../DeletionConfirmation";
 import ActionOptionsUI from "../Common/ActionOptions";
-import {BonusTag, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
-import Lodash from "lodash";
 
 interface IEditTaskMetadataState {
     hasDeadline: boolean | undefined;
@@ -90,8 +88,6 @@ const CourseTaskEditor: FC<{
     const [handleSubmitLoading, setHandleSubmitLoading] = useState(false);
     const [editOptions, setEditOptions] = useState<ActionOptions>({sendNotification: false})
 
-    const [ratingSuggestion, setRatingSuggestion] = useState<number | undefined>(undefined)
-
     const publicationDate = metadata?.publicationDate || homework.publicationDate
 
     useEffect(() => {
@@ -110,29 +106,6 @@ const CourseTaskEditor: FC<{
     useEffect(() => {
         setHasErrors(!title || maxRating <= 0 || metadata?.hasErrors === true)
     }, [title, maxRating, metadata?.hasErrors])
-
-    useEffect(() => {
-        if (!isNewTask) return
-        const tags = props.speculativeHomework.tags!
-        const isTest = tags.includes(TestTag)
-        const isBonus = tags.includes(BonusTag)
-
-        const ratingCandidate = Lodash(props.getAllHomeworks()
-            .map(h => h.tasks![0])
-            .filter(x => {
-                if (x === undefined) return false
-                const xIsTest = isTestWork(x)
-                const xIsBonus = isBonusWork(x)
-                return x.id! > 0 && (isTest && xIsTest || isBonus && xIsBonus || !isTest && !isBonus && !xIsTest && !xIsBonus)
-            }))
-            .map(x => x.maxRating!)
-            .groupBy(x => [x])
-            .entries()
-            .sortBy(x => x[1].length).last()?.[1][0]
-
-        setRatingSuggestion(ratingCandidate)
-        setMaxRating(ratingCandidate || maxRating)
-    }, [props.speculativeTask.tags])
 
     const handleSubmit = async (e: any) => {
         e.preventDefault()
@@ -195,7 +168,7 @@ const CourseTaskEditor: FC<{
                         error={maxRating <= 0 || maxRating > 100}
                         style={{width: '90px'}}
                         label="Баллы"
-                        helperText={maxRating === ratingSuggestion ? "Вычислено" : undefined}
+                        helperText={maxRating !== 10 ? "Вычислено" : undefined}
                         variant="outlined"
                         margin="normal"
                         type="number"

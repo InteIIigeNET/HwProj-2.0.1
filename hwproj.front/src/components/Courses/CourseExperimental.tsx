@@ -20,13 +20,14 @@ import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 import {Alert, Card, CardActions, Chip, Paper, Stack, Tooltip} from "@mui/material";
 import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import {getTip} from "../Common/HomeworkTags";
+import {BonusTag, getTip, isBonusWork, isTestWork, TestTag} from "../Common/HomeworkTags";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
 import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExperimental";
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import EditIcon from "@mui/icons-material/Edit";
 import ErrorIcon from '@mui/icons-material/Error';
+import Lodash from "lodash";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -265,10 +266,27 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const addNewTask = (homework: HomeworkViewModel) => {
         const id = newTaskCounter
+        const tags = homework.tags!
+        const isTest = tags.includes(TestTag)
+        const isBonus = tags.includes(BonusTag)
+
+        const ratingCandidate = Lodash(homeworks
+            .map(h => h.tasks![0])
+            .filter(x => {
+                if (x === undefined) return false
+                const xIsTest = isTestWork(x)
+                const xIsBonus = isBonusWork(x)
+                return x.id! > 0 && (isTest && xIsTest || isBonus && xIsBonus || !isTest && !isBonus && !xIsTest && !xIsBonus)
+            }))
+            .map(x => x.maxRating!)
+            .groupBy(x => [x])
+            .entries()
+            .sortBy(x => x[1].length).last()?.[1][0]
+
         props.onTaskUpdate({
             task: {
                 homeworkId: homework.id,
-                maxRating: 10,
+                maxRating: ratingCandidate || 10,
                 title: `Новая задача`,
                 tags: homework.tags,
                 isDeferred: homework.isDeferred,
