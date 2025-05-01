@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using HtmlAgilityPack;
-using Novell.Directory.Ldap;
+using System.Net.Http;
 using System.Threading.Tasks;
 using IStudentsInfo;
+using Newtonsoft.Json;
+using Novell.Directory.Ldap;
 
 namespace StudentsInfo
 {
@@ -14,22 +15,17 @@ namespace StudentsInfo
         private readonly string _ldapHost = "ad.pu.ru";
         private readonly int _ldapPort = 389;
         private readonly string _searchBase = "DC=ad,DC=pu,DC=ru";
+        private readonly HttpClient _httpClient;
 
         private string _username;
         private string _password;
         
         public async Task<List<GroupModel>> GetGroups(string programName)
         {
-            return await Task.Run(() => 
-            {
-                return _lazyProgramsGroups.Value.ContainsKey(programName)
-                    ? _lazyProgramsGroups.Value[programName]
-                        .Aggregate((current, next) => current + "," + next) 
-                        .Split(',')
-                        .Select(group => new GroupModel { GroupName = group.Trim() })
-                        .ToList()
-                    : new List<GroupModel>();
-            });
+            if (!_lazyProgramsGroups.Value.TryGetValue(programName, out var groups))
+                return new List<GroupModel>();
+
+            return groups.Select(group => new GroupModel { GroupName = group }).ToList();
         }
         
         public List<StudentModel> GetStudentInformation(string groupName)
@@ -81,11 +77,11 @@ namespace StudentsInfo
             {
                 return studentsList;
             }
-            catch (LdapException ldapEx)
+            catch (LdapException)
             {
                 return studentsList;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return studentsList;
             }
@@ -95,12 +91,12 @@ namespace StudentsInfo
                 {
                     if (connection != null && connection.Connected)
                     {
-                            SafeDisconnect(connection);
+                        SafeDisconnect(connection);
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    Console.WriteLine($"Error during disconnect: {ex.Message}");
+                    
                 }
             }
 
@@ -116,9 +112,9 @@ namespace StudentsInfo
             catch (PlatformNotSupportedException)
             {
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"SafeDisconnect error: {ex.Message}");
+                
             }
         }
         
@@ -131,11 +127,12 @@ namespace StudentsInfo
 
         public StudentsInformationProvider(string username, string password, string ldapHost, int ldapPort, string searchBase)
         {
-            this._username = username;
-            this._password = password;
-            this._ldapHost = ldapHost;
-            this._ldapPort = ldapPort;
-            this._searchBase = searchBase;
+            _username = username;
+            _password = password;
+            _ldapHost = ldapHost;
+            _ldapPort = ldapPort;
+            _searchBase = searchBase;
+            _httpClient = new HttpClient();
 
             _lazyProgramsGroups = new Lazy<Dictionary<string, List<string>>>(() =>
             {
@@ -143,55 +140,75 @@ namespace StudentsInfo
                 
                 try
                 {
-                    const string url = "https://timetable.spbu.ru/MATH?lang=ru";
-                    var web = new HtmlWeb();
-
-                    web.PreRequest = request =>
+                    var programsResponse = _httpClient.GetAsync("https://timetable.spbu.ru/api/v1/study/divisions/MATH/programs/levels").Result;
+                    if (programsResponse.IsSuccessStatusCode)
                     {
-                        request.Headers.Add("Accept-Language", "ru");
-                        return true;
-                    };
+                        var content = programsResponse.Content.ReadAsStringAsync().Result;
+                        var studyLevels = JsonConvert.DeserializeObject<List<StudyLevel>>(content);
 
-                    var doc = web.Load(url);
-                    var programNodes = doc.DocumentNode.SelectNodes("//li[contains(@class, 'common-list-item row')]");
-
-                    foreach (var programNode in programNodes)
-                    {
-                        var programNameNode = programNode.SelectSingleNode(".//div[contains(@class, 'col-sm-5')]");
-                        var programName = programNameNode?.InnerText.Trim();
-
-                        var titleNodes = programNode.SelectNodes(".//div[contains(@class, 'col-sm-1')]");
-
-                        if (titleNodes != null && programName != null)
+                        foreach (var level in studyLevels)
                         {
-                            var titles = new List<string>();
-                            foreach (var titleNode in titleNodes)
+                            foreach (var programCombination in level.StudyProgramCombinations)
                             {
-                                var title = titleNode.SelectSingleNode(".//a")?.Attributes["title"]?.Value;
-                                if (title != null)
+                                foreach (var admissionYear in programCombination.AdmissionYears)
                                 {
-                                    titles.Add(title);
+                                    var groupsResponse = _httpClient.GetAsync($"https://timetable.spbu.ru/api/v1/programs/{admissionYear.StudyProgramId}/groups").Result;
+                                    if (groupsResponse.IsSuccessStatusCode)
+                                    {
+                                        var groupsContent = groupsResponse.Content.ReadAsStringAsync().Result;
+                                        var programGroups = JsonConvert.DeserializeObject<ProgramGroups>(groupsContent);
+                                        
+                                        var programName = programCombination.Name;
+                                        var groups = programGroups.Groups.Select(g => g.StudentGroupName).ToList();
+                                        
+                                        if (programsGroups.ContainsKey(programName))
+                                        {
+                                            programsGroups[programName].AddRange(groups);
+                                        }
+                                        else
+                                        {
+                                            programsGroups[programName] = groups;
+                                        }
+                                    }
                                 }
-                            }
-
-                            if (programsGroups.ContainsKey(programName))
-                            {
-                                programsGroups[programName].AddRange(titles);
-                            }
-                            else
-                            {
-                                programsGroups[programName] = titles;
                             }
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    Console.WriteLine($"Error loading programs: {ex.Message}");
+                    
                 }
 
                 return programsGroups;
             });
+        }
+        
+        private class StudyLevel
+        {
+            public string StudyLevelName { get; set; }
+            public List<StudyProgramCombination> StudyProgramCombinations { get; set; }
+        }
+
+        private class StudyProgramCombination
+        {
+            public string Name { get; set; }
+            public List<AdmissionYear> AdmissionYears { get; set; }
+        }
+
+        private class AdmissionYear
+        {
+            public int StudyProgramId { get; set; }
+        }
+
+        private class ProgramGroups
+        {
+            public List<GroupInfo> Groups { get; set; }
+        }
+
+        private class GroupInfo
+        {
+            public string StudentGroupName { get; set; }
         }
     }
 }
