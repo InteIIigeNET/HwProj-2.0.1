@@ -283,16 +283,17 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             .entries()
             .sortBy(x => x[1].length).last()?.[1][0]
 
-        props.onTaskUpdate({
-            task: {
-                homeworkId: homework.id,
-                maxRating: ratingCandidate || 10,
-                title: `Новая задача`,
-                tags: homework.tags,
-                isDeferred: homework.isDeferred,
-                id
-            }
-        })
+        const task =  {
+            homeworkId: homework.id,
+            maxRating: ratingCandidate || 10,
+            suggestedMaxRating: ratingCandidate,
+            title: `Новая задача`,
+            tags: homework.tags,
+            isDeferred: homework.isDeferred,
+            id
+        }
+
+        props.onTaskUpdate({task})
         setState((prevState) => ({
             ...prevState,
             selectedItem: {

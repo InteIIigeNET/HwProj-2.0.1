@@ -22,7 +22,7 @@ interface IEditTaskMetadataState {
 }
 
 const CourseTaskEditor: FC<{
-    speculativeTask: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean },
+    speculativeTask: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean, suggestedMaxRating?: number },
     speculativeHomework: HomeworkViewModel,
     onUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean, isSaved?: boolean }) => void,
     getAllHomeworks: () => HomeworkViewModel[],
@@ -165,6 +165,7 @@ const CourseTaskEditor: FC<{
                         size={"small"}
                         required
                         fullWidth
+                        helperText={props.speculativeTask.suggestedMaxRating === maxRating ? "Вычислено" : undefined}
                         error={maxRating <= 0 || maxRating > 100}
                         style={{width: '90px'}}
                         label="Баллы"
