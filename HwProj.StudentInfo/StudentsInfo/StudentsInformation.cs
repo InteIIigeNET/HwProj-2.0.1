@@ -11,7 +11,7 @@ namespace StudentsInfo
 {
     public class StudentsInformationProvider : IStudentsInformationProvider
     {
-        private readonly Lazy<Dictionary<string, List<string>>> _lazyProgramsGroups;
+        private readonly Lazy<Task<Dictionary<string, List<string>>>> _lazyProgramsGroups;
         private readonly string _ldapHost = "ad.pu.ru";
         private readonly int _ldapPort = 389;
         private readonly string _searchBase = "DC=ad,DC=pu,DC=ru";
@@ -22,7 +22,8 @@ namespace StudentsInfo
         
         public async Task<List<GroupModel>> GetGroups(string programName)
         {
-            if (!_lazyProgramsGroups.Value.TryGetValue(programName, out var groups))
+            var programsGroups = await _lazyProgramsGroups.Value;
+            if (!programsGroups.TryGetValue(programName, out var groups))
                 return new List<GroupModel>();
 
             return groups.Select(group => new GroupModel { GroupName = group }).ToList();
@@ -120,7 +121,7 @@ namespace StudentsInfo
         
         public List<ProgramModel> GetProgramNames()
         {
-            return _lazyProgramsGroups.Value.Keys
+            return _lazyProgramsGroups.Value.Result.Keys
                 .Select(key => new ProgramModel { ProgramName = key })
                 .ToList();
         }
@@ -134,16 +135,16 @@ namespace StudentsInfo
             _searchBase = searchBase;
             _httpClient = new HttpClient();
 
-            _lazyProgramsGroups = new Lazy<Dictionary<string, List<string>>>(() =>
+            _lazyProgramsGroups = new Lazy<Task<Dictionary<string, List<string>>>>(async () =>
             {
                 var programsGroups = new Dictionary<string, List<string>>();
                 
                 try
                 {
-                    var programsResponse = _httpClient.GetAsync("https://timetable.spbu.ru/api/v1/study/divisions/MATH/programs/levels").Result;
+                    var programsResponse = await _httpClient.GetAsync("https://timetable.spbu.ru/api/v1/study/divisions/MATH/programs/levels");
                     if (programsResponse.IsSuccessStatusCode)
                     {
-                        var content = programsResponse.Content.ReadAsStringAsync().Result;
+                        var content = await programsResponse.Content.ReadAsStringAsync();
                         var studyLevels = JsonConvert.DeserializeObject<List<StudyLevel>>(content);
 
                         foreach (var level in studyLevels)
@@ -152,10 +153,10 @@ namespace StudentsInfo
                             {
                                 foreach (var admissionYear in programCombination.AdmissionYears)
                                 {
-                                    var groupsResponse = _httpClient.GetAsync($"https://timetable.spbu.ru/api/v1/programs/{admissionYear.StudyProgramId}/groups").Result;
+                                    var groupsResponse = await _httpClient.GetAsync($"https://timetable.spbu.ru/api/v1/programs/{admissionYear.StudyProgramId}/groups");
                                     if (groupsResponse.IsSuccessStatusCode)
                                     {
-                                        var groupsContent = groupsResponse.Content.ReadAsStringAsync().Result;
+                                        var groupsContent = await groupsResponse.Content.ReadAsStringAsync();
                                         var programGroups = JsonConvert.DeserializeObject<ProgramGroups>(groupsContent);
                                         
                                         var programName = programCombination.Name;
