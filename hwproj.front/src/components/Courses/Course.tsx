@@ -21,7 +21,8 @@ import {
     MenuItem,
     Stack,
     Tooltip,
-    Typography
+    Typography,
+    TextField
 } from "@mui/material";
 import {CourseExperimental} from "./CourseExperimental";
 import {useParams, useNavigate} from 'react-router-dom';
@@ -35,6 +36,9 @@ import {useSnackbar} from 'notistack';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
+import Avatar from "@material-ui/core/Avatar";
+import ValidationUtils from "../Utils/ValidationUtils";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -57,11 +61,97 @@ interface ICourseState {
     isReadingMode: boolean;
     studentSolutions: StatisticsCourseMatesModel[];
     showQrCode: boolean;
+    showInviteStudent: boolean;
 }
 
 interface IPageState {
     tabValue: TabValue
 }
+
+const InviteStudentModal: FC<{isOpen: boolean, onClose: () => void}> = ({isOpen, onClose}) => {
+    const [email, setEmail] = useState("");
+    const [errors, setErrors] = useState<string[]>([]);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!ValidationUtils.isCorrectEmail(email)) {
+            setErrors(['Некорректный адрес электронной почты']);
+            return;
+        }
+        // Placeholder for future functionality
+        onClose();
+    };
+
+    return (
+        <Dialog open={isOpen} onClose={onClose} aria-labelledby="form-dialog-title" maxWidth="xs">
+            <DialogTitle id="form-dialog-title">
+                <Grid container>
+                    <Grid item container direction={"row"} justifyContent={"center"}>
+                        <Avatar style={{color: 'white', backgroundColor: '#00AB00'}}>
+                            <PersonAddOutlinedIcon/>
+                        </Avatar>
+                    </Grid>
+                    <Grid item container direction={"row"} justifyContent={"center"}>
+                        <Typography variant="h5">
+                            Пригласить студента
+                        </Typography>
+                    </Grid>
+                </Grid>
+            </DialogTitle>
+            <DialogContent>
+                <Grid item container direction={"row"} justifyContent={"center"}>
+                    {errors.length > 0 && (
+                        <p style={{color: "red", marginBottom: "0"}}>{errors}</p>
+                    )}
+                </Grid>
+                <form onSubmit={handleSubmit}>
+                    <Grid container spacing={2} style={{marginTop: '8px'}}>
+                        <Grid item xs={12}>
+                            <TextField
+                                required
+                                fullWidth
+                                type="email"
+                                label="Электронная почта"
+                                variant="outlined"
+                                size="small"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid
+                        direction="row"
+                        justifyContent="flex-end"
+                        alignItems="flex-end"
+                        container
+                        style={{marginTop: '16px'}}
+                    >
+                        <Grid item>
+                            <Button
+                                onClick={onClose}
+                                color="primary"
+                                variant="contained"
+                                style={{marginRight: '10px'}}
+                            >
+                                Закрыть
+                            </Button>
+                        </Grid>
+                        <Grid item>
+                            <Button
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                type="submit"
+                            >
+                                Пригласить
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
+};
 
 const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     const {courseId, tab} = useParams()
@@ -79,7 +169,8 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         newStudents: [],
         isReadingMode: props.isReadingMode ?? true,
         studentSolutions: [],
-        showQrCode: false
+        showQrCode: false,
+        showInviteStudent: false
     })
     const [studentSolutions, setStudentSolutions] = useState<StatisticsCourseMatesModel[]>([])
     const [courseFilesInfo, setCourseFilesInfo] = useState<FileInfoDTO[]>([])
@@ -97,6 +188,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         acceptedStudents,
         isReadingMode,
         courseHomeworks,
+        showInviteStudent
     } = courseState
 
     const userId = ApiSingleton.authService.getUserId()
@@ -114,10 +206,10 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     const showApplicationsTab = isCourseMentor
 
     const changeTab = (newTab: string) => {
-        if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
+        if (isAcceptableTabValue(newTab)) {
             if (newTab === "stats" && !showStatsTab) return;
             if (newTab === "applications" && !showApplicationsTab) return;
-
+    
             setPageState(prevState => ({
                 ...prevState,
                 tabValue: newTab
@@ -242,6 +334,17 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                         </ListItemIcon>
                         <ListItemText>Поделиться</ListItemText>
                     </MenuItem>
+                    {isLecturer && 
+                        <MenuItem onClick={() => setCourseState(prevState => ({
+                            ...prevState,
+                            showInviteStudent: true
+                        }))}>
+                            <ListItemIcon>
+                                <PersonAddOutlinedIcon fontSize="small"/>
+                            </ListItemIcon>
+                            <ListItemText>Пригласить студента</ListItemText>
+                        </MenuItem>
+                    }
                     {isCourseMentor && isLecturer && <MenuItem onClick={() => setLecturerStatsState(true)}>
                         <ListItemIcon>
                             <AssessmentIcon fontSize="small"/>
@@ -256,6 +359,10 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     if (isFound) {
         return (
             <div className="container">
+                <InviteStudentModal 
+                    isOpen={showInviteStudent} 
+                    onClose={() => setCourseState(prevState => ({...prevState, showInviteStudent: false}))} 
+                />
                 <Dialog
                     open={courseState.showQrCode}
                     onClose={() => setCourseState(prevState => ({...prevState, showQrCode: false}))}
