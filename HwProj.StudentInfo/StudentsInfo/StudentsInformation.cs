@@ -6,12 +6,50 @@ using System.Threading.Tasks;
 using IStudentsInfo;
 using Newtonsoft.Json;
 using Novell.Directory.Ldap;
+using System.Threading;
 
 namespace StudentsInfo
 {
+    public class InterruptibleLazy<T>
+    {
+        private Func<T> myValueFactory;
+        private readonly object lockObj = new object();
+        private T myValue;
+
+        public bool IsValueCreated => Volatile.Read(ref myValueFactory) == null;
+
+        public InterruptibleLazy(Func<T> valueFactory)
+        {
+            myValueFactory = valueFactory;
+        }
+
+        public T Value
+        {
+            get
+            {
+                if (myValueFactory == null) return myValue;
+
+                lock (lockObj)
+                {
+                    if (myValueFactory == null) return myValue;
+
+                    myValue = myValueFactory();
+                    Interlocked.MemoryBarrier();
+                    myValueFactory = null;
+                }
+
+                return myValue;
+            }
+        }
+
+        public override string ToString()
+        {
+            return (myValueFactory == null) ? Value.ToString() : "Value is not created";
+        }
+    }
     public class StudentsInformationProvider : IStudentsInformationProvider
     {
-        private readonly Lazy<Task<Dictionary<string, List<string>>>> _lazyProgramsGroups;
+        private readonly InterruptibleLazy<Dictionary<string, List<string>>> _interruptibleLazyProgramsGroups;
         private readonly string _ldapHost = "ad.pu.ru";
         private readonly int _ldapPort = 389;
         private readonly string _searchBase = "DC=ad,DC=pu,DC=ru";
@@ -22,7 +60,7 @@ namespace StudentsInfo
         
         public async Task<List<GroupModel>> GetGroups(string programName)
         {
-            var programsGroups = await _lazyProgramsGroups.Value;
+            var programsGroups = _interruptibleLazyProgramsGroups.Value;
             if (!programsGroups.TryGetValue(programName, out var groups))
                 return new List<GroupModel>();
 
@@ -121,7 +159,7 @@ namespace StudentsInfo
         
         public List<ProgramModel> GetProgramNames()
         {
-            return _lazyProgramsGroups.Value.Result.Keys
+            return _interruptibleLazyProgramsGroups.Value.Keys
                 .Select(key => new ProgramModel { ProgramName = key })
                 .ToList();
         }
@@ -135,16 +173,16 @@ namespace StudentsInfo
             _searchBase = searchBase;
             _httpClient = new HttpClient();
 
-            _lazyProgramsGroups = new Lazy<Task<Dictionary<string, List<string>>>>(async () =>
+            _interruptibleLazyProgramsGroups = new InterruptibleLazy<Dictionary<string, List<string>>>(() =>
             {
                 var programsGroups = new Dictionary<string, List<string>>();
                 
                 try
                 {
-                    var programsResponse = await _httpClient.GetAsync("https://timetable.spbu.ru/api/v1/study/divisions/MATH/programs/levels");
+                    var programsResponse = _httpClient.GetAsync("https://timetable.spbu.ru/api/v1/study/divisions/MATH/programs/levels").Result;
                     if (programsResponse.IsSuccessStatusCode)
                     {
-                        var content = await programsResponse.Content.ReadAsStringAsync();
+                        var content = programsResponse.Content.ReadAsStringAsync().Result;
                         var studyLevels = JsonConvert.DeserializeObject<List<StudyLevel>>(content);
 
                         foreach (var level in studyLevels)
@@ -153,10 +191,10 @@ namespace StudentsInfo
                             {
                                 foreach (var admissionYear in programCombination.AdmissionYears)
                                 {
-                                    var groupsResponse = await _httpClient.GetAsync($"https://timetable.spbu.ru/api/v1/programs/{admissionYear.StudyProgramId}/groups");
+                                    var groupsResponse = _httpClient.GetAsync($"https://timetable.spbu.ru/api/v1/programs/{admissionYear.StudyProgramId}/groups").Result;
                                     if (groupsResponse.IsSuccessStatusCode)
                                     {
-                                        var groupsContent = await groupsResponse.Content.ReadAsStringAsync();
+                                        var groupsContent = groupsResponse.Content.ReadAsStringAsync().Result;
                                         var programGroups = JsonConvert.DeserializeObject<ProgramGroups>(groupsContent);
                                         
                                         var programName = programCombination.Name;
