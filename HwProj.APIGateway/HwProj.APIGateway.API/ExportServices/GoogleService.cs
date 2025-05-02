@@ -49,13 +49,14 @@ namespace HwProj.APIGateway.API.ExportServices
                     statistics.ToList(), course, sheetName, (int)sheetProperties.SheetId);
 
                 var rowDifference = valueRange.Values.Count - (int)sheetProperties.GridProperties.RowCount;
-                var columnDifference = valueRange.Values.First().Count -
-                                       (int)sheetProperties.GridProperties.ColumnCount;
+                var columnDifference = valueRange.Values.First().Count - (int)sheetProperties.GridProperties.ColumnCount;
+
                 if (rowDifference > 0 || columnDifference > 0)
                 {
+                    var appendBatchRequest = GetAppendDimensionBatchRequest(
+                        (int)sheetProperties.SheetId, rowDifference, columnDifference);
                     var appendDimensionRequest = _internalGoogleSheetsService.Spreadsheets.
-                        BatchUpdate(GetAppendDimensionBatchRequest(rowDifference, columnDifference),
-                            spreadsheetId);
+                        BatchUpdate(appendBatchRequest, spreadsheetId);
                     await appendDimensionRequest.ExecuteAsync();
                 }
 
@@ -100,7 +101,10 @@ namespace HwProj.APIGateway.API.ExportServices
                 : Result<string>.Failed("Некорректная ссылка на страницу Google Docs");
         }
 
-        private static BatchUpdateSpreadsheetRequest GetAppendDimensionBatchRequest(int rowDifference, int columnDifference)
+        private static BatchUpdateSpreadsheetRequest GetAppendDimensionBatchRequest(
+            int sheetId,
+            int rowDifference,
+            int columnDifference)
         {
             var batchUpdateRequest = new BatchUpdateSpreadsheetRequest();
             batchUpdateRequest.Requests = new List<Request>();
@@ -108,6 +112,7 @@ namespace HwProj.APIGateway.API.ExportServices
             if (rowDifference > 0)
             {
                 var appendRowsRequest = new AppendDimensionRequest();
+                appendRowsRequest.SheetId = sheetId;
                 appendRowsRequest.Dimension = "ROWS";
                 appendRowsRequest.Length = rowDifference;
                 var request = new Request();
@@ -118,12 +123,12 @@ namespace HwProj.APIGateway.API.ExportServices
             if (columnDifference > 0)
             {
                 var appendColumnsRequest = new AppendDimensionRequest();
+                appendColumnsRequest.SheetId = sheetId;
                 appendColumnsRequest.Dimension = "COLUMNS";
                 appendColumnsRequest.Length = columnDifference;
                 var request = new Request();
                 request.AppendDimension = appendColumnsRequest;
                 batchUpdateRequest.Requests.Add(request);
-
             }
 
             return batchUpdateRequest;
