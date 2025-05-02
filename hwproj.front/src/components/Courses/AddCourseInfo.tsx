@@ -93,6 +93,7 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                             label="Название группы (групп)"
                             variant="outlined"
                             fullWidth
+                            helperText={"После ввода нажмите Enter"}
                             placeholder={state.programName 
                                 ? "Выберите или введите название группы или нескольких групп" 
                                 : "Введите название группы или нескольких групп"}

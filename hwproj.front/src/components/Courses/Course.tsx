@@ -1,15 +1,12 @@
 import * as React from "react";
 import {useSearchParams} from "react-router-dom";
 import {AccountDataDto, CourseViewModel, FileInfoDTO, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
-import CourseHomework from "../Homeworks/CourseHomework";
-import AddHomework from "../Homeworks/AddHomework";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
 import {Button, Tab, Tabs, IconButton} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import {FC, useEffect, useState} from "react";
-import VisibilityIcon from '@material-ui/icons/Visibility';
 import {
     Alert,
     AlertTitle, Box,
@@ -20,7 +17,6 @@ import {
     Menu,
     MenuItem,
     Stack,
-    Tooltip,
     Typography
 } from "@mui/material";
 import {CourseExperimental} from "./CourseExperimental";
@@ -42,19 +38,13 @@ function isAcceptableTabValue(str: string): str is TabValue {
     return str === "homeworks" || str === "stats" || str === "applications";
 }
 
-interface ICourseProps {
-    isReadingMode?: boolean;
-}
-
 interface ICourseState {
     isFound: boolean;
     course: CourseViewModel;
     courseHomeworks: HomeworkViewModel[];
-    createHomework: boolean;
     mentors: AccountDataDto[];
     acceptedStudents: AccountDataDto[];
     newStudents: AccountDataDto[];
-    isReadingMode: boolean;
     studentSolutions: StatisticsCourseMatesModel[];
     showQrCode: boolean;
 }
@@ -63,7 +53,7 @@ interface IPageState {
     tabValue: TabValue
 }
 
-const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
+const Course: React.FC = () => {
     const {courseId, tab} = useParams()
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
@@ -73,11 +63,9 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
         isFound: false,
         course: {},
         courseHomeworks: [],
-        createHomework: false,
         mentors: [],
         acceptedStudents: [],
         newStudents: [],
-        isReadingMode: props.isReadingMode ?? true,
         studentSolutions: [],
         showQrCode: false
     })
@@ -91,11 +79,9 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
     const {
         isFound,
         course,
-        createHomework,
         mentors,
         newStudents,
         acceptedStudents,
-        isReadingMode,
         courseHomeworks,
     } = courseState
 
@@ -338,33 +324,7 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                         }}
                     >
                         {!isExpert &&
-                            <Tab
-                                label={
-                                    <Stack direction="row" spacing={1} alignItems="center">
-                                        <div>Задания</div>
-                                        {isCourseMentor && <IconButton
-                                            size="small"
-                                            onClick={() =>
-                                                setCourseState(prevState => ({
-                                                        ...prevState,
-                                                        isReadingMode: !isReadingMode
-                                                    })
-                                                )}
-                                            style={{backgroundColor: '#f1f1f1', padding: 3, marginLeft: 8}}
-                                        >
-                                            <Tooltip arrow placement={"top"}
-                                                     PopperProps={{
-                                                         modifiers: [{name: "offset", options: {offset: [0, -5],}}]
-                                                     }}
-                                                     title={isReadingMode ? "В режим редактирования" : "В режим чтения"}>
-                                                {isReadingMode
-                                                    ? <EditIcon style={{fontSize: 15}}/>
-                                                    : <VisibilityIcon style={{fontSize: 15}}/>}
-                                            </Tooltip>
-                                        </IconButton>}
-                                    </Stack>
-                                }
-                            />}
+                            <Tab label={<div>Задания</div>}/>}
                         {showStatsTab && <Tab label={
                             <Stack direction="row" spacing={1}>
                                 <div>Решения</div>
@@ -379,139 +339,55 @@ const Course: React.FC<ICourseProps> = (props: ICourseProps) => {
                                       label={newStudents.length}/>
                             </Stack>}/>}
                     </Tabs>
-                    {tabValue === "homeworks" && <div>
-                        {
-                            isReadingMode
-                                ? <CourseExperimental
-                                    courseId={+courseId!}
-                                    homeworks={courseHomeworks}
-                                    courseFilesInfo={courseFilesInfo}
-                                    isMentor={isCourseMentor}
-                                    studentSolutions={studentSolutions}
-                                    isStudentAccepted={isAcceptedStudent}
-                                    selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
-                                    userId={userId!}
-                                    onHomeworkUpdate={({fileInfos, homework, isDeleted}) => {
-                                        const homeworkIndex = courseState.courseHomeworks.findIndex(x => x.id === homework.id)
-                                        const homeworks = courseState.courseHomeworks
+                    {tabValue === "homeworks" && <CourseExperimental
+                        courseId={+courseId!}
+                        homeworks={courseHomeworks}
+                        courseFilesInfo={courseFilesInfo}
+                        isMentor={isCourseMentor}
+                        studentSolutions={studentSolutions}
+                        isStudentAccepted={isAcceptedStudent}
+                        selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
+                        userId={userId!}
+                        onHomeworkUpdate={({fileInfos, homework, isDeleted}) => {
+                            const homeworkIndex = courseState.courseHomeworks.findIndex(x => x.id === homework.id)
+                            const homeworks = courseState.courseHomeworks
 
-                                        if (isDeleted) homeworks.splice(homeworkIndex, 1)
-                                        else if (homeworkIndex === -1) homeworks.push(homework)
-                                        else homeworks[homeworkIndex] = homework
+                            if (isDeleted) homeworks.splice(homeworkIndex, 1)
+                            else if (homeworkIndex === -1) homeworks.push(homework)
+                            else homeworks[homeworkIndex] = homework
 
-                                        setCourseState(prevState => ({
-                                            ...prevState,
-                                            courseHomeworks: homeworks
-                                        }))
+                            setCourseState(prevState => ({
+                                ...prevState,
+                                courseHomeworks: homeworks
+                            }))
 
-                                        if (fileInfos.length > 0 || isDeleted) {
-                                            const newCourseFiles = courseFilesInfo
-                                                .filter(x => x.homeworkId !== homework.id)
-                                                .concat(isDeleted ? [] : fileInfos)
-                                            setCourseFilesInfo(newCourseFiles)
-                                        }
-                                    }}
-                                    onTaskUpdate={update => {
-                                        const task = update.task
-                                        const homeworks = courseState.courseHomeworks
-                                        const homework = homeworks.find(x => x.id === task.homeworkId)!
-                                        const tasks = [...homework.tasks!]
-                                        const taskIndex = tasks.findIndex(x => x!.id === task.id)
+                            if (fileInfos.length > 0 || isDeleted) {
+                                const newCourseFiles = courseFilesInfo
+                                    .filter(x => x.homeworkId !== homework.id)
+                                    .concat(isDeleted ? [] : fileInfos)
+                                setCourseFilesInfo(newCourseFiles)
+                            }
+                        }}
+                        onTaskUpdate={update => {
+                            const task = update.task
+                            const homeworks = courseState.courseHomeworks
+                            const homework = homeworks.find(x => x.id === task.homeworkId)!
+                            const tasks = [...homework.tasks!]
+                            const taskIndex = tasks.findIndex(x => x!.id === task.id)
 
-                                        if (update.isDeleted) tasks.splice(taskIndex, 1)
-                                        else if (taskIndex !== -1) tasks![taskIndex] = task
-                                        else tasks.push(task)
+                            if (update.isDeleted) tasks.splice(taskIndex, 1)
+                            else if (taskIndex !== -1) tasks![taskIndex] = task
+                            else tasks.push(task)
 
-                                        homework.tasks = tasks
+                            homework.tasks = tasks
 
-                                        setCourseState(prevState => ({
-                                            ...prevState,
-                                            courseHomeworks: homeworks
-                                        }))
-                                    }}
-                                />
-                                : <div>
-                                    <Grid style={{paddingBottom: 10}}>
-                                        <Alert severity="warning">
-                                            <AlertTitle>Устаревшая страница редактирования</AlertTitle>
-                                            Данная страница для редактирования курса является устаревшей и будет
-                                            удалена в следующих
-                                            версиях сервиса.
-                                            Настоятельно рекомендуем использовать механизм редактирования задач
-                                            в стандартном режиме
-                                            отображения:
-                                            Вы увидите кнопку добавления новых заданий над списком, а кнопку
-                                            редактирования заданий в правом верхнем углу при наведении на
-                                            выбранное задание.
-                                        </Alert>
-                                    </Grid>
-                                    {createHomework && (
-                                        <div>
-                                            <Grid container>
-                                                <Grid item xs={12}>
-                                                    <AddHomework
-                                                        id={+courseId!}
-                                                        onCancel={() => setCurrentState()}
-                                                        onSubmit={() => setCurrentState()}
-                                                        previousHomeworks={courseState.courseHomeworks}
-                                                    />
-                                                </Grid>
-                                                <Grid item xs={12}>
-                                                    <CourseHomework
-                                                        onUpdate={() => setCurrentState()}
-                                                        isStudent={isAcceptedStudent}
-                                                        isMentor={isCourseMentor}
-                                                        isReadingMode={isReadingMode}
-                                                        homework={courseHomeworks}
-                                                        courseFilesInfo={courseFilesInfo}
-                                                    />
-                                                </Grid>
-                                            </Grid>
-                                        </div>
-                                    )}
-                                    {isLecturer && !createHomework && (
-                                        <div>
-                                            <Grid container>
-                                                {!isReadingMode! &&
-                                                    <Button
-                                                        style={{marginBottom: 15}}
-                                                        size="small"
-                                                        variant="contained"
-                                                        color="primary"
-                                                        onClick={() => {
-                                                            setCourseState(prevState => ({
-                                                                ...prevState,
-                                                                createHomework: true
-                                                            }));
-                                                        }}
-                                                    >
-                                                        Добавить задание
-                                                    </Button>
-                                                }
-                                                <CourseHomework
-                                                    onUpdate={() => setCurrentState()}
-                                                    isStudent={isAcceptedStudent}
-                                                    isMentor={isCourseMentor}
-                                                    isReadingMode={isReadingMode}
-                                                    homework={courseHomeworks}
-                                                    courseFilesInfo={courseFilesInfo}
-                                                />
-                                            </Grid>
-                                        </div>
-                                    )}
-                                    {!isCourseMentor && (
-                                        <CourseHomework
-                                            onUpdate={() => setCurrentState()}
-                                            homework={courseHomeworks}
-                                            isStudent={isAcceptedStudent}
-                                            isMentor={isCourseMentor}
-                                            isReadingMode={isReadingMode}
-                                            courseFilesInfo={courseFilesInfo}
-                                        />
-                                    )}
-                                </div>
-                        }
-                    </div>}
+                            setCourseState(prevState => ({
+                                ...prevState,
+                                courseHomeworks: homeworks
+                            }))
+                        }}
+                    />
+                    }
                     {tabValue === "stats" &&
                         <Grid container style={{marginBottom: "15px"}}>
                             <Grid item xs={12}>
