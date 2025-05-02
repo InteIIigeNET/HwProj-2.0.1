@@ -89,9 +89,9 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpGet("getProgramNames")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(List<ProgramModel>), (int)HttpStatusCode.OK)]
-        public IActionResult GetProgramNames()
+        public async Task<IActionResult> GetProgramNames()
         {
-            return Ok(_studentsInfo.GetProgramNames());
+            return Ok(await _studentsInfo.GetProgramNames());
         }
 
         [HttpPost("create")]
