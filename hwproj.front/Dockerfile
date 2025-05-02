@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Устанавливаем зависимости в node_modules
-RUN npm install
+RUN npm install --force
 
 # Bundle app source
 COPY . .
