@@ -1,92 +1,96 @@
-$generatorUrl = "https://repo1.maven.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/3.0.68/swagger-codegen-cli-3.0.68.jar"
+$generatorUrls = @(
+    "https://repo.maven.apache.org/maven2/io/swagger/codegen/v3/swagger-codegen-cli/3.0.68/swagger-codegen-cli-3.0.68.jar",
+    "https://mirrors.ocf.berkeley.edu/maven2/io/swagger/codegen/v3/swagger-codegen-cli/3.0.68/swagger-codegen-cli-3.0.68.jar"
+)
+
 $swaggerUrl = "http://localhost:5000/swagger/v1/swagger.json"
 $generatorFolder = Join-Path $PSScriptRoot "swagger-codegen" 
-$generatorFile = Join-Path $PSScriptRoot "swagger-codegen\swagger-codegen-cli-3.0.68.jar"
-$outputFolder = Join-Path $PSScriptRoot "swagger-codegen\archive"
+$generatorFile = Join-Path $generatorFolder "swagger-codegen-cli-3.0.68.jar"
+$outputFolder = Join-Path $generatorFolder "archive"
 $apiDestination = Join-Path $PSScriptRoot "hwproj.front\src\api"
 
-if (-not (Test-Path -Path $generatorFolder)) {
-    Write-Host "Создаем папку для генератора..."
-    New-Item -ItemType Directory -Path $generatorFolder | Out-Null
-}
+$foldersToCreate = @($generatorFolder, $outputFolder, $apiDestination)
 
-Set-Location -Path $generatorFolder
-
-if (-Not (Test-Path -Path $generatorFile)) {
-    Write-Host "JAR-файл генератора отсутствует. Скачиваем его..."
-    try {
-        Invoke-WebRequest -Uri $generatorUrl -OutFile $generatorFile
-        Write-Host "Генератор успешно загружен."
-    } catch {
-        Write-Error "Не удалось скачать файл: $($_.Exception.Message)"
-        Exit 1
-    }
-} else {
-    Write-Host "JAR-файл генератора уже существует"
-}
-
-# Убедимся, что папка archive существует
-if (-not (Test-Path -Path $outputFolder)) {
-    Write-Host "Создаем папку для архива..."
-    New-Item -ItemType Directory -Path $outputFolder | Out-Null
-}
-
-# Генерация клиента TypeScript с использованием swagger-codegen
-Write-Host "Генерация API клиента..."
-java -jar $generatorFile `
-    generate -i $swaggerUrl -l typescript-fetch -o $outputFolder
-
-# Проверяем, что архив был успешно создан и существует
-if (-not (Test-Path -Path "$outputFolder")) {
-    Write-Error "Не удалось найти папку после генерации. Проверьте путь."
-    Exit 1
-}
-
-# Разархивируем сгенерированный клиент и достаем api.ts
-Write-Host "Разархивируем файлы..."
-Get-ChildItem -Path $outputFolder -Recurse | ForEach-Object {
-    if ($_.Extension -eq ".zip") {
-        Expand-Archive -Path $_.FullName -DestinationPath $outputFolder -Force
+foreach ($folder in $foldersToCreate) {
+    if (-not (Test-Path -Path $folder)) {
+        try {
+            New-Item -ItemType Directory -Path $folder -ErrorAction Stop | Out-Null
+            Write-Host "Created directory: $folder"
+        } catch {
+            Write-Error "Failed to create directory $folder : $($_.Exception.Message)"
+            exit 1
+        }
     }
 }
 
-# Ищем файл `api.ts`
-$apiFile = Get-ChildItem -Path $outputFolder -Recurse | Where-Object { $_.Name -eq "api.ts" }
-if ($null -eq $apiFile) {
-    Write-Error "Файл api.ts не найден среди разархивированных файлов."
-    Exit 1
-}
+Set-Location -Path $generatorFolder -ErrorAction Stop
 
-# Проверяем путь назначения для `api.ts` и создаем, если нужно
-if (-not (Test-Path -Path $apiDestination)) {
-    Write-Host "Папка назначения не существует. Создаем..."
-    New-Item -ItemType Directory -Path $apiDestination -Force | Out-Null
-}
+if (-not (Test-Path -Path $generatorFile)) {
+    $downloadSuccess = $false
+    
+    foreach ($url in $generatorUrls) {
+        try {
+            Write-Host "Attempting to download from $url"
+            Invoke-WebRequest -Uri $url -OutFile $generatorFile -ErrorAction Stop
+            $downloadSuccess = $true
+            Write-Host "Successfully downloaded codegen tool"
+            break
+        } catch {
+            Write-Warning "Failed to download from $url : $($_.Exception.Message)"
+        }
+    }
 
-# Перемещаем api.ts в папку назначения
-Write-Host "Перемещаем api.ts в $apiDestination..."
-Move-Item -Path $apiFile.FullName -Destination $apiDestination -Force
-
-Write-Host "Выполняем текстовые замены в api.ts..."
-$apiFilePath = Join-Path $apiDestination "api.ts"
-
-if (Test-Path -Path $apiFilePath) {
-    $apiContent = Get-Content -Path $apiFilePath
-
-    # 1. Замена импорта isomorphic-fetch на ESM-совместимый
-    $apiContent = $apiContent -replace 'import\s+\*\s+as\s+isomorphicFetch\s+from\s+"isomorphic-fetch";', 'import isomorphicFetch from "isomorphic-fetch";'
-
-    # 2. Делаем конфигурацию опциональной
-    $apiContent = $apiContent -replace 'configuration:\s*Configuration;', 'configuration: Configuration | undefined;'
-
-    # 3. Форматируем пробелы
-    $apiContent = $apiContent | ForEach {$_.TrimEnd()}
-    $apiContent = $apiContent -replace '\t', (' ' * 4)
-
-    # Сохраняем изменения
-    $apiContent | Set-Content -Path $apiFilePath -Encoding UTF8 -Force
+    if (-not $downloadSuccess) {
+        Write-Error "All download attempts failed. Please check your internet connection."
+        exit 1
+    }
 } else {
-    Write-Warning "Файл api.ts не найден по пути $apiFilePath для выполнения замен."
+    Write-Host "Codegen tool already exists at $generatorFile"
 }
 
-Write-Host "Готово! Файл api.ts подготовлен и обновлён."
+try {
+    Write-Host "Generating TypeScript API client..."
+    java -jar $generatorFile generate -i $swaggerUrl -l typescript-fetch -o $outputFolder
+    
+    if (-not $?) {
+        throw "Codegen execution failed with exit code $LASTEXITCODE"
+    }
+} catch {
+    Write-Error "Failed to generate API client: $($_.Exception.Message)"
+    exit 1
+}
+
+try {
+    $apiFile = Get-ChildItem -Path $outputFolder -Recurse -Filter "api.ts" -ErrorAction Stop | Select-Object -First 1
+    
+    if (-not $apiFile) {
+        throw "api.ts file not found in generated output"
+    }
+
+    Write-Host "Found API file at: $($apiFile.FullName)"
+
+    $apiContent = Get-Content -Path $apiFile.FullName -Raw -ErrorAction Stop
+
+    $replacements = @{
+        'import\s+\*\s+as\s+isomorphicFetch\s+from\s+"isomorphic-fetch";' = 'import isomorphicFetch from "isomorphic-fetch";'
+        'configuration:\s*Configuration;' = 'configuration: Configuration | undefined;'
+    }
+
+    foreach ($pattern in $replacements.Keys) {
+        $apiContent = $apiContent -replace $pattern, $replacements[$pattern]
+    }
+
+    $apiContent = $apiContent -replace '\t', '    '
+    $apiContent = $apiContent.TrimEnd()
+
+    Set-Content -Path $apiFile.FullName -Value $apiContent -Encoding UTF8 -Force -ErrorAction Stop
+
+    Move-Item -Path $apiFile.FullName -Destination $apiDestination -Force -ErrorAction Stop
+    Write-Host "API file successfully processed and moved to $apiDestination"
+} catch {
+    Write-Error "Failed to process API file: $($_.Exception.Message)"
+    exit 1
+}
+
+Write-Host "API client generation completed successfully!"
+exit 0
