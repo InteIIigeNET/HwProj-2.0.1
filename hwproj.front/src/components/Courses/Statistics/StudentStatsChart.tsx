@@ -14,6 +14,7 @@ import StudentProgressChart from "./StudentProgressChart";
 import StudentPunctualityChart from './StudentPunctualityChart';
 import NameBuilder from "../../Utils/NameBuilder";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import { StudentsRadarChart } from "./StudentsRadarChart";
 
 interface IStudentStatsChartState {
     isFound: boolean;
@@ -41,11 +42,11 @@ const StudentStatsChart: React.FC = () => {
         averageStudent: []
     })
     const [sectorSizes, setSectorSizes] = useState<number[]>([]);
-    const tasksSolutionLength = (hw :  StatisticsCourseHomeworksModel[], tasksWithDeadline : HomeworkTaskViewModel[]) =>
+    const tasksSolutionLength = (hw: StatisticsCourseHomeworksModel[], tasksWithDeadline: HomeworkTaskViewModel[]) =>
         hw.flatMap(h => h.tasks!
             .filter(task => tasksWithDeadline.find(t => t.id === task.id))
             .map(t => t.solution!.length))
-    const handleStudentSelection = (studentIds : string[]) => {
+    const handleStudentSelection = (studentIds: string[]) => {
         const newSectorSizes = sectorSizes.map((_, i) => {
             const taskSectorSizes = studentIds.map(id => {
                 const studentHomeworks = state.solutions
@@ -155,6 +156,13 @@ const StudentStatsChart: React.FC = () => {
                             </Grid>
                         }
                     </Grid>
+                    {selectedStudents.length > 0 && <Grid xs={12} item>
+                        <StudentsRadarChart
+                            selectedStudents={selectedStudents}
+                            homeworks={state.homeworks}
+                            solutions={state.solutions}
+                        />
+                    </Grid>}
                     <Grid xs={12} item>
                         <Box mt={3} mb={8}>
                             <Paper elevation={2}>
