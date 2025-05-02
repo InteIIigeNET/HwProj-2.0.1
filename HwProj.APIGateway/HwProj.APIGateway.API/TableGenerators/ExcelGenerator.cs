@@ -141,10 +141,12 @@ namespace HwProj.APIGateway.API.TableGenerators
         {
             for (var i = 0; i < course.Homeworks.Length; ++i)
             {
-                var taskNumber = 1;
-                for (var j = 0; j < course.Homeworks[i].Tasks.Count; ++j)
+                var numberOfTasks = course.Homeworks[i].Tasks.Count;
+                if (numberOfTasks == 0) continue;
+
+                for (var j = 0; j < numberOfTasks; ++j)
                 {
-                    if (taskNumber != 1)
+                    if (j > 0)
                     {
                         var rangeForBordering =
                             worksheet.Cells[position.Row, position.Column, heightInCells, position.Column];
@@ -152,10 +154,9 @@ namespace HwProj.APIGateway.API.TableGenerators
                     }
 
                     worksheet.Cells[position.Row, position.Column].Value
-                        = $"{taskNumber.ToString()}. {course.Homeworks[i].Tasks[j].Title}";
+                        = $"{j + 1}. {course.Homeworks[i].Tasks[j].Title}";
                     worksheet.Cells[position.Row, position.Column, position.Row, position.Column + 2].Merge = true;
                     position.Column += 3;
-                    ++taskNumber;
                 }
 
                 ++position.Column;
@@ -168,6 +169,8 @@ namespace HwProj.APIGateway.API.TableGenerators
             for (var i = 0; i < course.Homeworks.Length; ++i)
             {
                 var lengthInCells = course.Homeworks[i].Tasks.Count * 3;
+                if (lengthInCells == 0) continue;
+
                 for (var j = position.Column; j < position.Column + lengthInCells; j += 3)
                 {
                     worksheet.Cells[position.Row, j].Value = "min";
@@ -189,7 +192,10 @@ namespace HwProj.APIGateway.API.TableGenerators
         {
             for (var i = 0; i < course.Homeworks.Length; ++i)
             {
-                for (var j = 0; j < course.Homeworks[i].Tasks.Count; ++j)
+                var numberOfTasks = course.Homeworks[i].Tasks.Count;
+                if (numberOfTasks == 0) continue;
+
+                for (var j = 0; j < numberOfTasks; ++j)
                 {
                     for (var k = firstMaxFieldPosition.Row; k <= heightInCells; ++k)
                     {
