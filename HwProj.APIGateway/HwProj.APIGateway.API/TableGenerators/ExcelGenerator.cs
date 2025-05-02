@@ -63,9 +63,6 @@ namespace HwProj.APIGateway.API.TableGenerators
             var worksheet = excelPackage.Workbook.Worksheets.Add(sheetName);
 
             var rowsNumber = 3 + courseMatesModels.Count;
-            var columnsNumber = 3 * course.Homeworks.SelectMany(h => h.Tasks).Count();
-
-            ExtendWorksheetIfNecessary(worksheet, columnsNumber);
 
             var position = new Position(1, 1);
 
@@ -73,7 +70,7 @@ namespace HwProj.APIGateway.API.TableGenerators
             ++position.Column;
 
             AddHomeworksHeaders(worksheet, course, position, rowsNumber, SeparationColumnWidth);
-            columnsNumber = position.Column - 2;
+            var columnsNumber = position.Column - 2;
             position.ToNextRow(2);
 
             worksheet.Cells[1, 1, rowsNumber, columnsNumber].Style.Font.Size = FontSize;
@@ -98,16 +95,6 @@ namespace HwProj.APIGateway.API.TableGenerators
             range.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
             return excelPackage;
-        }
-
-        private static void ExtendWorksheetIfNecessary(ExcelWorksheet worksheet, int columnsNumber)
-        {
-            var currentColumnsNumber = worksheet.Columns.Count();
-            var columnsToAdd = columnsNumber - currentColumnsNumber;
-            if (columnsToAdd > 0)
-            {
-                worksheet.InsertColumn(currentColumnsNumber, columnsToAdd);
-            }
         }
 
         private static void AddBorderedSeparationColumn(ExcelWorksheet worksheet, Position position, int heightInCells, int columnWidth)
