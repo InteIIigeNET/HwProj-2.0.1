@@ -35,6 +35,6 @@ namespace IStudentsInfo
         List<StudentModel> GetStudentInformation(string groupName);
         
         /// Возвращает список образовательных программ
-        List<ProgramModel> GetProgramNames();
+        Task<List<ProgramModel>> GetProgramNames();
     }
 }

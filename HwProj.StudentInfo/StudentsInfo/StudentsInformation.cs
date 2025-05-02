@@ -12,44 +12,38 @@ namespace StudentsInfo
 {
     public class InterruptibleLazy<T>
     {
-        private Func<T> myValueFactory;
-        private readonly object lockObj = new object();
-        private T myValue;
-
-        public bool IsValueCreated => Volatile.Read(ref myValueFactory) == null;
+        private Func<T> _valueFactory;
+        private readonly object _lockObj = new object();
+        private T _value;
 
         public InterruptibleLazy(Func<T> valueFactory)
         {
-            myValueFactory = valueFactory;
+            _valueFactory = valueFactory;
         }
 
         public T Value
         {
             get
             {
-                if (myValueFactory == null) return myValue;
+                if (_valueFactory == null) return _value;
 
-                lock (lockObj)
+                lock (_lockObj)
                 {
-                    if (myValueFactory == null) return myValue;
+                    if (_valueFactory == null) return _value;
 
-                    myValue = myValueFactory();
+                    _value = _valueFactory();
                     Interlocked.MemoryBarrier();
-                    myValueFactory = null;
+                    _valueFactory = null;
                 }
 
-                return myValue;
+                return _value;
             }
         }
-
-        public override string ToString()
-        {
-            return (myValueFactory == null) ? Value.ToString() : "Value is not created";
-        }
     }
+
     public class StudentsInformationProvider : IStudentsInformationProvider
     {
-        private readonly InterruptibleLazy<Dictionary<string, List<string>>> _interruptibleLazyProgramsGroups;
+        private readonly InterruptibleLazy<Task<Dictionary<string, List<string>>>> _programsGroups;
         private readonly string _ldapHost = "ad.pu.ru";
         private readonly int _ldapPort = 389;
         private readonly string _searchBase = "DC=ad,DC=pu,DC=ru";
@@ -57,22 +51,23 @@ namespace StudentsInfo
 
         private string _username;
         private string _password;
-        
+
         public async Task<List<GroupModel>> GetGroups(string programName)
         {
-            var programsGroups = _interruptibleLazyProgramsGroups.Value;
+            var programsGroups = await _programsGroups.Value;
             if (!programsGroups.TryGetValue(programName, out var groups))
                 return new List<GroupModel>();
 
             return groups.Select(group => new GroupModel { GroupName = group }).ToList();
         }
-        
+
         public List<StudentModel> GetStudentInformation(string groupName)
         {
-            var searchFilter = $"(&(objectClass=person)(memberOf=CN=АкадемГруппа_{groupName},OU=АкадемГруппа,OU=Группы,DC=ad,DC=pu,DC=ru))";
+            var searchFilter =
+                $"(&(objectClass=person)(memberOf=CN=АкадемГруппа_{groupName},OU=АкадемГруппа,OU=Группы,DC=ad,DC=pu,DC=ru))";
             var studentsList = new List<StudentModel>();
             LdapConnection connection = null;
-            
+
             try
             {
                 connection = new LdapConnection();
@@ -83,7 +78,7 @@ namespace StudentsInfo
                 {
                     return studentsList;
                 }
-                
+
                 var results = connection.Search(
                     _searchBase,
                     LdapConnection.SCOPE_SUB,
@@ -97,7 +92,7 @@ namespace StudentsInfo
                     var entry = results.next();
                     var cn = entry.getAttribute("cn")?.StringValue;
                     var displayName = entry.getAttribute("displayName")?.StringValue;
-                    
+
                     if (cn != null && displayName != null)
                     {
                         string[] splitNames = displayName.Split(' ');
@@ -135,7 +130,6 @@ namespace StudentsInfo
                 }
                 catch (Exception)
                 {
-                    
                 }
             }
 
@@ -153,18 +147,19 @@ namespace StudentsInfo
             }
             catch (Exception)
             {
-                
             }
         }
-        
-        public List<ProgramModel> GetProgramNames()
+
+        public async Task<List<ProgramModel>> GetProgramNames()
         {
-            return _interruptibleLazyProgramsGroups.Value.Keys
+            var programGroups = await _programsGroups.Value;
+            return programGroups.Keys
                 .Select(key => new ProgramModel { ProgramName = key })
                 .ToList();
         }
 
-        public StudentsInformationProvider(string username, string password, string ldapHost, int ldapPort, string searchBase)
+        public StudentsInformationProvider(string username, string password, string ldapHost, int ldapPort,
+            string searchBase)
         {
             _username = username;
             _password = password;
@@ -173,16 +168,18 @@ namespace StudentsInfo
             _searchBase = searchBase;
             _httpClient = new HttpClient();
 
-            _interruptibleLazyProgramsGroups = new InterruptibleLazy<Dictionary<string, List<string>>>(() =>
+            _programsGroups = new InterruptibleLazy<Task<Dictionary<string, List<string>>>>(async () =>
             {
                 var programsGroups = new Dictionary<string, List<string>>();
-                
+
                 try
                 {
-                    var programsResponse = _httpClient.GetAsync("https://timetable.spbu.ru/api/v1/study/divisions/MATH/programs/levels").Result;
+                    var programsResponse =
+                        await _httpClient.GetAsync(
+                            "https://timetable.spbu.ru/api/v1/study/divisions/MATH/programs/levels");
                     if (programsResponse.IsSuccessStatusCode)
                     {
-                        var content = programsResponse.Content.ReadAsStringAsync().Result;
+                        var content = await programsResponse.Content.ReadAsStringAsync();
                         var studyLevels = JsonConvert.DeserializeObject<List<StudyLevel>>(content);
 
                         foreach (var level in studyLevels)
@@ -191,15 +188,16 @@ namespace StudentsInfo
                             {
                                 foreach (var admissionYear in programCombination.AdmissionYears)
                                 {
-                                    var groupsResponse = _httpClient.GetAsync($"https://timetable.spbu.ru/api/v1/programs/{admissionYear.StudyProgramId}/groups").Result;
+                                    var groupsResponse = await _httpClient.GetAsync(
+                                        $"https://timetable.spbu.ru/api/v1/programs/{admissionYear.StudyProgramId}/groups");
                                     if (groupsResponse.IsSuccessStatusCode)
                                     {
-                                        var groupsContent = groupsResponse.Content.ReadAsStringAsync().Result;
+                                        var groupsContent = await groupsResponse.Content.ReadAsStringAsync();
                                         var programGroups = JsonConvert.DeserializeObject<ProgramGroups>(groupsContent);
-                                        
+
                                         var programName = programCombination.Name;
                                         var groups = programGroups.Groups.Select(g => g.StudentGroupName).ToList();
-                                        
+
                                         if (programsGroups.ContainsKey(programName))
                                         {
                                             programsGroups[programName].AddRange(groups);
@@ -214,15 +212,15 @@ namespace StudentsInfo
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    
+                    Console.WriteLine($"Error loading programs: {ex.Message}");
                 }
 
                 return programsGroups;
             });
         }
-        
+
         private class StudyLevel
         {
             public string StudyLevelName { get; set; }
