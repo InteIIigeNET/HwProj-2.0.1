@@ -82,10 +82,10 @@ namespace HwProj.APIGateway.API
             app.ConfigureHwProj(env, "API Gateway");
         }
 
-        private static JToken Serialize(IConfigurationSection configurationSecton)
+        private static JToken Serialize(IConfigurationSection configurationSection)
         {
             JObject obj = new JObject();
-            foreach (var child in configurationSecton.GetChildren())
+            foreach (var child in configurationSection.GetChildren())
             {
                 obj.Add(child.Key, child.Value);
             }
