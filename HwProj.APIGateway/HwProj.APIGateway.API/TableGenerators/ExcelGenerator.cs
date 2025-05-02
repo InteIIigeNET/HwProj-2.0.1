@@ -122,17 +122,17 @@ namespace HwProj.APIGateway.API.TableGenerators
         private static void AddHomeworksHeaders(ExcelWorksheet worksheet, CourseDTO course, Position position,
             int heightInCells, int separationColumnWidth)
         {
-            var homeworkNumber = 1;
             for (var i = 0; i < course.Homeworks.Length; ++i)
             {
                 var numberCellsToMerge = course.Homeworks[i].Tasks.Count * 3;
+                if (numberCellsToMerge == 0) continue;
+
                 worksheet.Cells[position.Row, position.Column].Value
-                    = $"h/w {homeworkNumber.ToString()}: {course.Homeworks[i].Title}, {course.Homeworks[i].PublicationDate.ToString("dd.MM")}";
+                    = $"h/w {i + 1}: {course.Homeworks[i].Title}, {course.Homeworks[i].PublicationDate:dd.MM}";
                 worksheet.Cells[position.Row, position.Column, position.Row, position.Column + numberCellsToMerge - 1]
                     .Merge = true;
                 position.Column += numberCellsToMerge;
                 AddBorderedSeparationColumn(worksheet, position, heightInCells, separationColumnWidth);
-                ++homeworkNumber;
             }
         }
 
