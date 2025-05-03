@@ -43,7 +43,7 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
 
     const setUserYandexToken = async (userConfirmationCode: string, userId: string) : Promise<string> => {
         const fetchBody = `grant_type=authorization_code&code=${userConfirmationCode}` +
-        `&client_id=${process.env.REACT_APP_YANDEX_CLIENT_ID}&client_secret=${process.env.REACT_APP_YANDEX_CLIENT_SECRET}`;
+        `&client_id=${import.meta.env.VITE_YANDEX_CLIENT_ID}&client_secret=${import.meta.env.VITE_YANDEX_CLIENT_SECRET}`;
 
         const response = await fetch(`https://oauth.yandex.ru/token`, {
             method: "post",
@@ -88,7 +88,7 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
             {
                 method: "get",
                 headers: {
-                    'Authorization': `${process.env.REACT_APP_YANDEX_AUTHORIZATION_TOKEN}`,
+                    'Authorization': `${import.meta.env.VITE_YANDEX_AUTHORIZATION_TOKEN}`,
                 }})
             .then( async (response) => {
                 if (response.status >= 200 && response.status < 300) {
@@ -116,7 +116,7 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
             })
     }
 
-    const yacRequestLink = `https://oauth.yandex.ru/authorize?response_type=code&client_id=${process.env.REACT_APP_YANDEX_CLIENT_ID}`
+    const yacRequestLink = `https://oauth.yandex.ru/authorize?response_type=code&client_id=${import.meta.env.VITE_YANDEX_CLIENT_ID}`
 
     const buttonSx = {
         ...(loadingStatus === LoadingStatus.Success && {
@@ -161,7 +161,7 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
                 <Grid item>
                     <Alert severity="success" variant={"standard"}>
                         Авторизация успешно пройдена. Файл будет загружен на диск по адресу
-                        "Приложения/{process.env.REACT_APP_YANDEX_APPLICATION_NAME}/{fileName}.xlsx"
+                        "Приложения/{import.meta.env.VITE_YANDEX_APPLICATION_NAME}/{fileName}.xlsx"
                     </Alert>
                 </Grid>
                 <Grid container item spacing={1} alignItems={"center"}>
