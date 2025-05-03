@@ -6,7 +6,7 @@ import {
     HomeworkViewModel, StatisticsCourseHomeworksModel,
     StatisticsCourseMatesModel,
     StatisticsCourseMeasureSolutionModel
-} from "../../../api/";
+} from "@/api";
 import ApiSingleton from "../../../api/ApiSingleton";
 import HelpPopoverChartInfo from './HelpPopoverChartInfo';
 import StudentCheckboxList from "./StudentCheckboxList";
@@ -15,6 +15,7 @@ import StudentPunctualityChart from './StudentPunctualityChart';
 import NameBuilder from "../../Utils/NameBuilder";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import { StudentsRadarChart } from "./StudentsRadarChart";
+import {appBarStateManager} from "@/components/AppBar";
 
 interface IStudentStatsChartState {
     isFound: boolean;
@@ -87,6 +88,8 @@ const StudentStatsChart: React.FC = () => {
 
     useEffect(() => {
         setCurrentState()
+        appBarStateManager.setContextAction({actionName: "К курсу", link: `/courses/${courseId}/stats`})
+        return () => appBarStateManager.reset()
     }, [])
 
     useEffect(() => {
@@ -98,19 +101,6 @@ const StudentStatsChart: React.FC = () => {
     const nameById = (id: string) => {
         const student = state.solutions.find(solution => solution.id === id)!
         return student.name + ' ' + student.surname;
-    }
-
-    const renderGoBackToCoursesStatsLink = () => {
-        return (
-            <Link
-                to={`/courses/${state.course.id}/stats`}
-                style={{color: '#212529'}}
-            >
-                <Typography>
-                    Назад к курсу
-                </Typography>
-            </Link>
-        )
     }
 
     const tasks = state.homeworks.flatMap(h => h.tasks ?? [])
@@ -139,9 +129,6 @@ const StudentStatsChart: React.FC = () => {
                                     <sup style={{color: "#2979ff"}}> бета</sup>
                                 </Typography>
                             </Grid>
-                            <Grid item>
-                                {isLoggedIn && renderGoBackToCoursesStatsLink()}
-                            </Grid>
                         </Grid>
                         {state.isSelectionMode &&
                             <Grid item>
@@ -161,6 +148,8 @@ const StudentStatsChart: React.FC = () => {
                             selectedStudents={selectedStudents}
                             homeworks={state.homeworks}
                             solutions={state.solutions}
+                            averageStudent={state.averageStudent}
+
                         />
                     </Grid>}
                     <Grid xs={12} item>
