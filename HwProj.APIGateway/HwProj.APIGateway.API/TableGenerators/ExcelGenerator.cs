@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using HwProj.APIGateway.API.Models.Statistics;
+using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using OfficeOpenXml;
@@ -83,9 +84,13 @@ namespace HwProj.APIGateway.API.TableGenerators
             position.ToNextRow(1);
 
             var maxFieldPosition = new Position(position.Row, 3);
-            AddTasksMaxRatingInfo(worksheet, course, rowsNumber, maxFieldPosition);
+            var (maxRatingForHw, maxRatingForTests) = AddTasksMaxRatingInfo(
+                worksheet, course, rowsNumber, maxFieldPosition);
 
-            AddCourseMatesInfo(worksheet, courseMatesModels, position);
+            var totalRatings = AddCourseMatesInfo(course, worksheet, courseMatesModels, position);
+
+            columnsNumber += AddSummary(
+                worksheet, maxRatingForHw, maxRatingForTests, totalRatings, rowsNumber, SeparationColumnWidth);
 
             var headersRange = worksheet.Cells[1, 1, 3, columnsNumber];
             headersRange.Style.Font.Bold = true;
@@ -171,12 +176,15 @@ namespace HwProj.APIGateway.API.TableGenerators
             }
         }
 
-        private static void AddTasksMaxRatingInfo(
+        private static (int, int) AddTasksMaxRatingInfo(
             ExcelWorksheet worksheet,
             CourseDTO course,
             int heightInCells,
             Position firstMaxFieldPosition)
         {
+            var maxRatingForHw = 0;
+            var maxRatingForTests = 0;
+
             for (var i = 0; i < course.Homeworks.Length; ++i)
             {
                 var numberOfTasks = course.Homeworks[i].Tasks.Count;
@@ -184,10 +192,14 @@ namespace HwProj.APIGateway.API.TableGenerators
 
                 for (var j = 0; j < numberOfTasks; ++j)
                 {
+                    var maxRating = course.Homeworks[i].Tasks[j].MaxRating;
+                    var isTest = course.Homeworks[i].Tasks[j].Tags.Contains(HomeworkTags.Test);
+                    if (isTest) maxRatingForTests += maxRating;
+                    else maxRatingForHw += maxRating;
+
                     for (var k = firstMaxFieldPosition.Row; k <= heightInCells; ++k)
                     {
-                        worksheet.Cells[k, firstMaxFieldPosition.Column].Value
-                            = course.Homeworks[i].Tasks[j].MaxRating;
+                        worksheet.Cells[k, firstMaxFieldPosition.Column].Value = maxRating;
                     }
 
                     firstMaxFieldPosition.Column += 3;
@@ -195,20 +207,30 @@ namespace HwProj.APIGateway.API.TableGenerators
 
                 ++firstMaxFieldPosition.Column;
             }
+
+            return (maxRatingForHw, maxRatingForTests);
         }
 
-        private static void AddCourseMatesInfo(
+        private static List<(int, int)> AddCourseMatesInfo(
+            CourseDTO course,
             ExcelWorksheet worksheet,
             List<StatisticsCourseMatesModel> courseMatesModels,
             Position position)
         {
+            var totalRatings = new List<(int, int)>();
+
             for (var i = 0; i < courseMatesModels.Count; ++i)
             {
+                var (hwRating, testRating) = (0, 0);
                 worksheet.Cells[position.Row, position.Column].Value
                     = $"{courseMatesModels[i].Name} {courseMatesModels[i].Surname}";
                 ++position.Column;
+
                 for (var j = 0; j < courseMatesModels[i].Homeworks.Count; ++j)
                 {
+                    var homeworkModel = course.Homeworks.FirstOrDefault(h => h.Id == courseMatesModels[i].Homeworks[j].Id);
+                    var isTest = homeworkModel.Tags.Contains(HomeworkTags.Test);
+
                     for (var k = 0; k < courseMatesModels[i].Homeworks[j].Tasks.Count; ++k)
                     {
                         var allSolutions = courseMatesModels[i].Homeworks[j].Tasks[k].Solution;
@@ -227,14 +249,61 @@ namespace HwProj.APIGateway.API.TableGenerators
                                 BlueIntArgbColor.Alpha, BlueIntArgbColor.Red, BlueIntArgbColor.Green, BlueIntArgbColor.Blue);
                         }
 
+                        if (isTest) testRating += min;
+                        else hwRating += min;
                         position.Column += 3;
                     }
 
                     ++position.Column;
                 }
 
+                totalRatings.Add((hwRating, testRating));
                 position.ToNextRow(1);
             }
+
+            return totalRatings;
+        }
+
+        private static int AddSummary(ExcelWorksheet worksheet,
+            int maxRatingForHw,
+            int maxRatingForTests,
+            List<(int, int)> totalRatings,
+            int heightInCells,
+            int separationColumnWidth)
+        {
+            if (totalRatings.Count == 0) return 0;
+            var hasHomework = maxRatingForHw > 0;
+            var hasTests = maxRatingForTests > 0;
+
+            if (hasTests)
+            {
+                worksheet.Cells[1, 2].Insert(eShiftTypeInsert.EntireColumn);
+                worksheet.Cells[1, 2].Value = "Summary";
+                worksheet.Cells[2, 2].Value = $"Test ({maxRatingForTests})";
+                worksheet.Cells[2, 2, 3, 2].Merge = true;
+                worksheet.Cells[3, 2].Style.Border.Bottom.Style = BorderStyle;
+                worksheet.Cells[4, 2, 4 + totalRatings.Count - 1, 2].FillList(totalRatings.Select(p => p.Item2));
+            }
+            if (hasHomework)
+            {
+                worksheet.Cells[1, 2].Insert(eShiftTypeInsert.EntireColumn);
+                worksheet.Cells[1, 2].Value = "Summary";
+                worksheet.Cells[2, 2].Value = $"HW ({maxRatingForHw})";
+                worksheet.Cells[2, 2, 3, 2].Merge = true;
+                worksheet.Cells[3, 2].Style.Border.Bottom.Style = BorderStyle;
+                worksheet.Cells[4, 2, 4 + totalRatings.Count - 1, 2].FillList(totalRatings.Select(p => p.Item1));
+            }
+
+            var cellsToMerge = (hasHomework ? 1 : 0) + (hasTests ? 1 : 0);
+            if (cellsToMerge > 0)
+            {
+                worksheet.Cells[1, 2, 1, 1 + cellsToMerge].Merge = true;
+                worksheet.Cells[1, 2 + cellsToMerge].Insert(eShiftTypeInsert.EntireColumn);
+                AddBorderedSeparationColumn(
+                    worksheet, new Position(1, 2 + cellsToMerge), heightInCells, separationColumnWidth);
+            }
+
+            return cellsToMerge;
         }
 
         private class Position
