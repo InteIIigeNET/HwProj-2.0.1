@@ -170,7 +170,7 @@ const Course: React.FC = () => {
         // и не блокируем остальную функциональность системы
         let courseFilesInfo = [] as FileInfoDTO[]
         try {
-            courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
+            courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+validatedCourseId!)
         } catch (e) {
             const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
             enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
@@ -183,22 +183,22 @@ const Course: React.FC = () => {
     }, [])
 
     useEffect(() => {
-        ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
+        ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+validatedCourseId!)
             .then(res => setStudentSolutions(res))
-    }, [courseId])
+    }, [validatedCourseId])
 
     useEffect(() => {
         getCourseFilesInfo()
-    }, [courseId])
+    }, [validatedCourseId])
 
     useEffect(() => {
-        ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
+        ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+validatedCourseId!)
             .then(res => setStudentSolutions(res))
-    }, [courseId])
+    }, [validatedCourseId])
 
     useEffect(() => {
         getCourseFilesInfo()
-    }, [courseId])
+    }, [validatedCourseId])
 
     useEffect(() => changeTab(tab || "homeworks"), [tab, validatedCourseId, isFound])
 
@@ -250,7 +250,7 @@ const Course: React.FC = () => {
                     onClose={handleClose}
                 >
                     {isCourseMentor && isLecturer &&
-                        <MenuItem onClick={() => navigate(`/courses/${courseId}/editInfo`)}>
+                        <MenuItem onClick={() => navigate(`/courses/${validatedCourseId}/editInfo`)}>
                             <ListItemIcon>
                                 <EditIcon fontSize="small"/>
                             </ListItemIcon>
@@ -323,7 +323,7 @@ const Course: React.FC = () => {
                                     </Grid>
                                     {lecturerStatsState &&
                                         <LecturerStatistics
-                                            courseId={+courseId!}
+                                            courseId={+validatedCourseId!}
                                             onClose={() => setLecturerStatsState(false)}
                                         />
                                     }
@@ -377,7 +377,7 @@ const Course: React.FC = () => {
                             </Stack>}/>}
                     </Tabs>
                     {tabValue === "homeworks" && <CourseExperimental
-                        courseId={+courseId!}
+                        courseId={+validatedCourseId!}
                         homeworks={courseHomeworks}
                         courseFilesInfo={courseFilesInfo}
                         isMentor={isCourseMentor}
