@@ -28,17 +28,25 @@ namespace HwProj.APIGateway.API.TableGenerators
         public static int FontSize { get; set; } = 11;
 
         /// <summary>
-        /// Shade of blue used in the reports.
+        /// Color for font to use in test headers.
         /// </summary>
-        private static Color BlueIntColor { get; set; } = Color.FromArgb(255, 0, 255, 255);
-        public static string BlueArgbColor { get; set; } = "FF00FFFF";
-        public static (float Alpha, float Red, float Green, float Blue) BlueFloatColor { get; set; } =
+        private static Color WhiteColor { get; set; } = Color.White;
+        public static string WhiteArgbColor = "FFFFFFFF";
+        public static (float Alpha, float Red, float Green, float Blue) WhiteFloatColor { get; set; } =
+            (1, 1, 1, 1);
+
+        /// <summary>
+        /// Cyan color used to indicate unrated solutions.
+        /// </summary>
+        private static Color CyanColor { get; set; } = Color.Cyan;
+        public static string CyanArgbColor { get; set; } = "FF00FFFF";
+        public static (float Alpha, float Red, float Green, float Blue) CyanFloatColor { get; set; } =
             (1, 0, 1, 1);
 
         /// <summary>
-        /// Shade of gray used in the reports.
+        /// Gray color used with separation columns.
         /// </summary>
-        private static Color GrayIntColor { get; set; } = Color.FromArgb(255, 80, 80, 80);
+        private static Color GrayColor { get; set; } = Color.FromArgb(255, 80, 80, 80);
         public static string GrayArgbColor { get; set; } = "FF505050";
         public static (float Alpha, float Red, float Green, float Blue) GrayFloatColor { get; set; } =
             (1, (float)0.3137, (float)0.3137, (float)0.3137);
@@ -46,7 +54,7 @@ namespace HwProj.APIGateway.API.TableGenerators
         /// <summary>
         /// Header color for tests.
         /// </summary>
-        private static Color TestHeaderIntColor { get; set; } = Color.FromArgb(255, 63, 81, 181);
+        private static Color TestHeaderColor { get; set; } = Color.FromArgb(255, 63, 81, 181);
         public static string TestHeaderArgbColor = "FF3F51B5";
         public static (float Alpha, float Red, float Green, float Blue) TestHeaderFloatColor { get; set; } =
             (1, (float)0.2471, (float)0.3176, (float)0.7098);
@@ -126,7 +134,7 @@ namespace HwProj.APIGateway.API.TableGenerators
         {
             var range = worksheet.Cells[1, position.Column, heightInCells, position.Column];
             range.Style.Fill.PatternType = ExcelFillStyle.Solid;
-            range.Style.Fill.BackgroundColor.SetColor(GrayIntColor);
+            range.Style.Fill.BackgroundColor.SetColor(GrayColor);
             worksheet.Column(position.Column).Width = columnWidth;
             ++position.Column;
         }
@@ -154,8 +162,8 @@ namespace HwProj.APIGateway.API.TableGenerators
                     var range = worksheet.Cells[
                         position.Row, position.Column, position.Row + 2, position.Column + numberCellsToMerge - 1];
                     range.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    range.Style.Fill.BackgroundColor.SetColor(TestHeaderIntColor);
-                    range.Style.Font.Color.SetColor(Color.White);
+                    range.Style.Fill.BackgroundColor.SetColor(TestHeaderColor);
+                    range.Style.Font.Color.SetColor(WhiteColor);
                 }
 
                 position.Column += numberCellsToMerge;
@@ -283,7 +291,7 @@ namespace HwProj.APIGateway.API.TableGenerators
                             worksheet.Cells[position.Row, position.Column + 2]
                                 .Style.Fill.PatternType = ExcelFillStyle.Solid;
                             worksheet.Cells[position.Row, position.Column + 2]
-                                .Style.Fill.BackgroundColor.SetColor(BlueIntColor);
+                                .Style.Fill.BackgroundColor.SetColor(CyanColor);
                         }
 
                         if (isTest) testRating += current;
