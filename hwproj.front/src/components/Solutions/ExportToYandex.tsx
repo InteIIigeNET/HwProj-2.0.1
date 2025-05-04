@@ -150,8 +150,8 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
                 }
                 <Grid item>
                     <Button variant="text" color="primary" type="button"
-                        onClick={props.onCancellation}>
-                    Отмена
+                            onClick={props.onCancellation}>
+                        Отмена
                     </Button>
                 </Grid>
             </Grid>
