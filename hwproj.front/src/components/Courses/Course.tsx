@@ -214,7 +214,7 @@ const Course: React.FC = () => {
             if (responseErrors.length > 0) {
                 setErrors(responseErrors)
             } else {
-                setErrors(['Произошла ошибка при приглашении студента'])
+                setErrors(['Студент с такой почтой не найден'])
             }
         } finally {
             setIsInviting(false)
@@ -320,31 +320,79 @@ const Course: React.FC = () => {
 
                 <Dialog
                     open={showInviteDialog}
-                    onClose={() => setShowInviteDialog(false)}
+                    onClose={() => !isInviting && setShowInviteDialog(false)}
+                    maxWidth="xs"
                 >
-                    <DialogTitle>Пригласить студента</DialogTitle>
+                    <DialogTitle>
+                        <Grid container>
+                            <Grid item container direction={"row"} justifyContent={"center"}>
+                                <Avatar className={classes.avatar} style={{color: 'white', backgroundColor: '#00AB00'}}>
+                                    <MailOutlineIcon/>
+                                </Avatar>
+                            </Grid>
+                            <Grid item container direction={"row"} justifyContent={"center"}>
+                                <Typography variant="h5">
+                                    Пригласить студента
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                    </DialogTitle>
                     <DialogContent>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            label="Email студента"
-                            type="email"
-                            fullWidth
-                            variant="standard"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
+                        {errors.length > 0 && (
+                            <Typography color="error" align="center" style={{marginBottom: '16px'}}>
+                                {errors[0]}
+                            </Typography>
+                        )}
+                        <form className={classes.form}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        required
+                                        fullWidth
+                                        type="email"
+                                        label="Электронная почта студента"
+                                        variant="outlined"
+                                        size="small"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        InputProps={{
+                                            autoComplete: 'off'
+                                        }}
+                                    />
+                                </Grid>
+                            </Grid>
+                            <Grid
+                                direction="row"
+                                justifyContent="flex-end"
+                                alignItems="flex-end"
+                                container
+                                style={{marginTop: '16px'}}
+                            >
+                                <Grid item>
+                                    <Button
+                                        onClick={() => setShowInviteDialog(false)}
+                                        color="primary"
+                                        variant="contained"
+                                        style={{marginRight: '10px'}}
+                                        disabled={isInviting}
+                                    >
+                                        Закрыть
+                                    </Button>
+                                </Grid>
+                                <Grid item>
+                                    <Button
+                                        fullWidth
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={inviteStudent}
+                                        disabled={!email || isInviting}
+                                    >
+                                        {isInviting ? 'Отправка...' : 'Пригласить'}
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </form>
                     </DialogContent>
-                    <DialogActions>
-                        <Button onClick={() => setShowInviteDialog(false)}>Отмена</Button>
-                        <Button 
-                            onClick={inviteStudent}
-                            disabled={!email}
-                            color="primary"
-                        >
-                            Пригласить
-                        </Button>
-                    </DialogActions>
                 </Dialog>
 
                 <Grid style={{marginTop: "15px"}}>
@@ -502,7 +550,6 @@ const Course: React.FC = () => {
             </div>
         );
     }
-    
     return <div className="container">
         <DotLottieReact
             src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"

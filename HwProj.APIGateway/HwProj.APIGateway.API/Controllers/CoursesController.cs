@@ -312,10 +312,14 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> inviteExistentStudent([FromBody] InviteExistentStudentViewModel model)
         {
             var student = await AuthServiceClient.FindByEmailAsync(model.Email);
-            
+            if (student == null)
+            {
+                return BadRequest(new { error = "Пользователь с указанным email не найден" });
+            }
+
             await _coursesClient.SignInCourse(model.CourseId, student);
             await _coursesClient.AcceptStudent(model.CourseId, student);
-            
+    
             return Ok();
         }
     }
