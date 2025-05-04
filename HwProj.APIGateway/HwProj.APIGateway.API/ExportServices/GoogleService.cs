@@ -25,15 +25,6 @@ namespace HwProj.APIGateway.API.ExportServices
 
         private static int SeparationColumnPixelWidth { get; set; } = 20;
 
-
-        private static Color WhiteColor { get; set; } = new Color()
-        {
-            Alpha = 1,
-            Red = 1,
-            Green = 1,
-            Blue = 1,
-        };
-
         public async Task<Result> Export(
             CourseDTO course,
             IOrderedEnumerable<StatisticsCourseMatesModel> statistics,
@@ -163,6 +154,7 @@ namespace HwProj.APIGateway.API.ExportServices
             var range = worksheet.Dimension.LocalAddress;
 
             var headersFieldEndAddress = string.Empty;
+            var whiteForegroundAddresses = new List<string>();
             var blueCellsAddresses = new List<string>();
             var grayCellsAddresses = new List<string>();
             var testHeaderCellsAddresses = new List<string>();
@@ -183,8 +175,12 @@ namespace HwProj.APIGateway.API.ExportServices
                     {
                         headersFieldEndAddress = cell.LocalAddress;
                     }
+                    if (cell.Style.Font.Color.Rgb == ExcelGenerator.WhiteArgbColor)
+                    {
+                        whiteForegroundAddresses.Add(cell.LocalAddress);
+                    }
 
-                    if (cell.Style.Fill.BackgroundColor.Rgb == ExcelGenerator.BlueArgbColor)
+                    if (cell.Style.Fill.BackgroundColor.Rgb == ExcelGenerator.CyanArgbColor)
                     {
                         blueCellsAddresses.Add(cell.LocalAddress);
                     }
@@ -221,10 +217,10 @@ namespace HwProj.APIGateway.API.ExportServices
             var batchUpdateRequest = new BatchUpdateSpreadsheetRequest();
             batchUpdateRequest.Requests = new List<Request>();
             AddClearStylesRequest(batchUpdateRequest, worksheet, sheetId, range);
-            AddColouredCellsRequests(batchUpdateRequest, worksheet, sheetId, blueCellsAddresses, ExcelGenerator.BlueFloatColor);
-            AddColouredCellsRequests(batchUpdateRequest, worksheet, sheetId, grayCellsAddresses, ExcelGenerator.GrayFloatColor);
-            AddColouredCellsRequests(
-                batchUpdateRequest, worksheet, sheetId, testHeaderCellsAddresses, ExcelGenerator.TestHeaderFloatColor, WhiteColor);
+            AddColoredCellsRequests(batchUpdateRequest, worksheet, sheetId, blueCellsAddresses, ExcelGenerator.CyanFloatColor);
+            AddColoredCellsRequests(batchUpdateRequest, worksheet, sheetId, grayCellsAddresses, ExcelGenerator.GrayFloatColor);
+            AddColoredCellsRequests(batchUpdateRequest, worksheet, sheetId, testHeaderCellsAddresses, ExcelGenerator.TestHeaderFloatColor);
+            AddColoredFontRequest(batchUpdateRequest, worksheet, sheetId, whiteForegroundAddresses, ExcelGenerator.WhiteFloatColor);
             AddUpdateCellsWidthRequest(batchUpdateRequest, worksheet, sheetId, grayCellsAddresses, SeparationColumnPixelWidth);
             AddCellsFormattingRequest(batchUpdateRequest, worksheet, sheetId, range);
             AddHeadersFormattingRequest(batchUpdateRequest, worksheet, sheetId, $"{sheetName}!A1:{headersFieldEndAddress}");
@@ -391,19 +387,18 @@ namespace HwProj.APIGateway.API.ExportServices
             }
         }
 
-        private static void AddColouredCellsRequests(
+        private static void AddColoredCellsRequests(
             BatchUpdateSpreadsheetRequest batchUpdateRequest,
             ExcelWorksheet worksheet,
             int sheetId,
-            List<string> colouredCellsAddresses,
-            (float Alpha, float Red, float Green, float Blue) fillColor,
-            Color? fontColor = null)
+            List<string> coloredCellsAddresses,
+            (float Alpha, float Red, float Green, float Blue) fillColor)
         {
-            for (var i = 0; i < colouredCellsAddresses.Count; ++i)
+            for (var i = 0; i < coloredCellsAddresses.Count; ++i)
             {
-                var cellAddress = colouredCellsAddresses[i];
-                var colorInRedRequest = new RepeatCellRequest();
-                colorInRedRequest.Range = FillGridRange(worksheet, cellAddress, sheetId);
+                var cellAddress = coloredCellsAddresses[i];
+                var colorCellRequest = new RepeatCellRequest();
+                colorCellRequest.Range = FillGridRange(worksheet, cellAddress, sheetId);
                 var cell = new CellData();
                 cell.UserEnteredFormat = new CellFormat();
                 cell.UserEnteredFormat.BackgroundColor = new Color()
@@ -414,18 +409,43 @@ namespace HwProj.APIGateway.API.ExportServices
                     Blue = fillColor.Blue,
                 };
 
-                if (fontColor != null)
-                {
-                    cell.UserEnteredFormat.TextFormat = new TextFormat();
-                    cell.UserEnteredFormat.TextFormat.ForegroundColor = fontColor;
-                }
-
-                colorInRedRequest.Fields =
-                    $"userEnteredFormat(backgroundColor{(fontColor != null ? ",textFormat.foregroundColor" : "")})";
-                colorInRedRequest.Cell = cell;
+                colorCellRequest.Fields = $"userEnteredFormat(backgroundColor)";
+                colorCellRequest.Cell = cell;
 
                 var request = new Request();
-                request.RepeatCell = colorInRedRequest;
+                request.RepeatCell = colorCellRequest;
+                batchUpdateRequest.Requests.Add(request);
+            }
+        }
+
+        private static void AddColoredFontRequest(
+            BatchUpdateSpreadsheetRequest batchUpdateRequest,
+            ExcelWorksheet worksheet,
+            int sheetId,
+            List<string> cellsAddresses,
+            (float Alpha, float Red, float Green, float Blue) fontColor)
+        {
+            for (var i = 0; i < cellsAddresses.Count; ++i)
+            {
+                var cellAddress = cellsAddresses[i];
+                var colorFontRequest = new RepeatCellRequest();
+                colorFontRequest.Range = FillGridRange(worksheet, cellAddress, sheetId);
+                var cell = new CellData();
+                cell.UserEnteredFormat = new CellFormat();
+                cell.UserEnteredFormat.TextFormat = new TextFormat();
+                cell.UserEnteredFormat.TextFormat.ForegroundColor = new Color()
+                {
+                   Alpha = fontColor.Alpha,
+                    Red = fontColor.Red,
+                    Green = fontColor.Green,
+                    Blue = fontColor.Blue,
+                };
+
+                colorFontRequest.Fields = $"userEnteredFormat(textFormat.foregroundColor)";
+                colorFontRequest.Cell = cell;
+
+                var request = new Request();
+                request.RepeatCell = colorFontRequest;
                 batchUpdateRequest.Requests.Add(request);
             }
         }
