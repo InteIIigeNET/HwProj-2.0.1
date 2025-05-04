@@ -25,6 +25,15 @@ namespace HwProj.APIGateway.API.ExportServices
 
         private static int SeparationColumnPixelWidth { get; set; } = 20;
 
+
+        private static Color WhiteColor { get; set; } = new Color()
+        {
+            Alpha = 1,
+            Red = 1,
+            Green = 1,
+            Blue = 1,
+        };
+
         public async Task<Result> Export(
             CourseDTO course,
             IOrderedEnumerable<StatisticsCourseMatesModel> statistics,
@@ -154,8 +163,9 @@ namespace HwProj.APIGateway.API.ExportServices
             var range = worksheet.Dimension.LocalAddress;
 
             var headersFieldEndAddress = string.Empty;
-            var redCellsAddresses = new List<string>();
+            var blueCellsAddresses = new List<string>();
             var grayCellsAddresses = new List<string>();
+            var testHeaderCellsAddresses = new List<string>();
             var cellsWithBorderAddresses = new List<(string CellAddress, string BorderType)>();
 
             var valueRange = new ValueRange()
@@ -176,11 +186,15 @@ namespace HwProj.APIGateway.API.ExportServices
 
                     if (cell.Style.Fill.BackgroundColor.Rgb == ExcelGenerator.BlueArgbColor)
                     {
-                        redCellsAddresses.Add(cell.LocalAddress);
+                        blueCellsAddresses.Add(cell.LocalAddress);
                     }
                     else if (cell.Style.Fill.BackgroundColor.Rgb == ExcelGenerator.GrayArgbColor)
                     {
                         grayCellsAddresses.Add(cell.LocalAddress);
+                    }
+                    else if (cell.Style.Fill.BackgroundColor.Rgb == ExcelGenerator.TestHeaderArgbColor)
+                    {
+                        testHeaderCellsAddresses.Add(cell.LocalAddress);
                     }
 
                     if (cell.Style.Border.Top.Style != ExcelBorderStyle.None)
@@ -207,17 +221,19 @@ namespace HwProj.APIGateway.API.ExportServices
             var batchUpdateRequest = new BatchUpdateSpreadsheetRequest();
             batchUpdateRequest.Requests = new List<Request>();
             AddClearStylesRequest(batchUpdateRequest, worksheet, sheetId, range);
-            AddMergeRequests(batchUpdateRequest, worksheet, sheetId, worksheet.MergedCells);
-            AddColouredCellsRequests(batchUpdateRequest, worksheet, sheetId, redCellsAddresses, ExcelGenerator.BlueFloatArgbColor);
-            AddColouredCellsRequests(batchUpdateRequest, worksheet, sheetId, grayCellsAddresses, ExcelGenerator.GrayFloatArgbColor);
+            AddColouredCellsRequests(batchUpdateRequest, worksheet, sheetId, blueCellsAddresses, ExcelGenerator.BlueFloatColor);
+            AddColouredCellsRequests(batchUpdateRequest, worksheet, sheetId, grayCellsAddresses, ExcelGenerator.GrayFloatColor);
+            AddColouredCellsRequests(
+                batchUpdateRequest, worksheet, sheetId, testHeaderCellsAddresses, ExcelGenerator.TestHeaderFloatColor, WhiteColor);
             AddUpdateCellsWidthRequest(batchUpdateRequest, worksheet, sheetId, grayCellsAddresses, SeparationColumnPixelWidth);
             AddCellsFormattingRequest(batchUpdateRequest, worksheet, sheetId, range);
             AddHeadersFormattingRequest(batchUpdateRequest, worksheet, sheetId, $"{sheetName}!A1:{headersFieldEndAddress}");
             AddBordersFormattingRequest(batchUpdateRequest, worksheet, sheetId, cellsWithBorderAddresses, ExcelGenerator.EquivalentBorderStyle);
+            AddMergeRequests(batchUpdateRequest, worksheet, sheetId, worksheet.MergedCells);
             return (valueRange, rangeWithSheetTitle, batchUpdateRequest);
         }
 
-        private static GridRange FillGridRange(ExcelWorksheet worksheet, string rangeAddress, int sheetId)
+            private static GridRange FillGridRange(ExcelWorksheet worksheet, string rangeAddress, int sheetId)
         {
             var gridRange = new GridRange();
             var rangeInfo = worksheet.Cells[rangeAddress];
@@ -246,7 +262,6 @@ namespace HwProj.APIGateway.API.ExportServices
             request.RepeatCell = clearStylesRequest;
             batchUpdateRequest.Requests.Add(request);
         }
-
 
         private static void AddBordersFormattingRequest(
             BatchUpdateSpreadsheetRequest batchUpdateRequest,
@@ -381,7 +396,8 @@ namespace HwProj.APIGateway.API.ExportServices
             ExcelWorksheet worksheet,
             int sheetId,
             List<string> colouredCellsAddresses,
-            (float Alpha, float Red, float Green, float Blue) color)
+            (float Alpha, float Red, float Green, float Blue) fillColor,
+            Color? fontColor = null)
         {
             for (var i = 0; i < colouredCellsAddresses.Count; ++i)
             {
@@ -392,12 +408,20 @@ namespace HwProj.APIGateway.API.ExportServices
                 cell.UserEnteredFormat = new CellFormat();
                 cell.UserEnteredFormat.BackgroundColor = new Color()
                 {
-                    Alpha = color.Alpha,
-                    Red = color.Red,
-                    Green = color.Green,
-                    Blue = color.Blue,
+                    Alpha = fillColor.Alpha,
+                    Red = fillColor.Red,
+                    Green = fillColor.Green,
+                    Blue = fillColor.Blue,
                 };
-                colorInRedRequest.Fields = "userEnteredFormat(backgroundColor)";
+
+                if (fontColor != null)
+                {
+                    cell.UserEnteredFormat.TextFormat = new TextFormat();
+                    cell.UserEnteredFormat.TextFormat.ForegroundColor = fontColor;
+                }
+
+                colorInRedRequest.Fields =
+                    $"userEnteredFormat(backgroundColor{(fontColor != null ? ",textFormat.foregroundColor" : "")})";
                 colorInRedRequest.Cell = cell;
 
                 var request = new Request();

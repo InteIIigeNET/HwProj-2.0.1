@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using HwProj.APIGateway.API.Models.Statistics;
 using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
+using Microsoft.EntityFrameworkCore.Internal;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 
@@ -25,27 +28,45 @@ namespace HwProj.APIGateway.API.TableGenerators
         public static int FontSize { get; set; } = 11;
 
         /// <summary>
-        /// Shade of red used in the reports.
+        /// Shade of blue used in the reports.
         /// </summary>
-        private static (int Alpha, int Red, int Green, int Blue) BlueIntArgbColor { get; set; } = (0, 0, 255, 255);
-        public static (float Alpha, float Red, float Green, float Blue) BlueFloatArgbColor { get; set; } = (0, 0, 1, 1);
-        public static string BlueArgbColor { get; set; } = "0000FFFF";
+        private static Color BlueIntColor { get; set; } = Color.FromArgb(255, 0, 255, 255);
+        public static string BlueArgbColor { get; set; } = "FF00FFFF";
+        public static (float Alpha, float Red, float Green, float Blue) BlueFloatColor { get; set; } =
+            (1, 0, 1, 1);
 
         /// <summary>
         /// Shade of gray used in the reports.
         /// </summary>
-        private static (int Alpha, int Red, int Green, int Blue) GrayIntArgbColor { get; set; } = (255, 80, 80, 80);
-
-        public static (float Alpha, float Red, float Green, float Blue) GrayFloatArgbColor { get; set; } =
+        private static Color GrayIntColor { get; set; } = Color.FromArgb(255, 80, 80, 80);
+        public static string GrayArgbColor { get; set; } = "FF505050";
+        public static (float Alpha, float Red, float Green, float Blue) GrayFloatColor { get; set; } =
             (1, (float)0.3137, (float)0.3137, (float)0.3137);
 
-        public static string GrayArgbColor { get; set; } = "FF505050";
+        /// <summary>
+        /// Header color for tests.
+        /// </summary>
+        private static Color TestHeaderIntColor { get; set; } = Color.FromArgb(255, 63, 81, 181);
+        public static string TestHeaderArgbColor = "FF3F51B5";
+        public static (float Alpha, float Red, float Green, float Blue) TestHeaderFloatColor { get; set; } =
+            (1, (float)0.2471, (float)0.3176, (float)0.7098);
 
         private static ExcelBorderStyle BorderStyle { get; set; } = ExcelBorderStyle.Thin;
 
         public static string EquivalentBorderStyle { get; set; } = "SOLID";
 
         private static int SeparationColumnWidth { get; set; } = 2;
+
+        private static string GetTagLabel(string tag)
+        {
+            return tag switch
+            {
+                HomeworkTags.Test => "Тест",
+                HomeworkTags.BonusTask => "Бонус",
+                HomeworkTags.GroupWork => "Командное",
+                _ => tag,
+            };
+        }
 
         /// <summary>
         /// Generates course statistics file based on the model from HwProj.APIGateway.Tests.Test.xlsx file.
@@ -74,13 +95,10 @@ namespace HwProj.APIGateway.API.TableGenerators
             var columnsNumber = position.Column - 1;
             position.ToNextRow(2);
 
-            worksheet.Cells[1, 1, rowsNumber, columnsNumber].Style.Font.Size = FontSize;
-            worksheet.Cells[1, 1, rowsNumber, columnsNumber].Style.Font.Name = FontFamily;
-
             AddTasksHeaders(worksheet, course, position, rowsNumber);
             position.ToNextRow(2);
 
-            AddMinMaxCntHeadersWithBottomBorder(worksheet, course, position);
+            AddRatingHeadersWithBottomBorder(worksheet, course, position);
             position.ToNextRow(1);
 
             var maxFieldPosition = new Position(position.Row, 3);
@@ -96,6 +114,8 @@ namespace HwProj.APIGateway.API.TableGenerators
             headersRange.Style.Font.Bold = true;
 
             var range = worksheet.Cells[1, 1, rowsNumber, columnsNumber];
+            range.Style.Font.Size = FontSize;
+            range.Style.Font.Name = FontFamily;
             range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             range.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
@@ -106,7 +126,7 @@ namespace HwProj.APIGateway.API.TableGenerators
         {
             var range = worksheet.Cells[1, position.Column, heightInCells, position.Column];
             range.Style.Fill.PatternType = ExcelFillStyle.Solid;
-            range.Style.Fill.BackgroundColor.SetColor(GrayIntArgbColor.Alpha, GrayIntArgbColor.Red, GrayIntArgbColor.Green, GrayIntArgbColor.Blue);
+            range.Style.Fill.BackgroundColor.SetColor(GrayIntColor);
             worksheet.Column(position.Column).Width = columnWidth;
             ++position.Column;
         }
@@ -119,10 +139,25 @@ namespace HwProj.APIGateway.API.TableGenerators
                 var numberCellsToMerge = course.Homeworks[i].Tasks.Count * 3;
                 if (numberCellsToMerge == 0) continue;
 
+                var title = course.Homeworks[i].Title;
+                var publicationDate = course.Homeworks[i].PublicationDate;
+                var tags = course.Homeworks[i].Tags.Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
+                var isTest = tags.Contains(HomeworkTags.Test);
+                var tagsStr = $" ({tags.Select(GetTagLabel).Join(", ")})";
+
                 worksheet.Cells[position.Row, position.Column].Value
-                    = $"h/w {i + 1}: {course.Homeworks[i].Title}, {course.Homeworks[i].PublicationDate:dd.MM}";
+                    = $"h/w {i + 1}: {title}, {publicationDate:dd.MM}{(tags.Count > 0 ? tagsStr : "")}";
                 worksheet.Cells[position.Row, position.Column, position.Row, position.Column + numberCellsToMerge - 1]
                     .Merge = true;
+                if (isTest)
+                {
+                    var range = worksheet.Cells[
+                        position.Row, position.Column, position.Row + 2, position.Column + numberCellsToMerge - 1];
+                    range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(TestHeaderIntColor);
+                    range.Style.Font.Color.SetColor(Color.White);
+                }
+
                 position.Column += numberCellsToMerge;
                 AddBorderedSeparationColumn(worksheet, position, heightInCells, separationColumnWidth);
             }
@@ -155,7 +190,7 @@ namespace HwProj.APIGateway.API.TableGenerators
             }
         }
 
-        private static void AddMinMaxCntHeadersWithBottomBorder(ExcelWorksheet worksheet, CourseDTO course,
+        private static void AddRatingHeadersWithBottomBorder(ExcelWorksheet worksheet, CourseDTO course,
             Position position)
         {
             for (var i = 0; i < course.Homeworks.Length; ++i)
@@ -165,9 +200,9 @@ namespace HwProj.APIGateway.API.TableGenerators
 
                 for (var j = position.Column; j < position.Column + lengthInCells; j += 3)
                 {
-                    worksheet.Cells[position.Row, j].Value = "min";
-                    worksheet.Cells[position.Row, j + 1].Value = "max";
-                    worksheet.Cells[position.Row, j + 2].Value = "cnt";
+                    worksheet.Cells[position.Row, j].Value = "оценка";
+                    worksheet.Cells[position.Row, j + 1].Value = "макс. балл";
+                    worksheet.Cells[position.Row, j + 2].Value = "попытки";
                     worksheet.Cells[position.Row, j, position.Row, j + 2].Style.Border.Bottom.Style = BorderStyle;
                 }
 
@@ -176,7 +211,7 @@ namespace HwProj.APIGateway.API.TableGenerators
             }
         }
 
-        private static (int, int) AddTasksMaxRatingInfo(
+        private static (int MaxRatingForHw, int MaxRatingForTests) AddTasksMaxRatingInfo(
             ExcelWorksheet worksheet,
             CourseDTO course,
             int heightInCells,
@@ -194,8 +229,7 @@ namespace HwProj.APIGateway.API.TableGenerators
                 {
                     var maxRating = course.Homeworks[i].Tasks[j].MaxRating;
                     var isTest = course.Homeworks[i].Tasks[j].Tags.Contains(HomeworkTags.Test);
-                    if (isTest) maxRatingForTests += maxRating;
-                    else maxRatingForHw += maxRating;
+                    var isBonus = course.Homeworks[i].Tasks[j].Tags.Contains(HomeworkTags.BonusTask);
 
                     for (var k = firstMaxFieldPosition.Row; k <= heightInCells; ++k)
                     {
@@ -203,6 +237,9 @@ namespace HwProj.APIGateway.API.TableGenerators
                     }
 
                     firstMaxFieldPosition.Column += 3;
+                    if (isBonus) continue;
+                    if (isTest) maxRatingForTests += maxRating;
+                    else maxRatingForHw += maxRating;
                 }
 
                 ++firstMaxFieldPosition.Column;
@@ -211,7 +248,7 @@ namespace HwProj.APIGateway.API.TableGenerators
             return (maxRatingForHw, maxRatingForTests);
         }
 
-        private static List<(int, int)> AddCourseMatesInfo(
+        private static List<(int HwRating, int TestRating)> AddCourseMatesInfo(
             CourseDTO course,
             ExcelWorksheet worksheet,
             List<StatisticsCourseMatesModel> courseMatesModels,
@@ -237,20 +274,20 @@ namespace HwProj.APIGateway.API.TableGenerators
                         var solutions = allSolutions
                             .Where(solution =>
                                 solution.State == SolutionState.Rated || solution.State == SolutionState.Final);
-                        var min = solutions.Any() ? solutions.Last().Rating : 0;
-                        var cnt = solutions.Count();
-                        worksheet.Cells[position.Row, position.Column].Value = min;
-                        worksheet.Cells[position.Row, position.Column + 2].Value = cnt;
-                        if (cnt != allSolutions.Count)
+                        var current = solutions.Any() ? solutions.Last().Rating : 0;
+                        var count = solutions.Count();
+                        worksheet.Cells[position.Row, position.Column].Value = current;
+                        worksheet.Cells[position.Row, position.Column + 2].Value = count;
+                        if (count != allSolutions.Count)
                         {
-                            worksheet.Cells[position.Row, position.Column + 2].Style.Fill.PatternType =
-                                ExcelFillStyle.Solid;
-                            worksheet.Cells[position.Row, position.Column + 2].Style.Fill.BackgroundColor.SetColor(
-                                BlueIntArgbColor.Alpha, BlueIntArgbColor.Red, BlueIntArgbColor.Green, BlueIntArgbColor.Blue);
+                            worksheet.Cells[position.Row, position.Column + 2]
+                                .Style.Fill.PatternType = ExcelFillStyle.Solid;
+                            worksheet.Cells[position.Row, position.Column + 2]
+                                .Style.Fill.BackgroundColor.SetColor(BlueIntColor);
                         }
 
-                        if (isTest) testRating += min;
-                        else hwRating += min;
+                        if (isTest) testRating += current;
+                        else hwRating += current;
                         position.Column += 3;
                     }
 
@@ -267,7 +304,7 @@ namespace HwProj.APIGateway.API.TableGenerators
         private static int AddSummary(ExcelWorksheet worksheet,
             int maxRatingForHw,
             int maxRatingForTests,
-            List<(int, int)> totalRatings,
+            List<(int HwRating, int TestRating)> totalRatings,
             int heightInCells,
             int separationColumnWidth)
         {
@@ -278,20 +315,18 @@ namespace HwProj.APIGateway.API.TableGenerators
             if (hasTests)
             {
                 worksheet.Cells[1, 2].Insert(eShiftTypeInsert.EntireColumn);
-                worksheet.Cells[1, 2].Value = "Summary";
-                worksheet.Cells[2, 2].Value = $"Test ({maxRatingForTests})";
+                worksheet.Cells[1, 2].Value = "Итоговые баллы";
+                worksheet.Cells[2, 2].Value = $"КР ({maxRatingForTests})";
                 worksheet.Cells[2, 2, 3, 2].Merge = true;
-                worksheet.Cells[3, 2].Style.Border.Bottom.Style = BorderStyle;
-                worksheet.Cells[4, 2, 4 + totalRatings.Count - 1, 2].FillList(totalRatings.Select(p => p.Item2));
+                worksheet.Cells[4, 2, 4 + totalRatings.Count - 1, 2].FillList(totalRatings.Select(p => p.TestRating));
             }
             if (hasHomework)
             {
                 worksheet.Cells[1, 2].Insert(eShiftTypeInsert.EntireColumn);
-                worksheet.Cells[1, 2].Value = "Summary";
-                worksheet.Cells[2, 2].Value = $"HW ({maxRatingForHw})";
+                worksheet.Cells[1, 2].Value = "Итоговые баллы";
+                worksheet.Cells[2, 2].Value = $"ДЗ ({maxRatingForHw})";
                 worksheet.Cells[2, 2, 3, 2].Merge = true;
-                worksheet.Cells[3, 2].Style.Border.Bottom.Style = BorderStyle;
-                worksheet.Cells[4, 2, 4 + totalRatings.Count - 1, 2].FillList(totalRatings.Select(p => p.Item1));
+                worksheet.Cells[4, 2, 4 + totalRatings.Count - 1, 2].FillList(totalRatings.Select(p => p.HwRating));
             }
 
             var cellsToMerge = (hasHomework ? 1 : 0) + (hasTests ? 1 : 0);
@@ -301,6 +336,7 @@ namespace HwProj.APIGateway.API.TableGenerators
                 worksheet.Cells[1, 2 + cellsToMerge].Insert(eShiftTypeInsert.EntireColumn);
                 AddBorderedSeparationColumn(
                     worksheet, new Position(1, 2 + cellsToMerge), heightInCells, separationColumnWidth);
+                worksheet.Cells[2, 2, 3, 1 + cellsToMerge].Style.Border.Bottom.Style = BorderStyle;
             }
 
             return cellsToMerge;
