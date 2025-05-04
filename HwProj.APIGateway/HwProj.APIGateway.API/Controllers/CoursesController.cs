@@ -306,5 +306,17 @@ namespace HwProj.APIGateway.API.Controllers
                 IsOpen = course.IsOpen,
             };
         }
+        
+        [HttpPost("inviteExistentStudent")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        public async Task<IActionResult> inviteExistentStudent([FromBody] InviteExistentStudentViewModel model)
+        {
+            var student = await AuthServiceClient.FindByEmailAsync(model.Email);
+            
+            await _coursesClient.SignInCourse(model.CourseId, student);
+            await _coursesClient.AcceptStudent(model.CourseId, student);
+            
+            return Ok();
+        }
     }
 }

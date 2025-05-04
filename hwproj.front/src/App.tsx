@@ -12,8 +12,6 @@ import TaskSolutionsPage from "./components/Solutions/TaskSolutionsPage";
 import {AppBarContextAction, appBarStateManager, Header} from "./components/AppBar";
 import Login from "./components/Auth/Login";
 import EditCourse from "./components/Courses/EditCourse";
-import EditTask from "./components/Tasks/EditTask";
-import EditHomework from "./components/Homeworks/EditHomework";
 import Register from "./components/Auth/Register";
 import ExpertsNotebook from "./components/Experts/Notebook";
 import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
@@ -118,10 +116,7 @@ class App extends Component<{ navigate: any }, AppState> {
                         <Route path="create_course" element={<CreateCourse/>}/>
                         <Route path="courses/:courseId" element={<Course/>}/>
                         <Route path="courses/:courseId/:tab" element={<Course/>}/>
-                        <Route path="courses/:courseId/editHomeworks" element={<Course isReadingMode={false}/>}/>
                         <Route path="courses/:courseId/editInfo" element={<EditCourse/>}/>
-                        <Route path="homework/:homeworkId/edit" element={<EditHomework/>}/>
-                        <Route path="task/:taskId/edit" element={<EditTask/>}/>
                         <Route path="task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
                         <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
                     </Route>
