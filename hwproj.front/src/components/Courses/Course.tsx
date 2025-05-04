@@ -33,6 +33,9 @@ import {useSnackbar} from 'notistack';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import Avatar from "@material-ui/core/Avatar";
+import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
+import {makeStyles} from '@material-ui/core/styles';
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -55,11 +58,31 @@ interface IPageState {
     tabValue: TabValue
 }
 
+const useStyles = makeStyles((theme) => ({
+    paper: {
+        marginTop: theme.spacing(3),
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+    },
+    avatar: {
+        margin: theme.spacing(1),
+    },
+    form: {
+        marginTop: theme.spacing(3),
+        width: '100%'
+    },
+    button: {
+        marginTop: theme.spacing(1)
+    },
+}))
+
 const Course: React.FC = () => {
     const {courseId, tab} = useParams()
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
     const {enqueueSnackbar} = useSnackbar()
+    const classes = useStyles()
 
     const [courseState, setCourseState] = useState<ICourseState>({
         isFound: false,
@@ -75,6 +98,7 @@ const Course: React.FC = () => {
     const [courseFilesInfo, setCourseFilesInfo] = useState<FileInfoDTO[]>([])
     const [email, setEmail] = useState("")
     const [showInviteDialog, setShowInviteDialog] = useState(false)
+    const [errors, setErrors] = useState<string[]>([])
 
     const [pageState, setPageState] = useState<IPageState>({
         tabValue: "homeworks"
@@ -188,7 +212,7 @@ const Course: React.FC = () => {
             await setCurrentState();
         } catch (error) {
             const responseErrors = await ErrorsHandler.getErrorMessages(error as Response)
-            enqueueSnackbar(responseErrors[0], {variant: "error"});
+            setErrors(responseErrors)
         }
     }
 
@@ -249,7 +273,10 @@ const Course: React.FC = () => {
                         <ListItemText>Поделиться</ListItemText>
                     </MenuItem>
                     {isCourseMentor && isLecturer && 
-                        <MenuItem onClick={() => setShowInviteDialog(true)}>
+                        <MenuItem onClick={() => {
+                            setShowInviteDialog(true)
+                            setErrors([])
+                        }}>
                             <ListItemIcon>
                                 <QrCode2Icon fontSize="small"/>
                             </ListItemIcon>
@@ -289,30 +316,74 @@ const Course: React.FC = () => {
                 <Dialog
                     open={showInviteDialog}
                     onClose={() => setShowInviteDialog(false)}
+                    maxWidth="xs"
                 >
-                    <DialogTitle>Пригласить студента</DialogTitle>
+                    <DialogTitle>
+                        <Grid container>
+                            <Grid item container direction={"row"} justifyContent={"center"}>
+                                <Avatar className={classes.avatar} style={{color: 'white', backgroundColor: '#00AB00'}}>
+                                    <PersonAddOutlinedIcon/>
+                                </Avatar>
+                            </Grid>
+                            <Grid item container direction={"row"} justifyContent={"center"}>
+                                <Typography variant="h5">
+                                    Пригласить студента
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                    </DialogTitle>
                     <DialogContent>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            label="Email студента"
-                            type="email"
-                            fullWidth
-                            variant="standard"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
+                        <Grid item container direction={"row"} justifyContent={"center"}>
+                            {errors.length > 0 && (
+                                <p style={{color: "red", marginBottom: "0"}}>{errors[0]}</p>
+                            )}
+                        </Grid>
+                        <form className={classes.form}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        required
+                                        fullWidth
+                                        type="email"
+                                        label="Электронная почта студента"
+                                        variant="outlined"
+                                        size="small"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
+                                </Grid>
+                            </Grid>
+                            <Grid
+                                direction="row"
+                                justifyContent="flex-end"
+                                alignItems="flex-end"
+                                container
+                                style={{marginTop: '16px'}}
+                            >
+                                <Grid item>
+                                    <Button
+                                        onClick={() => setShowInviteDialog(false)}
+                                        color="primary"
+                                        variant="contained"
+                                        style={{marginRight: '10px'}}
+                                    >
+                                        Закрыть
+                                    </Button>
+                                </Grid>
+                                <Grid item>
+                                    <Button
+                                        fullWidth
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={inviteStudent}
+                                        disabled={!email}
+                                    >
+                                        Пригласить
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </form>
                     </DialogContent>
-                    <DialogActions>
-                        <Button onClick={() => setShowInviteDialog(false)}>Отмена</Button>
-                        <Button 
-                            onClick={inviteStudent}
-                            disabled={!email}
-                            color="primary"
-                        >
-                            Пригласить
-                        </Button>
-                    </DialogActions>
                 </Dialog>
 
                 <Grid style={{marginTop: "15px"}}>
