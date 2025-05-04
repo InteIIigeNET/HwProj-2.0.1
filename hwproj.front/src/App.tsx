@@ -117,6 +117,7 @@ class App extends Component<{ navigate: any }, AppState> {
                         <Route path="courses/:courseId" element={<Course/>}/>
                         <Route path="courses/:courseId/:tab" element={<Course/>}/>
                         <Route path="courses/:courseId/editInfo" element={<EditCourse/>}/>
+                        <Route path="courses/yandex" element={<Course/>}/>
                         <Route path="task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
                         <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
                     </Route>
@@ -127,7 +128,6 @@ class App extends Component<{ navigate: any }, AppState> {
                     <Route path="recovery" element={<PasswordRecovery/>}/>
                     <Route path="resetPassword" element={<ResetPassword/>}/>
                     <Route path="join/:token" element={<ExpertAuthLayout onLogin={this.login}/>}/>
-                    <Route path="/yandex" element={<Course/>}/>
                     <Route path={"*"} element={<WrongPath/>}/>
                 </Routes>
                 <div style={{marginBottom: 10}}/>
