@@ -34,7 +34,7 @@ import QrCode2Icon from '@mui/icons-material/QrCode2';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import Avatar from "@material-ui/core/Avatar";
-import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import {makeStyles} from '@material-ui/core/styles';
 
 type TabValue = "homeworks" | "stats" | "applications"
@@ -99,6 +99,7 @@ const Course: React.FC = () => {
     const [email, setEmail] = useState("")
     const [showInviteDialog, setShowInviteDialog] = useState(false)
     const [errors, setErrors] = useState<string[]>([])
+    const [isInviting, setIsInviting] = useState(false)
 
     const [pageState, setPageState] = useState<IPageState>({
         tabValue: "homeworks"
@@ -142,8 +143,6 @@ const Course: React.FC = () => {
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.coursesGetCourseData(+courseId!)
 
-        // У пользователя изменилась роль (иначе он не может стать лектором в курсе),
-        // однако он все ещё использует токен с прежней ролью
         const shouldRefreshToken =
             !isMentor &&
             course &&
@@ -168,8 +167,6 @@ const Course: React.FC = () => {
     }
 
     const getCourseFilesInfo = async () => {
-        // В случае, если сервис файлов недоступен, показываем пользователю сообщение
-        // и не блокируем остальную функциональность системы
         let courseFilesInfo = [] as FileInfoDTO[]
         try {
             courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
@@ -201,6 +198,8 @@ const Course: React.FC = () => {
     }
 
     const inviteStudent = async () => {
+        setIsInviting(true)
+        setErrors([])
         try {
             await ApiSingleton.coursesApi.coursesinviteExistentStudent({
                 courseId: +courseId!,
@@ -212,7 +211,13 @@ const Course: React.FC = () => {
             await setCurrentState();
         } catch (error) {
             const responseErrors = await ErrorsHandler.getErrorMessages(error as Response)
-            setErrors(responseErrors)
+            if (responseErrors.length > 0) {
+                setErrors(responseErrors)
+            } else {
+                setErrors(['Произошла ошибка при приглашении студента'])
+            }
+        } finally {
+            setIsInviting(false)
         }
     }
 
@@ -222,7 +227,7 @@ const Course: React.FC = () => {
     const unratedSolutionsCount = studentSolutions
         .flatMap(x => x.homeworks)
         .flatMap(x => x!.tasks)
-        .filter(t => t!.solution!.slice(-1)[0]?.state === 0) //last solution
+        .filter(t => t!.solution!.slice(-1)[0]?.state === 0)
         .length
 
     const [lecturerStatsState, setLecturerStatsState] = useState(false);
@@ -278,7 +283,7 @@ const Course: React.FC = () => {
                             setErrors([])
                         }}>
                             <ListItemIcon>
-                                <QrCode2Icon fontSize="small"/>
+                                <MailOutlineIcon fontSize="small"/>
                             </ListItemIcon>
                             <ListItemText>Пригласить студента</ListItemText>
                         </MenuItem>
@@ -316,74 +321,30 @@ const Course: React.FC = () => {
                 <Dialog
                     open={showInviteDialog}
                     onClose={() => setShowInviteDialog(false)}
-                    maxWidth="xs"
                 >
-                    <DialogTitle>
-                        <Grid container>
-                            <Grid item container direction={"row"} justifyContent={"center"}>
-                                <Avatar className={classes.avatar} style={{color: 'white', backgroundColor: '#00AB00'}}>
-                                    <PersonAddOutlinedIcon/>
-                                </Avatar>
-                            </Grid>
-                            <Grid item container direction={"row"} justifyContent={"center"}>
-                                <Typography variant="h5">
-                                    Пригласить студента
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                    </DialogTitle>
+                    <DialogTitle>Пригласить студента</DialogTitle>
                     <DialogContent>
-                        <Grid item container direction={"row"} justifyContent={"center"}>
-                            {errors.length > 0 && (
-                                <p style={{color: "red", marginBottom: "0"}}>{errors[0]}</p>
-                            )}
-                        </Grid>
-                        <form className={classes.form}>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        required
-                                        fullWidth
-                                        type="email"
-                                        label="Электронная почта студента"
-                                        variant="outlined"
-                                        size="small"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                    />
-                                </Grid>
-                            </Grid>
-                            <Grid
-                                direction="row"
-                                justifyContent="flex-end"
-                                alignItems="flex-end"
-                                container
-                                style={{marginTop: '16px'}}
-                            >
-                                <Grid item>
-                                    <Button
-                                        onClick={() => setShowInviteDialog(false)}
-                                        color="primary"
-                                        variant="contained"
-                                        style={{marginRight: '10px'}}
-                                    >
-                                        Закрыть
-                                    </Button>
-                                </Grid>
-                                <Grid item>
-                                    <Button
-                                        fullWidth
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={inviteStudent}
-                                        disabled={!email}
-                                    >
-                                        Пригласить
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </form>
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            label="Email студента"
+                            type="email"
+                            fullWidth
+                            variant="standard"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
                     </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setShowInviteDialog(false)}>Отмена</Button>
+                        <Button 
+                            onClick={inviteStudent}
+                            disabled={!email}
+                            color="primary"
+                        >
+                            Пригласить
+                        </Button>
+                    </DialogActions>
                 </Dialog>
 
                 <Grid style={{marginTop: "15px"}}>
@@ -541,6 +502,7 @@ const Course: React.FC = () => {
             </div>
         );
     }
+    
     return <div className="container">
         <DotLottieReact
             src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
