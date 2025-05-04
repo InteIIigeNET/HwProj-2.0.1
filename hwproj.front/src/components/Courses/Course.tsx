@@ -68,9 +68,8 @@ const Course: React.FC = () => {
     const {courseId, tab} = useParams()
     const [searchParams] = useSearchParams()
 
-    const isFromYandex = courseId === undefined
+    const isFromYandex = !courseId || courseId === "yandex"
     const validatedCourseId = isFromYandex ? getLastViewedCourseId() : courseId
-
 
     const navigate = useNavigate()
     const {enqueueSnackbar} = useSnackbar()
@@ -181,15 +180,6 @@ const Course: React.FC = () => {
     useEffect(() => {
         setCurrentState()
     }, [])
-
-    useEffect(() => {
-        ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+validatedCourseId!)
-            .then(res => setStudentSolutions(res))
-    }, [validatedCourseId])
-
-    useEffect(() => {
-        getCourseFilesInfo()
-    }, [validatedCourseId])
 
     useEffect(() => {
         ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+validatedCourseId!)
