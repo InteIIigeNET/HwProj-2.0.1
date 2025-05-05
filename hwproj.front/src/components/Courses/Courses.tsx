@@ -41,7 +41,7 @@ export default class Courses extends React.Component<Props, ICoursesState> {
         const activeCourses = myCourses.filter(course => !course.isCompleted)
         const completedCourses = myCourses.filter(course => course.isCompleted)
         const isExpert = this.props.isExpert
-        let activeCoursesTab = !isLoaded || activeCourses.length > 0 ? 0 : undefined
+        let activeCoursesTab = activeCourses.length > 0 ? 0 : undefined
         let allCoursesTab = activeCoursesTab === 0 ? 1 : 0
         let completedCoursesTab = completedCourses.length > 0
             ? activeCoursesTab === 0 ? 2 : 1
