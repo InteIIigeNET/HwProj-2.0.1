@@ -150,8 +150,13 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const commitsActuality = solutionActuality?.commitsActuality
 
     const getDatesDiff = (_date1: Date, _date2: Date) => {
-        const date1 = new Date(_date1).getTime()
-        const date2 = new Date(_date2).getTime()
+        const truncateToMinutes = (date: Date) => {
+            date.setSeconds(0, 0) // Убираем секунды и миллисекунды
+            return date
+        }
+
+        const date1 = truncateToMinutes(new Date(_date1)).getTime()
+        const date2 = truncateToMinutes(new Date(_date2)).getTime()
         const diffTime = date1 - date2
         if (diffTime <= 0) return ""
         return Utils.pluralizeDateTime(diffTime);
