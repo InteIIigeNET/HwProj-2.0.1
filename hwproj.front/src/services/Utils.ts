@@ -27,7 +27,11 @@ export default class Utils {
 
         if (diffHoursInt === 0) {
             const diffMinutes = Math.trunc(milliseconds / (1000 * 60))
-            return diffMinutes + " " + this.pluralizeHelper(["минуту", "минуты", "минут"], diffMinutes)
+            if (diffMinutes > 0) {
+                return diffMinutes + " " + this.pluralizeHelper(["минуту", "минуты", "минут"], diffMinutes)
+            }
+            const diffSeconds = Math.trunc(milliseconds / 1000)
+            return diffSeconds + " " + this.pluralizeHelper(["секунду", "секунды", "секунд"], diffSeconds)
         }
 
         const diffDays = Math.trunc(diffHours / 24)
@@ -70,7 +74,7 @@ export default class Utils {
             month: 'long',
             day: 'numeric',
         };
-        
+
         return (new Date(date)).toLocaleString(undefined, options)
     }
 
