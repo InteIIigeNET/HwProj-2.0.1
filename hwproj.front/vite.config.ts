@@ -36,7 +36,8 @@ export default defineConfig({
             host: 'localhost',
             port: 3000,
             protocol: 'wss'
-        }
+        },
+        open: true
     },
     build: {
         outDir: "dist",
