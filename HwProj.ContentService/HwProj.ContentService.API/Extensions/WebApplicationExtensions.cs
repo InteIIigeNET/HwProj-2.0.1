@@ -47,7 +47,16 @@ public static class WebApplicationExtensions
             throw new ApplicationException("Конфигурация клиента AWS S3 не задана");
         }
 
-        await amazonS3Client.CreateBucketIfNotExists(defaultBucketName);
+        try
+        {
+            await amazonS3Client.CreateBucketIfNotExists(defaultBucketName);
+            application.Logger.LogInformation("Сервис успешно запущен. Установлено соединение с YandexObjectStorage");
+        }
+        catch (AmazonS3Exception)
+        {
+            application.Logger.LogWarning("Не удалось установить соединение с Yandex Object Storage. " +
+                                          "Проверьте значения секции StorageClientConfiguration и перезапустите сервис");
+        }
     }
     
     private static void MigrateDatabase(this WebApplication application)
