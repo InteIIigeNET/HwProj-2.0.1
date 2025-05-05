@@ -11,10 +11,11 @@ export default [
         ignores: [
             "node_modules",
             "dist",
+            "static_dist",
             "build/**/*",
             "*config.*",
             "public",
-            "src/api/api.ts" // Поскольку этот файл автогенерируется
+            "src/api/api.ts" // Поскольку этот файл автогенерируем пока
         ]
     },
     
