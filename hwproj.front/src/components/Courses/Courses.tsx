@@ -59,7 +59,7 @@ export default class Courses extends React.Component<Props, ICoursesState> {
                         this.setState({tabValue: value});
                     }}
                 >
-                    {activeCourses.length > 0 && <Tab label="Ваши курсы"/>}
+                    {!isLoaded || activeCourses.length > 0 && <Tab label="Ваши курсы"/>}
                     {!isExpert && <Tab label="Все курсы"/>}
                     {completedCourses.length > 0 && <Tab label="Завершенные курсы"/>}
                 </Tabs>
