@@ -273,5 +273,16 @@ namespace HwProj.CoursesService.API.Controllers
             var mentorsToAssignedStudents = await _courseFilterService.GetAssignedStudentsIds(courseId, mentorIds);
             return Ok(mentorsToAssignedStudents);
         }
+        
+        [HttpPost("signInAndAcceptStudent/{courseId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> SignInAndAcceptStudent(long courseId, [FromQuery] string studentId)
+        {
+            var signInResult = await _coursesService.AddStudentAsync(courseId, studentId);
+            if (!signInResult) return NotFound();
+
+            var acceptResult = await _coursesService.AcceptCourseMateAsync(courseId, studentId);
+            return acceptResult ? (IActionResult)Ok() : NotFound();
+        }
     }
 }

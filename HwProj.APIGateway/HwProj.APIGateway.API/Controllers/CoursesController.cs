@@ -316,10 +316,9 @@ namespace HwProj.APIGateway.API.Controllers
             {
                 return BadRequest(new { error = "Пользователь с указанным email не найден" });
             }
-
-            await _coursesClient.SignInCourse(model.CourseId, student);
-            await _coursesClient.AcceptStudent(model.CourseId, student);
-    
+            
+            await _coursesClient.SignInAndAcceptStudent(model.CourseId, student);
+            
             return Ok();
         }
     }
