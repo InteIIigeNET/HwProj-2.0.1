@@ -1,12 +1,12 @@
 import * as React from 'react';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button'
 import ApiSingleton from "../../api/ApiSingleton";
-import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, SolutionState, SolutionViewModel} from "../../api";
+import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, SolutionState, SolutionViewModel} from "@/api";
 import {FC, useState} from "react";
-import {Alert, Autocomplete, Grid, DialogContent, Dialog, DialogTitle, DialogActions} from "@mui/material";
+import {Alert, Autocomplete, Grid, DialogContent, Dialog, DialogTitle, DialogActions, Button} from "@mui/material";
 import {MarkdownEditor} from "../Common/MarkdownEditor";
 import {TestTag} from "../Common/HomeworkTags";
+import {LoadingButton} from "@mui/lab";
+import TextField from "@mui/material/TextField";
 
 interface IAddSolutionProps {
     userId: string
@@ -29,8 +29,11 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
         groupMateIds: lastGroup
     })
 
+    const [disableSend, setDisableSend] = useState(false)
+
     const handleSubmit = async (e: any) => {
         e.preventDefault();
+        setDisableSend(true)
         await ApiSingleton.solutionsApi.solutionsPostSolution(props.task.id!, solution)
         props.onAdd()
     }
@@ -41,7 +44,10 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     const courseMates = props.students.filter(s => props.userId !== s.userId)
 
     return (
-        <Dialog open={true} onClose={() => props.onCancel()} aria-labelledby="form-dialog-title">
+        <Dialog fullWidth
+                maxWidth="sm"
+                open={true}
+                onClose={() => props.onCancel()} aria-labelledby="form-dialog-title">
             <DialogTitle id="form-dialog-title">
                 Отправить новое решение
             </DialogTitle>
@@ -115,23 +121,24 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button
-                    size="small"
-                    variant="contained"
+                <LoadingButton
+                    size="medium"
+                    variant="text"
                     color="primary"
                     type="submit"
+                    loading={disableSend}
                     onClick={e => handleSubmit(e)}
                 >
                     {isEdit ? "Изменить решение" : "Отправить решение"}
-                </Button>
-                <Button
-                    size="small"
+                </LoadingButton>
+                {!disableSend && <Button
+                    size="medium"
                     onClick={() => props.onCancel()}
-                    variant="contained"
-                    color="primary"
+                    variant="text"
+                    color="inherit"
                 >
                     Отменить
-                </Button>
+                </Button>}
             </DialogActions>
         </Dialog>
     )
