@@ -76,9 +76,12 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
         setIsInviting(true);
         setErrors([]);
         try {
-            await ApiSingleton.coursesApi.coursesinviteExistentStudent({
+            await ApiSingleton.coursesApi.coursesInviteStudent({
                 courseId: courseId,
-                email: email
+                email: email,
+                name: "",
+                surname: "",
+                middleName: ""
             });
             enqueueSnackbar("Студент успешно приглашен", {variant: "success"});
             setEmail("");

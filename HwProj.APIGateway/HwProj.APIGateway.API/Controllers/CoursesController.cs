@@ -309,7 +309,7 @@ namespace HwProj.APIGateway.API.Controllers
         
         [HttpPost("inviteExistentStudent")]
         [Authorize(Roles = Roles.LecturerRole)]
-        public async Task<IActionResult> inviteExistentStudent([FromBody] InviteExistentStudentViewModel model)
+        public async Task<IActionResult> InviteStudent([FromBody] InviteStudentViewModel model)
         {
             var student = await AuthServiceClient.FindByEmailAsync(model.Email);
             if (student == null)
