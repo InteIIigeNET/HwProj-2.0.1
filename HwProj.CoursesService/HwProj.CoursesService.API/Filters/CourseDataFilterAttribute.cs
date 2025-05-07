@@ -38,11 +38,17 @@ namespace HwProj.CoursesService.API.Filters
                         courseMate.Characteristics = null;
                     }
 
-                    courseDto.Homeworks = courseDto.Homeworks
+                    var hasAccessToMaterials = courseDto.IsOpen
+                        ? true
+                        : isCourseStudent;
+
+                    courseDto.Homeworks = hasAccessToMaterials
+                        ? courseDto.Homeworks
                         .Where(h =>
                             currentDate >= h.PublicationDate &&
                             (isCourseStudent || !h.Tags.Contains(HomeworkTags.Test)))
-                        .ToArray();
+                        .ToArray()
+                        : Array.Empty<HomeworkViewModel>();
 
                     foreach (var homework in courseDto.Homeworks)
                     {
