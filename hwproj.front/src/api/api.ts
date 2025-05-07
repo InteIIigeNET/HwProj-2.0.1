@@ -460,6 +460,12 @@ export interface CourseViewModel {
     isCompleted?: boolean;
     /**
      *
+     * @type {string}
+     * @memberof CourseViewModel
+     */
+    description?: string;
+    /**
+     *
      * @type {Array<AccountDataDto>}
      * @memberof CourseViewModel
      */
@@ -519,6 +525,12 @@ export interface CreateCourseViewModel {
      * @memberof CreateCourseViewModel
      */
     isOpen: boolean;
+    /**
+     *
+     * @type {string}
+     * @memberof CourseViewModel
+     */
+    description?: string;
     /**
      *
      * @type {number}
@@ -2440,6 +2452,12 @@ export interface UpdateCourseViewModel {
      * @memberof UpdateCourseViewModel
      */
     isCompleted?: boolean;
+    /**
+     *
+     * @type {string}
+     * @memberof CourseViewModel
+     */
+    description?: string;
 }
 /**
  *

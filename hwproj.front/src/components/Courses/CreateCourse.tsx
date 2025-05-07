@@ -48,6 +48,7 @@ export const CreateCourse: FC = () => {
         activeStep: CreateCourseStep.SelectBaseCourseStep,
         completedSteps: new Set(),
         courseName: "",
+        description: "",
         fetchStudents: false,
         isGroupFromList: false,
         programNames: [],
@@ -132,6 +133,7 @@ export const CreateCourse: FC = () => {
             name: state.courseName,
             groupNames: state.selectedGroups,
             isOpen: true,
+            description: state.description,
             baseCourseId: selectedBaseCourse?.id,
             fetchStudents: state.isGroupFromList ? state.fetchStudents : false,
         }
