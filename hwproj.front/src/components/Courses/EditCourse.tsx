@@ -15,6 +15,7 @@ interface IEditCourseState {
     isLoaded: boolean,
     name: string,
     groupName?: string,
+    isOpen: boolean,
     isCompleted: boolean,
     mentors: AccountDataDto[],
     edited: boolean,
@@ -60,6 +61,7 @@ const EditCourse: FC = () => {
         isLoaded: false,
         name: "",
         groupName: "",
+        isOpen: false,
         isCompleted: false,
         mentors: [],
         edited: false,
@@ -80,7 +82,7 @@ const EditCourse: FC = () => {
             isLoaded: true,
             name: course.name!,
             groupName: course.groupName!,
-            isOpen: course.isOpen!,
+            isOpen: !course.isOpen!,
             isCompleted: course.isCompleted!,
             mentors: course.mentors!,
         }))
@@ -91,7 +93,7 @@ const EditCourse: FC = () => {
         const courseViewModel = {
             name: courseState.name,
             groupName: courseState.groupName,
-            isOpen: true,
+            isOpen: !courseState.isOpen,
             isCompleted: courseState.isCompleted
         };
 
@@ -162,6 +164,25 @@ const EditCourse: FC = () => {
                                     }))
                                 }}
                             />
+                            <Grid>
+                                <FormControlLabel
+                                    style={{ margin: 0 }}
+                                    control={
+                                        <Checkbox
+                                            color="primary"
+                                            checked={courseState.isOpen}
+                                            onChange={(e) => {
+                                                e.persist()
+                                                setCourseState((prevState) => ({
+                                                    ...prevState,
+                                                    isOpen: e.target.checked
+                                                }))
+                                            }}
+                                        />
+                                    }
+                                    label="Ограниченно видимый курс"
+                                />
+                            </Grid>
                             <Grid>
                                 <FormControlLabel
                                     style={{margin: 0}}

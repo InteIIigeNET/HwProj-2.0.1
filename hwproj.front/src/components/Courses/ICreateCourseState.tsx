@@ -32,6 +32,7 @@ export interface ICreateCourseState {
     fetchStudents: boolean;
 
     fetchingGroups: boolean;
+    isOpen: boolean;
     courseIsLoading: boolean;
 }
 

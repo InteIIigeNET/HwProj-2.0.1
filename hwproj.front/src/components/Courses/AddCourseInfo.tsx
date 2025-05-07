@@ -126,6 +126,22 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                         }
                         label="Добавить студентов из выбранных групп"
                     />
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                color="primary"
+                                checked={state.isOpen}
+                                onChange={(e) => {
+                                    e.persist()
+                                    setState((prevState) => ({
+                                        ...prevState,
+                                        isOpen: e.target.checked
+                                    }))
+                                }}
+                            />
+                        }
+                        label="Ограниченно видимый курс"
+                    />
                 </Grid>
             )}
             <Grid item xs={12} style={{marginTop: 8, display: "flex", justifyContent: "space-between"}}>
