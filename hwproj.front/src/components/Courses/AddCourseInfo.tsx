@@ -2,8 +2,12 @@ import React, {FC, ChangeEvent} from "react"
 import {
     Grid,
     TextField,
-    Button, Typography,
+    Button,
+    Typography,
+    Tooltip,
+    IconButton
 } from "@material-ui/core";
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import {LoadingButton} from "@mui/lab";
 import {IStepComponentProps} from "./ICreateCourseState";
 import {Alert, Autocomplete, Checkbox, FormControlLabel, Chip} from "@mui/material";
@@ -115,6 +119,7 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
             {state.isGroupFromList && (
                 <Grid item xs={12}>
                     <FormControlLabel
+                        style={{ margin: 0 }}
                         control={
                             <Checkbox
                                 checked={state.fetchStudents}
@@ -126,22 +131,34 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                         }
                         label="Добавить студентов из выбранных групп"
                     />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                color="primary"
-                                checked={state.isOpen}
-                                onChange={(e) => {
-                                    e.persist()
-                                    setState((prevState) => ({
-                                        ...prevState,
-                                        isOpen: e.target.checked
-                                    }))
-                                }}
-                            />
-                        }
-                        label="Ограниченно видимый курс"
-                    />
+                    <Grid>
+                        <FormControlLabel
+                            style={{ margin: 0 }}
+                            control={
+                                <Checkbox
+                                    color="primary"
+                                    checked={state.isOpen}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setState((prevState) => ({
+                                            ...prevState,
+                                            isOpen: e.target.checked
+                                        }))
+                                    }}
+                                />
+                            }
+                            label="Ограниченно видимый курс"
+                        />
+                        <Tooltip arrow placement={"right"}
+                            PopperProps={{
+                                modifiers: [{ name: "offset", options: { offset: [0, -5], } }]
+                            }}
+                            title={"Материалы заданий и задач будут доступны только преподавателям и студентам курса"}>
+                            <IconButton>
+                                <HelpOutlineIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </Grid>
                 </Grid>
             )}
             <Grid item xs={12} style={{marginTop: 8, display: "flex", justifyContent: "space-between"}}>

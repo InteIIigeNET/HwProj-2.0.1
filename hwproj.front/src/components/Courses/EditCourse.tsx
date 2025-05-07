@@ -2,7 +2,8 @@ import * as React from 'react';
 import {Navigate, useParams} from 'react-router-dom';
 import ApiSingleton from "../../api/ApiSingleton";
 import Button from '@material-ui/core/Button'
-import {Grid, Box, Checkbox, TextField, FormControlLabel, Typography} from '@mui/material';
+import {Grid, Box, Checkbox, TextField, FormControlLabel, Typography, Tooltip, IconButton} from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import EditIcon from "@material-ui/icons/Edit";
@@ -182,6 +183,15 @@ const EditCourse: FC = () => {
                                     }
                                     label="Ограниченно видимый курс"
                                 />
+                                <Tooltip arrow placement={"right"}
+                                    PopperProps={{
+                                        modifiers: [{ name: "offset", options: { offset: [0, -5], } }]
+                                    }}
+                                    title={"Материалы заданий и задач будут доступны только преподавателям и студентам курса"}>
+                                    <IconButton>
+                                        <HelpOutlineIcon />
+                                    </IconButton>
+                                </Tooltip>
                             </Grid>
                             <Grid>
                                 <FormControlLabel
