@@ -3,11 +3,11 @@ import {Navigate, useParams} from 'react-router-dom';
 import ApiSingleton from "../../api/ApiSingleton";
 import Button from '@material-ui/core/Button'
 import {Grid, Box, Checkbox, TextField, FormControlLabel, Typography, Tooltip, IconButton} from '@mui/material';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import EditIcon from "@material-ui/icons/Edit";
 import Lecturers from "./Lecturers";
+import CheckboxWithTooltip from "../Common/CheckboxWithTooltip";
 import {AccountDataDto} from "../../api";
 import {appBarStateManager} from "../AppBar";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
@@ -165,34 +165,19 @@ const EditCourse: FC = () => {
                                     }))
                                 }}
                             />
-                            <Grid>
-                                <FormControlLabel
-                                    style={{ margin: 0 }}
-                                    control={
-                                        <Checkbox
-                                            color="primary"
-                                            checked={!courseState.isOpen}
-                                            onChange={(e) => {
-                                                e.persist()
-                                                setCourseState((prevState) => ({
-                                                    ...prevState,
-                                                    isOpen: !e.target.checked
-                                                }))
-                                            }}
-                                        />
-                                    }
-                                    label="Ограниченно-видимый курс"
-                                />
-                                <Tooltip arrow placement={"right"}
-                                    PopperProps={{
-                                        modifiers: [{ name: "offset", options: { offset: [0, -5], } }]
-                                    }}
-                                    title={"Материалы заданий и задач будут доступны только преподавателям и студентам курса"}>
-                                    <IconButton>
-                                        <HelpOutlineIcon />
-                                    </IconButton>
-                                </Tooltip>
-                            </Grid>
+                            <CheckboxWithTooltip
+                                checkboxLabel={"Ограниченно-видимый курс"}
+                                tooltipText={"Материалы заданий и задач будут доступны только преподавателям и студентам курса"}
+                                tooltipPlacement={"right"}
+                                checked={!courseState.isOpen}
+                                onChange={(e) => {
+                                    e.persist()
+                                    setCourseState((prevState) => ({
+                                        ...prevState,
+                                        isOpen: !e.target.checked
+                                    }))
+                                }}
+                            />
                             <Grid>
                                 <FormControlLabel
                                     style={{margin: 0}}

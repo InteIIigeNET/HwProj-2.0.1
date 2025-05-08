@@ -4,12 +4,10 @@ import {
     TextField,
     Button,
     Typography,
-    Tooltip,
-    IconButton
 } from "@material-ui/core";
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import {LoadingButton} from "@mui/lab";
 import {IStepComponentProps} from "./ICreateCourseState";
+import CheckboxWithTooltip from "../Common/CheckboxWithTooltip";
 import {Alert, Autocomplete, Checkbox, FormControlLabel, Chip} from "@mui/material";
 
 const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
@@ -131,34 +129,19 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                         }
                         label="Добавить студентов из выбранных групп"
                     />
-                    <Grid>
-                        <FormControlLabel
-                            style={{ margin: 0 }}
-                            control={
-                                <Checkbox
-                                    color="primary"
-                                    checked={!state.isOpen}
-                                    onChange={(e) => {
-                                        e.persist()
-                                        setState((prevState) => ({
-                                            ...prevState,
-                                            isOpen: !e.target.checked
-                                        }))
-                                    }}
-                                />
-                            }
-                            label="Сделать курс ограниченно-видимым"
-                        />
-                        <Tooltip arrow placement={"right"}
-                            PopperProps={{
-                                modifiers: [{ name: "offset", options: { offset: [0, -5], } }]
-                            }}
-                            title={"Материалы заданий и задач будут доступны только преподавателям и студентам курса"}>
-                            <IconButton>
-                                <HelpOutlineIcon />
-                            </IconButton>
-                        </Tooltip>
-                    </Grid>
+                    <CheckboxWithTooltip
+                        checkboxLabel={"Сделать курс ограниченно-видимым"}
+                        tooltipText={"Материалы заданий и задач будут доступны только преподавателям и студентам курса"}
+                        tooltipPlacement={"right"}
+                        checked={!state.isOpen}
+                        onChange={(e) => {
+                            e.persist()
+                            setState((prevState) => ({
+                                ...prevState,
+                                isOpen: !e.target.checked
+                            }))
+                        }}
+                    />
                 </Grid>
             )}
             <Grid item xs={12} style={{marginTop: 8, display: "flex", justifyContent: "space-between"}}>
