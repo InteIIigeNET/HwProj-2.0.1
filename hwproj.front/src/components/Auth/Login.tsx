@@ -206,7 +206,7 @@ const Login: FC<LoginProps> = (props) => {
                         </Button>
                     </Grid>
                     <Grid className={classes.clickable_text}>
-                        <Link to="/recovery" style={{textDecoration: "underline"}}>
+                        <Link to="/recovery" state={{ email: loginState.email }} style={{textDecoration: "underline"}}>
                             Забыли пароль?
                         </Link>
                     </Grid>
