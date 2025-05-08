@@ -1,15 +1,13 @@
-import React, {FC, useEffect, useState} from "react";
+import {useEffect, useState, CSSProperties} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
-import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Button, Chip, Typography, Menu, MenuItem, ListItemIcon, ListItemText, Popover} from "@mui/material";
+import {Alert, Chip, Typography} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import {MoreVert, Download, ShowChart} from "@mui/icons-material";
 import {BonusTag, DefaultTags, TestTag} from "../Common/HomeworkTags";
 import Lodash from "lodash"
-import SaveStats from "components/Solutions/SaveStats";
+import StatsMenu from "./StatsMenu";
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -32,11 +30,6 @@ const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
         searched: "",
         isSaveStatsActionOpened: false
     });
-    const {courseId} = useParams();
-    const navigate = useNavigate();
-    const goToCharts = () => {
-        navigate(`/statistics/${courseId}/charts`)
-    }
 
     const {searched, isSaveStatsActionOpened} = state
 
@@ -70,7 +63,7 @@ const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
         color: "white",
     }
 
-    const homeworkStyles = (homeworks: HomeworkViewModel[], idx: number): React.CSSProperties | undefined => {
+    const homeworkStyles = (homeworks: HomeworkViewModel[], idx: number): CSSProperties | undefined => {
         if (homeworks[idx].tags?.includes(TestTag))
             return testHomeworkStyle
         if (idx !== 0 && homeworks[idx - 1].tags?.includes(TestTag))
@@ -102,92 +95,6 @@ const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
 
     const hasHomeworks = homeworksMaxSum > 0
     const hasTests = testsMaxSum > 0
-
-    const StatsMenu: FC = () => {
-        const [menuState, setMenuState] = useState<{
-            anchorEl: null | HTMLElement;
-            popoverAnchorEl: null | HTMLElement;
-        }>({anchorEl: null, popoverAnchorEl: null})
-
-        const {anchorEl, popoverAnchorEl} = menuState
-        const openMenu = Boolean(anchorEl)
-        const openPopover = Boolean(popoverAnchorEl)
-
-        const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
-            setMenuState ({
-                anchorEl: event.currentTarget,
-                popoverAnchorEl: null,
-            })
-        }
-
-        const handleClose = () => {
-            setMenuState ({
-                anchorEl: null,
-                popoverAnchorEl: null,
-            })
-        }
-
-        const handleOpenPopover = (event: React.MouseEvent<HTMLElement>) => {
-            setMenuState (prevState => ({
-                ...prevState,
-                popoverAnchorEl: event.currentTarget,
-            }))
-        }
-
-        return (
-            <div style={{paddingTop: 4}}>
-                <Button size="medium"
-                        color="primary"
-                        onClick={handleOpenMenu}
-                >
-                    Меню
-                    <MoreVert fontSize="small"/>
-                </Button>
-                <Menu
-                    id="long-menu"
-                    MenuListProps={{
-                        'aria-labelledby': 'long-button',
-                    }}
-                    anchorEl={anchorEl}
-                    open={openMenu}
-                    onClose={handleClose}
-                >
-                    <MenuItem onClick={goToCharts}>
-                        <ListItemIcon>
-                            <ShowChart fontSize="small"/>
-                        </ListItemIcon>
-                        <ListItemText>
-                            Графики успеваемости
-                        </ListItemText>
-                    </MenuItem>
-                    <MenuItem onClick={handleOpenPopover}>
-                        <ListItemIcon>
-                            <Download fontSize="small"/>
-                        </ListItemIcon>
-                        <ListItemText>
-                            Выгрузить таблицу
-                        </ListItemText>
-                        <Popover open={openPopover}
-                                 onClose={handleClose}
-                                 anchorEl={popoverAnchorEl}
-                                 anchorOrigin={{
-                                    vertical: 'bottom',
-                                    horizontal: 'left',
-                                  }}
-                        >
-                            <SaveStats
-                                courseId={props.course.id}
-                                userId={props.userId}
-                                yandexCode={props.yandexCode}
-                                onActionOpening={() => setSearched({searched, isSaveStatsActionOpened: true})}
-                                onActionClosing={() => setSearched({searched, isSaveStatsActionOpened: false})}
-                            />
-                        </Popover>
-                    </MenuItem>
-                </Menu>
-            </div>
-        )
-    }
 
     return (
         <div>
@@ -233,7 +140,15 @@ const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
                         </TableRow>
                         <TableRow>
                             <TableCell style={{zIndex: 10}} component="td">
-                                {solutions.length > 0 && <StatsMenu/>}
+                                {solutions.length > 0 &&
+                                    <StatsMenu
+                                        courseId={props.course.id}
+                                        userId={props.userId}
+                                        yandexCode={props.yandexCode}
+                                        onActionOpening={() => setSearched({searched, isSaveStatsActionOpened: true})}
+                                        onActionClosing={() => setSearched({searched, isSaveStatsActionOpened: false})}
+                                    />
+                                }
                             </TableCell>
                             {hasHomeworks && <TableCell padding="checkbox" component="td" align="center"
                                                         style={{
