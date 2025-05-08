@@ -132,7 +132,7 @@ export const CreateCourse: FC = () => {
         const courseViewModel = {
             name: state.courseName,
             groupNames: state.selectedGroups,
-            isOpen: !state.isOpen,
+            isOpen: state.isOpen,
             baseCourseId: selectedBaseCourse?.id,
             fetchStudents: state.isGroupFromList ? state.fetchStudents : false,
         }

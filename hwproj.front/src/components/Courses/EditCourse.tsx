@@ -83,7 +83,7 @@ const EditCourse: FC = () => {
             isLoaded: true,
             name: course.name!,
             groupName: course.groupName!,
-            isOpen: !course.isOpen!,
+            isOpen: course.isOpen!,
             isCompleted: course.isCompleted!,
             mentors: course.mentors!,
         }))
@@ -94,7 +94,7 @@ const EditCourse: FC = () => {
         const courseViewModel = {
             name: courseState.name,
             groupName: courseState.groupName,
-            isOpen: !courseState.isOpen,
+            isOpen: courseState.isOpen,
             isCompleted: courseState.isCompleted
         };
 
@@ -171,17 +171,17 @@ const EditCourse: FC = () => {
                                     control={
                                         <Checkbox
                                             color="primary"
-                                            checked={courseState.isOpen}
+                                            checked={!courseState.isOpen}
                                             onChange={(e) => {
                                                 e.persist()
                                                 setCourseState((prevState) => ({
                                                     ...prevState,
-                                                    isOpen: e.target.checked
+                                                    isOpen: !e.target.checked
                                                 }))
                                             }}
                                         />
                                     }
-                                    label="Ограниченно видимый курс"
+                                    label="Ограниченно-видимый курс"
                                 />
                                 <Tooltip arrow placement={"right"}
                                     PopperProps={{

@@ -38,9 +38,7 @@ namespace HwProj.CoursesService.API.Filters
                         courseMate.Characteristics = null;
                     }
 
-                    var hasAccessToMaterials = courseDto.IsOpen
-                        ? true
-                        : isCourseStudent;
+                    var hasAccessToMaterials = courseDto.IsOpen || isCourseStudent;
 
                     courseDto.Homeworks = hasAccessToMaterials
                         ? courseDto.Homeworks

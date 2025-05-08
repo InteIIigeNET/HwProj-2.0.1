@@ -137,17 +137,17 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                             control={
                                 <Checkbox
                                     color="primary"
-                                    checked={state.isOpen}
+                                    checked={!state.isOpen}
                                     onChange={(e) => {
                                         e.persist()
                                         setState((prevState) => ({
                                             ...prevState,
-                                            isOpen: e.target.checked
+                                            isOpen: !e.target.checked
                                         }))
                                     }}
                                 />
                             }
-                            label="Ограниченно видимый курс"
+                            label="Сделать курс ограниченно-видимым"
                         />
                         <Tooltip arrow placement={"right"}
                             PopperProps={{

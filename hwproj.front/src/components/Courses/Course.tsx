@@ -99,9 +99,7 @@ const Course: React.FC = () => {
     const showStatsTab = isCourseMentor || isAcceptedStudent
     const showApplicationsTab = isCourseMentor
 
-    const showMaterialsTab = course.isOpen
-        ? true
-        : isCourseMentor || isAcceptedStudent
+    const hasAccessToMaterials = course.isOpen || isCourseMentor || isAcceptedStudent
 
     const changeTab = (newTab: string) => {
         if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
@@ -327,7 +325,7 @@ const Course: React.FC = () => {
                             if (value === 2 && !isExpert) navigate(`/courses/${courseId}/applications`)
                         }}
                     >
-                        {showMaterialsTab && !isExpert &&
+                        {hasAccessToMaterials && !isExpert &&
                             <Tab label={<div>Задания</div>}/>}
                         {showStatsTab && <Tab label={
                             <Stack direction="row" spacing={1}>
