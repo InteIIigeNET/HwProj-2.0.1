@@ -85,7 +85,7 @@ services:
       - Services:Solutions=http://hwproj.solutionsservice.api
       - Notification:Mail=${NOTIFICATION_MAIL}
       - Notification:ConnectSite=${NOTIFICATION_CONNECT_SITE}
-      - Notification:Password=NOTIFICATION_PASSWORD
+      - Notification:Password=${NOTIFICATION_PASSWORD}
       - Notification:Url=https://hwproj.ru
     ports:
       - "5006:5006"
