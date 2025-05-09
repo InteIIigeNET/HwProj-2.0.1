@@ -1,8 +1,9 @@
 ﻿import { FC, useState } from "react";
 import { useEffect } from 'react';
-import { Alert, Box, Button, CircularProgress, Grid, Link, TextField } from "@mui/material";
+import { Alert, Button, Grid, Link, TextField } from "@mui/material";
 import apiSingleton from "../../api/ApiSingleton";
 import { green, red } from "@material-ui/core/colors";
+import { LoadingButton } from "@mui/lab";
 
 enum LoadingStatus {
     None,
@@ -127,86 +128,80 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
         }),
     };
 
-    return <Grid container spacing={1} style={{ marginTop: 15 }}>
-        {userToken === null &&
-            <Grid container spacing={1} style={{ marginTop: 0 }} alignItems={"center"}>
-                {!isAuthorizationError &&
-                    <Grid item>
-                        <Alert severity="info" variant={"standard"}>
-                            Для загрузки таблицы необходимо пройти авторизацию.{' '}
-                            <Link href={yacRequestLink}>
-                                Начать авторизацию
-                            </Link>
-                        </Alert>
-                    </Grid>
-                }
-                {isAuthorizationError &&
-                    <Alert severity="error" variant={"standard"}>
-                        Авторизация не пройдена. Попробуйте еще раз{' '}
+    return userToken === null ? (
+        <Grid container marginTop="2px" spacing={1} alignItems="center">
+            {!isAuthorizationError &&
+                <Grid item>
+                    <Alert severity="info" variant="standard">
+                        Для загрузки таблицы необходимо пройти авторизацию.{' '}
                         <Link href={yacRequestLink}>
                             Начать авторизацию
                         </Link>
                     </Alert>
-                }
+                </Grid>
+            }
+            {isAuthorizationError &&
+                <Alert severity="error" variant="standard">
+                    Авторизация не пройдена. Попробуйте еще раз{' '}
+                    <Link href={yacRequestLink}>
+                        Начать авторизацию
+                    </Link>
+                </Alert>
+            }
+            <Grid item>
+                <Button variant="text" color="primary" type="button"
+                        onClick={props.onCancellation}>
+                    Отмена
+                </Button>
+            </Grid>
+        </Grid>
+    ) : (
+        <Grid container marginTop="2px" spacing={1} alignItems="center">
+            <Grid item>
+                <Alert severity="success" variant="standard">
+                    Авторизация успешно пройдена. Файл будет загружен на диск по адресу
+                    "Приложения/{import.meta.env.VITE_YANDEX_APPLICATION_NAME}/{fileName}.xlsx"
+                </Alert>
+            </Grid>
+            <Grid container item spacing={1} alignItems="center">
                 <Grid item>
-                    <Button variant="text" color="primary" type="button"
+                    <TextField
+                        fullWidth
+                        size="small"
+                        label="Название файла"
+                        value={fileName}
+                        onChange={event => {
+                            event.persist()
+                            setState((prevState) =>
+                                ({...prevState, fileName: event.target.value, loadingStatus: LoadingStatus.None})
+                            )
+                        }}
+                    />
+                </Grid>
+                <Grid item>
+                    <LoadingButton
+                        variant="text"
+                        color="primary"
+                        type="button"
+                        sx={buttonSx}   
+                        loading={loadingStatus === LoadingStatus.Loading}
+                        onClick={() => {
+                            setState((prevState) => ({...prevState, loadingStatus: LoadingStatus.Loading}))
+                            handleExportClick()
+                        }}
+                    >
+                        Сохранить
+                    </LoadingButton>
+                </Grid>
+                <Grid item>
+                    <Button variant="text" color="inherit" type="button"
                             onClick={props.onCancellation}>
                         Отмена
                     </Button>
                 </Grid>
             </Grid>
-        }
-        {userToken !== null &&
-            <Grid container spacing={1} style={{ marginTop: 0 }} alignItems={"center"}>
-                <Grid item>
-                    <Alert severity="success" variant={"standard"}>
-                        Авторизация успешно пройдена. Файл будет загружен на диск по адресу
-                        "Приложения/{import.meta.env.VITE_YANDEX_APPLICATION_NAME}/{fileName}.xlsx"
-                    </Alert>
-                </Grid>
-                <Grid container item spacing={1} alignItems={"center"}>
-                    <Grid item>
-                        <TextField  size={"small"} fullWidth label={"Название файла"} value={fileName}
-                                   onChange={event => {
-                                       event.persist()
-                                       setState((prevState) =>
-                                           ({...prevState, fileName: event.target.value, loadingStatus: LoadingStatus.None}))}}
-                        />
-                    </Grid>
-                    <Grid item>
-                        <Box sx={{ m: 1, position: 'relative' }}>
-                            <Button variant="text" color="primary" type="button" sx={buttonSx}
-                                    onClick={() => {
-                                        setState((prevState) => ({...prevState, loadingStatus: LoadingStatus.Loading}))
-                                        handleExportClick()
-                                    }
-                            }>
-                                Сохранить
-                            </Button>
-                            {loadingStatus === LoadingStatus.Loading && (
-                                <CircularProgress
-                                    size={24}
-                                    sx={{
-                                        color: green[500],
-                                        position: 'absolute',
-                                        top: '50%',
-                                        left: '50%',
-                                        marginTop: '-12px',
-                                        marginLeft: '-12px',
-                                    }}
-                                />
-                            )}
-                        </Box>
-                    </Grid>
-                    <Grid item>
-                        <Button variant="text" color="primary" type="button"
-                                onClick={props.onCancellation}>
-                            Отмена
-                        </Button>
-                    </Grid>
-                </Grid>
-            </Grid>
-        }
-    </Grid>
+        </Grid>
+    )
 }
+
 export default ExportToYandex;
