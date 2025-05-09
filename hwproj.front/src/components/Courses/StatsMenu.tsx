@@ -1,4 +1,4 @@
-import {FC, useState, useEffect} from "react";
+import { FC, useState, useEffect } from "react";
 import {
     Button,
     Menu,
@@ -9,9 +9,9 @@ import {
     DialogTitle,
     DialogContent}
 from "@mui/material";
-import {NestedMenuItem} from "mui-nested-menu";
-import {Download, ShowChart} from "@mui/icons-material";
-import {useNavigate} from "react-router-dom";
+import { NestedMenuItem } from "mui-nested-menu";
+import { Download, ShowChart } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 import DownloadStats from "../Solutions/DownloadStats";
 import ExportToGoogle from "../Solutions/ExportToGoogle";
 import ExportToYandex from "../Solutions/ExportToYandex";
@@ -43,7 +43,7 @@ interface StatsMenuState {
 const StatsMenu: FC<StatsMenuProps> = props => {
     const [menuState, setMenuState] = useState<StatsMenuState>({
         anchorEl: null,
-        saveStatsAction: null,
+        saveStatsAction: props.yandexCode !== null ? SaveStatsAction.ShareWithYandex : null,
     })
 
     const {anchorEl, saveStatsAction} = menuState
@@ -146,7 +146,7 @@ const StatsMenu: FC<StatsMenuProps> = props => {
     }
 
     return (
-        <div style={{paddingTop: 4}}>
+        <div style={{ paddingTop: 4 }}>
             <Button
                 size="medium"
                 color="primary"
@@ -171,9 +171,9 @@ const StatsMenu: FC<StatsMenuProps> = props => {
                 </MenuItem>
                 <NestedMenuItem
                     parentMenuOpen={showMenu}
-                    style={{paddingLeft: 16}}
+                    style={{ paddingLeft: 16 }}
                     leftIcon={
-                        <ListItemIcon style={{alignItems: "center"}}>
+                        <ListItemIcon style={{ alignItems: "center" }}>
                             <Download fontSize="small"/>
                         </ListItemIcon>
                     }
