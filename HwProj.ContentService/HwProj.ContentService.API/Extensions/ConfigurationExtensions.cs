@@ -28,6 +28,9 @@ public static class ConfigurationExtensions
             options.MultipartBodyLengthLimit = 200 * 1024 * 1024;
         });
 
+        // Подготавливаем инфраструктуру БД
+        var connectionString = ConnectionString.GetConnectionString(configuration);
+        services.AddDbContext<ContentContext>(options => options.UseSqlServer(connectionString));
         services.ConfigureStorageClient(clientConfigurationSection);
         services.AddSingleton<IFileKeyService, FileKeyService>();
         services.AddScoped<IFilesService, FilesService>();
