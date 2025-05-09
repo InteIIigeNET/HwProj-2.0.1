@@ -30,7 +30,8 @@ const DownloadStats: FC<DownloadStatsProps> = (props: DownloadStatsProps) => {
     }
 
     return (
-        <Grid container direction="row" marginTop="2px" spacing={1} alignItems="center">
+        <Grid container direction="row" marginTop="2px" spacing={1} width="100%"
+              justifyContent="space-between" alignItems="center">
             <Grid item xs={6}>
                 <TextField
                     fullWidth
@@ -50,11 +51,10 @@ const DownloadStats: FC<DownloadStatsProps> = (props: DownloadStatsProps) => {
                     type="button"
                     loading={loading}
                     onClick={handleFileDownloading}
+                    style={{ marginRight: 8 }}
                 >
                     Загрузить
                 </LoadingButton>
-            </Grid>
-            <Grid item>
                 <Button variant="text" color="inherit" type="button"
                         onClick={props.onCancellation}>
                     Отмена
