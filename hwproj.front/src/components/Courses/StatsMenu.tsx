@@ -202,7 +202,7 @@ const StatsMenu: FC<StatsMenuProps> = props => {
                 <DialogTitle>
                     {getActionTitle(saveStatsAction)}
                 </DialogTitle>
-                <DialogContent>
+                <DialogContent style={{ minWidth: 540 }}>
                     {getActionContent(saveStatsAction)}
                 </DialogContent>
             </Dialog>
