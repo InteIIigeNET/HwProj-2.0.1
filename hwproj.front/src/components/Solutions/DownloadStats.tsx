@@ -30,7 +30,7 @@ const DownloadStats: FC<DownloadStatsProps> = (props: DownloadStatsProps) => {
     }
 
     return (
-        <Grid container direction="row" marginTop="2px" spacing={1} width="100%"
+        <Grid container direction="row" marginTop="1px" spacing={1} width="100%"
               justifyContent="space-between" alignItems="center">
             <Grid item xs={6}>
                 <TextField
