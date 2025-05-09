@@ -136,7 +136,7 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
                         Для загрузки таблицы необходимо пройти{" "}
                         <Link href={yacRequestLink}>
                             авторизацию
-                        </Link>.
+                        </Link>
                     </Alert>
                 }
                 {isAuthorizationError &&
@@ -144,7 +144,7 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
                         Авторизация не пройдена. Попробуйте{" "}
                         <Link href={yacRequestLink}>
                             еще раз
-                        </Link>.
+                        </Link>
                     </Alert>
                 }
             </Grid>
