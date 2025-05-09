@@ -32,11 +32,16 @@ const DownloadStats: FC<DownloadStatsProps> = (props: DownloadStatsProps) => {
     return (
         <Grid container direction="row" marginTop="2px" spacing={1} alignItems="center">
             <Grid item xs={6}>
-                <TextField fullWidth size="small" label="Название файла" value={fileName}
-                           onChange={event => {
-                               event.persist();
-                               setFileName(event.target.value);
-                           }}/>
+                <TextField
+                    fullWidth
+                    size="small"
+                    label="Название файла"
+                    value={fileName}
+                    onChange={event => {
+                        event.persist();
+                        setFileName(event.target.value);
+                    }}
+                />
             </Grid>
             <Grid item>
                 <LoadingButton
