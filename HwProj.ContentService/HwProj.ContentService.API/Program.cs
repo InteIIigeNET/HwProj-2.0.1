@@ -14,5 +14,5 @@ var app = builder.Build();
 await app.CreateBucketIfNotExists();
 
 // Не вызываем ConfigureHwProj из-за проблем с app.UseMvc и настройками маппинга контроллеров (.NET 8 / .NET Core 2.2)
-app.ConfigureWebApplicationParameters();
+app.ConfigureWebApp();
 app.Run();
