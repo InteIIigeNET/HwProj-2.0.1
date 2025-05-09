@@ -1,5 +1,8 @@
-using HwProj.ContentService.API.Services;
+using System.Net;
+using HwProj.ContentService.API.Extensions;
+using HwProj.ContentService.API.Services.Interfaces;
 using HwProj.Models.ContentService.DTO;
+using HwProj.Models.Result;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,40 +12,54 @@ namespace HwProj.ContentService.API.Controllers;
 [Route("api/[controller]")]
 public class FilesController : ControllerBase
 {
-    private readonly IFilesService _filesService;
+    private readonly IS3FilesService _s3FilesService;
+    private readonly IMessageProducer _messageProducer;
+    private readonly IFilesInfoService _filesInfoService;
 
-    public FilesController(IFilesService filesService)
+    public FilesController(IS3FilesService s3FilesService, IMessageProducer messageProducer,
+        IFilesInfoService filesInfoService)
     {
-        _filesService = filesService;
+        _s3FilesService = s3FilesService;
+        _messageProducer = messageProducer;
+        _filesInfoService = filesInfoService;
     }
 
-    [HttpPost("upload")]
-    public async Task<IActionResult> Upload([FromForm] UploadFileDTO uploadFileDto)
+    [HttpPost("process")]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    public async Task<IActionResult> Process([FromForm] ProcessFilesDTO processFilesDto)
     {
         var userId = Request.GetUserIdFromHeader();
-        var result = await _filesService.UploadFileAsync(uploadFileDto, userId);
-        return Ok(result);
+        var scope = processFilesDto.FilesScope.ToScope();
+        await _messageProducer.PushUploadFilesMessages(scope, processFilesDto.NewFiles, userId);
+        await _messageProducer.PushDeleteFilesMessages(scope, processFilesDto.DeletingFileIds, userId);
+        return Ok();
     }
-    
-    [HttpGet("downloadLink")]
-    public async Task<IActionResult> GetDownloadLink([FromQuery] string key)
+
+    [HttpGet("statuses")]
+    [ProducesResponseType(typeof(List<FileStatusDTO>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetStatuses(ScopeDTO scopeDto)
     {
-        var downloadUrlResult = await _filesService.GetDownloadUrl(key);
+        var scope = scopeDto.ToScope();
+        var filesStatuses = await _filesInfoService.GetFilesStatusesAsync(scope);
+        return Ok(filesStatuses);
+    }
+
+    [HttpGet("downloadLink")]
+    [ProducesResponseType(typeof(Result<string>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetDownloadLink([FromQuery] long fileId)
+    {
+        var externalKey = await _filesInfoService.GetFileExternalKeyAsync(fileId);
+        if (externalKey is null) return Ok(Result<string>.Failed("Файл не найден"));
+        
+        var downloadUrlResult = await _s3FilesService.GetDownloadUrl(externalKey);
         return Ok(downloadUrlResult);
     }
-    
-    [HttpGet("filesInfo/{courseId}")]
-    public async Task<IActionResult> GetFilesInfo(long courseId, [FromQuery] long? homeworkId = null)
+
+    [HttpGet("info/course/{courseId}")]
+    [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetFilesInfo(long courseId)
     {
-        var filesInfo = await _filesService.GetFilesInfoAsync(courseId, homeworkId ?? -1);
-        return Ok(filesInfo);
-    }
-    
-    [HttpDelete]
-    public async Task<IActionResult> DeleteFile([FromQuery] string key)
-    {
-        var userId = Request.GetUserIdFromHeader();
-        var filesInfo = await _filesService.DeleteFileAsync(key, userId);
+        var filesInfo = await _filesInfoService.GetFilesInfoAsync(courseId);
         return Ok(filesInfo);
     }
 }
