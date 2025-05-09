@@ -316,7 +316,8 @@ namespace HwProj.CoursesService.API.Services
 
             if (courseMate == null) return false;
 
-            var tags = string.Join(";", characteristics.Tags.Distinct());
+            var tags = string.Join(";", characteristics.Tags.Where(
+                t => !string.IsNullOrWhiteSpace(t)).Distinct());
 
             var hasCharacteristic = courseMate.Characteristics != null;
 
