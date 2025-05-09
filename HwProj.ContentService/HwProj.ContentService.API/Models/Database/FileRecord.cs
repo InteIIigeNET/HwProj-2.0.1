@@ -8,6 +8,6 @@ public record FileRecord : IEntity<long>
     public FileStatus Status { get; set; } = FileStatus.Uploading;
     public required string OriginalName { get; init; }
     public required string ExternalKey { get; init; }
-    public required decimal SizeInKB { get; init; }
+    public required long SizeInBytes { get; init; }
     public int ReferenceCount { get; set; } = 1;
 }
