@@ -5,6 +5,7 @@ namespace HwProj.CoursesService.API.Models
     public sealed class CourseContext : DbContext
     {
         public DbSet<Course> Courses { get; set; }
+        public DbSet<CourseMentor> CourseMentors { get; set; }
         public DbSet<CourseMate> CourseMates { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<GroupMate> GroupMates { get; set; }
@@ -27,6 +28,10 @@ namespace HwProj.CoursesService.API.Models
             modelBuilder.Entity<Assignment>().HasIndex(a => a.CourseId);
             modelBuilder.Entity<UserToCourseFilter>().HasKey(u => new { u.CourseId, u.UserId });
             modelBuilder.Entity<TaskQuestion>().HasIndex(t => t.TaskId);
+
+            modelBuilder.Entity<CourseMentor>().HasKey(m => new { m.UserId, m.CourseId });
+            modelBuilder.Entity<CourseMentor>().HasIndex(m => m.UserId);
+            modelBuilder.Entity<CourseMentor>().HasIndex(m => m.CourseId);
         }
     }
 }
