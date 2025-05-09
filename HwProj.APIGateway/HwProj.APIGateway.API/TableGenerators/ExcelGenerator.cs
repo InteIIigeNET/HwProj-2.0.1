@@ -149,12 +149,13 @@ namespace HwProj.APIGateway.API.TableGenerators
 
                 var title = course.Homeworks[i].Title;
                 var publicationDate = course.Homeworks[i].PublicationDate;
-                var tags = course.Homeworks[i].Tags.Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
+                var tags = course.Homeworks[i].Tags.Where(t => !string.IsNullOrWhiteSpace(t));
                 var isTest = tags.Contains(HomeworkTags.Test);
-                var tagsStr = $" ({tags.Select(GetTagLabel).Join(", ")})";
+                var tagsToShow = tags.Where(t => t != HomeworkTags.Test).ToList();
+                var tagsStr = $" ({tagsToShow.Select(GetTagLabel).Join(", ")})";
 
                 worksheet.Cells[position.Row, position.Column].Value
-                    = $"h/w {i + 1}: {title}, {publicationDate:dd.MM}{(tags.Count > 0 ? tagsStr : "")}";
+                    = $"h/w {i + 1}: {title}, {publicationDate:dd.MM}{(tagsToShow.Count > 0 ? tagsStr : "")}";
                 worksheet.Cells[position.Row, position.Column, position.Row, position.Column + numberCellsToMerge - 1]
                     .Merge = true;
                 if (isTest)
