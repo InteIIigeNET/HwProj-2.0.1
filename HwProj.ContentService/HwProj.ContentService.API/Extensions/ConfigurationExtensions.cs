@@ -9,7 +9,6 @@ using HwProj.ContentService.API.Models.Messages;
 using HwProj.ContentService.API.Repositories;
 using HwProj.ContentService.API.Services;
 using HwProj.ContentService.API.Services.Interfaces;
-using HwProj.ContentService.API.Services.MessageHandlers;
 using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration;
 using HwProj.Utils.Configuration.Middleware;
@@ -71,11 +70,6 @@ public static class ConfigurationExtensions
 
         services.AddScoped<IMessageProducer, MessageProducer>();
         services.AddHostedService<MessageConsumer>();
-        
-        services.AddScoped<IMessageHandler<UploadFileMessage>, UploadFileMessageHandler>();
-        services.AddScoped<IMessageHandler<DeleteFileMessage>, DeleteFileMessageHandler>();
-        services.AddScoped<IMessageHandler<FileDeletedMessage>, FileDeletedMessageHandler>();
-        services.AddScoped<IMessageHandler<UpdateStatusMessage>, UpdateStatusMessageHandler>();
     }
     
     private static void ConfigureStorageClient(this IServiceCollection services, IConfigurationSection configuration)
