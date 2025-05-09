@@ -129,7 +129,7 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
     };
 
     return userToken === null ? (
-        <Grid container direction="column" marginTop="2px" spacing={1} width="100%">
+        <Grid container direction="column" spacing={1} width="100%">
             <Grid item xs={12}>
                 {!isAuthorizationError &&
                     <Alert severity="info" variant="standard">
@@ -156,7 +156,7 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
             </Grid>
         </Grid>
     ) : (
-        <Grid container direction="column" marginTop="2px" spacing={1} width="100%">
+        <Grid container direction="column" spacing={1} width="100%">
             <Grid item xs={12}>
                 <Alert severity="success" variant="standard">
                     Авторизация успешно пройдена. Файл будет загружен на диск по адресу
