@@ -11,6 +11,8 @@ using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using Google;
+using System.Net;
 
 namespace HwProj.APIGateway.API.ExportServices
 {
@@ -88,9 +90,19 @@ namespace HwProj.APIGateway.API.ExportServices
                 var spreadsheet = await _internalGoogleSheetsService.Spreadsheets.Get(spreadsheetId).ExecuteAsync();
                 return Result<string[]>.Success(spreadsheet.Sheets.Select(t => t.Properties.Title).ToArray());
             }
-            catch (Exception ex)
+            catch (GoogleApiException ex)
             {
-                return Result<string[]>.Failed($"Ошибка при обращении к Google Sheets: {ex.Message}");
+                var message = $"Ошибка при обращении к Google Sheets: {ex.Message}";
+                if (ex.Error.Code == (int)HttpStatusCode.NotFound)
+                {
+                    message = "Таблица не найдена, проверьте корректность ссылки";
+                }
+                else if (ex.Error.Code == (int)HttpStatusCode.Forbidden)
+                {
+                    message = "Нет прав не редактирование таблицы, проверьте настройки доступа";
+                }
+
+                return Result<string[]>.Failed(message);
             }
         }
 
