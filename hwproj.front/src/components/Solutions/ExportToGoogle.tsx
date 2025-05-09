@@ -60,8 +60,8 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
     };
 
     return (
-        <Grid container spacing={1} marginTop="2px" alignItems="center">
-            <Grid xs={12} item>
+        <Grid container direction="column" spacing={1} marginTop="2px" width="100%">
+            <Grid item xs={12}>
                 {(googleSheetTitles && !googleSheetTitles.succeeded &&
                 <Alert severity="error">
                     {googleSheetTitles!.errors![0]}
@@ -77,7 +77,8 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
                     </Alert>)
                 }
             </Grid>
-            <Grid container item direction="row" spacing={1} alignItems="center">
+            <Grid container item direction="row" spacing={1} width="100%"
+                  justifyContent="space-between" alignItems="center">
                 <Grid item xs={5}>
                     <TextField
                         fullWidth
@@ -103,13 +104,14 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
                         </Select>
                     </Grid>
                 }
-                {googleSheetTitles && googleSheetTitles.succeeded &&
-                    <Grid item>
+                <Grid item>
+                    {googleSheetTitles && googleSheetTitles.succeeded &&
                         <LoadingButton
                             variant="text"
                             color="primary"
                             type="button"
                             sx={buttonSx}
+                            style={{ marginRight: 8 }}
                             loading={loadingStatus === LoadingStatus.Loading}
                             onClick={async () => {
                                 setState((prevState) => ({...prevState, loadingStatus: LoadingStatus.Loading}))
@@ -130,9 +132,7 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
                         >
                             Сохранить
                         </LoadingButton>
-                    </Grid>
-                }
-                <Grid item>
+                    }
                     <Button variant="text" color="inherit" type="button"
                             onClick={props.onCancellation}>
                         Отмена
