@@ -130,24 +130,24 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
 
     return userToken === null ? (
         <Grid container marginTop="2px" spacing={1} alignItems="center">
-            {!isAuthorizationError &&
-                <Grid item>
+            <Grid item xs={12}>
+                {!isAuthorizationError &&
                     <Alert severity="info" variant="standard">
                         Для загрузки таблицы необходимо пройти авторизацию.{' '}
                         <Link href={yacRequestLink}>
                             Начать авторизацию
                         </Link>
                     </Alert>
-                </Grid>
-            }
-            {isAuthorizationError &&
-                <Alert severity="error" variant="standard">
-                    Авторизация не пройдена. Попробуйте еще раз{' '}
-                    <Link href={yacRequestLink}>
-                        Начать авторизацию
-                    </Link>
-                </Alert>
-            }
+                }
+                {isAuthorizationError &&
+                    <Alert severity="error" variant="standard">
+                        Авторизация не пройдена. Попробуйте еще раз{' '}
+                        <Link href={yacRequestLink}>
+                            Начать авторизацию
+                        </Link>
+                    </Alert>
+                }
+            </Grid>
             <Grid item>
                 <Button variant="text" color="primary" type="button"
                         onClick={props.onCancellation}>
@@ -157,14 +157,14 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
         </Grid>
     ) : (
         <Grid container marginTop="2px" spacing={1} alignItems="center">
-            <Grid item>
+            <Grid item xs={12}>
                 <Alert severity="success" variant="standard">
                     Авторизация успешно пройдена. Файл будет загружен на диск по адресу
                     "Приложения/{import.meta.env.VITE_YANDEX_APPLICATION_NAME}/{fileName}.xlsx"
                 </Alert>
             </Grid>
             <Grid container item spacing={1} alignItems="center">
-                <Grid item>
+                <Grid item xs={6}>
                     <TextField
                         fullWidth
                         size="small"

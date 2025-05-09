@@ -37,11 +37,11 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
 
     const {url, googleSheetTitles, selectedSheet, loadingStatus, error } = state
 
-    const handleGoogleDocUrlChange = async (value: string) => {
-        const titles = value
-            ? await apiSingleton.statisticsApi.statisticsGetSheetTitles(value)
-            : undefined
-        setState(prevState => ({ ...prevState, url: value, googleSheetTitles: titles }))  
+    const handleGoogleDocUrlChange = (value: string) => {
+        setState(prevState => ({ ...prevState, url: value }))
+        if (value)
+            apiSingleton.statisticsApi.statisticsGetSheetTitles(value)
+            .then(response => setState(prevState => ({ ...prevState, googleSheetTitles: response }))) 
     }
 
     const getGoogleSheetName = () => {
@@ -79,10 +79,15 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
             </Grid>
             <Grid container item direction="row" spacing={1} alignItems="center">
                 <Grid item xs={5}>
-                    <TextField fullWidth size="small" label="Ссылка на Google Sheets" value={url}
-                               onChange={event =>
-                                   handleGoogleDocUrlChange(event.target.value)
-                               }
+                    <TextField
+                        fullWidth
+                        size="small"
+                        label="Ссылка на Google Sheets"
+                        value={url}
+                        onChange={event => {
+                            event.persist()
+                            handleGoogleDocUrlChange(event.target.value)
+                        }}
                     />
                 </Grid>
                 {googleSheetTitles && googleSheetTitles.value && googleSheetTitles.value.length > 0 &&
