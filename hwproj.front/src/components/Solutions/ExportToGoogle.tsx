@@ -41,7 +41,9 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
         setState(prevState => ({ ...prevState, url: value }))
         if (value)
             apiSingleton.statisticsApi.statisticsGetSheetTitles(value)
-            .then(response => setState(prevState => ({ ...prevState, googleSheetTitles: response }))) 
+            .then(response => setState(prevState => ({ ...prevState, googleSheetTitles: response })))
+        else
+            setState(prevState => ({ ...prevState, googleSheetTitles: undefined }))
     }
 
     const getGoogleSheetName = () => {
@@ -60,7 +62,7 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
     };
 
     return (
-        <Grid container direction="column" spacing={1} marginTop="2px" width="100%">
+        <Grid container direction="column" spacing={1} width="100%">
             <Grid item xs={12}>
                 {(googleSheetTitles && !googleSheetTitles.succeeded &&
                 <Alert severity="error">
