@@ -21,7 +21,7 @@ public class FilesInfoService : IFilesInfoService
         {
             FileId = fr.Id,
             FileName = fr.OriginalName,
-            SizeInKB = fr.SizeInKB,
+            SizeInBytes = fr.SizeInBytes,
             Status = fr.Status.ToString()
         }).ToList();
     }
@@ -40,7 +40,7 @@ public class FilesInfoService : IFilesInfoService
             Id = fcu.FileRecord.Id,
             Name = fcu.FileRecord.OriginalName,
             Status = fcu.FileRecord.Status.ToString(),
-            SizeInKB = fcu.FileRecord.SizeInKB,
+            SizeInBytes = fcu.FileRecord.SizeInBytes,
             CourseUnitType = fcu.CourseUnitType.ToString(),
             CourseUnitId = fcu.CourseUnitId
         }).ToList();
