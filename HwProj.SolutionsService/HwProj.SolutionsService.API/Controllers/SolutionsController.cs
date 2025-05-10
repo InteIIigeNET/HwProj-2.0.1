@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -202,6 +203,12 @@ namespace HwProj.SolutionsService.API.Controllers
         {
             var course = await _coursesClient.GetCourseById(courseId);
             if (course == null) return NotFound();
+
+            course.Homeworks = course.Homeworks.OrderBy(homework => homework.PublicationDate).ToArray();
+            for (var i = 0; i < course.Homeworks.Length; ++i)
+            {
+                course.Homeworks[i].Tasks = course.Homeworks[i].Tasks.OrderBy(task => task.PublicationDate).ToList();
+            }
 
             var taskIds = course.Homeworks
                 .SelectMany(t => t.Tasks)
