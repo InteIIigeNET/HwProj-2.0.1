@@ -1,4 +1,4 @@
-/// <reference path="./custom.d.ts" />
+﻿/// <reference path="./custom.d.ts" />
 // tslint:disable
 /**
  * API Gateway
@@ -11,13 +11,10 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the file manually.
  */
-
 import * as url from "url";
 import isomorphicFetch from "isomorphic-fetch";
 import { Configuration } from "./configuration";
-
 const BASE_PATH = "/".replace(/\/+$/, "");
-
 /**
  *
  * @export
@@ -28,7 +25,6 @@ export const COLLECTION_FORMATS = {
     tsv: "\t",
     pipes: "|",
 };
-
 /**
  *
  * @export
@@ -37,7 +33,6 @@ export const COLLECTION_FORMATS = {
 export interface FetchAPI {
     (url: string, init?: any): Promise<Response>;
 }
-
 /**
  *
  * @export
@@ -47,7 +42,6 @@ export interface FetchArgs {
     url: string;
     options: any;
 }
-
 /**
  *
  * @export
@@ -55,7 +49,6 @@ export interface FetchArgs {
  */
 export class BaseAPI {
     protected configuration: Configuration | undefined;
-
     constructor(configuration?: Configuration, protected basePath: string = BASE_PATH, protected fetch: FetchAPI = isomorphicFetch) {
         if (configuration) {
             this.configuration = configuration;
@@ -63,7 +56,6 @@ export class BaseAPI {
         }
     }
 }
-
 /**
  *
  * @export
@@ -76,7 +68,6 @@ export class RequiredError extends Error {
         super(msg);
     }
 }
-
 /**
  *
  * @export
@@ -497,10 +488,10 @@ export interface CreateCourseViewModel {
     name: string;
     /**
      *
-     * @type {string}
+     * @type {Array<string>}
      * @memberof CreateCourseViewModel
      */
-    groupName?: string;
+    groupNames?: Array<string>;
     /**
      *
      * @type {Array<string>}
@@ -1414,6 +1405,43 @@ export interface InviteLecturerViewModel {
      * @memberof InviteLecturerViewModel
      */
     email: string;
+}
+/**
+ *
+ * @export
+ * @interface InviteStudentViewModel
+ */
+export interface InviteStudentViewModel {
+    /**
+     *
+     * @type {number}
+     * @memberof InviteStudentViewModel
+     */
+    courseId?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof InviteStudentViewModel
+     */
+    email?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof InviteStudentViewModel
+     */
+    name?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof InviteStudentViewModel
+     */
+    surname?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof InviteStudentViewModel
+     */
+    middleName?: string;
 }
 /**
  *
@@ -2641,7 +2669,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -2649,16 +2676,13 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             if (code !== undefined) {
                 localVarQueryParameter['code'] = code;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -2676,7 +2700,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -2684,16 +2707,13 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"EditAccountViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -2710,7 +2730,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -2718,12 +2737,10 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -2741,7 +2758,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -2749,16 +2765,13 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"UrlDto" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -2775,7 +2788,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -2783,12 +2795,10 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -2811,7 +2821,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -2819,12 +2828,10 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -2842,7 +2849,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -2850,16 +2856,13 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"InviteLecturerViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -2877,7 +2880,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -2885,16 +2887,13 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"LoginViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -2911,7 +2910,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -2919,12 +2917,10 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -2942,7 +2938,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -2950,16 +2945,13 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"RegisterViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -2977,7 +2969,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -2985,16 +2976,13 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"RequestPasswordRecoveryViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -3012,7 +3000,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -3020,16 +3007,13 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"ResetPasswordViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -3037,7 +3021,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
         },
     }
 };
-
 /**
  * AccountApi - functional programming interface
  * @export
@@ -3259,7 +3242,6 @@ export const AccountApiFp = function(configuration?: Configuration) {
         },
     }
 };
-
 /**
  * AccountApi - factory interface
  * @export
@@ -3373,7 +3355,6 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
         },
     };
 };
-
 /**
  * AccountApi - object-oriented interface
  * @export
@@ -3391,7 +3372,6 @@ export class AccountApi extends BaseAPI {
     public accountAuthorizeGithub(code?: string, options?: any) {
         return AccountApiFp(this.configuration).accountAuthorizeGithub(code, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {EditAccountViewModel} [body]
@@ -3402,7 +3382,6 @@ export class AccountApi extends BaseAPI {
     public accountEdit(body?: EditAccountViewModel, options?: any) {
         return AccountApiFp(this.configuration).accountEdit(body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {*} [options] Override http request option.
@@ -3412,7 +3391,6 @@ export class AccountApi extends BaseAPI {
     public accountGetAllStudents(options?: any) {
         return AccountApiFp(this.configuration).accountGetAllStudents(options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {UrlDto} [body]
@@ -3423,7 +3401,6 @@ export class AccountApi extends BaseAPI {
     public accountGetGithubLoginUrl(body?: UrlDto, options?: any) {
         return AccountApiFp(this.configuration).accountGetGithubLoginUrl(body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {*} [options] Override http request option.
@@ -3433,7 +3410,6 @@ export class AccountApi extends BaseAPI {
     public accountGetUserData(options?: any) {
         return AccountApiFp(this.configuration).accountGetUserData(options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {string} userId
@@ -3444,7 +3420,6 @@ export class AccountApi extends BaseAPI {
     public accountGetUserDataById(userId: string, options?: any) {
         return AccountApiFp(this.configuration).accountGetUserDataById(userId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {InviteLecturerViewModel} [body]
@@ -3455,7 +3430,6 @@ export class AccountApi extends BaseAPI {
     public accountInviteNewLecturer(body?: InviteLecturerViewModel, options?: any) {
         return AccountApiFp(this.configuration).accountInviteNewLecturer(body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {LoginViewModel} [body]
@@ -3466,7 +3440,6 @@ export class AccountApi extends BaseAPI {
     public accountLogin(body?: LoginViewModel, options?: any) {
         return AccountApiFp(this.configuration).accountLogin(body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {*} [options] Override http request option.
@@ -3476,7 +3449,6 @@ export class AccountApi extends BaseAPI {
     public accountRefreshToken(options?: any) {
         return AccountApiFp(this.configuration).accountRefreshToken(options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {RegisterViewModel} [body]
@@ -3487,7 +3459,6 @@ export class AccountApi extends BaseAPI {
     public accountRegister(body?: RegisterViewModel, options?: any) {
         return AccountApiFp(this.configuration).accountRegister(body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {RequestPasswordRecoveryViewModel} [body]
@@ -3498,7 +3469,6 @@ export class AccountApi extends BaseAPI {
     public accountRequestPasswordRecovery(body?: RequestPasswordRecoveryViewModel, options?: any) {
         return AccountApiFp(this.configuration).accountRequestPasswordRecovery(body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {ResetPasswordViewModel} [body]
@@ -3509,7 +3479,6 @@ export class AccountApi extends BaseAPI {
     public accountResetPassword(body?: ResetPasswordViewModel, options?: any) {
         return AccountApiFp(this.configuration).accountResetPassword(body, options)(this.fetch, this.basePath);
     }
-
 }
 /**
  * CourseGroupsApi - fetch parameter creator
@@ -3541,7 +3510,6 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -3549,16 +3517,13 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             if (userId !== undefined) {
                 localVarQueryParameter['userId'] = userId;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -3582,7 +3547,6 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -3590,16 +3554,13 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"CreateGroupViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -3628,7 +3589,6 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -3636,12 +3596,10 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -3664,7 +3622,6 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -3672,12 +3629,10 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -3700,7 +3655,6 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -3708,12 +3662,10 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -3736,7 +3688,6 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -3744,12 +3695,10 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -3772,7 +3721,6 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -3780,12 +3728,10 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -3815,7 +3761,6 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -3823,16 +3768,13 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             if (userId !== undefined) {
                 localVarQueryParameter['userId'] = userId;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -3862,7 +3804,6 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -3870,16 +3811,13 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"UpdateGroupViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -3887,7 +3825,6 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
         },
     }
 };
-
 /**
  * CourseGroupsApi - functional programming interface
  * @export
@@ -4066,7 +4003,6 @@ export const CourseGroupsApiFp = function(configuration?: Configuration) {
         },
     }
 };
-
 /**
  * CourseGroupsApi - factory interface
  * @export
@@ -4164,7 +4100,6 @@ export const CourseGroupsApiFactory = function (configuration?: Configuration, f
         },
     };
 };
-
 /**
  * CourseGroupsApi - object-oriented interface
  * @export
@@ -4184,7 +4119,6 @@ export class CourseGroupsApi extends BaseAPI {
     public courseGroupsAddStudentInGroup(courseId: number, groupId: number, userId?: string, options?: any) {
         return CourseGroupsApiFp(this.configuration).courseGroupsAddStudentInGroup(courseId, groupId, userId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -4196,7 +4130,6 @@ export class CourseGroupsApi extends BaseAPI {
     public courseGroupsCreateCourseGroup(courseId: number, body?: CreateGroupViewModel, options?: any) {
         return CourseGroupsApiFp(this.configuration).courseGroupsCreateCourseGroup(courseId, body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -4208,7 +4141,6 @@ export class CourseGroupsApi extends BaseAPI {
     public courseGroupsDeleteCourseGroup(courseId: number, groupId: number, options?: any) {
         return CourseGroupsApiFp(this.configuration).courseGroupsDeleteCourseGroup(courseId, groupId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -4219,7 +4151,6 @@ export class CourseGroupsApi extends BaseAPI {
     public courseGroupsGetAllCourseGroups(courseId: number, options?: any) {
         return CourseGroupsApiFp(this.configuration).courseGroupsGetAllCourseGroups(courseId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -4230,7 +4161,6 @@ export class CourseGroupsApi extends BaseAPI {
     public courseGroupsGetCourseGroupsById(courseId: number, options?: any) {
         return CourseGroupsApiFp(this.configuration).courseGroupsGetCourseGroupsById(courseId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} groupId
@@ -4241,7 +4171,6 @@ export class CourseGroupsApi extends BaseAPI {
     public courseGroupsGetGroup(groupId: number, options?: any) {
         return CourseGroupsApiFp(this.configuration).courseGroupsGetGroup(groupId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} groupId
@@ -4252,7 +4181,6 @@ export class CourseGroupsApi extends BaseAPI {
     public courseGroupsGetGroupTasks(groupId: number, options?: any) {
         return CourseGroupsApiFp(this.configuration).courseGroupsGetGroupTasks(groupId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -4265,7 +4193,6 @@ export class CourseGroupsApi extends BaseAPI {
     public courseGroupsRemoveStudentFromGroup(courseId: number, groupId: number, userId?: string, options?: any) {
         return CourseGroupsApiFp(this.configuration).courseGroupsRemoveStudentFromGroup(courseId, groupId, userId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -4278,7 +4205,6 @@ export class CourseGroupsApi extends BaseAPI {
     public courseGroupsUpdateCourseGroup(courseId: number, groupId: number, body?: UpdateGroupViewModel, options?: any) {
         return CourseGroupsApiFp(this.configuration).courseGroupsUpdateCourseGroup(courseId, groupId, body, options)(this.fetch, this.basePath);
     }
-
 }
 /**
  * CoursesApi - fetch parameter creator
@@ -4309,7 +4235,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4317,12 +4242,10 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4351,7 +4274,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4359,12 +4281,10 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4382,7 +4302,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4390,16 +4309,13 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"CreateCourseViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4422,7 +4338,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4430,12 +4345,10 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4465,7 +4378,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4473,16 +4385,13 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"EditMentorWorkspaceDTO" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4505,7 +4414,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4513,12 +4421,10 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4535,7 +4441,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4543,12 +4448,10 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4571,7 +4474,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4579,12 +4481,10 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4601,7 +4501,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4609,12 +4508,10 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4637,7 +4534,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4645,12 +4541,10 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4668,7 +4562,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4676,16 +4569,13 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             if (programName !== undefined) {
                 localVarQueryParameter['programName'] = programName;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4708,7 +4598,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4716,12 +4605,10 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4750,7 +4637,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4758,12 +4644,10 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4780,7 +4664,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4788,12 +4671,41 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
+         * @param {InviteStudentViewModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        coursesInviteStudent(body?: InviteStudentViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Courses/inviteExistentStudent`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"InviteStudentViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4822,7 +4734,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4830,12 +4741,10 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4858,7 +4767,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4866,12 +4774,10 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4895,7 +4801,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4903,16 +4808,13 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"UpdateCourseViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4942,7 +4844,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -4950,16 +4851,13 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"StudentCharacteristicsDto" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -4967,7 +4865,6 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         },
     }
 };
-
 /**
  * CoursesApi - functional programming interface
  * @export
@@ -5230,6 +5127,24 @@ export const CoursesApiFp = function(configuration?: Configuration) {
         },
         /**
          *
+         * @param {InviteStudentViewModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        coursesInviteStudent(body?: InviteStudentViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).coursesInviteStudent(body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
          * @param {number} courseId
          * @param {string} studentId
          * @param {*} [options] Override http request option.
@@ -5306,7 +5221,6 @@ export const CoursesApiFp = function(configuration?: Configuration) {
         },
     }
 };
-
 /**
  * CoursesApi - factory interface
  * @export
@@ -5443,6 +5357,15 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         },
         /**
          *
+         * @param {InviteStudentViewModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        coursesInviteStudent(body?: InviteStudentViewModel, options?: any) {
+            return CoursesApiFp(configuration).coursesInviteStudent(body, options)(fetch, basePath);
+        },
+        /**
+         *
          * @param {number} courseId
          * @param {string} studentId
          * @param {*} [options] Override http request option.
@@ -5483,7 +5406,6 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         },
     };
 };
-
 /**
  * CoursesApi - object-oriented interface
  * @export
@@ -5502,7 +5424,6 @@ export class CoursesApi extends BaseAPI {
     public coursesAcceptLecturer(courseId: number, lecturerEmail: string, options?: any) {
         return CoursesApiFp(this.configuration).coursesAcceptLecturer(courseId, lecturerEmail, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -5514,7 +5435,6 @@ export class CoursesApi extends BaseAPI {
     public coursesAcceptStudent(courseId: number, studentId: string, options?: any) {
         return CoursesApiFp(this.configuration).coursesAcceptStudent(courseId, studentId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {CreateCourseViewModel} [body]
@@ -5525,7 +5445,6 @@ export class CoursesApi extends BaseAPI {
     public coursesCreateCourse(body?: CreateCourseViewModel, options?: any) {
         return CoursesApiFp(this.configuration).coursesCreateCourse(body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -5536,7 +5455,6 @@ export class CoursesApi extends BaseAPI {
     public coursesDeleteCourse(courseId: number, options?: any) {
         return CoursesApiFp(this.configuration).coursesDeleteCourse(courseId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -5549,7 +5467,6 @@ export class CoursesApi extends BaseAPI {
     public coursesEditMentorWorkspace(courseId: number, mentorId: string, body?: EditMentorWorkspaceDTO, options?: any) {
         return CoursesApiFp(this.configuration).coursesEditMentorWorkspace(courseId, mentorId, body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -5560,7 +5477,6 @@ export class CoursesApi extends BaseAPI {
     public coursesGetAllCourseData(courseId: number, options?: any) {
         return CoursesApiFp(this.configuration).coursesGetAllCourseData(courseId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {*} [options] Override http request option.
@@ -5570,7 +5486,6 @@ export class CoursesApi extends BaseAPI {
     public coursesGetAllCourses(options?: any) {
         return CoursesApiFp(this.configuration).coursesGetAllCourses(options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -5581,7 +5496,6 @@ export class CoursesApi extends BaseAPI {
     public coursesGetAllTagsForCourse(courseId: number, options?: any) {
         return CoursesApiFp(this.configuration).coursesGetAllTagsForCourse(courseId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {*} [options] Override http request option.
@@ -5591,7 +5505,6 @@ export class CoursesApi extends BaseAPI {
     public coursesGetAllUserCourses(options?: any) {
         return CoursesApiFp(this.configuration).coursesGetAllUserCourses(options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -5602,7 +5515,6 @@ export class CoursesApi extends BaseAPI {
     public coursesGetCourseData(courseId: number, options?: any) {
         return CoursesApiFp(this.configuration).coursesGetCourseData(courseId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {string} [programName]
@@ -5613,7 +5525,6 @@ export class CoursesApi extends BaseAPI {
     public coursesGetGroups(programName?: string, options?: any) {
         return CoursesApiFp(this.configuration).coursesGetGroups(programName, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -5624,7 +5535,6 @@ export class CoursesApi extends BaseAPI {
     public coursesGetLecturersAvailableForCourse(courseId: number, options?: any) {
         return CoursesApiFp(this.configuration).coursesGetLecturersAvailableForCourse(courseId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -5636,7 +5546,6 @@ export class CoursesApi extends BaseAPI {
     public coursesGetMentorWorkspace(courseId: number, mentorId: string, options?: any) {
         return CoursesApiFp(this.configuration).coursesGetMentorWorkspace(courseId, mentorId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {*} [options] Override http request option.
@@ -5646,7 +5555,16 @@ export class CoursesApi extends BaseAPI {
     public coursesGetProgramNames(options?: any) {
         return CoursesApiFp(this.configuration).coursesGetProgramNames(options)(this.fetch, this.basePath);
     }
-
+    /**
+     *
+     * @param {InviteStudentViewModel} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public coursesInviteStudent(body?: InviteStudentViewModel, options?: any) {
+        return CoursesApiFp(this.configuration).coursesInviteStudent(body, options)(this.fetch, this.basePath);
+    }
     /**
      *
      * @param {number} courseId
@@ -5658,7 +5576,6 @@ export class CoursesApi extends BaseAPI {
     public coursesRejectStudent(courseId: number, studentId: string, options?: any) {
         return CoursesApiFp(this.configuration).coursesRejectStudent(courseId, studentId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -5669,7 +5586,6 @@ export class CoursesApi extends BaseAPI {
     public coursesSignInCourse(courseId: number, options?: any) {
         return CoursesApiFp(this.configuration).coursesSignInCourse(courseId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -5681,7 +5597,6 @@ export class CoursesApi extends BaseAPI {
     public coursesUpdateCourse(courseId: number, body?: UpdateCourseViewModel, options?: any) {
         return CoursesApiFp(this.configuration).coursesUpdateCourse(courseId, body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -5694,7 +5609,6 @@ export class CoursesApi extends BaseAPI {
     public coursesUpdateStudentCharacteristics(courseId: number, studentId: string, body?: StudentCharacteristicsDto, options?: any) {
         return CoursesApiFp(this.configuration).coursesUpdateStudentCharacteristics(courseId, studentId, body, options)(this.fetch, this.basePath);
     }
-
 }
 /**
  * ExpertsApi - fetch parameter creator
@@ -5713,7 +5627,6 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -5721,12 +5634,10 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -5743,7 +5654,6 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -5751,12 +5661,10 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -5774,7 +5682,6 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -5782,16 +5689,13 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             if (expertEmail !== undefined) {
                 localVarQueryParameter['expertEmail'] = expertEmail;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -5809,7 +5713,6 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -5817,16 +5720,13 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"InviteExpertViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -5844,7 +5744,6 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -5852,16 +5751,13 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"TokenCredentials" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -5879,7 +5775,6 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -5887,16 +5782,13 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"RegisterExpertViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -5913,7 +5805,6 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -5921,12 +5812,10 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -5944,7 +5833,6 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -5952,16 +5840,13 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"UpdateExpertTagsDTO" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -5969,7 +5854,6 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
         },
     }
 };
-
 /**
  * ExpertsApi - functional programming interface
  * @export
@@ -6119,7 +6003,6 @@ export const ExpertsApiFp = function(configuration?: Configuration) {
         },
     }
 };
-
 /**
  * ExpertsApi - factory interface
  * @export
@@ -6197,7 +6080,6 @@ export const ExpertsApiFactory = function (configuration?: Configuration, fetch?
         },
     };
 };
-
 /**
  * ExpertsApi - object-oriented interface
  * @export
@@ -6214,7 +6096,6 @@ export class ExpertsApi extends BaseAPI {
     public expertsGetAll(options?: any) {
         return ExpertsApiFp(this.configuration).expertsGetAll(options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {*} [options] Override http request option.
@@ -6224,7 +6105,6 @@ export class ExpertsApi extends BaseAPI {
     public expertsGetIsProfileEdited(options?: any) {
         return ExpertsApiFp(this.configuration).expertsGetIsProfileEdited(options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {string} [expertEmail]
@@ -6235,7 +6115,6 @@ export class ExpertsApi extends BaseAPI {
     public expertsGetToken(expertEmail?: string, options?: any) {
         return ExpertsApiFp(this.configuration).expertsGetToken(expertEmail, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {InviteExpertViewModel} [body]
@@ -6246,7 +6125,6 @@ export class ExpertsApi extends BaseAPI {
     public expertsInvite(body?: InviteExpertViewModel, options?: any) {
         return ExpertsApiFp(this.configuration).expertsInvite(body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {TokenCredentials} [body]
@@ -6257,7 +6135,6 @@ export class ExpertsApi extends BaseAPI {
     public expertsLogin(body?: TokenCredentials, options?: any) {
         return ExpertsApiFp(this.configuration).expertsLogin(body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {RegisterExpertViewModel} [body]
@@ -6268,7 +6145,6 @@ export class ExpertsApi extends BaseAPI {
     public expertsRegister(body?: RegisterExpertViewModel, options?: any) {
         return ExpertsApiFp(this.configuration).expertsRegister(body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {*} [options] Override http request option.
@@ -6278,7 +6154,6 @@ export class ExpertsApi extends BaseAPI {
     public expertsSetProfileIsEdited(options?: any) {
         return ExpertsApiFp(this.configuration).expertsSetProfileIsEdited(options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {UpdateExpertTagsDTO} [body]
@@ -6289,7 +6164,6 @@ export class ExpertsApi extends BaseAPI {
     public expertsUpdateTags(body?: UpdateExpertTagsDTO, options?: any) {
         return ExpertsApiFp(this.configuration).expertsUpdateTags(body, options)(this.fetch, this.basePath);
     }
-
 }
 /**
  * FilesApi - fetch parameter creator
@@ -6310,7 +6184,6 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -6318,20 +6191,16 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             if (courseId !== undefined) {
                 localVarQueryParameter['courseId'] = courseId;
             }
-
             if (key !== undefined) {
                 localVarQueryParameter['key'] = key;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -6349,7 +6218,6 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -6357,16 +6225,13 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             if (key !== undefined) {
                 localVarQueryParameter['key'] = key;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -6390,7 +6255,6 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -6398,16 +6262,13 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             if (homeworkId !== undefined) {
                 localVarQueryParameter['homeworkId'] = homeworkId;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -6428,7 +6289,6 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
             const localVarFormParams = new URLSearchParams();
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -6436,27 +6296,21 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             if (courseId !== undefined) {
                 localVarFormParams.set('CourseId', courseId as any);
             }
-
             if (homeworkId !== undefined) {
                 localVarFormParams.set('HomeworkId', homeworkId as any);
             }
-
             if (file !== undefined) {
                 localVarFormParams.set('File', file as any);
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/x-www-form-urlencoded';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             localVarRequestOptions.body = localVarFormParams.toString();
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -6464,7 +6318,6 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
         },
     }
 };
-
 /**
  * FilesApi - functional programming interface
  * @export
@@ -6549,7 +6402,6 @@ export const FilesApiFp = function(configuration?: Configuration) {
         },
     }
 };
-
 /**
  * FilesApi - factory interface
  * @export
@@ -6598,7 +6450,6 @@ export const FilesApiFactory = function (configuration?: Configuration, fetch?: 
         },
     };
 };
-
 /**
  * FilesApi - object-oriented interface
  * @export
@@ -6617,7 +6468,6 @@ export class FilesApi extends BaseAPI {
     public filesDeleteFile(courseId?: number, key?: string, options?: any) {
         return FilesApiFp(this.configuration).filesDeleteFile(courseId, key, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {string} [key]
@@ -6628,7 +6478,6 @@ export class FilesApi extends BaseAPI {
     public filesGetDownloadLink(key?: string, options?: any) {
         return FilesApiFp(this.configuration).filesGetDownloadLink(key, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -6640,7 +6489,6 @@ export class FilesApi extends BaseAPI {
     public filesGetFilesInfo(courseId: number, homeworkId?: number, options?: any) {
         return FilesApiFp(this.configuration).filesGetFilesInfo(courseId, homeworkId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} [courseId]
@@ -6653,7 +6501,6 @@ export class FilesApi extends BaseAPI {
     public filesUpload(courseId?: number, homeworkId?: number, file?: Blob, options?: any) {
         return FilesApiFp(this.configuration).filesUpload(courseId, homeworkId, file, options)(this.fetch, this.basePath);
     }
-
 }
 /**
  * HomeworksApi - fetch parameter creator
@@ -6679,7 +6526,6 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -6687,16 +6533,13 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"CreateHomeworkViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -6719,7 +6562,6 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -6727,12 +6569,10 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -6755,7 +6595,6 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -6763,12 +6602,10 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -6791,7 +6628,6 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -6799,12 +6635,10 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -6828,7 +6662,6 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -6836,16 +6669,13 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"CreateHomeworkViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -6853,7 +6683,6 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
         },
     }
 };
-
 /**
  * HomeworksApi - functional programming interface
  * @export
@@ -6954,7 +6783,6 @@ export const HomeworksApiFp = function(configuration?: Configuration) {
         },
     }
 };
-
 /**
  * HomeworksApi - factory interface
  * @export
@@ -7010,7 +6838,6 @@ export const HomeworksApiFactory = function (configuration?: Configuration, fetc
         },
     };
 };
-
 /**
  * HomeworksApi - object-oriented interface
  * @export
@@ -7029,7 +6856,6 @@ export class HomeworksApi extends BaseAPI {
     public homeworksAddHomework(courseId: number, body?: CreateHomeworkViewModel, options?: any) {
         return HomeworksApiFp(this.configuration).homeworksAddHomework(courseId, body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} homeworkId
@@ -7040,7 +6866,6 @@ export class HomeworksApi extends BaseAPI {
     public homeworksDeleteHomework(homeworkId: number, options?: any) {
         return HomeworksApiFp(this.configuration).homeworksDeleteHomework(homeworkId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} homeworkId
@@ -7051,7 +6876,6 @@ export class HomeworksApi extends BaseAPI {
     public homeworksGetForEditingHomework(homeworkId: number, options?: any) {
         return HomeworksApiFp(this.configuration).homeworksGetForEditingHomework(homeworkId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} homeworkId
@@ -7062,7 +6886,6 @@ export class HomeworksApi extends BaseAPI {
     public homeworksGetHomework(homeworkId: number, options?: any) {
         return HomeworksApiFp(this.configuration).homeworksGetHomework(homeworkId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} homeworkId
@@ -7074,7 +6897,6 @@ export class HomeworksApi extends BaseAPI {
     public homeworksUpdateHomework(homeworkId: number, body?: CreateHomeworkViewModel, options?: any) {
         return HomeworksApiFp(this.configuration).homeworksUpdateHomework(homeworkId, body, options)(this.fetch, this.basePath);
     }
-
 }
 /**
  * NotificationsApi - fetch parameter creator
@@ -7094,7 +6916,6 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
             const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7102,16 +6923,13 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"NotificationsSettingDto" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7128,7 +6946,6 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7136,12 +6953,10 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7158,7 +6973,6 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7166,12 +6980,10 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7188,7 +7000,6 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7196,12 +7007,10 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7219,7 +7028,6 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
             const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7227,16 +7035,13 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"Array&lt;number&gt;" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7244,7 +7049,6 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
         },
     }
 };
-
 /**
  * NotificationsApi - functional programming interface
  * @export
@@ -7340,7 +7144,6 @@ export const NotificationsApiFp = function(configuration?: Configuration) {
         },
     }
 };
-
 /**
  * NotificationsApi - factory interface
  * @export
@@ -7391,7 +7194,6 @@ export const NotificationsApiFactory = function (configuration?: Configuration, 
         },
     };
 };
-
 /**
  * NotificationsApi - object-oriented interface
  * @export
@@ -7409,7 +7211,6 @@ export class NotificationsApi extends BaseAPI {
     public notificationsChangeSetting(body?: NotificationsSettingDto, options?: any) {
         return NotificationsApiFp(this.configuration).notificationsChangeSetting(body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {*} [options] Override http request option.
@@ -7419,7 +7220,6 @@ export class NotificationsApi extends BaseAPI {
     public notificationsGet(options?: any) {
         return NotificationsApiFp(this.configuration).notificationsGet(options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {*} [options] Override http request option.
@@ -7429,7 +7229,6 @@ export class NotificationsApi extends BaseAPI {
     public notificationsGetNewNotificationsCount(options?: any) {
         return NotificationsApiFp(this.configuration).notificationsGetNewNotificationsCount(options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {*} [options] Override http request option.
@@ -7439,7 +7238,6 @@ export class NotificationsApi extends BaseAPI {
     public notificationsGetSettings(options?: any) {
         return NotificationsApiFp(this.configuration).notificationsGetSettings(options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {Array<number>} [body]
@@ -7450,7 +7248,6 @@ export class NotificationsApi extends BaseAPI {
     public notificationsMarkAsSeen(body?: Array<number>, options?: any) {
         return NotificationsApiFp(this.configuration).notificationsMarkAsSeen(body, options)(this.fetch, this.basePath);
     }
-
 }
 /**
  * SolutionsApi - fetch parameter creator
@@ -7475,7 +7272,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7483,12 +7279,10 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7507,7 +7301,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7515,20 +7308,16 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             if (taskId !== undefined) {
                 localVarQueryParameter['taskId'] = taskId;
             }
-
             if (solutionId !== undefined) {
                 localVarQueryParameter['solutionId'] = solutionId;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7551,7 +7340,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7559,12 +7347,10 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7587,7 +7373,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7595,12 +7380,10 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7629,7 +7412,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7637,12 +7419,10 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7665,7 +7445,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7673,12 +7452,10 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7696,7 +7473,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7704,16 +7480,13 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             if (taskId !== undefined) {
                 localVarQueryParameter['taskId'] = taskId;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7736,7 +7509,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7744,12 +7516,10 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7772,7 +7542,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7780,12 +7549,10 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7809,7 +7576,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7817,16 +7583,13 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"SolutionViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7850,7 +7613,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7858,16 +7620,13 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"SolutionViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7891,7 +7650,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -7899,16 +7657,13 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"RateSolutionModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -7916,7 +7671,6 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         },
     }
 };
-
 /**
  * SolutionsApi - functional programming interface
  * @export
@@ -8146,7 +7900,6 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
         },
     }
 };
-
 /**
  * SolutionsApi - factory interface
  * @export
@@ -8268,7 +8021,6 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
         },
     };
 };
-
 /**
  * SolutionsApi - object-oriented interface
  * @export
@@ -8286,7 +8038,6 @@ export class SolutionsApi extends BaseAPI {
     public solutionsDeleteSolution(solutionId: number, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsDeleteSolution(solutionId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} [taskId]
@@ -8298,7 +8049,6 @@ export class SolutionsApi extends BaseAPI {
     public solutionsGetSolutionAchievement(taskId?: number, solutionId?: number, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsGetSolutionAchievement(taskId, solutionId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} solutionId
@@ -8309,7 +8059,6 @@ export class SolutionsApi extends BaseAPI {
     public solutionsGetSolutionActuality(solutionId: number, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsGetSolutionActuality(solutionId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} solutionId
@@ -8320,7 +8069,6 @@ export class SolutionsApi extends BaseAPI {
     public solutionsGetSolutionById(solutionId: number, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsGetSolutionById(solutionId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} taskId
@@ -8332,7 +8080,6 @@ export class SolutionsApi extends BaseAPI {
     public solutionsGetStudentSolution(taskId: number, studentId: string, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsGetStudentSolution(taskId, studentId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} taskId
@@ -8343,7 +8090,6 @@ export class SolutionsApi extends BaseAPI {
     public solutionsGetTaskSolutionsPageData(taskId: number, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsGetTaskSolutionsPageData(taskId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} [taskId]
@@ -8354,7 +8100,6 @@ export class SolutionsApi extends BaseAPI {
     public solutionsGetUnratedSolutions(taskId?: number, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsGetUnratedSolutions(taskId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} taskId
@@ -8365,7 +8110,6 @@ export class SolutionsApi extends BaseAPI {
     public solutionsGiveUp(taskId: number, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsGiveUp(taskId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} solutionId
@@ -8376,7 +8120,6 @@ export class SolutionsApi extends BaseAPI {
     public solutionsMarkSolution(solutionId: number, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsMarkSolution(solutionId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} taskId
@@ -8388,7 +8131,6 @@ export class SolutionsApi extends BaseAPI {
     public solutionsPostEmptySolutionWithRate(taskId: number, body?: SolutionViewModel, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsPostEmptySolutionWithRate(taskId, body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} taskId
@@ -8400,7 +8142,6 @@ export class SolutionsApi extends BaseAPI {
     public solutionsPostSolution(taskId: number, body?: SolutionViewModel, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsPostSolution(taskId, body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} solutionId
@@ -8412,7 +8153,6 @@ export class SolutionsApi extends BaseAPI {
     public solutionsRateSolution(solutionId: number, body?: RateSolutionModel, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsRateSolution(solutionId, body, options)(this.fetch, this.basePath);
     }
-
 }
 /**
  * StatisticsApi - fetch parameter creator
@@ -8437,7 +8177,6 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -8445,12 +8184,10 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -8473,7 +8210,6 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -8481,12 +8217,10 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -8509,7 +8243,6 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -8517,12 +8250,10 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -8530,7 +8261,6 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
         },
     }
 };
-
 /**
  * StatisticsApi - functional programming interface
  * @export
@@ -8593,7 +8323,6 @@ export const StatisticsApiFp = function(configuration?: Configuration) {
         },
     }
 };
-
 /**
  * StatisticsApi - factory interface
  * @export
@@ -8629,7 +8358,6 @@ export const StatisticsApiFactory = function (configuration?: Configuration, fet
         },
     };
 };
-
 /**
  * StatisticsApi - object-oriented interface
  * @export
@@ -8647,7 +8375,6 @@ export class StatisticsApi extends BaseAPI {
     public statisticsGetChartStatistics(courseId: number, options?: any) {
         return StatisticsApiFp(this.configuration).statisticsGetChartStatistics(courseId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -8658,7 +8385,6 @@ export class StatisticsApi extends BaseAPI {
     public statisticsGetCourseStatistics(courseId: number, options?: any) {
         return StatisticsApiFp(this.configuration).statisticsGetCourseStatistics(courseId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} courseId
@@ -8669,7 +8395,6 @@ export class StatisticsApi extends BaseAPI {
     public statisticsGetLecturersStatistics(courseId: number, options?: any) {
         return StatisticsApiFp(this.configuration).statisticsGetLecturersStatistics(courseId, options)(this.fetch, this.basePath);
     }
-
 }
 /**
  * SystemApi - fetch parameter creator
@@ -8688,7 +8413,6 @@ export const SystemApiFetchParamCreator = function (configuration?: Configuratio
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -8696,12 +8420,10 @@ export const SystemApiFetchParamCreator = function (configuration?: Configuratio
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -8709,7 +8431,6 @@ export const SystemApiFetchParamCreator = function (configuration?: Configuratio
         },
     }
 };
-
 /**
  * SystemApi - functional programming interface
  * @export
@@ -8735,7 +8456,6 @@ export const SystemApiFp = function(configuration?: Configuration) {
         },
     }
 };
-
 /**
  * SystemApi - factory interface
  * @export
@@ -8752,7 +8472,6 @@ export const SystemApiFactory = function (configuration?: Configuration, fetch?:
         },
     };
 };
-
 /**
  * SystemApi - object-oriented interface
  * @export
@@ -8769,7 +8488,6 @@ export class SystemApi extends BaseAPI {
     public systemStatus(options?: any) {
         return SystemApiFp(this.configuration).systemStatus(options)(this.fetch, this.basePath);
     }
-
 }
 /**
  * TasksApi - fetch parameter creator
@@ -8789,7 +8507,6 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -8797,16 +8514,13 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"AddAnswerForQuestionDto" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -8824,7 +8538,6 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -8832,16 +8545,13 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"AddTaskQuestionDto" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -8865,7 +8575,6 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -8873,16 +8582,13 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -8905,7 +8611,6 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -8913,12 +8618,10 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -8941,7 +8644,6 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -8949,12 +8651,10 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -8977,7 +8677,6 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -8985,12 +8684,10 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -9013,7 +8710,6 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -9021,12 +8717,10 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -9050,7 +8744,6 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
             // authentication Bearer required
             if (configuration && configuration.apiKey) {
                 const localVarApiKeyValue = typeof configuration.apiKey === 'function'
@@ -9058,16 +8751,13 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
-
             localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
-
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -9075,7 +8765,6 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
         },
     }
 };
-
 /**
  * TasksApi - functional programming interface
  * @export
@@ -9230,7 +8919,6 @@ export const TasksApiFp = function(configuration?: Configuration) {
         },
     }
 };
-
 /**
  * TasksApi - factory interface
  * @export
@@ -9313,7 +9001,6 @@ export const TasksApiFactory = function (configuration?: Configuration, fetch?: 
         },
     };
 };
-
 /**
  * TasksApi - object-oriented interface
  * @export
@@ -9331,7 +9018,6 @@ export class TasksApi extends BaseAPI {
     public tasksAddAnswerForQuestion(body?: AddAnswerForQuestionDto, options?: any) {
         return TasksApiFp(this.configuration).tasksAddAnswerForQuestion(body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {AddTaskQuestionDto} [body]
@@ -9342,7 +9028,6 @@ export class TasksApi extends BaseAPI {
     public tasksAddQuestionForTask(body?: AddTaskQuestionDto, options?: any) {
         return TasksApiFp(this.configuration).tasksAddQuestionForTask(body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} homeworkId
@@ -9354,7 +9039,6 @@ export class TasksApi extends BaseAPI {
     public tasksAddTask(homeworkId: number, body?: CreateTaskViewModel, options?: any) {
         return TasksApiFp(this.configuration).tasksAddTask(homeworkId, body, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} taskId
@@ -9365,7 +9049,6 @@ export class TasksApi extends BaseAPI {
     public tasksDeleteTask(taskId: number, options?: any) {
         return TasksApiFp(this.configuration).tasksDeleteTask(taskId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} taskId
@@ -9376,7 +9059,6 @@ export class TasksApi extends BaseAPI {
     public tasksGetForEditingTask(taskId: number, options?: any) {
         return TasksApiFp(this.configuration).tasksGetForEditingTask(taskId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} taskId
@@ -9387,7 +9069,6 @@ export class TasksApi extends BaseAPI {
     public tasksGetQuestionsForTask(taskId: number, options?: any) {
         return TasksApiFp(this.configuration).tasksGetQuestionsForTask(taskId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} taskId
@@ -9398,7 +9079,6 @@ export class TasksApi extends BaseAPI {
     public tasksGetTask(taskId: number, options?: any) {
         return TasksApiFp(this.configuration).tasksGetTask(taskId, options)(this.fetch, this.basePath);
     }
-
     /**
      *
      * @param {number} taskId
@@ -9410,5 +9090,4 @@ export class TasksApi extends BaseAPI {
     public tasksUpdateTask(taskId: number, body?: CreateTaskViewModel, options?: any) {
         return TasksApiFp(this.configuration).tasksUpdateTask(taskId, body, options)(this.fetch, this.basePath);
     }
-
 }

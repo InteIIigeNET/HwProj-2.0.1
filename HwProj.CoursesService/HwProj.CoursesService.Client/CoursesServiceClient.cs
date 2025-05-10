@@ -646,5 +646,19 @@ namespace HwProj.CoursesService.Client
                 return false;
             }
         }
+        
+        public async Task<Result> SignInAndAcceptStudent(long courseId, string studentId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/Courses/signInAndAcceptStudent/{courseId}?studentId={studentId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+    
+            return response.IsSuccessStatusCode 
+                ? Result.Success() 
+                : Result.Failed(response.ReasonPhrase);
+        }
     }
 }
