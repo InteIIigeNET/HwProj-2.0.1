@@ -7,7 +7,6 @@ import {
     DialogContentText,
     Grid,
     MenuItem,
-    Select,
     TextField,
 } from "@mui/material";
 import apiSingleton from "../../api/ApiSingleton";
@@ -91,7 +90,7 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
                     )}
                 </Grid>
             </DialogContentText>
-            <DialogActions>
+            <DialogActions style={{ padding: 0, marginTop: 12 }}>
                 <Grid item container spacing={1} style={{ marginRight: "auto" }}>
                     <Grid item>
                         <TextField
@@ -107,7 +106,8 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
                     </Grid>
                     {googleSheetTitles && googleSheetTitles.value && googleSheetTitles.value.length > 0 &&
                         <Grid item>
-                            <Select
+                            <TextField
+                                select
                                 size="small"
                                 id="demo-simple-select"
                                 label="Лист"
@@ -115,7 +115,7 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
                                 onChange={v => setState(prevState => ({ ...prevState, selectedSheet: +v.target.value }))}
                             >
                                 {googleSheetTitles.value.map((title, i) => <MenuItem value={i}>{title}</MenuItem>)}
-                            </Select>
+                            </TextField>
                         </Grid>
                     }
                 </Grid>
