@@ -26,8 +26,10 @@ namespace HwProj.CoursesService.API.Services
             _coursesRepository = coursesRepository;
         }
 
-        public async Task<Homework> AddHomeworkAsync(long courseId, Homework homework)
+        public async Task<Homework> AddHomeworkAsync(long courseId, CreateHomeworkViewModel homeworkViewModel)
         {
+            homeworkViewModel.Tags = homeworkViewModel.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
+            var homework = homeworkViewModel.ToHomework();
             homework.CourseId = courseId;
 
             var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(courseId);
@@ -62,11 +64,14 @@ namespace HwProj.CoursesService.API.Services
             await _homeworksRepository.DeleteAsync(homeworkId);
         }
 
-        public async Task<Homework> UpdateHomeworkAsync(long homeworkId, Homework update, ActionOptions options)
+        public async Task<Homework> UpdateHomeworkAsync(long homeworkId, CreateHomeworkViewModel homeworkViewModel)
         {
+            homeworkViewModel.Tags = homeworkViewModel.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
+            var update = homeworkViewModel.ToHomework();
+            var options = homeworkViewModel.ActionOptions ?? ActionOptions.Default;
+
             var homework = await _homeworksRepository.GetAsync(homeworkId);
             var course = await _coursesRepository.GetWithCourseMates(homework.CourseId);
-
             var studentIds = course!.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
             if (options.SendNotification && update.PublicationDate <= DateTime.UtcNow)

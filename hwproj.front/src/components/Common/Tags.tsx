@@ -26,10 +26,12 @@ export default function Tags({tags, onTagsChange, requestTags, isElementSmall}: 
             console.error('Ошибка при получении данных:', error);
         }
     };
-    const [value, setValue] = useState<string[]>(tags.filter(t => t !== ''));
+    const [value, setValue] = useState<string[]>(tags);
     const handleOptionSelect = (event: SyntheticEvent<Element, Event>, newValue: string[]) => {
-        setValue(newValue);
-        onTagsChange(newValue);
+        const formatted = newValue.map(t => t.trim().split(RegExp("\\s+")).join(" "))
+        const filtered = formatted.filter(t => t.length > 0)
+        setValue(filtered);
+        onTagsChange(filtered);
     };
     return (
         <Autocomplete

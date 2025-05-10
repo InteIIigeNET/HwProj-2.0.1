@@ -312,7 +312,7 @@ const CourseHomeworkEditor: FC<{
                     />
                 </Grid>
                 <Grid item xs={6} style={{marginTop: 6}}>
-                    <Tags tags={tags} onTagsChange={newTags => setTags(newTags)} isElementSmall={false}
+                    <Tags tags={tags} onTagsChange={setTags} isElementSmall={false}
                           requestTags={() => apiSingleton.coursesApi.coursesGetAllTagsForCourse(courseId)}/>
                 </Grid>
             </Grid>
