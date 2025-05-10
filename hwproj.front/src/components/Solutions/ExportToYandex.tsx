@@ -177,7 +177,7 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
                 </Grid>
             </DialogContentText>
             <DialogActions style={{ padding: 0, marginTop: 12 }}>
-                <Grid item style={{ marginRight: "auto" }}>
+                <Grid item marginRight="auto">
                     <TextField
                         fullWidth
                         size="small"
