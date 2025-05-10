@@ -157,7 +157,7 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
                     )}
                 </Grid>
             </DialogContentText>
-            <DialogActions>
+            <DialogActions style={{ padding: 0, marginTop: 12 }}>
                 <Grid item>
                     <Button variant="text" color="inherit" type="button"
                             onClick={props.onCancellation}>
@@ -176,7 +176,7 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
                     </Alert>
                 </Grid>
             </DialogContentText>
-            <DialogActions>
+            <DialogActions style={{ padding: 0, marginTop: 12 }}>
                 <Grid item style={{ marginRight: "auto" }}>
                     <TextField
                         fullWidth
