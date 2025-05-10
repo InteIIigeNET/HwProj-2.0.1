@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+using HwProj.ContentService.API.Models.Enums;
 
 namespace HwProj.ContentService.API.Models.Database;
 

@@ -13,38 +13,45 @@ public class MessageConsumer : BackgroundService
     private readonly ILogger<MessageConsumer> _logger;
     private readonly HashSet<long> _filesActiveContinuations = new();
 
+    private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly IMessageProducer _messageProducer;
     private readonly IS3FilesService _s3FilesService;
     private readonly IFileKeyService _fileKeyService;
-    private readonly IFileRecordRepository _fileRecordRepository;
 
     public MessageConsumer(ChannelReader<IProcessFileMessage> channelReader, ILogger<MessageConsumer> logger,
         IMessageProducer messageProducer, IS3FilesService s3FilesService, IFileKeyService fileKeyService,
-        IFileRecordRepository fileRecordRepository)
+        IServiceScopeFactory serviceScopeFactory)
     {
         _channelReader = channelReader;
         _logger = logger;
         _messageProducer = messageProducer;
         _s3FilesService = s3FilesService;
         _fileKeyService = fileKeyService;
-        _fileRecordRepository = fileRecordRepository;
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
+        // Можем так сделать, поскольку MessageConsumer работает с базой строго последовательно (последовательно обрабатывает сообщения)
+        using var scope = _serviceScopeFactory.CreateScope();
+        var fileRecordRepository = scope.ServiceProvider.GetRequiredService<IFileRecordRepository>();
+
         await foreach (var message in _channelReader.ReadAllAsync(cancellationToken))
         {
-            await ProcessMessage(message);
+            await ProcessMessage(message, fileRecordRepository);
         }
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Приступаем к завершению работы обработчика сообщений MessageConsumer");
+        using var scope = _serviceScopeFactory.CreateScope();
+        var fileRecordRepository = scope.ServiceProvider.GetRequiredService<IFileRecordRepository>();
+
         // Обрабатываем оставшиеся сообщений в канале
         while (_channelReader.TryRead(out var message))
         {
-            await ProcessMessage(message);
+            await ProcessMessage(message, fileRecordRepository);
         }
 
         // Ждем завершения всех дополнительных задач
@@ -55,27 +62,27 @@ public class MessageConsumer : BackgroundService
         // Ещё раз обрабатываем оставшиеся сообщения в канале, поскольку некоторые задачи содержат отправку сообщения
         while (_channelReader.TryRead(out var message))
         {
-            await ProcessMessage(message);
+            await ProcessMessage(message, fileRecordRepository);
         }
 
         _logger.LogInformation("Канал сообщений пуст, обработчик MessageConsumer успешно приостановлен");
     }
 
-    private async Task ProcessMessage(IProcessFileMessage message)
+    private async Task ProcessMessage(IProcessFileMessage message, IFileRecordRepository fileRecordRepository)
     {
         switch (message)
         {
             case UploadFileMessage uploadFileMessage:
-                await HandleUploadFileMessage(uploadFileMessage);
+                await HandleUploadFileMessage(uploadFileMessage, fileRecordRepository);
                 break;
             case UpdateStatusMessage updateStatusMessage:
-                await HandleUpdateStatusMessage(updateStatusMessage);
+                await HandleUpdateStatusMessage(updateStatusMessage, fileRecordRepository);
                 break;
             case DeleteFileMessage deleteFileMessage:
-                await HandleDeleteFileMessage(deleteFileMessage);
+                await HandleDeleteFileMessage(deleteFileMessage, fileRecordRepository);
                 break;
             case FileDeletedMessage fileDeletedMessage:
-                await HandleFileDeletedMessage(fileDeletedMessage);
+                await HandleFileDeletedMessage(fileDeletedMessage, fileRecordRepository);
                 break;
             default:
                 _logger.LogWarning("Необработанное сообщение типа {messageType} от пользователя {senderId}",
@@ -84,7 +91,7 @@ public class MessageConsumer : BackgroundService
         }
     }
 
-    private async Task HandleUploadFileMessage(UploadFileMessage message)
+    private async Task HandleUploadFileMessage(UploadFileMessage message, IFileRecordRepository fileRecordRepository)
     {
         var fileName = message.FileContent.Name;
         var s3Key = _fileKeyService.BuildFileKey(message.Scope, fileName);
@@ -95,21 +102,22 @@ public class MessageConsumer : BackgroundService
             ExternalKey = s3Key,
         };
 
-        var fileId = await _fileRecordRepository.AddWithCourseUnitInfoAsync(fileRecord, message.Scope);
+        var fileId = await fileRecordRepository.AddWithCourseUnitInfoAsync(fileRecord, message.Scope);
         _logger.LogInformation("Информация о файле {fileId} от пользователя {senderId} успешно добавлена в базу данных",
             fileId, message.SenderId);
 
         UploadFileToS3AndUpdateStatus(message, s3Key, fileId);
     }
 
-    private async Task HandleUpdateStatusMessage(UpdateStatusMessage message)
+    private async Task HandleUpdateStatusMessage(UpdateStatusMessage message,
+        IFileRecordRepository fileRecordRepository)
     {
-        await _fileRecordRepository.UpdateAsync(message.FileId, fr => new FileRecord
+        await fileRecordRepository.UpdateAsync(message.FileId, fr => new FileRecord
         {
             OriginalName = fr.OriginalName,
             SizeInBytes = fr.SizeInBytes,
             ExternalKey = fr.ExternalKey,
-            
+
             Status = message.NewStatus
         });
         _logger.LogInformation(
@@ -117,9 +125,9 @@ public class MessageConsumer : BackgroundService
             message.FileId, message.NewStatus, message.SenderId);
     }
 
-    private async Task HandleDeleteFileMessage(DeleteFileMessage message)
+    private async Task HandleDeleteFileMessage(DeleteFileMessage message, IFileRecordRepository fileRecordRepository)
     {
-        var fileRecord = await _fileRecordRepository.GetAsync(message.FileId);
+        var fileRecord = await fileRecordRepository.GetAsync(message.FileId);
         if (fileRecord.Status is FileStatus.Uploading)
         {
             _logger.LogError("Ошибка удаления файла {fileId} пользователем {senderId}: файл ещё загружается",
@@ -129,7 +137,8 @@ public class MessageConsumer : BackgroundService
 
         if (fileRecord.ReferenceCount > 1)
         {
-            var newReferenceCount = await _fileRecordRepository.ReduceReferenceCountAsync(fileRecord, message.FileScope);
+            var newReferenceCount =
+                await fileRecordRepository.ReduceReferenceCountAsync(fileRecord, message.FileScope);
             _logger.LogInformation("Количество ссылок на файл {fileId} уменьшено с {previousReferenceCount} " +
                                    "до {newReferenceCount} по запросу пользователя {senderId}",
                 message.FileId, fileRecord.ReferenceCount, newReferenceCount, message.SenderId);
@@ -137,7 +146,7 @@ public class MessageConsumer : BackgroundService
         }
 
         fileRecord.Status = FileStatus.Deleting;
-        await _fileRecordRepository.UpdateAsync(message.FileId, _ => fileRecord);
+        await fileRecordRepository.UpdateAsync(message.FileId, _ => fileRecord);
         _logger.LogInformation(
             "Статус файла {fileId} успешно обновлён на {status} по запросу пользователя {senderId}",
             message.FileId, fileRecord.Status.ToString(), message.SenderId);
@@ -145,10 +154,11 @@ public class MessageConsumer : BackgroundService
         DeleteFileFromS3AndUpdateStatus(message, fileRecord.ExternalKey);
     }
 
-    private async Task HandleFileDeletedMessage(FileDeletedMessage message)
+    private async Task HandleFileDeletedMessage(FileDeletedMessage message, IFileRecordRepository fileRecordRepository)
     {
-        await _fileRecordRepository.DeleteWithCourseUnitInfoAsync(message.FileId);
-        _logger.LogInformation("Информация о файле {fileId} успешно удалена из базы данных по запросу пользователя {senderId}",
+        await fileRecordRepository.DeleteWithCourseUnitInfoAsync(message.FileId);
+        _logger.LogInformation(
+            "Информация о файле {fileId} успешно удалена из базы данных по запросу пользователя {senderId}",
             message.FileId, message.SenderId);
     }
 
@@ -169,11 +179,11 @@ public class MessageConsumer : BackgroundService
             SenderId: message.SenderId
         );
         await _messageProducer.PushUpdateFileStatusMessage(updateStatusMessage);
-        
+
         // Задача для fileId завершена, новое сообщение отправлено в канал
         _filesActiveContinuations.Remove(fileId);
     }
-    
+
     private async Task DeleteFileFromS3AndUpdateStatus(DeleteFileMessage message, string s3Key)
     {
         // Сигнализируем, что для message.FileId есть задача, завершения которой нужно дождаться при остановке сервиса
@@ -183,7 +193,7 @@ public class MessageConsumer : BackgroundService
         {
             var fileDeletedMessage = new FileDeletedMessage(message.FileId, message.SenderId);
             await _messageProducer.PushFileDeletedMessage(fileDeletedMessage);
-            
+
             // Задача для message.FileId завершена, новое сообщение отправлено в канал
             _filesActiveContinuations.Remove(message.FileId);
             return;
@@ -197,7 +207,7 @@ public class MessageConsumer : BackgroundService
             SenderId: message.SenderId
         );
         await _messageProducer.PushUpdateFileStatusMessage(updateStatusMessage);
-        
+
         // Задача для message.FileId завершена, новое сообщение отправлено в канал
         _filesActiveContinuations.Remove(message.FileId);
     }

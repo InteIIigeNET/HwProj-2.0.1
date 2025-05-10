@@ -43,8 +43,10 @@ public static class ConfigurationExtensions
         services.ConfigureStorageClient(clientConfigurationSection);
         services.ConfigureChannelInfrastructure<IProcessFileMessage>();
         
-        services.AddScoped<IFileKeyService, FileKeyService>();
-        services.AddScoped<IS3FilesService, S3FilesService>();
+        // Регистрируем как синглтоны, чтобы использовать в MessageConsumer
+        services.AddSingleton<IFileKeyService, FileKeyService>();
+        services.AddSingleton<IS3FilesService, S3FilesService>();
+        
         services.AddScoped<IFilesInfoService, FilesInfoService>();
         
         services.AddHttpClient();
@@ -68,7 +70,8 @@ public static class ConfigurationExtensions
         services.AddSingleton<ChannelReader<T>>(serviceProvider => 
             serviceProvider.GetRequiredService<Channel<T>>().Reader);
 
-        services.AddScoped<IMessageProducer, MessageProducer>();
+        // Регистрируем как синглтон, чтобы использовать в MessageConsumer
+        services.AddSingleton<IMessageProducer, MessageProducer>();
         services.AddHostedService<MessageConsumer>();
     }
     
