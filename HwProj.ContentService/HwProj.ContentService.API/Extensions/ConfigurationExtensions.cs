@@ -60,7 +60,7 @@ public static class ConfigurationExtensions
                 new UnboundedChannelOptions
             {
                 SingleWriter = false,
-                SingleReader = true // Один читатель, работающий с БД
+                SingleReader = true // Один читатель, последовательно работающий с БД
             }));
 
         services.AddSingleton<ChannelWriter<T>>(serviceProvider => 

@@ -88,3 +88,4 @@ services:
     depends_on:
       - rabbitmq
       - hwproj.authservice.api
+    stop_grace_period: 11m
