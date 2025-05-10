@@ -149,7 +149,7 @@ const RegisterStudentDialog: FC<RegisterStudentDialogProps> = ({courseId, open, 
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 InputProps={{
-                                    autoComplete: 'off'
+                                    autoComplete: "new-email"
                                 }}
                             />
                         </Grid>
@@ -162,6 +162,9 @@ const RegisterStudentDialog: FC<RegisterStudentDialogProps> = ({courseId, open, 
                                 size="small"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
+                                InputProps={{
+                                    autoComplete: "new-name"
+                                }}
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -173,6 +176,9 @@ const RegisterStudentDialog: FC<RegisterStudentDialogProps> = ({courseId, open, 
                                 size="small"
                                 value={surname}
                                 onChange={(e) => setSurname(e.target.value)}
+                                InputProps={{
+                                    autoComplete: "new-surname"
+                                }}
                             />
                         </Grid>
                         <Grid item xs={12}>
@@ -183,6 +189,9 @@ const RegisterStudentDialog: FC<RegisterStudentDialogProps> = ({courseId, open, 
                                 size="small"
                                 value={middleName}
                                 onChange={(e) => setMiddleName(e.target.value)}
+                                InputProps={{
+                                    autoComplete: "new-middlename"
+                                }}
                             />
                         </Grid>
                     </Grid>
@@ -297,7 +306,7 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     InputProps={{
-                                        autoComplete: 'off'
+                                        autoComplete: "off"
                                     }}
                                 />
                             </Grid>
