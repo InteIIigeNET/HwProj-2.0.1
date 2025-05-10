@@ -10,6 +10,7 @@ namespace HwProj.APIGateway.API.Filters
     public class CourseMentorOnlyAttribute : ActionFilterAttribute
     {
         private readonly ICoursesServiceClient _coursesServiceClient;
+        private readonly string _courseIdRequestName = "FilesScope.CourseId";
 
         public CourseMentorOnlyAttribute(ICoursesServiceClient coursesServiceClient)
         {
@@ -33,7 +34,7 @@ namespace HwProj.APIGateway.API.Filters
             
             string[]? mentorIds = null;
             
-            var courseId = GetValueFromRequest(context.HttpContext.Request, "courseId");
+            var courseId = GetValueFromRequest(context.HttpContext.Request, _courseIdRequestName);
             if (courseId != null && long.TryParse(courseId, out var id))
             {
                 mentorIds = await _coursesServiceClient.GetCourseLecturersIds(id);
