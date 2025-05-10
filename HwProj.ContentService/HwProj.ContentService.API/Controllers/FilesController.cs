@@ -30,8 +30,8 @@ public class FilesController : ControllerBase
     {
         var userId = Request.GetUserIdFromHeader();
         var scope = processFilesDto.FilesScope.ToScope();
-        await _messageProducer.PushUploadFilesMessages(scope, processFilesDto.NewFiles, userId);
         await _messageProducer.PushDeleteFilesMessages(scope, processFilesDto.DeletingFileIds, userId);
+        await _messageProducer.PushUploadFilesMessages(scope, processFilesDto.NewFiles, userId);
         return Ok();
     }
 

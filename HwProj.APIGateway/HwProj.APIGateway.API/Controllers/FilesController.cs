@@ -40,11 +40,14 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpGet("statuses")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        [ProducesResponseType(typeof(List<FileStatusDTO>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(FileStatusDTO[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
         public async Task<IActionResult> GetStatuses(ScopeDTO scopeDto)
         {
-            var filesStatuses = await _contentServiceClient.GetFilesStatuses(scopeDto);
-            return Ok(filesStatuses);
+            var filesStatusesResult = await _contentServiceClient.GetFilesStatuses(scopeDto);
+            return filesStatusesResult.Succeeded
+                ? Ok(filesStatusesResult.Value) as IActionResult
+                : StatusCode((int)HttpStatusCode.ServiceUnavailable, filesStatusesResult.Errors);
         }
         
         [HttpGet("downloadLink")]
@@ -60,10 +63,13 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpGet("info/course/{courseId}")]
         [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
         public async Task<IActionResult> GetFilesInfo(long courseId)
         {
-            var filesInfo = await _contentServiceClient.GetFilesInfo(courseId);
-            return Ok(filesInfo);
+            var filesInfoResult = await _contentServiceClient.GetFilesInfo(courseId);
+            return filesInfoResult.Succeeded
+                ? Ok(filesInfoResult.Value) as IActionResult
+                : StatusCode((int)HttpStatusCode.ServiceUnavailable, filesInfoResult.Errors);
         }
     }
 }

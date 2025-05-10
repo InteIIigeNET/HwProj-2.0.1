@@ -48,6 +48,7 @@ public static class ConfigurationExtensions
         services.AddSingleton<IS3FilesService, S3FilesService>();
         
         services.AddScoped<IFilesInfoService, FilesInfoService>();
+        services.AddScoped<IRecoveryService, RecoveryService>();
         
         services.AddHttpClient();
 
