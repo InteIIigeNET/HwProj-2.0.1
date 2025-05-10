@@ -2,6 +2,7 @@
 import {
     Alert,
     Button,
+    CircularProgress,
     DialogActions,
     DialogContent,
     DialogContentText,
@@ -31,28 +32,38 @@ interface ExportToGoogleState {
     url: string
     googleSheetTitles: StringArrayResult | undefined
     selectedSheet: number
-    loadingStatus: LoadingStatus
+    loadingSheets: boolean
+    exportStatus: LoadingStatus
     error: string | null
 }
 
 const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => {
     const [state, setState] = useState<ExportToGoogleState>({
         url: "",
-        selectedSheet: 0,
         googleSheetTitles: undefined,
-        loadingStatus: LoadingStatus.None,
+        selectedSheet: 0,
+        loadingSheets: false,
+        exportStatus: LoadingStatus.None,
         error: null
     })
 
-    const {url, googleSheetTitles, selectedSheet, loadingStatus, error } = state
+    const {url, googleSheetTitles, selectedSheet, loadingSheets, exportStatus, error } = state
 
     const handleGoogleDocUrlChange = (value: string) => {
-        setState(prevState => ({ ...prevState, url: value }))
+        setState(prevState => ({ ...prevState, url: value, loadingSheets: true }))
         if (value)
             apiSingleton.statisticsApi.statisticsGetSheetTitles(value)
-            .then(response => setState(prevState => ({ ...prevState, googleSheetTitles: response })))
+            .then(response => setState(prevState => ({
+                ...prevState,
+                googleSheetTitles: response,
+                loadingSheets: false,
+            })))
         else
-            setState(prevState => ({ ...prevState, googleSheetTitles: undefined }))
+            setState(prevState => ({
+                ...prevState,
+                googleSheetTitles: undefined,
+                loadingSheets: false,
+            }))
     }
 
     const getGoogleSheetName = () => {
@@ -62,10 +73,10 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
     }
 
     const buttonSx = {
-        ...(loadingStatus === LoadingStatus.Success && {
+        ...(exportStatus === LoadingStatus.Success && {
             color: green[600],
         }),
-        ...(loadingStatus === LoadingStatus.Error && {
+        ...(exportStatus === LoadingStatus.Error && {
             color: red[600],
         }),
     };
@@ -78,7 +89,7 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
                         <Alert severity="error">
                             {googleSheetTitles!.errors![0]}
                         </Alert>
-                    ) || (loadingStatus === LoadingStatus.Error &&
+                    ) || (exportStatus === LoadingStatus.Error &&
                         <Alert severity="error">
                             {error}
                         </Alert>
@@ -91,7 +102,7 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
                 </Grid>
             </DialogContentText>
             <DialogActions style={{ padding: 0, marginTop: 12 }}>
-                <Grid item container spacing={1} style={{ marginRight: "auto" }}>
+                <Grid item container spacing={1} alignItems="center" marginRight="auto">
                     <Grid item>
                         <TextField
                             fullWidth
@@ -104,7 +115,12 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
                             }}
                         />
                     </Grid>
-                    {googleSheetTitles && googleSheetTitles.value && googleSheetTitles.value.length > 0 &&
+                    {loadingSheets &&
+                        <Grid item>
+                            <CircularProgress size={28}/>
+                        </Grid>
+                    }
+                    {!loadingSheets && googleSheetTitles && googleSheetTitles.value && googleSheetTitles.value.length > 0 &&
                         <Grid item>
                             <TextField
                                 select
@@ -126,16 +142,16 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
                             color="primary"
                             type="button"
                             sx={buttonSx}
-                            loading={loadingStatus === LoadingStatus.Loading}
+                            loading={exportStatus === LoadingStatus.Loading}
                             onClick={async () => {
-                                setState((prevState) => ({...prevState, loadingStatus: LoadingStatus.Loading}))
+                                setState((prevState) => ({...prevState, exportStatus: LoadingStatus.Loading}))
                                 const result = await apiSingleton.statisticsApi.statisticsExportToGoogleSheets(
                                     props.courseId,
                                     url,
                                     getGoogleSheetName())
                                 setState((prevState) =>
                                     ({...prevState,
-                                        loadingStatus: result.succeeded ? LoadingStatus.Success : LoadingStatus.Error,
+                                        exportStatus: result.succeeded ? LoadingStatus.Success : LoadingStatus.Error,
                                         error: result.errors === undefined
                                             || result.errors === null
                                             || result.errors.length === 0
