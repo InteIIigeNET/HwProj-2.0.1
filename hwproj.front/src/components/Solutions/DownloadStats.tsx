@@ -1,5 +1,5 @@
 ﻿import { FC, useState } from "react";
-import { Button, Grid, TextField } from "@mui/material";
+import { Button, DialogActions, DialogContent, Grid, TextField } from "@mui/material";
 import apiSingleton from "../../api/ApiSingleton";
 import { LoadingButton } from "@mui/lab";
 
@@ -30,37 +30,39 @@ const DownloadStats: FC<DownloadStatsProps> = (props: DownloadStatsProps) => {
     }
 
     return (
-        <Grid container direction="row" marginTop="1px" spacing={1} width="100%"
-              justifyContent="space-between" alignItems="center">
-            <Grid item xs={6}>
-                <TextField
-                    fullWidth
-                    size="small"
-                    label="Название файла"
-                    value={fileName}
-                    onChange={event => {
-                        event.persist();
-                        setFileName(event.target.value);
-                    }}
-                />
-            </Grid>
-            <Grid item>
-                <LoadingButton
-                    variant="text"
-                    color="primary"
-                    type="button"
-                    loading={loading}
-                    onClick={handleFileDownloading}
-                    style={{ marginRight: 8 }}
-                >
-                    Загрузить
-                </LoadingButton>
-                <Button variant="text" color="inherit" type="button"
-                        onClick={props.onCancellation}>
-                    Отмена
-                </Button>
-            </Grid>
-        </Grid>
+        <DialogContent>
+            <DialogActions>
+                <Grid item>
+                    <TextField
+                        fullWidth
+                        size="small"
+                        label="Название файла"
+                        value={fileName}
+                        onChange={event => {
+                            event.persist();
+                            setFileName(event.target.value);
+                        }}
+                    />
+                </Grid>
+                <Grid>
+                    <LoadingButton
+                        variant="text"
+                        color="primary"
+                        type="button"
+                        loading={loading}
+                        onClick={handleFileDownloading}
+                    >
+                        Загрузить
+                    </LoadingButton>
+                </Grid>
+                <Grid>
+                    <Button variant="text" color="inherit" type="button"
+                            onClick={props.onCancellation}>
+                        Отмена
+                    </Button>
+                </Grid>
+            </DialogActions>
+        </DialogContent>
     )
 }
 

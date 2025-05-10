@@ -1,5 +1,15 @@
 ﻿import { FC, useState } from "react";
-import { Alert, Button, Grid, MenuItem, Select, TextField } from "@mui/material";
+import {
+    Alert,
+    Button,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    Grid,
+    MenuItem,
+    Select,
+    TextField,
+} from "@mui/material";
 import apiSingleton from "../../api/ApiSingleton";
 import { green, red } from "@material-ui/core/colors";
 import { StringArrayResult } from "@/api";
@@ -62,58 +72,60 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
     };
 
     return (
-        <Grid container direction="column" spacing={1} width="100%">
-            <Grid item xs={12}>
-                {(googleSheetTitles && !googleSheetTitles.succeeded &&
-                <Alert severity="error">
-                    {googleSheetTitles!.errors![0]}
-                </Alert>)
-                    ||
-                    (loadingStatus === LoadingStatus.Error &&
+        <DialogContent>
+            <DialogContentText>
+                <Grid item>
+                    {(googleSheetTitles && !googleSheetTitles.succeeded &&
+                        <Alert severity="error">
+                            {googleSheetTitles!.errors![0]}
+                        </Alert>
+                    ) || (loadingStatus === LoadingStatus.Error &&
                         <Alert severity="error">
                             {error}
-                        </Alert>)
-                    ||
-                    (<Alert severity="info" variant="standard">
-                        Для загрузки таблицы необходимо разрешить доступ на редактирование по ссылке для Google Sheets
-                    </Alert>)
-                }
-            </Grid>
-            <Grid container item direction="row" spacing={1} width="100%"
-                  justifyContent="space-between" alignItems="center">
-                <Grid item xs={5}>
-                    <TextField
-                        fullWidth
-                        size="small"
-                        label="Ссылка на Google Sheets"
-                        value={url}
-                        onChange={event => {
-                            event.persist()
-                            handleGoogleDocUrlChange(event.target.value)
-                        }}
-                    />
+                        </Alert>
+                    ) || (
+                        <Alert severity="info" variant="standard">
+                            Для загрузки таблицы необходимо разрешить доступ
+                            на редактирование по ссылке для Google Sheets
+                        </Alert>
+                    )}
                 </Grid>
-                {googleSheetTitles && googleSheetTitles.value && googleSheetTitles.value.length > 0 &&
+            </DialogContentText>
+            <DialogActions>
+                <Grid item container spacing={1} style={{ marginRight: "auto" }}>
                     <Grid item>
-                        <Select
+                        <TextField
+                            fullWidth
                             size="small"
-                            id="demo-simple-select"
-                            label="Лист"
-                            value={selectedSheet}
-                            onChange={v => setState(prevState => ({ ...prevState, selectedSheet: +v.target.value }))}
-                        >
-                            {googleSheetTitles.value.map((title, i) => <MenuItem value={i}>{title}</MenuItem>)}
-                        </Select>
+                            label="Ссылка на Google Sheets"
+                            value={url}
+                            onChange={event => {
+                                event.persist()
+                                handleGoogleDocUrlChange(event.target.value)
+                            }}
+                        />
                     </Grid>
-                }
-                <Grid item>
-                    {googleSheetTitles && googleSheetTitles.succeeded &&
+                    {googleSheetTitles && googleSheetTitles.value && googleSheetTitles.value.length > 0 &&
+                        <Grid item>
+                            <Select
+                                size="small"
+                                id="demo-simple-select"
+                                label="Лист"
+                                value={selectedSheet}
+                                onChange={v => setState(prevState => ({ ...prevState, selectedSheet: +v.target.value }))}
+                            >
+                                {googleSheetTitles.value.map((title, i) => <MenuItem value={i}>{title}</MenuItem>)}
+                            </Select>
+                        </Grid>
+                    }
+                </Grid>
+                {googleSheetTitles && googleSheetTitles.succeeded &&
+                    <Grid item>
                         <LoadingButton
                             variant="text"
                             color="primary"
                             type="button"
                             sx={buttonSx}
-                            style={{ marginRight: 8 }}
                             loading={loadingStatus === LoadingStatus.Loading}
                             onClick={async () => {
                                 setState((prevState) => ({...prevState, loadingStatus: LoadingStatus.Loading}))
@@ -134,14 +146,16 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
                         >
                             Сохранить
                         </LoadingButton>
-                    }
+                    </Grid>
+                }
+                <Grid item>
                     <Button variant="text" color="inherit" type="button"
                             onClick={props.onCancellation}>
                         Отмена
                     </Button>
                 </Grid>
-            </Grid>
-        </Grid>
+            </DialogActions>
+        </DialogContent>
     )
 }
 

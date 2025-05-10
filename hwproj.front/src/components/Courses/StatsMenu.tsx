@@ -7,8 +7,7 @@ import {
     ListItemText,
     Dialog,
     DialogTitle,
-    DialogContent}
-from "@mui/material";
+} from "@mui/material";
 import { NestedMenuItem } from "mui-nested-menu";
 import { Download, ShowChart } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -109,11 +108,11 @@ const StatsMenu: FC<StatsMenuProps> = props => {
     const getActionTitle = (action: SaveStatsAction | null) => {
         switch (action) {
             case SaveStatsAction.Download:
-                return "Сохранить на диск"
+                return "Сохранить таблицу на диск"
             case SaveStatsAction.ShareWithGoogle:
-                return "Отправить в Google Docs"
+                return "Выгрузить таблицу в Google Docs"
             case SaveStatsAction.ShareWithYandex:
-                return "Отправить на Яндекс Диск"
+                return "Выгрузить таблицу на Яндекс Диск"
             default:
                 return ""
         }
@@ -202,9 +201,7 @@ const StatsMenu: FC<StatsMenuProps> = props => {
                 <DialogTitle>
                     {getActionTitle(saveStatsAction)}
                 </DialogTitle>
-                <DialogContent style={{ minWidth: 540 }}>
-                    {getActionContent(saveStatsAction)}
-                </DialogContent>
+                {getActionContent(saveStatsAction)}
             </Dialog>
         </div>
     )
