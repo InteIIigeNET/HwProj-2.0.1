@@ -99,6 +99,8 @@ const Course: React.FC = () => {
     const showStatsTab = isCourseMentor || isAcceptedStudent
     const showApplicationsTab = isCourseMentor
 
+    const hasAccessToMaterials = course.isOpen || isCourseMentor || isAcceptedStudent
+
     const changeTab = (newTab: string) => {
         if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
             if (newTab === "stats" && !showStatsTab) return;
@@ -269,6 +271,12 @@ const Course: React.FC = () => {
                                         : !isMentor ? "Вы можете записаться на курс и отправлять решения." : ""}
                             </Alert>
                         </Grid>}
+                        {!hasAccessToMaterials && <Grid item>
+                            <Alert severity="warning">
+                                <AlertTitle>Курс является ограниченно-видимым!</AlertTitle>
+                                Для просмотра материалов необходимо стать его участником.
+                            </Alert>
+                        </Grid>}
                         <Grid item container xs={12} alignItems="center"
                               justifyContent="space-between">
                             <Grid item>
@@ -323,7 +331,7 @@ const Course: React.FC = () => {
                             if (value === 2 && !isExpert) navigate(`/courses/${courseId}/applications`)
                         }}
                     >
-                        {!isExpert &&
+                        {hasAccessToMaterials && !isExpert &&
                             <Tab label={<div>Задания</div>}/>}
                         {showStatsTab && <Tab label={
                             <Stack direction="row" spacing={1}>
