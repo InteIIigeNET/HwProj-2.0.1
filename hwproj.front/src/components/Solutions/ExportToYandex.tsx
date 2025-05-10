@@ -1,6 +1,14 @@
-﻿import { FC, useState } from "react";
-import { useEffect } from 'react';
-import { Alert, Button, Grid, Link, TextField } from "@mui/material";
+﻿import { FC, useState, useEffect } from "react";
+import {
+    Alert,
+    Button,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    Grid,
+    Link,
+    TextField,
+} from "@mui/material";
 import apiSingleton from "../../api/ApiSingleton";
 import { green, red } from "@material-ui/core/colors";
 import { LoadingButton } from "@mui/lab";
@@ -129,43 +137,47 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
     };
 
     return userToken === null ? (
-        <Grid container direction="column" spacing={1} width="100%">
-            <Grid item xs={12}>
-                {!isAuthorizationError &&
-                    <Alert severity="info" variant="standard">
-                        Для загрузки таблицы необходимо пройти{" "}
-                        <Link href={yacRequestLink}>
-                            авторизацию
-                        </Link>
-                    </Alert>
-                }
-                {isAuthorizationError &&
-                    <Alert severity="error" variant="standard">
-                        Авторизация не пройдена. Попробуйте{" "}
-                        <Link href={yacRequestLink}>
-                            еще раз
-                        </Link>
-                    </Alert>
-                }
-            </Grid>
-            <Grid item marginLeft="auto">
-                <Button variant="text" color="inherit" type="button"
-                        onClick={props.onCancellation}>
-                    Отмена
-                </Button>
-            </Grid>
-        </Grid>
+        <DialogContent>
+            <DialogContentText>
+                <Grid item>
+                    {isAuthorizationError ? (
+                        <Alert severity="error" variant="standard">
+                            Авторизация не пройдена. Попробуйте{" "}
+                            <Link href={yacRequestLink}>
+                                еще раз
+                            </Link>
+                        </Alert>
+                    ) : (
+                        <Alert severity="info" variant="standard">
+                            Для загрузки таблицы необходимо пройти{" "}
+                            <Link href={yacRequestLink}>
+                                авторизацию
+                            </Link>
+                        </Alert>
+                    )}
+                </Grid>
+            </DialogContentText>
+            <DialogActions>
+                <Grid item>
+                    <Button variant="text" color="inherit" type="button"
+                            onClick={props.onCancellation}>
+                        Отмена
+                    </Button>
+                </Grid>
+            </DialogActions>
+        </DialogContent>
     ) : (
-        <Grid container direction="column" spacing={1} width="100%">
-            <Grid item xs={12}>
-                <Alert severity="success" variant="standard">
-                    Авторизация успешно пройдена. Файл будет загружен на диск по адресу
-                    "Приложения/{import.meta.env.VITE_YANDEX_APPLICATION_NAME}/{fileName}.xlsx"
-                </Alert>
-            </Grid>
-            <Grid container item direction="row" spacing={1} width="100%"
-                  justifyContent="space-between" alignItems="center">
-                <Grid item xs={6}>
+        <DialogContent>
+            <DialogContentText>
+                <Grid item>
+                    <Alert severity="success" variant="standard">
+                        Авторизация успешно пройдена. Файл будет загружен на диск по адресу
+                        "Приложения/{import.meta.env.VITE_YANDEX_APPLICATION_NAME}/{fileName}.xlsx"
+                    </Alert>
+                </Grid>
+            </DialogContentText>
+            <DialogActions>
+                <Grid item style={{ marginRight: "auto" }}>
                     <TextField
                         fullWidth
                         size="small"
@@ -184,8 +196,7 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
                         variant="text"
                         color="primary"
                         type="button"
-                        sx={buttonSx}   
-                        style={{ marginRight: 8 }}
+                        sx={buttonSx}
                         loading={loadingStatus === LoadingStatus.Loading}
                         onClick={() => {
                             setState((prevState) => ({...prevState, loadingStatus: LoadingStatus.Loading}))
@@ -194,13 +205,15 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
                     >
                         Сохранить
                     </LoadingButton>
+                </Grid>
+                <Grid item>
                     <Button variant="text" color="inherit" type="button"
                             onClick={props.onCancellation}>
                         Отмена
                     </Button>
                 </Grid>
-            </Grid>
-        </Grid>
+            </DialogActions>
+        </DialogContent>
     )
 }
 

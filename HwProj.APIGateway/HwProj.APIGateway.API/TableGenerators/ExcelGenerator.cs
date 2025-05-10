@@ -149,7 +149,7 @@ namespace HwProj.APIGateway.API.TableGenerators
 
                 var title = course.Homeworks[i].Title;
                 var publicationDate = course.Homeworks[i].PublicationDate;
-                var tags = course.Homeworks[i].Tags.Where(t => !string.IsNullOrWhiteSpace(t));
+                var tags = course.Homeworks[i].Tags;
                 var isTest = tags.Contains(HomeworkTags.Test);
                 var tagsToShow = tags.Where(t => t != HomeworkTags.Test).ToList();
                 var tagsStr = $" ({tagsToShow.Select(GetTagLabel).Join(", ")})";
