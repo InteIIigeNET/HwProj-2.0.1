@@ -64,7 +64,20 @@ public class S3FilesService : IS3FilesService
             return Result<string>.Failed(e.Message);
         }
     }
-    
+
+    public async Task<bool> CheckFileExistence(string fileKey)
+    {
+        try
+        {
+            var response = await _s3AmazonClient.GetObjectMetadataAsync(_bucketName, fileKey);
+            return response.IsSuccessStatusCode();
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
     public async Task<Result> DeleteFileAsync(string fileKey)
     {
         try

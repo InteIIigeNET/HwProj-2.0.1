@@ -9,6 +9,9 @@ public class ContentContext(DbContextOptions options) : DbContext(options)
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<FileRecord>()
+            .HasIndex(fr => new { fr.Status });
+
         modelBuilder.Entity<FileToCourseUnit>()
             .HasKey(ftc => new { ftc.FileId, ftc.CourseUnitType, ftc.CourseUnitId });
         modelBuilder.Entity<FileToCourseUnit>()

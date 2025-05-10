@@ -2,6 +2,7 @@ using HwProj.ContentService.API.Models;
 using HwProj.ContentService.API.Models.Database;
 using HwProj.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Z.EntityFramework.Plus;
 
 namespace HwProj.ContentService.API.Repositories;
 
@@ -32,6 +33,55 @@ public class FileRecordRepository : CrudRepository<FileRecord, long>, IFileRecor
 
         await transaction.CommitAsync();
         return fileRecordId;
+    }
+
+    public async Task UpdateStatusAsync(List<long> fileRecordIds, FileStatus newStatus)
+    {
+        await Context.Set<FileRecord>()
+            .Where(fr => fileRecordIds.Contains(fr.Id))
+            .ExecuteUpdateAsync(setters =>
+                setters.SetProperty(fr => fr.Status, newStatus)
+            );
+    }
+
+    public async Task<List<FileRecord>> GetByScopeAsync(Scope scope)
+        => await Context.Set<FileToCourseUnit>()
+            .Where(fc => fc.CourseUnitType == scope.CourseUnitType
+                         && fc.CourseUnitId == scope.CourseUnitId)
+            .Select(fc => fc.FileRecord)
+            .ToListAsync();
+
+    public async Task<List<FileToCourseUnit>> GetByCourseIdAsync(long courseId)
+        => await Context.Set<FileToCourseUnit>()
+            .Where(fc => fc.CourseId == courseId)
+            .Include(fc => fc.FileRecord)
+            .ToListAsync();
+
+    public async Task<List<FileRecord>> GetByStatusAsync(FileStatus status)
+        => await Context.Set<FileRecord>()
+            .Where(fc => fc.Status == status)
+            .ToListAsync();
+
+    public async Task DeleteWithCourseUnitInfoAsync(long fileRecordId)
+    {
+        await Context.Set<FileToCourseUnit>()
+            .Where(ftc => ftc.FileId == fileRecordId)
+            .DeleteAsync();
+
+        await Context.Set<FileRecord>()
+            .Where(f => f.Id == fileRecordId)
+            .DeleteAsync();
+    }
+
+    public async Task DeleteWithCourseUnitInfoAsync(List<long> fileRecordIds)
+    {
+        await Context.Set<FileToCourseUnit>()
+            .Where(ftc => fileRecordIds.Contains(ftc.FileId))
+            .DeleteAsync();
+
+        await Context.Set<FileRecord>()
+            .Where(f => fileRecordIds.Contains(f.Id))
+            .DeleteAsync();
     }
 
     /// <summary>
@@ -65,17 +115,4 @@ public class FileRecordRepository : CrudRepository<FileRecord, long>, IFileRecor
         await transaction.CommitAsync();
         return fileRecord.ReferenceCount;
     }
-
-    public async Task<List<FileRecord>> GetByScopeAsync(Scope scope)
-        => await Context.Set<FileToCourseUnit>()
-            .Where(fc => fc.CourseUnitType == scope.CourseUnitType
-                         && fc.CourseUnitId == scope.CourseUnitId)
-            .Select(fc => fc.FileRecord)
-            .ToListAsync();
-
-    public async Task<List<FileToCourseUnit>> GetByCourseIdAsync(long courseId)
-        => await Context.Set<FileToCourseUnit>()
-            .Where(fc => fc.CourseId == courseId)
-            .Include(fc => fc.FileRecord)
-            .ToListAsync();
 }
