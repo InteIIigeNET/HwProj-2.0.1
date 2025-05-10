@@ -25,24 +25,14 @@ public class MessageProducer : IMessageProducer
                 SenderId: userId
             ));
 
-        try
+        foreach (var uploadFileMessage in uploadFileMessages)
         {
-            await Parallel.ForEachAsync(
-                uploadFileMessages,
-                async (uploadFileMessage, cancellationToken) =>
-                {
-                    await _channelWriter.WriteAsync(uploadFileMessage, cancellationToken);
-                    _logger.LogInformation("В канал опубликована задача на загрузку файла {fileName}",
-                        uploadFileMessage.FileContent.FileName);
-                });
-        }
-        catch (ChannelClosedException ex)
-        {
-            _logger.LogError(ex, "Канал был закрыт во время публикации задач на загрузку файлов");
-            throw;
+            await _channelWriter.WriteAsync(uploadFileMessage);
+            _logger.LogInformation("В канал опубликована задача на загрузку файла {fileName} пользователем {senderId}",
+                uploadFileMessage.FileContent.FileName, uploadFileMessage.SenderId);
         }
     }
-    
+
     public async Task PushDeleteFilesMessages(Scope filesScope, List<long> fileIds, string userId)
     {
         var startDeletingFileMessages = fileIds.Select(fileId =>
@@ -52,53 +42,26 @@ public class MessageProducer : IMessageProducer
                 SenderId: userId
             ));
 
-        try
+        foreach (var startDeletingFileMessage in startDeletingFileMessages)
         {
-            await Parallel.ForEachAsync(
-                startDeletingFileMessages,
-                async (startDeletingFileMessage, cancellationToken) =>
-                {
-                    await _channelWriter.WriteAsync(startDeletingFileMessage, cancellationToken);
-                    _logger.LogInformation(
-                        $"В канал опубликована задача на удаление файла {startDeletingFileMessage.FileId}");
-                });
-        }
-        catch (ChannelClosedException ex)
-        {
-            _logger.LogError(ex, "Канал был закрыт во время публикации задач на удаление файлов");
-            throw;
+            await _channelWriter.WriteAsync(startDeletingFileMessage);
+            _logger.LogInformation("В канал опубликована задача на удаление файла {fileId} пользователем {senderId}",
+                startDeletingFileMessage.FileId, startDeletingFileMessage.SenderId);
         }
     }
 
     public async Task PushFileDeletedMessage(FileDeletedMessage fileDeletedMessage)
     {
-        try
-        {
-            await _channelWriter.WriteAsync(fileDeletedMessage);
-            _logger.LogInformation(
-                $"В канал опубликована задача на удаление записи файла {fileDeletedMessage.FileId}");
-        }
-        catch (ChannelClosedException ex)
-        {
-            _logger.LogError(ex,
-                $"Канал был закрыт во время публикации задачи на удаление записи файла {fileDeletedMessage.FileId}");
-            throw;
-        }
+        await _channelWriter.WriteAsync(fileDeletedMessage);
+        _logger.LogInformation("В канал опубликована задача на удаление записи файла {fileId} пользователем {senderId}",
+            fileDeletedMessage.FileId, fileDeletedMessage.SenderId);
     }
 
     public async Task PushUpdateFileStatusMessage(UpdateStatusMessage updateStatusMessage)
     {
-        try
-        {
-            await _channelWriter.WriteAsync(updateStatusMessage);
-            _logger.LogInformation(
-                $"В канал опубликована задача на обновление статуса файла {updateStatusMessage.FileId}");
-        }
-        catch (ChannelClosedException ex)
-        {
-            _logger.LogError(ex,
-                $"Канал был закрыт во время публикации задачи на обновление статуса файла {updateStatusMessage.FileId}");
-            throw;
-        }
+        await _channelWriter.WriteAsync(updateStatusMessage);
+        _logger.LogInformation(
+            "В канал опубликована задача на обновление статуса файла {fileId} на {newStatus} пользователем {senderId}",
+            updateStatusMessage.FileId, updateStatusMessage.NewStatus.ToString(), updateStatusMessage.SenderId);
     }
 }
