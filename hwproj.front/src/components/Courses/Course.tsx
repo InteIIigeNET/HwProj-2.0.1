@@ -63,14 +63,172 @@ interface InviteStudentDialogProps {
     open: boolean;
     onClose: () => void;
     onStudentInvited: () => Promise<void>;
+    email?: string;
 }
 
-const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onClose, onStudentInvited}) => {
+interface RegisterStudentDialogProps {
+    courseId: number;
+    open: boolean;
+    onClose: () => void;
+    onStudentRegistered: () => Promise<void>;
+    initialEmail?: string;
+}
+
+const RegisterStudentDialog: FC<RegisterStudentDialogProps> = ({courseId, open, onClose, onStudentRegistered, initialEmail}) => {
     const classes = useStyles();
     const {enqueueSnackbar} = useSnackbar();
-    const [email, setEmail] = useState("");
+    const [email, setEmail] = useState(initialEmail || "");
+    const [name, setName] = useState("");
+    const [surname, setSurname] = useState("");
+    const [middleName, setMiddleName] = useState("");
+    const [errors, setErrors] = useState<string[]>([]);
+    const [isRegistering, setIsRegistering] = useState(false);
+
+    const registerStudent = async () => {
+        setIsRegistering(true);
+        setErrors([]);
+        try {
+            await ApiSingleton.coursesApi.coursesInviteStudent({
+                courseId: courseId,
+                email: email,
+                name: name,
+                surname: surname,
+                middleName: middleName
+            });
+            enqueueSnackbar("Студент успешно зарегистрирован и приглашен", {variant: "success"});
+            onClose();
+            await onStudentRegistered();
+        } catch (error) {
+            const responseErrors = await ErrorsHandler.getErrorMessages(error as Response);
+            if (responseErrors.length > 0) {
+                setErrors(responseErrors);
+            } else {
+                setErrors(['Не удалось зарегистрировать студента']);
+            }
+        } finally {
+            setIsRegistering(false);
+        }
+    };
+
+    return (
+        <Dialog
+            open={open}
+            onClose={() => !isRegistering && onClose()}
+            maxWidth="xs"
+        >
+            <DialogTitle>
+                <Grid container>
+                    <Grid item container direction={"row"} justifyContent={"center"}>
+                        <Avatar className={classes.avatar} style={{color: 'white', backgroundColor: '#00AB00'}}>
+                            <MailOutlineIcon/>
+                        </Avatar>
+                    </Grid>
+                    <Grid item container direction={"row"} justifyContent={"center"}>
+                        <Typography variant="h5">
+                            Зарегистрировать студента
+                        </Typography>
+                    </Grid>
+                </Grid>
+            </DialogTitle>
+            <DialogContent>
+                {errors.length > 0 && (
+                    <Typography color="error" align="center" style={{marginBottom: '16px'}}>
+                        {errors[0]}
+                    </Typography>
+                )}
+                <form className={classes.form}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <TextField
+                                required
+                                fullWidth
+                                type="email"
+                                label="Электронная почта"
+                                variant="outlined"
+                                size="small"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                InputProps={{
+                                    autoComplete: 'off'
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                required
+                                fullWidth
+                                label="Имя"
+                                variant="outlined"
+                                size="small"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                required
+                                fullWidth
+                                label="Фамилия"
+                                variant="outlined"
+                                size="small"
+                                value={surname}
+                                onChange={(e) => setSurname(e.target.value)}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                label="Отчество"
+                                variant="outlined"
+                                size="small"
+                                value={middleName}
+                                onChange={(e) => setMiddleName(e.target.value)}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid
+                        direction="row"
+                        justifyContent="flex-end"
+                        alignItems="flex-end"
+                        container
+                        style={{marginTop: '16px'}}
+                    >
+                        <Grid item>
+                            <Button
+                                onClick={onClose}
+                                color="primary"
+                                variant="contained"
+                                style={{marginRight: '10px'}}
+                                disabled={isRegistering}
+                            >
+                                Закрыть
+                            </Button>
+                        </Grid>
+                        <Grid item>
+                            <Button
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                onClick={registerStudent}
+                                disabled={!email || !name || !surname || isRegistering}
+                            >
+                                {isRegistering ? 'Регистрация...' : 'Зарегистрировать'}
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </form>
+            </DialogContent>
+        </Dialog>
+    );
+};
+
+const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onClose, onStudentInvited, email: initialEmail}) => {
+    const classes = useStyles();
+    const {enqueueSnackbar} = useSnackbar();
+    const [email, setEmail] = useState(initialEmail || "");
     const [errors, setErrors] = useState<string[]>([]);
     const [isInviting, setIsInviting] = useState(false);
+    const [showRegisterDialog, setShowRegisterDialog] = useState(false);
 
     const inviteStudent = async () => {
         setIsInviting(true);
@@ -100,82 +258,103 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
     };
 
     return (
-        <Dialog
-            open={open}
-            onClose={() => !isInviting && onClose()}
-            maxWidth="xs"
-        >
-            <DialogTitle>
-                <Grid container>
-                    <Grid item container direction={"row"} justifyContent={"center"}>
-                        <Avatar className={classes.avatar} style={{color: 'white', backgroundColor: '#00AB00'}}>
-                            <MailOutlineIcon/>
-                        </Avatar>
+        <>
+            <Dialog
+                open={open}
+                onClose={() => !isInviting && onClose()}
+                maxWidth="xs"
+            >
+                <DialogTitle>
+                    <Grid container>
+                        <Grid item container direction={"row"} justifyContent={"center"}>
+                            <Avatar className={classes.avatar} style={{color: 'white', backgroundColor: '#00AB00'}}>
+                                <MailOutlineIcon/>
+                            </Avatar>
+                        </Grid>
+                        <Grid item container direction={"row"} justifyContent={"center"}>
+                            <Typography variant="h5">
+                                Пригласить студента
+                            </Typography>
+                        </Grid>
                     </Grid>
-                    <Grid item container direction={"row"} justifyContent={"center"}>
-                        <Typography variant="h5">
-                            Пригласить студента
+                </DialogTitle>
+                <DialogContent>
+                    {errors.length > 0 && (
+                        <Typography color="error" align="center" style={{marginBottom: '16px'}}>
+                            {errors[0]}
                         </Typography>
-                    </Grid>
-                </Grid>
-            </DialogTitle>
-            <DialogContent>
-                {errors.length > 0 && (
-                    <Typography color="error" align="center" style={{marginBottom: '16px'}}>
-                        {errors[0]}
-                    </Typography>
-                )}
-                <form className={classes.form}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <TextField
-                                required
-                                fullWidth
-                                type="email"
-                                label="Электронная почта студента"
-                                variant="outlined"
-                                size="small"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                InputProps={{
-                                    autoComplete: 'off'
-                                }}
-                            />
+                    )}
+                    <form className={classes.form}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    type="email"
+                                    label="Электронная почта студента"
+                                    variant="outlined"
+                                    size="small"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    InputProps={{
+                                        autoComplete: 'off'
+                                    }}
+                                />
+                            </Grid>
                         </Grid>
-                    </Grid>
-                    <Grid
-                        direction="row"
-                        justifyContent="flex-end"
-                        alignItems="flex-end"
-                        container
-                        style={{marginTop: '16px'}}
-                    >
-                        <Grid item>
-                            <Button
-                                onClick={onClose}
-                                color="primary"
-                                variant="contained"
-                                style={{marginRight: '10px'}}
-                                disabled={isInviting}
-                            >
-                                Закрыть
-                            </Button>
+                        <Grid
+                            container
+                            spacing={1}
+                            justifyContent="flex-end"
+                            style={{marginTop: '16px'}}
+                        >
+                            {errors.length > 0 && errors[0] === 'Студент с такой почтой не найден' && (
+                                <Grid item>
+                                    <Button
+                                        variant="contained"
+                                        color="secondary"
+                                        onClick={() => {
+                                            setShowRegisterDialog(true);
+                                            onClose();
+                                        }}
+                                    >
+                                        Зарегистрировать
+                                    </Button>
+                                </Grid>
+                            )}
+                            <Grid item>
+                                <Button
+                                    onClick={onClose}
+                                    color="primary"
+                                    variant="outlined"
+                                    disabled={isInviting}
+                                >
+                                    Закрыть
+                                </Button>
+                            </Grid>
+                            <Grid item>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={inviteStudent}
+                                    disabled={!email || isInviting}
+                                >
+                                    {isInviting ? 'Отправка...' : 'Пригласить'}
+                                </Button>
+                            </Grid>
                         </Grid>
-                        <Grid item>
-                            <Button
-                                fullWidth
-                                variant="contained"
-                                color="primary"
-                                onClick={inviteStudent}
-                                disabled={!email || isInviting}
-                            >
-                                {isInviting ? 'Отправка...' : 'Пригласить'}
-                            </Button>
-                        </Grid>
-                    </Grid>
-                </form>
-            </DialogContent>
-        </Dialog>
+                    </form>
+                </DialogContent>
+            </Dialog>
+            
+            <RegisterStudentDialog
+                courseId={courseId}
+                open={showRegisterDialog}
+                onClose={() => setShowRegisterDialog(false)}
+                onStudentRegistered={onStudentInvited}
+                initialEmail={email}
+            />
+        </>
     );
 };
 

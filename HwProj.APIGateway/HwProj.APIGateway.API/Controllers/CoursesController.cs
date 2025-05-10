@@ -306,19 +306,48 @@ namespace HwProj.APIGateway.API.Controllers
                 IsOpen = course.IsOpen,
             };
         }
-        
+
         [HttpPost("inviteExistentStudent")]
         [Authorize(Roles = Roles.LecturerRole)]
         public async Task<IActionResult> InviteStudent([FromBody] InviteStudentViewModel model)
         {
             var student = await AuthServiceClient.FindByEmailAsync(model.Email);
-            if (student == null)
+
+            if (student == null && model.Name == null)
             {
                 return BadRequest(new { error = "Пользователь с указанным email не найден" });
             }
-            
-            await _coursesClient.SignInAndAcceptStudent(model.CourseId, student);
-            
+
+            if (student == null && model.Name != null)
+            {
+                var registerModel = new RegisterViewModel
+                {
+                    Email = model.Email,
+                    Name = model.Name,
+                    Surname = model.Surname,
+                    MiddleName = model.MiddleName
+                };
+
+                var registrationResult = await AuthServiceClient.Register(registerModel);
+                
+                if (!registrationResult.Succeeded)
+                {
+                    return BadRequest(new { error = "Не удалось зарегистрировать студента", details = registrationResult.Errors });
+                }
+
+                student = await AuthServiceClient.FindByEmailAsync(model.Email);
+                if (student == null)
+                {
+                    return BadRequest(new { error = "Студент зарегистрирован, но не найден в системе" });
+                }
+            }
+
+            var result = await _coursesClient.SignInAndAcceptStudent(model.CourseId, student);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { error = "Не удалось добавить студента в курс", details = result.Errors });
+            }
+
             return Ok();
         }
     }
