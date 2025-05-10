@@ -31,7 +31,7 @@ const DownloadStats: FC<DownloadStatsProps> = (props: DownloadStatsProps) => {
 
     return (
         <DialogContent>
-            <DialogActions>
+            <DialogActions style={{ padding: 0, marginTop: 6 }}>
                 <Grid item>
                     <TextField
                         fullWidth
