@@ -1,4 +1,5 @@
 using HwProj.ContentService.API.Models;
+using HwProj.ContentService.API.Models.Enums;
 using HwProj.Models.ContentService.DTO;
 
 namespace HwProj.ContentService.API.Extensions;
