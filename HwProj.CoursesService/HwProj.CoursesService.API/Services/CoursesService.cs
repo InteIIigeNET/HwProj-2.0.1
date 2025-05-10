@@ -16,6 +16,7 @@ using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Z.EntityFramework.Plus;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -83,6 +84,10 @@ namespace HwProj.CoursesService.API.Services
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
 
+            courseDto.Description = (await _context.CoursesDescriptions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(cd => cd.CourseId == id))?.Description ?? string.Empty;
+
             var result = userId == string.Empty ? courseDto : await _courseFilterService.ApplyFilter(courseDto, userId);
             return result;
         }
@@ -104,11 +109,11 @@ namespace HwProj.CoursesService.API.Services
                 courseTemplate.Homeworks = baseCourse.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList();
             }
 
-            return await AddFromTemplateAsync(courseTemplate, courseViewModel.StudentIDs, mentorId);
+            return await AddFromTemplateAsync(courseTemplate, courseViewModel.StudentIDs, mentorId, courseViewModel.Description);
         }
 
         public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, List<string> studentIds,
-            string mentorId)
+            string mentorId, string description)
         {
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -116,6 +121,14 @@ namespace HwProj.CoursesService.API.Services
             course.MentorIds = mentorId;
             course.InviteCode = Guid.NewGuid().ToString();
             var courseId = await _coursesRepository.AddAsync(course);
+
+            await _context.CoursesDescriptions
+                .AddAsync(new CourseDescription
+                {
+                    CourseId = courseId,
+                    Description = description,
+                });
+            await _context.SaveChangesAsync();
 
             var homeworks = courseTemplate.Homeworks.Select(hwTemplate => hwTemplate.ToHomework(courseId));
             var homeworkIds = await _homeworksRepository.AddRangeAsync(homeworks);
@@ -154,9 +167,14 @@ namespace HwProj.CoursesService.API.Services
         public async Task DeleteAsync(long id)
         {
             await _coursesRepository.DeleteAsync(id);
+
+            await _context.CoursesDescriptions
+                .Where(cd => cd.CourseId == id)
+                .DeleteAsync();
+            await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(long courseId, Course updated)
+        public async Task UpdateAsync(long courseId, UpdateCourseViewModel updated)
         {
             await _coursesRepository.UpdateAsync(courseId, c => new Course
             {
@@ -165,6 +183,24 @@ namespace HwProj.CoursesService.API.Services
                 IsCompleted = updated.IsCompleted,
                 IsOpen = updated.IsOpen
             });
+
+            var courseDescription = await _context.CoursesDescriptions.FirstOrDefaultAsync(cd => cd.CourseId == courseId);
+
+            if (courseDescription is null)
+            {
+                await _context.CoursesDescriptions
+                    .AddAsync(new CourseDescription
+                    {
+                        CourseId = courseId,
+                        Description = updated.Description,
+                    });
+            }
+            else
+            {
+                courseDescription.Description = updated.Description;
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task<bool> AddStudentAsync(long courseId, string studentId)

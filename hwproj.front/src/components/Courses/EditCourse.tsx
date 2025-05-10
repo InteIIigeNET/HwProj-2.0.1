@@ -9,6 +9,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import Lecturers from "./Lecturers";
 import {AccountDataDto} from "../../api";
 import {appBarStateManager} from "../AppBar";
+import {MarkdownEditor} from '../Common/MarkdownEditor';
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface IEditCourseState {
@@ -16,6 +17,7 @@ interface IEditCourseState {
     name: string,
     groupName?: string,
     isCompleted: boolean,
+    description: string,
     mentors: AccountDataDto[],
     edited: boolean,
     deleted: boolean,
@@ -61,6 +63,7 @@ const EditCourse: FC = () => {
         name: "",
         groupName: "",
         isCompleted: false,
+        description: "",
         mentors: [],
         edited: false,
         deleted: false,
@@ -83,6 +86,7 @@ const EditCourse: FC = () => {
             isOpen: course.isOpen!,
             isCompleted: course.isCompleted!,
             mentors: course.mentors!,
+            description: course.description!,
         }))
     }
 
@@ -92,7 +96,8 @@ const EditCourse: FC = () => {
             name: courseState.name,
             groupName: courseState.groupName,
             isOpen: true,
-            isCompleted: courseState.isCompleted
+            isCompleted: courseState.isCompleted,
+            description: courseState.description,
         };
 
         await ApiSingleton.coursesApi.coursesUpdateCourse(+courseId!, courseViewModel)
@@ -162,6 +167,18 @@ const EditCourse: FC = () => {
                                     }))
                                 }}
                             />
+                            <Grid>
+                                <MarkdownEditor
+                                    label={"Описание курса"}
+                                    value={courseState.description}
+                                    onChange={(value) => {
+                                        setCourseState((prevState) => ({
+                                            ...prevState,
+                                            description: value
+                                        }))
+                                    }}
+                                />
+                            </Grid>
                             <Grid>
                                 <FormControlLabel
                                     style={{margin: 0}}
