@@ -51,7 +51,7 @@ public static class WebApplicationExtensions
     {
         using var scope = application.Services.CreateScope();
         var amazonS3Client = scope.ServiceProvider.GetService<IAmazonS3>();
-        var defaultBucketName = scope.ServiceProvider.GetRequiredService<IOptions<StorageClientConfiguration>>()
+        var defaultBucketName = scope.ServiceProvider.GetRequiredService<IOptions<ExternalStorageConfiguration>>()
             .Value
             .DefaultBucketName;
         if (amazonS3Client == null || defaultBucketName == null)
