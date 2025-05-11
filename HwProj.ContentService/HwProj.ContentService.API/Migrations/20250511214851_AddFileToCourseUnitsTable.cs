@@ -5,7 +5,7 @@
 namespace HwProj.ContentService.API.Migrations
 {
     /// <inheritdoc />
-    public partial class AddFileToCourseUnitTable : Migration
+    public partial class AddFileToCourseUnitsTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

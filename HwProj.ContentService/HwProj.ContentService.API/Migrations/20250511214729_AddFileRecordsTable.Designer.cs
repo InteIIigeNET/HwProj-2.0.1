@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HwProj.ContentService.API.Migrations
 {
     [DbContext(typeof(ContentContext))]
-    [Migration("20250511112428_AddFileToCourseUnitTable")]
-    partial class AddFileToCourseUnitTable
+    [Migration("20250511214729_AddFileRecordsTable")]
+    partial class AddFileRecordsTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,6 +31,10 @@ namespace HwProj.ContentService.API.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ExternalKey")
                         .HasColumnType("nvarchar(max)");
@@ -56,40 +60,6 @@ namespace HwProj.ContentService.API.Migrations
                     b.HasIndex("Status");
 
                     b.ToTable("FileRecords");
-                });
-
-            modelBuilder.Entity("HwProj.ContentService.API.Models.Database.FileToCourseUnit", b =>
-                {
-                    b.Property<long>("FileRecordId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("CourseUnitType")
-                        .HasColumnType("int");
-
-                    b.Property<long>("CourseUnitId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CourseId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("FileRecordId", "CourseUnitType", "CourseUnitId");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("FileRecordId");
-
-                    b.ToTable("FileToCourseUnits");
-                });
-
-            modelBuilder.Entity("HwProj.ContentService.API.Models.Database.FileToCourseUnit", b =>
-                {
-                    b.HasOne("HwProj.ContentService.API.Models.Database.FileRecord", "FileRecord")
-                        .WithMany()
-                        .HasForeignKey("FileRecordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FileRecord");
                 });
 #pragma warning restore 612, 618
         }
