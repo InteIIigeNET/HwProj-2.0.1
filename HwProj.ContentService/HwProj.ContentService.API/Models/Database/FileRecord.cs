@@ -3,7 +3,7 @@ using HwProj.Repositories;
 
 namespace HwProj.ContentService.API.Models.Database;
 
-public record FileRecord : IEntity<long>
+public record FileRecord
 {
     public long Id { get; set; }
     public FileStatus Status { get; set; } = FileStatus.Uploading;
@@ -11,5 +11,6 @@ public record FileRecord : IEntity<long>
     public string? LocalPath { get; set; }
     public string? ExternalKey { get; set; }
     public required long SizeInBytes { get; init; }
+    public required string ContentType { get; init; }
     public int ReferenceCount { get; set; } = 1;
 }

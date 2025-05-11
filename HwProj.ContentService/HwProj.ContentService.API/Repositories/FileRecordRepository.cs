@@ -61,9 +61,10 @@ public class FileRecordRepository : IFileRecordRepository
             .Include(fc => fc.FileRecord)
             .ToListAsync();
 
-    public async Task<List<FileRecord>> GetByStatusAsync(FileStatus status)
+    public async Task<List<long>> GetIdsByStatusAsync(FileStatus status)
         => await _contentContext.FileRecords
             .Where(fr => fr.Status == status)
+            .Select(fr => fr.Id)
             .ToListAsync();
 
     public async Task DeleteWithCourseUnitInfoAsync(long fileRecordId)

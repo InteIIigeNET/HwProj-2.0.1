@@ -1,5 +1,6 @@
 using System.Net;
 using HwProj.ContentService.API.Extensions;
+using HwProj.ContentService.API.Models.Messages;
 using HwProj.ContentService.API.Services.Interfaces;
 using HwProj.Models.ContentService.DTO;
 using HwProj.Models.Result;

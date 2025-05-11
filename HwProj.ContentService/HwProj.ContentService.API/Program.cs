@@ -1,4 +1,5 @@
 using HwProj.ContentService.API.Extensions;
+using HwProj.ContentService.API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.ConfigureWithAWS(builder.Configuration);
@@ -19,8 +20,14 @@ app.ConfigureWebApp();
 // При необходимости создаем пустой бакет в хранилище
 await app.CreateBucketIfNotExists();
 
-// При последней остановке сервиса могли произойти ошибки при записи или удалении файлов.
-// Выполняем восстановление
-await app.RecoveryContentService();
+// В результате последней остановки сервиса некоторые файлы могли остаться в "промежуточном" состоянии Uploading или Deleting.
+// После старта приложения отправим для этих файлов сообщения в канал, чтобы их попробовали загрузить/удалить и обновили статус.
+var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+lifetime.ApplicationStarted.Register(async () =>
+{
+    using var scope = app.Services.CreateScope();
+    var recoveryService = scope.ServiceProvider.GetRequiredService<IRecoveryService>();
+    await recoveryService.ReProcessPendingFiles();
+});
 
 app.Run();

@@ -40,6 +40,22 @@ public class MessageProducer : IMessageProducer
         }
     }
 
+    public async Task PushReUploadFilesMessages(List<long> fileIds, string userId)
+    {
+        foreach (var fileId in fileIds)
+        {
+            var reUploadFileMessage = new ReUploadFileMessage(
+                FileId: fileId,
+                SenderId: userId
+            );
+
+            await _channelWriter.WriteAsync(reUploadFileMessage);
+            _logger.LogInformation(
+                "В канал опубликована задача на повторную загрузку файла {fileId} пользователем {senderId}",
+                fileId, userId);
+        }
+    }
+
     public async Task PushDeleteFilesMessages(Scope filesScope, List<long> fileIds, string userId)
     {
         var startDeletingFileMessages = fileIds.Select(fileId =>
@@ -54,6 +70,22 @@ public class MessageProducer : IMessageProducer
             await _channelWriter.WriteAsync(startDeletingFileMessage);
             _logger.LogInformation("В канал опубликована задача на удаление файла {fileId} пользователем {senderId}",
                 startDeletingFileMessage.FileId, startDeletingFileMessage.SenderId);
+        }
+    }
+
+    public async Task PushReDeleteFilesMessages(List<long> fileIds, string userId)
+    {
+        foreach (var fileId in fileIds)
+        {
+            var reDeleteFileMessage = new ReDeleteFileMessage(
+                FileId: fileId,
+                SenderId: userId
+            );
+
+            await _channelWriter.WriteAsync(reDeleteFileMessage);
+            _logger.LogInformation(
+                "В канал опубликована задача на повторное удаление файла {fileId} пользователем {senderId}",
+                fileId, userId);
         }
     }
 
