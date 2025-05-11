@@ -18,7 +18,8 @@ namespace HwProj.ContentService.API.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Status = table.Column<int>(type: "int", nullable: false),
                     OriginalName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ExternalKey = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LocalPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ExternalKey = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SizeInBytes = table.Column<long>(type: "bigint", nullable: false),
                     ReferenceCount = table.Column<int>(type: "int", nullable: false)
                 },

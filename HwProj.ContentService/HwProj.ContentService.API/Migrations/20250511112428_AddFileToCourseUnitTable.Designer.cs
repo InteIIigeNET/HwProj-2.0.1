@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HwProj.ContentService.API.Migrations
 {
     [DbContext(typeof(ContentContext))]
-    [Migration("20250510213257_AddFileToCourseUnitTable")]
+    [Migration("20250511112428_AddFileToCourseUnitTable")]
     partial class AddFileToCourseUnitTable
     {
         /// <inheritdoc />
@@ -33,7 +33,9 @@ namespace HwProj.ContentService.API.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("ExternalKey")
-                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LocalPath")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OriginalName")
