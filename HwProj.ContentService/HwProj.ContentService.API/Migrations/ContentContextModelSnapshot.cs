@@ -30,7 +30,9 @@ namespace HwProj.ContentService.API.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("ExternalKey")
-                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LocalPath")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OriginalName")

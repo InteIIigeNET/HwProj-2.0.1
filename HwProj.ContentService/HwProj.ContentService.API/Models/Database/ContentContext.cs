@@ -4,7 +4,7 @@ namespace HwProj.ContentService.API.Models.Database;
 
 public class ContentContext(DbContextOptions options) : DbContext(options)
 {
-    public DbSet<FileRecord?> FileRecords { get; set; }
+    public DbSet<FileRecord> FileRecords { get; set; }
     public DbSet<FileToCourseUnit> FileToCourseUnits { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
