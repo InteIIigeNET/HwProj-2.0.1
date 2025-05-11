@@ -1,5 +1,5 @@
-using HwProj.ContentService.API.Models;
 using HwProj.ContentService.API.Models.Database;
+using HwProj.ContentService.API.Models.Enums;
 using HwProj.ContentService.API.Repositories;
 using HwProj.ContentService.API.Services.Interfaces;
 
@@ -32,7 +32,7 @@ public class RecoveryService : IRecoveryService
         var loadingFiles = await _fileRecordRepository.GetByStatusAsync(FileStatus.Uploading);
         if (loadingFiles.Count == 0)
         {
-            _logger.LogInformation("Найдено 0 записей");
+            _logger.LogInformation("Найдено 0 записей файлов в статусе {Uploading}", FileStatus.Uploading);
             return;
         }
             
@@ -60,7 +60,7 @@ public class RecoveryService : IRecoveryService
         var deletingFiles = await _fileRecordRepository.GetByStatusAsync(FileStatus.Deleting);
         if (deletingFiles.Count == 0)
         {
-            _logger.LogInformation("Найдено 0 записей");
+            _logger.LogInformation("Найдено 0 записей файлов в статусе {Deleting}", FileStatus.Deleting);
             return;
         }
 
@@ -82,7 +82,7 @@ public class RecoveryService : IRecoveryService
             existingFileIds.Count, FileStatus.DeletingError, deletedFileIds.Count);
     }
 
-    private async Task<(long FileId, bool DoesExist)[]> GetS3FilesExistenceInfo(List<FileRecord> fileRecords)
+    private async Task<(long FileId, bool DoesExist)[]> GetS3FilesExistenceInfo(List<FileRecord?> fileRecords)
     {
         var s3Tasks = fileRecords.Select(async fileRecord =>
             (fileRecord.Id, await _s3FilesService.CheckFileExistence(fileRecord.ExternalKey)));

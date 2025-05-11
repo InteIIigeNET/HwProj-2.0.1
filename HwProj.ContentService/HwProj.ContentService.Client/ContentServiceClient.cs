@@ -43,14 +43,14 @@ namespace HwProj.ContentService.Client
 
             // Добавляем идентификаторы файлов, подлежащих удалению
             foreach (var fileId in processFilesDto.DeletingFileIds)
-                multipartContent.Add(new StringContent(fileId.ToString()), "DeletingFileIds");
+                multipartContent.Add(new StringContent(fileId.ToString()), "deletingFileIds");
 
             // Добавляем все файлы
             foreach (var file in processFilesDto.NewFiles)
             {
                 var fileStreamContent = new StreamContent(file.OpenReadStream());
                 fileStreamContent.Headers.ContentType = MediaTypeHeaderValue.Parse(file.ContentType);
-                multipartContent.Add(fileStreamContent, "NewFiles", file.FileName);
+                multipartContent.Add(fileStreamContent, "newFiles", file.FileName);
             }
 
             httpRequest.Content = multipartContent;

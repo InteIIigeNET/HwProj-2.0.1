@@ -1,3 +1,4 @@
+using HwProj.ContentService.API.Models.Enums;
 using HwProj.Repositories;
 
 namespace HwProj.ContentService.API.Models.Database;
