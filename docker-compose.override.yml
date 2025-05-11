@@ -107,10 +107,11 @@ services:
       - ASPNETCORE_HTTP_PORTS=80
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
-      - StorageClientConfiguration:AccessKeyId=${STORAGE_CLIENT_ACCESS_KEY_ID}
-      - StorageClientConfiguration:SecretKey=${STORAGE_CLIENT_SECRET_KEY}
-      - StorageClientConfiguration:Region=ru-central1
-      - StorageClientConfiguration:ServiceURL=https://storage.yandexcloud.net
-      - StorageClientConfiguration:DefaultBucketName=hwproj-files
+      - ExternalStorageConfiguration:AccessKeyId=${STORAGE_CLIENT_ACCESS_KEY_ID}
+      - ExternalStorageConfiguration:SecretKey=${STORAGE_CLIENT_SECRET_KEY}
+      - ExternalStorageConfiguration:Region=ru-central1
+      - ExternalStorageConfiguration:ServiceURL=https://storage.yandexcloud.net
+      - ExternalStorageConfiguration:DefaultBucketName=hwproj-files
+      - LocalStorageConfiguration:Path=/app/data/
     ports:
       - "5008:5008"
