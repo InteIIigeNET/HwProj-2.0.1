@@ -1,6 +1,6 @@
 using System.Threading.Channels;
-using HwProj.ContentService.API.Models;
 using HwProj.ContentService.API.Models.Database;
+using HwProj.ContentService.API.Models.Enums;
 using HwProj.ContentService.API.Models.Messages;
 using HwProj.ContentService.API.Repositories;
 using HwProj.ContentService.API.Services.Interfaces;
@@ -32,6 +32,8 @@ public class MessageConsumer : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Обработчик сообщений MessageConsumer запущен");
+
         // Можем так сделать, поскольку MessageConsumer работает с базой строго последовательно (последовательно обрабатывает сообщения)
         using var scope = _serviceScopeFactory.CreateScope();
         var fileRecordRepository = scope.ServiceProvider.GetRequiredService<IFileRecordRepository>();
@@ -93,7 +95,7 @@ public class MessageConsumer : BackgroundService
 
     private async Task HandleUploadFileMessage(UploadFileMessage message, IFileRecordRepository fileRecordRepository)
     {
-        var fileName = message.FileContent.Name;
+        var fileName = message.FileContent.FileName;
         var s3Key = _fileKeyService.BuildFileKey(message.Scope, fileName);
         var fileRecord = new FileRecord
         {
@@ -112,14 +114,8 @@ public class MessageConsumer : BackgroundService
     private async Task HandleUpdateStatusMessage(UpdateStatusMessage message,
         IFileRecordRepository fileRecordRepository)
     {
-        await fileRecordRepository.UpdateAsync(message.FileId, fr => new FileRecord
-        {
-            OriginalName = fr.OriginalName,
-            SizeInBytes = fr.SizeInBytes,
-            ExternalKey = fr.ExternalKey,
-
-            Status = message.NewStatus
-        });
+        await fileRecordRepository.UpdateAsync(message.FileId,
+            setters => setters.SetProperty(fr => fr.Status, message.NewStatus));
         _logger.LogInformation(
             "Статус файла {fileId} успешно обновлён на {newStatus} по запросу пользователя {senderId}",
             message.FileId, message.NewStatus, message.SenderId);
@@ -127,7 +123,7 @@ public class MessageConsumer : BackgroundService
 
     private async Task HandleDeleteFileMessage(DeleteFileMessage message, IFileRecordRepository fileRecordRepository)
     {
-        var fileRecord = await fileRecordRepository.GetAsync(message.FileId);
+        var fileRecord = await fileRecordRepository.GetFileRecordByIdAsync(message.FileId);
         if (fileRecord.Status is FileStatus.Uploading)
         {
             _logger.LogError("Ошибка удаления файла {fileId} пользователем {senderId}: файл ещё загружается",
@@ -145,12 +141,12 @@ public class MessageConsumer : BackgroundService
             return;
         }
 
-        fileRecord.Status = FileStatus.Deleting;
-        await fileRecordRepository.UpdateAsync(message.FileId, _ => fileRecord);
+        await fileRecordRepository.UpdateAsync(message.FileId,
+            setters => setters.SetProperty(fr => fr.Status, FileStatus.Deleting));
         _logger.LogInformation(
             "Статус файла {fileId} успешно обновлён на {status} по запросу пользователя {senderId}",
             message.FileId, fileRecord.Status.ToString(), message.SenderId);
-
+        
         DeleteFileFromS3AndUpdateStatus(message, fileRecord.ExternalKey);
     }
 

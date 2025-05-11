@@ -28,7 +28,7 @@ public class FilesInfoService : IFilesInfoService
 
     public async Task<string?> GetFileExternalKeyAsync(long fileId)
     {
-        var fileRecord = await _fileRecordRepository.GetAsync(fileId);
+        var fileRecord = await _fileRecordRepository.GetFileRecordByIdAsync(fileId);
         return fileRecord?.ExternalKey;
     }
 
