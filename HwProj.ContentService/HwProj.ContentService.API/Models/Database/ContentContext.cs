@@ -4,7 +4,7 @@ namespace HwProj.ContentService.API.Models.Database;
 
 public class ContentContext(DbContextOptions options) : DbContext(options)
 {
-    public DbSet<FileRecord> FileRecords { get; set; }
+    public DbSet<FileRecord?> FileRecords { get; set; }
     public DbSet<FileToCourseUnit> FileToCourseUnits { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -13,9 +13,9 @@ public class ContentContext(DbContextOptions options) : DbContext(options)
             .HasIndex(fr => new { fr.Status });
 
         modelBuilder.Entity<FileToCourseUnit>()
-            .HasKey(ftc => new { ftc.FileId, ftc.CourseUnitType, ftc.CourseUnitId });
+            .HasKey(ftc => new { ftc.FileRecordId, ftc.CourseUnitType, ftc.CourseUnitId });
         modelBuilder.Entity<FileToCourseUnit>()
-            .HasIndex(ftc => new { ftc.FileId });
+            .HasIndex(ftc => new { ftc.FileRecordId });
         modelBuilder.Entity<FileToCourseUnit>()
             .HasIndex(ftc => new { ftc.CourseId });
     }
