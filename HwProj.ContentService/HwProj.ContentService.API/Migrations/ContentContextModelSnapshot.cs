@@ -29,6 +29,10 @@ namespace HwProj.ContentService.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ExternalKey")
                         .HasColumnType("nvarchar(max)");
 

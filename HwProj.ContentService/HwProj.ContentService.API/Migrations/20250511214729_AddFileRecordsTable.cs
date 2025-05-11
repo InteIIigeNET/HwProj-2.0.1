@@ -21,6 +21,7 @@ namespace HwProj.ContentService.API.Migrations
                     LocalPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ExternalKey = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SizeInBytes = table.Column<long>(type: "bigint", nullable: false),
+                    ContentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ReferenceCount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
