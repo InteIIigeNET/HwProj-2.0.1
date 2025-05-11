@@ -14,15 +14,14 @@ namespace HwProj.ContentService.API.Migrations
                 name: "FileToCourseUnits",
                 columns: table => new
                 {
-                    FileId = table.Column<long>(type: "bigint", nullable: false),
+                    FileRecordId = table.Column<long>(type: "bigint", nullable: false),
                     CourseUnitId = table.Column<long>(type: "bigint", nullable: false),
                     CourseUnitType = table.Column<int>(type: "int", nullable: false),
-                    FileRecordId = table.Column<long>(type: "bigint", nullable: false),
                     CourseId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FileToCourseUnits", x => new { x.FileId, x.CourseUnitType, x.CourseUnitId });
+                    table.PrimaryKey("PK_FileToCourseUnits", x => new { x.FileRecordId, x.CourseUnitType, x.CourseUnitId });
                     table.ForeignKey(
                         name: "FK_FileToCourseUnits_FileRecords_FileRecordId",
                         column: x => x.FileRecordId,
@@ -35,11 +34,6 @@ namespace HwProj.ContentService.API.Migrations
                 name: "IX_FileToCourseUnits_CourseId",
                 table: "FileToCourseUnits",
                 column: "CourseId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FileToCourseUnits_FileId",
-                table: "FileToCourseUnits",
-                column: "FileId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FileToCourseUnits_FileRecordId",

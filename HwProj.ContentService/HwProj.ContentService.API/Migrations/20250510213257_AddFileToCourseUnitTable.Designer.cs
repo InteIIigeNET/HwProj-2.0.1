@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HwProj.ContentService.API.Migrations
 {
     [DbContext(typeof(ContentContext))]
-    [Migration("20250510201816_AddFileToCourseUnitTable")]
+    [Migration("20250510213257_AddFileToCourseUnitTable")]
     partial class AddFileToCourseUnitTable
     {
         /// <inheritdoc />
@@ -58,7 +58,7 @@ namespace HwProj.ContentService.API.Migrations
 
             modelBuilder.Entity("HwProj.ContentService.API.Models.Database.FileToCourseUnit", b =>
                 {
-                    b.Property<long>("FileId")
+                    b.Property<long>("FileRecordId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("CourseUnitType")
@@ -70,14 +70,9 @@ namespace HwProj.ContentService.API.Migrations
                     b.Property<long>("CourseId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("FileRecordId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("FileId", "CourseUnitType", "CourseUnitId");
+                    b.HasKey("FileRecordId", "CourseUnitType", "CourseUnitId");
 
                     b.HasIndex("CourseId");
-
-                    b.HasIndex("FileId");
 
                     b.HasIndex("FileRecordId");
 
