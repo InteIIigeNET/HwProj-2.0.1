@@ -9,31 +9,17 @@ public class MessageProducer : IMessageProducer
 {
     private readonly ChannelWriter<IProcessFileMessage> _channelWriter;
     private readonly ILogger<IMessageProducer> _logger;
-    private readonly ILocalFilesService _localFilesService;
 
-    public MessageProducer(ChannelWriter<IProcessFileMessage> channelWriter, ILogger<IMessageProducer> logger,
-        ILocalFilesService localFilesService)
+    public MessageProducer(ChannelWriter<IProcessFileMessage> channelWriter, ILogger<IMessageProducer> logger)
     {
         _channelWriter = channelWriter;
         _logger = logger;
-        _localFilesService = localFilesService;
     }
 
-    public async Task PushUploadFilesMessages(Scope scope, List<IFormFile> files, string userId)
+    public async Task PushUploadFilesMessages(List<UploadFileMessage> messages)
     {
-        foreach (var file in files)
+        foreach (var uploadFileMessage in messages)
         {
-            // Сохраняем файл локально и передаем в канал путь к нему и метаданные
-            var localFilePath = await _localFilesService.SaveFile(file, scope);
-            var uploadFileMessage = new UploadFileMessage(
-                Scope: scope,
-                LocalFilePath: localFilePath,
-                ContentType: file.ContentType,
-                OriginalName: file.FileName,
-                SizeInBytes: file.Length,
-                SenderId: userId
-            );
-
             await _channelWriter.WriteAsync(uploadFileMessage);
             _logger.LogInformation("В канал опубликована задача на загрузку файла {fileName} пользователем {senderId}",
                 uploadFileMessage.OriginalName, uploadFileMessage.SenderId);

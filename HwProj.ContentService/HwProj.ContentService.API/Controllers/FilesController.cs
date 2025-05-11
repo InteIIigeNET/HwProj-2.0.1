@@ -16,13 +16,17 @@ public class FilesController : ControllerBase
     private readonly IS3FilesService _s3FilesService;
     private readonly IMessageProducer _messageProducer;
     private readonly IFilesInfoService _filesInfoService;
+    private readonly ILocalFilesService _localFilesService;
+    private readonly ILogger<FilesController> _logger;
 
     public FilesController(IS3FilesService s3FilesService, IMessageProducer messageProducer,
-        IFilesInfoService filesInfoService)
+        IFilesInfoService filesInfoService, ILocalFilesService localFilesService, ILogger<FilesController> logger)
     {
         _s3FilesService = s3FilesService;
         _messageProducer = messageProducer;
         _filesInfoService = filesInfoService;
+        _localFilesService = localFilesService;
+        _logger = logger;
     }
 
     [HttpPost("process")]
@@ -34,9 +38,30 @@ public class FilesController : ControllerBase
         
         if (processFilesDto.DeletingFileIds.Count > 0)
             await _messageProducer.PushDeleteFilesMessages(scope, processFilesDto.DeletingFileIds, userId);
-        
+
         if (processFilesDto.NewFiles.Count > 0)
-            await _messageProducer.PushUploadFilesMessages(scope, processFilesDto.NewFiles, userId);
+        {
+            var uploadFilesMessages = new List<UploadFileMessage>();
+            foreach (var newFormFile in processFilesDto.NewFiles)
+            {
+                // Сохраняем файл локально
+                var localFilePath = await _localFilesService.SaveFile(newFormFile, scope);
+                _logger.LogInformation("Файл {FileName} успешно сохранён в локальное хранилище по пути {localFilePath}",
+                    newFormFile.FileName, localFilePath);
+                
+                var message = new UploadFileMessage(
+                    Scope: processFilesDto.FilesScope.ToScope(),
+                    LocalFilePath: localFilePath,
+                    ContentType: newFormFile.ContentType,
+                    OriginalName: newFormFile.FileName,
+                    SizeInBytes: newFormFile.Length,
+                    SenderId: userId
+                );
+                uploadFilesMessages.Add(message);
+            }
+            
+            await _messageProducer.PushUploadFilesMessages(uploadFilesMessages);
+        }
         
         return Ok();
     }
