@@ -58,8 +58,8 @@ namespace HwProj.ContentService.Client
 
             try
             {
-                var response = await _httpClient.SendAsync(httpRequest);
-                return await response.DeserializeAsync<Result>();
+                await _httpClient.SendAsync(httpRequest);
+                return Result.Success();
             }
             catch (HttpRequestException e)
             {
