@@ -5,4 +5,5 @@ namespace HwProj.ContentService.API.Models.Messages;
 public record UpdateStatusMessage(
     long FileId,
     FileStatus NewStatus,
+    string? LocalFilePath,
     string SenderId) : IProcessFileMessage;

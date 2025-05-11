@@ -15,12 +15,13 @@ public class MessageConsumer : BackgroundService
 
     private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly IMessageProducer _messageProducer;
+    private readonly ILocalFilesService _localFilesService;
     private readonly IS3FilesService _s3FilesService;
     private readonly IFileKeyService _fileKeyService;
 
     public MessageConsumer(ChannelReader<IProcessFileMessage> channelReader, ILogger<MessageConsumer> logger,
         IMessageProducer messageProducer, IS3FilesService s3FilesService, IFileKeyService fileKeyService,
-        IServiceScopeFactory serviceScopeFactory)
+        IServiceScopeFactory serviceScopeFactory, ILocalFilesService localFilesService)
     {
         _channelReader = channelReader;
         _logger = logger;
@@ -28,6 +29,7 @@ public class MessageConsumer : BackgroundService
         _s3FilesService = s3FilesService;
         _fileKeyService = fileKeyService;
         _serviceScopeFactory = serviceScopeFactory;
+        _localFilesService = localFilesService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -75,7 +77,8 @@ public class MessageConsumer : BackgroundService
         var processingTask = message switch
         {
             UploadFileMessage uploadFileMessage => HandleUploadFileMessage(uploadFileMessage, fileRecordRepository),
-            UpdateStatusMessage updateStatusMessage => HandleUpdateStatusMessage(updateStatusMessage, fileRecordRepository),
+            UpdateStatusMessage updateStatusMessage => HandleUpdateStatusMessage(updateStatusMessage,
+                fileRecordRepository),
             DeleteFileMessage deleteFileMessage => HandleDeleteFileMessage(deleteFileMessage, fileRecordRepository),
             FileDeletedMessage fileDeletedMessage => HandleFileDeletedMessage(fileDeletedMessage, fileRecordRepository),
             _ => HandleUnknownMessage(message)
@@ -93,20 +96,23 @@ public class MessageConsumer : BackgroundService
 
     private async Task HandleUploadFileMessage(UploadFileMessage message, IFileRecordRepository fileRecordRepository)
     {
-        var fileName = message.FileContent.FileName;
-        var s3Key = _fileKeyService.BuildFileKey(message.Scope, fileName);
+        // Создаем запись о файле в БД
         var fileRecord = new FileRecord
         {
-            OriginalName = fileName,
-            SizeInBytes = message.FileContent.Length,
-            ExternalKey = s3Key,
+            OriginalName = message.OriginalName,
+            SizeInBytes = message.SizeInBytes
         };
+        var fileRecordId = await fileRecordRepository.AddWithCourseUnitInfoAsync(fileRecord, message.Scope);
 
-        var fileId = await fileRecordRepository.AddWithCourseUnitInfoAsync(fileRecord, message.Scope);
+        // Формируем и устанавливаем ключ для S3, содержащий id записи файла
+        var s3Key = _fileKeyService.BuildFileKey(message.Scope, message.OriginalName, fileRecordId);
+        await fileRecordRepository.UpdateAsync(fileRecordId,
+            setters => setters.SetProperty(fr => fr.ExternalKey, s3Key));
+
         _logger.LogInformation("Информация о файле {fileId} от пользователя {senderId} успешно добавлена в базу данных",
-            fileId, message.SenderId);
+            fileRecordId, message.SenderId);
 
-        UploadFileToS3AndUpdateStatus(message, s3Key, fileId);
+        UploadFileToS3AndUpdateStatus(message, s3Key, fileRecordId);
     }
 
     private async Task HandleUpdateStatusMessage(UpdateStatusMessage message,
@@ -117,6 +123,18 @@ public class MessageConsumer : BackgroundService
         _logger.LogInformation(
             "Статус файла {fileId} успешно обновлён на {newStatus} по запросу пользователя {senderId}",
             message.FileId, message.NewStatus, message.SenderId);
+
+        // Если файл перешёл в статус ReadyToUse, то удаляем его из локального хранилища
+        if (message.NewStatus is FileStatus.ReadyToUse && !string.IsNullOrEmpty(message.LocalFilePath))
+            if (_localFilesService.DeleteFile(message.LocalFilePath).Succeeded)
+            {
+                _logger.LogInformation("Файл {fileId} удален из локального хранилища по пути {filePath}",
+                    message.FileId, message.LocalFilePath);
+                
+                // Удаляем больше не актуальный путь к локальному файлу
+                await fileRecordRepository.UpdateAsync(message.FileId,
+                    setters => setters.SetProperty(fr => fr.LocalPath, string.Empty));
+            }
     }
 
     private async Task HandleDeleteFileMessage(DeleteFileMessage message, IFileRecordRepository fileRecordRepository)
@@ -144,7 +162,7 @@ public class MessageConsumer : BackgroundService
         _logger.LogInformation(
             "Статус файла {fileId} успешно обновлён на {status} по запросу пользователя {senderId}",
             message.FileId, fileRecord.Status.ToString(), message.SenderId);
-        
+
         DeleteFileFromS3AndUpdateStatus(message, fileRecord.ExternalKey);
     }
 
@@ -161,8 +179,11 @@ public class MessageConsumer : BackgroundService
         // Сигнализируем, что для fileId есть задача, завершения которой нужно дождаться при остановке сервиса
         _filesInProcessing.Add(fileId);
 
+        var fileReadStream = _localFilesService.GetFileStream(message.LocalFilePath);
         var s3UploadingResult =
-            await _s3FilesService.UploadFileAsync(message.FileContent, s3Key, message.SenderId);
+            await _s3FilesService.UploadFileAsync(fileReadStream, message.ContentType, s3Key, message.SenderId);
+        await fileReadStream.DisposeAsync();
+
         if (!s3UploadingResult.Succeeded)
             _logger.LogError("Не удалось загрузить файл {fileId} во внешнее хранилище. Ошибка: {error}",
                 fileId, s3UploadingResult.Errors[0]);
@@ -170,6 +191,7 @@ public class MessageConsumer : BackgroundService
         var updateStatusMessage = new UpdateStatusMessage(
             FileId: fileId,
             NewStatus: s3UploadingResult.Succeeded ? FileStatus.ReadyToUse : FileStatus.UploadingError,
+            LocalFilePath: message.LocalFilePath,
             SenderId: message.SenderId
         );
         await _messageProducer.PushUpdateFileStatusMessage(updateStatusMessage);
@@ -198,6 +220,7 @@ public class MessageConsumer : BackgroundService
         var updateStatusMessage = new UpdateStatusMessage(
             FileId: message.FileId,
             NewStatus: FileStatus.DeletingError,
+            LocalFilePath: null,
             SenderId: message.SenderId
         );
         await _messageProducer.PushUpdateFileStatusMessage(updateStatusMessage);

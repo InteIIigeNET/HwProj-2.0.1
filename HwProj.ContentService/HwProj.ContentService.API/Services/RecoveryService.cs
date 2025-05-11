@@ -52,6 +52,8 @@ public class RecoveryService : IRecoveryService
         _logger.LogInformation(
             "Записи файлов успешно обновлены: {uploadedFilesCount} файла в статусе {ReadyToUse}, {lostFilesCount} в статусе {UploadingError}",
             uploadedFileIds.Count, FileStatus.ReadyToUse, lostFileIds.Count, FileStatus.UploadingError);
+        
+        // TODO: Удаляем локальные файлы для записей в статусе ReadyToUse и загружаем на S3 для записей в статусе UploadingError
     }
 
     private async Task UpdateDeletingFilesAsync()
@@ -80,6 +82,8 @@ public class RecoveryService : IRecoveryService
         _logger.LogInformation(
             "Записи файлов успешно обновлены: {existingFilesCount} файла в статусе {DeletingError}, {deletedFilesCount} удалено",
             existingFileIds.Count, FileStatus.DeletingError, deletedFileIds.Count);
+        
+        // TODO: Сами удаляем файлы во внешнем хранилище для записей в статусе DeletingError
     }
 
     private async Task<(long FileId, bool DoesExist)[]> GetS3FilesExistenceInfo(List<FileRecord?> fileRecords)

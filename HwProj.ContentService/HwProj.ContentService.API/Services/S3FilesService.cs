@@ -17,21 +17,19 @@ public class S3FilesService : IS3FilesService
 
     private readonly IAmazonS3 _s3AmazonClient;
 
-    public S3FilesService(IAmazonS3 s3Client, IOptions<StorageClientConfiguration> storageClientConfiguration)
+    public S3FilesService(IAmazonS3 s3Client, IOptions<ExternalStorageConfiguration> externalStorageConfiguration)
     {
         _s3AmazonClient = s3Client;
-        _bucketName = storageClientConfiguration.Value.DefaultBucketName
+        _bucketName = externalStorageConfiguration.Value.DefaultBucketName
                       ?? throw new NullReferenceException("Не указано имя бакета для сохранения файлов");
     }
 
     // Если файл с таким ключем уже существует, в текущей реализации он будет перезаписываться
-    public async Task<Result> UploadFileAsync(IFormFile fileContent, string externalKey, string uploaderId)
+    public async Task<Result> UploadFileAsync(Stream fileStream, string contentType, string externalKey, string uploaderId)
     {
         try
         {
-            await using var fileStream = fileContent.OpenReadStream();
-            var request = CreateUploadRequest(fileContent.ContentType, fileStream, externalKey, uploaderId);
-
+            var request = CreateUploadRequest(contentType, fileStream, externalKey, uploaderId);
             var response = await _s3AmazonClient.PutObjectAsync(request);
             return response.IsSuccessStatusCode()
                 ? Result.Success()

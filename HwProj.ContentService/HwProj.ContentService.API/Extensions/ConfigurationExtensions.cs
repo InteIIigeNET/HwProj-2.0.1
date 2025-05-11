@@ -25,8 +25,13 @@ public static class ConfigurationExtensions
     public static IServiceCollection ConfigureWithAWS(this IServiceCollection services,
         IConfigurationRoot configuration)
     {
-        var clientConfigurationSection = configuration.GetSection("StorageClientConfiguration");
-        services.Configure<StorageClientConfiguration>(clientConfigurationSection);
+        // Достаем конфигурацию удаленного хранилища
+        var externalStorageSection = configuration.GetSection("ExternalStorageConfiguration");
+        services.Configure<ExternalStorageConfiguration>(externalStorageSection);
+        
+        // Достаем конфигурацию локального хранилища для временного хранения файлов
+        var localStorageSection = configuration.GetSection("LocalStorageConfiguration");
+        services.Configure<LocalStorageConfiguration>(localStorageSection);
         
         // Увеличиваем допустимый размер тела запросов, содержащих multipart/form-data
         services.Configure<FormOptions>(options =>
@@ -39,12 +44,13 @@ public static class ConfigurationExtensions
         services.AddDbContext<ContentContext>(options => options.UseSqlServer(connectionString));
         services.AddScoped<IFileRecordRepository, FileRecordRepository>();
         
-        services.ConfigureStorageClient(clientConfigurationSection);
+        services.ConfigureExternalStorageClient(externalStorageSection);
         services.ConfigureChannelInfrastructure<IProcessFileMessage>();
         
         // Регистрируем как синглтоны, чтобы использовать в MessageConsumer
         services.AddSingleton<IFileKeyService, FileKeyService>();
         services.AddSingleton<IS3FilesService, S3FilesService>();
+        services.AddSingleton<ILocalFilesService, LocalFilesService>();
         
         services.AddScoped<IFilesInfoService, FilesInfoService>();
         services.AddScoped<IRecoveryService, RecoveryService>();
@@ -75,9 +81,9 @@ public static class ConfigurationExtensions
         services.AddHostedService<MessageConsumer>();
     }
     
-    private static void ConfigureStorageClient(this IServiceCollection services, IConfigurationSection configuration)
+    private static void ConfigureExternalStorageClient(this IServiceCollection services, IConfigurationSection configuration)
     {
-        var clientConfiguration = configuration.Get<StorageClientConfiguration>();
+        var clientConfiguration = configuration.Get<ExternalStorageConfiguration>();
         if (clientConfiguration == null)
             throw new NullReferenceException("Ошибка при чтении конфигурации StorageClientConfiguration");
 
