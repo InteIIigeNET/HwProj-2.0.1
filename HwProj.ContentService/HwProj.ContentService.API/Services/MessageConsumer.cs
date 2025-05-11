@@ -72,25 +72,23 @@ public class MessageConsumer : BackgroundService
 
     private async Task ProcessMessage(IProcessFileMessage message, IFileRecordRepository fileRecordRepository)
     {
-        switch (message)
+        var processingTask = message switch
         {
-            case UploadFileMessage uploadFileMessage:
-                await HandleUploadFileMessage(uploadFileMessage, fileRecordRepository);
-                break;
-            case UpdateStatusMessage updateStatusMessage:
-                await HandleUpdateStatusMessage(updateStatusMessage, fileRecordRepository);
-                break;
-            case DeleteFileMessage deleteFileMessage:
-                await HandleDeleteFileMessage(deleteFileMessage, fileRecordRepository);
-                break;
-            case FileDeletedMessage fileDeletedMessage:
-                await HandleFileDeletedMessage(fileDeletedMessage, fileRecordRepository);
-                break;
-            default:
-                _logger.LogWarning("Необработанное сообщение типа {messageType} от пользователя {senderId}",
-                    message.GetType().Name, message.SenderId);
-                break;
-        }
+            UploadFileMessage uploadFileMessage => HandleUploadFileMessage(uploadFileMessage, fileRecordRepository),
+            UpdateStatusMessage updateStatusMessage => HandleUpdateStatusMessage(updateStatusMessage, fileRecordRepository),
+            DeleteFileMessage deleteFileMessage => HandleDeleteFileMessage(deleteFileMessage, fileRecordRepository),
+            FileDeletedMessage fileDeletedMessage => HandleFileDeletedMessage(fileDeletedMessage, fileRecordRepository),
+            _ => HandleUnknownMessage(message)
+        };
+
+        await processingTask;
+    }
+
+    private Task HandleUnknownMessage(IProcessFileMessage message)
+    {
+        _logger.LogWarning("Необработанное сообщение типа {messageType} от пользователя {senderId}",
+            message.GetType().Name, message.SenderId);
+        return Task.CompletedTask;
     }
 
     private async Task HandleUploadFileMessage(UploadFileMessage message, IFileRecordRepository fileRecordRepository)
