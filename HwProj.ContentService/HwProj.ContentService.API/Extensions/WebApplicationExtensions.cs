@@ -35,17 +35,6 @@ public static class WebApplicationExtensions
 
         return application;
     }
-
-    public static async Task RecoveryContentService(this WebApplication application)
-    {
-        using var scope = application.Services.CreateScope();
-        var recoveryService = scope.ServiceProvider.GetRequiredService<IRecoveryService>();
-        
-        // Если при старте сервиса какие-то записи файлов имеют статусы Deleting или Uploading,
-        // нужно проверить наличие таких файлов на S3 и обновить статус на ReadyToUse/UploadingError/DeletingError
-        // или удалить запись файла из БД
-        await recoveryService.UpdateFilesStatusesAsync();
-    }
     
     public static async Task CreateBucketIfNotExists(this WebApplication application)
     {

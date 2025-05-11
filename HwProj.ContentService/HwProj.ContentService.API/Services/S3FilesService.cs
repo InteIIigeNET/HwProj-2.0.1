@@ -2,6 +2,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using HwProj.ContentService.API.Configuration;
 using HwProj.ContentService.API.Extensions;
+using HwProj.ContentService.API.Models.DTO;
 using HwProj.ContentService.API.Services.Interfaces;
 using HwProj.Models.Result;
 using Microsoft.Extensions.Options;
@@ -25,11 +26,11 @@ public class S3FilesService : IS3FilesService
     }
 
     // Если файл с таким ключем уже существует, в текущей реализации он будет перезаписываться
-    public async Task<Result> UploadFileAsync(Stream fileStream, string contentType, string externalKey, string uploaderId)
+    public async Task<Result> UploadFileAsync(UploadFileToS3Dto uploadFileToS3Dto)
     {
         try
         {
-            var request = CreateUploadRequest(contentType, fileStream, externalKey, uploaderId);
+            var request = CreateUploadRequest(uploadFileToS3Dto);
             var response = await _s3AmazonClient.PutObjectAsync(request);
             return response.IsSuccessStatusCode()
                 ? Result.Success()
@@ -91,9 +92,9 @@ public class S3FilesService : IS3FilesService
         }
     }
 
-    private PutObjectRequest CreateUploadRequest(string contentType, Stream fileStream,
-        string externalKey, string uploaderId)
+    private PutObjectRequest CreateUploadRequest(UploadFileToS3Dto uploadFileToS3Dto)
     {
+        var contentType = uploadFileToS3Dto.ContentType;
         // Для нормального отображения кириллицы в файлах
         if (contentType.StartsWith("text/"))
             contentType += "; charset=utf-8";
@@ -101,11 +102,11 @@ public class S3FilesService : IS3FilesService
         return new PutObjectRequest
         {
             BucketName = _bucketName,
-            Key = externalKey,
-            InputStream = fileStream,
+            Key = uploadFileToS3Dto.ExternalKey,
+            InputStream = uploadFileToS3Dto.FileStream,
             ContentType = contentType,
             DisableDefaultChecksumValidation = true,
-            Metadata = { [UploaderIdMetadataKey] = uploaderId }
+            Metadata = { [UploaderIdMetadataKey] = uploadFileToS3Dto.UploaderId }
         };
     }
 
