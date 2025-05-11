@@ -55,7 +55,7 @@ namespace HwProj.ContentService.API.Migrations
 
             modelBuilder.Entity("HwProj.ContentService.API.Models.Database.FileToCourseUnit", b =>
                 {
-                    b.Property<long>("FileId")
+                    b.Property<long>("FileRecordId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("CourseUnitType")
@@ -67,14 +67,9 @@ namespace HwProj.ContentService.API.Migrations
                     b.Property<long>("CourseId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("FileRecordId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("FileId", "CourseUnitType", "CourseUnitId");
+                    b.HasKey("FileRecordId", "CourseUnitType", "CourseUnitId");
 
                     b.HasIndex("CourseId");
-
-                    b.HasIndex("FileId");
 
                     b.HasIndex("FileRecordId");
 
