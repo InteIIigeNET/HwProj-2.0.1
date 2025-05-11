@@ -1,4 +1,4 @@
-namespace HwProj.ContentService.API.Models;
+namespace HwProj.ContentService.API.Models.Enums;
 
 public enum FileStatus
 {

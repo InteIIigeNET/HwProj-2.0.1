@@ -11,7 +11,7 @@ public class MessageConsumer : BackgroundService
 {
     private readonly ChannelReader<IProcessFileMessage> _channelReader;
     private readonly ILogger<MessageConsumer> _logger;
-    private readonly HashSet<long> _filesActiveContinuations = new();
+    private readonly HashSet<long> _filesInProcessing = new();
 
     private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly IMessageProducer _messageProducer;
@@ -57,7 +57,7 @@ public class MessageConsumer : BackgroundService
         }
 
         // Ждем завершения всех дополнительных задач
-        while (_filesActiveContinuations.Count > 0)
+        while (_filesInProcessing.Count > 0)
         {
         }
 
@@ -161,7 +161,7 @@ public class MessageConsumer : BackgroundService
     private async Task UploadFileToS3AndUpdateStatus(UploadFileMessage message, string s3Key, long fileId)
     {
         // Сигнализируем, что для fileId есть задача, завершения которой нужно дождаться при остановке сервиса
-        _filesActiveContinuations.Add(fileId);
+        _filesInProcessing.Add(fileId);
 
         var s3UploadingResult =
             await _s3FilesService.UploadFileAsync(message.FileContent, s3Key, message.SenderId);
@@ -177,13 +177,13 @@ public class MessageConsumer : BackgroundService
         await _messageProducer.PushUpdateFileStatusMessage(updateStatusMessage);
 
         // Задача для fileId завершена, новое сообщение отправлено в канал
-        _filesActiveContinuations.Remove(fileId);
+        _filesInProcessing.Remove(fileId);
     }
 
     private async Task DeleteFileFromS3AndUpdateStatus(DeleteFileMessage message, string s3Key)
     {
         // Сигнализируем, что для message.FileId есть задача, завершения которой нужно дождаться при остановке сервиса
-        _filesActiveContinuations.Add(message.FileId);
+        _filesInProcessing.Add(message.FileId);
         var s3DeletingResult = await _s3FilesService.DeleteFileAsync(s3Key);
         if (s3DeletingResult.Succeeded)
         {
@@ -191,7 +191,7 @@ public class MessageConsumer : BackgroundService
             await _messageProducer.PushFileDeletedMessage(fileDeletedMessage);
 
             // Задача для message.FileId завершена, новое сообщение отправлено в канал
-            _filesActiveContinuations.Remove(message.FileId);
+            _filesInProcessing.Remove(message.FileId);
             return;
         }
 
@@ -205,6 +205,6 @@ public class MessageConsumer : BackgroundService
         await _messageProducer.PushUpdateFileStatusMessage(updateStatusMessage);
 
         // Задача для message.FileId завершена, новое сообщение отправлено в канал
-        _filesActiveContinuations.Remove(message.FileId);
+        _filesInProcessing.Remove(message.FileId);
     }
 }

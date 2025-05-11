@@ -11,7 +11,6 @@ using HwProj.ContentService.API.Services;
 using HwProj.ContentService.API.Services.Interfaces;
 using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration;
-using HwProj.Utils.Configuration.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
@@ -108,7 +107,6 @@ public static class ConfigurationExtensions
         services.ConfigureContentServiceSwaggerGen();
         services.ConfigureContentServiceAuthentication();
 
-        services.AddTransient<NoApiGatewayMiddleware>();
         services.AddHttpContextAccessor();
     }
 
