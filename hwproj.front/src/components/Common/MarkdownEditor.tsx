@@ -13,6 +13,7 @@ interface MarkdownEditorProps {
     label: string;
     maxHeight?: number;
     height?: number;
+    style?: React.CSSProperties;
     value: string;
     onChange: (value: string) => void;
 }
@@ -63,6 +64,7 @@ const MarkdownEditor: FC<MarkdownEditorProps> = (props) => {
             }}
         >
             <MDEditor
+                style={props.style ?? {}}
                 commands={[...getCommands()]}
                 extraCommands={[...getExtraCommands()]}
                 value={props.value}

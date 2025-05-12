@@ -171,6 +171,7 @@ const EditCourse: FC = () => {
                                 <MarkdownEditor
                                     label={"Описание курса"}
                                     value={courseState.description}
+                                    height={130}
                                     onChange={(value) => {
                                         setCourseState((prevState) => ({
                                             ...prevState,

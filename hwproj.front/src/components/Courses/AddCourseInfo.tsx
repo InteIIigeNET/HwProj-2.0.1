@@ -52,10 +52,12 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                     onChange={handleCourseNameChange}
                 />
             </Grid>
-            <Grid item xs={12} style={{ marginTop: -15, marginBottom: -15 }}>
+            <Grid item xs={12}>
                 <MarkdownEditor
                     label={"Описание курса"}
                     value={state.description}
+                    height={130}
+                    style={{ marginTop: -15, marginBottom: -15 }}
                     onChange={(value) => {
                         setState((prevState) => ({
                             ...prevState,
