@@ -271,12 +271,6 @@ const Course: React.FC = () => {
                                         : !isMentor ? "Вы можете записаться на курс и отправлять решения." : ""}
                             </Alert>
                         </Grid>}
-                        {!hasAccessToMaterials && <Grid item>
-                            <Alert severity="warning">
-                                <AlertTitle>Курс является ограниченно-видимым!</AlertTitle>
-                                Для просмотра материалов необходимо стать его участником.
-                            </Alert>
-                        </Grid>}
                         <Grid item container xs={12} alignItems="center"
                               justifyContent="space-between">
                             <Grid item>
@@ -301,6 +295,12 @@ const Course: React.FC = () => {
                                 </Grid>
                             </Grid>
                         </Grid>
+                        {!hasAccessToMaterials && <Grid item>
+                            <Alert severity="warning">
+                                <AlertTitle>Курс является ограниченно-видимым</AlertTitle>
+                                Для просмотра материалов запишитесь на курс
+                            </Alert>
+                        </Grid>}
                         <Grid item style={{width: 187}}>
                             {!isSignedInCourse && !isMentor && !isAcceptedStudent && (
                                 <Button
