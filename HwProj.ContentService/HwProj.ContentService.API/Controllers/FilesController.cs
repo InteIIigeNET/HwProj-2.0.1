@@ -66,7 +66,7 @@ public class FilesController : ControllerBase
         return Ok();
     }
 
-    [HttpGet("statuses")]
+    [HttpPost("statuses")]
     [ProducesResponseType(typeof(List<FileStatusDTO>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetStatuses(ScopeDTO scopeDto)
     {

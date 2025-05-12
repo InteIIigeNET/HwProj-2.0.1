@@ -37,9 +37,10 @@ namespace HwProj.APIGateway.API.Controllers
                 : StatusCode((int)HttpStatusCode.ServiceUnavailable, result.Errors);
         }
 
-        [HttpGet("statuses")]
+        [HttpPost("statuses")]
         [Authorize(Roles = Roles.LecturerRole)]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        // TODO: support attribute for this method
+        //[ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         [ProducesResponseType(typeof(FileStatusDTO[]), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
         public async Task<IActionResult> GetStatuses(ScopeDTO scopeDto)

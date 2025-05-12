@@ -6,11 +6,11 @@ namespace HwProj.ContentService.API.Models.Database;
 public record FileRecord
 {
     public long Id { get; set; }
-    public FileStatus Status { get; set; } = FileStatus.Uploading;
+    public required FileStatus Status { get; set; }
     public required string OriginalName { get; init; }
     public string? LocalPath { get; set; }
     public string? ExternalKey { get; set; }
     public required long SizeInBytes { get; init; }
     public required string ContentType { get; init; }
-    public int ReferenceCount { get; set; } = 1;
+    public required int ReferenceCount { get; set; }
 }

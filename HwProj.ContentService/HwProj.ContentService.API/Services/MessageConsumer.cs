@@ -101,6 +101,8 @@ public class MessageConsumer : BackgroundService
         // Создаем запись о файле в БД
         var fileRecord = new FileRecord
         {
+            Status = FileStatus.Uploading,
+            ReferenceCount = 1,
             OriginalName = message.OriginalName,
             SizeInBytes = message.SizeInBytes,
             ContentType = message.ContentType
