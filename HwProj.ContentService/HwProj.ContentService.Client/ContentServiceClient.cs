@@ -71,7 +71,7 @@ namespace HwProj.ContentService.Client
         public async Task<Result<FileStatusDTO[]>> GetFilesStatuses(ScopeDTO scopeDto)
         {
             using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get,
+                HttpMethod.Post,
                 _contentServiceUri + "api/Files/statuses")
             {
                 Content = new StringContent(
