@@ -257,7 +257,6 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
         getStudents();
     }, []);
 
-    // Extract just the email part (before the '/') from the input
     const getCleanEmail = (input: string) => {
         return input.split(' / ')[0].trim();
     };
@@ -288,6 +287,14 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
         } finally {
             setIsInviting(false);
         }
+    };
+
+    const hasMatchingStudent = () => {
+        const cleanEmail = getCleanEmail(email);
+        return students.some(student => 
+            student.email === cleanEmail ||
+            `${student.surname} ${student.name} ${student.middleName || ''}`.includes(cleanEmail)
+        );
     };
 
     return (
@@ -367,21 +374,20 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                             justifyContent="flex-end"
                             style={{marginTop: '16px'}}
                         >
-                            {errors.length > 0 && errors[0] === 'Студент с такой почтой не найден' && (
-                                <Grid item>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={() => {
-                                            setShowRegisterDialog(true);
-                                            onClose();
-                                        }}
-                                        style={{backgroundColor: '#3f51b5', color: 'white'}}
-                                    >
-                                        Зарегистрировать
-                                    </Button>
-                                </Grid>
-                            )}
+                            <Grid item>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => {
+                                        setShowRegisterDialog(true);
+                                        onClose();
+                                    }}
+                                    disabled={hasMatchingStudent() || !getCleanEmail(email)}
+                                    style={{backgroundColor: '#3f51b5', color: 'white'}}
+                                >
+                                    Зарегистрировать
+                                </Button>
+                            </Grid>
                             <Grid item>
                                 <Button
                                     onClick={onClose}
@@ -397,7 +403,7 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                                     variant="contained"
                                     color="primary"
                                     onClick={inviteStudent}
-                                    disabled={!getCleanEmail(email) || isInviting}
+                                    disabled={!hasMatchingStudent() || isInviting}
                                     style={{backgroundColor: '#3f51b5', color: 'white'}}
                                 >
                                     {isInviting ? 'Отправка...' : 'Пригласить'}
