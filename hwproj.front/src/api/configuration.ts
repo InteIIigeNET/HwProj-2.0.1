@@ -10,6 +10,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the file manually.
  */
+
 export interface ConfigurationParameters {
     apiKey?: string | ((name: string) => string);
     username?: string;
@@ -17,6 +18,7 @@ export interface ConfigurationParameters {
     accessToken?: string | ((name: string, scopes?: string[]) => string);
     basePath?: string;
 }
+
 export class Configuration {
     /**
      * parameter for apiKey security
@@ -52,6 +54,7 @@ export class Configuration {
      * @memberof Configuration
      */
     basePath?: string;
+
     constructor(param: ConfigurationParameters = {}) {
         this.apiKey = param.apiKey;
         this.username = param.username;
