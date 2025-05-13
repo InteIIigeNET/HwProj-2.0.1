@@ -36,6 +36,8 @@ import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import Avatar from "@material-ui/core/Avatar";
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import {makeStyles} from '@material-ui/core/styles';
+import Autocomplete from '@mui/material/Autocomplete';
+import ValidationUtils from "../Utils/ValidationUtils";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -114,7 +116,8 @@ const RegisterStudentDialog: FC<RegisterStudentDialogProps> = ({courseId, open, 
         <Dialog
             open={open}
             onClose={() => !isRegistering && onClose()}
-            maxWidth="xs"
+            maxWidth="sm"
+            fullWidth
         >
             <DialogTitle>
                 <Grid container>
@@ -206,7 +209,7 @@ const RegisterStudentDialog: FC<RegisterStudentDialogProps> = ({courseId, open, 
                             <Button
                                 onClick={onClose}
                                 color="primary"
-                                variant="contained"
+                                variant="outlined"
                                 style={{marginRight: '10px'}}
                                 disabled={isRegistering}
                             >
@@ -220,6 +223,7 @@ const RegisterStudentDialog: FC<RegisterStudentDialogProps> = ({courseId, open, 
                                 color="primary"
                                 onClick={registerStudent}
                                 disabled={!email || !name || !surname || isRegistering}
+                                style={{backgroundColor: '#3f51b5', color: 'white'}}
                             >
                                 {isRegistering ? 'Регистрация...' : 'Зарегистрировать'}
                             </Button>
@@ -238,14 +242,34 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
     const [errors, setErrors] = useState<string[]>([]);
     const [isInviting, setIsInviting] = useState(false);
     const [showRegisterDialog, setShowRegisterDialog] = useState(false);
+    const [students, setStudents] = useState<AccountDataDto[]>([]);
+
+    const getStudents = async () => {
+        try {
+            const data = await ApiSingleton.accountApi.accountGetAllStudents();
+            setStudents(data);
+        } catch (error) {
+            console.error("Error fetching students:", error);
+        }
+    };
+
+    useEffect(() => {
+        getStudents();
+    }, []);
+
+    // Extract just the email part (before the '/') from the input
+    const getCleanEmail = (input: string) => {
+        return input.split(' / ')[0].trim();
+    };
 
     const inviteStudent = async () => {
         setIsInviting(true);
         setErrors([]);
         try {
+            const cleanEmail = getCleanEmail(email);
             await ApiSingleton.coursesApi.coursesInviteStudent({
                 courseId: courseId,
-                email: email,
+                email: cleanEmail,
                 name: "",
                 surname: "",
                 middleName: ""
@@ -271,7 +295,8 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
             <Dialog
                 open={open}
                 onClose={() => !isInviting && onClose()}
-                maxWidth="xs"
+                maxWidth="sm"
+                fullWidth
             >
                 <DialogTitle>
                     <Grid container>
@@ -296,18 +321,43 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                     <form className={classes.form}>
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    type="email"
-                                    label="Электронная почта студента"
-                                    variant="outlined"
-                                    size="small"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    InputProps={{
-                                        autoComplete: "off"
+                                <Autocomplete
+                                    freeSolo
+                                    options={students}
+                                    getOptionLabel={(option) => 
+                                        typeof option === 'string' 
+                                            ? option 
+                                            : `${option.email} / ${option.surname} ${option.name} ${option.middleName || ''}`
+                                    }
+                                    inputValue={email}
+                                    onInputChange={(event, newInputValue) => {
+                                        setEmail(newInputValue);
                                     }}
+                                    renderOption={(props, option) => (
+                                        <li {...props}>
+                                            <Grid container alignItems="center">
+                                                <Grid item>
+                                                    <Box fontWeight="fontWeightMedium">
+                                                        {option.email} /
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item>
+                                                    <Typography style={{marginLeft: '3px'}}>
+                                                        {option.surname} {option.name} {option.middleName || ''}
+                                                    </Typography>
+                                                </Grid>
+                                            </Grid>
+                                        </li>
+                                    )}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Введите email или ФИО"
+                                            variant="outlined"
+                                            size="small"
+                                            fullWidth
+                                        />
+                                    )}
                                 />
                             </Grid>
                         </Grid>
@@ -321,11 +371,12 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                                 <Grid item>
                                     <Button
                                         variant="contained"
-                                        color="secondary"
+                                        color="primary"
                                         onClick={() => {
                                             setShowRegisterDialog(true);
                                             onClose();
                                         }}
+                                        style={{backgroundColor: '#3f51b5', color: 'white'}}
                                     >
                                         Зарегистрировать
                                     </Button>
@@ -346,7 +397,8 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                                     variant="contained"
                                     color="primary"
                                     onClick={inviteStudent}
-                                    disabled={!email || isInviting}
+                                    disabled={!getCleanEmail(email) || isInviting}
+                                    style={{backgroundColor: '#3f51b5', color: 'white'}}
                                 >
                                     {isInviting ? 'Отправка...' : 'Пригласить'}
                                 </Button>
@@ -361,7 +413,7 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                 open={showRegisterDialog}
                 onClose={() => setShowRegisterDialog(false)}
                 onStudentRegistered={onStudentInvited}
-                initialEmail={email}
+                initialEmail={getCleanEmail(email)}
             />
         </>
     );
