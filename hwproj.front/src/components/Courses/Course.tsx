@@ -207,25 +207,39 @@ const RegisterStudentDialog: FC<RegisterStudentDialogProps> = ({courseId, open, 
                     >
                         <Grid item>
                             <Button
-                                onClick={onClose}
-                                color="primary"
-                                variant="outlined"
-                                style={{marginRight: '10px'}}
-                                disabled={isRegistering}
+                                variant="text"
+                                onClick={registerStudent}
+                                disabled={!email || !name || !surname || isRegistering}
+                                style={{
+                                    borderRadius: '8px',
+                                    textTransform: 'none',
+                                    fontWeight: 'normal',
+                                    color: '#3f51b5',
+                                    transition: 'opacity 0.3s ease',
+                                    opacity: (!email || !name || !surname || isRegistering) ? 0.5 : 1,
+                                    padding: '6px 16px',
+                                    marginRight: '8px'
+                                }}
                             >
-                                Закрыть
+                                {isRegistering ? 'Регистрация...' : 'Зарегистрировать'}
                             </Button>
                         </Grid>
                         <Grid item>
                             <Button
-                                fullWidth
-                                variant="contained"
-                                color="primary"
-                                onClick={registerStudent}
-                                disabled={!email || !name || !surname || isRegistering}
-                                style={{backgroundColor: '#3f51b5', color: 'white'}}
+                                variant="text"
+                                onClick={onClose}
+                                disabled={isRegistering}
+                                style={{
+                                    borderRadius: '8px',
+                                    textTransform: 'none',
+                                    fontWeight: 'normal',
+                                    color: '#3f51b5',
+                                    transition: 'opacity 0.3s ease',
+                                    opacity: isRegistering ? 0.5 : 1,
+                                    padding: '6px 16px'
+                                }}
                             >
-                                {isRegistering ? 'Регистрация...' : 'Зарегистрировать'}
+                                Закрыть
                             </Button>
                         </Grid>
                     </Grid>
@@ -350,7 +364,7 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                                                 </Grid>
                                                 <Grid item>
                                                     <Typography style={{marginLeft: '3px'}}>
-                                                        {option.surname} {option.name} {option.middleName || ''}
+                                                        {option.surname} ${option.name} ${option.middleName || ''}
                                                     </Typography>
                                                 </Grid>
                                             </Grid>
@@ -376,37 +390,61 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                         >
                             <Grid item>
                                 <Button
-                                    variant="contained"
-                                    color="primary"
+                                    variant="text"
                                     onClick={() => {
                                         setShowRegisterDialog(true);
                                         onClose();
                                     }}
                                     disabled={hasMatchingStudent() || !getCleanEmail(email)}
-                                    style={{backgroundColor: '#3f51b5', color: 'white'}}
+                                    style={{
+                                        borderRadius: '8px',
+                                        textTransform: 'none',
+                                        fontWeight: 'normal',
+                                        color: '#3f51b5',
+                                        transition: 'opacity 0.3s ease',
+                                        opacity: hasMatchingStudent() || !getCleanEmail(email) ? 0.5 : 1,
+                                        padding: '6px 16px',
+                                        marginRight: '8px'
+                                    }}
                                 >
                                     Зарегистрировать
                                 </Button>
                             </Grid>
                             <Grid item>
                                 <Button
-                                    onClick={onClose}
-                                    color="primary"
-                                    variant="outlined"
-                                    disabled={isInviting}
+                                    variant="text"
+                                    onClick={inviteStudent}
+                                    disabled={!hasMatchingStudent() || isInviting}
+                                    style={{
+                                        borderRadius: '8px',
+                                        textTransform: 'none',
+                                        fontWeight: 'normal',
+                                        color: '#3f51b5',
+                                        transition: 'opacity 0.3s ease',
+                                        opacity: !hasMatchingStudent() || isInviting ? 0.5 : 1,
+                                        padding: '6px 16px',
+                                        marginRight: '8px'
+                                    }}
                                 >
-                                    Закрыть
+                                    {isInviting ? 'Отправка...' : 'Пригласить'}
                                 </Button>
                             </Grid>
                             <Grid item>
                                 <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={inviteStudent}
-                                    disabled={!hasMatchingStudent() || isInviting}
-                                    style={{backgroundColor: '#3f51b5', color: 'white'}}
+                                    variant="text"
+                                    onClick={onClose}
+                                    disabled={isInviting}
+                                    style={{
+                                        borderRadius: '8px',
+                                        textTransform: 'none',
+                                        fontWeight: 'normal',
+                                        color: '#3f51b5',
+                                        transition: 'opacity 0.3s ease',
+                                        opacity: isInviting ? 0.5 : 1,
+                                        padding: '6px 16px'
+                                    }}
                                 >
-                                    {isInviting ? 'Отправка...' : 'Пригласить'}
+                                    Закрыть
                                 </Button>
                             </Grid>
                         </Grid>
