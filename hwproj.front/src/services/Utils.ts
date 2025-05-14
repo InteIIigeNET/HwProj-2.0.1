@@ -21,6 +21,18 @@ export default class Utils {
             ':' + pad(date.getSeconds())
     }
 
+    static toStringForFileName(date: Date | undefined) {
+        if (date == null) return undefined
+
+        const pad = (num: number) => (num < 10 ? '0' : '') + num
+
+        return date.getFullYear() +
+            '-' + pad(date.getMonth() + 1) +
+            '-' + pad(date.getDate()) +
+            '_' + pad(date.getHours()) +
+            '-' + pad(date.getMinutes())
+    }
+
     static pluralizeDateTime(milliseconds: number) {
         const diffHours = milliseconds / (1000 * 60 * 60)
         const diffHoursInt = Math.trunc(diffHours)
