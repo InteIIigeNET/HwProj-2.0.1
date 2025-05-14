@@ -271,13 +271,18 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
         getStudents();
     }, []);
 
+    const getCleanEmail = (input: string) => {
+        return input.split(' / ')[0].trim();
+    };
+
     const inviteStudent = async () => {
         setIsInviting(true);
         setErrors([]);
         try {
+            const cleanEmail = getCleanEmail(email);
             await ApiSingleton.coursesApi.coursesInviteStudent({
                 courseId: courseId,
-                email: email,
+                email: cleanEmail,
                 name: "",
                 surname: "",
                 middleName: ""
@@ -299,9 +304,13 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
     };
 
     const hasMatchingStudent = () => {
-        return students.some(student => student.email === email);
+        const cleanEmail = getCleanEmail(email);
+        return students.some(student => 
+            student.email === cleanEmail ||
+            `${student.surname} ${student.name}`.includes(cleanEmail)
+        );
     };
-
+    
     return (
         <>
             <Dialog
@@ -333,56 +342,44 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                     <form className={classes.form}>
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
-                                <Autocomplete
-                                    freeSolo
-                                    disableClearable
-                                    options={students}
-                                    getOptionLabel={(option) => 
-                                        typeof option === 'string' 
-                                            ? option 
-                                            : option.email! + ' / ' + option.surname! + ' ' + option.name!
-                                    }
-                                    inputValue={email}
-                                    onInputChange={(event, newInputValue) => {
-                                        setEmail(newInputValue);
-                                    }}
-                                    renderOption={(props, option) => (
-                                        <li {...props}>
-                                            <Grid
-                                                direction="row"
-                                                justifyContent="flex-start"
-                                                alignItems="flex-end"
-                                                container
-                                            >
-                                                <Grid item>
-                                                    <Box fontWeight='fontWeightMedium'>
-                                                        {option.email} /
-                                                    </Box>
-                                                </Grid>
-                                                <Grid item>
-                                                    <Typography
-                                                        style={{marginLeft: '3px'}}
-                                                    >
-                                                        {option.name} {option.surname}
-                                                    </Typography>
-                                                </Grid>
+                            <Autocomplete
+                                freeSolo
+                                options={students}
+                                getOptionLabel={(option) => 
+                                    typeof option === 'string' 
+                                        ? option 
+                                        : `${option.email} / ${option.surname} ${option.name}`
+                                }
+                                inputValue={email}
+                                onInputChange={(event, newInputValue) => {
+                                    setEmail(newInputValue);
+                                }}
+                                renderOption={(props, option) => (
+                                    <li {...props}>
+                                        <Grid container alignItems="center">
+                                            <Grid item>
+                                                <Box fontWeight="fontWeightMedium">
+                                                    {option.email} /
+                                                </Box>
                                             </Grid>
-                                        </li>
-                                    )}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label="Введите email или ФИО"
-                                            variant="outlined"
-                                            size="small"
-                                            fullWidth
-                                            InputProps={{
-                                                ...params.InputProps,
-                                                type: 'search',
-                                            }}
-                                        />
-                                    )}
-                                />
+                                            <Grid item>
+                                                <Typography style={{marginLeft: '3px'}}>
+                                                    {option.surname} {option.name}
+                                                </Typography>
+                                            </Grid>
+                                        </Grid>
+                                    </li>
+                                )}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label="Введите email или ФИО"
+                                        variant="outlined"
+                                        size="small"
+                                        fullWidth
+                                    />
+                                )}
+                            />
                             </Grid>
                         </Grid>
                         <Grid
@@ -398,14 +395,14 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                                         setShowRegisterDialog(true);
                                         onClose();
                                     }}
-                                    disabled={hasMatchingStudent() || !email}
+                                    disabled={hasMatchingStudent() || !getCleanEmail(email)}
                                     style={{
                                         borderRadius: '8px',
                                         textTransform: 'none',
                                         fontWeight: 'normal',
                                         color: '#3f51b5',
                                         transition: 'opacity 0.3s ease',
-                                        opacity: hasMatchingStudent() || !email ? 0.5 : 1,
+                                        opacity: hasMatchingStudent() || !getCleanEmail(email) ? 0.5 : 1,
                                         padding: '6px 16px',
                                         marginRight: '8px'
                                     }}
@@ -460,7 +457,7 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                 open={showRegisterDialog}
                 onClose={() => setShowRegisterDialog(false)}
                 onStudentRegistered={onStudentInvited}
-                initialEmail={email}
+                initialEmail={getCleanEmail(email)}
             />
         </>
     );
