@@ -353,5 +353,31 @@ namespace HwProj.AuthService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result>();
         }
+        
+        public async Task<Result<TokenCredentials>> GetStudentToken(string email)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + $"api/Experts/getStudentToken?email={email}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<TokenCredentials>>();
+        }
+        
+        public async Task<Result> LoginWithToken(TokenCredentials credentials)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + "api/Experts/loginWithToken")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(credentials),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result>();
+        }
     }
 }
