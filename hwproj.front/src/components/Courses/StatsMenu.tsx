@@ -108,7 +108,7 @@ const StatsMenu: FC<StatsMenuProps> = props => {
     const getActionTitle = (action: SaveStatsAction | null) => {
         switch (action) {
             case SaveStatsAction.Download:
-                return "Сохранить таблицу на диск"
+                return "Скачать таблицу со статистикой"
             case SaveStatsAction.ShareWithGoogle:
                 return "Выгрузить таблицу в Google Docs"
             case SaveStatsAction.ShareWithYandex:

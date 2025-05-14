@@ -103,7 +103,7 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
             </DialogContentText>
             <DialogActions style={{ padding: 0, marginTop: 12 }}>
                 <Grid item container spacing={1} alignItems="center" marginRight="auto">
-                    <Grid item>
+                    <Grid item xs={true}>
                         <TextField
                             fullWidth
                             size="small"
