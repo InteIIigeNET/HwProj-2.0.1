@@ -30,6 +30,7 @@ namespace HwProj.CoursesService.API.Services
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IGroupsRepository _groupsRepository;
         private readonly ICourseFilterService _courseFilterService;
+        private readonly IDescriptionsRepository _descriptionRepository;
         private readonly CourseContext _context;
 
         public CoursesService(ICoursesRepository coursesRepository,
@@ -40,6 +41,7 @@ namespace HwProj.CoursesService.API.Services
             IAuthServiceClient authServiceClient,
             IGroupsRepository groupsRepository,
             ICourseFilterService courseFilterService,
+            IDescriptionsRepository descriptionRepository,
             CourseContext context)
         {
             _coursesRepository = coursesRepository;
@@ -50,6 +52,7 @@ namespace HwProj.CoursesService.API.Services
             _authServiceClient = authServiceClient;
             _groupsRepository = groupsRepository;
             _courseFilterService = courseFilterService;
+            _descriptionRepository = descriptionRepository;
             _context = context;
         }
 
@@ -84,10 +87,8 @@ namespace HwProj.CoursesService.API.Services
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
 
-            courseDto.Description = (await _context.CoursesDescriptions
-                .AsNoTracking()
-                .FirstOrDefaultAsync(cd => cd.CourseId == id))?.Description ?? string.Empty;
-
+            courseDto.Description = (await _descriptionRepository.GetDescriptionAsync(id))?.Description ?? string.Empty;
+            Console.WriteLine(courseDto.Description == string.Empty ? "asdf" : "1234");
             var result = userId == string.Empty ? courseDto : await _courseFilterService.ApplyFilter(courseDto, userId);
             return result;
         }
@@ -122,13 +123,11 @@ namespace HwProj.CoursesService.API.Services
             course.InviteCode = Guid.NewGuid().ToString();
             var courseId = await _coursesRepository.AddAsync(course);
 
-            await _context.CoursesDescriptions
-                .AddAsync(new CourseDescription
-                {
-                    CourseId = courseId,
-                    Description = description,
-                });
-            await _context.SaveChangesAsync();
+            await _descriptionRepository.AddAsync(new CourseDescription
+            {
+                CourseId = courseId,
+                Description = description,
+            });
 
             var homeworks = courseTemplate.Homeworks.Select(hwTemplate => hwTemplate.ToHomework(courseId));
             var homeworkIds = await _homeworksRepository.AddRangeAsync(homeworks);
@@ -167,11 +166,7 @@ namespace HwProj.CoursesService.API.Services
         public async Task DeleteAsync(long id)
         {
             await _coursesRepository.DeleteAsync(id);
-
-            await _context.CoursesDescriptions
-                .Where(cd => cd.CourseId == id)
-                .DeleteAsync();
-            await _context.SaveChangesAsync();
+            await _descriptionRepository.DeleteAsync(id);
         }
 
         public async Task UpdateAsync(long courseId, UpdateCourseViewModel updated)
@@ -184,23 +179,7 @@ namespace HwProj.CoursesService.API.Services
                 IsOpen = updated.IsOpen
             });
 
-            var courseDescription = await _context.CoursesDescriptions.FirstOrDefaultAsync(cd => cd.CourseId == courseId);
-
-            if (courseDescription is null)
-            {
-                await _context.CoursesDescriptions
-                    .AddAsync(new CourseDescription
-                    {
-                        CourseId = courseId,
-                        Description = updated.Description,
-                    });
-            }
-            else
-            {
-                courseDescription.Description = updated.Description;
-            }
-
-            await _context.SaveChangesAsync();
+            await _descriptionRepository.ChangeOrAdd(courseId, updated.Description);
         }
 
         public async Task<bool> AddStudentAsync(long courseId, string studentId)
