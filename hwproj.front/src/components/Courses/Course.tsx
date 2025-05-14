@@ -271,18 +271,13 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
         getStudents();
     }, []);
 
-    const getCleanEmail = (input: string) => {
-        return input.split(' / ')[0].trim();
-    };
-
     const inviteStudent = async () => {
         setIsInviting(true);
         setErrors([]);
         try {
-            const cleanEmail = getCleanEmail(email);
             await ApiSingleton.coursesApi.coursesInviteStudent({
                 courseId: courseId,
-                email: cleanEmail,
+                email: email,
                 name: "",
                 surname: "",
                 middleName: ""
@@ -304,11 +299,7 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
     };
 
     const hasMatchingStudent = () => {
-        const cleanEmail = getCleanEmail(email);
-        return students.some(student => 
-            student.email === cleanEmail ||
-            `${student.surname} ${student.name} ${student.middleName || ''}`.includes(cleanEmail)
-        );
+        return students.some(student => student.email === email);
     };
 
     return (
@@ -344,11 +335,12 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                             <Grid item xs={12}>
                                 <Autocomplete
                                     freeSolo
+                                    disableClearable
                                     options={students}
                                     getOptionLabel={(option) => 
                                         typeof option === 'string' 
                                             ? option 
-                                            : `${option.email} / ${option.surname} ${option.name} ${option.middleName || ''}`
+                                            : option.email! + ' / ' + option.surname! + ' ' + option.name!
                                     }
                                     inputValue={email}
                                     onInputChange={(event, newInputValue) => {
@@ -356,15 +348,22 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                                     }}
                                     renderOption={(props, option) => (
                                         <li {...props}>
-                                            <Grid container alignItems="center">
+                                            <Grid
+                                                direction="row"
+                                                justifyContent="flex-start"
+                                                alignItems="flex-end"
+                                                container
+                                            >
                                                 <Grid item>
-                                                    <Box fontWeight="fontWeightMedium">
+                                                    <Box fontWeight='fontWeightMedium'>
                                                         {option.email} /
                                                     </Box>
                                                 </Grid>
                                                 <Grid item>
-                                                    <Typography style={{marginLeft: '3px'}}>
-                                                        {option.surname} ${option.name} ${option.middleName || ''}
+                                                    <Typography
+                                                        style={{marginLeft: '3px'}}
+                                                    >
+                                                        {option.name} {option.surname}
                                                     </Typography>
                                                 </Grid>
                                             </Grid>
@@ -377,6 +376,10 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                                             variant="outlined"
                                             size="small"
                                             fullWidth
+                                            InputProps={{
+                                                ...params.InputProps,
+                                                type: 'search',
+                                            }}
                                         />
                                     )}
                                 />
@@ -395,14 +398,14 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                                         setShowRegisterDialog(true);
                                         onClose();
                                     }}
-                                    disabled={hasMatchingStudent() || !getCleanEmail(email)}
+                                    disabled={hasMatchingStudent() || !email}
                                     style={{
                                         borderRadius: '8px',
                                         textTransform: 'none',
                                         fontWeight: 'normal',
                                         color: '#3f51b5',
                                         transition: 'opacity 0.3s ease',
-                                        opacity: hasMatchingStudent() || !getCleanEmail(email) ? 0.5 : 1,
+                                        opacity: hasMatchingStudent() || !email ? 0.5 : 1,
                                         padding: '6px 16px',
                                         marginRight: '8px'
                                     }}
@@ -457,7 +460,7 @@ const InviteStudentDialog: FC<InviteStudentDialogProps> = ({courseId, open, onCl
                 open={showRegisterDialog}
                 onClose={() => setShowRegisterDialog(false)}
                 onStudentRegistered={onStudentInvited}
-                initialEmail={getCleanEmail(email)}
+                initialEmail={email}
             />
         </>
     );
