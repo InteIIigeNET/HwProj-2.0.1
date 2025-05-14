@@ -1,7 +1,8 @@
 ﻿import { FC, useState } from "react";
-import { Button, DialogActions, DialogContent, Grid, TextField } from "@mui/material";
+import { Button, DialogActions, DialogContent, Grid } from "@mui/material";
 import apiSingleton from "../../api/ApiSingleton";
 import { LoadingButton } from "@mui/lab";
+import Utils from "@/services/Utils";
 
 interface DownloadStatsProps {
     courseId: number | undefined
@@ -10,14 +11,15 @@ interface DownloadStatsProps {
 }
 
 const DownloadStats: FC<DownloadStatsProps> = (props: DownloadStatsProps) => {
-    const [fileName, setFileName] = useState<string>("")
     const [loading, setLoading] = useState<boolean>(false)
 
     const handleFileDownloading = () => {
+        const statsDatetime =  Utils.toStringForFileName(new Date())
         setLoading(true)
         apiSingleton.statisticsApi.statisticsGetFile(props.courseId, props.userId, "Лист 1")
         .then((response) => response.blob())
         .then((blob) => {
+            const fileName = `StatsReport_${statsDatetime}`
             const url = window.URL.createObjectURL(new Blob([blob]));
             const link = document.createElement("a");
             link.href = url;
@@ -31,20 +33,8 @@ const DownloadStats: FC<DownloadStatsProps> = (props: DownloadStatsProps) => {
 
     return (
         <DialogContent>
-            <DialogActions style={{ padding: 0, marginTop: 6 }}>
+            <DialogActions style={{ padding: 0 }}>
                 <Grid item>
-                    <TextField
-                        fullWidth
-                        size="small"
-                        label="Название файла"
-                        value={fileName}
-                        onChange={event => {
-                            event.persist();
-                            setFileName(event.target.value);
-                        }}
-                    />
-                </Grid>
-                <Grid>
                     <LoadingButton
                         variant="text"
                         color="primary"
@@ -55,7 +45,7 @@ const DownloadStats: FC<DownloadStatsProps> = (props: DownloadStatsProps) => {
                         Скачать
                     </LoadingButton>
                 </Grid>
-                <Grid>
+                <Grid item>
                     <Button variant="text" color="inherit" type="button"
                             onClick={props.onCancellation}>
                         Отмена
