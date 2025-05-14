@@ -71,9 +71,19 @@ namespace HwProj.APIGateway.API.ExportServices
                 await updateRequest.ExecuteAsync();
                 result = Result.Success();
             }
-            catch (Exception e)
+            catch (GoogleApiException ex)
             {
-                result = Result.Failed($"Ошибка: {e.Message}");
+                var message = $"Ошибка при обращении к Google Sheets: {ex.Message}";
+                if (ex.Error.Code == (int)HttpStatusCode.NotFound)
+                {
+                    message = "Таблица не найдена, проверьте корректность ссылки";
+                }
+                else if (ex.Error.Code == (int)HttpStatusCode.Forbidden)
+                {
+                    message = "Нет прав не редактирование таблицы, проверьте настройки доступа";
+                }
+
+                return Result.Failed(message);
             }
 
             return result;
@@ -99,7 +109,7 @@ namespace HwProj.APIGateway.API.ExportServices
                 }
                 else if (ex.Error.Code == (int)HttpStatusCode.Forbidden)
                 {
-                    message = "Нет прав не редактирование таблицы, проверьте настройки доступа";
+                    message = "Нет прав не получение данных о таблице, проверьте настройки доступа";
                 }
 
                 return Result<string[]>.Failed(message);
