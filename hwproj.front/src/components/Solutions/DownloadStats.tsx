@@ -52,7 +52,7 @@ const DownloadStats: FC<DownloadStatsProps> = (props: DownloadStatsProps) => {
                         loading={loading}
                         onClick={handleFileDownloading}
                     >
-                        Загрузить
+                        Скачать
                     </LoadingButton>
                 </Grid>
                 <Grid>
