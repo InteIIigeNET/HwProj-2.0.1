@@ -83,10 +83,10 @@ const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutPr
                 justifyContent={'center'}>
                 <Box p={2}>
                     <Typography variant="h6" gutterBottom align="center">
-                        Invalid invitation link
+                        Ошибка в пригласительной ссылке
                     </Typography>
                     <Typography variant="body1">
-                        The link is expired or contains an error. Please contact the lecturer who provided it.
+                        Ссылка просрочена или содержит опечатку. Обратитесь к выдавшему её преподавателю.
                     </Typography>
                 </Box>
             </Box>
