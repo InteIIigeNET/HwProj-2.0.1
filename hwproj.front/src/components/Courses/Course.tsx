@@ -86,6 +86,12 @@ const RegisterStudentDialog: FC<RegisterStudentDialogProps> = ({courseId, open, 
     const [errors, setErrors] = useState<string[]>([]);
     const [isRegistering, setIsRegistering] = useState(false);
 
+    useEffect(() => {
+        if (initialEmail) {
+            setEmail(initialEmail);
+        }
+    }, [initialEmail]);
+
     const registerStudent = async () => {
         setIsRegistering(true);
         setErrors([]);
