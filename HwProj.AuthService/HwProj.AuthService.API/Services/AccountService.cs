@@ -389,7 +389,8 @@ namespace HwProj.AuthService.API.Services
             if (result.Succeeded)
             {
                 var newUser = await _userManager.FindByEmailAsync(model.Email);
-                var token = await _tokenService.GetTokenAsync(newUser);
+                var expirationDate = DateTime.UtcNow.AddMonths(1);
+                var token = await _tokenService.GetTokenAsync(newUser, expirationDate);
                 var registerEvent = new RegisterInvitedStudentEvent(newUser.Id, newUser.Email, newUser.Name,
                     newUser.Surname, newUser.MiddleName)
                 {
@@ -401,6 +402,7 @@ namespace HwProj.AuthService.API.Services
 
             return Result<string>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
         }
+        
         public async Task<Result<string>> RegisterInvitedStudentAsync(RegisterDataDTO model)
         {
             if (await _userManager.FindByEmailAsync(model.Email) != null)
