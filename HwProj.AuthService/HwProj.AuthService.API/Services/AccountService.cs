@@ -33,7 +33,7 @@ namespace HwProj.AuthService.API.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly HttpClient _client;
-
+        
         public AccountService(IUserManager userManager,
             SignInManager<User> signInManager,
             IAuthTokenService authTokenService,
@@ -373,6 +373,40 @@ namespace HwProj.AuthService.API.Services
         private async Task<Result<TokenCredentials>> GetToken(User user)
         {
             return Result<TokenCredentials>.Success(await _tokenService.GetTokenAsync(user).ConfigureAwait(false));
+        }
+        private async Task<Result<string>> RegisterInvitedStudentInternal(RegisterDataDTO model)
+        {
+            var user = _mapper.Map<User>(model);
+            user.UserName = user.Email;
+
+            var createUserTask = model.IsExternalAuth
+                ? _userManager.CreateAsync(user)
+                : _userManager.CreateAsync(user, Guid.NewGuid().ToString());
+
+            var result = await createUserTask
+                .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole));
+
+            if (result.Succeeded)
+            {
+                var newUser = await _userManager.FindByEmailAsync(model.Email);
+                var token = await _tokenService.GetTokenAsync(newUser);
+                var registerEvent = new RegisterInvitedStudentEvent(newUser.Id, newUser.Email, newUser.Name,
+                    newUser.Surname, newUser.MiddleName)
+                {
+                    AuthToken = token.AccessToken
+                };
+                _eventBus.Publish(registerEvent);
+                return Result<string>.Success(user.Id);
+            }
+
+            return Result<string>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
+        }
+        public async Task<Result<string>> RegisterInvitedStudentAsync(RegisterDataDTO model)
+        {
+            if (await _userManager.FindByEmailAsync(model.Email) != null)
+                return Result<string>.Failed("Пользователь уже зарегистрирован");
+
+            return await RegisterInvitedStudentInternal(model);
         }
     }
 }

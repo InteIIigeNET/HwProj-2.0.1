@@ -22,5 +22,6 @@ namespace HwProj.AuthService.API.Services
         Task<Result> ResetPassword(ResetPasswordViewModel model);
         Task<GithubCredentials> AuthorizeGithub(string code, string userId);
         Task<Result<string>[]> GetOrRegisterStudentsBatchAsync(IEnumerable<RegisterDataDTO> models);
+        Task<Result<string>> RegisterInvitedStudentAsync(RegisterDataDTO model);
     }
 }

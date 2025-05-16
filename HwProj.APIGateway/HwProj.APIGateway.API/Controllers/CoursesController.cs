@@ -328,7 +328,7 @@ namespace HwProj.APIGateway.API.Controllers
                     MiddleName = model.MiddleName
                 };
 
-                var registrationResult = await AuthServiceClient.Register(registerModel);
+                var registrationResult = await AuthServiceClient.RegisterInvitedStudent(registerModel);
                 
                 if (!registrationResult.Succeeded)
                 {
