@@ -176,5 +176,25 @@ namespace HwProj.AuthService.API.Services
 
             return Result.Success();
         }
+        
+        public async Task<Result> LoginWithTokenAsync(TokenCredentials tokenCredentials)
+        {
+            var tokenClaims = _tokenService.GetTokenClaims(tokenCredentials);
+            
+            if (string.IsNullOrEmpty(tokenClaims.Email))
+            {
+                return Result.Failed("Невалидный токен: email не найден");
+            }
+
+            var user = await _userManager.FindByEmailAsync(tokenClaims.Email);
+            
+            if (user == null || user.Id != tokenClaims.Id)
+            {
+                return Result.Failed("Невалидный токен: пользователь не найден");
+            }
+
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            return Result.Success();
+        }
     }
 }
