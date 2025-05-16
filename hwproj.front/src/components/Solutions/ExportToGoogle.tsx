@@ -102,40 +102,38 @@ const ExportToGoogle: FC<ExportToGoogleProps> = (props: ExportToGoogleProps) => 
                 </Grid>
             </DialogContentText>
             <DialogActions style={{ padding: 0, marginTop: 12 }}>
-                <Grid item container spacing={1} alignItems="center" marginRight="auto">
-                    <Grid item xs={true}>
-                        <TextField
-                            fullWidth
-                            size="small"
-                            label="Ссылка на Google Sheets"
-                            value={url}
-                            onChange={event => {
-                                event.persist()
-                                handleGoogleDocUrlChange(event.target.value)
-                            }}
-                        />
-                    </Grid>
-                    {loadingSheets &&
-                        <Grid item>
-                            <CircularProgress size={28}/>
-                        </Grid>
-                    }
-                    {!loadingSheets && googleSheetTitles && googleSheetTitles.value && googleSheetTitles.value.length > 0 &&
-                        <Grid item>
-                            <TextField
-                                select
-                                size="small"
-                                id="demo-simple-select"
-                                label="Лист"
-                                value={selectedSheet}
-                                onChange={v => setState(prevState => ({ ...prevState, selectedSheet: +v.target.value }))}
-                            >
-                                {googleSheetTitles.value.map((title, i) => <MenuItem value={i}>{title}</MenuItem>)}
-                            </TextField>
-                        </Grid>
-                    }
+                <Grid item xs={true}>
+                    <TextField
+                        fullWidth
+                        size="small"
+                        label="Ссылка на Google Sheets"
+                        value={url}
+                        onChange={event => {
+                            event.persist()
+                            handleGoogleDocUrlChange(event.target.value)
+                        }}
+                    />
                 </Grid>
-                {googleSheetTitles && googleSheetTitles.succeeded &&
+                {loadingSheets &&
+                    <Grid item>
+                        <CircularProgress size={28}/>
+                    </Grid>
+                }
+                {!loadingSheets && googleSheetTitles && googleSheetTitles.value && googleSheetTitles.value.length > 0 &&
+                    <Grid item>
+                        <TextField
+                            select
+                            size="small"
+                            id="demo-simple-select"
+                            label="Лист"
+                            value={selectedSheet}
+                            onChange={v => setState(prevState => ({ ...prevState, selectedSheet: +v.target.value }))}
+                        >
+                            {googleSheetTitles.value.map((title, i) => <MenuItem value={i}>{title}</MenuItem>)}
+                        </TextField>
+                    </Grid>
+                }
+                {!loadingSheets && googleSheetTitles && googleSheetTitles.succeeded &&
                     <Grid item>
                         <LoadingButton
                             variant="text"
