@@ -204,7 +204,8 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                             solutions
                                                 .find(s => s.id === cm.id)?.homeworks!
                                                 .find(h => h.id === homework.id)?.tasks!
-                                                .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0)!
+                                                .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0)
+                                            || []
                                         )
                                     return testRatings[0]!
                                         .map((_, columnId) => testRatings.map(row => row[columnId]))
