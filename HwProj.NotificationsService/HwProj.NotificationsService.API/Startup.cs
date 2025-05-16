@@ -74,7 +74,7 @@ namespace HwProj.NotificationsService.API
                 eventBustSubscriber.Subscribe<InviteLecturerEvent, InviteLecturerEventHandler>();
                 eventBustSubscriber.Subscribe<NewCourseMateEvent, NewCourseMateHandler>();
                 eventBustSubscriber.Subscribe<PasswordRecoveryEvent, PasswordRecoveryEventHandler>();
-                eventBustSubscriber.Subscribe<RegisterInvitedStudentEvent, RegisterInvitedStudentEventHandler>(); // New subscription
+                eventBustSubscriber.Subscribe<RegisterInvitedStudentEvent, RegisterInvitedStudentEventHandler>();
             }
 
             app.ConfigureHwProj(env, "Notifications API", context);
