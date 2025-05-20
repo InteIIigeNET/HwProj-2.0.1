@@ -32,5 +32,8 @@ namespace HwProj.AuthService.Client
         Task<ExpertDataDTO[]> GetAllExperts();
         Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto);
         Task<Result<string>[]> GetOrRegisterStudentsBatchAsync(IEnumerable<RegisterViewModel> registrationModels);
+        Task<Result<TokenCredentials>> GetStudentToken(string email);
+        Task<Result> LoginWithToken(TokenCredentials credentials);
+        Task<Result<string>> RegisterInvitedStudent(RegisterViewModel model);
     }
 }

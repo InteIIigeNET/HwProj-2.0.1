@@ -54,5 +54,6 @@ namespace HwProj.CoursesService.Client
         Task AddAnswerForQuestion(AddAnswerForQuestionDto answer);
         Task<MentorToAssignedStudentsDTO[]> GetMentorsToAssignedStudents(long courseId);
         Task<bool> Ping();
+        Task<Result> SignInAndAcceptStudent(long courseId, string studentId);
     }
 }
