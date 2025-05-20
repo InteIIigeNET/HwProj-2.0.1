@@ -38,6 +38,7 @@
     "isomorphic-fetch": "^3.0.0",
     "jwt-decode": "^3.1.2",
     "lowdb": "^1.0.0",
+    "mui-nested-menu": "^4.0.1",
     "notistack": "^3.0.2",
     "portable-fetch": "^3.0.0",
     "qrcode.react": "^4.1.0",
