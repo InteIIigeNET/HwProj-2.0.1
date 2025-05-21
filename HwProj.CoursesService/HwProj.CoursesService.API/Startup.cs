@@ -33,6 +33,7 @@ namespace HwProj.CoursesService.API
             services.AddScoped<ITaskModelsRepository, TaskModelsRepository>();
             services.AddScoped<IHomeworksRepository, HomeworksRepository>();
             services.AddScoped<ITasksRepository, TasksRepository>();
+            services.AddScoped<IDescriptionsRepository, DescriptionsRepository>();
             services.AddScoped<ICoursesService, Services.CoursesService>();
             services.AddScoped<IGroupsService, GroupsService>();
             services.AddScoped<IHomeworksService, HomeworksService>();
