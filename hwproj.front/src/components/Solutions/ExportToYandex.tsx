@@ -2,9 +2,11 @@
 import {
     Alert,
     Button,
+    Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
+    DialogTitle,
     Grid,
     Link,
     TextField,
@@ -28,8 +30,9 @@ interface LocalStorageKey {
 interface ExportToYandexProps {
     courseId: number | undefined
     userId: string
-    onCancellation: () => void
     userCode: string | null
+    open: boolean
+    onClose: () => void
 }
 
 interface ExportToYandexState {
@@ -40,10 +43,12 @@ interface ExportToYandexState {
 }
 
 const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => {
+    const {courseId, userId, userCode, open, onClose} = props
+
     const [state, setState] = useState<ExportToYandexState>({
         fileName: "",
         userToken: localStorage.getItem(
-            JSON.stringify({name: "yandexAccessToken", userId: `${props.userId}`})),
+            JSON.stringify({name: "yandexAccessToken", userId: `${userId}`})),
         loadingStatus: LoadingStatus.None,
         isAuthorizationError: false,
     })
@@ -79,9 +84,9 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
 
     const setCurrentState = async () =>
     {
-        if (userToken === null && props.userCode !== null)
+        if (userToken === null && userCode !== null)
         {
-            const token = await setUserYandexToken(props.userCode, props.userId)
+            const token = await setUserYandexToken(userCode, userId)
             setState((prevState) =>
                 ({...prevState, userToken: token === 'error' ? null : token, isAuthorizationError: token === 'error'}))
         }
@@ -103,7 +108,7 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
                 if (response.status >= 200 && response.status < 300) {
                     const jsonResponse = await response.json();
                     const url = jsonResponse.href;
-                    const fileData = await apiSingleton.statisticsApi.statisticsGetFile(props.courseId, props.userId, "Лист 1");
+                    const fileData = await apiSingleton.statisticsApi.statisticsGetFile(courseId, userId, "Лист 1");
                     const data = await fileData.blob();
                     const fileExportResponse = await fetch(url,
                         {
@@ -136,84 +141,91 @@ const ExportToYandex: FC<ExportToYandexProps> = (props: ExportToYandexProps) => 
         }),
     };
 
-    return userToken === null ? (
-        <DialogContent>
-            <DialogContentText>
-                <Grid item>
-                    {isAuthorizationError ? (
-                        <Alert severity="error" variant="standard">
-                            Авторизация не пройдена. Попробуйте{" "}
-                            <Link href={yacRequestLink}>
-                                еще раз
-                            </Link>
-                        </Alert>
-                    ) : (
-                        <Alert severity="info" variant="standard">
-                            Для загрузки таблицы необходимо пройти{" "}
-                            <Link href={yacRequestLink}>
-                                авторизацию
-                            </Link>
-                        </Alert>
-                    )}
-                </Grid>
-            </DialogContentText>
-            <DialogActions style={{ padding: 0, marginTop: 12 }}>
-                <Grid item>
-                    <Button variant="text" color="inherit" type="button"
-                            onClick={props.onCancellation}>
-                        Отмена
-                    </Button>
-                </Grid>
-            </DialogActions>
-        </DialogContent>
-    ) : (
-        <DialogContent>
-            <DialogContentText>
-                <Grid item>
-                    <Alert severity="success" variant="standard">
-                        Авторизация успешно пройдена. Файл будет загружен на диск по адресу
-                        "Приложения/{import.meta.env.VITE_YANDEX_APPLICATION_NAME}/{fileName}.xlsx"
-                    </Alert>
-                </Grid>
-            </DialogContentText>
-            <DialogActions style={{ padding: 0, marginTop: 12 }}>
-                <Grid item xs={true} marginRight="auto">
-                    <TextField
-                        fullWidth
-                        size="small"
-                        label="Название файла"
-                        value={fileName}
-                        onChange={event => {
-                            event.persist()
-                            setState((prevState) =>
-                                ({...prevState, fileName: event.target.value, loadingStatus: LoadingStatus.None})
-                            )
-                        }}
-                    />
-                </Grid>
-                <Grid item>
-                    <LoadingButton
-                        variant="text"
-                        color="primary"
-                        type="button"
-                        sx={buttonSx}
-                        loading={loadingStatus === LoadingStatus.Loading}
-                        onClick={() => {
-                            setState((prevState) => ({...prevState, loadingStatus: LoadingStatus.Loading}))
-                            handleExportClick()
-                        }}
-                    >
-                        Сохранить
-                    </LoadingButton>
-                </Grid>
-                <Grid item>
-                    <Button variant="text" color="inherit" type="button"
-                            onClick={props.onCancellation}>
-                        Отмена
-                    </Button>
-                </Grid>
-            </DialogActions>
-        </DialogContent>
+    return (
+        <Dialog open={open} onClose={onClose}>
+            <DialogTitle>
+                Выгрузить таблицу на Яндекс Диск
+            </DialogTitle>
+            {userToken === null ? (
+                <DialogContent>
+                    <DialogContentText>
+                        <Grid item>
+                            {isAuthorizationError ? (
+                                <Alert severity="error" variant="standard">
+                                    Авторизация не пройдена. Попробуйте{" "}
+                                    <Link href={yacRequestLink}>
+                                        еще раз
+                                    </Link>
+                                </Alert>
+                            ) : (
+                                <Alert severity="info" variant="standard">
+                                    Для загрузки таблицы необходимо пройти{" "}
+                                    <Link href={yacRequestLink}>
+                                        авторизацию
+                                    </Link>
+                                </Alert>
+                            )}
+                        </Grid>
+                    </DialogContentText>
+                    <DialogActions style={{ padding: 0, marginTop: 12 }}>
+                        <Grid item>
+                            <Button variant="text" color="inherit" type="button"
+                                    onClick={onClose}>
+                                Отмена
+                            </Button>
+                        </Grid>
+                    </DialogActions>
+                </DialogContent>
+            ) : (
+                <DialogContent>
+                    <DialogContentText>
+                        <Grid item>
+                            <Alert severity="success" variant="standard">
+                                Авторизация успешно пройдена. Файл будет загружен на диск по адресу
+                                "Приложения/{import.meta.env.VITE_YANDEX_APPLICATION_NAME}/{fileName}.xlsx"
+                            </Alert>
+                        </Grid>
+                    </DialogContentText>
+                    <DialogActions style={{ padding: 0, marginTop: 12 }}>
+                        <Grid item xs={true} marginRight="auto">
+                            <TextField
+                                fullWidth
+                                size="small"
+                                label="Название файла"
+                                value={fileName}
+                                onChange={event => {
+                                    event.persist()
+                                    setState((prevState) =>
+                                        ({...prevState, fileName: event.target.value, loadingStatus: LoadingStatus.None})
+                                    )
+                                }}
+                            />
+                        </Grid>
+                        <Grid item>
+                            <LoadingButton
+                                variant="text"
+                                color="primary"
+                                type="button"
+                                sx={buttonSx}
+                                loading={loadingStatus === LoadingStatus.Loading}
+                                onClick={() => {
+                                    setState((prevState) => ({...prevState, loadingStatus: LoadingStatus.Loading}))
+                                    handleExportClick()
+                                }}
+                            >
+                                Сохранить
+                            </LoadingButton>
+                        </Grid>
+                        <Grid item>
+                            <Button variant="text" color="inherit" type="button"
+                                    onClick={onClose}>
+                                Отмена
+                            </Button>
+                        </Grid>
+                    </DialogActions>
+                </DialogContent>
+            )}
+        </Dialog>
     )
 }
 
