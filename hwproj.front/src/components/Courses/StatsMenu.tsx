@@ -5,8 +5,6 @@ import {
     MenuItem,
     ListItemIcon,
     ListItemText,
-    Dialog,
-    DialogTitle,
 } from "@mui/material";
 import { NestedMenuItem } from "mui-nested-menu";
 import { Download, ShowChart } from "@mui/icons-material";
@@ -40,26 +38,27 @@ interface StatsMenuState {
 }
 
 const StatsMenu: FC<StatsMenuProps> = props => {
+    const {courseId, userId, yandexCode, onActionOpening, onActionClosing} = props
+
     const [menuState, setMenuState] = useState<StatsMenuState>({
         anchorEl: null,
-        saveStatsAction: props.yandexCode !== null ? SaveStatsAction.ShareWithYandex : null,
+        saveStatsAction: yandexCode !== null ? SaveStatsAction.ShareWithYandex : null,
     })
 
     const {anchorEl, saveStatsAction} = menuState
     const showMenu = anchorEl !== null
+    const openAction = saveStatsAction !== null
 
     useEffect(() => {
         if (saveStatsAction !== null)
-            props.onActionOpening()
+            onActionOpening()
         else
-            props.onActionClosing()
+            onActionClosing()
     }, [saveStatsAction]);
 
     const navigate = useNavigate();
 
-    const goToCharts = () => {
-        navigate(`/statistics/${props.courseId}/charts`)
-    }
+    const goToCharts = () => navigate(`/statistics/${courseId}/charts`)
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) =>
         setMenuState ({
@@ -105,39 +104,27 @@ const StatsMenu: FC<StatsMenuProps> = props => {
         }
     }
 
-    const getActionTitle = (action: SaveStatsAction | null) => {
-        switch (action) {
-            case SaveStatsAction.Download:
-                return "Скачать таблицу со статистикой"
-            case SaveStatsAction.ShareWithGoogle:
-                return "Выгрузить таблицу в Google Docs"
-            case SaveStatsAction.ShareWithYandex:
-                return "Выгрузить таблицу на Яндекс Диск"
-            default:
-                return ""
-        }
-    }
-
     const getActionContent = (action: SaveStatsAction | null) => {
         switch (action) {
             case SaveStatsAction.Download:
                 return <DownloadStats
-                    courseId={props.courseId}
-                    userId={props.userId}
-                    onCancellation={handleClose}
+                    courseId={courseId}
+                    userId={userId}
+                    onClose={handleClose}
                 />
             case SaveStatsAction.ShareWithGoogle:
                 return <ExportToGoogle
-                    courseId={props.courseId}
-                    userId={props.userId}
-                    onCancellation={handleClose}
+                    courseId={courseId}
+                    open={openAction}
+                    onClose={handleClose}
                 />
             case SaveStatsAction.ShareWithYandex:
                 return <ExportToYandex
-                    courseId={props.courseId}
-                    userId={props.userId}
-                    onCancellation={handleClose}
-                    userCode={props.yandexCode}
+                    courseId={courseId}
+                    userId={userId}
+                    userCode={yandexCode}
+                    open={openAction}
+                    onClose={handleClose}
                 />
             default:
                 return null
@@ -194,15 +181,7 @@ const StatsMenu: FC<StatsMenuProps> = props => {
                     )}
                 </NestedMenuItem>
             </Menu>
-            <Dialog
-                open={saveStatsAction !== null}
-                onClose={handleClose}
-            >
-                <DialogTitle>
-                    {getActionTitle(saveStatsAction)}
-                </DialogTitle>
-                {getActionContent(saveStatsAction)}
-            </Dialog>
+            {getActionContent(saveStatsAction)}
         </div>
     )
 }
