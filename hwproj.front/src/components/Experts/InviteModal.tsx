@@ -200,13 +200,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                                     </Grid>
                                 </Grid>
                                 {state.selectedCourseId !== -1 && (
-                                    <Grid container style={{marginTop: '15px'}} direction="column">
-                                        {!isWorkspaceLoading &&
-                                            <Grid item>
-                                                <Typography>
-                                                    Выберите задачи:
-                                                </Typography>
-                                            </Grid>}
+                                    <Grid container direction="column">
                                         <Grid item>
                                             <CourseFilter key={state.selectedCourseId}
                                                           courseId={state.selectedCourseId}

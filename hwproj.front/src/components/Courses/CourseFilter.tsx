@@ -121,11 +121,11 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                     <TextField
                                         {...params}
                                         variant="outlined"
-                                        label={state.selectedHomeworks.length === 0 ? "" : "Работы"}
-                                        placeholder={state.selectedHomeworks.length === 0 ? "Все работы" : ""}
+                                        label={state.selectedHomeworks.length === 0 ? "" : "Задания"}
+                                        placeholder={state.selectedHomeworks.length === 0 ? "Все задания" : ""}
                                     />
                                 )}
-                                noOptionsText={'На курсе больше нет работ'}
+                                noOptionsText={'На курсе больше нет заданий'}
                                 value={state.selectedHomeworks}
                                 onChange={(_, values) => {
                                     setState((prevState) => ({
