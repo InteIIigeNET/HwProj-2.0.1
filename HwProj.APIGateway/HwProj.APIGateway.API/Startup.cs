@@ -19,6 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 using IStudentsInfo;
 using StudentsInfo;
 using Newtonsoft.Json.Linq;
+using System;
 
 namespace HwProj.APIGateway.API
 {
@@ -94,7 +95,14 @@ namespace HwProj.APIGateway.API
         private static SheetsService ConfigureGoogleSheets(IConfigurationSection _sheetsConfiguration)
         {
             var jsonObject = Serialize(_sheetsConfiguration);
-            var credential = GoogleCredential.FromJson(jsonObject.ToString()).CreateScoped(SheetsService.Scope.Spreadsheets);
+            GoogleCredential? credential = null;
+
+            try
+            {
+                credential = GoogleCredential.FromJson(jsonObject.ToString())
+                    .CreateScoped(SheetsService.Scope.Spreadsheets);
+            }
+            catch (Exception) {}
 
             return new SheetsService(new BaseClientService.Initializer
             {
