@@ -167,7 +167,8 @@ namespace HwProj.CoursesService.API.Services
                 Homeworks =
                     filter.HomeworkIds.Any()
                         ? courseDto.Homeworks.Where(hw => filter.HomeworkIds.Contains(hw.Id)).ToArray()
-                        : courseDto.Homeworks
+                        : courseDto.Homeworks,
+                Description = courseDto.Description,
             };
         }
     }
