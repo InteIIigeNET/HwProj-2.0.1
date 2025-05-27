@@ -85,6 +85,9 @@ services:
     build:
       context: .
       dockerfile: HwProj.ContentService/HwProj.ContentService.API/Dockerfile
+    volumes:
+      - ./HwProj.ContentService/FilesStorage:/app/data/
     depends_on:
       - rabbitmq
       - hwproj.authservice.api
+    stop_grace_period: 11m

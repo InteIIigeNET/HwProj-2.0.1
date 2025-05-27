@@ -6,9 +6,12 @@ import {useEffect, useState} from "react";
 import {IFileInfo} from "./IFileInfo";
 import {Alert, Button, Grid} from "@mui/material";
 import FilesPreviewList from "./FilesPreviewList";
+import { CourseUnitType } from "./CourseUnitType";
+import { FileStatus } from "./FileStatus";
 
 interface IFilesUploaderProps {
-    homeworkId: number;
+    courseUnitType: CourseUnitType
+    courseUnitId: number;
     initialFilesInfo?: IFileInfo[];
     onChange: (selectedFiles: IFileInfo[]) => void;
     isLoading?: boolean;
@@ -70,10 +73,11 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
             newFilesInfo.push({
                 name: file.name,
                 type: file.type,
-                size: file.size,
+                sizeInBytes: file.size,
                 file: file,
-                homeworkId: props.homeworkId,
-                key: "local" //TODO
+                courseUnitType: props.courseUnitType,
+                courseUnitId: props.courseUnitId,
+                status: FileStatus.Local
             })
         }
         setSelectedFilesInfo(previouslySelected => {
