@@ -92,7 +92,7 @@ namespace HwProj.AuthService.API.Controllers
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                return Ok(Result<TokenCredentials>.Failed("User not found"));
+                return Ok(Result<TokenCredentials>.Failed("Пользователь не найден"));
             }
             
             var token = await _tokenService.GetTokenAsync(user);
