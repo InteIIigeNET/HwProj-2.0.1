@@ -313,13 +313,13 @@ namespace HwProj.APIGateway.API.Controllers
         {
             var student = await AuthServiceClient.FindByEmailAsync(model.Email);
 
-            if (student == null && model.Name == null)
+            if (student == null)
             {
-                return BadRequest(new { error = "Пользователь с указанным email не найден" });
-            }
+                if (model.Name == null)
+                {
+                    return BadRequest(new { error = "Пользователь с указанным email не найден" });
+                }
 
-            if (student == null && model.Name != null)
-            {
                 var registerModel = new RegisterViewModel
                 {
                     Email = model.Email,
@@ -329,7 +329,7 @@ namespace HwProj.APIGateway.API.Controllers
                 };
 
                 var registrationResult = await AuthServiceClient.RegisterInvitedStudent(registerModel);
-                
+        
                 if (!registrationResult.Succeeded)
                 {
                     return BadRequest(new { error = "Не удалось зарегистрировать студента", details = registrationResult.Errors });
@@ -341,14 +341,15 @@ namespace HwProj.APIGateway.API.Controllers
                     return BadRequest(new { error = "Студент зарегистрирован, но не найден в системе" });
                 }
             }
-
-            var result = await _coursesClient.SignInAndAcceptStudent(model.CourseId, student);
-            if (!result.Succeeded)
+            
+            var invitationResult = await _coursesClient.SignInAndAcceptStudent(model.CourseId, student);
+    
+            if (!invitationResult.Succeeded)
             {
-                return BadRequest(new { error = "Не удалось добавить студента в курс", details = result.Errors });
+                return BadRequest(new { error = invitationResult.Errors });
             }
 
-            return Ok();
+            return Ok(new { message = "Студент успешно приглашен на курс" });
         }
     }
 }
