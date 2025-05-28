@@ -306,6 +306,15 @@ namespace HwProj.CoursesService.API.Services
             return student != null;
         }
 
+        public async Task<bool> IsCourseUser(long courseId, string userId)
+        {
+            var course = await _coursesRepository.GetAsync(courseId);
+            var isCourseMentor = course.MentorIds.Contains(userId);
+            var isCourseStudent = await HasStudent(courseId, userId);
+
+            return course.IsOpen || isCourseMentor || isCourseStudent;
+        }
+
         public async Task<bool> UpdateStudentCharacteristics(long courseId, string studentId,
             StudentCharacteristicsDto characteristics)
         {

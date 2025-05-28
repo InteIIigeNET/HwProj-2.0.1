@@ -26,23 +26,9 @@ namespace HwProj.CoursesService.API.Services
             _coursesRepository = coursesRepository;
         }
 
-        public async Task<HomeworkTask> GetTaskAsync(long taskId, string userId = "")
+        public async Task<HomeworkTask> GetTaskAsync(long taskId)
         {
             var task = await _tasksRepository.GetWithHomeworkAsync(taskId);
-
-            if (userId != string.Empty)
-            {
-                var course = await _coursesRepository.GetWithCourseMates(task.Homework.CourseId);
-                var isCourseMentor = course.MentorIds.Contains(userId);
-                var isCourseStudent = course.CourseMates.Where(cm => cm.IsAccepted).Any(s => s.StudentId == userId);
-
-                var hasAccessToMaterials = course.IsOpen || isCourseMentor || isCourseStudent;
-
-                if (!hasAccessToMaterials)
-                {
-                    return null;
-                }
-            }
 
             CourseDomain.FillTask(task.Homework, task);
 

@@ -10,6 +10,7 @@ using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite.Internal.UrlActions;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Controllers
@@ -36,8 +37,13 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> GetTask(long taskId)
         {
             var userId = Request.GetUserIdFromHeader();
-            var taskFromDb = await _tasksService.GetTaskAsync(taskId, userId);
+            var taskFromDb = await _tasksService.GetTaskAsync(taskId);
             if (taskFromDb == null) return NotFound();
+
+            if (!await _coursesService.IsCourseUser(taskFromDb.Homework.CourseId, userId))
+            {
+                return Forbid();
+            }
 
             if (taskFromDb.PublicationDate > DateTime.UtcNow)
             {
@@ -105,7 +111,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> AddQuestionForTask([FromBody] AddTaskQuestionDto question)
         {
             var studentId = Request.GetUserIdFromHeader();
-            var task = await _tasksService.GetTaskAsync(question.TaskId, studentId);
+            var task = await _tasksService.GetTaskAsync(question.TaskId);
             if (studentId == null || task == null) return NotFound();
 
             if (string.IsNullOrEmpty(question.Text))
@@ -128,7 +134,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> GetQuestionsForTask(long taskId)
         {
             var userId = Request.GetUserIdFromHeader();
-            var task = await _tasksService.GetTaskAsync(taskId, userId);
+            var task = await _tasksService.GetTaskAsync(taskId);
             if (userId == null || task == null) return NotFound();
 
             var courseId = task.Homework.CourseId;

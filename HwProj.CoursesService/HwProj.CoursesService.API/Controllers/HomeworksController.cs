@@ -6,6 +6,7 @@ using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using HwProj.Models;
+using HwProj.Utils.Authorization;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -14,10 +15,12 @@ namespace HwProj.CoursesService.API.Controllers
     public class HomeworksController : Controller
     {
         private readonly IHomeworksService _homeworksService;
+        private readonly ICoursesService _coursesService;
 
-        public HomeworksController(IHomeworksService homeworksService)
+        public HomeworksController(IHomeworksService homeworksService, ICoursesService coursesService)
         {
             _homeworksService = homeworksService;
+            _coursesService = coursesService;
         }
 
         [HttpPost("{courseId}/add")]
@@ -34,11 +37,18 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("get/{homeworkId}")]
-        public async Task<HomeworkViewModel> GetHomework(long homeworkId)
+        public async Task<IActionResult> GetHomework(long homeworkId)
         {
+            var userId = Request.GetUserIdFromHeader();
             var homeworkFromDb = await _homeworksService.GetHomeworkAsync(homeworkId);
+
+            if (!await _coursesService.IsCourseUser(homeworkFromDb.CourseId, userId))
+            {
+                return Forbid();
+            }
+
             var homework = homeworkFromDb.ToHomeworkViewModel();
-            return homework;
+            return Ok(homework);
         }
 
         [HttpGet("getForEditing/{homeworkId}")]
