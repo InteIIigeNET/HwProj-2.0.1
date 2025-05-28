@@ -4,10 +4,9 @@ using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.CoursesService.API.Domains;
 using System.Linq;
+using HwProj.CoursesService.API.Domains;
 using HwProj.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -27,9 +26,23 @@ namespace HwProj.CoursesService.API.Services
             _coursesRepository = coursesRepository;
         }
 
-        public async Task<HomeworkTask> GetTaskAsync(long taskId)
+        public async Task<HomeworkTask> GetTaskAsync(long taskId, string userId = "")
         {
             var task = await _tasksRepository.GetWithHomeworkAsync(taskId);
+
+            if (userId != string.Empty)
+            {
+                var course = await _coursesRepository.GetWithCourseMates(task.Homework.CourseId);
+                var isCourseMentor = course.MentorIds.Contains(userId);
+                var isCourseStudent = course.CourseMates.Where(cm => cm.IsAccepted).Any(s => s.StudentId == userId);
+
+                var hasAccessToMaterials = course.IsOpen || isCourseMentor || isCourseStudent;
+
+                if (!hasAccessToMaterials)
+                {
+                    return null;
+                }
+            }
 
             CourseDomain.FillTask(task.Homework, task);
 

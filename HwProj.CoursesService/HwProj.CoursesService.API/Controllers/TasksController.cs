@@ -35,12 +35,12 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("get/{taskId}")]
         public async Task<IActionResult> GetTask(long taskId)
         {
-            var taskFromDb = await _tasksService.GetTaskAsync(taskId);
+            var userId = Request.GetUserIdFromHeader();
+            var taskFromDb = await _tasksService.GetTaskAsync(taskId, userId);
             if (taskFromDb == null) return NotFound();
 
             if (taskFromDb.PublicationDate > DateTime.UtcNow)
             {
-                var userId = Request.GetUserIdFromHeader();
                 var homework = taskFromDb.Homework;
                 var lecturers = await _coursesService.GetCourseLecturers(homework.CourseId);
                 if (!lecturers.Contains(userId)) return BadRequest();
@@ -105,7 +105,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> AddQuestionForTask([FromBody] AddTaskQuestionDto question)
         {
             var studentId = Request.GetUserIdFromHeader();
-            var task = await _tasksService.GetTaskAsync(question.TaskId);
+            var task = await _tasksService.GetTaskAsync(question.TaskId, studentId);
             if (studentId == null || task == null) return NotFound();
 
             if (string.IsNullOrEmpty(question.Text))
@@ -128,7 +128,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> GetQuestionsForTask(long taskId)
         {
             var userId = Request.GetUserIdFromHeader();
-            var task = await _tasksService.GetTaskAsync(taskId);
+            var task = await _tasksService.GetTaskAsync(taskId, userId);
             if (userId == null || task == null) return NotFound();
 
             var courseId = task.Homework.CourseId;
