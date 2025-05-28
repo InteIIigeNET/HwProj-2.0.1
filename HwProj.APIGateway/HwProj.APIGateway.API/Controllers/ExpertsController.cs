@@ -74,9 +74,9 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpGet("getToken")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetToken(string expertEmail)
+        public async Task<IActionResult> GetToken(string email)
         {
-            var tokenMeta = await AuthServiceClient.GetExpertToken(expertEmail);
+            var tokenMeta = await AuthServiceClient.GetExpertToken(email);
             return Ok(tokenMeta);
         }
 
