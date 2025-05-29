@@ -1,4 +1,4 @@
-/// <reference path="./custom.d.ts" />
+﻿/// <reference path="./custom.d.ts" />
 // tslint:disable
 /**
  * API Gateway
@@ -497,10 +497,10 @@ export interface CreateCourseViewModel {
     name: string;
     /**
      *
-     * @type {string}
+     * @type {Array<string>}
      * @memberof CreateCourseViewModel
      */
-    groupName?: string;
+    groupNames?: Array<string>;
     /**
      *
      * @type {Array<string>}
@@ -1414,6 +1414,43 @@ export interface InviteLecturerViewModel {
      * @memberof InviteLecturerViewModel
      */
     email: string;
+}
+/**
+ *
+ * @export
+ * @interface InviteStudentViewModel
+ */
+export interface InviteStudentViewModel {
+    /**
+     *
+     * @type {number}
+     * @memberof InviteStudentViewModel
+     */
+    courseId?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof InviteStudentViewModel
+     */
+    email?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof InviteStudentViewModel
+     */
+    name?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof InviteStudentViewModel
+     */
+    surname?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof InviteStudentViewModel
+     */
+    middleName?: string;
 }
 /**
  *
@@ -4801,6 +4838,41 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          *
+         * @param {InviteStudentViewModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        coursesInviteStudent(body?: InviteStudentViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Courses/inviteExistentStudent`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"InviteStudentViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
          * @param {number} courseId
          * @param {string} studentId
          * @param {*} [options] Override http request option.
@@ -5230,6 +5302,24 @@ export const CoursesApiFp = function(configuration?: Configuration) {
         },
         /**
          *
+         * @param {InviteStudentViewModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        coursesInviteStudent(body?: InviteStudentViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).coursesInviteStudent(body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
          * @param {number} courseId
          * @param {string} studentId
          * @param {*} [options] Override http request option.
@@ -5443,6 +5533,15 @@ export const CoursesApiFactory = function (configuration?: Configuration, fetch?
         },
         /**
          *
+         * @param {InviteStudentViewModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        coursesInviteStudent(body?: InviteStudentViewModel, options?: any) {
+            return CoursesApiFp(configuration).coursesInviteStudent(body, options)(fetch, basePath);
+        },
+        /**
+         *
          * @param {number} courseId
          * @param {string} studentId
          * @param {*} [options] Override http request option.
@@ -5649,6 +5748,17 @@ export class CoursesApi extends BaseAPI {
 
     /**
      *
+     * @param {InviteStudentViewModel} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof CoursesApi
+     */
+    public coursesInviteStudent(body?: InviteStudentViewModel, options?: any) {
+        return CoursesApiFp(this.configuration).coursesInviteStudent(body, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
      * @param {number} courseId
      * @param {string} studentId
      * @param {*} [options] Override http request option.
@@ -5768,6 +5878,41 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        expertsGetStudentToken(expertEmail?: string, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Experts/getStudentToken`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (expertEmail !== undefined) {
+                localVarQueryParameter['expertEmail'] = expertEmail;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
+         * @param {string} [expertEmail]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         expertsGetToken(expertEmail?: string, options: any = {}): FetchArgs {
             const localVarPath = `/api/Experts/getToken`;
             const localVarUrlObj = url.parse(localVarPath, true);
@@ -5840,6 +5985,41 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
          */
         expertsLogin(body?: TokenCredentials, options: any = {}): FetchArgs {
             const localVarPath = `/api/Experts/login`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"TokenCredentials" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
+         * @param {TokenCredentials} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        expertsLoginWithToken(body?: TokenCredentials, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Experts/loginWithToken`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
@@ -6016,6 +6196,24 @@ export const ExpertsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        expertsGetStudentToken(expertEmail?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<TokenCredentialsResult> {
+            const localVarFetchArgs = ExpertsApiFetchParamCreator(configuration).expertsGetStudentToken(expertEmail, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
+         * @param {string} [expertEmail]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         expertsGetToken(expertEmail?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<TokenCredentialsResult> {
             const localVarFetchArgs = ExpertsApiFetchParamCreator(configuration).expertsGetToken(expertEmail, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
@@ -6054,6 +6252,24 @@ export const ExpertsApiFp = function(configuration?: Configuration) {
          */
         expertsLogin(body?: TokenCredentials, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
             const localVarFetchArgs = ExpertsApiFetchParamCreator(configuration).expertsLogin(body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
+         * @param {TokenCredentials} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        expertsLoginWithToken(body?: TokenCredentials, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+            const localVarFetchArgs = ExpertsApiFetchParamCreator(configuration).expertsLoginWithToken(body, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -6148,6 +6364,15 @@ export const ExpertsApiFactory = function (configuration?: Configuration, fetch?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
+        expertsGetStudentToken(expertEmail?: string, options?: any) {
+            return ExpertsApiFp(configuration).expertsGetStudentToken(expertEmail, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {string} [expertEmail]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
         expertsGetToken(expertEmail?: string, options?: any) {
             return ExpertsApiFp(configuration).expertsGetToken(expertEmail, options)(fetch, basePath);
         },
@@ -6168,6 +6393,15 @@ export const ExpertsApiFactory = function (configuration?: Configuration, fetch?
          */
         expertsLogin(body?: TokenCredentials, options?: any) {
             return ExpertsApiFp(configuration).expertsLogin(body, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {TokenCredentials} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        expertsLoginWithToken(body?: TokenCredentials, options?: any) {
+            return ExpertsApiFp(configuration).expertsLoginWithToken(body, options)(fetch, basePath);
         },
         /**
          *
@@ -6232,6 +6466,17 @@ export class ExpertsApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof ExpertsApi
      */
+    public expertsGetStudentToken(expertEmail?: string, options?: any) {
+        return ExpertsApiFp(this.configuration).expertsGetStudentToken(expertEmail, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {string} [expertEmail]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ExpertsApi
+     */
     public expertsGetToken(expertEmail?: string, options?: any) {
         return ExpertsApiFp(this.configuration).expertsGetToken(expertEmail, options)(this.fetch, this.basePath);
     }
@@ -6256,6 +6501,17 @@ export class ExpertsApi extends BaseAPI {
      */
     public expertsLogin(body?: TokenCredentials, options?: any) {
         return ExpertsApiFp(this.configuration).expertsLogin(body, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {TokenCredentials} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ExpertsApi
+     */
+    public expertsLoginWithToken(body?: TokenCredentials, options?: any) {
+        return ExpertsApiFp(this.configuration).expertsLoginWithToken(body, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -9412,3 +9668,4 @@ export class TasksApi extends BaseAPI {
     }
 
 }
+

@@ -30,17 +30,18 @@ namespace HwProj.AuthService.API.Services
             _tokenHandler = new JwtSecurityTokenHandler();
         }
 
-        public async Task<TokenCredentials> GetTokenAsync(User user)
+        public async Task<TokenCredentials> GetTokenAsync(User user, DateTime? expirationDate = null)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["SecurityKey"]));
             var timeNow = DateTime.UtcNow;
 
             var userRoles = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
 
-            var expiresIn = userRoles.FirstOrDefault() == Roles.ExpertRole
-                ? GetExpertTokenExpiresIn(timeNow)
-                : timeNow.AddMinutes(int.Parse(_configuration["ExpiresIn"]));
-            
+            var expiresIn = expirationDate ?? 
+                            (userRoles.FirstOrDefault() == Roles.ExpertRole
+                                ? GetExpertTokenExpiresIn(timeNow)
+                                : timeNow.AddMinutes(int.Parse(_configuration["ExpiresIn"])));
+    
             var token = new JwtSecurityToken(
                 issuer: _configuration["ApiName"],
                 notBefore: timeNow,

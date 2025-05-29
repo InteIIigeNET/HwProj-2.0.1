@@ -84,5 +84,27 @@ namespace HwProj.AuthService.API.Controllers
 
             return Ok(experts);
         }
+        
+        [HttpGet("getStudentToken")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetStudentToken(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Ok(Result<TokenCredentials>.Failed("Пользователь не найден"));
+            }
+            
+            var token = await _tokenService.GetTokenAsync(user);
+            return Ok(Result<TokenCredentials>.Success(token));
+        }
+        
+        [HttpPost("loginWithToken")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> LoginWithToken([FromBody] TokenCredentials credentials)
+        {
+            var result = await _expertsService.LoginWithTokenAsync(credentials);
+            return Ok(result);
+        }
     }
 }
