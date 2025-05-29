@@ -181,9 +181,9 @@ namespace HwProj.AuthService.API.Services
         {
             var tokenClaims = _tokenService.GetTokenClaims(tokenCredentials);
             
-            if (string.IsNullOrEmpty(tokenClaims.Email))
+            if (string.IsNullOrEmpty(tokenClaims.Id))
             {
-                return Result.Failed("Невалидный токен: email не найден");
+                return Result.Failed("Невалидный токен: id не найден");
             }
 
             var user = await _userManager.FindByEmailAsync(tokenClaims.Email);
