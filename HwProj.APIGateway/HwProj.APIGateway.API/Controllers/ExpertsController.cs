@@ -74,9 +74,9 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpGet("getToken")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetToken(string email)
+        public async Task<IActionResult> GetToken(string expertEmail)
         {
-            var tokenMeta = await AuthServiceClient.GetExpertToken(email);
+            var tokenMeta = await AuthServiceClient.GetExpertToken(expertEmail);
             return Ok(tokenMeta);
         }
 
@@ -119,9 +119,9 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpGet("getStudentToken")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetStudentToken(string expertEmail)
+        public async Task<IActionResult> GetStudentToken(string email)
         {
-            var tokenMeta = await AuthServiceClient.GetStudentToken(expertEmail);
+            var tokenMeta = await AuthServiceClient.GetStudentToken(email);
             return Ok(tokenMeta);
         }
         
