@@ -660,7 +660,7 @@ const Course: React.FC = () => {
                         </ListItemIcon>
                         <ListItemText>Поделиться</ListItemText>
                     </MenuItem>
-                    {isCourseMentor && isLecturer && 
+                    {isCourseMentor && 
                         <MenuItem onClick={() => {
                             setShowInviteDialog(true)
                         }}>
