@@ -33,7 +33,6 @@ namespace HwProj.AuthService.API.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly HttpClient _client;
-        
         public AccountService(IUserManager userManager,
             SignInManager<User> signInManager,
             IAuthTokenService authTokenService,
