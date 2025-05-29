@@ -536,10 +536,10 @@ const Course: React.FC = () => {
     const showApplicationsTab = isCourseMentor
 
     const changeTab = (newTab: string) => {
-        if (isAcceptableTabValue(newTab)) {
+        if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
             if (newTab === "stats" && !showStatsTab) return;
             if (newTab === "applications" && !showApplicationsTab) return;
-    
+
             setPageState(prevState => ({
                 ...prevState,
                 tabValue: newTab
@@ -550,6 +550,8 @@ const Course: React.FC = () => {
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.coursesGetCourseData(+courseId!)
 
+        // У пользователя изменилась роль (иначе он не может стать лектором в курсе),
+        // однако он все ещё использует токен с прежней ролью
         const shouldRefreshToken =
             !isMentor &&
             course &&
