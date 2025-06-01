@@ -101,7 +101,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     // Функция прокрутки вверх
     const scrollToTop = () => {
         window.scrollTo({
-            top: 90,
+            top: 110,
             behavior: 'instant'
         });
     };
@@ -539,14 +539,14 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         {/* Кнопка "Наверх" для мобильных устройств */}
         <Zoom in={showScrollButton && isMobile}>
             <Fab
-                size="small"
+                size="medium"
                 color="primary"
                 aria-label="up"
                 onClick={scrollToTop}
                 sx={{
                     position: 'fixed',
-                    bottom: 25,
-                    right: 25,
+                    bottom: 40,
+                    right: 40,
                     display: { xs: 'flex', md: 'none' },
                     zIndex: 1000
                 }}
