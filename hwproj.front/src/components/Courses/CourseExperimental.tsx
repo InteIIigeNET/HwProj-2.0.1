@@ -6,8 +6,12 @@ import {
 } from "@/api";
 import {
     Button,
+    Fab,
     Grid,
-    Typography
+    Typography,
+    useMediaQuery,
+    useTheme,
+    Zoom
 } from "@mui/material";
 import {FC, useEffect, useState} from "react";
 import Timeline from '@mui/lab/Timeline';
@@ -27,6 +31,7 @@ import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import EditIcon from "@mui/icons-material/Edit";
 import ErrorIcon from '@mui/icons-material/Error';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Lodash from "lodash";
 
 interface ICourseExperimentalProps {
@@ -55,6 +60,13 @@ interface ICourseExperimentalState {
 export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const [hideDeferred, setHideDeferred] = useState<boolean>(false)
 
+    // Определяем разрешение экрана пользователя
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+    // Состояние для кнопки "Наверх"
+    const [showScrollButton, setShowScrollButton] = useState(false);
+
     const homeworks = props.homeworks.slice().reverse().filter(x => !hideDeferred || !x.isDeferred)
     const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId, courseFilesInfo} = props
 
@@ -71,6 +83,28 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             selectedItem: {isHomework: true, id: defaultHomework?.id},
         }))
     }, [hideDeferred])
+
+    // Обработчик прокрутки страницы
+    useEffect(() => {
+        const handleScroll = () => {
+            // Показывать кнопку при прокрутке ниже 400px
+            const shouldShow = window.scrollY > 400;
+            if (shouldShow !== showScrollButton) {
+                setShowScrollButton(shouldShow);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [showScrollButton]);
+
+    // Функция прокрутки вверх
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 90,
+            behavior: 'instant'
+        });
+    };
 
     const initialEditMode = state.initialEditMode
     const {id, isHomework} = state.selectedItem
@@ -383,7 +417,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         <Grid item xs={12} sm={12} md={4} lg={4} order={{xs: 2, sm: 2, md: 1, lg: 1}}>
             <Timeline style={{overflow: 'auto', paddingLeft: 0, paddingRight: 8}}
                       sx={{
-                          maxHeight: '75vh',
+                          maxHeight: {
+                              xs: 'none',
+                              md: '75vh'
+                          },
                           '&::-webkit-scrollbar': {
                               width: "3px",
                           },
@@ -498,5 +535,24 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         <Grid item sx={{display: {xs: 'flex', md: 'none'}}} order={{xs: 3, sm: 3}}>
             {renderGif()}
         </Grid>
+        
+        {/* Кнопка "Наверх" для мобильных устройств */}
+        <Zoom in={showScrollButton && isMobile}>
+            <Fab
+                size="small"
+                color="primary"
+                aria-label="up"
+                onClick={scrollToTop}
+                sx={{
+                    position: 'fixed',
+                    bottom: 25,
+                    right: 25,
+                    display: { xs: 'flex', md: 'none' },
+                    zIndex: 1000
+                }}
+            >
+                <ArrowUpwardIcon />
+            </Fab>
+        </Zoom>
     </Grid>
 }

@@ -147,7 +147,7 @@ const Course: React.FC = () => {
             courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
         } catch (e) {
             const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
-            enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
+            enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 1990});
         }
         setCourseFilesInfo(courseFilesInfo)
     }
