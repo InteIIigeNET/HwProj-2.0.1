@@ -17,6 +17,13 @@ interface FilePreviewProps {
 const FilePreview: React.FC<FilePreviewProps> = (props) => {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
+    // Стили для иконки статуса
+    const statusStyle = {
+        fontSize: '0.6rem',
+        lineHeight: 1.2,
+        whiteSpace: 'nowrap'
+    };
+
     useEffect(() => {
         if (props.fileInfo.file && props.fileInfo.type?.startsWith('image/')) {
             const url = URL.createObjectURL(props.fileInfo.file);
@@ -67,34 +74,53 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
             fontSize: hasRemoveButton ? '0.8rem' : '0.75rem',
             transition: 'all 0.2s ease',
         }}>
-            {/*Превью изображения*/}
-            {previewUrl ? (
-                <img
-                    src={previewUrl}
-                    alt="Preview"
-                    style={{
-                        width: hasRemoveButton ? 32 : 28,
-                        height: hasRemoveButton ? 32 : 28,
-                        objectFit: 'cover',
-                        borderRadius: 4,
-                        flexShrink: 0
-                    }}
-                />
-            ) : (
-                <Box
-                    onClick={() => props.onClick?.(props.fileInfo)}
-                    sx={{
-                        width: hasRemoveButton ? 32 : 28,
-                        height: hasRemoveButton ? 32 : 28,
-                        flexShrink: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: props.onClick ? 'pointer' : 'default',
-                    }}>
-                    {getFileIcon()}
-                </Box>
-            )}
+            {/* Обертка для превью/иконки и статуса */}
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 0.5
+            }}>
+                {/*Превью изображения*/}
+                {previewUrl ? (
+                    <>
+                        <img
+                            src={previewUrl}
+                            alt="Preview"
+                            style={{
+                                width: hasRemoveButton ? 32 : 28,
+                                height: hasRemoveButton ? 32 : 28,
+                                objectFit: 'cover',
+                                borderRadius: 4,
+                                flexShrink: 0
+                            }}
+                        />
+                        <Typography sx={statusStyle}>
+                            {props.fileInfo.status}
+                        </Typography>
+                    </>
+                ) : (
+                    <>
+                        <Box
+                            onClick={() => props.onClick?.(props.fileInfo)}
+                            sx={{
+                                width: hasRemoveButton ? 32 : 28,
+                                height: hasRemoveButton ? 32 : 28,
+                                flexShrink: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: props.onClick ? 'pointer' : 'default',
+                            }}>
+                            {getFileIcon()}
+                        </Box>
+                        <Typography sx={statusStyle}>
+                            {props.fileInfo.status}
+                        </Typography>
+                    </>
+                )}
+            </Box>
+
 
             {/*Текстовая информация*/}
             <Box
@@ -126,7 +152,7 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
                     color="text.secondary"
                     sx={{fontSize: hasRemoveButton ? '0.7rem' : '0.65rem'}}
                 >
-                    {getFileSize(props.fileInfo.size)}
+                    {getFileSize(props.fileInfo.sizeInBytes)}
                 </Typography>
             </Box>
 
