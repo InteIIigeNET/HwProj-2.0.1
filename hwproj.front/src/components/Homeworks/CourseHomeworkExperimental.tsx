@@ -3,6 +3,7 @@
     CardActions,
     CardContent,
     Chip,
+    CircularProgress,
     Divider,
     Grid,
     IconButton,
@@ -502,8 +503,9 @@ const CourseHomeworkExperimental: FC<{
             <MarkdownPreview value={homework.description!}/>
         </Typography>
         {props.isProcessing ? (
-                <div style={{display: 'flex', justifyContent: 'center', padding: '16px'}}>
-                    Обрабатываем файлы...
+                <div style={{ display: 'flex', alignItems: 'center', color: '#1976d2', fontWeight: '500'  }}>
+                    <CircularProgress size="20px" />
+                    &nbsp;&nbsp;Обрабатываем файлы...
                 </div>
             ) : filesInfo.length > 0 && (
                 <div>

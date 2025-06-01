@@ -1,12 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {Box, Typography, IconButton} from '@mui/material';
+import {Box, Typography, IconButton, useTheme, CircularProgress} from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import ImageIcon from '@mui/icons-material/Image';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DescriptionIcon from '@mui/icons-material/Description';
 import CloseIcon from '@mui/icons-material/Close';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
 import {IFileInfo} from './IFileInfo';
-import LightTooltip from 'components/Common/LightTooltip';
+import {FileStatus} from "./FileStatus";
+import LightTooltip from '../Common/LightTooltip';
 
 interface FilePreviewProps {
     fileInfo: IFileInfo;
@@ -15,14 +18,9 @@ interface FilePreviewProps {
 }
 
 const FilePreview: React.FC<FilePreviewProps> = (props) => {
+    const theme = useTheme();
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
-    // Стили для иконки статуса
-    const statusStyle = {
-        fontSize: '0.6rem',
-        lineHeight: 1.2,
-        whiteSpace: 'nowrap'
-    };
+    const hasRemoveButton = !!props.onRemove;
 
     useEffect(() => {
         if (props.fileInfo.file && props.fileInfo.type?.startsWith('image/')) {
@@ -34,16 +32,23 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
     }, [props.fileInfo.file]);
 
     const getFileIcon = () => {
-        const iconStyle = {fontSize: 28};
-        if (props.fileInfo.type?.startsWith('image/')
-            || props.fileInfo.name.endsWith('png') || props.fileInfo.name.endsWith('jpg')
-            || props.fileInfo.name.endsWith('jpeg'))
+        const iconStyle = {fontSize: 24};
+        if (props.fileInfo.type?.startsWith('image/') ||
+            props.fileInfo.name.endsWith('png') ||
+            props.fileInfo.name.endsWith('jpg') ||
+            props.fileInfo.name.endsWith('jpeg')) {
             return <ImageIcon sx={iconStyle}/>;
-        if (props.fileInfo.type === 'application/pdf' || props.fileInfo.name.endsWith('pdf'))
+        }
+        if (props.fileInfo.type === 'application/pdf' ||
+            props.fileInfo.name.endsWith('pdf')) {
             return <PictureAsPdfIcon sx={iconStyle}/>;
-        if (props.fileInfo.type?.startsWith('text/') || props.fileInfo.name.endsWith('txt')
-            || props.fileInfo.name.endsWith('doc') || props.fileInfo.name.endsWith('docx'))
+        }
+        if (props.fileInfo.type?.startsWith('text/') ||
+            props.fileInfo.name.endsWith('txt') ||
+            props.fileInfo.name.endsWith('doc') ||
+            props.fileInfo.name.endsWith('docx')) {
             return <DescriptionIcon sx={iconStyle}/>;
+        }
         return <InsertDriveFileIcon sx={iconStyle}/>;
     };
 
@@ -53,127 +58,207 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
 
         if (sizeInMB >= 1) {
             return `${sizeInMB.toFixed(1)} MB`;
-        } else {
-            return `${sizeInKB.toFixed(1)} KB`;
+        }
+        return `${sizeInKB.toFixed(1)} KB`;
+    }
+
+    const getStatusInfo = (status: FileStatus) => {
+        switch (status) {
+            case FileStatus.Uploading:
+                return {
+                    text: "Загружаем",
+                    tooltipText: "",
+                    icon: <CircularProgress size={14} thickness={5} sx={{color: theme.palette.info.main}}/>,
+                    color: {
+                        bg: theme.palette.grey[200],
+                        text: theme.palette.info.main
+                    }
+                };
+            case FileStatus.Deleting:
+                return {
+                    text: "Удаляем",
+                    tooltipText: "",
+                    icon: <CircularProgress size={14} thickness={5} sx={{color: theme.palette.info.main}}/>,
+                    color: {
+                        bg: theme.palette.grey[200],
+                        text: theme.palette.info.main
+                    }
+                };
+            case FileStatus.UploadingError:
+                return {
+                    text: "Ошибка загрузки",
+                    tooltipText: "Нажмите, чтобы повторить загрузку",
+                    icon: <ErrorIcon sx={{fontSize: '0.85rem', color: theme.palette.error.dark}}/>,
+                    color: {
+                        bg: theme.palette.grey[200],
+                        text: theme.palette.error.dark
+                    }
+                };
+            case FileStatus.DeletingError:
+                return {
+                    text: "Ошибка удаления",
+                    tooltipText: "Нажмите, чтобы повторить удаление",
+                    icon: <ErrorIcon sx={{fontSize: '0.85rem', color: theme.palette.error.dark}}/>,
+                    color: {
+                        bg: theme.palette.grey[200],
+                        text: theme.palette.error.dark
+                    }
+                };
+            case FileStatus.ReadyToUse:
+                return {
+                    text: "Сохранён",
+                    tooltipText: "",
+                    icon: <CheckCircleIcon sx={{fontSize: '0.85rem', color: theme.palette.success.dark}}/>,
+                    color: {
+                        bg: theme.palette.grey[200],
+                        text: theme.palette.success.dark
+                    }
+                };
+            default:
+                return {
+                    text: "",
+                    tooltipText: "",
+                    icon: <></>,
+                    color: {
+                        bg: theme.palette.grey[200],
+                        text: theme.palette.text.secondary
+                    }
+                };
         }
     }
-    
-    const hasRemoveButton = !!props.onRemove;
+
+    const statusInfo = getStatusInfo(props.fileInfo.status);
 
     return (
         <Box sx={{
             display: 'flex',
             alignItems: 'center',
-            gap: hasRemoveButton ? 0.5 : 0.3,
-            padding: hasRemoveButton ? '4px 8px' : '4px 4px',
-            border: '1px solid #ddd',
+            gap: 1,
+            padding: '8px 12px',
+            border: '1px solid #e0e0e0',
             borderRadius: 1,
-            width: 222.5,
-            position: 'relative',
-            backgroundColor: '#f5f5f5',
-            fontSize: hasRemoveButton ? '0.8rem' : '0.75rem',
+            backgroundColor: statusInfo.color.bg,
+            maxWidth: hasRemoveButton ? 310 : 270,
+            minWidth: 200,
+            width: '100%',
+            boxSizing: 'border-box',
             transition: 'all 0.2s ease',
+            position: 'relative', // Для позиционирования статуса
+            '&:hover': {
+                boxShadow: theme.shadows[1]
+            }
         }}>
-            {/* Обертка для превью/иконки и статуса */}
+            {/* Обертка для превью/иконки */}
             <Box sx={{
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
-                gap: 0.5
+                justifyContent: 'center',
+                width: 40,
+                height: 40,
+                flexShrink: 0,
+                borderRadius: 0.5,
+                backgroundColor: 'rgba(255,255,255,0.4)',
+                
+                overflow: 'hidden'
             }}>
-                {/*Превью изображения*/}
                 {previewUrl ? (
-                    <>
-                        <img
-                            src={previewUrl}
-                            alt="Preview"
-                            style={{
-                                width: hasRemoveButton ? 32 : 28,
-                                height: hasRemoveButton ? 32 : 28,
-                                objectFit: 'cover',
-                                borderRadius: 4,
-                                flexShrink: 0
-                            }}
-                        />
-                        <Typography sx={statusStyle}>
-                            {props.fileInfo.status}
-                        </Typography>
-                    </>
+                    <img
+                        src={previewUrl}
+                        alt="Preview"
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover'
+                        }}
+                    />
                 ) : (
-                    <>
-                        <Box
-                            onClick={() => props.onClick?.(props.fileInfo)}
-                            sx={{
-                                width: hasRemoveButton ? 32 : 28,
-                                height: hasRemoveButton ? 32 : 28,
-                                flexShrink: 0,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                cursor: props.onClick ? 'pointer' : 'default',
-                            }}>
-                            {getFileIcon()}
-                        </Box>
-                        <Typography sx={statusStyle}>
-                            {props.fileInfo.status}
-                        </Typography>
-                    </>
+                    <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: theme.palette.text.secondary
+                    }}>
+                        {getFileIcon()}
+                    </Box>
                 )}
             </Box>
 
-
-            {/*Текстовая информация*/}
+            {/* Текстовая информация */}
             <Box
                 onClick={() => props.onClick?.(props.fileInfo)}
                 sx={{
-                    flex: '1 1 auto',
+                    flex: 1,
                     minWidth: 0,
-                    maxWidth: 200,
-                    paddingRight: hasRemoveButton ? 3 : 1,
-                    marginRight: hasRemoveButton ? 0 : 0,
                     cursor: props.onClick ? 'pointer' : 'default',
                 }}>
-                <LightTooltip title={props.fileInfo.name}>
+                <Typography
+                    variant="body2"
+                    noWrap
+                    sx={{
+                        fontWeight: 500,
+                        fontSize: '0.85rem',
+                        color: theme.palette.text.primary
+                }}
+                >
+                    {props.fileInfo.name}
+                </Typography>
+
+                <Box sx={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 1.5
+                }}>
                     <Typography
-                        variant="body2"
-                        noWrap
+                        variant="caption"
                         sx={{
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            display: 'block',
-                            fontSize: hasRemoveButton ? '0.8rem' : '0.75rem'
+                            fontSize: '0.75rem',
+                            fontWeight: 500,
+                            color: theme.palette.text.secondary
                         }}
                     >
-                        {props.fileInfo.name}
+                        {getFileSize(props.fileInfo.sizeInBytes)}
                     </Typography>
-                </LightTooltip>
-                <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{fontSize: hasRemoveButton ? '0.7rem' : '0.65rem'}}
-                >
-                    {getFileSize(props.fileInfo.sizeInBytes)}
-                </Typography>
+
+                    <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        marginLeft: 'auto', // Прижимаем к правому краю
+                        paddingLeft: 1, // Отступ от текста
+                        backgroundColor: statusInfo.color.bg,
+                        zIndex: 1
+                    }}>
+                        {statusInfo.icon}
+                        <LightTooltip title={statusInfo.tooltipText}>
+                        <Typography
+                            variant="caption"
+                            sx={{
+                                fontSize: '0.75rem',
+                                fontWeight: 500,
+                                color: statusInfo.color.text
+                            }}
+                        >
+                            {statusInfo.text}
+                        </Typography>
+                        </LightTooltip>
+                    </Box>
+                </Box>
             </Box>
 
-            {hasRemoveButton && <IconButton
-                size="small"
-                onClick={() => props.onRemove!(props.fileInfo)}
-                sx={{
-                    position: 'absolute',
-                    right: 4,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    padding: 0.5,
-                    '& svg': {
-                        fontSize: hasRemoveButton ? '1rem' : '0.8rem'
-                    }
-                }}
-            >
-                <CloseIcon/>
-            </IconButton>}
+            {hasRemoveButton && (
+                <IconButton
+                    size="small"
+                    onClick={() => props.onRemove!(props.fileInfo)}
+                    sx={{
+                        flexShrink: 0,
+                        color: theme.palette.text.secondary
+                    }}
+                >
+                    <CloseIcon fontSize="small"/>
+                </IconButton>
+            )}
         </Box>
     );
 };
 
-export default FilePreview
+export default FilePreview;
