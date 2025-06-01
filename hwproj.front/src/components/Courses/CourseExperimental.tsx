@@ -11,7 +11,9 @@ import {
     Typography,
     useMediaQuery,
     useTheme,
-    Zoom
+    Zoom,
+    Dialog,
+    IconButton,
 } from "@mui/material";
 import {FC, useEffect, useState} from "react";
 import Timeline from '@mui/lab/Timeline';
@@ -32,6 +34,7 @@ import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import EditIcon from "@mui/icons-material/Edit";
 import ErrorIcon from '@mui/icons-material/Error';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import CloseIcon from '@mui/icons-material/Close';
 import Lodash from "lodash";
 
 interface ICourseExperimentalProps {
@@ -74,6 +77,21 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         initialEditMode: false,
         selectedItem: {id: undefined, isHomework: true},
     })
+
+    const [mobileModal, setMobileModal] = useState<{
+        isOpen: boolean;
+        content: React.ReactNode;
+    }>({
+        isOpen: false,
+        content: null
+    });
+
+    const openMobileModal = (content: React.ReactNode) => {
+        setMobileModal({
+            isOpen: true,
+            content
+        });
+    };
 
     useEffect(() => {
         const defaultHomeworkIndex = Math.max(selectedHomeworkId ? homeworks?.findIndex(x => x.id === selectedHomeworkId) : 0, 0)
@@ -317,7 +335,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             .entries()
             .sortBy(x => x[1].length).last()?.[1][0]
 
-        const task =  {
+        const task = {
             homeworkId: homework.id,
             maxRating: ratingCandidate || 10,
             suggestedMaxRating: ratingCandidate,
@@ -338,7 +356,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         setNewTaskCounter(id - 1)
     }
 
-    const renderHomework = (homework: HomeworkViewModel & { isModified?: boolean }) => {
+    const renderHomework = (
+        homework: HomeworkViewModel & { isModified?: boolean },
+        onClose?: () => void
+    ) => {
         const filesInfo = id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, id) : []
         const homeworkEditMode = homework && (homework.id! < 0 || homework.isModified === true)
         return homework && <Stack direction={"column"} spacing={2}>
@@ -387,6 +408,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 id: homework!.id
                             }
                         }))
+
                 }}
                 toEditHomework={() => toEditHomework(homework!)} getAllHomeworks={() => homeworks}/>
             {!props.isMentor && props.isStudentAccepted && < CardActions>
@@ -404,6 +426,38 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 </Link>
             </CardActions>}
         </Card>
+    }
+
+    const handleHomeworkClick = (x: HomeworkViewModel) => {
+        if (isMobile) {
+            openMobileModal(renderHomework(x, () => setMobileModal(prev => ({...prev, isOpen: false}))))
+        }
+
+        setState(prevState => ({
+            ...prevState,
+            selectedItem: {
+                data: x,
+                isHomework: true,
+                id: x.id,
+                homeworkFilesInfo: FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, x.id!)
+            }
+        }))
+    }
+
+    const handleTaskClick = (t: HomeworkTaskViewModel, x: HomeworkViewModel) => {
+        if (isMobile) {
+            openMobileModal(renderTask(t, x));
+        }
+
+        setState(prevState => ({
+            ...prevState,
+            selectedItem: {
+                data: t,
+                isHomework: false,
+                id: t.id,
+                homeworkFilesInfo: []
+            }
+        }))
     }
 
     const renderGif = () =>
@@ -434,7 +488,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                           }
                       }}>
                 {props.isMentor && (homeworks[0]?.id || 1) > 0 && <Button
-                    onClick={addNewHomework}
+                    onClick={() => {
+                        addNewHomework
+                        setMobileModal({content: [], isOpen: false})
+                    }}
                     style={{borderRadius: 8, marginBottom: 10}} variant={"text"} size={"small"}>
                     + Добавить задание
                 </Button>}
@@ -451,17 +508,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             alignContent={"center"}
                             sx={{":hover": hoveredItemStyle}}
                             style={{...getStyle(true, x.id!), marginBottom: 2, minHeight: 50}}
-                            onClick={() => {
-                                setState(prevState => ({
-                                    ...prevState,
-                                    selectedItem: {
-                                        data: x,
-                                        isHomework: true,
-                                        id: x.id,
-                                        homeworkFilesInfo: FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, x.id!)
-                                    }
-                                }))
-                            }}>
+                            onClick={() => handleHomeworkClick(x)}
+                        >
                             <Typography variant="h6" style={{fontSize: 18}} align={"center"}
                                         color={x.isDeferred ? "textSecondary" : "textPrimary"}>
                                 {renderHomeworkStatus(x)}
@@ -480,17 +528,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         </Paper>
                         {x.tasks!.map(t => <TimelineItem
                             key={t.id}
-                            onClick={() => {
-                                setState(prevState => ({
-                                    ...prevState,
-                                    selectedItem: {
-                                        data: t,
-                                        isHomework: false,
-                                        id: t.id,
-                                        homeworkFilesInfo: []
-                                    }
-                                }))
-                            }}
+                            onClick={() => handleTaskClick(t, x)}
                             style={{...getStyle(false, t.id!), marginBottom: 2}}
                             sx={{":hover": hoveredItemStyle}}>
                             {!t.deadlineDateNotSet &&
@@ -513,7 +551,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         </TimelineItem>)}
                         {x.id! < 0 &&
                             <Button fullWidth
-                                    onClick={() => addNewTask(x)}
+                                    onClick={() => {
+                                        addNewTask(x)
+                                        setMobileModal({content: [], isOpen: false})
+                                    }}
                                     style={{borderRadius: 8, marginBottom: 10, marginTop: 5}}
                                     variant={"text"}
                                     size={"small"}>
@@ -524,9 +565,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Timeline>
         </Grid>
         <Grid item xs={12} sm={12} md={8} lg={8} order={{xs: 1, sm: 1, md: 2, lg: 2}}>
-            {isHomework
-                ? renderHomework(selectedItem as HomeworkViewModel)
-                : renderTask(selectedItem as HomeworkTaskViewModel, selectedItemHomework!)}
+            {!isMobile && (isHomework
+                    ? renderHomework(selectedItem as HomeworkViewModel)
+                    : renderTask(selectedItem as HomeworkTaskViewModel, selectedItemHomework!)
+            )}
 
             <Grid item sx={{display: {xs: 'none', md: 'flex'}}}>
                 {renderGif()}
@@ -554,5 +596,14 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 <ArrowUpwardIcon />
             </Fab>
         </Zoom>
+
+        {/* Модальное окно для мобильных устройств */}
+        <Dialog
+            open={mobileModal.isOpen}
+            onClose={() => setMobileModal({content: [], isOpen: false})}
+            fullWidth
+        >
+            {mobileModal.content}
+        </Dialog>
     </Grid>
 }
