@@ -329,11 +329,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         }))
                     }}/>
             </Card>
-            <DotLottieReact
-                src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
-                loop
-                autoplay
-            />
         </Stack>
     }
 
@@ -377,10 +372,18 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Card>
     }
 
-    return <Grid container direction={"row"} spacing={1}>
-        <Grid item xs={12} sm={12} md={4} lg={4}>
-            <Timeline style={{maxHeight: "75vh", overflow: 'auto', paddingLeft: 0, paddingRight: 8}}
+    const renderGif = () =>
+        <DotLottieReact
+            src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
+            loop
+            autoplay
+        />
+
+    return <Grid container direction={{xs: "column", sm: "column", md: "row", lg: "row"}} spacing={1}>
+        <Grid item xs={12} sm={12} md={4} lg={4} order={{xs: 2, sm: 2, md: 1, lg: 1}}>
+            <Timeline style={{overflow: 'auto', paddingLeft: 0, paddingRight: 8}}
                       sx={{
+                          maxHeight: '75vh',
                           '&::-webkit-scrollbar': {
                               width: "3px",
                           },
@@ -483,10 +486,17 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 })}
             </Timeline>
         </Grid>
-        <Grid item xs={12} sm={12} md={8} lg={8}>
+        <Grid item xs={12} sm={12} md={8} lg={8} order={{xs: 1, sm: 1, md: 2, lg: 2}}>
             {isHomework
                 ? renderHomework(selectedItem as HomeworkViewModel)
                 : renderTask(selectedItem as HomeworkTaskViewModel, selectedItemHomework!)}
+
+            <Grid item sx={{display: {xs: 'none', md: 'flex'}}}>
+                {renderGif()}
+            </Grid>
+        </Grid>
+        <Grid item sx={{display: {xs: 'flex', md: 'none'}}} order={{xs: 3, sm: 3}}>
+            {renderGif()}
         </Grid>
     </Grid>
 }
