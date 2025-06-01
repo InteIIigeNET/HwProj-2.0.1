@@ -43,10 +43,16 @@ interface ICourseExperimentalProps {
     isStudentAccepted: boolean
     userId: string
     selectedHomeworkId: number | undefined
-    onHomeworkUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] } & {
+    onHomeworkUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] | undefined } & {
         isDeleted?: boolean
     }) => void
-    onTaskUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => void
+    onTaskUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => void,
+    processingFiles: {
+        [homeworkId: number]: {
+            isLoading: boolean;
+        };
+    };
+    onStartProcessing: (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
 }
 
 interface ICourseExperimentalState {
@@ -361,7 +367,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 id: update.isDeleted ? undefined : update.homework.id!
                             }
                         }))
-                    }}/>
+                    }}
+                    isProcessing={props.processingFiles[homework.id!]?.isLoading || false}
+                    onStartProcessing={(previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => 
+                        props.onStartProcessing(homework.id!, previouslyExistingFilesCount, waitingNewFilesCount, deletingFilesIds)}
+                />
             </Card>
         </Stack>
     }
@@ -527,7 +537,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             {isHomework
                 ? renderHomework(selectedItem as HomeworkViewModel)
                 : renderTask(selectedItem as HomeworkTaskViewModel, selectedItemHomework!)}
-
             <Grid item sx={{display: {xs: 'none', md: 'flex'}}}>
                 {renderGif()}
             </Grid>

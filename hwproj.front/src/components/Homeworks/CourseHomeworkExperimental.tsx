@@ -18,7 +18,6 @@ import {FC, useEffect, useState} from "react"
 import Utils from "services/Utils";
 import {FileInfoDTO, HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, CreateTaskViewModel} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
-import UpdateFilesUtils from "../Utils/UpdateFilesUtils";
 import Tags from "../Common/Tags";
 import apiSingleton from "../../api/ApiSingleton";
 import FilesUploader from "../Files/FilesUploader";
@@ -34,6 +33,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ActionOptionsUI from "components/Common/ActionOptions";
 import {BonusTag, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
 import Lodash from "lodash";
+import {CourseUnitType} from "../Files/CourseUnitType"
+import ProcessFilesUtils from "../Utils/ProcessFilesUtils";
 
 export interface HomeworkAndFilesInfo {
     homework: HomeworkViewModel & { isModified?: boolean },
@@ -57,10 +58,11 @@ interface IEditFilesState {
 const CourseHomeworkEditor: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
     getAllHomeworks: () => HomeworkViewModel[],
-    onUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] } & {
+    onUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] | undefined } & {
         isDeleted?: boolean,
         isSaved?: boolean
     }) => void
+    onStartProcessing: (previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
 }> = (props) => {
     const homework = props.homeworkAndFilesInfo.homework
     const isNewHomework = homework.id! < 0
@@ -79,7 +81,7 @@ const CourseHomeworkEditor: FC<{
 
     const {loadedHomework, isLoaded} = homeworkData
 
-    const initialFilesInfo = props.homeworkAndFilesInfo.filesInfo.filter(x => x.key !== "local")
+    const initialFilesInfo = props.homeworkAndFilesInfo.filesInfo.filter(x => x.id !== undefined)
 
     const homeworkId = loadedHomework.id!
     const courseId = loadedHomework.courseId!
@@ -179,9 +181,15 @@ const CourseHomeworkEditor: FC<{
     const deleteHomework = async () => {
         if (!isNewHomework) await ApiSingleton.homeworksApi.homeworksDeleteHomework(homeworkId)
 
-        // Удаляем файлы домашней работы из хранилища
-        const deleteOperations = initialFilesInfo.map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(courseId!, initialFile))
-        await Promise.all(deleteOperations)
+        // Удаляем файлы домашней работы с сервера
+        var deletingFileIds = initialFilesInfo.filter(fileInfo => fileInfo.id).map(fileInfo => fileInfo.id!)
+        await ProcessFilesUtils.processFilesWithErrorsHadling({
+            courseId: courseId!,
+            courseUnitType: CourseUnitType.Homework,
+            courseUnitId: homeworkId,
+            deletingFileIds: deletingFileIds,
+            newFiles: []
+        })
 
         props.onUpdate({homework: loadedHomework, fileInfos: [], isDeleted: true})
     }
@@ -228,30 +236,35 @@ const CourseHomeworkEditor: FC<{
 
         const updatedHomeworkId = updatedHomework.value!.id!
 
-        // Если какие-то файлы из ранее добавленных больше не выбраны, удаляем их из хранилища
-        const deleteOperations = filesState.initialFilesInfo
-            .filter(initialFile =>
-                initialFile.key &&
-                !filesState.selectedFilesInfo.some(s => s.key === initialFile.key)
-            )
-            .map(initialFile => UpdateFilesUtils.deleteFileWithErrorsHadling(courseId, initialFile));
+        // Если какие-то файлы из ранее добавленных больше не выбраны, их потребуется удалить
+        const deletingFileIds = filesState.initialFilesInfo.filter(initialFile =>
+            initialFile.id && !filesState.selectedFilesInfo.some(sf => sf.id === initialFile.id))
+            .map(fileInfo => fileInfo.id!)
 
-        // Если какие-то файлы из выбранных сейчас не были добавлены раньше, загружаем их в хранилище
-        const uploadOperations = filesState.selectedFilesInfo
-            .filter(selectedFile =>
-                selectedFile.file &&
-                !filesState.initialFilesInfo.some(i => i.key === selectedFile.key)
-            )
-            .map(selectedFile => UpdateFilesUtils.uploadFileWithErrorsHadling(
-                selectedFile.file!,
-                courseId,
-                updatedHomeworkId)
-            );
+        // Если какие-то файлы из выбранных сейчас не были добавлены раньше, они новые
+        const newFiles = filesState.selectedFilesInfo.filter(selectedFile =>
+            selectedFile.file && selectedFile.id == undefined).map(fileInfo => fileInfo.file!)
 
-        // Дожидаемся удаления и загрузки необходимых файлов
-        await Promise.all([...deleteOperations, ...uploadOperations])
+        // Если требуется, отправляем запрос на обработку файлов
+        if (deletingFileIds.length + newFiles.length > 0) {
+            try {
+                await ApiSingleton.customFilesApi.processFiles({
+                    courseId: courseId!,
+                    courseUnitType: CourseUnitType.Homework,
+                    courseUnitId: updatedHomeworkId,
+                    deletingFileIds: deletingFileIds,
+                    newFiles: newFiles,
+                });
+            } catch (e) {
+                const errors = await ErrorsHandler.getErrorMessages(e as Response);
+                enqueueSnackbar(`Проблема при обработке файлов. ${errors[0]}`, {
+                    variant: "warning",
+                    autoHideDuration: 2000
+                });
+            }
+        }
 
-        if (deleteOperations.length === 0 && uploadOperations.length === 0) {
+        if (deletingFileIds.length === 0 && newFiles.length === 0) {
             if (isNewHomework) props.onUpdate({
                 homework: update,
                 fileInfos: [],
@@ -264,13 +277,13 @@ const CourseHomeworkEditor: FC<{
             })
         } else {
             try {
-                const newFilesDtos = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, updatedHomeworkId)
                 if (isNewHomework) props.onUpdate({
                     homework: update,
                     fileInfos: [],
                     isDeleted: true
                 }) // remove fake homework
-                props.onUpdate({homework: updatedHomework.value!, fileInfos: newFilesDtos, isSaved: true})
+                props.onUpdate({homework: updatedHomework.value!, fileInfos: undefined, isSaved: true})
+                props.onStartProcessing(filesState.initialFilesInfo.length, newFiles.length, deletingFileIds);
             } catch (e) {
                 const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
                 enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
@@ -346,7 +359,8 @@ const CourseHomeworkEditor: FC<{
                                     selectedFilesInfo: filesInfo
                                 }));
                             }}
-                            homeworkId={homeworkId}/>
+                            courseUnitType={CourseUnitType.Homework}
+                            courseUnitId={homeworkId}/>
                         <PublicationAndDeadlineDates
                             hasDeadline={metadata.hasDeadline}
                             isDeadlineStrict={metadata.isDeadlineStrict}
@@ -413,8 +427,12 @@ const CourseHomeworkExperimental: FC<{
     isMentor: boolean,
     initialEditMode: boolean,
     onMount: () => void,
-    onUpdate: (x: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] } & { isDeleted?: boolean }) => void
+    onUpdate: (x: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] | undefined } & {
+        isDeleted?: boolean
+    }) => void
     onAddTask: (homework: HomeworkViewModel) => void,
+    isProcessing: boolean;
+    onStartProcessing: (previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
 }> = (props) => {
     const {homework, filesInfo} = props.homeworkAndFilesInfo
     const deferredHomeworks = homework.tasks!.filter(t => t.isDeferred!)
@@ -434,6 +452,7 @@ const CourseHomeworkExperimental: FC<{
             if (update.isSaved) setEditMode(false)
             props.onUpdate(update)
         }}
+        onStartProcessing={props.onStartProcessing}
     />
 
     return <CardContent
@@ -482,17 +501,21 @@ const CourseHomeworkExperimental: FC<{
         <Typography component="div" style={{color: "#454545"}} gutterBottom variant="body1">
             <MarkdownPreview value={homework.description!}/>
         </Typography>
-        {
-            filesInfo && filesInfo.length > 0 &&
-            <div>
-                <FilesPreviewList
-                    filesInfo={filesInfo}
-                    onClickFileInfo={async (fileInfo: IFileInfo) => {
-                        const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.key!)
-                        window.open(url, '_blank');
-                    }}
-                />
-            </div>
+        {props.isProcessing ? (
+                <div style={{display: 'flex', justifyContent: 'center', padding: '16px'}}>
+                    Обрабатываем файлы...
+                </div>
+            ) : filesInfo.length > 0 && (
+                <div>
+                    <FilesPreviewList
+                        filesInfo={filesInfo}
+                        onClickFileInfo={async (fileInfo: IFileInfo) => {
+                            const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!)
+                            window.open(url, '_blank');
+                        }}
+                    />
+                </div>
+            )
         }
     </CardContent>
 }

@@ -1,6 +1,6 @@
 import * as React from "react";
 import {useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, FileInfoDTO, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
+import {AccountDataDto, CourseViewModel, FileInfoDTO, HomeworkViewModel, ScopeDTO, StatisticsCourseMatesModel} from "@/api";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
@@ -31,6 +31,9 @@ import {useSnackbar} from 'notistack';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import { CourseUnitType } from "../Files/CourseUnitType";
+import { FileStatus } from "../Files/FileStatus";
+import FileInfoConverter from "../Utils/FileInfoConverter";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -47,6 +50,16 @@ interface ICourseState {
     newStudents: AccountDataDto[];
     studentSolutions: StatisticsCourseMatesModel[];
     showQrCode: boolean;
+}
+
+interface ICourseFilesState {
+    processingFilesState: {
+        [homeworkId: number]: {
+            isLoading: boolean;
+            intervalId?: NodeJS.Timeout;
+        };
+    };
+    courseFiles: FileInfoDTO[];
 }
 
 interface IPageState {
@@ -70,8 +83,98 @@ const Course: React.FC = () => {
         showQrCode: false
     })
     const [studentSolutions, setStudentSolutions] = useState<StatisticsCourseMatesModel[]>([])
-    const [courseFilesInfo, setCourseFilesInfo] = useState<FileInfoDTO[]>([])
+    const [courseFilesState, setCourseFilesState] = useState<ICourseFilesState>({
+        processingFilesState: {},
+        courseFiles: []
+    })
 
+    const updateCourseFiles = (files: FileInfoDTO[], unitType: CourseUnitType, unitId: number) => {
+        setCourseFilesState(prev => ({
+            ...prev,
+            courseFiles: [
+                ...prev.courseFiles.filter(f => f.courseUnitType === unitType).filter(f => f.courseUnitId !== unitId), 
+                ...files
+            ]
+        }));
+    };
+
+    const stopInterval = (interval: NodeJS.Timeout, unitType: CourseUnitType, unitId: number) => {
+        clearInterval(interval);
+        setCourseFilesState(prev => ({
+            ...prev,
+            processingFilesState: {
+                ...prev.processingFilesState,
+                [unitId]: {...prev.processingFilesState[unitId], isLoading: false}
+            }
+        }));
+    };
+
+    const getFilesByInterval = (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => {
+        const interval = setInterval(async () => {
+            const scopeDto: ScopeDTO = {
+                courseId: +courseId!,
+                courseUnitType: CourseUnitType.Homework,
+                courseUnitId: homeworkId
+            }
+            
+            try {
+                const files = await ApiSingleton.filesApi.filesGetStatuses(scopeDto);
+                console.log(files)
+
+                // Первый вариант для явного отображения всех файлов
+                if (waitingNewFilesCount === 0
+                    && files.filter(f => f.status === FileStatus.ReadyToUse).length === previouslyExistingFilesCount - deletingFilesIds.length) {
+                    const fullFiles = files.map(f => FileInfoConverter.fromFileStatusDTO(f, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!))
+                    updateCourseFiles(fullFiles, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
+                }
+
+                // Второй вариант для явного отображения всех файлов
+                if (waitingNewFilesCount > 0
+                    && files.filter(f => !deletingFilesIds.some(dfi => dfi === f.fileId)).length === previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount) {                     
+                    const fullFiles = files.map(f => FileInfoConverter.fromFileStatusDTO(f, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!))
+                    updateCourseFiles(fullFiles, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
+                }
+
+                // Условие прекращения отправки запросов на получения записей файлов
+                if (files.every(f => f.status !== FileStatus.Uploading && f.status !== FileStatus.Deleting)) {
+                    stopInterval(interval, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
+                }
+
+            } catch (error) {
+                console.log(error);
+                const errors = await ErrorsHandler.getErrorMessages(error as Response);
+                var errorDescription = errors[0] == undefined ? `` : `${errors[0]}`
+                if (errorDescription.length > 300) errorDescription = ``
+                enqueueSnackbar(`Ошибка при получении информации о файлах. ${errorDescription}`, {
+                    variant: "warning",
+                    autoHideDuration: 2000
+                });
+
+                stopInterval(interval, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
+            }
+        }, 500);
+
+        setCourseFilesState(prev => ({
+            ...prev,
+            processingFilesState: {
+                ...prev.processingFilesState,
+                [homeworkId]: {
+                    isLoading: true,
+                    interval: interval
+                }
+            }
+        }));
+    };
+
+    // Останавливаем все активные интевалы при размонтировании
+    useEffect(() => {
+        return () => {
+            Object.values(courseFilesState.processingFilesState).forEach(state => {
+                if (state.intervalId) clearInterval(state.intervalId);
+            });
+        };
+    }, []);
+    
     const [pageState, setPageState] = useState<IPageState>({
         tabValue: "homeworks"
     })
@@ -131,7 +234,6 @@ const Course: React.FC = () => {
             isFound: true,
             course: course,
             courseHomeworks: course.homeworks!,
-            courseFilesInfo: courseFilesInfo,
             createHomework: false,
             mentors: course.mentors!,
             acceptedStudents: course.acceptedStudents!,
@@ -140,8 +242,6 @@ const Course: React.FC = () => {
     }
 
     const getCourseFilesInfo = async () => {
-        // В случае, если сервис файлов недоступен, показываем пользователю сообщение
-        // и не блокируем остальную функциональность системы
         let courseFilesInfo = [] as FileInfoDTO[]
         try {
             courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
@@ -149,7 +249,10 @@ const Course: React.FC = () => {
             const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
             enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 1990});
         }
-        setCourseFilesInfo(courseFilesInfo)
+        setCourseFilesState(prevState => ({
+            ...prevState,
+            courseFiles: courseFilesInfo
+        }))
     }
 
     useEffect(() => {
@@ -342,12 +445,14 @@ const Course: React.FC = () => {
                     {tabValue === "homeworks" && <CourseExperimental
                         courseId={+courseId!}
                         homeworks={courseHomeworks}
-                        courseFilesInfo={courseFilesInfo}
+                        courseFilesInfo={courseFilesState.courseFiles}
                         isMentor={isCourseMentor}
                         studentSolutions={studentSolutions}
                         isStudentAccepted={isAcceptedStudent}
                         selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
                         userId={userId!}
+                        processingFiles={courseFilesState.processingFilesState}
+                        onStartProcessing={getFilesByInterval}
                         onHomeworkUpdate={({fileInfos, homework, isDeleted}) => {
                             const homeworkIndex = courseState.courseHomeworks.findIndex(x => x.id === homework.id)
                             const homeworks = courseState.courseHomeworks
@@ -360,13 +465,6 @@ const Course: React.FC = () => {
                                 ...prevState,
                                 courseHomeworks: homeworks
                             }))
-
-                            if (fileInfos.length > 0 || isDeleted) {
-                                const newCourseFiles = courseFilesInfo
-                                    .filter(x => x.homeworkId !== homework.id)
-                                    .concat(isDeleted ? [] : fileInfos)
-                                setCourseFilesInfo(newCourseFiles)
-                            }
                         }}
                         onTaskUpdate={update => {
                             const task = update.task
