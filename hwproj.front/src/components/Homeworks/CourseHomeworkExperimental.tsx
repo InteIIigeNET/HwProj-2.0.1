@@ -326,7 +326,7 @@ const CourseHomeworkEditor: FC<{
                     </Grid>}
                 <Grid item xs={12} style={{marginBottom: "5px", marginTop: -2}}>
                     <MarkdownEditor
-                        label={"Условие задания"}
+                        label={"Общее описание задания"}
                         height={240}
                         maxHeight={400}
                         value={description}
