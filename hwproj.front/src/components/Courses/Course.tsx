@@ -1,6 +1,13 @@
 import * as React from "react";
 import {useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, FileInfoDTO, HomeworkViewModel, ScopeDTO, StatisticsCourseMatesModel} from "@/api";
+import {
+    AccountDataDto,
+    CourseViewModel,
+    FileInfoDTO,
+    HomeworkViewModel,
+    ScopeDTO,
+    StatisticsCourseMatesModel
+} from "@/api";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
@@ -90,11 +97,12 @@ const Course: React.FC = () => {
 
     const intervalsRef = React.useRef<Record<number, { interval: NodeJS.Timeout, timeout: NodeJS.Timeout }>>({});
 
-    const updateCourseFiles = (files: FileInfoDTO[], unitType: CourseUnitType, unitId: number) => {
+    const updateCourseFiles = (files: FileInfoDTO[]) => {
         setCourseFilesState(prev => ({
             ...prev,
             courseFiles: [
-                ...prev.courseFiles.filter(f => !(f.courseUnitType === unitType && f.courseUnitId === unitId)),
+                ...prev.courseFiles.filter(
+                    f => !(f.courseUnitType === files[0].courseUnitType && f.courseUnitId === files[0].courseUnitId)),
                 ...files
             ]
         }));
@@ -102,7 +110,7 @@ const Course: React.FC = () => {
 
     const stopProcessing = (homeworkId: number) => {
         if (intervalsRef.current[homeworkId]) {
-            const { interval, timeout } = intervalsRef.current[homeworkId];
+            const {interval, timeout} = intervalsRef.current[homeworkId];
             clearInterval(interval);
             clearTimeout(timeout);
             delete intervalsRef.current[homeworkId];
@@ -112,7 +120,7 @@ const Course: React.FC = () => {
             ...prev,
             processingFilesState: {
                 ...prev.processingFilesState,
-                [homeworkId]: { isLoading: false }
+                [homeworkId]: {isLoading: false}
             }
         }));
     };
@@ -121,7 +129,7 @@ const Course: React.FC = () => {
     const getFilesByInterval = (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => {
         // Очищаем предыдущие таймеры
         stopProcessing(homeworkId);
-        
+
         let attempt = 0;
         const maxAttempts = 5;
         let delay = 1000; // Начальная задержка 1 сек
@@ -131,7 +139,7 @@ const Course: React.FC = () => {
             courseUnitType: CourseUnitType.Homework,
             courseUnitId: homeworkId
         }
-        
+
         const fetchFiles = async () => {
             if (attempt >= maxAttempts) {
                 stopProcessing(homeworkId);
@@ -150,15 +158,13 @@ const Course: React.FC = () => {
                 // Первый вариант для явного отображения всех файлов
                 if (waitingNewFilesCount === 0
                     && files.filter(f => f.status === FileStatus.ReadyToUse).length === previouslyExistingFilesCount - deletingFilesIds.length) {
-                    const fullFiles = files.map(f => FileInfoConverter.fromFileStatusDTO(f, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!))
-                    updateCourseFiles(fullFiles, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
+                    updateCourseFiles(files)
                 }
 
                 // Второй вариант для явного отображения всех файлов
                 if (waitingNewFilesCount > 0
-                    && files.filter(f => !deletingFilesIds.some(dfi => dfi === f.fileId)).length === previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount) {
-                    const fullFiles = files.map(f => FileInfoConverter.fromFileStatusDTO(f, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!))
-                    updateCourseFiles(fullFiles, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
+                    && files.filter(f => !deletingFilesIds.some(dfi => dfi === f.id)).length === previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount) {
+                    updateCourseFiles(files)
                 }
 
                 // Условие прекращения отправки запросов на получения записей файлов

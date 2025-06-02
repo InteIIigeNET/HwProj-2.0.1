@@ -68,7 +68,7 @@ namespace HwProj.ContentService.Client
             }
         }
 
-        public async Task<Result<FileStatusDTO[]>> GetFilesStatuses(ScopeDTO scopeDto)
+        public async Task<Result<FileInfoDTO[]>> GetFilesStatuses(ScopeDTO scopeDto)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -83,12 +83,12 @@ namespace HwProj.ContentService.Client
             try
             {
                 var response = await _httpClient.SendAsync(httpRequest);
-                var filesStatuses = await response.DeserializeAsync<FileStatusDTO[]>();
-                return Result<FileStatusDTO[]>.Success(filesStatuses);
+                var filesStatuses = await response.DeserializeAsync<FileInfoDTO[]>();
+                return Result<FileInfoDTO[]>.Success(filesStatuses);
             }
             catch (HttpRequestException e)
             {
-                return Result<FileStatusDTO[]>.Failed(
+                return Result<FileInfoDTO[]>.Failed(
                     "Пока не можем получить информацию о файлах. \nВсе ваши данные сохранены — попробуйте повторить позже");
             }
         }

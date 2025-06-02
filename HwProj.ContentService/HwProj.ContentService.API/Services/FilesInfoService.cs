@@ -14,15 +14,17 @@ public class FilesInfoService : IFilesInfoService
         _fileRecordRepository = fileRecordRepository;
     }
 
-    public async Task<List<FileStatusDTO>> GetFilesStatusesAsync(Scope filesScope)
+    public async Task<List<FileInfoDTO>> GetFilesStatusesAsync(Scope filesScope)
     {
         var filesRecords = await _fileRecordRepository.GetByScopeAsync(filesScope);
-        return filesRecords.Select(fr => new FileStatusDTO
+        return filesRecords.Select(fr => new FileInfoDTO
         {
-            FileId = fr.Id,
-            FileName = fr.OriginalName,
+            Id = fr.Id,
+            Name = fr.OriginalName,
             SizeInBytes = fr.SizeInBytes,
-            Status = fr.Status.ToString()
+            Status = fr.Status.ToString(),
+            CourseUnitType = filesScope.CourseUnitType.ToString(),
+            CourseUnitId = filesScope.CourseUnitId
         }).ToList();
     }
 

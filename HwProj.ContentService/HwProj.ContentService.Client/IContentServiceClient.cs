@@ -7,7 +7,7 @@ namespace HwProj.ContentService.Client
     public interface IContentServiceClient
     {
         Task<Result> ProcessFilesAsync(ProcessFilesDTO processFilesDto);
-        Task<Result<FileStatusDTO[]>> GetFilesStatuses(ScopeDTO scopeDto);
+        Task<Result<FileInfoDTO[]>> GetFilesStatuses(ScopeDTO scopeDto);
         Task<Result<string>> GetDownloadLinkAsync(long fileId);
         Task<Result<FileInfoDTO[]>> GetFilesInfo(long courseId);
     }

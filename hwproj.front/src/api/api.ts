@@ -842,37 +842,6 @@ export interface FileInfoDTO {
 /**
  *
  * @export
- * @interface FileStatusDTO
- */
-export interface FileStatusDTO {
-    /**
-     *
-     * @type {number}
-     * @memberof FileStatusDTO
-     */
-    fileId?: number;
-    /**
-     *
-     * @type {string}
-     * @memberof FileStatusDTO
-     */
-    fileName?: string;
-    /**
-     *
-     * @type {string}
-     * @memberof FileStatusDTO
-     */
-    status?: string;
-    /**
-     *
-     * @type {number}
-     * @memberof FileStatusDTO
-     */
-    sizeInBytes?: number;
-}
-/**
- *
- * @export
  * @interface FilesProcessBody
  */
 export interface FilesProcessBody {
@@ -6597,7 +6566,7 @@ export const FilesApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        filesGetStatuses(body?: ScopeDTO, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<FileStatusDTO>> {
+        filesGetStatuses(body?: ScopeDTO, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<FileInfoDTO>> {
             const localVarFetchArgs = FilesApiFetchParamCreator(configuration).filesGetStatuses(body, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {

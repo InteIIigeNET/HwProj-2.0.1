@@ -5,7 +5,7 @@ namespace HwProj.ContentService.API.Services.Interfaces;
 
 public interface IFilesInfoService
 {
-    public Task<List<FileStatusDTO>> GetFilesStatusesAsync(Scope filesScope);
+    public Task<List<FileInfoDTO>> GetFilesStatusesAsync(Scope filesScope);
     public Task<string?> GetFileExternalKeyAsync(long fileId);
     public Task<List<FileInfoDTO>> GetFilesInfoAsync(long courseId);
 }

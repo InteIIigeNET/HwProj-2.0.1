@@ -39,7 +39,7 @@ namespace HwProj.APIGateway.API.Controllers
         [HttpPost("statuses")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        [ProducesResponseType(typeof(FileStatusDTO[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
         public async Task<IActionResult> GetStatuses(ScopeDTO filesScope)
         {
