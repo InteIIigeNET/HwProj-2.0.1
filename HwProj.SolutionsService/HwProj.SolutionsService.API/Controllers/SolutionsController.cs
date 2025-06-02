@@ -74,7 +74,7 @@ namespace HwProj.SolutionsService.API.Controllers
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> PostSolution(long taskId, [FromBody] PostSolutionModel solutionModel)
         {
-            var task = await _coursesClient.GetTask(taskId);
+            var task = (await _coursesClient.GetTask(taskId)).Value;
             if (!task.CanSendSolution)
                 return BadRequest();
 
@@ -89,8 +89,8 @@ namespace HwProj.SolutionsService.API.Controllers
             [FromBody] RateSolutionModel rateSolutionModel)
         {
             var solution = await _solutionsService.GetSolutionAsync(solutionId);
-            var task = await _coursesClient.GetTask(solution.TaskId);
-            var homework = await _coursesClient.GetHomework(task.HomeworkId);
+            var task = (await _coursesClient.GetTask(solution.TaskId)).Value;
+            var homework = (await _coursesClient.GetHomework(task.HomeworkId)).Value;
             var course = await _coursesClient.GetCourseById(homework.CourseId);
 
             var lecturerId = Request.GetUserIdFromHeader();

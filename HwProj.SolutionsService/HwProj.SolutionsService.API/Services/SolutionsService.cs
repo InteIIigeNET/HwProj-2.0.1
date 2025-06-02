@@ -108,7 +108,7 @@ namespace HwProj.SolutionsService.API.Services
             solution.PublicationDate = DateTime.UtcNow;
             solution.TaskId = taskId;
 
-            var task = await _coursesServiceClient.GetTask(solution.TaskId);
+            var task = (await _coursesServiceClient.GetTask(solution.TaskId)).Value;
 
             var lastSolution =
                 await _solutionsRepository
@@ -168,7 +168,7 @@ namespace HwProj.SolutionsService.API.Services
             {
                 var ratingDate = DateTime.UtcNow;
                 var solution = await _solutionsRepository.GetAsync(solutionId);
-                var task = await _coursesServiceClient.GetTask(solution.TaskId);
+                var task = (await _coursesServiceClient.GetTask(solution.TaskId)).Value;
                 var state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
                 await _solutionsRepository
                     .RateSolutionAsync(solutionId, state, lecturerId, newRating, ratingDate, lecturerComment);
@@ -282,7 +282,7 @@ namespace HwProj.SolutionsService.API.Services
         {
             var solution = await _solutionsRepository.GetAsync(solutionId) ??
                            throw new ArgumentException(nameof(solutionId));
-            var task = await _coursesServiceClient.GetTask(solution.TaskId);
+            var task = (await _coursesServiceClient.GetTask(solution.TaskId)).Value;
             var isTestWork = task.Tags.Contains(HomeworkTags.Test);
 
             var solutionsActuality = new SolutionActualityDto
