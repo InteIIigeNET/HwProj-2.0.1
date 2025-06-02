@@ -40,16 +40,20 @@ public class FileRecordRepository : IFileRecordRepository
 
     public async Task UpdateStatusAsync(List<long> fileRecordIds, FileStatus newStatus)
         => await _contentContext.FileRecords
+            .AsNoTracking()
             .Where(fr => fileRecordIds.Contains(fr.Id))
             .ExecuteUpdateAsync(setters =>
                 setters.SetProperty(fr => fr!.Status, newStatus)
             );
 
     public async Task<FileRecord?> GetFileRecordByIdAsync(long fileRecordId)
-        => await _contentContext.FileRecords.FindAsync(fileRecordId);
+        => await _contentContext.FileRecords
+            .AsNoTracking()
+            .SingleOrDefaultAsync(fr => fr.Id == fileRecordId);
 
     public async Task<List<FileRecord>> GetByScopeAsync(Scope scope)
         => await _contentContext.FileToCourseUnits
+            .AsNoTracking()
             .Where(fc => fc.CourseUnitType == scope.CourseUnitType
                          && fc.CourseUnitId == scope.CourseUnitId)
             .Select(fc => fc.FileRecord)
@@ -57,12 +61,14 @@ public class FileRecordRepository : IFileRecordRepository
 
     public async Task<List<FileToCourseUnit>> GetByCourseIdAsync(long courseId)
         => await _contentContext.FileToCourseUnits
+            .AsNoTracking()
             .Where(fc => fc.CourseId == courseId)
             .Include(fc => fc.FileRecord)
             .ToListAsync();
     
     public async Task<List<FileToCourseUnit>> GetByCourseIdAndStatusAsync(long courseId, FileStatus filesStatus)
         => await _contentContext.FileToCourseUnits
+            .AsNoTracking()
             .Where(fc => fc.CourseId == courseId)
             .Include(fc => fc.FileRecord)
             .Where(fc => fc.FileRecord.Status == filesStatus)
@@ -70,6 +76,7 @@ public class FileRecordRepository : IFileRecordRepository
 
     public async Task<List<long>> GetIdsByStatusAsync(FileStatus status)
         => await _contentContext.FileRecords
+            .AsNoTracking()
             .Where(fr => fr.Status == status)
             .Select(fr => fr.Id)
             .ToListAsync();
@@ -78,9 +85,11 @@ public class FileRecordRepository : IFileRecordRepository
     {
         await using var transaction = await _contentContext.Database.BeginTransactionAsync();
         await _contentContext.FileToCourseUnits
+            .AsNoTracking()
             .Where(ftc => ftc.FileRecordId == fileRecordId)
             .ExecuteDeleteAsync();
         await _contentContext.FileRecords
+            .AsNoTracking()
             .Where(f => f.Id == fileRecordId)
             .ExecuteDeleteAsync();
         await transaction.CommitAsync();
@@ -90,9 +99,11 @@ public class FileRecordRepository : IFileRecordRepository
     {
         await using var transaction = await _contentContext.Database.BeginTransactionAsync();
         await _contentContext.FileToCourseUnits
+            .AsNoTracking()
             .Where(ftc => fileRecordIds.Contains(ftc.FileRecordId))
             .ExecuteDeleteAsync();
         await _contentContext.FileRecords
+            .AsNoTracking()
             .Where(f => fileRecordIds.Contains(f.Id))
             .ExecuteDeleteAsync();
         await transaction.CommitAsync();
@@ -108,6 +119,7 @@ public class FileRecordRepository : IFileRecordRepository
         await using var transaction = await _contentContext.Database.BeginTransactionAsync();
 
         await _contentContext.FileToCourseUnits
+            .AsNoTracking()
             .Where(fc => fc.FileRecordId == fileRecord.Id
                          && fc.CourseUnitType == scope.CourseUnitType
                          && fc.CourseUnitId == scope.CourseUnitId)
@@ -117,6 +129,7 @@ public class FileRecordRepository : IFileRecordRepository
         {
             fileRecord.ReferenceCount--;
             await _contentContext.FileRecords
+                .AsNoTracking()
                 .Where(fr => fr.Id == fileRecord.Id)
                 .ExecuteUpdateAsync(setters =>
                     setters.SetProperty(fr => fr!.ReferenceCount, fileRecord.ReferenceCount)
@@ -130,6 +143,7 @@ public class FileRecordRepository : IFileRecordRepository
     public async Task UpdateAsync(long id,
         Expression<Func<SetPropertyCalls<FileRecord>, SetPropertyCalls<FileRecord>>> setPropertyCalls)
         => await _contentContext.FileRecords
+            .AsNoTracking()
             .Where(fr => fr.Id == id)
             .ExecuteUpdateAsync(setPropertyCalls);
 }
