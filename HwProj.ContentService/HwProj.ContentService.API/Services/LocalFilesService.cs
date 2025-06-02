@@ -1,7 +1,4 @@
-using System.Security.Cryptography;
-using System.Text;
 using HwProj.ContentService.API.Configuration;
-using HwProj.ContentService.API.Models;
 using HwProj.ContentService.API.Services.Interfaces;
 using HwProj.Models.Result;
 using Microsoft.Extensions.Options;
@@ -12,9 +9,6 @@ public class LocalFilesService : ILocalFilesService
 {
     private readonly string _storagePath;
     
-    // Максимальная длина имени файла в Ubuntu (в байтах)
-    private const int MaxFileNameBytes = 255;
-
     public LocalFilesService(IOptions<LocalStorageConfiguration> localStorageConfiguration)
     {
         _storagePath = localStorageConfiguration.Value.Path ??
@@ -22,9 +16,8 @@ public class LocalFilesService : ILocalFilesService
         Directory.CreateDirectory(_storagePath);
     }
 
-    public async Task<string> SaveFile(IFormFile file, Scope fileScope)
+    public async Task SaveFile(IFormFile file, string filePath)
     {
-        var filePath = BuildFilePath(file.FileName, fileScope);
         var fullPath = Path.Combine(_storagePath, filePath);
         
         var directoryPath = Path.GetDirectoryName(fullPath);
@@ -33,8 +26,6 @@ public class LocalFilesService : ILocalFilesService
     
         await using var stream = new FileStream(fullPath, FileMode.Create);
         await file.CopyToAsync(stream);
-        
-        return fullPath;
     }
 
     public Result DeleteFile(string pathToFile)
@@ -65,27 +56,7 @@ public class LocalFilesService : ILocalFilesService
 
         return new FileStream(fullPath, FileMode.Open, FileAccess.Read);
     }
-
-    private static string BuildFilePath(string fileName, Scope scope)
-    {
-        var escapedName = Uri.EscapeDataString(fileName);
-        if (Encoding.UTF8.GetByteCount(escapedName) > MaxFileNameBytes)
-            escapedName = HashFileName(fileName);
-        return $"courses/{scope.CourseId}/{scope.CourseUnitType}s/{scope.CourseUnitId}/{escapedName}";
-    }
-
+    
     private bool IsDirectoryEmpty(string path)
         => Directory.GetFiles(path).Length == 0 && Directory.GetDirectories(path).Length == 0;
-
-    // TODO: предусмотреть возможность аналогичных преобразований при сохранении в S3, хоть там допустимая длина и больше
-    private static string HashFileName(string longFileName)
-    {
-        using var sha256 = SHA256.Create();
-        
-        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(longFileName));
-        var hash = BitConverter.ToString(hashedBytes).Replace('/', '_').Substring(0, 30);
-
-        var extension = Path.GetExtension(longFileName);
-        return $"{hash}{extension}";
-    }
 }

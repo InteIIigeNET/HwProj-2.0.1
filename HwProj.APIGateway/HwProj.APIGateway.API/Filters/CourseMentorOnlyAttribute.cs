@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
+using HwProj.Models.ContentService.DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -10,7 +11,6 @@ namespace HwProj.APIGateway.API.Filters
     public class CourseMentorOnlyAttribute : ActionFilterAttribute
     {
         private readonly ICoursesServiceClient _coursesServiceClient;
-        private readonly string _courseIdRequestName = "FilesScope.CourseId";
 
         public CourseMentorOnlyAttribute(ICoursesServiceClient coursesServiceClient)
         {
@@ -33,12 +33,20 @@ namespace HwProj.APIGateway.API.Filters
             }
             
             string[]? mentorIds = null;
+            long courseId = -1;
+
+            // Для метода Process (параметр: processFilesDto)
+            if (context.ActionArguments.TryGetValue("processFilesDto", out var processFilesDto) &&
+                processFilesDto is ProcessFilesDTO dto)
+                courseId = dto.FilesScope.CourseId;
             
-            var courseId = GetValueFromRequest(context.HttpContext.Request, _courseIdRequestName);
-            if (courseId != null && long.TryParse(courseId, out var id))
-            {
-                mentorIds = await _coursesServiceClient.GetCourseLecturersIds(id);
-            }
+            // Для метода GetStatuses (параметр: filesScope)
+            else if (context.ActionArguments.TryGetValue("filesScope", out var filesScope) &&
+                     filesScope is ScopeDTO scope)
+                courseId = scope.CourseId;
+
+            if (courseId != -1)
+                mentorIds = await _coursesServiceClient.GetCourseLecturersIds(courseId);
 
             if (mentorIds == null || !mentorIds.Contains(userId))
             {

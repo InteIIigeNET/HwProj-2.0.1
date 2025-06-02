@@ -105,12 +105,13 @@ public class MessageConsumer : BackgroundService
             ReferenceCount = 1,
             OriginalName = message.OriginalName,
             SizeInBytes = message.SizeInBytes,
-            ContentType = message.ContentType
+            ContentType = message.ContentType,
+            LocalPath = message.LocalFilePath
         };
         var fileRecordId = await fileRecordRepository.AddWithCourseUnitInfoAsync(fileRecord, message.Scope);
 
         // Формируем и устанавливаем ключ для S3, содержащий id записи файла
-        var s3Key = _fileKeyService.BuildFileKey(message.Scope, message.OriginalName, fileRecordId);
+        var s3Key = _fileKeyService.BuildS3FileKey(message.Scope, message.OriginalName, fileRecordId);
         await fileRecordRepository.UpdateAsync(fileRecordId,
             setters => setters.SetProperty(fr => fr.ExternalKey, s3Key));
 

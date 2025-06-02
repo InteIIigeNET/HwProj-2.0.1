@@ -17,16 +17,19 @@ public class FilesController : ControllerBase
     private readonly IMessageProducer _messageProducer;
     private readonly IFilesInfoService _filesInfoService;
     private readonly ILocalFilesService _localFilesService;
+    private readonly IFileKeyService _fileKeyService;
     private readonly ILogger<FilesController> _logger;
 
     public FilesController(IS3FilesService s3FilesService, IMessageProducer messageProducer,
-        IFilesInfoService filesInfoService, ILocalFilesService localFilesService, ILogger<FilesController> logger)
+        IFilesInfoService filesInfoService, ILocalFilesService localFilesService, ILogger<FilesController> logger,
+        IFileKeyService fileKeyService)
     {
         _s3FilesService = s3FilesService;
         _messageProducer = messageProducer;
         _filesInfoService = filesInfoService;
         _localFilesService = localFilesService;
         _logger = logger;
+        _fileKeyService = fileKeyService;
     }
 
     [HttpPost("process")]
@@ -45,7 +48,8 @@ public class FilesController : ControllerBase
             foreach (var newFormFile in processFilesDto.NewFiles)
             {
                 // Сохраняем файл локально
-                var localFilePath = await _localFilesService.SaveFile(newFormFile, scope);
+                var localFilePath = _fileKeyService.BuildServerFilePath(scope, newFormFile.FileName);
+                await _localFilesService.SaveFile(newFormFile, localFilePath);
                 _logger.LogInformation("Файл {FileName} успешно сохранён в локальное хранилище по пути {localFilePath}",
                     newFormFile.FileName, localFilePath);
                 

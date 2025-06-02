@@ -5,7 +5,7 @@ namespace HwProj.ContentService.API.Services.Interfaces;
 
 public interface ILocalFilesService
 {
-    public Task<string> SaveFile(IFormFile file, Scope fileScope);
+    public Task SaveFile(IFormFile file, string filePath);
     public Result DeleteFile(string pathToFile);
     public Stream GetFileStream(string pathToFile);
 }

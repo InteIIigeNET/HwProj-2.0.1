@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Filters;
@@ -39,13 +38,12 @@ namespace HwProj.APIGateway.API.Controllers
 
         [HttpPost("statuses")]
         [Authorize(Roles = Roles.LecturerRole)]
-        // TODO: support attribute for this method
-        //[ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         [ProducesResponseType(typeof(FileStatusDTO[]), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
-        public async Task<IActionResult> GetStatuses(ScopeDTO scopeDto)
+        public async Task<IActionResult> GetStatuses(ScopeDTO filesScope)
         {
-            var filesStatusesResult = await _contentServiceClient.GetFilesStatuses(scopeDto);
+            var filesStatusesResult = await _contentServiceClient.GetFilesStatuses(filesScope);
             return filesStatusesResult.Succeeded
                 ? Ok(filesStatusesResult.Value) as IActionResult
                 : StatusCode((int)HttpStatusCode.ServiceUnavailable, filesStatusesResult.Errors);
