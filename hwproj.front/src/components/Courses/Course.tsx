@@ -40,7 +40,6 @@ import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {CourseUnitType} from "../Files/CourseUnitType";
 import {FileStatus} from "../Files/FileStatus";
-import FileInfoConverter from "../Utils/FileInfoConverter";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -97,25 +96,28 @@ const Course: React.FC = () => {
 
     const intervalsRef = React.useRef<Record<number, { interval: NodeJS.Timeout, timeout: NodeJS.Timeout }>>({});
 
-    const updateCourseFiles = (files: FileInfoDTO[]) => {
+    const updateCourseFiles = (files: FileInfoDTO[], unitType: CourseUnitType, unitId: number) => {
         setCourseFilesState(prev => ({
             ...prev,
             courseFiles: [
                 ...prev.courseFiles.filter(
-                    f => !(f.courseUnitType === files[0].courseUnitType && f.courseUnitId === files[0].courseUnitId)),
+                    f => !(f.courseUnitType === unitType && f.courseUnitId === unitId)),
                 ...files
             ]
         }));
     };
 
-    const stopProcessing = (homeworkId: number) => {
-        if (intervalsRef.current[homeworkId]) {
-            const {interval, timeout} = intervalsRef.current[homeworkId];
-            clearInterval(interval);
-            clearTimeout(timeout);
-            delete intervalsRef.current[homeworkId];
-        }
+    const setCommonLoading = (homeworkId: number) => {
+        setCourseFilesState(prev => ({
+            ...prev,
+            processingFilesState: {
+                ...prev.processingFilesState,
+                [homeworkId]: {isLoading: true}
+            }
+        }));
+    }
 
+    const unsetCommonLoading = (homeworkId: number) => {
         setCourseFilesState(prev => ({
             ...prev,
             processingFilesState: {
@@ -123,6 +125,15 @@ const Course: React.FC = () => {
                 [homeworkId]: {isLoading: false}
             }
         }));
+    }
+    
+    const stopProcessing = (homeworkId: number) => {
+        if (intervalsRef.current[homeworkId]) {
+            const {interval, timeout} = intervalsRef.current[homeworkId];
+            clearInterval(interval);
+            clearTimeout(timeout);
+            delete intervalsRef.current[homeworkId];
+        }
     };
 
     // Запускает получение информации о файлах элемента курса с интервалом в 1 секунду и 5 попытками
@@ -131,7 +142,7 @@ const Course: React.FC = () => {
         stopProcessing(homeworkId);
 
         let attempt = 0;
-        const maxAttempts = 5;
+        const maxAttempts = 10;
         let delay = 1000; // Начальная задержка 1 сек
 
         const scopeDto: ScopeDTO = {
@@ -158,18 +169,22 @@ const Course: React.FC = () => {
                 // Первый вариант для явного отображения всех файлов
                 if (waitingNewFilesCount === 0
                     && files.filter(f => f.status === FileStatus.ReadyToUse).length === previouslyExistingFilesCount - deletingFilesIds.length) {
-                    updateCourseFiles(files)
+                    updateCourseFiles(files, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
+                    unsetCommonLoading(homeworkId)
                 }
 
                 // Второй вариант для явного отображения всех файлов
                 if (waitingNewFilesCount > 0
                     && files.filter(f => !deletingFilesIds.some(dfi => dfi === f.id)).length === previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount) {
-                    updateCourseFiles(files)
+                    updateCourseFiles(files, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
+                    unsetCommonLoading(homeworkId)
                 }
 
                 // Условие прекращения отправки запросов на получения записей файлов
-                if (files.every(f => f.status !== FileStatus.Uploading && f.status !== FileStatus.Deleting)) {
+                if (files.length === previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount
+                    && files.every(f => f.status !== FileStatus.Uploading && f.status !== FileStatus.Deleting)) {
                     stopProcessing(homeworkId);
+                    unsetCommonLoading(homeworkId)
                 }
 
             } catch (error) {
@@ -183,19 +198,14 @@ const Course: React.FC = () => {
         // Создаем таймаут для автоматической остановки
         const timeout = setTimeout(() => {
             stopProcessing(homeworkId);
+            unsetCommonLoading(homeworkId)
         }, 10000);
 
         // Сохраняем интервал и таймаут в ref
         intervalsRef.current[homeworkId] = {interval, timeout};
 
         // Сигнализируем о начале загрузки через состояние
-        setCourseFilesState(prev => ({
-            ...prev,
-            processingFilesState: {
-                ...prev.processingFilesState,
-                [homeworkId]: {isLoading: true}
-            }
-        }));
+        setCommonLoading(homeworkId)
     }
 
     // Останавливаем все активные интевалы при размонтировании
@@ -228,7 +238,6 @@ const Course: React.FC = () => {
     const isExpert = ApiSingleton.authService.isExpert()
     const isMentor = isLecturer || isExpert
     const isCourseMentor = mentors.some(t => t.userId === userId)
-
     const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
 
     const isAcceptedStudent = acceptedStudents!.some(cm => cm.userId === userId)
@@ -296,14 +305,14 @@ const Course: React.FC = () => {
     }, [])
 
     useEffect(() => {
+        getCourseFilesInfo()
+    }, [isCourseMentor])
+
+    useEffect(() => {
         ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
             .then(res => setStudentSolutions(res))
     }, [courseId])
-
-    useEffect(() => {
-        getCourseFilesInfo()
-    }, [courseId])
-
+    
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
 
     const joinCourse = async () => {
