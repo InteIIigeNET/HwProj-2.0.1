@@ -23,7 +23,7 @@ namespace HwProj.CoursesService.API.Services
         Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId);
         Task<string[]> GetCourseLecturers(long courseId);
         Task<bool> HasStudent(long courseId, string studentId);
-        Task<bool> IsCourseUser(long courseId, string userId);
+        Task<bool> IsAccessibleFor(long courseId, string userId);
         Task<bool> UpdateStudentCharacteristics(long courseId, string studentId, StudentCharacteristicsDto characteristics);
     }
 }

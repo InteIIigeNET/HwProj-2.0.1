@@ -40,7 +40,7 @@ namespace HwProj.CoursesService.API.Controllers
             var taskFromDb = await _tasksService.GetTaskAsync(taskId);
             if (taskFromDb == null) return NotFound();
 
-            if (!await _coursesService.IsCourseUser(taskFromDb.Homework.CourseId, userId))
+            if (!await _coursesService.IsAccessibleFor(taskFromDb.Homework.CourseId, userId))
             {
                 return Forbid();
             }

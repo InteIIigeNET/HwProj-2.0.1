@@ -42,7 +42,7 @@ namespace HwProj.CoursesService.API.Controllers
             var userId = Request.GetUserIdFromHeader();
             var homeworkFromDb = await _homeworksService.GetHomeworkAsync(homeworkId);
 
-            if (!await _coursesService.IsCourseUser(homeworkFromDb.CourseId, userId))
+            if (!await _coursesService.IsAccessibleFor(homeworkFromDb.CourseId, userId))
             {
                 return Forbid();
             }
