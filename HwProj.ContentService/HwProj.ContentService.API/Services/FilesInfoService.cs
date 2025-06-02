@@ -1,4 +1,5 @@
 using HwProj.ContentService.API.Models;
+using HwProj.ContentService.API.Models.Enums;
 using HwProj.ContentService.API.Repositories;
 using HwProj.ContentService.API.Services.Interfaces;
 using HwProj.Models.ContentService.DTO;
@@ -43,6 +44,20 @@ public class FilesInfoService : IFilesInfoService
             Name = fcu.FileRecord.OriginalName,
             Status = fcu.FileRecord.Status.ToString(),
             SizeInBytes = fcu.FileRecord.SizeInBytes,
+            CourseUnitType = fcu.CourseUnitType.ToString(),
+            CourseUnitId = fcu.CourseUnitId
+        }).ToList();
+    }
+
+    public async Task<List<FileInfoDTO>> GetFilesInfoAsync(long courseId, FileStatus filesStatus)
+    {
+        var filesRecords = await _fileRecordRepository.GetByCourseIdAndStatusAsync(courseId, filesStatus);
+        return filesRecords.Select(fcu => new FileInfoDTO
+        {
+            Id = fcu.FileRecord.Id,
+            Name = fcu.FileRecord.OriginalName,
+            SizeInBytes = fcu.FileRecord.SizeInBytes,
+            Status = fcu.FileRecord.Status.ToString(),
             CourseUnitType = fcu.CourseUnitType.ToString(),
             CourseUnitId = fcu.CourseUnitId
         }).ToList();

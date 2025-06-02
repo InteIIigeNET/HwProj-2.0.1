@@ -60,6 +60,13 @@ public class FileRecordRepository : IFileRecordRepository
             .Where(fc => fc.CourseId == courseId)
             .Include(fc => fc.FileRecord)
             .ToListAsync();
+    
+    public async Task<List<FileToCourseUnit>> GetByCourseIdAndStatusAsync(long courseId, FileStatus filesStatus)
+        => await _contentContext.FileToCourseUnits
+            .Where(fc => fc.CourseId == courseId)
+            .Include(fc => fc.FileRecord)
+            .Where(fc => fc.FileRecord.Status == filesStatus)
+            .ToListAsync();
 
     public async Task<List<long>> GetIdsByStatusAsync(FileStatus status)
         => await _contentContext.FileRecords

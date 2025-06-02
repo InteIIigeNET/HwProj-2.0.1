@@ -510,6 +510,7 @@ const CourseHomeworkExperimental: FC<{
             ) : filesInfo.length > 0 && (
                 <div>
                     <FilesPreviewList
+                        showOkStatus={props.isMentor}
                         filesInfo={filesInfo}
                         onClickFileInfo={async (fileInfo: IFileInfo) => {
                             const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!)

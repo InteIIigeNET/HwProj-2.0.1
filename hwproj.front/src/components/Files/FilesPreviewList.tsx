@@ -8,6 +8,7 @@ interface FilesPreviewProps {
     filesInfo: IFileInfo[] | undefined
     onRemoveFileInfo?: (f: IFileInfo) => void
     onClickFileInfo?: (f: IFileInfo) => void
+    showOkStatus?: boolean
 }
 
 const FilesPreviewList: React.FC<FilesPreviewProps> = (props) => {
@@ -19,6 +20,7 @@ const FilesPreviewList: React.FC<FilesPreviewProps> = (props) => {
                 props.filesInfo.map((fileInfo, index) => (
                     <Grid item key={fileInfo.name || index}>
                         <FilePreview
+                            showOkStatus={props.showOkStatus}
                             fileInfo={fileInfo}
                             onRemove={props.onRemoveFileInfo}
                             onClick={props.onClickFileInfo}

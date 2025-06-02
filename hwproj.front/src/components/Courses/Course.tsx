@@ -278,7 +278,9 @@ const Course: React.FC = () => {
     const getCourseFilesInfo = async () => {
         let courseFilesInfo = [] as FileInfoDTO[]
         try {
-            courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
+            courseFilesInfo = isCourseMentor
+                ? await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
+                : await ApiSingleton.filesApi.filesGetUploadedFilesInfo(+courseId!)
         } catch (e) {
             const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
             enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 1990});

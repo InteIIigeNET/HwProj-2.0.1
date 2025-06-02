@@ -1,5 +1,6 @@
 using System.Net;
 using HwProj.ContentService.API.Extensions;
+using HwProj.ContentService.API.Models.Enums;
 using HwProj.ContentService.API.Models.Messages;
 using HwProj.ContentService.API.Services.Interfaces;
 using HwProj.Models.ContentService.DTO;
@@ -95,6 +96,14 @@ public class FilesController : ControllerBase
     public async Task<IActionResult> GetFilesInfo(long courseId)
     {
         var filesInfo = await _filesInfoService.GetFilesInfoAsync(courseId);
+        return Ok(filesInfo);
+    }
+    
+    [HttpGet("info/course/{courseId}/uploaded")]
+    [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetUploadedFilesInfo(long courseId)
+    {
+        var filesInfo = await _filesInfoService.GetFilesInfoAsync(courseId, FileStatus.ReadyToUse);
         return Ok(filesInfo);
     }
 }

@@ -1,5 +1,5 @@
 import {IFileInfo} from "components/Files/IFileInfo";
-import {FileInfoDTO, FileStatusDTO} from "@/api"
+import {FileInfoDTO} from "@/api"
 import { CourseUnitType } from "../Files/CourseUnitType";
 import { FileStatus } from "../Files/FileStatus";
 
@@ -20,25 +20,7 @@ export default class FileInfoConverter {
             courseUnitId: fileInfoDto.courseUnitId!
         };
     }
-
-    public static fromFileStatusDTO(fileStatusDto: FileStatusDTO, courseUnitType: CourseUnitType, courseUnitId: number): IFileInfo {
-        if (fileStatusDto.fileName === undefined
-            || fileStatusDto.status === undefined
-            || fileStatusDto.fileId === undefined
-            || fileStatusDto.sizeInBytes === undefined) {
-            throw new Error("Обнаружено пустое поле объекта FileStatusDTO")
-        }
-
-        return {
-            id: fileStatusDto.fileId,
-            status: fileStatusDto.status as FileStatus,
-            name: fileStatusDto.fileName,
-            sizeInBytes: fileStatusDto.sizeInBytes,
-            courseUnitType: courseUnitType,
-            courseUnitId: courseUnitId
-        };
-    }
-
+    
     public static fromFileInfoDTOArray(fileInfoDtos: FileInfoDTO[]): IFileInfo[] {
         return fileInfoDtos.map(fileInfoDto => this.fromFileInfoDTO(fileInfoDto));
     }

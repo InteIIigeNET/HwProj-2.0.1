@@ -70,5 +70,16 @@ namespace HwProj.APIGateway.API.Controllers
                 ? Ok(filesInfoResult.Value) as IActionResult
                 : StatusCode((int)HttpStatusCode.ServiceUnavailable, filesInfoResult.Errors);
         }
+        
+        [HttpGet("info/course/{courseId}/uploaded")]
+        [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
+        public async Task<IActionResult> GetUploadedFilesInfo(long courseId)
+        {
+            var filesInfoResult = await _contentServiceClient.GetUploadedFilesInfo(courseId);
+            return filesInfoResult.Succeeded
+                ? Ok(filesInfoResult.Value) as IActionResult
+                : StatusCode((int)HttpStatusCode.ServiceUnavailable, filesInfoResult.Errors);
+        }
     }
 }

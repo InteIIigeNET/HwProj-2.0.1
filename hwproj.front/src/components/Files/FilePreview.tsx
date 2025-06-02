@@ -15,6 +15,7 @@ interface FilePreviewProps {
     fileInfo: IFileInfo;
     onClick?: (f: IFileInfo) => void;
     onRemove?: (f: IFileInfo) => void;
+    showOkStatus?: boolean;
 }
 
 const FilePreview: React.FC<FilePreviewProps> = (props) => {
@@ -106,9 +107,10 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
                 };
             case FileStatus.ReadyToUse:
                 return {
-                    text: "Сохранён",
+                    text: props.showOkStatus ? "Сохранён" : "",
                     tooltipText: "",
-                    icon: <CheckCircleIcon sx={{fontSize: '0.85rem', color: theme.palette.success.dark}}/>,
+                    icon: props.showOkStatus ?
+                        <CheckCircleIcon sx={{fontSize: '0.85rem', color: theme.palette.success.dark}}/> : <></>,
                     color: {
                         bg: theme.palette.grey[200],
                         text: theme.palette.success.dark
@@ -158,7 +160,7 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
                 flexShrink: 0,
                 borderRadius: 0.5,
                 backgroundColor: 'rgba(255,255,255,0.4)',
-                
+
                 overflow: 'hidden'
             }}>
                 {previewUrl ? (
@@ -198,7 +200,7 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
                         fontWeight: 500,
                         fontSize: '0.85rem',
                         color: theme.palette.text.primary
-                }}
+                    }}
                 >
                     {props.fileInfo.name}
                 </Typography>
@@ -230,16 +232,16 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
                     }}>
                         {statusInfo.icon}
                         <LightTooltip title={statusInfo.tooltipText}>
-                        <Typography
-                            variant="caption"
-                            sx={{
-                                fontSize: '0.75rem',
-                                fontWeight: 500,
-                                color: statusInfo.color.text
-                            }}
-                        >
-                            {statusInfo.text}
-                        </Typography>
+                            <Typography
+                                variant="caption"
+                                sx={{
+                                    fontSize: '0.75rem',
+                                    fontWeight: 500,
+                                    color: statusInfo.color.text
+                                }}
+                            >
+                                {statusInfo.text}
+                            </Typography>
                         </LightTooltip>
                     </Box>
                 </Box>

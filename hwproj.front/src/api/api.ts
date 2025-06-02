@@ -6454,6 +6454,42 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
         },
         /**
          *
+         * @param {number} courseId
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        filesGetUploadedFilesInfo(courseId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling filesGetUploadedFilesInfo.');
+            }
+            const localVarPath = `/api/Files/info/course/{courseId}/uploaded`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
          * @param {number} [filesScopeCourseId]
          * @param {string} [filesScopeCourseUnitType]
          * @param {number} [filesScopeCourseUnitId]
@@ -6580,6 +6616,24 @@ export const FilesApiFp = function(configuration?: Configuration) {
         },
         /**
          *
+         * @param {number} courseId
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        filesGetUploadedFilesInfo(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<FileInfoDTO>> {
+            const localVarFetchArgs = FilesApiFetchParamCreator(configuration).filesGetUploadedFilesInfo(courseId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
          * @param {number} [filesScopeCourseId]
          * @param {string} [filesScopeCourseUnitType]
          * @param {number} [filesScopeCourseUnitId]
@@ -6638,6 +6692,15 @@ export const FilesApiFactory = function (configuration?: Configuration, fetch?: 
         },
         /**
          *
+         * @param {number} courseId
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        filesGetUploadedFilesInfo(courseId: number, options?: any) {
+            return FilesApiFp(configuration).filesGetUploadedFilesInfo(courseId, options)(fetch, basePath);
+        },
+        /**
+         *
          * @param {number} [filesScopeCourseId]
          * @param {string} [filesScopeCourseUnitType]
          * @param {number} [filesScopeCourseUnitId]
@@ -6690,6 +6753,17 @@ export class FilesApi extends BaseAPI {
      */
     public filesGetStatuses(body?: ScopeDTO, options?: any) {
         return FilesApiFp(this.configuration).filesGetStatuses(body, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {number} courseId
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FilesApi
+     */
+    public filesGetUploadedFilesInfo(courseId: number, options?: any) {
+        return FilesApiFp(this.configuration).filesGetUploadedFilesInfo(courseId, options)(this.fetch, this.basePath);
     }
 
     /**
