@@ -1,7 +1,7 @@
 using Amazon.S3;
+using Amazon.S3.Util;
 using HwProj.ContentService.API.Configuration;
 using HwProj.ContentService.API.Models.Database;
-using HwProj.ContentService.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -50,7 +50,8 @@ public static class WebApplicationExtensions
 
         try
         {
-            await amazonS3Client.CreateBucketIfNotExists(defaultBucketName);
+            if (!await AmazonS3Util.DoesS3BucketExistV2Async(amazonS3Client, defaultBucketName))
+                await amazonS3Client.PutBucketAsync(defaultBucketName);
             application.Logger.LogInformation("Сервис успешно запущен. Установлено соединение с YandexObjectStorage");
         }
         catch (AmazonS3Exception)
