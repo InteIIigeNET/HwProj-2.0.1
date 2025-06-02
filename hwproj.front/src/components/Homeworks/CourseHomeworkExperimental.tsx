@@ -63,7 +63,7 @@ const CourseHomeworkEditor: FC<{
         isDeleted?: boolean,
         isSaved?: boolean
     }) => void
-    onStartProcessing: (previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
+    onStartProcessing: (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
 }> = (props) => {
     const homework = props.homeworkAndFilesInfo.homework
     const isNewHomework = homework.id! < 0
@@ -284,7 +284,7 @@ const CourseHomeworkEditor: FC<{
                     isDeleted: true
                 }) // remove fake homework
                 props.onUpdate({homework: updatedHomework.value!, fileInfos: undefined, isSaved: true})
-                props.onStartProcessing(filesState.initialFilesInfo.length, newFiles.length, deletingFileIds);
+                props.onStartProcessing(updatedHomework.value!.id!, filesState.initialFilesInfo.length, newFiles.length, deletingFileIds);
             } catch (e) {
                 const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
                 enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
@@ -433,7 +433,7 @@ const CourseHomeworkExperimental: FC<{
     }) => void
     onAddTask: (homework: HomeworkViewModel) => void,
     isProcessing: boolean;
-    onStartProcessing: (previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
+    onStartProcessing: (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
 }> = (props) => {
     const {homework, filesInfo} = props.homeworkAndFilesInfo
     const deferredHomeworks = homework.tasks!.filter(t => t.isDeferred!)

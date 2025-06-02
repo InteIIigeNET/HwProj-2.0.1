@@ -369,8 +369,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         }))
                     }}
                     isProcessing={props.processingFiles[homework.id!]?.isLoading || false}
-                    onStartProcessing={(previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => 
-                        props.onStartProcessing(homework.id!, previouslyExistingFilesCount, waitingNewFilesCount, deletingFilesIds)}
+                    onStartProcessing={(homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => 
+                        props.onStartProcessing(homeworkId, previouslyExistingFilesCount, waitingNewFilesCount, deletingFilesIds)}
                 />
             </Card>
         </Stack>
