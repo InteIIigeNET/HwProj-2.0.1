@@ -31,8 +31,8 @@ import {useSnackbar} from 'notistack';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
-import { CourseUnitType } from "../Files/CourseUnitType";
-import { FileStatus } from "../Files/FileStatus";
+import {CourseUnitType} from "../Files/CourseUnitType";
+import {FileStatus} from "../Files/FileStatus";
 import FileInfoConverter from "../Utils/FileInfoConverter";
 
 type TabValue = "homeworks" | "stats" | "applications"
@@ -88,38 +88,64 @@ const Course: React.FC = () => {
         courseFiles: []
     })
 
+    const intervalsRef = React.useRef<Record<number, { interval: NodeJS.Timeout, timeout: NodeJS.Timeout }>>({});
+
     const updateCourseFiles = (files: FileInfoDTO[], unitType: CourseUnitType, unitId: number) => {
         setCourseFilesState(prev => ({
             ...prev,
             courseFiles: [
-                ...prev.courseFiles.filter(f => f.courseUnitType === unitType).filter(f => f.courseUnitId !== unitId), 
+                ...prev.courseFiles.filter(f => !(f.courseUnitType === unitType && f.courseUnitId === unitId)),
                 ...files
             ]
         }));
     };
 
-    const stopInterval = (interval: NodeJS.Timeout, unitType: CourseUnitType, unitId: number) => {
-        clearInterval(interval);
+    const stopProcessing = (homeworkId: number) => {
+        if (intervalsRef.current[homeworkId]) {
+            const { interval, timeout } = intervalsRef.current[homeworkId];
+            clearInterval(interval);
+            clearTimeout(timeout);
+            delete intervalsRef.current[homeworkId];
+        }
+
         setCourseFilesState(prev => ({
             ...prev,
             processingFilesState: {
                 ...prev.processingFilesState,
-                [unitId]: {...prev.processingFilesState[unitId], isLoading: false}
+                [homeworkId]: { isLoading: false }
             }
         }));
     };
 
+    // Запускает получение информации о файлах элемента курса с интервалом в 1 секунду и 5 попытками
     const getFilesByInterval = (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => {
-        const interval = setInterval(async () => {
-            const scopeDto: ScopeDTO = {
-                courseId: +courseId!,
-                courseUnitType: CourseUnitType.Homework,
-                courseUnitId: homeworkId
+        // Очищаем предыдущие таймеры
+        stopProcessing(homeworkId);
+        
+        let attempt = 0;
+        const maxAttempts = 5;
+        let delay = 1000; // Начальная задержка 1 сек
+
+        const scopeDto: ScopeDTO = {
+            courseId: +courseId!,
+            courseUnitType: CourseUnitType.Homework,
+            courseUnitId: homeworkId
+        }
+        
+        const fetchFiles = async () => {
+            if (attempt >= maxAttempts) {
+                stopProcessing(homeworkId);
+                enqueueSnackbar("Превышено допустимое количество попыток получения информации о файлах", {
+                    variant: "warning",
+                    autoHideDuration: 2000
+                });
+                return;
             }
-            
+
+            attempt++;
             try {
                 const files = await ApiSingleton.filesApi.filesGetStatuses(scopeDto);
-                console.log(files)
+                console.log(`Попытка ${attempt}:`, files);
 
                 // Первый вариант для явного отображения всех файлов
                 if (waitingNewFilesCount === 0
@@ -130,51 +156,53 @@ const Course: React.FC = () => {
 
                 // Второй вариант для явного отображения всех файлов
                 if (waitingNewFilesCount > 0
-                    && files.filter(f => !deletingFilesIds.some(dfi => dfi === f.fileId)).length === previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount) {                     
+                    && files.filter(f => !deletingFilesIds.some(dfi => dfi === f.fileId)).length === previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount) {
                     const fullFiles = files.map(f => FileInfoConverter.fromFileStatusDTO(f, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!))
                     updateCourseFiles(fullFiles, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
                 }
 
                 // Условие прекращения отправки запросов на получения записей файлов
                 if (files.every(f => f.status !== FileStatus.Uploading && f.status !== FileStatus.Deleting)) {
-                    stopInterval(interval, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
+                    stopProcessing(homeworkId);
                 }
 
             } catch (error) {
-                console.log(error);
-                const errors = await ErrorsHandler.getErrorMessages(error as Response);
-                var errorDescription = errors[0] == undefined ? `` : `${errors[0]}`
-                if (errorDescription.length > 300) errorDescription = ``
-                enqueueSnackbar(`Ошибка при получении информации о файлах. ${errorDescription}`, {
-                    variant: "warning",
-                    autoHideDuration: 2000
-                });
-
-                stopInterval(interval, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
+                console.error(`Ошибка (попытка ${attempt}):`, error);
             }
-        }, 500);
+        }
 
+        // Создаем интервал с задержкой
+        const interval = setInterval(fetchFiles, delay);
+
+        // Создаем таймаут для автоматической остановки
+        const timeout = setTimeout(() => {
+            stopProcessing(homeworkId);
+        }, 10000);
+
+        // Сохраняем интервал и таймаут в ref
+        intervalsRef.current[homeworkId] = {interval, timeout};
+
+        // Сигнализируем о начале загрузки через состояние
         setCourseFilesState(prev => ({
             ...prev,
             processingFilesState: {
                 ...prev.processingFilesState,
-                [homeworkId]: {
-                    isLoading: true,
-                    interval: interval
-                }
+                [homeworkId]: {isLoading: true}
             }
         }));
-    };
+    }
 
     // Останавливаем все активные интевалы при размонтировании
     useEffect(() => {
         return () => {
-            Object.values(courseFilesState.processingFilesState).forEach(state => {
-                if (state.intervalId) clearInterval(state.intervalId);
+            Object.values(intervalsRef.current).forEach(({interval, timeout}) => {
+                clearInterval(interval);
+                clearTimeout(timeout);
             });
+            intervalsRef.current = {};
         };
     }, []);
-    
+
     const [pageState, setPageState] = useState<IPageState>({
         tabValue: "homeworks"
     })
