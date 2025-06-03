@@ -36,13 +36,28 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
             <Chip color={"default"} size={"small"} label={ratedSolutionsCount}/>
         </Stack>;
 
+    const handleCellClick = (e: React.MouseEvent) => {
+        // Формируем URL
+        const url = forMentor
+            ? `/task/${props.taskId}/${props.studentId}`
+            : `/task/${props.taskId}`
+        // Проверяем, была ли нажата Ctrl/Cmd
+        const isSpecialClick = e.ctrlKey || e.metaKey;
+
+        if (isSpecialClick) {
+            // Открываем в новой вкладке
+            window.open(url, '_blank', 'noopener,noreferrer');
+        } else {
+            // Переходим в текущей вкладке
+            navigate(url);
+        }
+    };
+
     return (
         <Tooltip arrow disableInteractive enterDelay={2000}
                  title={<span style={{whiteSpace: 'pre-line'}}>{tooltipTitle}</span>}>
             <TableCell
-                onClick={() => forMentor
-                    ? navigate(`/task/${props.taskId}/${props.studentId}`)
-                    : navigate(`/task/${props.taskId}`)}
+                onClick={handleCellClick}
                 component="td"
                 padding="none"
                 variant={"body"}
