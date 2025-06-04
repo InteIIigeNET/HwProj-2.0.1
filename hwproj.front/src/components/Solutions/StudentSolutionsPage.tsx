@@ -121,14 +121,15 @@ const StudentSolutionsPage: FC = () => {
     })
 
     const taskSolutionsStats = showOnlyUnrated
-        ? allTaskSolutionsStats.filter(x => x.countUnratedSolutions && x.countUnratedSolutions > 0)
+        ? allTaskSolutionsStats.filter(x => x.taskId == +currentTaskId || x.countUnratedSolutions && x.countUnratedSolutions > 0)
         : allTaskSolutionsStats
 
     const studentSolutionsPreviews =
         taskStudentsSolutionsPreview.map(x => showOnlyUnrated
             ? ({
                 taskId: x.taskId,
-                studentSolutionsPreview: x.studentSolutionsPreview.filter(((_, i) => {
+                studentSolutionsPreview: x.studentSolutionsPreview.filter(((data, i) => {
+                    if (data.student.userId === currentStudentId) return true
                     const lastSolution = currentTaskSolutions[i].lastSolution
                     return lastSolution && lastSolution.state === SolutionState.NUMBER_0
                 }))
