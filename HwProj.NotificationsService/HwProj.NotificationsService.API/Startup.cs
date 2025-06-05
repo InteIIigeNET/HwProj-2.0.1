@@ -33,6 +33,7 @@ namespace HwProj.NotificationsService.API
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
             services.AddScoped<INotificationSettingsService, NotificationSettingsService>();
             services.AddEventBus(Configuration);
+            
             services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
             services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();
             services.AddTransient<IEventHandler<StudentPassTaskEvent>, StudentPassTaskEventHandler>();
@@ -46,8 +47,9 @@ namespace HwProj.NotificationsService.API
             services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
             services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
             services.AddTransient<IEventHandler<PasswordRecoveryEvent>, PasswordRecoveryEventHandler>();
+            services.AddTransient<IEventHandler<RegisterInvitedStudentEvent>, RegisterInvitedStudentEventHandler>();
+            
             services.AddSingleton<IEmailService, EmailService>();
-
             services.AddHttpClient();
             services.AddAuthServiceClient();
 
@@ -72,6 +74,7 @@ namespace HwProj.NotificationsService.API
                 eventBustSubscriber.Subscribe<InviteLecturerEvent, InviteLecturerEventHandler>();
                 eventBustSubscriber.Subscribe<NewCourseMateEvent, NewCourseMateHandler>();
                 eventBustSubscriber.Subscribe<PasswordRecoveryEvent, PasswordRecoveryEventHandler>();
+                eventBustSubscriber.Subscribe<RegisterInvitedStudentEvent, RegisterInvitedStudentEventHandler>();
             }
 
             app.ConfigureHwProj(env, "Notifications API", context);

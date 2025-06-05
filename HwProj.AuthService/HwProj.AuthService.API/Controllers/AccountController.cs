@@ -189,5 +189,14 @@ namespace HwProj.AuthService.API.Controllers
             var result = await _accountService.AuthorizeGithub(code, userId);
             return result;
         }
+        
+        [HttpPost("registerInvitedStudent")]
+        [ProducesResponseType(typeof(Result<string>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> RegisterInvitedStudent([FromBody] RegisterViewModel model)
+        {
+            var newModel = _mapper.Map<RegisterDataDTO>(model);
+            var result = await _accountService.RegisterInvitedStudentAsync(newModel);
+            return Ok(result);
+        }
     }
 }

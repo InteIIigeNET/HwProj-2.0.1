@@ -29,8 +29,11 @@ import {QRCodeSVG} from 'qrcode.react';
 import ErrorsHandler from "components/Utils/ErrorsHandler";
 import {useSnackbar} from 'notistack';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import InviteStudentDialog from "./InviteStudentDialog";
+import {makeStyles} from "@material-ui/core/styles";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -53,11 +56,31 @@ interface IPageState {
     tabValue: TabValue
 }
 
+const useStyles = makeStyles((theme) => ({
+    paper: {
+        marginTop: theme.spacing(3),
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+    },
+    avatar: {
+        margin: theme.spacing(1),
+    },
+    form: {
+        marginTop: theme.spacing(3),
+        width: '100%'
+    },
+    button: {
+        marginTop: theme.spacing(1)
+    },
+}));
+
 const Course: React.FC = () => {
     const {courseId, tab} = useParams()
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
     const {enqueueSnackbar} = useSnackbar()
+    const classes = useStyles()
 
     const [courseState, setCourseState] = useState<ICourseState>({
         isFound: false,
@@ -71,7 +94,7 @@ const Course: React.FC = () => {
     })
     const [studentSolutions, setStudentSolutions] = useState<StatisticsCourseMatesModel[]>([])
     const [courseFilesInfo, setCourseFilesInfo] = useState<FileInfoDTO[]>([])
-
+    const [showInviteDialog, setShowInviteDialog] = useState(false)
     const [pageState, setPageState] = useState<IPageState>({
         tabValue: "homeworks"
     })
@@ -228,6 +251,16 @@ const Course: React.FC = () => {
                         </ListItemIcon>
                         <ListItemText>Поделиться</ListItemText>
                     </MenuItem>
+                    {isCourseMentor &&
+                        <MenuItem onClick={() => {
+                            setShowInviteDialog(true)
+                        }}>
+                            <ListItemIcon>
+                                <MailOutlineIcon fontSize="small"/>
+                            </ListItemIcon>
+                            <ListItemText>Пригласить студента</ListItemText>
+                        </MenuItem>
+                    }
                     {isCourseMentor && isLecturer && <MenuItem onClick={() => setLecturerStatsState(true)}>
                         <ListItemIcon>
                             <AssessmentIcon fontSize="small"/>
@@ -257,6 +290,14 @@ const Course: React.FC = () => {
                         </Box>
                     </DialogContent>
                 </Dialog>
+
+                <InviteStudentDialog
+                    courseId={+courseId!}
+                    open={showInviteDialog}
+                    onClose={() => setShowInviteDialog(false)}
+                    onStudentInvited={setCurrentState}
+                />
+
                 <Grid style={{marginTop: "15px"}}>
                     <Grid container direction={"column"} spacing={2}>
                         {course.isCompleted && <Grid item>
