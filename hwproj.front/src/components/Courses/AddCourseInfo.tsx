@@ -2,10 +2,12 @@ import React, {FC, ChangeEvent} from "react"
 import {
     Grid,
     TextField,
-    Button, Typography,
+    Button,
+    Typography,
 } from "@material-ui/core";
 import {LoadingButton} from "@mui/lab";
 import {IStepComponentProps} from "./ICreateCourseState";
+import CheckboxWithTooltip from "../Common/CheckboxWithTooltip";
 import {Alert, Autocomplete, Checkbox, FormControlLabel, Chip} from "@mui/material";
 
 const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
@@ -115,6 +117,7 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
             {state.isGroupFromList && (
                 <Grid item xs={12}>
                     <FormControlLabel
+                        style={{ margin: 0 }}
                         control={
                             <Checkbox
                                 checked={state.fetchStudents}
@@ -125,6 +128,19 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                             />
                         }
                         label="Добавить студентов из выбранных групп"
+                    />
+                    <CheckboxWithTooltip
+                        checkboxLabel={"Сделать курс ограниченно-видимым"}
+                        tooltipText={"Материалы заданий и задач будут доступны только преподавателям и студентам курса"}
+                        tooltipPlacement={"right"}
+                        checked={!state.isOpen}
+                        onChange={(e) => {
+                            e.persist()
+                            setState((prevState) => ({
+                                ...prevState,
+                                isOpen: !e.target.checked
+                            }))
+                        }}
                     />
                 </Grid>
             )}

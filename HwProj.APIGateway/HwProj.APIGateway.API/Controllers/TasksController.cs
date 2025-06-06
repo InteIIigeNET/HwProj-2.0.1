@@ -1,12 +1,13 @@
-﻿using System.Net;
-using System.Threading.Tasks;
-using HwProj.CoursesService.Client;
+﻿using HwProj.CoursesService.Client;
+using HwProj.Exceptions;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace HwProj.APIGateway.API.Controllers
 {
@@ -26,10 +27,17 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(HomeworkTaskViewModel), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetTask(long taskId)
         {
-            var result = await _coursesClient.GetTask(taskId);
-            return result == null
-                ? NotFound() as IActionResult
-                : Ok(result);
+            try
+            {
+                var result = await _coursesClient.GetTask(taskId);
+                return result.Succeeded
+                ? Ok(result.Value) as IActionResult
+                : BadRequest(result.Errors);
+            }
+            catch(ForbiddenException)
+            {
+                return Forbid();
+            }
         }
 
         [HttpGet("getForEditing/{taskId}")]

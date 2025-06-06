@@ -10,6 +10,7 @@ using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite.Internal.UrlActions;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Controllers
@@ -36,12 +37,17 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("get/{taskId}")]
         public async Task<IActionResult> GetTask(long taskId)
         {
+            var userId = Request.GetUserIdFromHeader();
             var taskFromDb = await _tasksService.GetTaskAsync(taskId);
             if (taskFromDb == null) return NotFound();
 
+            if (!await _coursesService.IsAccessibleFor(taskFromDb.Homework.CourseId, userId))
+            {
+                return Forbid();
+            }
+
             if (taskFromDb.PublicationDate > DateTime.UtcNow)
             {
-                var userId = Request.GetUserIdFromHeader();
                 var homework = taskFromDb.Homework;
                 var lecturers = await _coursesService.GetCourseLecturers(homework.CourseId);
                 if (!lecturers.Contains(userId)) return BadRequest();

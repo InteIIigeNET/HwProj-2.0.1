@@ -3,7 +3,6 @@ import MDEditor from "@uiw/react-md-editor";
 import {getCommands, getExtraCommands} from "./Styles/MarkdownEditorCommands.ru";
 import rehypeSanitize, {defaultSchema} from 'rehype-sanitize';
 import * as React from "react";
-
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import "./Styles/MarkdownEditor.css";
