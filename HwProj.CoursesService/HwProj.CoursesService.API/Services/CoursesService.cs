@@ -169,6 +169,11 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<bool> AddStudentAsync(long courseId, string studentId)
         {
+            return await AddStudentAsync(courseId, studentId, true);
+        }
+
+        public async Task<bool> AddStudentAsync(long courseId, string studentId, bool sendNotification)
+        {
             var course = await _coursesRepository.GetAsync(courseId);
             var cm = await _courseMatesRepository.FindAsync(cm => cm.CourseId == courseId && cm.StudentId == studentId);
 
@@ -183,14 +188,18 @@ namespace HwProj.CoursesService.API.Services
             };
 
             await _courseMatesRepository.AddAsync(courseMate);
-            _eventBus.Publish(new NewCourseMateEvent
+    
+            if (sendNotification)
             {
-                CourseId = courseId,
-                CourseName = course.Name,
-                MentorIds = course.MentorIds,
-                StudentId = studentId,
-                IsAccepted = false
-            });
+                _eventBus.Publish(new NewCourseMateEvent
+                {
+                    CourseId = courseId,
+                    CourseName = course.Name,
+                    MentorIds = course.MentorIds,
+                    StudentId = studentId,
+                    IsAccepted = false
+                });
+            }
 
             return true;
         }

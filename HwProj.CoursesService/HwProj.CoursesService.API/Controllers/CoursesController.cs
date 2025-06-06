@@ -278,7 +278,7 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> SignInAndAcceptStudent(long courseId, [FromQuery] string studentId)
         {
-            var signInResult = await _coursesService.AddStudentAsync(courseId, studentId);
+            var signInResult = await _coursesService.AddStudentAsync(courseId, studentId, false);
             if (!signInResult) return NotFound();
 
             var acceptResult = await _coursesService.AcceptCourseMateAsync(courseId, studentId);
