@@ -88,7 +88,7 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
             case FileStatus.UploadingError:
                 return {
                     text: "Ошибка загрузки",
-                    tooltipText: "Нажмите, чтобы повторить загрузку",
+                    // tooltipText: "" "Нажмите, чтобы повторить загрузку",
                     icon: <ErrorIcon sx={{fontSize: '0.85rem', color: theme.palette.error.dark}}/>,
                     color: {
                         bg: theme.palette.grey[200],
@@ -98,7 +98,7 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
             case FileStatus.DeletingError:
                 return {
                     text: "Ошибка удаления",
-                    tooltipText: "Нажмите, чтобы повторить удаление",
+                    // tooltipText: "Нажмите, чтобы повторить удаление",
                     icon: <ErrorIcon sx={{fontSize: '0.85rem', color: theme.palette.error.dark}}/>,
                     color: {
                         bg: theme.palette.grey[200],
