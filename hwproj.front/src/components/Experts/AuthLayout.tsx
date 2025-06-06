@@ -41,7 +41,7 @@ const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutPr
                         return;
                     }
 
-                    const loginResult = await ApiSingleton.expertsApi.expertsLoginWithToken(credentials);
+                    const loginResult = await ApiSingleton.accountApi.accountLoginWithToken(credentials);
                     
                     if (loginResult.succeeded) {
                         ApiSingleton.authService.setToken(token!);
