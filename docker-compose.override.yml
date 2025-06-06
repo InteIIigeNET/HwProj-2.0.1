@@ -113,7 +113,7 @@ services:
       - ExternalStorageConfiguration:ServiceURL=https://storage.yandexcloud.net
       - ExternalStorageConfiguration:DefaultBucketName=files
       - LocalStorageConfiguration:Path=/app/data/
-      - TransferFiles:IsNeeded=true
+      - TransferFiles:IsNeeded=True
       - TransferFiles:OldBucketName=hwproj-files
 
     ports:
