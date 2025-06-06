@@ -115,6 +115,7 @@ services:
       - LocalStorageConfiguration:Path=/app/data/
       - TransferFiles:IsNeeded=True
       - TransferFiles:OldBucketName=hwproj-files
+      - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=ContentServiceDB;User=sa;Password=Your_password123;
 
     ports:
       - "5008:5008"
