@@ -20,6 +20,8 @@ namespace HwProj.AuthService.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IExpertsService _expertsService;
+        private readonly IAuthTokenService _tokenService;
         private readonly IUserManager _userManager;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
@@ -27,10 +29,14 @@ namespace HwProj.AuthService.API.Controllers
         public AccountController(
             IAccountService accountService,
             IUserManager userManager,
+            IExpertsService expertsService,
+            IAuthTokenService authTokenService,
             IMapper mapper)
         {
             _accountService = accountService;
             _userManager = userManager;
+            _expertsService = expertsService;
+            _tokenService = authTokenService;
             _mapper = mapper;
         }
 
@@ -196,6 +202,28 @@ namespace HwProj.AuthService.API.Controllers
         {
             var newModel = _mapper.Map<RegisterDataDTO>(model);
             var result = await _accountService.RegisterInvitedStudentAsync(newModel);
+            return Ok(result);
+        }
+        
+        [HttpGet("getStudentToken")]
+        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetStudentToken(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Ok(Result<TokenCredentials>.Failed("Пользователь не найден"));
+            }
+            
+            var token = await _tokenService.GetTokenAsync(user);
+            return Ok(Result<TokenCredentials>.Success(token));
+        }
+        
+        [HttpPost("loginWithToken")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> LoginWithToken([FromBody] TokenCredentials credentials)
+        {
+            var result = await _accountService.LoginWithTokenAsync(credentials);
             return Ok(result);
         }
     }

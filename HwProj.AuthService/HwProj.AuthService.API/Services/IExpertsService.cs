@@ -13,6 +13,5 @@ namespace HwProj.AuthService.API.Services
         Task<Result> LoginExpertAsync(TokenCredentials tokenCredentials);
         Task<ExpertDataDTO[]> GetAllExperts();
         Task<Result> UpdateExpertTags(string lecturerId, UpdateExpertTagsDTO updateExpertTagsDto);
-        Task<Result> LoginWithTokenAsync(TokenCredentials tokenCredentials);
     }
 }

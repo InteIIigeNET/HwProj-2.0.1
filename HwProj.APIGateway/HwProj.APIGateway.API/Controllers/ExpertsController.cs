@@ -115,22 +115,5 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await AuthServiceClient.UpdateExpertTags(UserId, updateExpertTagsDto);
             return Ok(result);
         }
-        
-        [HttpGet("getStudentToken")]
-        [Authorize(Roles = Roles.LecturerRole)]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetStudentToken(string email)
-        {
-            var tokenMeta = await AuthServiceClient.GetStudentToken(email);
-            return Ok(tokenMeta);
-        }
-        
-        [HttpPost("loginWithToken")]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> LoginWithToken([FromBody] TokenCredentials credentials)
-        {
-            var result = await AuthServiceClient.LoginWithToken(credentials);
-            return Ok(result);
-        }
     }
 }

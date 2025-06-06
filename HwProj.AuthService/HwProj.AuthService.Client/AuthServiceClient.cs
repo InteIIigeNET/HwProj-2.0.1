@@ -358,7 +358,7 @@ namespace HwProj.AuthService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _authServiceUri + $"api/Experts/getStudentToken?email={email}");
+                _authServiceUri + $"api/account/getStudentToken?email={email}");
 
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<TokenCredentials>>();
@@ -368,7 +368,7 @@ namespace HwProj.AuthService.Client
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _authServiceUri + "api/Experts/loginWithToken")
+                _authServiceUri + "api/account/loginWithToken")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(credentials),

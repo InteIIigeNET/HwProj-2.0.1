@@ -23,5 +23,6 @@ namespace HwProj.AuthService.API.Services
         Task<GithubCredentials> AuthorizeGithub(string code, string userId);
         Task<Result<string>[]> GetOrRegisterStudentsBatchAsync(IEnumerable<RegisterDataDTO> models);
         Task<Result<string>> RegisterInvitedStudentAsync(RegisterDataDTO model);
+        Task<Result> LoginWithTokenAsync(TokenCredentials tokenCredentials);
     }
 }
