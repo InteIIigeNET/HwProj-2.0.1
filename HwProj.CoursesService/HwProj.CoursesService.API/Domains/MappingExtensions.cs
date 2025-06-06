@@ -11,10 +11,11 @@ namespace HwProj.CoursesService.API.Domains
     public static class MappingExtensions
     {
         private static readonly DateTime DateToOverride = DateTime.MaxValue;
+        private static readonly StringSplitOptions splitOptions = StringSplitOptions.RemoveEmptyEntries;
 
         public static HomeworkViewModel ToHomeworkViewModel(this Homework homework)
         {
-            var tags = homework.Tags?.Split(';') ?? Array.Empty<string>();
+            var tags = homework.Tags?.Split(';', splitOptions) ?? Array.Empty<string>();
             return new HomeworkViewModel()
             {
                 Id = homework.Id,
@@ -36,7 +37,7 @@ namespace HwProj.CoursesService.API.Domains
 
         public static HomeworkTaskViewModel ToHomeworkTaskViewModel(this HomeworkTask task)
         {
-            var tags = task.Homework.Tags?.Split(';') ?? Array.Empty<string>();
+            var tags = task.Homework.Tags?.Split(';', splitOptions) ?? Array.Empty<string>();
             var evaluatedPublicationDate = task.PublicationDate ?? task.Homework.PublicationDate;
             return new HomeworkTaskViewModel()
             {
@@ -73,7 +74,7 @@ namespace HwProj.CoursesService.API.Domains
                     ? new StudentCharacteristicsDto()
                     {
                         Description = characteristics.Description,
-                        Tags = characteristics.Tags.Split(";", StringSplitOptions.RemoveEmptyEntries),
+                        Tags = characteristics.Tags.Split(';', splitOptions),
                     }
                     : null
             };
@@ -85,7 +86,7 @@ namespace HwProj.CoursesService.API.Domains
                 Name = course.Name,
                 GroupName = course.GroupName,
                 IsCompleted = course.IsCompleted,
-                MentorIds = course.MentorIds.Split("/"),
+                MentorIds = course.MentorIds.Split('/', splitOptions),
                 IsOpen = course.IsOpen,
                 InviteCode = course.InviteCode,
                 CourseMates = course.CourseMates.Select(cm => cm.ToCourseMateViewModel()).ToArray(),
@@ -99,7 +100,7 @@ namespace HwProj.CoursesService.API.Domains
                 Name = course.Name,
                 GroupName = course.GroupName,
                 IsCompleted = course.IsCompleted,
-                MentorIds = course.MentorIds.Split("/"),
+                MentorIds = course.MentorIds.Split('/', splitOptions),
             };
 
         public static HomeworkTask ToHomeworkTask(this CreateTaskViewModel createTaskViewModel)

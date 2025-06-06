@@ -1,6 +1,6 @@
 namespace HwProj.ContentService.API.Configuration;
 
-public class StorageClientConfiguration
+public class ExternalStorageConfiguration
 { 
     public string? AccessKeyId { get; set; } 
     public string? SecretKey { get; set; } 

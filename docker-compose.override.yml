@@ -85,7 +85,7 @@ services:
       - Services:Solutions=http://hwproj.solutionsservice.api
       - Notification:Mail=${NOTIFICATION_MAIL}
       - Notification:ConnectSite=${NOTIFICATION_CONNECT_SITE}
-      - Notification:Password=NOTIFICATION_PASSWORD
+      - Notification:Password=${NOTIFICATION_PASSWORD}
       - Notification:Url=https://hwproj.ru
     ports:
       - "5006:5006"
@@ -107,10 +107,15 @@ services:
       - ASPNETCORE_HTTP_PORTS=80
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
-      - StorageClientConfiguration:AccessKeyId=${STORAGE_CLIENT_ACCESS_KEY_ID}
-      - StorageClientConfiguration:SecretKey=${STORAGE_CLIENT_SECRET_KEY}
-      - StorageClientConfiguration:Region=ru-central1
-      - StorageClientConfiguration:ServiceURL=https://storage.yandexcloud.net
-      - StorageClientConfiguration:DefaultBucketName=hwproj-files
+      - ExternalStorageConfiguration:AccessKeyId=${STORAGE_CLIENT_ACCESS_KEY_ID}
+      - ExternalStorageConfiguration:SecretKey=${STORAGE_CLIENT_SECRET_KEY}
+      - ExternalStorageConfiguration:Region=ru-central1
+      - ExternalStorageConfiguration:ServiceURL=https://storage.yandexcloud.net
+      - ExternalStorageConfiguration:DefaultBucketName=files
+      - LocalStorageConfiguration:Path=/app/data/
+      - TransferFiles:IsNeeded=True
+      - TransferFiles:OldBucketName=hwproj-files
+      - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=ContentServiceDB;User=sa;Password=Your_password123;Trusted_Connection=True;
+
     ports:
       - "5008:5008"

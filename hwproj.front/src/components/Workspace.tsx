@@ -177,7 +177,7 @@ const Workspace: FC = () => {
                                                      onGiveUpClick={onGiveUpClick}/>)}
                         </div>
                     </Grid>}
-                    <Grid item>
+                    <Grid item alignSelf="flex-start">
                         <DotLottieReact
                             src="https://lottie.host/3f7405d2-3644-4abf-80de-cea68a618ca5/NYIk0RI1Mw.lottie"
                             loop

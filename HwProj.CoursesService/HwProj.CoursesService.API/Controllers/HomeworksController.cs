@@ -31,8 +31,7 @@ namespace HwProj.CoursesService.API.Controllers
             var validationResult = Validator.ValidateHomework(homeworkViewModel);
             if (validationResult.Any()) return BadRequest(validationResult);
 
-            var homework = homeworkViewModel.ToHomework();
-            var newHomework = await _homeworksService.AddHomeworkAsync(courseId, homework);
+            var newHomework = await _homeworksService.AddHomeworkAsync(courseId, homeworkViewModel);
             return Ok(newHomework.ToHomeworkViewModel());
         }
 
@@ -76,9 +75,7 @@ namespace HwProj.CoursesService.API.Controllers
             var validationResult = Validator.ValidateHomework(homeworkViewModel, homework);
             if (validationResult.Any()) return BadRequest(validationResult);
 
-            var updatedHomework =
-                await _homeworksService.UpdateHomeworkAsync(homeworkId, homeworkViewModel.ToHomework(),
-                    homeworkViewModel.ActionOptions ?? ActionOptions.Default);
+            var updatedHomework = await _homeworksService.UpdateHomeworkAsync(homeworkId, homeworkViewModel);
             return Ok(updatedHomework.ToHomeworkViewModel());
         }
     }

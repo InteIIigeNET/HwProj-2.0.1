@@ -9,7 +9,7 @@ using Z.EntityFramework.Plus;
 namespace HwProj.Repositories
 {
     public class CrudRepository<TEntity, TKey> : ReadOnlyRepository<TEntity, TKey>, ICrudRepository<TEntity, TKey>
-        where TEntity : class, IEntity<TKey>, new()
+        where TEntity : class, IEntity<TKey>
         where TKey : IEquatable<TKey>
     {
         public CrudRepository(DbContext context)

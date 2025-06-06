@@ -10,6 +10,7 @@ import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import {Alert, AlertTitle} from "@mui/material";
 import ValidationUtils from "../Utils/ValidationUtils";
+import { useLocation } from "react-router-dom";
 
 interface IRecoverState {
     email: string;
@@ -44,10 +45,10 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const PasswordRecovery: FC = () => {
-
+    const location = useLocation();
     const classes = useStyles()
     const [recoverState, setRecoverState] = useState<IRecoverState>({
-        email: '',
+        email: location.state?.email || '',
         error: [],
         isSuccess: false,
     })
@@ -127,7 +128,7 @@ const PasswordRecovery: FC = () => {
                             label="Электронная почта"
                             variant="outlined"
                             margin="normal"
-                            name={recoverState.email}
+                            value={recoverState.email}
                             onChange={handleChangeEmail}
                             error={emailError !== ""}
                             helperText={emailError}

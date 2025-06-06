@@ -23,54 +23,63 @@ namespace HwProj.APIGateway.API.Controllers
             _contentServiceClient = contentServiceClient;
         }
 
-        [HttpPost("upload")]
+        [HttpPost("process")]
         [Authorize(Roles = Roles.LecturerRole)]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
-        public async Task<IActionResult> Upload([FromForm] UploadFileDTO uploadFileDto)
+        public async Task<IActionResult> Process([FromForm] ProcessFilesDTO processFilesDto)
         {
-            var result = await _contentServiceClient.UploadFileAsync(uploadFileDto);
+            var result = await _contentServiceClient.ProcessFilesAsync(processFilesDto);
             return result.Succeeded
                 ? Ok() as IActionResult
                 : StatusCode((int)HttpStatusCode.ServiceUnavailable, result.Errors);
         }
 
+        [HttpPost("statuses")]
+        [Authorize(Roles = Roles.LecturerRole)]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
+        public async Task<IActionResult> GetStatuses(ScopeDTO filesScope)
+        {
+            var filesStatusesResult = await _contentServiceClient.GetFilesStatuses(filesScope);
+            return filesStatusesResult.Succeeded
+                ? Ok(filesStatusesResult.Value) as IActionResult
+                : StatusCode((int)HttpStatusCode.ServiceUnavailable, filesStatusesResult.Errors);
+        }
+        
         [HttpGet("downloadLink")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> GetDownloadLink([FromQuery] string key)
+        public async Task<IActionResult> GetDownloadLink([FromQuery] long fileId)
         {
-            var result = await _contentServiceClient.GetDownloadLinkAsync(key);
+            var result = await _contentServiceClient.GetDownloadLinkAsync(fileId);
             return result.Succeeded
                 ? Ok(result.Value) as IActionResult
                 : NotFound(result.Errors);
         }
 
-        [HttpGet("filesInfo/{courseId}")]
+        [HttpGet("info/course/{courseId}")]
         [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
-        public async Task<IActionResult> GetFilesInfo(long courseId, [FromQuery] long? homeworkId = null)
+        public async Task<IActionResult> GetFilesInfo(long courseId)
         {
-            var filesInfoResult = await _contentServiceClient.GetFilesInfo(courseId, homeworkId);
+            var filesInfoResult = await _contentServiceClient.GetFilesInfo(courseId);
             return filesInfoResult.Succeeded
                 ? Ok(filesInfoResult.Value) as IActionResult
                 : StatusCode((int)HttpStatusCode.ServiceUnavailable, filesInfoResult.Errors);
         }
-
-        [HttpDelete]
-        [Authorize(Roles = Roles.LecturerRole)]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> DeleteFile([FromQuery] long courseId, [FromQuery] string key)
+        
+        [HttpGet("info/course/{courseId}/uploaded")]
+        [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
+        public async Task<IActionResult> GetUploadedFilesInfo(long courseId)
         {
-            var deletionResult = await _contentServiceClient.DeleteFileAsync(key);
-            return deletionResult.Succeeded
-                ? Ok() as IActionResult
-                : NotFound(deletionResult.Errors);
+            var filesInfoResult = await _contentServiceClient.GetUploadedFilesInfo(courseId);
+            return filesInfoResult.Succeeded
+                ? Ok(filesInfoResult.Value) as IActionResult
+                : StatusCode((int)HttpStatusCode.ServiceUnavailable, filesInfoResult.Errors);
         }
     }
 }

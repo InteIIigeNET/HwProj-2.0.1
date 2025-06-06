@@ -135,7 +135,7 @@ namespace HwProj.CoursesService.Tests
             return (id, lectureCourseClient);
         }
 
-        private async Task<(long courseId, CreateHomeworkViewModel homework, Result<long> homeworkResult, CoursesServiceClient client)> CreateCourseWithHomework()
+        private async Task<(long courseId, CreateHomeworkViewModel homework, Result<HomeworkViewModel> homeworkResult, CoursesServiceClient client)> CreateCourseWithHomework()
         {
             var course = await CreateClientAndCourse();
             var homework = GenerateDefaultHomeworkViewModel();
@@ -149,7 +149,7 @@ namespace HwProj.CoursesService.Tests
         {
             var homework = GenerateDefaultHomeworkViewModel();
             var homeworkResult = await client.AddHomeworkToCourse(homework, courseId);
-            var taskResult = await client.AddTask(homeworkResult.Value, firstTaskState);
+            var taskResult = await client.AddTask(homeworkResult.Value.Id, firstTaskState);
             var editResult = await client.UpdateTask(taskResult.Value.Id, secondTaskState);
             var taskFromDb = await client.GetForEditingTask(taskResult.Value.Id);
 
@@ -179,7 +179,7 @@ namespace HwProj.CoursesService.Tests
 
             var homeworkResult = await client.AddHomeworkToCourse(homework, courseId);
 
-            var actualResult = (await client.GetHomework(homeworkResult.Value)).Tasks.FirstOrDefault();
+            var actualResult = (await client.GetHomework(homeworkResult.Value.Id)).Tasks.FirstOrDefault();
 
             homeworkResult.Succeeded.Should().BeTrue();
             homeworkResult.Errors.Should().BeNull();
@@ -223,8 +223,8 @@ namespace HwProj.CoursesService.Tests
         {
             var task = GenerateCreateTaskViewModel(data.publication, data.hasDeadline, data.deadline, data.isStrict);
             var homeworkResult = await client.AddHomeworkToCourse(data.homework, courseId);
-            var taskResult = await client.AddTask(homeworkResult.Value, task);
-            var homeworkFromDb = await client.GetForEditingHomework(homeworkResult.Value);
+            var taskResult = await client.AddTask(homeworkResult.Value.Id, task);
+            var homeworkFromDb = await client.GetForEditingHomework(homeworkResult.Value.Id);
 
             homeworkResult.Succeeded.Should().BeTrue();
 
@@ -241,8 +241,8 @@ namespace HwProj.CoursesService.Tests
         {
             var task = GenerateCreateTaskViewModel(data.publication, data.hasDeadline, data.deadline, data.isStrict);
             var homeworkResult = await client.AddHomeworkToCourse(data.homework, courseId);
-            var taskResult = await client.AddTask(homeworkResult.Value, task);
-            var homeworkFromDb = await client.GetForEditingHomework(homeworkResult.Value);
+            var taskResult = await client.AddTask(homeworkResult.Value.Id, task);
+            var homeworkFromDb = await client.GetForEditingHomework(homeworkResult.Value.Id);
 
             homeworkResult.Succeeded.Should().BeTrue();
 
@@ -261,8 +261,8 @@ namespace HwProj.CoursesService.Tests
             var secondHomeworkState =
                 GenerateCreateHomeworkViewModel(data.publication, data.hasDeadline, data.deadline, data.isStrict);
             var homeworkResult = await client.AddHomeworkToCourse(data.firstHomeworkState, courseId);
-            var updateResult = await client.UpdateHomework(homeworkResult.Value, secondHomeworkState);
-            var homeworkFromDb = await client.GetHomework(homeworkResult.Value);
+            var updateResult = await client.UpdateHomework(homeworkResult.Value.Id, secondHomeworkState);
+            var homeworkFromDb = await client.GetHomework(homeworkResult.Value.Id);
 
             homeworkFromDb.Should().NotBeNull();
             homeworkResult.Succeeded.Should().BeTrue();
@@ -281,8 +281,8 @@ namespace HwProj.CoursesService.Tests
             var secondHomeworkState =
                 GenerateCreateHomeworkViewModel(data.publication, data.hasDeadline, data.deadline, data.isStrict);
             var homeworkResult = await client.AddHomeworkToCourse(data.firstHomeworkState, courseId);
-            var updateResult = await client.UpdateHomework(homeworkResult.Value, secondHomeworkState);
-            var taskFromDb = await client.GetHomework(homeworkResult.Value);
+            var updateResult = await client.UpdateHomework(homeworkResult.Value.Id, secondHomeworkState);
+            var taskFromDb = await client.GetHomework(homeworkResult.Value.Id);
                 
             taskFromDb.Should().NotBeNull();
             homeworkResult.Succeeded.Should().BeTrue();
@@ -341,8 +341,8 @@ namespace HwProj.CoursesService.Tests
             var (_, _, homeworkResult,  _) = await CreateCourseWithHomework();
             
             var task = GenerateDefaultTaskViewModel();
-            var addHomeworkResult = await client.AddTask(homeworkResult.Value, task);
-            var homeworkFromDb = await client.GetHomework(homeworkResult.Value);
+            var addHomeworkResult = await client.AddTask(homeworkResult.Value.Id, task);
+            var homeworkFromDb = await client.GetHomework(homeworkResult.Value.Id);
             
             addHomeworkResult.Succeeded.Should().BeFalse();
             homeworkFromDb.Tasks.Should().BeEmpty();
@@ -354,8 +354,8 @@ namespace HwProj.CoursesService.Tests
             var (_, createdHomework, homeworkResult,  _) = await CreateCourseWithHomework();
 
             var homework = GenerateCreateHomeworkViewModel(utcNow.AddHours(2), true, utcNow.AddHours(4), true);
-            var updateHomeworkResult = await client.UpdateHomework(homeworkResult.Value, homework);
-            var homeworkFromDb = await client.GetHomework(homeworkResult.Value);
+            var updateHomeworkResult = await client.UpdateHomework(homeworkResult.Value.Id, homework);
+            var homeworkFromDb = await client.GetHomework(homeworkResult.Value.Id);
             
             updateHomeworkResult.Succeeded.Should().BeFalse();
             homeworkFromDb.Should().BeEquivalentTo(createdHomework,
@@ -369,7 +369,7 @@ namespace HwProj.CoursesService.Tests
             var oldTask = GenerateDefaultTaskViewModel();
             var newTask = GenerateCreateTaskViewModel(utcNow, false, null, false);
 
-            var addTaskResult = await foreignClient.AddTask(homeworkResult.Value, oldTask);
+            var addTaskResult = await foreignClient.AddTask(homeworkResult.Value.Id, oldTask);
             var updateTaskResult = await client.UpdateTask(addTaskResult.Value.Id, newTask);
             var taskFromDb = await foreignClient.GetForEditingTask(addTaskResult.Value.Id);
             

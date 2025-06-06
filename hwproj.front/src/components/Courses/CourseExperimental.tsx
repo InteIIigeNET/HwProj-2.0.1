@@ -6,8 +6,12 @@ import {
 } from "@/api";
 import {
     Button,
+    Fab,
     Grid,
-    Typography
+    Typography,
+    useMediaQuery,
+    useTheme,
+    Zoom
 } from "@mui/material";
 import {FC, useEffect, useState} from "react";
 import Timeline from '@mui/lab/Timeline';
@@ -27,6 +31,7 @@ import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import EditIcon from "@mui/icons-material/Edit";
 import ErrorIcon from '@mui/icons-material/Error';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Lodash from "lodash";
 
 interface ICourseExperimentalProps {
@@ -38,10 +43,16 @@ interface ICourseExperimentalProps {
     isStudentAccepted: boolean
     userId: string
     selectedHomeworkId: number | undefined
-    onHomeworkUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] } & {
+    onHomeworkUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] | undefined } & {
         isDeleted?: boolean
     }) => void
-    onTaskUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => void
+    onTaskUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => void,
+    processingFiles: {
+        [homeworkId: number]: {
+            isLoading: boolean;
+        };
+    };
+    onStartProcessing: (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
 }
 
 interface ICourseExperimentalState {
@@ -54,6 +65,13 @@ interface ICourseExperimentalState {
 
 export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const [hideDeferred, setHideDeferred] = useState<boolean>(false)
+
+    // Определяем разрешение экрана пользователя
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+    // Состояние для кнопки "Наверх"
+    const [showScrollButton, setShowScrollButton] = useState(false);
 
     const homeworks = props.homeworks.slice().reverse().filter(x => !hideDeferred || !x.isDeferred)
     const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId, courseFilesInfo} = props
@@ -71,6 +89,28 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             selectedItem: {isHomework: true, id: defaultHomework?.id},
         }))
     }, [hideDeferred])
+
+    // Обработчик прокрутки страницы
+    useEffect(() => {
+        const handleScroll = () => {
+            // Показывать кнопку при прокрутке ниже 400px
+            const shouldShow = window.scrollY > 400;
+            if (shouldShow !== showScrollButton) {
+                setShowScrollButton(shouldShow);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [showScrollButton]);
+
+    // Функция прокрутки вверх
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 110,
+            behavior: 'instant'
+        });
+    };
 
     const initialEditMode = state.initialEditMode
     const {id, isHomework} = state.selectedItem
@@ -327,13 +367,12 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 id: update.isDeleted ? undefined : update.homework.id!
                             }
                         }))
-                    }}/>
+                    }}
+                    isProcessing={props.processingFiles[homework.id!]?.isLoading || false}
+                    onStartProcessing={(homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => 
+                        props.onStartProcessing(homeworkId, previouslyExistingFilesCount, waitingNewFilesCount, deletingFilesIds)}
+                />
             </Card>
-            <DotLottieReact
-                src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
-                loop
-                autoplay
-            />
         </Stack>
     }
 
@@ -377,10 +416,21 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Card>
     }
 
-    return <Grid container direction={"row"} spacing={1}>
-        <Grid item xs={12} sm={12} md={4} lg={4}>
-            <Timeline style={{maxHeight: "75vh", overflow: 'auto', paddingLeft: 0, paddingRight: 8}}
+    const renderGif = () =>
+        <DotLottieReact
+            src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
+            loop
+            autoplay
+        />
+
+    return <Grid container direction={{xs: "column", sm: "column", md: "row", lg: "row"}} spacing={1}>
+        <Grid item xs={12} sm={12} md={4} lg={4} order={{xs: 2, sm: 2, md: 1, lg: 1}}>
+            <Timeline style={{overflow: 'auto', paddingLeft: 0, paddingRight: 8}}
                       sx={{
+                          maxHeight: {
+                              xs: 'none',
+                              md: '75vh'
+                          },
                           '&::-webkit-scrollbar': {
                               width: "3px",
                           },
@@ -483,10 +533,35 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 })}
             </Timeline>
         </Grid>
-        <Grid item xs={12} sm={12} md={8} lg={8}>
+        <Grid item xs={12} sm={12} md={8} lg={8} order={{xs: 1, sm: 1, md: 2, lg: 2}}>
             {isHomework
                 ? renderHomework(selectedItem as HomeworkViewModel)
                 : renderTask(selectedItem as HomeworkTaskViewModel, selectedItemHomework!)}
+            <Grid item sx={{display: {xs: 'none', md: 'flex'}}}>
+                {renderGif()}
+            </Grid>
         </Grid>
+        <Grid item sx={{display: {xs: 'flex', md: 'none'}}} order={{xs: 3, sm: 3}}>
+            {renderGif()}
+        </Grid>
+        
+        {/* Кнопка "Наверх" для мобильных устройств */}
+        <Zoom in={showScrollButton && isMobile}>
+            <Fab
+                size="medium"
+                color="primary"
+                aria-label="up"
+                onClick={scrollToTop}
+                sx={{
+                    position: 'fixed',
+                    bottom: 40,
+                    right: 40,
+                    display: { xs: 'flex', md: 'none' },
+                    zIndex: 1000
+                }}
+            >
+                <ArrowUpwardIcon />
+            </Fab>
+        </Zoom>
     </Grid>
 }

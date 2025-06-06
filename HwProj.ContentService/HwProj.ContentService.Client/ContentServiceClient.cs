@@ -1,12 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.ContentService.DTO;
 using HwProj.Models.Result;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace HwProj.ContentService.Client
 {
@@ -24,54 +27,95 @@ namespace HwProj.ContentService.Client
             _contentServiceUri = new Uri(configuration.GetSection("Services")["Content"]);
         }
 
-        public async Task<Result> UploadFileAsync(UploadFileDTO uploadFileDto)
+        public async Task<Result> ProcessFilesAsync(ProcessFilesDTO processFilesDto)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _contentServiceUri + "api/Files/upload");
+                _contentServiceUri + "api/Files/process");
 
             var multipartContent = new MultipartFormDataContent();
-            multipartContent.Add(new StringContent(uploadFileDto.CourseId.ToString()), "courseId");
-            multipartContent.Add(new StringContent(uploadFileDto.HomeworkId.ToString()), "homeworkId");
+            multipartContent.Add(new StringContent(processFilesDto.FilesScope.CourseId.ToString()),
+                "FilesScope.CourseId");
+            multipartContent.Add(new StringContent(processFilesDto.FilesScope.CourseUnitType),
+                "FilesScope.CourseUnitType");
+            multipartContent.Add(new StringContent(processFilesDto.FilesScope.CourseUnitId.ToString()),
+                "FilesScope.CourseUnitId");
 
-            var fileStreamContent = new StreamContent(uploadFileDto.File.OpenReadStream());
-            fileStreamContent.Headers.ContentType = MediaTypeHeaderValue.Parse(uploadFileDto.File.ContentType);
-            multipartContent.Add(fileStreamContent, "file", uploadFileDto.File.FileName);
+            // Добавляем идентификаторы файлов, подлежащих удалению
+            foreach (var fileId in processFilesDto.DeletingFileIds)
+                multipartContent.Add(new StringContent(fileId.ToString()), "deletingFileIds");
+
+            // Добавляем все файлы
+            foreach (var file in processFilesDto.NewFiles)
+            {
+                var fileStreamContent = new StreamContent(file.OpenReadStream());
+                fileStreamContent.Headers.ContentType = MediaTypeHeaderValue.Parse(file.ContentType);
+                multipartContent.Add(fileStreamContent, "newFiles", file.FileName);
+            }
 
             httpRequest.Content = multipartContent;
             httpRequest.TryAddUserId(_httpContextAccessor);
 
             try
             {
-                var response = await _httpClient.SendAsync(httpRequest);
-                return await response.DeserializeAsync<Result>();
+                await _httpClient.SendAsync(httpRequest);
+                return Result.Success();
             }
             catch (HttpRequestException e)
             {
-                return Result.Failed("Пока не можем сохранить файлы. Попробуйте повторить позже");
+                return Result.Failed(
+                    "Пока не можем обработать файлы. \nПожалуйста, попробуйте повторить позже");
             }
         }
 
-        public async Task<Result<string>> GetDownloadLinkAsync(string fileKey)
+        public async Task<Result<FileInfoDTO[]>> GetFilesStatuses(ScopeDTO scopeDto)
         {
-            var encodedFileKey = Uri.EscapeDataString(fileKey);
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _contentServiceUri + "api/Files/statuses")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(scopeDto),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            try
+            {
+                var response = await _httpClient.SendAsync(httpRequest);
+                var filesStatuses = await response.DeserializeAsync<FileInfoDTO[]>();
+                return Result<FileInfoDTO[]>.Success(filesStatuses);
+            }
+            catch (HttpRequestException e)
+            {
+                return Result<FileInfoDTO[]>.Failed(
+                    "Пока не можем получить информацию о файлах. \nВсе ваши данные сохранены — попробуйте повторить позже");
+            }
+        }
+
+        public async Task<Result<string>> GetDownloadLinkAsync(long fileId)
+        {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _contentServiceUri + $"api/Files/downloadLink?key={encodedFileKey}");
+                _contentServiceUri + $"api/Files/downloadLink?fileId={fileId}");
 
-            var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result<string>>();
-        }
-        
-        public async Task<Result<FileInfoDTO[]>> GetFilesInfo(long courseId, long? homeworkId = null)
-        {
-            var url = _contentServiceUri + $"api/Files/filesInfo/{courseId}";
-            if (homeworkId.HasValue)
+            try
             {
-                url += $"?homeworkId={homeworkId.Value}";
+                var response = await _httpClient.SendAsync(httpRequest);
+                return await response.DeserializeAsync<Result<string>>();
             }
+            catch (HttpRequestException e)
+            {
+                return Result<string>.Failed(
+                    "Пока не можем открыть файл. \nВсе ваши данные сохранены — попробуйте повторить позже");
+            }
+        }
 
+        public async Task<Result<FileInfoDTO[]>> GetFilesInfo(long courseId)
+        {
+            var url = _contentServiceUri + $"api/Files/info/course/{courseId}";
             using var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
+
             try
             {
                 var response = await _httpClient.SendAsync(httpRequest);
@@ -80,21 +124,27 @@ namespace HwProj.ContentService.Client
             }
             catch (HttpRequestException e)
             {
-                return Result<FileInfoDTO[]>.Failed("Пока не можем получить информацию о файлах. " +
-                                                    "\nВсе ваши данные сохранены — попробуйте повторить позже");
+                return Result<FileInfoDTO[]>.Failed(
+                    "Пока не можем получить информацию о файлах. \nВсе ваши данные сохранены — попробуйте повторить позже");
             }
         }
-        
-        public async Task<Result> DeleteFileAsync(string fileKey)
-        {
-            var encodedFileKey = Uri.EscapeDataString(fileKey);
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Delete,
-                _contentServiceUri + $"api/Files?key={encodedFileKey}");
-            httpRequest.TryAddUserId(_httpContextAccessor);
 
-            var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Result>();
+        public async Task<Result<FileInfoDTO[]>> GetUploadedFilesInfo(long courseId)
+        {
+            var url = _contentServiceUri + $"api/Files/info/course/{courseId}/uploaded";
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
+
+            try
+            {
+                var response = await _httpClient.SendAsync(httpRequest);
+                var filesInfo = await response.DeserializeAsync<FileInfoDTO[]>();
+                return Result<FileInfoDTO[]>.Success(filesInfo);
+            }
+            catch (HttpRequestException e)
+            {
+                return Result<FileInfoDTO[]>.Failed(
+                    "Пока не можем получить информацию о файлах. \nВсе ваши данные сохранены — попробуйте повторить позже");
+            }
         }
     }
 }
