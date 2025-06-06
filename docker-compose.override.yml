@@ -111,7 +111,10 @@ services:
       - ExternalStorageConfiguration:SecretKey=${STORAGE_CLIENT_SECRET_KEY}
       - ExternalStorageConfiguration:Region=ru-central1
       - ExternalStorageConfiguration:ServiceURL=https://storage.yandexcloud.net
-      - ExternalStorageConfiguration:DefaultBucketName=hwproj-files
+      - ExternalStorageConfiguration:DefaultBucketName=files
       - LocalStorageConfiguration:Path=/app/data/
+      - TransferFiles:IsNeeded=true
+      - TransferFiles:OldBucketName=hwproj-files
+
     ports:
       - "5008:5008"
