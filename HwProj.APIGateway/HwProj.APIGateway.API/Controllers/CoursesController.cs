@@ -329,21 +329,17 @@ namespace HwProj.APIGateway.API.Controllers
                 };
 
                 var registrationResult = await AuthServiceClient.RegisterInvitedStudent(registerModel);
-        
+    
                 if (!registrationResult.Succeeded)
                 {
                     return BadRequest(new { error = "Не удалось зарегистрировать студента", details = registrationResult.Errors });
                 }
 
-                student = await AuthServiceClient.FindByEmailAsync(model.Email);
-                if (student == null)
-                {
-                    return BadRequest(new { error = "Студент зарегистрирован, но не найден в системе" });
-                }
+                student = registrationResult.Value;
             }
-            
-            var invitationResult = await _coursesClient.SignInAndAcceptStudent(model.CourseId, student);
     
+            var invitationResult = await _coursesClient.SignInAndAcceptStudent(model.CourseId, student);
+
             if (!invitationResult.Succeeded)
             {
                 return BadRequest(new { error = invitationResult.Errors });

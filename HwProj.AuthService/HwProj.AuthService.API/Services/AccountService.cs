@@ -396,7 +396,7 @@ namespace HwProj.AuthService.API.Services
                     AuthToken = token.AccessToken
                 };
                 _eventBus.Publish(registerEvent);
-                return Result<string>.Success(user.Id);
+                return Result<string>.Success(newUser.Id);
             }
 
             return Result<string>.Failed(result.Errors.Select(errors => errors.Description).ToArray());
