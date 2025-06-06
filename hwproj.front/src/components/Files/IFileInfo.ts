@@ -1,9 +1,13 @@
+import { CourseUnitType } from "./CourseUnitType";
+import { FileStatus } from "./FileStatus";
+
 export interface IFileInfo {
+    id?: number;
     file?: File;
     type?: string;
+    status: FileStatus;
     name: string;
-    // В байтах
-    size: number;
-    homeworkId: number;
-    key?: string;
+    sizeInBytes: number;
+    courseUnitType: CourseUnitType,
+    courseUnitId: number;
 }

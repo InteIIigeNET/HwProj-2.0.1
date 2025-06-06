@@ -1,40 +1,54 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
-using HwProj.Models.ContentService.DTO;
+using Cyrillic.Convert;
+using HwProj.ContentService.API.Models;
+using HwProj.ContentService.API.Services.Interfaces;
 
 namespace HwProj.ContentService.API.Services;
 
 public class FileKeyService : IFileKeyService
 {
-    public string BuildFileKey(UploadFileDTO dto)
-        => $"courses/{dto.CourseId}/lecturers/homeworks/{dto.HomeworkId}/files/{dto.File.FileName}";
-    
-    public bool GetHomeworkIdFromKey(string fileKey, out long homeworkId)
-    {
-        var match = Regex.Match(
-            fileKey,
-            @"/homeworks/(?<homeworkId>\d+)(?=/|$)",
-            RegexOptions.IgnoreCase
-        );
+    // Максимальная длина имени файла в Ubuntu (в байтах)
+    private const int MaxFileNameOnServerBytes = 255;
 
-        return long.TryParse(match.Groups["homeworkId"].Value, out homeworkId);
+    public string BuildS3FileKey(Scope scope, string fileName, long fileRecordId)
+    {
+        var pureName = SanitizeFileName(fileName);
+        return $"courses/{scope.CourseId}/{scope.CourseUnitType}s/{scope.CourseUnitId}/{fileRecordId}_{pureName}";
+    }
+
+    public string BuildServerFilePath(Scope scope, string fileName)
+    {
+        var pureName = SanitizeFileName(fileName);
+        if (Encoding.UTF8.GetByteCount(pureName) > MaxFileNameOnServerBytes)
+            pureName = HashFileName(fileName);
+        return $"courses/{scope.CourseId}/{scope.CourseUnitType}s/{scope.CourseUnitId}/{pureName}";
     }
     
-    public bool GetCourseIdFromKey(string fileKey, out long courseId)
+    private static string SanitizeFileName(string fileName)
     {
-        var match = Regex.Match(
-            fileKey,
-            @"courses/(?<courseId>\d+)(?=/|$)",
-            RegexOptions.IgnoreCase
-        );
+        // Выполняем транслитерацию
+        var transliteratedName = fileName.ToRussianLatin();
 
-        return long.TryParse(match.Groups["courseId"].Value, out courseId);
+        // Заменяем пробелы на символы подчеркивания
+        transliteratedName = transliteratedName.Replace(' ', '_');
+
+        // Заменяем другие нежелательные символы
+        // В данном случае заменяем все, кроме букв, цифр, дефисов и подчеркиваний
+        transliteratedName = Regex.Replace(transliteratedName, @"[^\w\-\.]", "");
+
+        return transliteratedName;
     }
     
-    public string GetFileName(string fileKey)
-        => fileKey.Split('/').Last();
+    private static string HashFileName(string longFileName)
+    {
+        using var sha256 = SHA256.Create();
+        
+        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(longFileName));
+        var hash = BitConverter.ToString(hashedBytes).Replace('/', '_').Substring(0, 30);
 
-    public string GetFilesSearchPrefix(long courseId, long homeworkId = -1) 
-        => homeworkId == -1
-            ? $"courses/{courseId}/lecturers/"
-            : $"courses/{courseId}/lecturers/homeworks/{homeworkId}/files/";
+        var extension = Path.GetExtension(longFileName);
+        return $"{hash}{extension}";
+    }
 }

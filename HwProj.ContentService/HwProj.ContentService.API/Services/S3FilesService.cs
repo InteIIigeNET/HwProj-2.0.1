@@ -1,15 +1,17 @@
-using System.Net;
+using System.Text.RegularExpressions;
 using Amazon.S3;
 using Amazon.S3.Model;
 using HwProj.ContentService.API.Configuration;
 using HwProj.ContentService.API.Extensions;
-using HwProj.Models.ContentService.DTO;
+using HwProj.ContentService.API.Models.DTO;
+using HwProj.ContentService.API.Models.Enums;
+using HwProj.ContentService.API.Services.Interfaces;
 using HwProj.Models.Result;
 using Microsoft.Extensions.Options;
 
 namespace HwProj.ContentService.API.Services;
 
-public class FilesService : IFilesService
+public class S3FilesService : IS3FilesService
 {
     private const int FileDownloadUrlExpirationMinutes = 10;
     private const string UploaderIdMetadataKey = "uploader-id";
@@ -17,34 +19,60 @@ public class FilesService : IFilesService
     private readonly string _bucketName;
 
     private readonly IAmazonS3 _s3AmazonClient;
-    private readonly IFileKeyService _fileKeyService;
 
-    public FilesService(IAmazonS3 s3Client, IOptions<StorageClientConfiguration> storageClientConfiguration,
-        IFileKeyService fileKeyService)
+    public S3FilesService(IAmazonS3 s3Client, IOptions<ExternalStorageConfiguration> externalStorageConfiguration)
     {
         _s3AmazonClient = s3Client;
-        _fileKeyService = fileKeyService;
-        _bucketName = storageClientConfiguration.Value.DefaultBucketName
+        _bucketName = externalStorageConfiguration.Value.DefaultBucketName
                       ?? throw new NullReferenceException("Не указано имя бакета для сохранения файлов");
     }
+    
+    public async Task<List<FileTransferDTO>> GetBucketFilesAsync(string bucketName, string filePathPattern)
+    {
+        var bucketKeys = await _s3AmazonClient.GetAllObjectKeysAsync(bucketName, string.Empty, null);
+        var filesBucketKeys = bucketKeys.Where(key => key[^1] != '/');
 
+        var regex = new Regex(filePathPattern, RegexOptions.Compiled);
+
+        var tasks = filesBucketKeys.Select(async (key) =>
+        {
+            // Получаем метаданные объекта, чтобы извлечь ContentType
+            var metadataResponse = await _s3AmazonClient.GetObjectMetadataAsync(new GetObjectMetadataRequest
+            {
+                BucketName = bucketName,
+                Key = key
+            });
+            
+            // Получаем сам файл
+            var fileStream = await GetFileStream(bucketName, key);
+
+            var match = regex.Match(key);
+
+            return new FileTransferDTO(
+                Name: match.Groups["FileName"].Value,
+                SizeInBytes: metadataResponse.Headers.ContentLength,
+                ContentType: metadataResponse.Headers.ContentType,
+                FileStream: fileStream,
+                CourseUnitType: CourseUnitType.Homework,
+                CourseUnitId: long.Parse(match.Groups["HomeworkId"].Value),
+                CourseId: long.Parse(match.Groups["CourseId"].Value)
+            );
+        }).ToList();
+        
+        var fileTransfers = await Task.WhenAll(tasks);
+        return fileTransfers.ToList();
+    }
+    
     // Если файл с таким ключем уже существует, в текущей реализации он будет перезаписываться
-    public async Task<Result> UploadFileAsync(UploadFileDTO uploadFileDto, string uploaderId)
+    public async Task<Result> UploadFileAsync(UploadFileToS3Dto uploadFileToS3Dto)
     {
         try
         {
-            var fileKey = _fileKeyService.BuildFileKey(uploadFileDto);
-            await using var stream = uploadFileDto.File.OpenReadStream();
-            var request = CreateUploadRequest(uploadFileDto, uploaderId, stream, fileKey);
-
+            var request = CreateUploadRequest(uploadFileToS3Dto);
             var response = await _s3AmazonClient.PutObjectAsync(request);
             return response.IsSuccessStatusCode()
                 ? Result.Success()
-                : Result.Failed("Не удалось загрузить файл");
-        }
-        catch (AmazonS3Exception ex) when (ex.StatusCode == HttpStatusCode.PreconditionFailed)
-        {
-            return Result.Failed("Файл с таким именем уже существует");
+                : Result.Failed($"Не удалось загрузить файл. Код ответа хранилища: {(int)response.HttpStatusCode}");
         }
         catch (Exception e)
         {
@@ -74,58 +102,52 @@ public class FilesService : IFilesService
         }
     }
 
-    public async Task<List<FileInfoDTO>> GetFilesInfoAsync(long courseId, long homeworkId = -1)
+    public async Task<bool> CheckFileExistence(string fileKey)
     {
-        var searchPrefix = _fileKeyService.GetFilesSearchPrefix(courseId, homeworkId);
-        var filesResponse = await FetchFilesInfoByPrefix(searchPrefix);
-
-        return filesResponse.S3Objects?.Select(obj =>
+        try
         {
-            if (!_fileKeyService.GetHomeworkIdFromKey(obj.Key, out homeworkId))
-                throw new ApplicationException($"Путь к файлу {obj.Key} не содержит идентификатора домашней работы");
-
-            return new FileInfoDTO
-            {
-                Name = _fileKeyService.GetFileName(obj.Key),
-                Key = obj.Key,
-                Size = obj.Size ??
-                       throw new ArgumentException("В хранилище отсутствует информация о размере файла", nameof(obj)),
-                HomeworkId = homeworkId
-            };
-        }).ToList() ?? new List<FileInfoDTO>();
+            var response = await _s3AmazonClient.GetObjectMetadataAsync(_bucketName, fileKey);
+            return response.IsSuccessStatusCode();
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
-    public async Task<Result> DeleteFileAsync(string fileKey, string userId)
+    public async Task<Result> DeleteFileAsync(string fileKey)
     {
         try
         {
             var response = await _s3AmazonClient.DeleteObjectAsync(_bucketName, fileKey);
             return response.IsSuccessStatusCode()
                 ? Result.Success()
-                : Result.Failed("Не удалось удалить файл");
+                : Result.Failed($"Не удалось удалить файл. Код ответа хранилища: {(int)response.HttpStatusCode}");
         }
         catch (Exception e)
         {
             return Result.Failed(e.Message);
         }
     }
+    
+    private async Task<Stream> GetFileStream(string bucketName, string fileKey)
+        => await _s3AmazonClient.GetObjectStreamAsync(bucketName, fileKey, null);
 
-    private PutObjectRequest CreateUploadRequest(UploadFileDTO dto, string uploaderId, Stream stream,
-        string fileKey)
+    private PutObjectRequest CreateUploadRequest(UploadFileToS3Dto uploadFileToS3Dto)
     {
+        var contentType = uploadFileToS3Dto.ContentType;
         // Для нормального отображения кириллицы в файлах
-        var contentType = dto.File.ContentType;
         if (contentType.StartsWith("text/"))
             contentType += "; charset=utf-8";
 
         return new PutObjectRequest
         {
             BucketName = _bucketName,
-            Key = fileKey,
-            InputStream = stream,
+            Key = uploadFileToS3Dto.ExternalKey,
+            InputStream = uploadFileToS3Dto.FileStream,
             ContentType = contentType,
             DisableDefaultChecksumValidation = true,
-            Metadata = { [UploaderIdMetadataKey] = uploaderId }
+            Metadata = { [UploaderIdMetadataKey] = uploadFileToS3Dto.UploaderId }
         };
     }
 

@@ -6,9 +6,12 @@ import {useEffect, useState} from "react";
 import {IFileInfo} from "./IFileInfo";
 import {Alert, Button, Grid} from "@mui/material";
 import FilesPreviewList from "./FilesPreviewList";
+import { CourseUnitType } from "./CourseUnitType";
+import { FileStatus } from "./FileStatus";
 
 interface IFilesUploaderProps {
-    homeworkId: number;
+    courseUnitType: CourseUnitType
+    courseUnitId: number;
     initialFilesInfo?: IFileInfo[];
     onChange: (selectedFiles: IFileInfo[]) => void;
     isLoading?: boolean;
@@ -38,18 +41,10 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
         }
     }, [props.initialFilesInfo]);
 
-    const validFileNameRegex = /^(?!.*[:*?"<>|!])[\p{L}0-9_\-\.() ]+(\.[\p{L}0-9]+)?$/u;
     const maxFileSizeInBytes = 100 * 1024 * 1024;
 
     const validateFiles = (files: FileList): boolean => {
         for (const file of files) {
-            const isValidName = validFileNameRegex.test(file.name);
-            if (!isValidName) {
-                setError(`Недопустимое имя файла: ${file.name}.
-                 Пожалуйста, используйте буквы, цифры, символы _ - . ( ) : или пробел`);
-                return false;
-            }
-
             if (file.size > maxFileSizeInBytes) {
                 setError(`Файл "${file.name}" слишком большой.
                  Максимальный допустимый размер: ${(maxFileSizeInBytes / 1024 / 1024).toFixed(1)} MB.`);
@@ -70,10 +65,11 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
             newFilesInfo.push({
                 name: file.name,
                 type: file.type,
-                size: file.size,
+                sizeInBytes: file.size,
                 file: file,
-                homeworkId: props.homeworkId,
-                key: "local" //TODO
+                courseUnitType: props.courseUnitType,
+                courseUnitId: props.courseUnitId,
+                status: FileStatus.Local
             })
         }
         setSelectedFilesInfo(previouslySelected => {

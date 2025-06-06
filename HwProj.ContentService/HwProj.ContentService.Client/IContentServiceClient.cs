@@ -6,12 +6,10 @@ namespace HwProj.ContentService.Client
 {
     public interface IContentServiceClient
     {
-        Task<Result> UploadFileAsync(UploadFileDTO uploadFileDto);
-        
-        Task<Result<string>> GetDownloadLinkAsync(string fileKey);
-        
-        Task<Result<FileInfoDTO[]>> GetFilesInfo(long courseId, long? homeworkId = null);
-        
-        Task<Result> DeleteFileAsync(string fileKey);
+        Task<Result> ProcessFilesAsync(ProcessFilesDTO processFilesDto);
+        Task<Result<FileInfoDTO[]>> GetFilesStatuses(ScopeDTO scopeDto);
+        Task<Result<string>> GetDownloadLinkAsync(long fileId);
+        Task<Result<FileInfoDTO[]>> GetFilesInfo(long courseId);
+        Task<Result<FileInfoDTO[]>> GetUploadedFilesInfo(long courseId);
     }
 }
