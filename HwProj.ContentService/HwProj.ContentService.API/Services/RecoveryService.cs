@@ -1,4 +1,6 @@
+using HwProj.ContentService.API.Models;
 using HwProj.ContentService.API.Models.Enums;
+using HwProj.ContentService.API.Models.Messages;
 using HwProj.ContentService.API.Repositories;
 using HwProj.ContentService.API.Services.Interfaces;
 
@@ -9,15 +11,59 @@ public class RecoveryService : IRecoveryService
     private const string SenderId = "ContentMicroservice";
 
     private readonly IFileRecordRepository _fileRecordRepository;
+    private readonly IS3FilesService _s3FilesService;
     private readonly IMessageProducer _messageProducer;
+    private readonly IFileKeyService _fileKeyService;
+    private readonly ILocalFilesService _localFilesService;
     private readonly ILogger<RecoveryService> _logger;
-    
+
     public RecoveryService(IFileRecordRepository fileRecordRepository, ILogger<RecoveryService> logger,
-        IMessageProducer messageProducer)
+        IMessageProducer messageProducer, IS3FilesService s3FilesService, IFileKeyService fileKeyService,
+        ILocalFilesService localFilesService)
     {
         _fileRecordRepository = fileRecordRepository;
         _logger = logger;
         _messageProducer = messageProducer;
+        _s3FilesService = s3FilesService;
+        _fileKeyService = fileKeyService;
+        _localFilesService = localFilesService;
+    }
+
+    public async Task TransferFiles(string oldBucketName, string oldFilesPathRegex)
+    {
+        _logger.LogInformation("Начинаем процесс переноса файлов из бакета {oldBucketName}", oldBucketName);
+
+        var filesTransferInfo = await _s3FilesService.GetBucketFilesAsync(oldBucketName, oldFilesPathRegex);
+        foreach (var fileTransferDto in filesTransferInfo)
+        {
+            var fileScope = new Scope(
+                fileTransferDto.CourseId,
+                fileTransferDto.CourseUnitType,
+                fileTransferDto.CourseUnitId
+            );
+            var localFilePath = _fileKeyService.BuildServerFilePath(fileScope, fileTransferDto.Name);
+            
+            // Сохраняем файл локально
+            await _localFilesService.SaveFile(fileTransferDto.FileStream, localFilePath);
+            
+            _logger.LogInformation("Файл {FileName} успешно сохранён в локальное хранилище по пути {localFilePath}",
+                fileTransferDto.Name, localFilePath);
+
+            var message = new UploadFileMessage(
+                Scope: fileScope,
+                LocalFilePath: localFilePath,
+                ContentType: fileTransferDto.ContentType,
+                OriginalName: fileTransferDto.Name,
+                SizeInBytes: fileTransferDto.SizeInBytes,
+                SenderId: SenderId
+            );
+            
+            await _messageProducer.PushUploadFilesMessages([ message ]);
+        }
+
+        _logger.LogInformation(
+            "Перенос файлов из бакета {oldBucketName} окончен: сообщения на загрузку файлов в новый бакет добавлены в канал",
+            oldBucketName);
     }
 
     public async Task ReProcessPendingFiles()

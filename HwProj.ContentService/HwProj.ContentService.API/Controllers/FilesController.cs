@@ -50,7 +50,7 @@ public class FilesController : ControllerBase
             {
                 // Сохраняем файл локально
                 var localFilePath = _fileKeyService.BuildServerFilePath(scope, newFormFile.FileName);
-                await _localFilesService.SaveFile(newFormFile, localFilePath);
+                await _localFilesService.SaveFile(newFormFile.OpenReadStream(), localFilePath);
                 _logger.LogInformation("Файл {FileName} успешно сохранён в локальное хранилище по пути {localFilePath}",
                     newFormFile.FileName, localFilePath);
                 

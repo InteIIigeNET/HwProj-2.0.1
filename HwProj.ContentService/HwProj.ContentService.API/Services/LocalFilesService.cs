@@ -16,7 +16,7 @@ public class LocalFilesService : ILocalFilesService
         Directory.CreateDirectory(_storagePath);
     }
 
-    public async Task SaveFile(IFormFile file, string filePath)
+    public async Task SaveFile(Stream fileStream, string filePath)
     {
         var fullPath = Path.Combine(_storagePath, filePath);
         
@@ -25,7 +25,7 @@ public class LocalFilesService : ILocalFilesService
             Directory.CreateDirectory(directoryPath);
     
         await using var stream = new FileStream(fullPath, FileMode.Create);
-        await file.CopyToAsync(stream);
+        await fileStream.CopyToAsync(stream);
     }
 
     public Result DeleteFile(string pathToFile)

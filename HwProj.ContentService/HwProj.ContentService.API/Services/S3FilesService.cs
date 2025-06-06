@@ -1,8 +1,10 @@
+using System.Text.RegularExpressions;
 using Amazon.S3;
 using Amazon.S3.Model;
 using HwProj.ContentService.API.Configuration;
 using HwProj.ContentService.API.Extensions;
 using HwProj.ContentService.API.Models.DTO;
+using HwProj.ContentService.API.Models.Enums;
 using HwProj.ContentService.API.Services.Interfaces;
 using HwProj.Models.Result;
 using Microsoft.Extensions.Options;
@@ -24,7 +26,43 @@ public class S3FilesService : IS3FilesService
         _bucketName = externalStorageConfiguration.Value.DefaultBucketName
                       ?? throw new NullReferenceException("Не указано имя бакета для сохранения файлов");
     }
+    
+    public async Task<List<FileTransferDTO>> GetBucketFilesAsync(string bucketName, string filePathPattern)
+    {
+        var bucketKeys = await _s3AmazonClient.GetAllObjectKeysAsync(bucketName, string.Empty, null);
+        var filesBucketKeys = bucketKeys.Where(key => key[^1] != '/');
 
+        var regex = new Regex(filePathPattern, RegexOptions.Compiled);
+
+        var tasks = filesBucketKeys.Select(async (key) =>
+        {
+            // Получаем метаданные объекта, чтобы извлечь ContentType
+            var metadataResponse = await _s3AmazonClient.GetObjectMetadataAsync(new GetObjectMetadataRequest
+            {
+                BucketName = bucketName,
+                Key = key
+            });
+            
+            // Получаем сам файл
+            var fileStream = await GetFileStream(bucketName, key);
+
+            var match = regex.Match(key);
+
+            return new FileTransferDTO(
+                Name: match.Groups["FileName"].Value,
+                SizeInBytes: metadataResponse.Headers.ContentLength,
+                ContentType: metadataResponse.Headers.ContentType,
+                FileStream: fileStream,
+                CourseUnitType: CourseUnitType.Homework,
+                CourseUnitId: long.Parse(match.Groups["HomeworkId"].Value),
+                CourseId: long.Parse(match.Groups["CourseId"].Value)
+            );
+        }).ToList();
+        
+        var fileTransfers = await Task.WhenAll(tasks);
+        return fileTransfers.ToList();
+    }
+    
     // Если файл с таким ключем уже существует, в текущей реализации он будет перезаписываться
     public async Task<Result> UploadFileAsync(UploadFileToS3Dto uploadFileToS3Dto)
     {
@@ -91,6 +129,9 @@ public class S3FilesService : IS3FilesService
             return Result.Failed(e.Message);
         }
     }
+    
+    private async Task<Stream> GetFileStream(string bucketName, string fileKey)
+        => await _s3AmazonClient.GetObjectStreamAsync(bucketName, fileKey, null);
 
     private PutObjectRequest CreateUploadRequest(UploadFileToS3Dto uploadFileToS3Dto)
     {
