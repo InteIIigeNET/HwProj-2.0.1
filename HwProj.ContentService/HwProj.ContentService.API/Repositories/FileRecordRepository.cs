@@ -4,6 +4,7 @@ using HwProj.ContentService.API.Models.Database;
 using HwProj.ContentService.API.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using Z.EntityFramework.Plus;
 
 namespace HwProj.ContentService.API.Repositories;
 
@@ -107,6 +108,35 @@ public class FileRecordRepository : IFileRecordRepository
             .Where(f => fileRecordIds.Contains(f.Id))
             .ExecuteDeleteAsync();
         await transaction.CommitAsync();
+    }
+
+    /// <summary>
+    /// Увеличивает число ссылок на файл на 1 и добавляет соответствующую запись в таблицу FileToCourseUnit.
+    /// </summary>
+    /// <returns>Число ссылок на файл после исполнения.</returns>
+    public async Task<int> AddReferenceAsync(FileRecord fileRecord, Scope scope)
+    {
+        await using var transaction = await _contentContext.Database.BeginTransactionAsync();
+
+        var fileToCourseUnit = new FileToCourseUnit
+        {
+            FileRecordId = fileRecord.Id,
+            CourseUnitId = scope.CourseUnitId,
+            CourseUnitType = scope.CourseUnitType,
+            CourseId = scope.CourseId
+        };
+        await _contentContext.FileToCourseUnits.AddAsync(fileToCourseUnit);
+
+        fileRecord.ReferenceCount++;
+        await _contentContext.FileRecords
+            .AsNoTracking()
+            .Where(fr => fr.Id == fileRecord.Id)
+            .ExecuteUpdateAsync(setters =>
+                setters.SetProperty(fr => fr.ReferenceCount, fileRecord.ReferenceCount)
+            );
+
+        await transaction.CommitAsync();
+        return fileRecord.ReferenceCount;
     }
 
     /// <summary>
