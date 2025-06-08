@@ -1,4 +1,4 @@
-﻿import {Navigate, useParams} from 'react-router-dom';
+import {Navigate, useParams} from 'react-router-dom';
 import React, {FC, useEffect, useState} from "react";
 import ApiSingleton from "./../../api/ApiSingleton";
 import {Box, Typography} from "@material-ui/core";
@@ -24,50 +24,40 @@ const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutPr
             const isExpired = ApiSingleton.authService.isTokenExpired(token);
             if (!isExpired) {
                 try {
-                    const expertLoginResult = await ApiSingleton.expertsApi.expertsLogin(credentials);
+                    const validationResult = await ApiSingleton.accountApi.accountValidateToken(credentials);
                     
-                    if (expertLoginResult.succeeded) {
+                    if (validationResult.succeeded && validationResult.value?.isValid) {
                         ApiSingleton.authService.setToken(token!);
                         setIsTokenValid(true);
-                        setIsExpert(true);
+                        setIsExpert(validationResult.value.role === "Expert");
                         props.onLogin();
-
-                        const isEdited = await ApiSingleton.authService.isExpertProfileEdited();
-                        if (isEdited.succeeded && isEdited.value) {
-                            setIsProfileAlreadyEdited(true);
+    
+                        if (validationResult.value.role === "Expert") {
+                            const isEdited = await ApiSingleton.authService.isExpertProfileEdited();
+                            if (isEdited.succeeded && isEdited.value) {
+                                setIsProfileAlreadyEdited(true);
+                            }
                         }
-
-                        setIsLoading(false);
-                        return;
-                    }
-
-                    const loginResult = await ApiSingleton.accountApi.accountLoginWithToken(credentials);
-                    
-                    if (loginResult.succeeded) {
-                        ApiSingleton.authService.setToken(token!);
-                        setIsTokenValid(true);
-                        setIsExpert(false);
-                        props.onLogin();
-                        
+    
                         setIsLoading(false);
                         return;
                     }
                 } catch (error) {
-                    console.error("Login error:", error);
+                    console.error("Token validation error:", error);
                 }
             }
             
             setIsTokenValid(false);
             setIsLoading(false);
         };
-
+    
         checkToken();
     }, [token]);
 
     if (isLoading) {
         return (
             <div className="container">
-                <p>Checking token...</p>
+                <p>Проверка токена...</p>
                 <DotLottieReact
                     src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
                     loop
