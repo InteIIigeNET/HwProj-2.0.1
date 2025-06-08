@@ -1735,20 +1735,6 @@ export interface ScopeDTO {
 /**
  *
  * @export
- * @interface SheetUrl
- */
-export interface SheetUrl {
-    /**
-     *
-     * @type {string}
-     * @memberof SheetUrl
-     */
-    url?: string;
-}
-
-/**
- *
- * @export
  * @interface Solution
  */
 export interface Solution {
