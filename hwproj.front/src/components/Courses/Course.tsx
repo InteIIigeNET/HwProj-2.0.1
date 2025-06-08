@@ -161,7 +161,7 @@ const Course: React.FC = () => {
         let delay = 1000; // Начальная задержка 1 сек
 
         const scopeDto: ScopeDTO = {
-            courseId: +courseId!,
+            courseId: +validatedCourseId!,
             courseUnitType: CourseUnitType.Homework,
             courseUnitId: homeworkId
         }
@@ -338,7 +338,7 @@ const Course: React.FC = () => {
     useEffect(() => {
         ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+validatedCourseId!)
             .then(res => setStudentSolutions(res))
-    }, [courseId])
+    }, [validatedCourseId])
 
     useEffect(() => changeTab(tab || "homeworks"), [tab, validatedCourseId, isFound])
 
