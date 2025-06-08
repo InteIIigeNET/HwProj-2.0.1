@@ -226,5 +226,13 @@ namespace HwProj.AuthService.API.Controllers
             var result = await _accountService.LoginWithTokenAsync(credentials);
             return Ok(result);
         }
+        
+        [HttpPost("validateToken")]
+        [ProducesResponseType(typeof(Result<TokenValidationResult>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> ValidateToken([FromBody] TokenCredentials tokenCredentials)
+        {
+            var result = await _accountService.ValidateTokenAsync(tokenCredentials);
+            return Ok(result);
+        }
     }
 }

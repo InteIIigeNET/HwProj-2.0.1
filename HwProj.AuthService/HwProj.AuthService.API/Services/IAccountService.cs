@@ -24,5 +24,6 @@ namespace HwProj.AuthService.API.Services
         Task<Result<string>[]> GetOrRegisterStudentsBatchAsync(IEnumerable<RegisterDataDTO> models);
         Task<Result<string>> RegisterInvitedStudentAsync(RegisterDataDTO model);
         Task<Result> LoginWithTokenAsync(TokenCredentials tokenCredentials);
+        Task<Result<TokenValidationResult>> ValidateTokenAsync(TokenCredentials tokenCredentials);
     }
 }

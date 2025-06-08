@@ -395,5 +395,21 @@ namespace HwProj.AuthService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             return await response.DeserializeAsync<Result<string>>();
         }
+        
+        public async Task<Result<TokenValidationResult>> ValidateToken(TokenCredentials credentials)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _authServiceUri + "api/account/validateToken")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(credentials),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<Result<TokenValidationResult>>();
+        }
     }
 }

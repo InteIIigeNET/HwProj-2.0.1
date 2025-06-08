@@ -197,5 +197,13 @@ namespace HwProj.APIGateway.API.Controllers
             var result = await AuthServiceClient.LoginWithToken(credentials);
             return Ok(result);
         }
+        
+        [HttpPost("validateToken")]
+        [ProducesResponseType(typeof(Result<TokenValidationResult>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> ValidateToken([FromBody] TokenCredentials tokenCredentials)
+        {
+            var result = await AuthServiceClient.ValidateToken(tokenCredentials);
+            return Ok(result);
+        }
     }
 }

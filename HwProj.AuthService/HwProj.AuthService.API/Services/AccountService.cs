@@ -429,5 +429,31 @@ namespace HwProj.AuthService.API.Services
             await _signInManager.SignInAsync(user, isPersistent: false);
             return Result.Success();
         }
+        
+        public async Task<Result<TokenValidationResult>> ValidateTokenAsync(TokenCredentials tokenCredentials)
+        {
+            var tokenClaims = _tokenService.GetTokenClaims(tokenCredentials);
+    
+            if (string.IsNullOrEmpty(tokenClaims.Id))
+            {
+                return Result<TokenValidationResult>.Failed("Невалидный токен: id не найден");
+            }
+
+            var user = await _userManager.FindByIdAsync(tokenClaims.Id);
+            if (user == null)
+            {
+                return Result<TokenValidationResult>.Failed("Невалидный токен: пользователь не найден");
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault() ?? Roles.StudentRole;
+
+            return Result<TokenValidationResult>.Success(new TokenValidationResult
+            {
+                IsValid = true,
+                Role = role,
+                UserId = user.Id
+            });
+        }
     }
 }

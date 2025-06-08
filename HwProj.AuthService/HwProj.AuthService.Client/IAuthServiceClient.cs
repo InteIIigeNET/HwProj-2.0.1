@@ -35,5 +35,6 @@ namespace HwProj.AuthService.Client
         Task<Result<TokenCredentials>> GetStudentToken(string email);
         Task<Result> LoginWithToken(TokenCredentials credentials);
         Task<Result<string>> RegisterInvitedStudent(RegisterViewModel model);
+        Task<Result<TokenValidationResult>> ValidateToken(TokenCredentials credentials);
     }
 }
