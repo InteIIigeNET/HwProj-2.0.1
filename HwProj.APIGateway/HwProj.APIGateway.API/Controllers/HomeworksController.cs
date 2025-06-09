@@ -26,9 +26,7 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> GetHomework(long homeworkId)
         {
             var result = await _coursesClient.GetHomework(homeworkId);
-            return result.Succeeded
-                ? Ok(result.Value) as IActionResult
-                : Forbid();
+            return Ok(result);
         }
 
         [HttpGet("getForEditing/{homeworkId}")]

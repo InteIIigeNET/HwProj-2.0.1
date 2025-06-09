@@ -2,12 +2,11 @@ import * as React from 'react';
 import {Navigate, useParams} from 'react-router-dom';
 import ApiSingleton from "../../api/ApiSingleton";
 import Button from '@material-ui/core/Button'
-import {Grid, Box, Checkbox, TextField, FormControlLabel, Typography, Tooltip, IconButton} from '@mui/material';
+import {Grid, Box, Checkbox, TextField, FormControlLabel, Typography} from '@mui/material';
 import {FC, useEffect, useState} from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import EditIcon from "@material-ui/icons/Edit";
 import Lecturers from "./Lecturers";
-import CheckboxWithTooltip from "../Common/CheckboxWithTooltip";
 import {AccountDataDto} from "../../api";
 import {appBarStateManager} from "../AppBar";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
@@ -16,7 +15,6 @@ interface IEditCourseState {
     isLoaded: boolean,
     name: string,
     groupName?: string,
-    isOpen: boolean,
     isCompleted: boolean,
     mentors: AccountDataDto[],
     edited: boolean,
@@ -62,7 +60,6 @@ const EditCourse: FC = () => {
         isLoaded: false,
         name: "",
         groupName: "",
-        isOpen: false,
         isCompleted: false,
         mentors: [],
         edited: false,
@@ -94,7 +91,7 @@ const EditCourse: FC = () => {
         const courseViewModel = {
             name: courseState.name,
             groupName: courseState.groupName,
-            isOpen: courseState.isOpen,
+            isOpen: true,
             isCompleted: courseState.isCompleted
         };
 
@@ -162,19 +159,6 @@ const EditCourse: FC = () => {
                                     setCourseState((prevState) => ({
                                         ...prevState,
                                         groupName: e.target.value
-                                    }))
-                                }}
-                            />
-                            <CheckboxWithTooltip
-                                checkboxLabel={"Ограниченно-видимый курс"}
-                                tooltipText={"Материалы заданий и задач будут доступны только преподавателям и студентам курса"}
-                                tooltipPlacement={"right"}
-                                checked={!courseState.isOpen}
-                                onChange={(e) => {
-                                    e.persist()
-                                    setCourseState((prevState) => ({
-                                        ...prevState,
-                                        isOpen: !e.target.checked
                                     }))
                                 }}
                             />

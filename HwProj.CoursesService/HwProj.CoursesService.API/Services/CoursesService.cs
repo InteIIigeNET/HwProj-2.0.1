@@ -306,17 +306,6 @@ namespace HwProj.CoursesService.API.Services
             return student != null;
         }
 
-        public async Task<bool> IsAccessibleFor(long courseId, string userId)
-        {
-            var course = await _coursesRepository.GetWithCourseMates(courseId);
-            if (course.IsOpen) return true;
-
-            var isCourseMentor = course.MentorIds.Contains(userId);
-            var isCourseStudent = course.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId);
-
-            return isCourseMentor || isCourseStudent;
-        }
-
         public async Task<bool> UpdateStudentCharacteristics(long courseId, string studentId,
             StudentCharacteristicsDto characteristics)
         {
