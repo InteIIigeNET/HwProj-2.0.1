@@ -109,14 +109,10 @@ public class FilesController : ControllerBase
 
     [HttpPost("transfer")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> TransferFiles(
-        List<(ScopeDTO SourceScope, ScopeDTO TargetScope)> scopeMapping)
+    public async Task<IActionResult> TransferFiles(TransferFilesDTO transferFilesDTO)
     {
-        var mapping = scopeMapping
-            .Select(pair => (pair.SourceScope.ToScope(), pair.TargetScope.ToScope()))
-            .ToList();
-
-        await _filesInfoService.TransferFiles(mapping);
+        var transferFiles = transferFilesDTO.ToTransferFiles();
+        await _filesInfoService.TransferFiles(transferFiles);
         return Ok();
     }
 }

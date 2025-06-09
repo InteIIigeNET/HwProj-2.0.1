@@ -64,14 +64,14 @@ public class FilesInfoService : IFilesInfoService
         }).ToList();
     }
 
-    public async Task TransferFiles(List<(Scope SourceScope, Scope TargetScope)> scopeMapping)
+    public async Task TransferFiles(TransferFiles transferFiles)
     {
         var recordsByScope = new List<(List<FileRecord> FileRecords, Scope Scope)>();
 
-        foreach (var (source, target) in scopeMapping)
+        foreach (var pair in transferFiles.ScopeMapping)
         {
-            var fileRecords = await _fileRecordRepository.GetByScopeAsync(source);
-            recordsByScope.Add((fileRecords, target));
+            var fileRecords = await _fileRecordRepository.GetByScopeAsync(pair.SourceScope);
+            recordsByScope.Add((fileRecords, pair.TargetScope));
         }
 
         await _fileRecordRepository.AddReferencesAsync(recordsByScope);

@@ -10,5 +10,5 @@ public interface IFilesInfoService
     public Task<string?> GetFileExternalKeyAsync(long fileId);
     public Task<List<FileInfoDTO>> GetFilesInfoAsync(long courseId);
     public Task<List<FileInfoDTO>> GetFilesInfoAsync(long courseId, FileStatus filesStatus);
-    public Task TransferFiles(List<(Scope SourceScope, Scope TargetScope)> scopeMapping);
+    public Task TransferFiles(TransferFiles transferFiles);
 }
