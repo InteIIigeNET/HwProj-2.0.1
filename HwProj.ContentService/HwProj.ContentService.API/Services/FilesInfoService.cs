@@ -62,4 +62,13 @@ public class FilesInfoService : IFilesInfoService
             CourseUnitId = fcu.CourseUnitId
         }).ToList();
     }
+
+    public async Task TransferFiles(Dictionary<Scope, Scope> scopeMapping)
+    {
+        foreach (var (source, target) in scopeMapping)
+        {
+            var fileRecords = await _fileRecordRepository.GetByScopeAsync(source);
+            await _fileRecordRepository.AddReferencesAsync(fileRecords, target);
+        }
+    }
 }
