@@ -1,3 +1,4 @@
+using System.Transactions;
 using HwProj.ContentService.API.Models;
 using HwProj.ContentService.API.Models.Enums;
 using HwProj.ContentService.API.Repositories;
@@ -65,10 +66,14 @@ public class FilesInfoService : IFilesInfoService
 
     public async Task TransferFiles(Dictionary<Scope, Scope> scopeMapping)
     {
+        using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
         foreach (var (source, target) in scopeMapping)
         {
             var fileRecords = await _fileRecordRepository.GetByScopeAsync(source);
             await _fileRecordRepository.AddReferencesAsync(fileRecords, target);
         }
+
+        transactionScope.Complete();
     }
 }

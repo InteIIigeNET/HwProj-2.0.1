@@ -8,6 +8,8 @@ using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
+using HwProj.Models.ContentService.DTO;
+using HwProj.ContentService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
@@ -16,6 +18,7 @@ using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -27,6 +30,7 @@ namespace HwProj.CoursesService.API.Services
         private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IEventBus _eventBus;
         private readonly IAuthServiceClient _authServiceClient;
+        private readonly IContentServiceClient _contentServiceClient;
         private readonly IGroupsRepository _groupsRepository;
         private readonly ICourseFilterService _courseFilterService;
         private readonly CourseContext _context;
@@ -37,6 +41,7 @@ namespace HwProj.CoursesService.API.Services
             ICourseMatesRepository courseMatesRepository,
             IEventBus eventBus,
             IAuthServiceClient authServiceClient,
+            IContentServiceClient contentServiceClient,
             IGroupsRepository groupsRepository,
             ICourseFilterService courseFilterService,
             CourseContext context)
@@ -47,9 +52,50 @@ namespace HwProj.CoursesService.API.Services
             _courseMatesRepository = courseMatesRepository;
             _eventBus = eventBus;
             _authServiceClient = authServiceClient;
+            _contentServiceClient = contentServiceClient;
             _groupsRepository = groupsRepository;
             _courseFilterService = courseFilterService;
             _context = context;
+        }
+
+        private static Dictionary<ScopeDTO, ScopeDTO> GetScopeMapping(
+            long courseId,
+            IEnumerable<long> baseHwIds,
+            IEnumerable<long> baseTaskIds,
+            IEnumerable<long> newHwIds,
+            IEnumerable<long> newTaskIds)
+        {
+            var homeworksMapping = baseHwIds.Zip(newHwIds, (source, target) =>
+                KeyValuePair.Create(
+                    new ScopeDTO()
+                    {
+                        CourseId = courseId,
+                        CourseUnitId = source,
+                        CourseUnitType = "Homework"
+                    },
+                    new ScopeDTO()
+                    {
+                        CourseId = courseId,
+                        CourseUnitId = target,
+                        CourseUnitType = "Homework"
+                    }));
+
+            var tasksMapping = baseTaskIds.Zip(newTaskIds, (source, target) =>
+                KeyValuePair.Create(
+                    new ScopeDTO()
+                    {
+                        CourseId = courseId,
+                        CourseUnitId = source,
+                        CourseUnitType = "Task"
+                    },
+                    new ScopeDTO()
+                    {
+                        CourseId = courseId,
+                        CourseUnitId = target,
+                        CourseUnitType = "Task"
+                    }));
+
+            return new Dictionary<ScopeDTO, ScopeDTO>(homeworksMapping.Concat(tasksMapping));
         }
 
         public async Task<Course[]> GetAllAsync()
@@ -97,18 +143,35 @@ namespace HwProj.CoursesService.API.Services
             CourseDTO? baseCourse,
             string mentorId)
         {
+            IEnumerable<long> baseHwIds = new List<long>();
+            IEnumerable<long> baseTaskIds = new List<long>();
             var courseTemplate = courseViewModel.ToCourseTemplate();
+
+            using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             if (baseCourse != null)
             {
+                baseHwIds = baseCourse.Homeworks.Select(hw => hw.Id);
+                baseTaskIds = baseCourse.Homeworks.SelectMany(hw => hw.Tasks.Select(t => t.Id));
                 courseTemplate.Homeworks = baseCourse.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList();
             }
 
-            return await AddFromTemplateAsync(courseTemplate, courseViewModel.StudentIDs, mentorId);
+            var (courseId, newHwIds, newTaskIds) = await AddFromTemplateAsync(courseTemplate, mentorId);
+
+            var scopeMapping = GetScopeMapping(courseId, baseHwIds, baseTaskIds, newHwIds, newTaskIds);
+            if (scopeMapping.Any())
+            {
+                var result = await _contentServiceClient.TransferFiles(scopeMapping);
+                if (!result.Succeeded) throw new TransactionAbortedException(result.Errors.First());
+            }
+
+            await AddStudentsToCourseAsync(courseViewModel, courseId, mentorId);
+
+            transactionScope.Complete();
+            return courseId;
         }
 
-        public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate,
-            List<string> studentIds,
+        private async Task<(long, List<long>, List<long>)> AddFromTemplateAsync(CourseTemplate courseTemplate,
             string mentorId)
         {
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
@@ -123,12 +186,39 @@ namespace HwProj.CoursesService.API.Services
 
             var tasks = courseTemplate.Homeworks.SelectMany((hwTemplate, i) =>
                 hwTemplate.Tasks.Select(taskTemplate => taskTemplate.ToHomeworkTask(homeworkIds[i])));
-            await _tasksRepository.AddRangeAsync(tasks);
-
-            await AddStudentsToCourseAsync(studentIds, course);
+            var taskIds = await _tasksRepository.AddRangeAsync(tasks);
 
             transactionScope.Complete();
-            return courseId;
+            return (courseId, homeworkIds, taskIds);
+        }
+
+        private async Task AddStudentsToCourseAsync(CreateCourseViewModel model,
+            long courseId,
+            string mentorId)
+        {
+            var studentIds = model.StudentIDs;
+            if (studentIds.Any())
+            {
+                var students = studentIds.Select(studentId => new CourseMate
+                {
+                    CourseId = courseId,
+                    StudentId = studentId,
+                    IsAccepted = true
+                }).ToArray();
+
+                await _courseMatesRepository.AddRangeAsync(students);
+
+                foreach (var student in students)
+                {
+                    _eventBus.Publish(new LecturerAcceptToCourseEvent
+                    {
+                        CourseId = courseId,
+                        CourseName = model.Name,
+                        MentorIds = mentorId,
+                        StudentId = student.StudentId
+                    });
+                }
+            }
         }
 
         public async Task DeleteAsync(long id)
@@ -324,32 +414,6 @@ namespace HwProj.CoursesService.API.Services
             return availableLecturers
                 .Select(u => u.ToAccountDataDto(Roles.LecturerRole))
                 .ToArray();
-        }
-
-        private async Task AddStudentsToCourseAsync(IEnumerable<string> studentIds, Course course)
-        {
-            if (studentIds.Any())
-            {
-                var students = studentIds.Select(studentId => new CourseMate
-                {
-                    CourseId = course.Id,
-                    StudentId = studentId,
-                    IsAccepted = true
-                }).ToArray();
-
-                await _courseMatesRepository.AddRangeAsync(students);
-
-                foreach (var student in students)
-                {
-                    _eventBus.Publish(new LecturerAcceptToCourseEvent
-                    {
-                        CourseId = course.Id,
-                        CourseName = course.Name,
-                        MentorIds = course.MentorIds,
-                        StudentId = student.StudentId
-                    });
-                }
-            }
         }
     }
 }
