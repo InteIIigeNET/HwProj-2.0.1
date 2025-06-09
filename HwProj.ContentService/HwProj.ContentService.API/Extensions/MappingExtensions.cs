@@ -14,10 +14,23 @@ public static class MappingExtensions
         );
 
     public static ScopeDTO ToScopeDTO(this Scope scope)
-        => new ScopeDTO
+        => new ScopeDTO()
         {
             CourseId = scope.CourseId,
             CourseUnitType = scope.CourseUnitType.ToString(),
             CourseUnitId = scope.CourseUnitId
+        };
+
+    public static ScopeMappingPair ToScopeMappingPair(this ScopeMappingPairDTO scopeMappingPair)
+        => new ScopeMappingPair()
+        {
+            SourceScope = scopeMappingPair.SourceScope.ToScope(),
+            TargetScope = scopeMappingPair.TargetScope.ToScope()
+        };
+
+    public static TransferFiles ToTransferFiles(this TransferFilesDTO transferFilesDTO)
+        => new TransferFiles()
+        {
+            ScopeMapping = transferFilesDTO.ScopeMapping.Select(pair => pair.ToScopeMappingPair()).ToList()
         };
 }

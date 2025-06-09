@@ -59,23 +59,26 @@ namespace HwProj.CoursesService.API.Services
             _context = context;
         }
 
-        private static (ScopeDTO SourceScope, ScopeDTO TargetScope) GetScopeMappingPair((long, long) idPair,
+        private static ScopeMappingPairDTO GetScopeMappingPair((long SourceId, long TargetId) idPair,
             long courseId,
             string courseUnitType)
-            => (new ScopeDTO()
+            => new ScopeMappingPairDTO()
+            {
+                SourceScope = new ScopeDTO()
                 {
                     CourseId = courseId,
-                    CourseUnitId = idPair.Item1,
+                    CourseUnitId = idPair.SourceId,
                     CourseUnitType = courseUnitType
                 },
-                new ScopeDTO()
+                TargetScope = new ScopeDTO()
                 {
                     CourseId = courseId,
-                    CourseUnitId = idPair.Item2,
+                    CourseUnitId = idPair.TargetId,
                     CourseUnitType = courseUnitType
-                });
+                }
+            };
 
-        private static List<(ScopeDTO SourceScope, ScopeDTO TargetScope)> GetScopeMapping(long courseId,
+        private static TransferFilesDTO GetTransferFilesDTO(long courseId,
             IEnumerable<long> baseHwIds,
             IEnumerable<long> baseTaskIds,
             IEnumerable<long> newHwIds,
@@ -87,7 +90,11 @@ namespace HwProj.CoursesService.API.Services
             var tasksMapping = baseTaskIds.Zip(newTaskIds, (source, target) =>
                 GetScopeMappingPair((source, target), courseId, CourseUnitType.Task.ToString()));
 
-            return homeworksMapping.Concat(tasksMapping).ToList();
+            var scopeMapping = homeworksMapping.Concat(tasksMapping).ToList();
+            return new TransferFilesDTO()
+            {
+                ScopeMapping = scopeMapping
+            };
         }
 
         public async Task<Course[]> GetAllAsync()
@@ -150,10 +157,10 @@ namespace HwProj.CoursesService.API.Services
 
             var (courseId, newHwIds, newTaskIds) = await AddFromTemplateAsync(courseTemplate, mentorId);
 
-            var scopeMapping = GetScopeMapping(courseId, baseHwIds, baseTaskIds, newHwIds, newTaskIds);
-            if (scopeMapping.Any())
+            var transferFiles = GetTransferFilesDTO(courseId, baseHwIds, baseTaskIds, newHwIds, newTaskIds);
+            if (transferFiles.ScopeMapping.Any())
             {
-                var result = await _contentServiceClient.TransferFiles(scopeMapping);
+                var result = await _contentServiceClient.TransferFiles(transferFiles);
                 if (!result.Succeeded) throw new TransactionAbortedException(result.Errors.First());
             }
 

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -147,14 +146,13 @@ namespace HwProj.ContentService.Client
             }
         }
 
-        public async Task<Result> TransferFiles(
-            List<(ScopeDTO SourceScope, ScopeDTO TargetScope)> scopeMapping)
+        public async Task<Result> TransferFiles(TransferFilesDTO transferFilesDTO)
         {
             var url = _contentServiceUri + "api/Files/transfer";
             using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
             {
                 Content = new StringContent(
-                    JsonConvert.SerializeObject(scopeMapping),
+                    JsonConvert.SerializeObject(transferFilesDTO),
                     Encoding.UTF8,
                     "application/json")
             };
