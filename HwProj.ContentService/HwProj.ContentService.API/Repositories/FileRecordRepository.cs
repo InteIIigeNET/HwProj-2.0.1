@@ -112,20 +112,28 @@ public class FileRecordRepository : IFileRecordRepository
     /// <summary>
     /// Увеличивает число ссылок на файлы на 1 и добавляет соответствующие записи в таблицу FileToCourseUnit.
     /// </summary>
-    public async Task AddReferencesAsync(IEnumerable<FileRecord> fileRecords, Scope scope)
+    public async Task AddReferencesAsync(List<(List<FileRecord> FileRecords, Scope Scope)> recordsByScope)
     {
         await using var transaction = await _contentContext.Database.BeginTransactionAsync();
 
-        var fileToCourseUnits = fileRecords.Select(fr => new FileToCourseUnit
-        {
-            FileRecordId = fr.Id,
-            CourseUnitId = scope.CourseUnitId,
-            CourseUnitType = scope.CourseUnitType,
-            CourseId = scope.CourseId
-        });
-        await _contentContext.FileToCourseUnits.AddRangeAsync(fileToCourseUnits);
+        var fileToCourseUnits = recordsByScope
+            .SelectMany(pair => pair.FileRecords
+            .Select(fr => new FileToCourseUnit
+            {
+                FileRecordId = fr.Id,
+                CourseUnitId = pair.Scope.CourseUnitId,
+                CourseUnitType = pair.Scope.CourseUnitType,
+                CourseId = pair.Scope.CourseId
+            }));
 
-        var fileRecordIds = fileRecords.Select(fr => fr.Id).ToHashSet();
+        await _contentContext.FileToCourseUnits.AddRangeAsync(fileToCourseUnits);
+        await _contentContext.SaveChangesAsync();
+
+        var fileRecordIds = recordsByScope
+            .SelectMany(pair => pair.FileRecords
+            .Select(fr => fr.Id))
+            .ToHashSet();
+
         await _contentContext.FileRecords
             .AsNoTracking()
             .Where(fr => fileRecordIds.Contains(fr.Id))
