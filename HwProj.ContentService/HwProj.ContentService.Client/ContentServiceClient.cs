@@ -146,5 +146,27 @@ namespace HwProj.ContentService.Client
                     "Пока не можем получить информацию о файлах. \nВсе ваши данные сохранены — попробуйте повторить позже");
             }
         }
+
+        public async Task<Result> TransferFiles(Dictionary<ScopeDTO, ScopeDTO> scopeMapping)
+        {
+            var url = _contentServiceUri + "api/Files/transfer";
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(scopeMapping),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            try
+            {
+                var response = await _httpClient.SendAsync(httpRequest);
+                return Result.Success();
+            }
+            catch (HttpRequestException e)
+            {
+                return Result.Failed("Не удалось перенести информацию о файлах — попробуйте повторить позже");
+            }
+        }
     }
 }
