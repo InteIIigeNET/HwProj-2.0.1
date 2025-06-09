@@ -2127,6 +2127,31 @@ export interface StatisticsLecturersModel {
 /**
  *
  * @export
+ * @interface StringArrayResult
+ */
+export interface StringArrayResult {
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof StringArrayResult
+     */
+    value?: Array<string>;
+    /**
+     *
+     * @type {boolean}
+     * @memberof StringArrayResult
+     */
+    succeeded?: boolean;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof StringArrayResult
+     */
+    errors?: Array<string>;
+}
+/**
+ *
+ * @export
  * @interface StudentCharacteristicsDto
  */
 export interface StudentCharacteristicsDto {
@@ -8549,6 +8574,51 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
     return {
         /**
          *
+         * @param {number} [courseId]
+         * @param {string} [sheetUrl]
+         * @param {string} [sheetName]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        statisticsExportToGoogleSheets(courseId?: number, sheetUrl?: string, sheetName?: string, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Statistics/exportToSheet`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (courseId !== undefined) {
+                localVarQueryParameter['courseId'] = courseId;
+            }
+
+            if (sheetUrl !== undefined) {
+                localVarQueryParameter['sheetUrl'] = sheetUrl;
+            }
+
+            if (sheetName !== undefined) {
+                localVarQueryParameter['sheetName'] = sheetName;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
          * @param {number} courseId
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -8621,6 +8691,46 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
         },
         /**
          *
+         * @param {number} [courseId]
+         * @param {string} [sheetName]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        statisticsGetFile(courseId?: number, sheetName?: string, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Statistics/getFile`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (courseId !== undefined) {
+                localVarQueryParameter['courseId'] = courseId;
+            }
+
+            if (sheetName !== undefined) {
+                localVarQueryParameter['sheetName'] = sheetName;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
          * @param {number} courseId
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -8655,6 +8765,76 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
                 options: localVarRequestOptions,
             };
         },
+        /**
+         *
+         * @param {string} [sheetUrl]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        statisticsGetSheetTitles(sheetUrl?: string, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Statistics/getSheetTitles`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (sheetUrl !== undefined) {
+                localVarQueryParameter['sheetUrl'] = sheetUrl;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
+         * @param {string} [sheetUrl]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        statisticsProcessLink(sheetUrl?: string, options: any = {}): FetchArgs {
+            const localVarPath = `/api/Statistics/processLink`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (sheetUrl !== undefined) {
+                localVarQueryParameter['sheetUrl'] = sheetUrl;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -8664,6 +8844,26 @@ export const StatisticsApiFetchParamCreator = function (configuration?: Configur
  */
 export const StatisticsApiFp = function(configuration?: Configuration) {
     return {
+        /**
+         *
+         * @param {number} [courseId]
+         * @param {string} [sheetUrl]
+         * @param {string} [sheetName]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        statisticsExportToGoogleSheets(courseId?: number, sheetUrl?: string, sheetName?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+            const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).statisticsExportToGoogleSheets(courseId, sheetUrl, sheetName, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
         /**
          *
          * @param {number} courseId
@@ -8702,12 +8902,67 @@ export const StatisticsApiFp = function(configuration?: Configuration) {
         },
         /**
          *
+         * @param {number} [courseId]
+         * @param {string} [sheetName]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        statisticsGetFile(courseId?: number, sheetName?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).statisticsGetFile(courseId, sheetName, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
          * @param {number} courseId
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         statisticsGetLecturersStatistics(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<StatisticsLecturersModel>> {
             const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).statisticsGetLecturersStatistics(courseId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
+         * @param {string} [sheetUrl]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        statisticsGetSheetTitles(sheetUrl?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<StringArrayResult> {
+            const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).statisticsGetSheetTitles(sheetUrl, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
+         * @param {string} [sheetUrl]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        statisticsProcessLink(sheetUrl?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+            const localVarFetchArgs = StatisticsApiFetchParamCreator(configuration).statisticsProcessLink(sheetUrl, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -8729,6 +8984,17 @@ export const StatisticsApiFactory = function (configuration?: Configuration, fet
     return {
         /**
          *
+         * @param {number} [courseId]
+         * @param {string} [sheetUrl]
+         * @param {string} [sheetName]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        statisticsExportToGoogleSheets(courseId?: number, sheetUrl?: string, sheetName?: string, options?: any) {
+            return StatisticsApiFp(configuration).statisticsExportToGoogleSheets(courseId, sheetUrl, sheetName, options)(fetch, basePath);
+        },
+        /**
+         *
          * @param {number} courseId
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -8747,12 +9013,40 @@ export const StatisticsApiFactory = function (configuration?: Configuration, fet
         },
         /**
          *
+         * @param {number} [courseId]
+         * @param {string} [sheetName]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        statisticsGetFile(courseId?: number, sheetName?: string, options?: any) {
+            return StatisticsApiFp(configuration).statisticsGetFile(courseId, sheetName, options)(fetch, basePath);
+        },
+        /**
+         *
          * @param {number} courseId
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         statisticsGetLecturersStatistics(courseId: number, options?: any) {
             return StatisticsApiFp(configuration).statisticsGetLecturersStatistics(courseId, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {string} [sheetUrl]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        statisticsGetSheetTitles(sheetUrl?: string, options?: any) {
+            return StatisticsApiFp(configuration).statisticsGetSheetTitles(sheetUrl, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {string} [sheetUrl]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        statisticsProcessLink(sheetUrl?: string, options?: any) {
+            return StatisticsApiFp(configuration).statisticsProcessLink(sheetUrl, options)(fetch, basePath);
         },
     };
 };
@@ -8764,6 +9058,19 @@ export const StatisticsApiFactory = function (configuration?: Configuration, fet
  * @extends {BaseAPI}
  */
 export class StatisticsApi extends BaseAPI {
+    /**
+     *
+     * @param {number} [courseId]
+     * @param {string} [sheetUrl]
+     * @param {string} [sheetName]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StatisticsApi
+     */
+    public statisticsExportToGoogleSheets(courseId?: number, sheetUrl?: string, sheetName?: string, options?: any) {
+        return StatisticsApiFp(this.configuration).statisticsExportToGoogleSheets(courseId, sheetUrl, sheetName, options)(this.fetch, this.basePath);
+    }
+
     /**
      *
      * @param {number} courseId
@@ -8788,6 +9095,18 @@ export class StatisticsApi extends BaseAPI {
 
     /**
      *
+     * @param {number} [courseId]
+     * @param {string} [sheetName]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StatisticsApi
+     */
+    public statisticsGetFile(courseId?: number, sheetName?: string, options?: any) {
+        return StatisticsApiFp(this.configuration).statisticsGetFile(courseId, sheetName, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
      * @param {number} courseId
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -8795,6 +9114,28 @@ export class StatisticsApi extends BaseAPI {
      */
     public statisticsGetLecturersStatistics(courseId: number, options?: any) {
         return StatisticsApiFp(this.configuration).statisticsGetLecturersStatistics(courseId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {string} [sheetUrl]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StatisticsApi
+     */
+    public statisticsGetSheetTitles(sheetUrl?: string, options?: any) {
+        return StatisticsApiFp(this.configuration).statisticsGetSheetTitles(sheetUrl, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {string} [sheetUrl]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StatisticsApi
+     */
+    public statisticsProcessLink(sheetUrl?: string, options?: any) {
+        return StatisticsApiFp(this.configuration).statisticsProcessLink(sheetUrl, options)(this.fetch, this.basePath);
     }
 
 }

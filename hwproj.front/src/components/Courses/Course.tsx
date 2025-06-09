@@ -72,9 +72,24 @@ interface IPageState {
     tabValue: TabValue
 }
 
+const getLastViewedCourseId = () =>
+{
+    const sessionStorageCourseId = sessionStorage.getItem("courseId")
+    return sessionStorageCourseId === null ? "-1" : sessionStorageCourseId
+}
+
+const updatedLastViewedCourseId = (courseId : string) =>
+{
+    sessionStorage.setItem("courseId", courseId)
+}
+
 const Course: React.FC = () => {
     const {courseId, tab} = useParams()
     const [searchParams] = useSearchParams()
+
+    const isFromYandex = !courseId || courseId === "yandex"
+    const validatedCourseId = isFromYandex ? getLastViewedCourseId() : courseId
+
     const navigate = useNavigate()
     const {enqueueSnackbar} = useSnackbar()
 
@@ -146,7 +161,7 @@ const Course: React.FC = () => {
         let delay = 1000; // Начальная задержка 1 сек
 
         const scopeDto: ScopeDTO = {
-            courseId: +courseId!,
+            courseId: +validatedCourseId!,
             courseUnitType: CourseUnitType.Homework,
             courseUnitId: homeworkId
         }
@@ -220,7 +235,7 @@ const Course: React.FC = () => {
     }, []);
 
     const [pageState, setPageState] = useState<IPageState>({
-        tabValue: "homeworks"
+        tabValue: isFromYandex ? "stats" : "homeworks"
     })
 
     const {
@@ -246,19 +261,22 @@ const Course: React.FC = () => {
     const showApplicationsTab = isCourseMentor
 
     const changeTab = (newTab: string) => {
-        if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
-            if (newTab === "stats" && !showStatsTab) return;
-            if (newTab === "applications" && !showApplicationsTab) return;
+        if (!isFromYandex) {
+            if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
+                if (newTab === "stats" && !showStatsTab) return;
+                if (newTab === "applications" && !showApplicationsTab) return;
 
-            setPageState(prevState => ({
-                ...prevState,
-                tabValue: newTab
-            }));
+                setPageState(prevState => ({
+                    ...prevState,
+                    tabValue: newTab
+                }));
+            }
         }
     }
 
     const setCurrentState = async () => {
-        const course = await ApiSingleton.coursesApi.coursesGetCourseData(+courseId!)
+        updatedLastViewedCourseId(validatedCourseId)
+        const course = await ApiSingleton.coursesApi.coursesGetCourseData(+validatedCourseId!)
 
         // У пользователя изменилась роль (иначе он не может стать лектором в курсе),
         // однако он все ещё использует токен с прежней ролью
@@ -272,6 +290,8 @@ const Course: React.FC = () => {
             return
         }
 
+        const solutions = await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+validatedCourseId!)
+
         setCourseState(prevState => ({
             ...prevState,
             isFound: true,
@@ -281,15 +301,20 @@ const Course: React.FC = () => {
             mentors: course.mentors!,
             acceptedStudents: course.acceptedStudents!,
             newStudents: course.newStudents!,
+            studentSolutions: solutions,
+            tabValue: isFromYandex ? "stats" : "homeworks"
         }))
+        if (isFromYandex) {
+            window.history.replaceState(null, "", `/courses/${validatedCourseId}/stats`)
+        }
     }
 
     const getCourseFilesInfo = async () => {
         let courseFilesInfo = [] as FileInfoDTO[]
         try {
             courseFilesInfo = isCourseMentor
-                ? await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
-                : await ApiSingleton.filesApi.filesGetUploadedFilesInfo(+courseId!)
+                ? await ApiSingleton.filesApi.filesGetFilesInfo(+validatedCourseId!)
+                : await ApiSingleton.filesApi.filesGetUploadedFilesInfo(+validatedCourseId!)
         } catch (e) {
             const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
             enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 1990});
@@ -309,14 +334,16 @@ const Course: React.FC = () => {
     }, [isCourseMentor])
 
     useEffect(() => {
-        ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
+        ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+validatedCourseId!)
             .then(res => setStudentSolutions(res))
-    }, [courseId])
-    
-    useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
+    }, [validatedCourseId])
+
+    useEffect(() => changeTab(tab || "homeworks"), [tab, validatedCourseId, isFound])
+
+    const yandexCode = new URLSearchParams(window.location.search).get("code")
 
     const joinCourse = async () => {
-        await ApiSingleton.coursesApi.coursesSignInCourse(+courseId!)
+        await ApiSingleton.coursesApi.coursesSignInCourse(+validatedCourseId!)
             .then(() => setCurrentState());
     }
 
@@ -361,7 +388,7 @@ const Course: React.FC = () => {
                     onClose={handleClose}
                 >
                     {isCourseMentor && isLecturer &&
-                        <MenuItem onClick={() => navigate(`/courses/${courseId}/editInfo`)}>
+                        <MenuItem onClick={() => navigate(`/courses/${validatedCourseId}/editInfo`)}>
                             <ListItemIcon>
                                 <EditIcon fontSize="small"/>
                             </ListItemIcon>
@@ -434,7 +461,7 @@ const Course: React.FC = () => {
                                     </Grid>
                                     {lecturerStatsState &&
                                         <LecturerStatistics
-                                            courseId={+courseId!}
+                                            courseId={+validatedCourseId!}
                                             onClose={() => setLecturerStatsState(false)}
                                         />
                                     }
@@ -466,9 +493,9 @@ const Course: React.FC = () => {
                         value={tabValue === "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
                         indicatorColor="primary"
                         onChange={(event, value) => {
-                            if (value === 0 && !isExpert) navigate(`/courses/${courseId}/homeworks`)
-                            if (value === 1) navigate(`/courses/${courseId}/stats`)
-                            if (value === 2 && !isExpert) navigate(`/courses/${courseId}/applications`)
+                            if (value === 0 && !isExpert) navigate(`/courses/${validatedCourseId}/homeworks`)
+                            if (value === 1) navigate(`/courses/${validatedCourseId}/stats`)
+                            if (value === 2 && !isExpert) navigate(`/courses/${validatedCourseId}/applications`)
                         }}
                     >
                         {!isExpert &&
@@ -488,7 +515,7 @@ const Course: React.FC = () => {
                             </Stack>}/>}
                     </Tabs>
                     {tabValue === "homeworks" && <CourseExperimental
-                        courseId={+courseId!}
+                        courseId={+validatedCourseId!}
                         homeworks={courseHomeworks}
                         courseFilesInfo={courseFilesState.courseFiles}
                         isMentor={isCourseMentor}
@@ -540,6 +567,7 @@ const Course: React.FC = () => {
                                     isMentor={isCourseMentor}
                                     course={courseState.course}
                                     solutions={studentSolutions}
+                                    yandexCode={yandexCode}
                                 />
                             </Grid>
                         </Grid>}
@@ -548,7 +576,7 @@ const Course: React.FC = () => {
                             onUpdate={() => setCurrentState()}
                             course={courseState.course}
                             students={courseState.newStudents}
-                            courseId={courseId!}
+                            courseId={validatedCourseId!}
                         />
                     }
                 </Grid>
