@@ -4,7 +4,6 @@ using HwProj.ContentService.API.Models.Database;
 using HwProj.ContentService.API.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
-using Z.EntityFramework.Plus;
 
 namespace HwProj.ContentService.API.Repositories;
 
@@ -111,32 +110,30 @@ public class FileRecordRepository : IFileRecordRepository
     }
 
     /// <summary>
-    /// Увеличивает число ссылок на файл на 1 и добавляет соответствующую запись в таблицу FileToCourseUnit.
+    /// Увеличивает число ссылок на файлы на 1 и добавляет соответствующие записи в таблицу FileToCourseUnit.
     /// </summary>
-    /// <returns>Число ссылок на файл после исполнения.</returns>
-    public async Task<int> AddReferenceAsync(FileRecord fileRecord, Scope scope)
+    public async Task AddReferencesAsync(IEnumerable<FileRecord> fileRecords, Scope scope)
     {
         await using var transaction = await _contentContext.Database.BeginTransactionAsync();
 
-        var fileToCourseUnit = new FileToCourseUnit
+        var fileToCourseUnits = fileRecords.Select(fr => new FileToCourseUnit
         {
-            FileRecordId = fileRecord.Id,
+            FileRecordId = fr.Id,
             CourseUnitId = scope.CourseUnitId,
             CourseUnitType = scope.CourseUnitType,
             CourseId = scope.CourseId
-        };
-        await _contentContext.FileToCourseUnits.AddAsync(fileToCourseUnit);
+        });
+        await _contentContext.FileToCourseUnits.AddRangeAsync(fileToCourseUnits);
 
-        fileRecord.ReferenceCount++;
+        var fileRecordIds = fileRecords.Select(fr => fr.Id).ToHashSet();
         await _contentContext.FileRecords
             .AsNoTracking()
-            .Where(fr => fr.Id == fileRecord.Id)
+            .Where(fr => fileRecordIds.Contains(fr.Id))
             .ExecuteUpdateAsync(setters =>
-                setters.SetProperty(fr => fr.ReferenceCount, fileRecord.ReferenceCount)
+                setters.SetProperty(fr => fr.ReferenceCount, fr => fr.ReferenceCount + 1)
             );
 
         await transaction.CommitAsync();
-        return fileRecord.ReferenceCount;
     }
 
     /// <summary>

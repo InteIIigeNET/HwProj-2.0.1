@@ -107,7 +107,8 @@ namespace HwProj.CoursesService.API.Services
             return await AddFromTemplateAsync(courseTemplate, courseViewModel.StudentIDs, mentorId);
         }
 
-        public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, List<string> studentIds,
+        public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate,
+            List<string> studentIds,
             string mentorId)
         {
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
@@ -124,28 +125,7 @@ namespace HwProj.CoursesService.API.Services
                 hwTemplate.Tasks.Select(taskTemplate => taskTemplate.ToHomeworkTask(homeworkIds[i])));
             await _tasksRepository.AddRangeAsync(tasks);
 
-            if (studentIds.Any())
-            {
-                var students = studentIds.Select(studentId => new CourseMate
-                {
-                    CourseId = courseId,
-                    StudentId = studentId,
-                    IsAccepted = true
-                }).ToArray();
-
-                await _courseMatesRepository.AddRangeAsync(students);
-
-                foreach (var student in students)
-                {
-                    _eventBus.Publish(new LecturerAcceptToCourseEvent
-                    {
-                        CourseId = courseId,
-                        CourseName = course.Name,
-                        MentorIds = course.MentorIds,
-                        StudentId = student.StudentId
-                    });
-                }
-            }
+            await AddStudentsToCourseAsync(studentIds, course);
 
             transactionScope.Complete();
             return courseId;
@@ -344,6 +324,32 @@ namespace HwProj.CoursesService.API.Services
             return availableLecturers
                 .Select(u => u.ToAccountDataDto(Roles.LecturerRole))
                 .ToArray();
+        }
+
+        private async Task AddStudentsToCourseAsync(IEnumerable<string> studentIds, Course course)
+        {
+            if (studentIds.Any())
+            {
+                var students = studentIds.Select(studentId => new CourseMate
+                {
+                    CourseId = course.Id,
+                    StudentId = studentId,
+                    IsAccepted = true
+                }).ToArray();
+
+                await _courseMatesRepository.AddRangeAsync(students);
+
+                foreach (var student in students)
+                {
+                    _eventBus.Publish(new LecturerAcceptToCourseEvent
+                    {
+                        CourseId = course.Id,
+                        CourseName = course.Name,
+                        MentorIds = course.MentorIds,
+                        StudentId = student.StudentId
+                    });
+                }
+            }
         }
     }
 }
