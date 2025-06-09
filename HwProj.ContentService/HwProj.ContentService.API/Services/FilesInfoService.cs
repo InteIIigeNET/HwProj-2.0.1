@@ -1,5 +1,5 @@
-using System.Transactions;
 using HwProj.ContentService.API.Models;
+using HwProj.ContentService.API.Models.Database;
 using HwProj.ContentService.API.Models.Enums;
 using HwProj.ContentService.API.Repositories;
 using HwProj.ContentService.API.Services.Interfaces;
@@ -64,16 +64,16 @@ public class FilesInfoService : IFilesInfoService
         }).ToList();
     }
 
-    public async Task TransferFiles(Dictionary<Scope, Scope> scopeMapping)
+    public async Task TransferFiles(List<(Scope SourceScope, Scope TargetScope)> scopeMapping)
     {
-        using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+        var recordsByScope = new List<(List<FileRecord> FileRecords, Scope Scope)>();
 
         foreach (var (source, target) in scopeMapping)
         {
             var fileRecords = await _fileRecordRepository.GetByScopeAsync(source);
-            await _fileRecordRepository.AddReferencesAsync(fileRecords, target);
+            recordsByScope.Add((fileRecords, target));
         }
 
-        transactionScope.Complete();
+        await _fileRecordRepository.AddReferencesAsync(recordsByScope);
     }
 }

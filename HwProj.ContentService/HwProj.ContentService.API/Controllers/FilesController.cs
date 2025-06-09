@@ -109,9 +109,13 @@ public class FilesController : ControllerBase
 
     [HttpPost("transfer")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> TransferFiles(Dictionary<ScopeDTO, ScopeDTO> scopeMapping)
+    public async Task<IActionResult> TransferFiles(
+        List<(ScopeDTO SourceScope, ScopeDTO TargetScope)> scopeMapping)
     {
-        var mapping = scopeMapping.Select(pair => (pair.Key.ToScope(), pair.Value.ToScope())).ToDictionary();
+        var mapping = scopeMapping
+            .Select(pair => (pair.SourceScope.ToScope(), pair.TargetScope.ToScope()))
+            .ToList();
+
         await _filesInfoService.TransferFiles(mapping);
         return Ok();
     }

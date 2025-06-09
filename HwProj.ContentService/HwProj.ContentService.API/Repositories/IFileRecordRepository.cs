@@ -19,6 +19,6 @@ public interface IFileRecordRepository
     public Task<List<long>> GetIdsByStatusAsync(FileStatus status);
     public Task DeleteWithCourseUnitInfoAsync(long fileRecordId);
     public Task DeleteWithCourseUnitInfoAsync(List<long> fileRecordIds);
-    public Task AddReferencesAsync(IEnumerable<FileRecord> fileRecords, Scope scope);
+    public Task AddReferencesAsync(List<(List<FileRecord> FileRecords, Scope Scope)> recordsByScope);
     public Task<int> ReduceReferenceCountAsync(FileRecord fileRecord, Scope scope);
 }

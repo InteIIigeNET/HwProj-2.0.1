@@ -12,6 +12,6 @@ namespace HwProj.ContentService.Client
         Task<Result<string>> GetDownloadLinkAsync(long fileId);
         Task<Result<FileInfoDTO[]>> GetFilesInfo(long courseId);
         Task<Result<FileInfoDTO[]>> GetUploadedFilesInfo(long courseId);
-        Task<Result> TransferFiles(Dictionary<ScopeDTO, ScopeDTO> scopeMapping);
+        Task<Result> TransferFiles(List<(ScopeDTO SourceScope, ScopeDTO TargetScope)> scopeMapping);
     }
 }

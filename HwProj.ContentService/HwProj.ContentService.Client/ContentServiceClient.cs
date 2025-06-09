@@ -147,7 +147,8 @@ namespace HwProj.ContentService.Client
             }
         }
 
-        public async Task<Result> TransferFiles(Dictionary<ScopeDTO, ScopeDTO> scopeMapping)
+        public async Task<Result> TransferFiles(
+            List<(ScopeDTO SourceScope, ScopeDTO TargetScope)> scopeMapping)
         {
             var url = _contentServiceUri + "api/Files/transfer";
             using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)

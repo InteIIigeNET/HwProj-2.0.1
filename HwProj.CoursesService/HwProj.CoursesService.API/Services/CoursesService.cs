@@ -19,6 +19,7 @@ using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+using HwProj.Models.ContentService.Enums;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -58,44 +59,35 @@ namespace HwProj.CoursesService.API.Services
             _context = context;
         }
 
-        private static Dictionary<ScopeDTO, ScopeDTO> GetScopeMapping(
+        private static (ScopeDTO SourceScope, ScopeDTO TargetScope) GetScopeMappingPair((long, long) idPair,
             long courseId,
+            string courseUnitType)
+            => (new ScopeDTO()
+                {
+                    CourseId = courseId,
+                    CourseUnitId = idPair.Item1,
+                    CourseUnitType = courseUnitType
+                },
+                new ScopeDTO()
+                {
+                    CourseId = courseId,
+                    CourseUnitId = idPair.Item2,
+                    CourseUnitType = courseUnitType
+                });
+
+        private static List<(ScopeDTO SourceScope, ScopeDTO TargetScope)> GetScopeMapping(long courseId,
             IEnumerable<long> baseHwIds,
             IEnumerable<long> baseTaskIds,
             IEnumerable<long> newHwIds,
             IEnumerable<long> newTaskIds)
         {
             var homeworksMapping = baseHwIds.Zip(newHwIds, (source, target) =>
-                KeyValuePair.Create(
-                    new ScopeDTO()
-                    {
-                        CourseId = courseId,
-                        CourseUnitId = source,
-                        CourseUnitType = "Homework"
-                    },
-                    new ScopeDTO()
-                    {
-                        CourseId = courseId,
-                        CourseUnitId = target,
-                        CourseUnitType = "Homework"
-                    }));
+                GetScopeMappingPair((source, target), courseId, CourseUnitType.Homework.ToString()));
 
             var tasksMapping = baseTaskIds.Zip(newTaskIds, (source, target) =>
-                KeyValuePair.Create(
-                    new ScopeDTO()
-                    {
-                        CourseId = courseId,
-                        CourseUnitId = source,
-                        CourseUnitType = "Task"
-                    },
-                    new ScopeDTO()
-                    {
-                        CourseId = courseId,
-                        CourseUnitId = target,
-                        CourseUnitType = "Task"
-                    }));
+                GetScopeMappingPair((source, target), courseId, CourseUnitType.Task.ToString()));
 
-            return new Dictionary<ScopeDTO, ScopeDTO>(homeworksMapping.Concat(tasksMapping));
+            return homeworksMapping.Concat(tasksMapping).ToList();
         }
 
         public async Task<Course[]> GetAllAsync()
