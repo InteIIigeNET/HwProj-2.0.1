@@ -9,7 +9,7 @@ import {
     SolutionState,
     SolutionActualityDto,
     SolutionActualityPart, StudentDataDto
-} from '../../api'
+} from '@/api'
 import ApiSingleton from "../../api/ApiSingleton";
 import {Alert, Avatar, Rating, Stack, Tooltip, Card, CardContent, CardActions, IconButton, Chip} from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
@@ -24,6 +24,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import {useSnackbar} from 'notistack';
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {StudentCharacteristics} from "@/components/Students/StudentCharacteristics";
+import KeyboardCommandKeyIcon from '@mui/icons-material/KeyboardCommandKey';
+import MouseOutlinedIcon from '@mui/icons-material/MouseOutlined';
 
 interface ISolutionProps {
     courseId: number,
@@ -70,6 +72,34 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         getActuality()
     }, [props.student.userId, props.task.id, props.solution?.id, props.solution?.rating])
 
+    const [isCtrlPressed, setIsCtrlPressed] = useState(false)
+
+    useEffect(() => {
+        if (!props.forMentor) return
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Control") {
+                setIsCtrlPressed(true);
+            }
+        }
+
+        const handleKeyUp = (event: KeyboardEvent) => {
+            if (event.key === "Control") {
+                setIsCtrlPressed(false);
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("keyup", handleKeyUp);
+
+        return () => {
+            if (!props.forMentor) return
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("keyup", handleKeyUp);
+        }
+    }, [])
+
+
     useEffect(() => {
         if (!state.clickedForRate) return
         RatingStorage.set(storageKey, {points: state.points, comment: state.lecturerComment})
@@ -111,7 +141,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         }
     }
 
-    const rateSolution = async () => {
+    const rateSolution = async (points: number, lecturerComment: string) => {
         setRateInProgressState(true)
         if (props.solution) {
             await ApiSingleton.solutionsApi.solutionsRateSolution(
@@ -126,9 +156,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             {
                 comment: "",
                 githubUrl: "",
-                lecturerComment: state.lecturerComment,
+                lecturerComment: lecturerComment,
                 publicationDate: undefined,
-                rating: state.points,
+                rating: points,
                 studentId: props.student.userId
             }
         )
@@ -173,15 +203,20 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         title={<div>{status.comment}</div>}>{icon}</Tooltip>
     }
 
+    const clickForRate = async (points: number, clickedForRate: boolean) => {
+        setState((prevState) => ({
+            ...prevState,
+            points: points,
+            clickedForRate: clickedForRate && !isCtrlPressed
+        }))
+        if (isCtrlPressed) await rateSolution(points, lecturerComment)
+    }
+
     const renderRateInput = () => {
         const showThumbs = maxRating === 1
         const isEditable = props.forMentor && (!isRated || state.clickedForRate)
         const thumbsHandler = (rating: number) => {
-            setState((prevState) => ({
-                ...prevState,
-                points: rating,
-                clickedForRate: isEditable
-            }))
+            clickForRate(rating, isEditable)
         }
         if (maxRating <= 10 && points <= maxRating && !addBonusPoints)
             return (<Grid container item direction={"row"} spacing={1} alignItems={"center"}>
@@ -204,12 +239,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         value={points}
                         readOnly={!isEditable}
                         onChange={(_, newValue) => {
-                            setState((prevState) => ({
-                                ...prevState,
-                                points: newValue || 0,
-                                addBonusPoints: points > maxRating,
-                                clickedForRate: true
-                            }))
+                            clickForRate(newValue || 0, true)
                         }}
                     />
                 </Grid>}
@@ -288,6 +318,19 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     <Grid item>
                         {renderRateInput()}
                     </Grid>
+                    {!isRated && !state.clickedForRate && maxRating <= 10 && !addBonusPoints && <Grid item>
+                        <Typography variant={"caption"} style={{color: "GrayText"}}>
+                            Нажмите{" "}
+                            <span style={{color: isCtrlPressed ? "blue" : "inherit"}}>
+                                <KeyboardCommandKeyIcon style={{fontSize: 10, marginTop: -2}}/>
+                                Ctrl
+                            </span>{" "} + {" "}
+                            <span>
+                                ЛКМ
+                                <MouseOutlinedIcon style={{fontSize: 10, marginTop: -2}}/>
+                            </span>{" "}для быстрого оценивания
+                        </Typography>
+                    </Grid>}
                     {lastRating !== undefined && state.clickedForRate &&
                         <Grid item>
                             <Typography variant={"caption"} style={{color: "GrayText", marginTop: -10}}>
@@ -343,7 +386,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     loading={rateInProgress}
                     loadingPosition="end"
                     size="small"
-                    onClick={rateSolution}
+                    onClick={() => rateSolution(points, lecturerComment)}
                 >
                     {isRated ? "Изменить оценку" : "Оценить решение"}
                 </LoadingButton>
