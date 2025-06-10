@@ -2,5 +2,6 @@ namespace HwProj.ContentService.API.Models;
 
 public record TransferFiles
 {
-    public List<ScopeMappingPair> ScopeMapping { get; set; } = new List<ScopeMappingPair>();
+    public long SourceCourseId { get; set; }
+    public Dictionary<Scope, Scope> ScopeMapping { get; set; } = [];
 }
