@@ -112,15 +112,17 @@ public class FileRecordRepository : IFileRecordRepository
 
     /// <summary>
     /// Переносит файлы с помощью добавления записей в FileToCourseUnit согласно переданному отображению.
-    /// Увелечивает число ссылок на соответствующие файлы на 1.
+    /// Увеличивает число ссылок на файлы на число добавленных записей, соответствующих файлу.
     /// </summary>
     public async Task TransferFilesAsync(List<FileToCourseUnit> fileToCourseUnits,
         Dictionary<Scope, Scope> scopeMapping)
     {
-        await using var transaction = await _contentContext.Database.BeginTransactionAsync();
+        var fileRecords = fileToCourseUnits.Select(unit => unit.FileRecord);
+        _contentContext.FileRecords.AttachRange(fileRecords);
 
         var unitsToAdd = fileToCourseUnits.Select(unit =>
         {
+            unit.FileRecord.ReferenceCount++;
             var sourceScope = unit.ToScope();
             var targetScope = scopeMapping[sourceScope];
             return new FileToCourseUnit
@@ -134,20 +136,6 @@ public class FileRecordRepository : IFileRecordRepository
 
         await _contentContext.FileToCourseUnits.AddRangeAsync(unitsToAdd);
         await _contentContext.SaveChangesAsync();
-
-        var fileRecordIds = fileToCourseUnits
-            .Select(unit => unit.FileRecord)
-            .Select(fr => fr.Id)
-            .ToHashSet();
-
-        await _contentContext.FileRecords
-            .AsNoTracking()
-            .Where(fr => fileRecordIds.Contains(fr.Id))
-            .ExecuteUpdateAsync(setters =>
-                setters.SetProperty(fr => fr.ReferenceCount, fr => fr.ReferenceCount + 1)
-            );
-
-        await transaction.CommitAsync();
     }
 
     /// <summary>
