@@ -66,14 +66,7 @@ public class FilesInfoService : IFilesInfoService
 
     public async Task TransferFiles(TransferFiles transferFiles)
     {
-        var recordsByScope = new List<(List<FileRecord> FileRecords, Scope Scope)>();
-
-        foreach (var pair in transferFiles.ScopeMapping)
-        {
-            var fileRecords = await _fileRecordRepository.GetByScopeAsync(pair.SourceScope);
-            recordsByScope.Add((fileRecords, pair.TargetScope));
-        }
-
-        await _fileRecordRepository.AddReferencesAsync(recordsByScope);
+        var fileToCourseUnits = await _fileRecordRepository.GetByCourseIdAsync(transferFiles.SourceCourseId);
+        await _fileRecordRepository.TransferFilesAsync(fileToCourseUnits, transferFiles.ScopeMapping);
     }
 }

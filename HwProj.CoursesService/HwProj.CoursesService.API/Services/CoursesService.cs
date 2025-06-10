@@ -59,40 +59,48 @@ namespace HwProj.CoursesService.API.Services
             _context = context;
         }
 
-        private static ScopeMappingPairDTO GetScopeMappingPair((long SourceId, long TargetId) idPair,
-            long courseId,
+        private static ScopeMappingPairDTO GetScopeMappingPair(
+            (long SourceCourseId, long TargetCourseId) courseIdPair,
+            (long SourceCourseUnitId, long TargetCourseUnitId) courseUnitIdPair,
             string courseUnitType)
             => new ScopeMappingPairDTO()
             {
                 SourceScope = new ScopeDTO()
                 {
-                    CourseId = courseId,
-                    CourseUnitId = idPair.SourceId,
+                    CourseId = courseIdPair.SourceCourseId,
+                    CourseUnitId = courseUnitIdPair.SourceCourseUnitId,
                     CourseUnitType = courseUnitType
                 },
                 TargetScope = new ScopeDTO()
                 {
-                    CourseId = courseId,
-                    CourseUnitId = idPair.TargetId,
+                    CourseId = courseIdPair.TargetCourseId,
+                    CourseUnitId = courseUnitIdPair.TargetCourseUnitId,
                     CourseUnitType = courseUnitType
                 }
             };
 
-        private static TransferFilesDTO GetTransferFilesDTO(long courseId,
+        private static TransferFilesDTO GetTransferFilesDTO(
+            long? sourceCourseId,
+            long targetCourseId,
             IEnumerable<long> baseHwIds,
             IEnumerable<long> baseTaskIds,
             IEnumerable<long> newHwIds,
             IEnumerable<long> newTaskIds)
         {
+            if (sourceCourseId == null) return new TransferFilesDTO();
+
             var homeworksMapping = baseHwIds.Zip(newHwIds, (source, target) =>
-                GetScopeMappingPair((source, target), courseId, CourseUnitType.Homework.ToString()));
+                GetScopeMappingPair(
+                    ((long)sourceCourseId, targetCourseId), (source, target), CourseUnitType.Homework.ToString()));
 
             var tasksMapping = baseTaskIds.Zip(newTaskIds, (source, target) =>
-                GetScopeMappingPair((source, target), courseId, CourseUnitType.Task.ToString()));
+                GetScopeMappingPair(
+                    ((long)sourceCourseId, targetCourseId), (source, target), CourseUnitType.Task.ToString()));
 
             var scopeMapping = homeworksMapping.Concat(tasksMapping).ToList();
             return new TransferFilesDTO()
             {
+                SourceCourseId = (long)sourceCourseId,
                 ScopeMapping = scopeMapping
             };
         }
@@ -155,19 +163,20 @@ namespace HwProj.CoursesService.API.Services
                 courseTemplate.Homeworks = baseCourse.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList();
             }
 
-            var (courseId, newHwIds, newTaskIds) = await AddFromTemplateAsync(courseTemplate, mentorId);
+            var (newCourseId, newHwIds, newTaskIds) = await AddFromTemplateAsync(courseTemplate, mentorId);
 
-            var transferFiles = GetTransferFilesDTO(courseId, baseHwIds, baseTaskIds, newHwIds, newTaskIds);
+            var transferFiles = GetTransferFilesDTO(
+                baseCourse?.Id, newCourseId, baseHwIds, baseTaskIds, newHwIds, newTaskIds);
             if (transferFiles.ScopeMapping.Any())
             {
                 var result = await _contentServiceClient.TransferFiles(transferFiles);
                 if (!result.Succeeded) throw new TransactionAbortedException(result.Errors.First());
             }
 
-            await AddStudentsToCourseAsync(courseViewModel, courseId, mentorId);
+            await AddStudentsToCourseAsync(courseViewModel, newCourseId, mentorId);
 
             transactionScope.Complete();
-            return courseId;
+            return newCourseId;
         }
 
         private async Task<(long, List<long>, List<long>)> AddFromTemplateAsync(CourseTemplate courseTemplate,

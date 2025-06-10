@@ -4,6 +4,7 @@ using HwProj.ContentService.API.Models.Database;
 using HwProj.ContentService.API.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using HwProj.ContentService.API.Extensions;
 
 namespace HwProj.ContentService.API.Repositories;
 
@@ -110,28 +111,33 @@ public class FileRecordRepository : IFileRecordRepository
     }
 
     /// <summary>
-    /// Увеличивает число ссылок на файлы на 1 и добавляет соответствующие записи в таблицу FileToCourseUnit.
+    /// Переносит файлы с помощью добавления записей в FileToCourseUnit согласно переданному отображению.
+    /// Увелечивает число ссылок на соответствующие файлы на 1.
     /// </summary>
-    public async Task AddReferencesAsync(List<(List<FileRecord> FileRecords, Scope Scope)> recordsByScope)
+    public async Task TransferFilesAsync(List<FileToCourseUnit> fileToCourseUnits,
+        Dictionary<Scope, Scope> scopeMapping)
     {
         await using var transaction = await _contentContext.Database.BeginTransactionAsync();
 
-        var fileToCourseUnits = recordsByScope
-            .SelectMany(pair => pair.FileRecords
-            .Select(fr => new FileToCourseUnit
+        var unitsToAdd = fileToCourseUnits.Select(unit =>
+        {
+            var sourceScope = unit.ToScope();
+            var targetScope = scopeMapping[sourceScope];
+            return new FileToCourseUnit
             {
-                FileRecordId = fr.Id,
-                CourseUnitId = pair.Scope.CourseUnitId,
-                CourseUnitType = pair.Scope.CourseUnitType,
-                CourseId = pair.Scope.CourseId
-            }));
+                FileRecordId = unit.FileRecordId,
+                CourseId = targetScope.CourseId,
+                CourseUnitId = targetScope.CourseUnitId,
+                CourseUnitType = targetScope.CourseUnitType
+            };
+        });
 
-        await _contentContext.FileToCourseUnits.AddRangeAsync(fileToCourseUnits);
+        await _contentContext.FileToCourseUnits.AddRangeAsync(unitsToAdd);
         await _contentContext.SaveChangesAsync();
 
-        var fileRecordIds = recordsByScope
-            .SelectMany(pair => pair.FileRecords
-            .Select(fr => fr.Id))
+        var fileRecordIds = fileToCourseUnits
+            .Select(unit => unit.FileRecord)
+            .Select(fr => fr.Id)
             .ToHashSet();
 
         await _contentContext.FileRecords

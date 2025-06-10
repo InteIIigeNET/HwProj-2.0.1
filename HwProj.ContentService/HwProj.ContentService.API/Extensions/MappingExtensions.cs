@@ -1,4 +1,5 @@
 using HwProj.ContentService.API.Models;
+using HwProj.ContentService.API.Models.Database;
 using HwProj.Models.ContentService.DTO;
 using HwProj.Models.ContentService.Enums;
 
@@ -6,6 +7,13 @@ namespace HwProj.ContentService.API.Extensions;
 
 public static class MappingExtensions
 {
+    public static Scope ToScope(this FileToCourseUnit fileToCourseUnit)
+        => new Scope(
+            CourseId: fileToCourseUnit.CourseId,
+            CourseUnitId: fileToCourseUnit.CourseUnitId,
+            CourseUnitType: fileToCourseUnit.CourseUnitType
+        );
+
     public static Scope ToScope(this ScopeDTO scopeDTO)
         => new Scope(
             CourseId: scopeDTO.CourseId,
@@ -14,23 +22,22 @@ public static class MappingExtensions
         );
 
     public static ScopeDTO ToScopeDTO(this Scope scope)
-        => new ScopeDTO()
+        => new ScopeDTO
         {
             CourseId = scope.CourseId,
             CourseUnitType = scope.CourseUnitType.ToString(),
             CourseUnitId = scope.CourseUnitId
         };
 
-    public static ScopeMappingPair ToScopeMappingPair(this ScopeMappingPairDTO scopeMappingPair)
-        => new ScopeMappingPair()
-        {
-            SourceScope = scopeMappingPair.SourceScope.ToScope(),
-            TargetScope = scopeMappingPair.TargetScope.ToScope()
-        };
+    public static KeyValuePair<Scope, Scope> ToKeyValuePair(this ScopeMappingPairDTO scopeMappingPair)
+        => KeyValuePair.Create(
+            scopeMappingPair.SourceScope.ToScope(),
+            scopeMappingPair.TargetScope.ToScope());
 
     public static TransferFiles ToTransferFiles(this TransferFilesDTO transferFilesDTO)
-        => new TransferFiles()
+        => new TransferFiles
         {
-            ScopeMapping = transferFilesDTO.ScopeMapping.Select(pair => pair.ToScopeMappingPair()).ToList()
+            SourceCourseId = transferFilesDTO.SourceCourseId,
+            ScopeMapping = transferFilesDTO.ScopeMapping.Select(ToKeyValuePair).ToDictionary()
         };
 }
