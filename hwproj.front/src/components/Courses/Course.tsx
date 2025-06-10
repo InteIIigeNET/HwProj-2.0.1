@@ -24,10 +24,13 @@ import {
     Menu,
     MenuItem,
     Stack,
-    Typography
+    Typography,
+    Divider,
+    CardContent
 } from "@mui/material";
 import {CourseExperimental} from "./CourseExperimental";
-import {useParams, useNavigate} from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import {MarkdownPreview} from "../Common/MarkdownEditor";
 import MentorsList from "../Common/MentorsList";
 import LecturerStatistics from "./Statistics/LecturerStatistics";
 import AssessmentIcon from '@mui/icons-material/Assessment';
@@ -245,6 +248,8 @@ const Course: React.FC = () => {
     const showStatsTab = isCourseMentor || isAcceptedStudent
     const showApplicationsTab = isCourseMentor
 
+    const hasAccessToMaterials = course.isOpen || isCourseMentor || isAcceptedStudent
+
     const changeTab = (newTab: string) => {
         if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
             if (newTab === "stats" && !showStatsTab) return;
@@ -441,6 +446,17 @@ const Course: React.FC = () => {
                                 </Grid>
                             </Grid>
                         </Grid>
+                        {!hasAccessToMaterials && !course.isOpen && <CardContent style={{paddingBottom: 0}}>
+                            <Grid item>
+                                <Typography variant="h4" component="div">
+                                    О курсе
+                                </Typography>
+                            </Grid>
+                            <Divider style={{ marginTop: 15, marginBottom: 15 }} />
+                            <Typography style={{ color: "#454545" }} gutterBottom variant="body1">
+                                <MarkdownPreview value={course.description!} />
+                            </Typography>
+                        </CardContent>}
                         <Grid item style={{width: 187}}>
                             {!isSignedInCourse && !isMentor && !isAcceptedStudent && (
                                 <Button
