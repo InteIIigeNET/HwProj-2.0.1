@@ -79,7 +79,7 @@ namespace HwProj.CoursesService.API.Services
                 }
             };
 
-        private static CourseFilesTransferDTO GetFilesTransferDTO(
+        private static CourseFilesTransferDTO GetCourseFilesTransfer(
             long? sourceCourseId,
             long targetCourseId,
             IEnumerable<long> baseHwIds,
@@ -165,7 +165,7 @@ namespace HwProj.CoursesService.API.Services
 
             var (newCourseId, newHwIds, newTaskIds) = await AddFromTemplateAsync(courseTemplate, mentorId);
 
-            var filesTransfer = GetFilesTransferDTO(
+            var filesTransfer = GetCourseFilesTransfer(
                 baseCourse?.Id, newCourseId, baseHwIds, baseTaskIds, newHwIds, newTaskIds);
             if (filesTransfer.ScopeMapping.Any())
             {
