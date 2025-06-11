@@ -64,9 +64,9 @@ public class FilesInfoService : IFilesInfoService
         }).ToList();
     }
 
-    public async Task TransferFiles(TransferFiles transferFiles)
+    public async Task TransferFilesFromCourse(CourseFilesTransfer filesTransfer)
     {
-        var fileToCourseUnits = await _fileRecordRepository.GetByCourseIdAsync(transferFiles.SourceCourseId);
-        await _fileRecordRepository.TransferFilesAsync(fileToCourseUnits, transferFiles.ScopeMapping);
+        var fileToCourseUnits = await _fileRecordRepository.GetByCourseIdAsync(filesTransfer.SourceCourseId);
+        await _fileRecordRepository.TransferFilesAsync(fileToCourseUnits, filesTransfer.ScopeMapping);
     }
 }

@@ -146,13 +146,13 @@ namespace HwProj.ContentService.Client
             }
         }
 
-        public async Task<Result> TransferFiles(TransferFilesDTO transferFilesDTO)
+        public async Task<Result> TransferFilesFromCourse(CourseFilesTransferDTO filesTransferDTO)
         {
             var url = _contentServiceUri + "api/Files/transfer";
             using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
             {
                 Content = new StringContent(
-                    JsonConvert.SerializeObject(transferFilesDTO),
+                    JsonConvert.SerializeObject(filesTransferDTO),
                     Encoding.UTF8,
                     "application/json")
             };

@@ -29,15 +29,15 @@ public static class MappingExtensions
             CourseUnitId = scope.CourseUnitId
         };
 
-    public static KeyValuePair<Scope, Scope> ToKeyValuePair(this ScopeMappingPairDTO scopeMappingPair)
+    public static KeyValuePair<Scope, Scope> ToKeyValuePair(this ScopeMappingPairDTO scopeMappingPairDTO)
         => KeyValuePair.Create(
-            scopeMappingPair.SourceScope.ToScope(),
-            scopeMappingPair.TargetScope.ToScope());
+            scopeMappingPairDTO.SourceScope.ToScope(),
+            scopeMappingPairDTO.TargetScope.ToScope());
 
-    public static TransferFiles ToTransferFiles(this TransferFilesDTO transferFilesDTO)
-        => new TransferFiles
+    public static CourseFilesTransfer ToCourseFilesTransfer(this CourseFilesTransferDTO filesTransferDTO)
+        => new CourseFilesTransfer
         {
-            SourceCourseId = transferFilesDTO.SourceCourseId,
-            ScopeMapping = transferFilesDTO.ScopeMapping.Select(ToKeyValuePair).ToDictionary()
+            SourceCourseId = filesTransferDTO.SourceCourseId,
+            ScopeMapping = filesTransferDTO.ScopeMapping.Select(ToKeyValuePair).ToDictionary()
         };
 }
