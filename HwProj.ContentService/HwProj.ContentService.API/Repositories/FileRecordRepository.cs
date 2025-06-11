@@ -151,19 +151,21 @@ public class FileRecordRepository : IFileRecordRepository
         var fileRecords = fileToCourseUnits.Select(unit => unit.FileRecord);
         _contentContext.FileRecords.AttachRange(fileRecords);
 
-        var unitsToAdd = fileToCourseUnits.Select(unit =>
-        {
-            unit.FileRecord.ReferenceCount++;
-            var sourceScope = unit.ToScope();
-            var targetScope = scopeMapping[sourceScope];
-            return new FileToCourseUnit
+        var unitsToAdd = fileToCourseUnits
+            .Select(unit => (unit.FileRecord, Scope: unit.ToScope()))
+            .Where(pair => scopeMapping.ContainsKey(pair.Scope))
+            .Select(pair =>
             {
-                FileRecordId = unit.FileRecordId,
-                CourseId = targetScope.CourseId,
-                CourseUnitId = targetScope.CourseUnitId,
-                CourseUnitType = targetScope.CourseUnitType
-            };
-        });
+                pair.FileRecord.ReferenceCount++;
+                var targetScope = scopeMapping[pair.Scope];
+                return new FileToCourseUnit
+                {
+                    FileRecordId = pair.FileRecord.Id,
+                    CourseId = targetScope.CourseId,
+                    CourseUnitId = targetScope.CourseUnitId,
+                    CourseUnitType = targetScope.CourseUnitType
+                };
+            });
 
         await _contentContext.FileToCourseUnits.AddRangeAsync(unitsToAdd);
         await _contentContext.SaveChangesAsync();
