@@ -66,7 +66,7 @@ public class FileRecordRepository : IFileRecordRepository
             .Where(fc => fc.CourseId == courseId)
             .Include(fc => fc.FileRecord)
             .ToListAsync();
-    
+
     public async Task<List<FileToCourseUnit>> GetByCourseIdAndStatusAsync(long courseId, FileStatus filesStatus)
         => await _contentContext.FileToCourseUnits
             .AsNoTracking()
@@ -111,34 +111,6 @@ public class FileRecordRepository : IFileRecordRepository
     }
 
     /// <summary>
-    /// Переносит файлы с помощью добавления записей в FileToCourseUnit согласно переданному отображению.
-    /// Увеличивает число ссылок на файлы на число добавленных записей, соответствующих файлу.
-    /// </summary>
-    public async Task TransferFilesAsync(List<FileToCourseUnit> fileToCourseUnits,
-        Dictionary<Scope, Scope> scopeMapping)
-    {
-        var fileRecords = fileToCourseUnits.Select(unit => unit.FileRecord);
-        _contentContext.FileRecords.AttachRange(fileRecords);
-
-        var unitsToAdd = fileToCourseUnits.Select(unit =>
-        {
-            unit.FileRecord.ReferenceCount++;
-            var sourceScope = unit.ToScope();
-            var targetScope = scopeMapping[sourceScope];
-            return new FileToCourseUnit
-            {
-                FileRecordId = unit.FileRecordId,
-                CourseId = targetScope.CourseId,
-                CourseUnitId = targetScope.CourseUnitId,
-                CourseUnitType = targetScope.CourseUnitType
-            };
-        });
-
-        await _contentContext.FileToCourseUnits.AddRangeAsync(unitsToAdd);
-        await _contentContext.SaveChangesAsync();
-    }
-
-    /// <summary>
     /// Уменьшает количество ссылок на файл на 1 и удаляет соответствующую запись из таблицы FileToCourseUnit.
     /// Если количество ссылок 0, ничего не происходит.
     /// </summary>
@@ -167,6 +139,34 @@ public class FileRecordRepository : IFileRecordRepository
 
         await transaction.CommitAsync();
         return fileRecord.ReferenceCount;
+    }
+
+    /// <summary>
+    /// Переносит файлы с помощью добавления записей в FileToCourseUnit согласно переданному отображению.
+    /// Увеличивает число ссылок на файлы на число добавленных записей, соответствующих файлу.
+    /// </summary>
+    public async Task TransferFilesAsync(List<FileToCourseUnit> fileToCourseUnits,
+        Dictionary<Scope, Scope> scopeMapping)
+    {
+        var fileRecords = fileToCourseUnits.Select(unit => unit.FileRecord);
+        _contentContext.FileRecords.AttachRange(fileRecords);
+
+        var unitsToAdd = fileToCourseUnits.Select(unit =>
+        {
+            unit.FileRecord.ReferenceCount++;
+            var sourceScope = unit.ToScope();
+            var targetScope = scopeMapping[sourceScope];
+            return new FileToCourseUnit
+            {
+                FileRecordId = unit.FileRecordId,
+                CourseId = targetScope.CourseId,
+                CourseUnitId = targetScope.CourseUnitId,
+                CourseUnitType = targetScope.CourseUnitType
+            };
+        });
+
+        await _contentContext.FileToCourseUnits.AddRangeAsync(unitsToAdd);
+        await _contentContext.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(long id,
