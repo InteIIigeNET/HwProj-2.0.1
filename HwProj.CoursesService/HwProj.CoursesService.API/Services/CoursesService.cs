@@ -82,18 +82,18 @@ namespace HwProj.CoursesService.API.Services
         private static CourseFilesTransferDTO GetCourseFilesTransfer(
             long? sourceCourseId,
             long targetCourseId,
-            IEnumerable<long> baseHwIds,
-            IEnumerable<long> baseTaskIds,
-            IEnumerable<long> newHwIds,
-            IEnumerable<long> newTaskIds)
+            IEnumerable<long> sourceHwIds,
+            IEnumerable<long> targetHwIds,
+            IEnumerable<long> sourceTaskIds,
+            IEnumerable<long> targetTaskIds)
         {
             if (sourceCourseId == null) return new CourseFilesTransferDTO();
 
-            var homeworksMapping = baseHwIds.Zip(newHwIds, (source, target) =>
+            var homeworksMapping = sourceHwIds.Zip(targetHwIds, (source, target) =>
                 GetScopeMappingPair(
                     ((long)sourceCourseId, targetCourseId), (source, target), CourseUnitType.Homework.ToString()));
 
-            var tasksMapping = baseTaskIds.Zip(newTaskIds, (source, target) =>
+            var tasksMapping = sourceTaskIds.Zip(targetTaskIds, (source, target) =>
                 GetScopeMappingPair(
                     ((long)sourceCourseId, targetCourseId), (source, target), CourseUnitType.Task.ToString()));
 
@@ -154,8 +154,6 @@ namespace HwProj.CoursesService.API.Services
             IEnumerable<long> baseTaskIds = new List<long>();
             var courseTemplate = courseViewModel.ToCourseTemplate();
 
-            using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-
             if (baseCourse != null)
             {
                 baseHwIds = baseCourse.Homeworks.Select(hw => hw.Id);
@@ -163,10 +161,12 @@ namespace HwProj.CoursesService.API.Services
                 courseTemplate.Homeworks = baseCourse.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList();
             }
 
+            using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
             var (newCourseId, newHwIds, newTaskIds) = await AddFromTemplateAsync(courseTemplate, mentorId);
 
             var filesTransfer = GetCourseFilesTransfer(
-                baseCourse?.Id, newCourseId, baseHwIds, baseTaskIds, newHwIds, newTaskIds);
+                baseCourse?.Id, newCourseId, baseHwIds, newHwIds, baseTaskIds, newTaskIds);
             if (filesTransfer.ScopeMapping.Any())
             {
                 var result = await _contentServiceClient.TransferFilesFromCourse(filesTransfer);
