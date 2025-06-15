@@ -1,4 +1,5 @@
 using HwProj.ContentService.API.Models;
+using HwProj.ContentService.API.Models.Database;
 using HwProj.ContentService.API.Models.Enums;
 using HwProj.ContentService.API.Repositories;
 using HwProj.ContentService.API.Services.Interfaces;
@@ -61,5 +62,11 @@ public class FilesInfoService : IFilesInfoService
             CourseUnitType = fcu.CourseUnitType.ToString(),
             CourseUnitId = fcu.CourseUnitId
         }).ToList();
+    }
+
+    public async Task TransferFilesFromCourse(CourseFilesTransfer filesTransfer)
+    {
+        var fileToCourseUnits = await _fileRecordRepository.GetByCourseIdAsync(filesTransfer.SourceCourseId);
+        await _fileRecordRepository.TransferFilesAsync(fileToCourseUnits, filesTransfer.ScopeMapping);
     }
 }
