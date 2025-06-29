@@ -232,12 +232,25 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 </Grid>}
                 {!showThumbs && <Grid item>
                     <Rating
+                        key={solution?.id}
                         name="customized"
                         size="large"
                         defaultValue={2}
                         max={maxRating}
                         value={points}
                         readOnly={!isEditable}
+                        onMouseDown={event => {
+                            const isFirefox = navigator.userAgent.toLowerCase().includes('firefox')
+                            if (event.ctrlKey && isFirefox) {
+                                const ratingElement = event.currentTarget
+                                const {left, width} = ratingElement.getBoundingClientRect()
+                                const relativeX = (event.clientX - left) / width
+                                const star = Math.ceil(relativeX * maxRating) || 0
+                                const rating = star === points ? 0 : star
+
+                                clickForRate(rating || 0, true)
+                            }
+                        }}
                         onChange={(_, newValue) => {
                             clickForRate(newValue || 0, true)
                         }}
