@@ -4,6 +4,7 @@ using HwProj.ContentService.API.Models.Database;
 using HwProj.ContentService.API.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using HwProj.ContentService.API.Extensions;
 
 namespace HwProj.ContentService.API.Repositories;
 
@@ -65,7 +66,7 @@ public class FileRecordRepository : IFileRecordRepository
             .Where(fc => fc.CourseId == courseId)
             .Include(fc => fc.FileRecord)
             .ToListAsync();
-    
+
     public async Task<List<FileToCourseUnit>> GetByCourseIdAndStatusAsync(long courseId, FileStatus filesStatus)
         => await _contentContext.FileToCourseUnits
             .AsNoTracking()
@@ -138,6 +139,36 @@ public class FileRecordRepository : IFileRecordRepository
 
         await transaction.CommitAsync();
         return fileRecord.ReferenceCount;
+    }
+
+    /// <summary>
+    /// Переносит файлы с помощью добавления записей в FileToCourseUnit согласно переданному отображению.
+    /// Увеличивает число ссылок на файлы на число добавленных записей, соответствующих файлу.
+    /// </summary>
+    public async Task TransferFilesAsync(List<FileToCourseUnit> fileToCourseUnits,
+        Dictionary<Scope, Scope> scopeMapping)
+    {
+        var fileRecords = fileToCourseUnits.Select(unit => unit.FileRecord);
+        _contentContext.FileRecords.AttachRange(fileRecords);
+
+        var unitsToAdd = fileToCourseUnits
+            .Select(unit => (unit.FileRecord, Scope: unit.ToScope()))
+            .Where(pair => scopeMapping.ContainsKey(pair.Scope))
+            .Select(pair =>
+            {
+                pair.FileRecord.ReferenceCount++;
+                var targetScope = scopeMapping[pair.Scope];
+                return new FileToCourseUnit
+                {
+                    FileRecordId = pair.FileRecord.Id,
+                    CourseId = targetScope.CourseId,
+                    CourseUnitId = targetScope.CourseUnitId,
+                    CourseUnitType = targetScope.CourseUnitType
+                };
+            });
+
+        await _contentContext.FileToCourseUnits.AddRangeAsync(unitsToAdd);
+        await _contentContext.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(long id,
