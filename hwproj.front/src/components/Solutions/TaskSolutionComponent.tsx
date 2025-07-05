@@ -284,7 +284,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             readOnly: !props.forMentor || !state.clickedForRate,
                             inputProps: {min: 0, value: points},
                         }}
-                        maxRows={10}
+                        size={"small"}
                         onChange={(e) => {
                             e.persist()
                             setState((prevState) => ({
