@@ -27,12 +27,27 @@ interface MarkdownPreviewProps {
 
 const customRehypeSanitizeSchema: Schema = {
     ...defaultSchema,
-    tagNames: [...defaultSchema.tagNames!, 'code', 'span'],
+    tagNames: [
+        ...(defaultSchema.tagNames || []),
+        // Базовые HTML-теги (разметка и подсветка кода)
+        'span', 'code',
+        // MathML Core:
+        'math', 'mrow', 'mi', 'mo', 'mn', 'msub', 'msup', 'mfrac', 'msqrt',
+        // MathML Advanced:
+        'maction', 'maligngroup', 'malignmark', 'menclose', 'merror',
+        'mfenced', 'mi', 'mlongdiv', 'mmultiscripts', 'mover',
+        'mpadded', 'mphantom', 'mroot', 'ms', 'mscarries', 'mscarry',
+        'msgroup', 'msline', 'mspace', 'msrow', 'mstack', 'mstyle',
+        'msubsup', 'mtable', 'mtd', 'mtext', 'mtr', 'munder', 'munderover',
+        // Аннотации:
+        'semantics', 'annotation', 'annotation-xml'
+    ],
     attributes: {
         ...defaultSchema.attributes,
-        code: ['className'],
-        span: ['className'],
-    },
+        '*': ['className'], // Стилизация KaTeX и подсветка синтаксиса
+        math: ['xmlns'], // Пространство имен MathML
+        annotation: ['encoding'], // Формат аннотации
+    }
 };
 
 const MarkdownPreview: FC<MarkdownPreviewProps> = (props) => <MDEditor.Markdown
