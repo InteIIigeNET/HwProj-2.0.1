@@ -1,4 +1,4 @@
-﻿import {ChangeEvent, FC} from "react";
+﻿import {FC} from "react";
 import MDEditor from "@uiw/react-md-editor";
 import {getCommands, getExtraCommands} from "./Styles/MarkdownEditorCommands.ru";
 import rehypeSanitize, {defaultSchema} from 'rehype-sanitize';
@@ -69,20 +69,12 @@ const MarkdownPreview: FC<MarkdownPreviewProps> = (props) => <MDEditor.Markdown
 />
 
 const MarkdownEditor: FC<MarkdownEditorProps> = (props) => {
-    const handleChange = (value: string | undefined, event?: ChangeEvent<HTMLTextAreaElement>) => {
-        if (value !== undefined) {
-            props.onChange(value!);
-        }
+    const handleChange = (value: string | undefined) => {
+        if (value !== undefined) props.onChange(value);
     };
 
     return (
-        <div
-            data-color-mode="light"
-            style={{
-                marginTop: '15px',
-                marginBottom: '15px',
-            }}
-        >
+        <div data-color-mode="light" style={{marginTop: '15px', marginBottom: '15px'}}>
             <MDEditor
                 commands={[...getCommands()]}
                 extraCommands={[...getExtraCommands()]}
@@ -98,9 +90,7 @@ const MarkdownEditor: FC<MarkdownEditorProps> = (props) => {
                 }}
                 maxHeight={props.maxHeight ?? 400}
                 height={props.height ?? 230}
-                textareaProps={{
-                    placeholder: props.label
-                }}
+                textareaProps={{placeholder: props.label}}
                 preview="edit"
             />
         </div>
