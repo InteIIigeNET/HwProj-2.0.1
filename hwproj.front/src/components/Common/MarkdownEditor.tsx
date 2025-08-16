@@ -8,6 +8,8 @@ import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 import "./Styles/MarkdownEditor.css";
 import {Schema} from "rehype-sanitize/lib";
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 interface MarkdownEditorProps {
     label: string;
@@ -44,7 +46,11 @@ const MarkdownPreview: FC<MarkdownPreviewProps> = (props) => <MDEditor.Markdown
     wrapperElement={{
         "data-color-mode": "light"
     }}
-    rehypePlugins={[[rehypeSanitize, customRehypeSanitizeSchema]]}
+    remarkPlugins={[remarkMath]}
+    rehypePlugins={[
+        [rehypeKatex as any, { output: 'mathml' }],
+        [rehypeSanitize, customRehypeSanitizeSchema]
+    ]}
 />
 
 const MarkdownEditor: FC<MarkdownEditorProps> = (props) => {
@@ -69,7 +75,11 @@ const MarkdownEditor: FC<MarkdownEditorProps> = (props) => {
                 onChange={handleChange}
                 previewOptions={{
                     className: "markdown-preview",
-                    rehypePlugins: [[rehypeSanitize, customRehypeSanitizeSchema]]
+                    remarkPlugins: [remarkMath],
+                    rehypePlugins: [
+                        [rehypeKatex as any, { output: 'mathml' }],
+                        [rehypeSanitize, customRehypeSanitizeSchema]
+                    ],
                 }}
                 maxHeight={props.maxHeight ?? 400}
                 height={props.height ?? 230}
