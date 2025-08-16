@@ -113,8 +113,6 @@ services:
       - ExternalStorageConfiguration:ServiceURL=https://storage.yandexcloud.net
       - ExternalStorageConfiguration:DefaultBucketName=files
       - LocalStorageConfiguration:Path=/app/data/
-      - TransferFiles:IsNeeded=True
-      - TransferFiles:OldBucketName=hwproj-files
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=ContentServiceDB;User=sa;Password=Your_password123;Trusted_Connection=True;
 
     ports:

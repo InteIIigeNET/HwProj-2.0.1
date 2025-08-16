@@ -26,15 +26,6 @@ lifetime.ApplicationStarted.Register(async () =>
     // В результате последней остановки сервиса некоторые файлы могли остаться в "промежуточном" состоянии Uploading или Deleting.
     // После старта приложения отправим для этих файлов сообщения в канал, чтобы их попробовали загрузить/удалить и обновили статус.
     await recoveryService.ReProcessPendingFiles();
-    
-    // Если в конфигурации выставлен флаг переноса файлов,
-    // для каждого файла из старого бакета отправляем сообщения в канал на загрузку (уже в новый бакет)
-    var transferFilesSection = app.Configuration.GetSection("TransferFiles");
-    if (transferFilesSection["IsNeeded"] == "True")
-    {
-        await recoveryService.TransferFiles(transferFilesSection["OldBucketName"],
-            transferFilesSection["OldFilesPathRegex"]);
-    }
 });
 
 app.Run();
