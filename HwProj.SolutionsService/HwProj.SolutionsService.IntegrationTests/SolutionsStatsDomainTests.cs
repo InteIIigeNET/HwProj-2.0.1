@@ -58,13 +58,13 @@ namespace HwProj.SolutionsService.IntegrationTests
             })
             .ToList();
 
-        private GroupViewModel GenerateGroupViewModel(long id, string[] studentIds) => new()
+        private GroupViewModel GenerateGroupViewModel(long id, string[] studentIds) => new GroupViewModel
         {
             Id = id,
             StudentsIds = studentIds
         };
 
-        private HomeworkViewModel GenerateHomeworkViewModel(long id, long courseId, int taskAmount) => new()
+        private HomeworkViewModel GenerateHomeworkViewModel(long id, long courseId, int taskAmount) => new HomeworkViewModel
         {
             Id = id,
             Title = "Test",
@@ -85,7 +85,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             solutions[2].StudentId = courseMates[1].StudentId;
             solutions[0].GroupId = groups[0].Id;
             solutions[1].GroupId = groups[1].Id;
-            
+
             return solutions;
         }
 
@@ -130,7 +130,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             thirdStudentSolutions.Should().HaveCount(1);
             thirdStudentSolutions[0].Id.Should().Be(1);
         }
-        
+
         [Test]
         public async Task GetCourseTaskStatisticsTest()
         {
@@ -138,7 +138,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             var group1 = GenerateGroupViewModel(1, new[] { courseMates[0].StudentId, courseMates[1].StudentId });
             var group2 = GenerateGroupViewModel(2, new[] { courseMates[1].StudentId, courseMates[2].StudentId });
             var groups = new[] { group1, group2 };
-            
+
             var solutions = GenerateTestSolutionsForTask(3, 1);
             solutions[0].StudentId = courseMates[0].StudentId;
             solutions[0].GroupId = group1.Id;

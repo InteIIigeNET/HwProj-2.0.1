@@ -1,57 +1,55 @@
-import React, {useEffect, useState} from "react";
+import {useEffect, useState, CSSProperties} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
-import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Button, Chip, Typography} from "@mui/material";
+import {Alert, Chip, Typography} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import ShowChartIcon from "@mui/icons-material/ShowChart";
 import {BonusTag, DefaultTags, TestTag} from "../Common/HomeworkTags";
 import Lodash from "lodash"
+import StatsMenu from "./StatsMenu";
 
 interface IStudentStatsProps {
     course: CourseViewModel;
     homeworks: HomeworkViewModel[];
     isMentor: boolean;
     userId: string;
+    yandexCode: string | null;
     solutions: StatisticsCourseMatesModel[];
 }
 
 interface IStudentStatsState {
     searched: string
+    isSaveStatsActionOpened: boolean
 }
 
 const greyBorder = grey[300]
 
-const StudentStats: React.FC<IStudentStatsProps> = (props) => {
+const StudentStats:  React.FC<IStudentStatsProps> = (props) => {
     const [state, setSearched] = useState<IStudentStatsState>({
-        searched: ""
+        searched: "",
+        isSaveStatsActionOpened: false
     });
-    const {courseId} = useParams();
-    const navigate = useNavigate();
-    const handleClick = () => {
-        navigate(`/statistics/${courseId}/charts`)
-    }
 
-    const {searched} = state
+    const {searched, isSaveStatsActionOpened} = state
 
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
+            if (isSaveStatsActionOpened) return
             if (event.ctrlKey || event.altKey) return
             if (searched && event.key === "Escape") {
-                setSearched({searched: ""});
+                setSearched({...state, searched: ""});
             } else if (searched && event.key === "Backspace") {
-                setSearched({searched: searched.slice(0, -1)})
+                setSearched({...state, searched: searched.slice(0, -1)})
             } else if (event.key.length === 1 && event.key.match(/[a-zA-Zа-яА-Я\s]/i)
             ) {
-                setSearched({searched: searched + event.key})
+                setSearched({...state, searched: searched + event.key})
             }
         };
 
         document.addEventListener('keydown', keyDownHandler);
         return () => document.removeEventListener('keydown', keyDownHandler);
-    }, [searched]);
+    }, [searched, isSaveStatsActionOpened]);
 
     const homeworks = props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
     const solutions = searched
@@ -65,7 +63,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         color: "white",
     }
 
-    const homeworkStyles = (homeworks: HomeworkViewModel[], idx: number): React.CSSProperties | undefined => {
+    const homeworkStyles = (homeworks: HomeworkViewModel[], idx: number): CSSProperties | undefined => {
         if (homeworks[idx].tags?.includes(TestTag))
             return testHomeworkStyle
         if (idx !== 0 && homeworks[idx - 1].tags?.includes(TestTag))
@@ -141,14 +139,15 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 </TableCell>)}
                         </TableRow>
                         <TableRow>
-                            <TableCell style={{zIndex: 10}}
-                                       component="td">
+                            <TableCell style={{zIndex: 10}} component="td">
                                 {solutions.length > 0 &&
-                                    <Button startIcon={<ShowChartIcon/>} color="primary"
-                                            style={{backgroundColor: 'transparent'}} size='medium'
-                                            onClick={handleClick}>
-                                        Графики
-                                    </Button>
+                                    <StatsMenu
+                                        courseId={props.course.id}
+                                        userId={props.userId}
+                                        yandexCode={props.yandexCode}
+                                        onActionOpening={() => setSearched({searched, isSaveStatsActionOpened: true})}
+                                        onActionClosing={() => setSearched({searched, isSaveStatsActionOpened: false})}
+                                    />
                                 }
                             </TableCell>
                             {hasHomeworks && <TableCell padding="checkbox" component="td" align="center"
