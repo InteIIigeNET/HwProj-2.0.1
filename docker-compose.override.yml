@@ -111,10 +111,8 @@ services:
       - ExternalStorageConfiguration:SecretKey=${STORAGE_CLIENT_SECRET_KEY}
       - ExternalStorageConfiguration:Region=ru-central1
       - ExternalStorageConfiguration:ServiceURL=https://storage.yandexcloud.net
-      - ExternalStorageConfiguration:DefaultBucketName=files
+      - ExternalStorageConfiguration:DefaultBucketName=hwproj-content
       - LocalStorageConfiguration:Path=/app/data/
-      - TransferFiles:IsNeeded=True
-      - TransferFiles:OldBucketName=hwproj-files
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=ContentServiceDB;User=sa;Password=Your_password123;Trusted_Connection=True;
 
     ports:

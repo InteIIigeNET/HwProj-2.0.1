@@ -27,6 +27,9 @@ public class S3FilesService : IS3FilesService
                       ?? throw new NullReferenceException("Не указано имя бакета для сохранения файлов");
     }
     
+    // Метод позволяет получить файлы вместе с дополнительной информацией из бакета.
+    // filePathPattern должен содержать группы FileName, HomeworkId и CourseId,
+    // чтобы эту дополнительную информацию из пути к файлу извлечь
     public async Task<List<FileTransferDTO>> GetBucketFilesAsync(string bucketName, string filePathPattern)
     {
         var bucketKeys = await _s3AmazonClient.GetAllObjectKeysAsync(bucketName, string.Empty, null);
