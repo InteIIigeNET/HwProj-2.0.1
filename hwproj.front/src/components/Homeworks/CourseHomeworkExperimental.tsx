@@ -126,6 +126,7 @@ const CourseHomeworkEditor: FC<{
     const [editOptions, setEditOptions] = useState<ActionOptions>({sendNotification: false})
 
     const [deadlineSuggestion, setDeadlineSuggestion] = useState<Date | undefined>(undefined)
+    const [tagSuggestion, setTagSuggestion] = useState<string | undefined>(undefined)
 
     useEffect(() => {
         if (!isNewHomework || !metadata.publicationDate) return
@@ -178,6 +179,17 @@ const CourseHomeworkEditor: FC<{
     useEffect(() => {
         setHasErrors(!title || metadata.hasErrors)
     }, [title, metadata.hasErrors])
+
+    useEffect(() => {
+        const x = title.toLowerCase()
+        setTagSuggestion(
+            !tags.includes(TestTag) && (
+                x.includes("контрольн") ||
+                x.includes("проверочн") ||
+                x.includes("переписывание") ||
+                x.includes("тест"))
+                ? TestTag : undefined)
+    }, [title]);
 
     const deleteHomework = async () => {
         if (!isNewHomework) await ApiSingleton.homeworksApi.homeworksDeleteHomework(homeworkId)
@@ -327,6 +339,7 @@ const CourseHomeworkEditor: FC<{
                 </Grid>
                 <Grid item xs={6} style={{marginTop: 6}}>
                     <Tags tags={tags} onTagsChange={setTags} isElementSmall={false}
+                          suggestion={tagSuggestion}
                           requestTags={() => apiSingleton.coursesApi.coursesGetAllTagsForCourse(courseId)}/>
                 </Grid>
             </Grid>
@@ -503,22 +516,22 @@ const CourseHomeworkExperimental: FC<{
             <MarkdownPreview value={homework.description!}/>
         </Typography>
         {props.isProcessing ? (
-                <div style={{ display: 'flex', alignItems: 'center', color: '#1976d2', fontWeight: '500'  }}>
-                    <CircularProgress size="20px" />
-                    &nbsp;&nbsp;Обрабатываем файлы...
-                </div>
-            ) : filesInfo.length > 0 && (
-                <div>
-                    <FilesPreviewList
-                        showOkStatus={props.isMentor}
-                        filesInfo={filesInfo}
-                        onClickFileInfo={async (fileInfo: IFileInfo) => {
-                            const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!)
-                            window.open(url, '_blank');
-                        }}
-                    />
-                </div>
-            )
+            <div style={{display: 'flex', alignItems: 'center', color: '#1976d2', fontWeight: '500'}}>
+                <CircularProgress size="20px"/>
+                &nbsp;&nbsp;Обрабатываем файлы...
+            </div>
+        ) : filesInfo.length > 0 && (
+            <div>
+                <FilesPreviewList
+                    showOkStatus={props.isMentor}
+                    filesInfo={filesInfo}
+                    onClickFileInfo={async (fileInfo: IFileInfo) => {
+                        const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!)
+                        window.open(url, '_blank');
+                    }}
+                />
+            </div>
+        )
         }
     </CardContent>
 }
