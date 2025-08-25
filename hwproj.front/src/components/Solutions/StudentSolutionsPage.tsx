@@ -36,6 +36,7 @@ import {RatingStorage} from "../Storages/RatingStorage";
 import {getTip} from "../Common/HomeworkTags";
 import {appBarStateManager} from "../AppBar";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import {RemovedFromCourseTag} from "@/components/Common/StudentTags";
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -226,9 +227,13 @@ const StudentSolutionsPage: FC = () => {
         const hasGoodCharacteristics = tags.some(x => x.startsWith("+"))
         const hasBadCharacteristics = tags.some(x => x.startsWith("-"))
 
-        if (!hasGoodCharacteristics && !hasBadCharacteristics) return student.surname + " " + student.name
+        const studentFio = tags.some(x => x === RemovedFromCourseTag)
+            ? <s>{student.surname + " " + student.name}</s>
+            : student.surname + " " + student.name
 
-        return <div>{student.surname + " " + student.name}
+        if (!hasGoodCharacteristics && !hasBadCharacteristics) return studentFio
+
+        return <div>{studentFio}
             <sup style={{paddingLeft: 5}}>
                 {hasGoodCharacteristics && <ThumbUpIcon color={"success"} style={{fontSize: 14}}/>}
                 {hasBadCharacteristics && <ThumbDownIcon color={"error"} style={{fontSize: 14}}/>}

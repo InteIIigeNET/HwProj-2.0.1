@@ -16,6 +16,7 @@ import {StudentCharacteristicsDto} from '@/api';
 import TextField from "@material-ui/core/TextField";
 import {MarkdownEditor, MarkdownPreview} from "@/components/Common/MarkdownEditor";
 import ApiSingleton from "@/api/ApiSingleton";
+import {RemovedFromCourseTag} from "@/components/Common/StudentTags";
 
 
 interface Props {
@@ -144,7 +145,7 @@ const EditStudentCharacteristics: React.FC<Props & { onCancel: () => void, isOpe
                                 multiple
                                 freeSolo
                                 id="tags-outlined"
-                                options={["+ Талантливый студент", "- Списывает", "Удален с курса"]}
+                                options={["+ Талантливый студент", "- Списывает", RemovedFromCourseTag]}
                                 value={characteristics?.tags ?? []}
                                 defaultValue={characteristics?.tags ?? []}
                                 filterSelectedOptions
