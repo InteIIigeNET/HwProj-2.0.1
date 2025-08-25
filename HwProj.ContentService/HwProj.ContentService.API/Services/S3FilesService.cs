@@ -4,9 +4,9 @@ using Amazon.S3.Model;
 using HwProj.ContentService.API.Configuration;
 using HwProj.ContentService.API.Extensions;
 using HwProj.ContentService.API.Models.DTO;
-using HwProj.ContentService.API.Models.Enums;
 using HwProj.ContentService.API.Services.Interfaces;
 using HwProj.Models.Result;
+using HwProj.Models.ContentService.Enums;
 using Microsoft.Extensions.Options;
 
 namespace HwProj.ContentService.API.Services;
