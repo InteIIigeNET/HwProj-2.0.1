@@ -189,7 +189,7 @@ const CourseHomeworkEditor: FC<{
                 x.includes("переписывание") ||
                 x.includes("тест"))
                 ? TestTag : undefined)
-    }, [title]);
+    }, [title, tags]);
 
     const deleteHomework = async () => {
         if (!isNewHomework) await ApiSingleton.homeworksApi.homeworksDeleteHomework(homeworkId)
