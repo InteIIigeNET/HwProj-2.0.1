@@ -22,6 +22,7 @@ export interface ICreateCourseState {
     selectedBaseCourse?: CoursePreviewView;
 
     courseName: string;
+    description: string;
 
     programNames: string[];
     programName: string;

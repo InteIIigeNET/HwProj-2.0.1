@@ -6,6 +6,7 @@ import {
 } from "@material-ui/core";
 import {LoadingButton} from "@mui/lab";
 import {IStepComponentProps} from "./ICreateCourseState";
+import {MarkdownEditor} from '../Common/MarkdownEditor';
 import {Alert, Autocomplete, Checkbox, FormControlLabel, Chip} from "@mui/material";
 
 const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
@@ -49,6 +50,20 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                     fullWidth
                     value={state.courseName}
                     onChange={handleCourseNameChange}
+                />
+            </Grid>
+            <Grid item xs={12}>
+                <MarkdownEditor
+                    label={"Описание курса"}
+                    value={state.description}
+                    height={130}
+                    style={{ marginTop: -15, marginBottom: -15 }}
+                    onChange={(value) => {
+                        setState((prevState) => ({
+                            ...prevState,
+                            description: value
+                        }))
+                    }}
                 />
             </Grid>
             <Grid item xs={12}>
