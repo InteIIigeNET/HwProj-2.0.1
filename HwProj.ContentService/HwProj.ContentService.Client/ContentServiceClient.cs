@@ -146,20 +146,20 @@ namespace HwProj.ContentService.Client
             }
         }
 
-        public async Task<Result> TransferFilesFromCourse(CourseFilesTransferDTO filesTransferDTO)
+        public async Task<Result> TransferFilesFromCourse(CourseFilesTransferDto filesTransfer)
         {
             var url = _contentServiceUri + "api/Files/transfer";
             using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
             {
                 Content = new StringContent(
-                    JsonConvert.SerializeObject(filesTransferDTO),
+                    JsonConvert.SerializeObject(filesTransfer),
                     Encoding.UTF8,
                     "application/json")
             };
 
             try
             {
-                var response = await _httpClient.SendAsync(httpRequest);
+                await _httpClient.SendAsync(httpRequest);
                 return Result.Success();
             }
             catch (HttpRequestException e)

@@ -179,7 +179,7 @@ namespace HwProj.CoursesService.Tests
 
             var homeworkResult = await client.AddHomeworkToCourse(homework, courseId);
 
-            var actualResult = (await client.GetHomework(homeworkResult.Value.Id)).Value.Tasks.FirstOrDefault();
+            var actualResult = (await client.GetHomework(homeworkResult.Value.Id)).Tasks.FirstOrDefault();
 
             homeworkResult.Succeeded.Should().BeTrue();
             homeworkResult.Errors.Should().BeNull();
@@ -345,7 +345,7 @@ namespace HwProj.CoursesService.Tests
             var homeworkFromDb = await client.GetHomework(homeworkResult.Value.Id);
             
             addHomeworkResult.Succeeded.Should().BeFalse();
-            homeworkFromDb.Value.Tasks.Should().BeEmpty();
+            homeworkFromDb.Tasks.Should().BeEmpty();
         }
 
         [Test]

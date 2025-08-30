@@ -1,8 +1,8 @@
 namespace HwProj.Models.ContentService.DTO
 {
-    public class ScopeMappingPairDTO
+    public class ScopeMappingDto
     {
-        public ScopeDTO SourceScope { get; set; }
-        public ScopeDTO TargetScope { get; set; }
+        public long Source { get; set; }
+        public long Target { get; set; }
     }
 }

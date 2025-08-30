@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 namespace HwProj.Models.ContentService.DTO
 {
-    public class CourseFilesTransferDTO
+    public class CourseFilesTransferDto
     {
         public long SourceCourseId { get; set; }
-        public List<ScopeMappingPairDTO> ScopeMapping { get; set; } = new List<ScopeMappingPairDTO>();
+        public List<ScopeMappingDto> HomeworksMapping { get; set; } = new List<ScopeMappingDto>();
     }
 }

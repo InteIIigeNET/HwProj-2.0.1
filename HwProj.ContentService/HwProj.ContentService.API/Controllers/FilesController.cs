@@ -109,10 +109,9 @@ public class FilesController : ControllerBase
 
     [HttpPost("transfer")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    public async Task<IActionResult> TransferFilesFromCourse(CourseFilesTransferDTO filesTransferDTO)
+    public async Task<IActionResult> TransferFilesFromCourse(CourseFilesTransferDto filesTransferDto)
     {
-        var filesTransfer = filesTransferDTO.ToCourseFilesTransfer();
-        await _filesInfoService.TransferFilesFromCourse(filesTransfer);
+        await _filesInfoService.TransferFilesFromCourse(filesTransferDto);
         return Ok();
     }
 }

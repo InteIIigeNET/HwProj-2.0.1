@@ -19,7 +19,6 @@ using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
-using HwProj.Models.ContentService.Enums;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -57,52 +56,6 @@ namespace HwProj.CoursesService.API.Services
             _groupsRepository = groupsRepository;
             _courseFilterService = courseFilterService;
             _context = context;
-        }
-
-        private static ScopeMappingPairDTO GetScopeMappingPair(
-            (long SourceCourseId, long TargetCourseId) courseIdPair,
-            (long SourceCourseUnitId, long TargetCourseUnitId) courseUnitIdPair,
-            string courseUnitType)
-            => new ScopeMappingPairDTO()
-            {
-                SourceScope = new ScopeDTO()
-                {
-                    CourseId = courseIdPair.SourceCourseId,
-                    CourseUnitId = courseUnitIdPair.SourceCourseUnitId,
-                    CourseUnitType = courseUnitType
-                },
-                TargetScope = new ScopeDTO()
-                {
-                    CourseId = courseIdPair.TargetCourseId,
-                    CourseUnitId = courseUnitIdPair.TargetCourseUnitId,
-                    CourseUnitType = courseUnitType
-                }
-            };
-
-        private static CourseFilesTransferDTO GetCourseFilesTransfer(
-            long? sourceCourseId,
-            long targetCourseId,
-            IEnumerable<long> sourceHwIds,
-            IEnumerable<long> targetHwIds,
-            IEnumerable<long> sourceTaskIds,
-            IEnumerable<long> targetTaskIds)
-        {
-            if (sourceCourseId == null) return new CourseFilesTransferDTO();
-
-            var homeworksMapping = sourceHwIds.Zip(targetHwIds, (source, target) =>
-                GetScopeMappingPair(
-                    ((long)sourceCourseId, targetCourseId), (source, target), CourseUnitType.Homework.ToString()));
-
-            var tasksMapping = sourceTaskIds.Zip(targetTaskIds, (source, target) =>
-                GetScopeMappingPair(
-                    ((long)sourceCourseId, targetCourseId), (source, target), CourseUnitType.Task.ToString()));
-
-            var scopeMapping = homeworksMapping.Concat(tasksMapping).ToList();
-            return new CourseFilesTransferDTO()
-            {
-                SourceCourseId = (long)sourceCourseId,
-                ScopeMapping = scopeMapping
-            };
         }
 
         public async Task<Course[]> GetAllAsync()
@@ -150,36 +103,45 @@ namespace HwProj.CoursesService.API.Services
             CourseDTO? baseCourse,
             string mentorId)
         {
-            IEnumerable<long> baseHwIds = new List<long>();
-            IEnumerable<long> baseTaskIds = new List<long>();
             var courseTemplate = courseViewModel.ToCourseTemplate();
 
-            if (baseCourse != null)
-            {
-                baseHwIds = baseCourse.Homeworks.Select(hw => hw.Id);
-                baseTaskIds = baseCourse.Homeworks.SelectMany(hw => hw.Tasks.Select(t => t.Id));
-                courseTemplate.Homeworks = baseCourse.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList();
-            }
+            courseTemplate.Homeworks =
+                baseCourse?.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList() ??
+                new List<HomeworkTemplate>();
 
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            var (newCourseId, newHwIds, newTaskIds) = await AddFromTemplateAsync(courseTemplate, mentorId);
+            var newCourse = await AddFromTemplateAsync(courseTemplate, courseViewModel.StudentIDs, mentorId);
 
-            var filesTransfer = GetCourseFilesTransfer(
-                baseCourse?.Id, newCourseId, baseHwIds, newHwIds, baseTaskIds, newTaskIds);
-            if (filesTransfer.ScopeMapping.Any())
+            if (baseCourse != null)
             {
-                var result = await _contentServiceClient.TransferFilesFromCourse(filesTransfer);
-                if (!result.Succeeded) throw new TransactionAbortedException(result.Errors.First());
+                var sourceHwIds = baseCourse.Homeworks.Select(hw => hw.Id);
+                var targetHwIds = newCourse.Homeworks.Select(hw => hw.Id);
+
+                var homeworksMapping = sourceHwIds
+                    .Zip(targetHwIds, (source, target) => new ScopeMappingDto
+                    {
+                        Source = source,
+                        Target = target
+                    }).ToList();
+
+                if (homeworksMapping.Count > 0)
+                {
+                    var result = await _contentServiceClient.TransferFilesFromCourse(new CourseFilesTransferDto
+                    {
+                        SourceCourseId = baseCourse.Id,
+                        HomeworksMapping = homeworksMapping
+                    });
+
+                    if (!result.Succeeded) throw new TransactionAbortedException(result.Errors.Join("\n"));
+                }
             }
 
-            await AddStudentsToCourseAsync(courseViewModel, newCourseId, mentorId);
-
             transactionScope.Complete();
-            return newCourseId;
+            return newCourse.Id;
         }
 
-        private async Task<(long, List<long>, List<long>)> AddFromTemplateAsync(CourseTemplate courseTemplate,
+        private async Task<Course> AddFromTemplateAsync(CourseTemplate courseTemplate, List<string> studentIds,
             string mentorId)
         {
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
@@ -194,17 +156,8 @@ namespace HwProj.CoursesService.API.Services
 
             var tasks = courseTemplate.Homeworks.SelectMany((hwTemplate, i) =>
                 hwTemplate.Tasks.Select(taskTemplate => taskTemplate.ToHomeworkTask(homeworkIds[i])));
-            var taskIds = await _tasksRepository.AddRangeAsync(tasks);
+            await _tasksRepository.AddRangeAsync(tasks);
 
-            transactionScope.Complete();
-            return (courseId, homeworkIds, taskIds);
-        }
-
-        private async Task AddStudentsToCourseAsync(CreateCourseViewModel model,
-            long courseId,
-            string mentorId)
-        {
-            var studentIds = model.StudentIDs;
             if (studentIds.Any())
             {
                 var students = studentIds.Select(studentId => new CourseMate
@@ -221,12 +174,17 @@ namespace HwProj.CoursesService.API.Services
                     _eventBus.Publish(new LecturerAcceptToCourseEvent
                     {
                         CourseId = courseId,
-                        CourseName = model.Name,
-                        MentorIds = mentorId,
+                        CourseName = course.Name,
+                        MentorIds = course.MentorIds,
                         StudentId = student.StudentId
                     });
                 }
             }
+
+            transactionScope.Complete();
+
+            var result = await _coursesRepository.GetAsync(courseId);
+            return result;
         }
 
         public async Task DeleteAsync(long id)
@@ -394,8 +352,7 @@ namespace HwProj.CoursesService.API.Services
 
             if (courseMate == null) return false;
 
-            var tags = string.Join(";", characteristics.Tags.Where(
-                t => !string.IsNullOrWhiteSpace(t)).Distinct());
+            var tags = string.Join(";", characteristics.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).Distinct());
 
             var hasCharacteristic = courseMate.Characteristics != null;
 
