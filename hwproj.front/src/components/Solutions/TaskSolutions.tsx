@@ -6,7 +6,7 @@ import {
     GetTaskQuestionDto,
     HomeworkTaskViewModel,
     SolutionState, StudentDataDto
-} from '../../api';
+} from '@/api';
 import {Grid, Tab, Tabs} from "@material-ui/core";
 import {Chip, Divider, Stack, Tooltip, Badge} from "@mui/material";
 import Utils from "../../services/Utils";
@@ -20,7 +20,7 @@ interface ITaskSolutionsProps {
     courseId: number,
     task: HomeworkTaskViewModel
     solutions: GetSolutionModel[]
-    student: StudentDataDto
+    student: StudentDataDto | undefined
     forMentor: boolean
     onSolutionRateClick?: () => void
 }
@@ -46,8 +46,8 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     }
 
     useEffect(() => {
-        setState({tabValue: 1})
-    }, [props.student.userId, props.task.id])
+        setState({tabValue: props.student == null ? 0 : 1})
+    }, [props.student?.userId, props.task.id])
 
     useEffect(() => {
         getQuestions()
@@ -160,7 +160,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                                color={newQuestions === 0 ? "success" : "primary"}>
                      <QuestionMark style={{fontSize: 15}}/>
                  </Badge>}/>
-            <Tab label="Последнее решение"/>
+            {student !== undefined && <Tab label="Последнее решение"/>}
             {arrayOfRatedSolutions.length > 0 && <Tab label="Предыдущие попытки"/>}
         </Tabs>
         {tabValue === 0 && <Grid item style={{marginTop: '5px'}}>
@@ -170,12 +170,12 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                            questions={questionsState} onChange={getQuestions}/>
         </Grid>}
         {tabValue === 1 && <Grid item style={{marginTop: '16px'}}>
-            {lastSolution || forMentor
+            {(lastSolution || forMentor) && student !== undefined
                 ? <TaskSolutionComponent
                     task={props.task}
                     forMentor={forMentor}
                     solution={lastSolution!}
-                    student={student!}
+                    student={student}
                     lastRating={lastRating}
                     onRateSolutionClick={onSolutionRateClick}
                     isLastSolution={true}

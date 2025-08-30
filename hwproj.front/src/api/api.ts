@@ -1548,6 +1548,31 @@ export interface ProgramModel {
 /**
  *
  * @export
+ * @interface QuestionsSummary
+ */
+export interface QuestionsSummary {
+    /**
+     *
+     * @type {number}
+     * @memberof QuestionsSummary
+     */
+    taskId?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof QuestionsSummary
+     */
+    taskTitle?: string;
+    /**
+     *
+     * @type {number}
+     * @memberof QuestionsSummary
+     */
+    count?: number;
+}
+/**
+ *
+ * @export
  * @interface RateSolutionModel
  */
 export interface RateSolutionModel {
@@ -9089,6 +9114,36 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
         },
         /**
          *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tasksGetOpenQuestions(options: any = {}): FetchArgs {
+            const localVarPath = `/api/Tasks/openQuestions`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
          * @param {number} taskId
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -9302,6 +9357,23 @@ export const TasksApiFp = function(configuration?: Configuration) {
         },
         /**
          *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tasksGetOpenQuestions(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<QuestionsSummary>> {
+            const localVarFetchArgs = TasksApiFetchParamCreator(configuration).tasksGetOpenQuestions(options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
          * @param {number} taskId
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -9412,6 +9484,14 @@ export const TasksApiFactory = function (configuration?: Configuration, fetch?: 
         },
         /**
          *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        tasksGetOpenQuestions(options?: any) {
+            return TasksApiFp(configuration).tasksGetOpenQuestions(options)(fetch, basePath);
+        },
+        /**
+         *
          * @param {number} taskId
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -9502,6 +9582,16 @@ export class TasksApi extends BaseAPI {
      */
     public tasksGetForEditingTask(taskId: number, options?: any) {
         return TasksApiFp(this.configuration).tasksGetForEditingTask(taskId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TasksApi
+     */
+    public tasksGetOpenQuestions(options?: any) {
+        return TasksApiFp(this.configuration).tasksGetOpenQuestions(options)(this.fetch, this.basePath);
     }
 
     /**

@@ -6,7 +6,7 @@ import {
     Solution,
     TaskSolutionsStats,
     SolutionState, StudentDataDto
-} from "../../api/";
+} from "@/api";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
@@ -364,18 +364,18 @@ const StudentSolutionsPage: FC = () => {
                             isExpanded={false}
                             showForCourse={false}
                         />
-                        {currentStudent && <TaskSolutions
+                        <TaskSolutions
                             courseId={courseId}
                             forMentor={true}
                             task={studentSolutionsState.task}
-                            solutions={currentStudent!.solutions}
-                            student={currentStudent!.student}
+                            solutions={currentStudent?.solutions || []}
+                            student={currentStudent?.student}
                             onSolutionRateClick={async () => {
                                 //const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.student.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
                                 await getTaskData(currentTaskId, true)
                                 //else navigate(`/task/${currentTaskId}/${studentSolutionsPreview[nextStudentIndex].student.userId}`)
                             }}
-                        />}
+                        />
                     </Grid>
                 </Grid>
             </div>

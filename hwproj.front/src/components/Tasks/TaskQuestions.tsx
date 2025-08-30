@@ -14,7 +14,7 @@ import * as React from "react";
 import {MarkdownEditor, MarkdownPreview} from "../Common/MarkdownEditor";
 import Button from "@material-ui/core/Button";
 import ApiSingleton from "../../api/ApiSingleton";
-import {AccountDataDto, AddAnswerForQuestionDto, AddTaskQuestionDto, GetTaskQuestionDto} from "../../api";
+import {AccountDataDto, AddAnswerForQuestionDto, AddTaskQuestionDto, GetTaskQuestionDto} from "@/api";
 import {Checkbox} from "@mui/material/";
 import CloseIcon from "@mui/icons-material/Close";
 import GroupsIcon from "@mui/icons-material/Groups";
@@ -23,7 +23,7 @@ import AvatarUtils from "../Utils/AvatarUtils";
 
 interface ITaskQuestionsProps {
     forMentor: boolean
-    student: AccountDataDto
+    student: AccountDataDto | undefined
     taskId: number
     questions: GetTaskQuestionDto[]
     onChange: () => void
@@ -131,12 +131,12 @@ const TaskQuestions: FC<ITaskQuestionsProps> = (props) => {
             </Grid>}
             {props.questions.map(q => {
                 const addAnswer = q.id === addAnswerState.questionId
-                const isCurrentStudent = q.studentId === props.student.userId
+                const isCurrentStudent = props.student && q.studentId === props.student.userId
                 const isAnswered = q.answer !== null
                 return <Grid item>
                     <Alert severity={isAnswered ? "success" : "info"}
                            icon={isCurrentStudent
-                               ? <Avatar style={{width: 30, height: 30}} {...AvatarUtils.stringAvatar(props.student)} />
+                               ? <Avatar style={{width: 30, height: 30}} {...AvatarUtils.stringAvatar(props.student!)} />
                                : q.isPrivate
                                    ? <PersonIcon fontSize={"small"}/>
                                    : <GroupsIcon fontSize={"medium"}/>}

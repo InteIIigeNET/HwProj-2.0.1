@@ -6,7 +6,7 @@ import "./Styles/Profile.css";
 import {FC, useEffect, useState} from "react";
 import {Link, useParams} from "react-router-dom";
 import TaskDeadlines from "./Tasks/TaskDeadlines";
-import UnratedSolutions from "./Solutions/UnratedSolutions";
+import UnratedSolutionsAndOpenQuestions from "./Solutions/UnratedSolutionsAndOpenQuestions";
 import {Alert, Chip, Grid, Stack, Typography} from "@mui/material";
 import NewCourseEvents from "./Courses/NewCourseEvents";
 import {TestTag} from "./Common/HomeworkTags";
@@ -167,7 +167,7 @@ const Workspace: FC = () => {
                         <div style={{marginTop: 15}}>
                             {tabValue === 0 &&
                                 (isMentor
-                                    ? <UnratedSolutions unratedSolutionsPreviews={unratedSolutionPreviews!}/>
+                                    ? <UnratedSolutionsAndOpenQuestions unratedSolutionsPreviews={unratedSolutionPreviews!}/>
                                     : <TaskDeadlines taskDeadlines={nearestTaskDeadlines}
                                                      onGiveUpClick={onGiveUpClick}/>)}
                             {tabValue === 1 && !isExpert &&

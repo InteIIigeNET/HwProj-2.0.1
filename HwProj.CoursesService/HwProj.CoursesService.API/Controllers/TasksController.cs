@@ -4,13 +4,12 @@ using System.Threading.Tasks;
 using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
-using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -24,8 +23,7 @@ namespace HwProj.CoursesService.API.Controllers
         private readonly ICoursesService _coursesService;
 
         public TasksController(ITasksService tasksService, ICoursesService coursesService,
-            IHomeworksService homeworksService, ITaskQuestionsRepository questionsRepository,
-            ITaskQuestionsService taskQuestionsService)
+            IHomeworksService homeworksService, ITaskQuestionsService taskQuestionsService)
         {
             _tasksService = tasksService;
             _coursesService = coursesService;
@@ -151,6 +149,38 @@ namespace HwProj.CoursesService.API.Controllers
                 IsPrivate = x.IsPrivate,
                 LecturerId = x.LecturerId
             });
+            return Ok(result);
+        }
+
+        [HttpGet("openQuestions")]
+        public async Task<IActionResult> GetOpenQuestions()
+        {
+            var userId = Request.GetUserIdFromHeader();
+            var courses = await _coursesService.GetUserCoursesAsync(userId, Roles.LecturerRole);
+
+            var tasks = courses
+                .Where(x => x.IsOpen)
+                .SelectMany(x => x.Homeworks.SelectMany(h => h.Tasks))
+                .ToDictionary(t => t.Id);
+
+            var taskIds = tasks.Keys.ToArray();
+            var questions = await _taskQuestionsService.GetQuestionsForLecturerAsync(taskIds);
+
+            var result = questions
+                .Where(x => x.Answer == null)
+                .GroupBy(x => x.TaskId)
+                .Select(x =>
+                {
+                    var task = tasks[x.Key];
+                    return new QuestionsSummary
+                    {
+                        TaskId = x.Key,
+                        TaskTitle = task.Title,
+                        Count = x.Count()
+                    };
+                })
+                .ToArray();
+
             return Ok(result);
         }
 

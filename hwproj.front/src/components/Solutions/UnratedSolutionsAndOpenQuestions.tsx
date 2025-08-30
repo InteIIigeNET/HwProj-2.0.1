@@ -1,4 +1,4 @@
-import {AccountDataDto, SolutionPreviewView, UnratedSolutionPreviews} from "../../api";
+import {AccountDataDto, QuestionsSummary, SolutionPreviewView, UnratedSolutionPreviews} from "@/api";
 import * as React from "react";
 import {NavLink} from "react-router-dom";
 import {
@@ -6,12 +6,14 @@ import {
     Grid,
     ListItem,
     Typography,
-    Chip, Card, CardContent, Autocomplete
+    Chip, Card, CardContent, Autocomplete, Stack,
+    Badge
 } from "@mui/material";
-import {FC, useState} from "react";
+import {FC, useEffect, useState} from "react";
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
 import TextField from "@mui/material/TextField";
+import ApiSingleton from "@/api/ApiSingleton";
 
 interface IUnratedSolutionsProps {
     unratedSolutionsPreviews: UnratedSolutionPreviews
@@ -29,10 +31,16 @@ interface IFiltersState {
 }
 
 const solutionPlurals = ["решение", "решения", "решений"]
+const taskPlurals = ["задача", "задачи", "задач"]
 
 type FilterTitleName = "coursesFilter" | "homeworksFilter" | "tasksFilter" | "studentsFilter"
 
-const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
+const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => {
+    const [openQuestions, setOpenQuestions] = useState<QuestionsSummary[]>([])
+    useEffect(() => {
+        ApiSingleton.tasksApi.tasksGetOpenQuestions().then(res => setOpenQuestions(res))
+    }, []);
+
     const unratedSolutions = props.unratedSolutionsPreviews.unratedSolutions!
     const semiRatedSolutions = unratedSolutions.filter(x => RatingStorage.tryGet({
         solutionId: x.solutionId,
@@ -237,8 +245,41 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
 
     return (
         <div>
+            {openQuestions.length > 0 &&
+                <Card variant={"outlined"} style={{marginBottom: 20, borderColor: "#3f51b5"}}>
+                    <CardContent>
+                        <div style={{marginBottom: 10}}>
+                            <Typography variant={"caption"} color={"#3f51b5"} style={{marginBottom: 10}}>
+                                {`${openQuestions.length} ${Utils.pluralizeHelper(taskPlurals, openQuestions.length)} содержат вопросы от студентов`}
+                            </Typography>
+                        </div>
+                        <div>{openQuestions.map((taskQuestions, i) => (
+                            <Grid item key={"question" + i}>
+                                <ListItem>
+                                    <Grid container alignItems={"center"} spacing={1}>
+                                        <Stack direction={"row"} spacing={2} alignItems={"center"}>
+                                            <Badge badgeContent={taskQuestions.count} variant="standard"
+                                                   color={"primary"}/>
+                                            <Grid item>
+                                                <NavLink
+                                                    to={`/task/${taskQuestions.taskId}/undefined`}
+                                                    style={{color: "#212529"}}
+                                                >
+                                                    <Typography style={{fontSize: "15px"}}>
+                                                        {taskQuestions.taskTitle}
+                                                    </Typography>
+                                                </NavLink>
+                                            </Grid>
+                                        </Stack>
+                                    </Grid>
+                                </ListItem>
+                            </Grid>
+                        ))}</div>
+                    </CardContent>
+                </Card>
+            }
             {semiRatedSolutions.length > 0 &&
-                <Card variant={"outlined"} style={{marginBottom: 30, borderColor: "#3f51b5"}}>
+                <Card variant={"outlined"} style={{marginBottom: 20, borderColor: "#3f51b5"}}>
                     <CardContent>
                         <div style={{marginBottom: 10}}>
                             <Typography variant={"caption"} color={"#3f51b5"} style={{marginBottom: 10}}>
@@ -262,4 +303,4 @@ const UnratedSolutions: FC<IUnratedSolutionsProps> = (props) => {
     )
 }
 
-export default UnratedSolutions;
+export default UnratedSolutionsAndOpenQuestions;

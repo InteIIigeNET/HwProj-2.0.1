@@ -22,4 +22,11 @@
         public string? Answer { get; set; }
         public string? LecturerId { get; set; }
     }
+
+    public class QuestionsSummary
+    {
+        public long TaskId { get; set; }
+        public string TaskTitle { get; set; }
+        public int Count { get; set; }
+    }
 }

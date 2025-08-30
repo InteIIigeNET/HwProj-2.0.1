@@ -609,6 +609,17 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<GetTaskQuestionDto[]>();
         }
 
+        public async Task<QuestionsSummary[]> GetOpenQuestions()
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + "api/Tasks/openQuestions");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<QuestionsSummary[]>();
+        }
+
         public async Task AddAnswerForQuestion(AddAnswerForQuestionDto answer)
         {
             using var httpRequest = new HttpRequestMessage(

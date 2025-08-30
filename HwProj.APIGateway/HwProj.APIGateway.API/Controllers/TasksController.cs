@@ -94,5 +94,14 @@ namespace HwProj.APIGateway.API.Controllers
             await _coursesClient.AddAnswerForQuestion(answer);
             return Ok();
         }
+
+        [HttpGet("openQuestions")]
+        [Authorize(Roles = Roles.LecturerOrExpertRole)]
+        [ProducesResponseType(typeof(QuestionsSummary[]), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetOpenQuestions()
+        {
+            var result = await _coursesClient.GetOpenQuestions();
+            return Ok(result);
+        }
     }
 }

@@ -25,6 +25,9 @@ namespace HwProj.CoursesService.API.Services
         public async Task<List<TaskQuestion>> GetQuestionsForLecturerAsync(long taskId)
             => await GetALlTaskQuestions(taskId).ToListAsync();
 
+        public Task<List<TaskQuestion>> GetQuestionsForLecturerAsync(long[] taskIds) =>
+            _taskQuestionsRepository.FindAll(x => taskIds.Contains(x.TaskId)).ToListAsync();
+
         public Task<List<TaskQuestion>> GetStudentQuestionsAsync(long taskId, string studentId)
         {
             var allQuestions = GetALlTaskQuestions(taskId);
