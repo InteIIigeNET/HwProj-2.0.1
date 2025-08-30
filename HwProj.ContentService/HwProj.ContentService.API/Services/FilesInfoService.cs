@@ -5,7 +5,6 @@ using HwProj.ContentService.API.Models.Enums;
 using HwProj.ContentService.API.Repositories;
 using HwProj.ContentService.API.Services.Interfaces;
 using HwProj.Models.ContentService.DTO;
-using HwProj.Models.ContentService.Enums;
 
 namespace HwProj.ContentService.API.Services;
 
