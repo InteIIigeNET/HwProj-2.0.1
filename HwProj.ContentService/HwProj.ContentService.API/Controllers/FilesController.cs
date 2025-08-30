@@ -39,7 +39,7 @@ public class FilesController : ControllerBase
     {
         var userId = Request.GetUserIdFromHeader();
         var scope = processFilesDto.FilesScope.ToScope();
-        
+
         if (processFilesDto.DeletingFileIds.Count > 0)
             await _messageProducer.PushDeleteFilesMessages(scope, processFilesDto.DeletingFileIds, userId);
 
@@ -53,7 +53,7 @@ public class FilesController : ControllerBase
                 await _localFilesService.SaveFile(newFormFile.OpenReadStream(), localFilePath);
                 _logger.LogInformation("Файл {FileName} успешно сохранён в локальное хранилище по пути {localFilePath}",
                     newFormFile.FileName, localFilePath);
-                
+
                 var message = new UploadFileMessage(
                     Scope: processFilesDto.FilesScope.ToScope(),
                     LocalFilePath: localFilePath,
@@ -64,10 +64,10 @@ public class FilesController : ControllerBase
                 );
                 uploadFilesMessages.Add(message);
             }
-            
+
             await _messageProducer.PushUploadFilesMessages(uploadFilesMessages);
         }
-        
+
         return Ok();
     }
 
@@ -86,7 +86,7 @@ public class FilesController : ControllerBase
     {
         var externalKey = await _filesInfoService.GetFileExternalKeyAsync(fileId);
         if (externalKey is null) return Ok(Result<string>.Failed("Файл не найден"));
-        
+
         var downloadUrlResult = await _s3FilesService.GetDownloadUrl(externalKey);
         return Ok(downloadUrlResult);
     }
@@ -98,12 +98,20 @@ public class FilesController : ControllerBase
         var filesInfo = await _filesInfoService.GetFilesInfoAsync(courseId);
         return Ok(filesInfo);
     }
-    
+
     [HttpGet("info/course/{courseId}/uploaded")]
     [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetUploadedFilesInfo(long courseId)
     {
         var filesInfo = await _filesInfoService.GetFilesInfoAsync(courseId, FileStatus.ReadyToUse);
         return Ok(filesInfo);
+    }
+
+    [HttpPost("transfer")]
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    public async Task<IActionResult> TransferFilesFromCourse(CourseFilesTransferDto filesTransferDto)
+    {
+        await _filesInfoService.TransferFilesFromCourse(filesTransferDto);
+        return Ok();
     }
 }

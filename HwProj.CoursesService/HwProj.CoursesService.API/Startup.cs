@@ -1,4 +1,5 @@
 ﻿using HwProj.AuthService.Client;
+using HwProj.ContentService.Client;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
@@ -47,6 +48,7 @@ namespace HwProj.CoursesService.API
 
             services.AddHttpClient();
             services.AddAuthServiceClient();
+            services.AddContentServiceClient();
 
             services.ConfigureHwProjServices("Courses API");
         }

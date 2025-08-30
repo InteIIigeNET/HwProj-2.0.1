@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -144,6 +143,28 @@ namespace HwProj.ContentService.Client
             {
                 return Result<FileInfoDTO[]>.Failed(
                     "Пока не можем получить информацию о файлах. \nВсе ваши данные сохранены — попробуйте повторить позже");
+            }
+        }
+
+        public async Task<Result> TransferFilesFromCourse(CourseFilesTransferDto filesTransfer)
+        {
+            var url = _contentServiceUri + "api/Files/transfer";
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(filesTransfer),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            try
+            {
+                await _httpClient.SendAsync(httpRequest);
+                return Result.Success();
+            }
+            catch (HttpRequestException e)
+            {
+                return Result.Failed("Не удалось перенести информацию о файлах — попробуйте повторить позже");
             }
         }
     }

@@ -4,6 +4,7 @@ using HwProj.ContentService.API.Models.Database;
 using HwProj.ContentService.API.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
+using HwProj.ContentService.API.Extensions;
 
 namespace HwProj.ContentService.API.Repositories;
 
@@ -65,7 +66,7 @@ public class FileRecordRepository : IFileRecordRepository
             .Where(fc => fc.CourseId == courseId)
             .Include(fc => fc.FileRecord)
             .ToListAsync();
-    
+
     public async Task<List<FileToCourseUnit>> GetByCourseIdAndStatusAsync(long courseId, FileStatus filesStatus)
         => await _contentContext.FileToCourseUnits
             .AsNoTracking()
@@ -138,6 +139,24 @@ public class FileRecordRepository : IFileRecordRepository
 
         await transaction.CommitAsync();
         return fileRecord.ReferenceCount;
+    }
+
+    /// Переносит файлы с помощью добавления записей в FileToCourseUnit согласно переданному отображению.
+    /// Увеличивает число ссылок на файлы на число добавленных записей, соответствующих файлу.
+    public async Task AddFileUnitsAsync(List<FileToCourseUnit> unitsToAdd)
+    {
+        await using var transaction = await _contentContext.Database.BeginTransactionAsync();
+
+        await _contentContext.FileToCourseUnits.AddRangeAsync(unitsToAdd);
+        foreach (var unit in unitsToAdd)
+        {
+            await UpdateAsync(
+                unit.FileRecordId,
+                setters => setters.SetProperty(x => x.ReferenceCount, x => x.ReferenceCount + 1));
+        }
+
+        await _contentContext.SaveChangesAsync();
+        await transaction.CommitAsync();
     }
 
     public async Task UpdateAsync(long id,

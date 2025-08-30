@@ -143,6 +143,8 @@ export const CreateCourse: FC = () => {
             console.error("Ошибка при создании курса:", e)
             const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
             enqueueSnackbar(responseErrors[0], {variant: "error"})
+        } finally {
+            setCourseIsLoading(false)
         }
     }
 

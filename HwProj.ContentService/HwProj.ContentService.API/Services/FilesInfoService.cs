@@ -1,4 +1,6 @@
+using HwProj.ContentService.API.Extensions;
 using HwProj.ContentService.API.Models;
+using HwProj.ContentService.API.Models.Database;
 using HwProj.ContentService.API.Models.Enums;
 using HwProj.ContentService.API.Repositories;
 using HwProj.ContentService.API.Services.Interfaces;
@@ -61,5 +63,32 @@ public class FilesInfoService : IFilesInfoService
             CourseUnitType = fcu.CourseUnitType.ToString(),
             CourseUnitId = fcu.CourseUnitId
         }).ToList();
+    }
+
+    public async Task TransferFilesFromCourse(CourseFilesTransferDto filesTransfer)
+    {
+        var map = filesTransfer.HomeworksMapping.ToDictionary(
+            x => new Scope(filesTransfer.SourceCourseId, CourseUnitType.Homework, x.Source),
+            x => new Scope(filesTransfer.TargetCourseId, CourseUnitType.Homework, x.Target)
+        );
+
+        var sourceCourseUnits = await _fileRecordRepository.GetByCourseIdAsync(filesTransfer.SourceCourseId);
+        var unitsToAdd = sourceCourseUnits
+            .Select(unit => (unit.FileRecord, Scope: unit.ToScope()))
+            .Where(pair => map.ContainsKey(pair.Scope))
+            .Select(pair =>
+            {
+                var targetScope = map[pair.Scope];
+                return new FileToCourseUnit
+                {
+                    FileRecordId = pair.FileRecord.Id,
+                    CourseId = targetScope.CourseId,
+                    CourseUnitId = targetScope.CourseUnitId,
+                    CourseUnitType = targetScope.CourseUnitType
+                };
+            })
+            .ToList();
+
+        await _fileRecordRepository.AddFileUnitsAsync(unitsToAdd);
     }
 }

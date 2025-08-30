@@ -22,7 +22,7 @@ namespace HwProj.ContentService.API.Extensions;
 
 public static class ConfigurationExtensions
 {
-    public static IServiceCollection ConfigureWithAWS(this IServiceCollection services,
+    public static IServiceCollection ConfigureWithAWS(this IServiceCollection services, IHostEnvironment env,
         IConfigurationRoot configuration)
     {
         // Достаем конфигурацию удаленного хранилища
@@ -43,13 +43,22 @@ public static class ConfigurationExtensions
         var connectionString = ConnectionString.GetConnectionString(configuration);
         services.AddDbContext<ContentContext>(options => options.UseSqlServer(connectionString));
         services.AddScoped<IFileRecordRepository, FileRecordRepository>();
-        
-        services.ConfigureExternalStorageClient(externalStorageSection);
+
+        if (env.IsDevelopment())
+        {
+            services.AddSingleton<IS3FilesService, LocalTestingS3FilesService>();
+        }
+        else
+        {
+            services.ConfigureExternalStorageClient(externalStorageSection);
+            services.AddSingleton<IS3FilesService, S3FilesService>();
+        }
+
         services.ConfigureChannelInfrastructure<IProcessFileMessage>();
         
         // Регистрируем как синглтоны, чтобы использовать в MessageConsumer
         services.AddSingleton<IFileKeyService, FileKeyService>();
-        services.AddSingleton<IS3FilesService, S3FilesService>();
+
         services.AddSingleton<ILocalFilesService, LocalFilesService>();
         
         services.AddScoped<IFilesInfoService, FilesInfoService>();

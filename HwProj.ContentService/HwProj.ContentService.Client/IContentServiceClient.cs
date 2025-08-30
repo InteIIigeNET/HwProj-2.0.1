@@ -11,5 +11,6 @@ namespace HwProj.ContentService.Client
         Task<Result<string>> GetDownloadLinkAsync(long fileId);
         Task<Result<FileInfoDTO[]>> GetFilesInfo(long courseId);
         Task<Result<FileInfoDTO[]>> GetUploadedFilesInfo(long courseId);
+        Task<Result> TransferFilesFromCourse(CourseFilesTransferDto filesTransfer);
     }
 }
