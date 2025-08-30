@@ -69,7 +69,7 @@ public class FilesInfoService : IFilesInfoService
     {
         var map = filesTransfer.HomeworksMapping.ToDictionary(
             x => new Scope(filesTransfer.SourceCourseId, CourseUnitType.Homework, x.Source),
-            x => new Scope(filesTransfer.SourceCourseId, CourseUnitType.Homework, x.Target)
+            x => new Scope(filesTransfer.TargetCourseId, CourseUnitType.Homework, x.Target)
         );
 
         var sourceCourseUnits = await _fileRecordRepository.GetByCourseIdAsync(filesTransfer.SourceCourseId);

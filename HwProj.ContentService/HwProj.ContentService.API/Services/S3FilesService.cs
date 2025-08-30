@@ -26,7 +26,7 @@ public class S3FilesService : IS3FilesService
         _bucketName = externalStorageConfiguration.Value.DefaultBucketName
                       ?? throw new NullReferenceException("Не указано имя бакета для сохранения файлов");
     }
-    
+
     // Метод позволяет получить файлы вместе с дополнительной информацией из бакета.
     // filePathPattern должен содержать группы FileName, HomeworkId и CourseId,
     // чтобы эту дополнительную информацию из пути к файлу извлечь
@@ -45,7 +45,7 @@ public class S3FilesService : IS3FilesService
                 BucketName = bucketName,
                 Key = key
             });
-            
+
             // Получаем сам файл
             var fileStream = await GetFileStream(bucketName, key);
 
@@ -61,11 +61,11 @@ public class S3FilesService : IS3FilesService
                 CourseId: long.Parse(match.Groups["CourseId"].Value)
             );
         }).ToList();
-        
+
         var fileTransfers = await Task.WhenAll(tasks);
         return fileTransfers.ToList();
     }
-    
+
     // Если файл с таким ключем уже существует, в текущей реализации он будет перезаписываться
     public async Task<Result> UploadFileAsync(UploadFileToS3Dto uploadFileToS3Dto)
     {
@@ -132,7 +132,7 @@ public class S3FilesService : IS3FilesService
             return Result.Failed(e.Message);
         }
     }
-    
+
     private async Task<Stream> GetFileStream(string bucketName, string fileKey)
         => await _s3AmazonClient.GetObjectStreamAsync(bucketName, fileKey, null);
 
@@ -175,4 +175,19 @@ public class S3FilesService : IS3FilesService
 
         return metadataResponse.Metadata;
     }
+}
+
+
+
+internal class LocalTestingS3FilesService : IS3FilesService
+{
+    public Task<Result> UploadFileAsync(UploadFileToS3Dto uploadFileToS3Dto) =>  Task.FromResult(Result.Success());
+
+    public Task<List<FileTransferDTO>> GetBucketFilesAsync(string bucketName, string filePathPattern) => Task.FromResult(new List<FileTransferDTO>());
+
+    public Task<Result<string>> GetDownloadUrl(string fileKey) => Task.FromResult(Result<string>.Success("download"));
+
+    public Task<bool> CheckFileExistence(string fileKey) =>  Task.FromResult(true);
+
+    public Task<Result> DeleteFileAsync(string fileKey) => Task.FromResult(Result.Success());
 }

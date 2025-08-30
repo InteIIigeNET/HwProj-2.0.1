@@ -155,6 +155,7 @@ public class FileRecordRepository : IFileRecordRepository
                 setters => setters.SetProperty(x => x.ReferenceCount, x => x.ReferenceCount + 1));
         }
 
+        await _contentContext.SaveChangesAsync();
         await transaction.CommitAsync();
     }
 

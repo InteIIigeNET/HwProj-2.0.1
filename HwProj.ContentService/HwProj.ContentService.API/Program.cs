@@ -2,7 +2,7 @@ using HwProj.ContentService.API.Extensions;
 using HwProj.ContentService.API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.ConfigureWithAWS(builder.Configuration);
+builder.Services.ConfigureWithAWS(builder.Environment, builder.Configuration);
 
 // Увеличиваем размер принимаемых запросов до 200 МБ
 builder.WebHost.ConfigureKestrel(options => { options.Limits.MaxRequestBodySize = 200 * 1024 * 1024; });
@@ -15,7 +15,7 @@ var app = builder.Build();
 app.ConfigureWebApp();
 
 // При необходимости создаем пустой бакет в хранилище
-await app.CreateBucketIfNotExists();
+if (!app.Environment.IsDevelopment()) await app.CreateBucketIfNotExists();
 
 var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 lifetime.ApplicationStarted.Register(async () =>

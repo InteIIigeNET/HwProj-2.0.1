@@ -130,6 +130,7 @@ namespace HwProj.CoursesService.API.Services
                     var result = await _contentServiceClient.TransferFilesFromCourse(new CourseFilesTransferDto
                     {
                         SourceCourseId = baseCourse.Id,
+                        TargetCourseId = newCourse.Id,
                         HomeworksMapping = homeworksMapping
                     });
 
