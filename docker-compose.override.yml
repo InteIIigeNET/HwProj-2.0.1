@@ -72,6 +72,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
+      - Services:Content=http://hwproj.contentservice.api
     ports:
       - "5002:5002"
 
