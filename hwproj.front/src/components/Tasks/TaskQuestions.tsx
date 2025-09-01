@@ -137,7 +137,7 @@ const TaskQuestions: FC<ITaskQuestionsProps> = (props) => {
                 const isAnswered = q.answer !== null
                 return <Grid item>
                     <Alert severity={isAnswered ? "success" : "info"}
-                           icon={isCurrentStudent
+                           icon={student !== undefined
                                ? <Avatar style={{width: 30, height: 30}} {...AvatarUtils.stringAvatar(props.student!)} />
                                : q.isPrivate
                                    ? <PersonIcon fontSize={"small"}/>
