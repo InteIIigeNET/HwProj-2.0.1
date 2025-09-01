@@ -11,6 +11,7 @@ import {
     Typography
 } from "@mui/material";
 import * as React from "react";
+import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import {MarkdownEditor, MarkdownPreview} from "../Common/MarkdownEditor";
 import Button from "@material-ui/core/Button";
 import ApiSingleton from "../../api/ApiSingleton";
@@ -20,6 +21,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import GroupsIcon from "@mui/icons-material/Groups";
 import PersonIcon from "@mui/icons-material/Person";
 import AvatarUtils from "../Utils/AvatarUtils";
+import {Link as ReactLink} from "react-router-dom";
 
 interface ITaskQuestionsProps {
     forMentor: boolean
@@ -166,9 +168,15 @@ const TaskQuestions: FC<ITaskQuestionsProps> = (props) => {
                                    </Button>
                                </Stack>
                            }>
-                        {student && <Typography variant={"caption"}>
-                            {student.surname + " " + student.name}
-                        </Typography>}
+                        {student && <ReactLink style={{color: "inherit", cursor: "pointer"}}
+                                               to={`/task/${props.taskId}/${student.userId}`}>
+                            <Stack alignItems={"center"} direction={"row"}>
+                                <Typography variant={"subtitle2"}>
+                                    {student.surname + " " + student.name}
+                                </Typography>
+                                <ArrowOutwardIcon style={{fontSize: 15}}/>
+                            </Stack>
+                        </ReactLink>}
                         <MarkdownPreview value={q.text!} backgroundColor={"transparent"} textColor={"inherit"}/>
                         {!isAnswered && q.id === addAnswerState.questionId &&
                             <MarkdownEditor

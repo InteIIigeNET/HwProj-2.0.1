@@ -253,7 +253,7 @@ const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => 
                                 {`${openQuestions.length} ${Utils.pluralizeHelper(taskPlurals, openQuestions.length)} содержат вопросы от студентов`}
                             </Typography>
                         </div>
-                        <div>{openQuestions.sort((a, b) => b.count - a.count).map((taskQuestions, i) => (
+                        <div>{openQuestions.sort((a, b) => b.count! - a.count!).map((taskQuestions, i) => (
                             <Grid item key={"question" + i}>
                                 <ListItem>
                                     <Grid container alignItems={"center"} spacing={1}>
