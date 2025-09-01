@@ -23,7 +23,6 @@ import AvatarUtils from "../Utils/AvatarUtils";
 
 interface ITaskQuestionsProps {
     forMentor: boolean
-    student: AccountDataDto | undefined
     courseStudents: AccountDataDto[]
     taskId: number
     questions: GetTaskQuestionDto[]
@@ -132,13 +131,12 @@ const TaskQuestions: FC<ITaskQuestionsProps> = (props) => {
             </Grid>}
             {props.questions.map(q => {
                 const addAnswer = q.id === addAnswerState.questionId
-                const isCurrentStudent = props.student && q.studentId === props.student.userId
                 const student = props.courseStudents.find(s => s.userId === q.studentId)
                 const isAnswered = q.answer !== null
                 return <Grid item>
                     <Alert severity={isAnswered ? "success" : "info"}
                            icon={student !== undefined
-                               ? <Avatar style={{width: 30, height: 30}} {...AvatarUtils.stringAvatar(props.student!)} />
+                               ? <Avatar style={{width: 30, height: 30}} {...AvatarUtils.stringAvatar(student!)} />
                                : q.isPrivate
                                    ? <PersonIcon fontSize={"small"}/>
                                    : <GroupsIcon fontSize={"medium"}/>}
