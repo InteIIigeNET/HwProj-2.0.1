@@ -211,6 +211,7 @@ const StudentSolutionsPage: FC = () => {
         setCurrentStudentId(studentId!)
     }, [studentId])
 
+    const courseStudents = currentTaskSolutions.map(x => x.student)
     const currentStudent = currentTaskSolutions.find(x => x.student.userId === currentStudentId)
 
     const renderUnratedSolutionsCountChip = (t: TaskSolutionsStats, isSelected: boolean) => {
@@ -370,6 +371,7 @@ const StudentSolutionsPage: FC = () => {
                             task={studentSolutionsState.task}
                             solutions={currentStudent?.solutions || []}
                             student={currentStudent?.student}
+                            courseStudents={courseStudents}
                             onSolutionRateClick={async () => {
                                 //const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.student.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
                                 await getTaskData(currentTaskId, true)

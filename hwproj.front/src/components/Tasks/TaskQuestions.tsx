@@ -24,6 +24,7 @@ import AvatarUtils from "../Utils/AvatarUtils";
 interface ITaskQuestionsProps {
     forMentor: boolean
     student: AccountDataDto | undefined
+    courseStudents: AccountDataDto[]
     taskId: number
     questions: GetTaskQuestionDto[]
     onChange: () => void
@@ -132,6 +133,7 @@ const TaskQuestions: FC<ITaskQuestionsProps> = (props) => {
             {props.questions.map(q => {
                 const addAnswer = q.id === addAnswerState.questionId
                 const isCurrentStudent = props.student && q.studentId === props.student.userId
+                const student = props.courseStudents.find(s => s.userId === q.studentId)
                 const isAnswered = q.answer !== null
                 return <Grid item>
                     <Alert severity={isAnswered ? "success" : "info"}
@@ -166,8 +168,8 @@ const TaskQuestions: FC<ITaskQuestionsProps> = (props) => {
                                    </Button>
                                </Stack>
                            }>
-                        {isCurrentStudent && <Typography variant={"caption"}>
-                            Вопрос от проверяемого студента:
+                        {student && <Typography variant={"caption"}>
+                            {student.surname + " " + student.name}
                         </Typography>}
                         <MarkdownPreview value={q.text!} backgroundColor={"transparent"} textColor={"inherit"}/>
                         {!isAnswered && q.id === addAnswerState.questionId &&

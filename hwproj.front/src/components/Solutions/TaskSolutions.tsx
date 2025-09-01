@@ -21,6 +21,7 @@ interface ITaskSolutionsProps {
     task: HomeworkTaskViewModel
     solutions: GetSolutionModel[]
     student: StudentDataDto | undefined
+    courseStudents: StudentDataDto[]
     forMentor: boolean
     onSolutionRateClick?: () => void
 }
@@ -167,6 +168,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
             <TaskQuestions forMentor={forMentor}
                            taskId={task.id!}
                            student={student}
+                           courseStudents={props.courseStudents}
                            questions={questionsState} onChange={getQuestions}/>
         </Grid>}
         {tabValue === 1 && <Grid item style={{marginTop: '16px'}}>

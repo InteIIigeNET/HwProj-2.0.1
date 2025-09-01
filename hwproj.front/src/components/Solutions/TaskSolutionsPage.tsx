@@ -10,7 +10,7 @@ import {
     HomeworkTaskViewModel,
     Solution,
     SolutionState
-} from "../../api/";
+} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC, useEffect, useState} from "react";
 import {Grid, Tab, Tabs} from "@material-ui/core";
@@ -280,6 +280,7 @@ const TaskSolutionsPage: FC = () => {
                                     task={task}
                                     forMentor={false}
                                     student={student}
+                                    courseStudents={[student]}
                                     solutions={currentTaskSolutions}/>
                             </Grid>
                         )}
