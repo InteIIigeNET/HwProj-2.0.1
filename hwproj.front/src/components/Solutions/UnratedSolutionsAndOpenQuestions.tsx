@@ -31,7 +31,7 @@ interface IFiltersState {
 }
 
 const solutionPlurals = ["решение", "решения", "решений"]
-const taskPlurals = ["задача", "задачи", "задач"]
+const taskPlurals = ["задача содержит", "задачи содержат", "задач содержат"]
 
 type FilterTitleName = "coursesFilter" | "homeworksFilter" | "tasksFilter" | "studentsFilter"
 
@@ -250,7 +250,7 @@ const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => 
                     <CardContent>
                         <div style={{marginBottom: 10}}>
                             <Typography variant={"caption"} color={"#3f51b5"} style={{marginBottom: 10}}>
-                                {`${openQuestions.length} ${Utils.pluralizeHelper(taskPlurals, openQuestions.length)} содержат вопросы от студентов`}
+                                {`${openQuestions.length} ${Utils.pluralizeHelper(taskPlurals, openQuestions.length)} вопросы от студентов`}
                             </Typography>
                         </div>
                         <div>{openQuestions.sort((a, b) => b.count! - a.count!).map((taskQuestions, i) => (
