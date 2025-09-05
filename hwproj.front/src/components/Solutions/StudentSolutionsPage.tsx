@@ -343,6 +343,7 @@ const StudentSolutionsPage: FC = () => {
                         {currentHomeworksGroup && taskIndexInHomework !== -1 && currentHomeworksGroup.statsForHomeworks!.length > 1 &&
                             <Tabs
                                 onChange={(_, value) => navigate(`/task/${currentHomeworksGroup!.statsForHomeworks![value].statsForTasks![taskIndexInHomework]!.taskId!}/${currentStudentId}`)}
+                                defaultValue={currentHomeworksGroup!.statsForHomeworks!.length - 1}
                                 variant="scrollable"
                                 scrollButtons={"auto"}
                                 value={versionOfTask}
