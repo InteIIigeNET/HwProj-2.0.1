@@ -2,7 +2,7 @@ import * as React from "react";
 import {CoursePreviewView} from "@/api";
 import {NavLink} from "react-router-dom";
 import MentorsList from "../Common/MentorsList";
-import {Box, Divider, Grid, ListItem, Skeleton, Typography} from "@mui/material";
+import {Box, Chip, Divider, Grid, ListItem, Skeleton, Stack, Typography} from "@mui/material";
 import NameBuilder from "../Utils/NameBuilder";
 
 interface ICoursesProps {
@@ -35,15 +35,19 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                             <ListItem
                                 style={{padding: 0, marginBottom: 5}}
                             >
-                                <NavLink
-                                    to={isExpert ? "/task/" + course.taskId!.toString() + "/default"
-                                        : "/courses/" + course.id!.toString()}
-                                    style={{color: "#212529"}}
-                                >
-                                    <Typography component="div" style={{fontSize: "20px"}}>
-                                        {NameBuilder.getCourseFullName(course.name!, course.groupName)}
-                                    </Typography>
-                                </NavLink>
+                                <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                                    <NavLink
+                                        to={isExpert ? "/task/" + course.taskId!.toString() + "/default"
+                                            : "/courses/" + course.id!.toString()}
+                                        style={{color: "#212529"}}
+                                    >
+                                        <Typography component="div" style={{fontSize: "20px"}}>
+                                            {NameBuilder.getCourseFullName(course.name!, course.groupName)}
+                                        </Typography>
+                                    </NavLink>
+                                    {course.isCompleted &&
+                                        <Chip style={{color: "GrayText"}} label="Курс завершен" size={"small"}/>}
+                                </Stack>
                             </ListItem>
                             <MentorsList mentors={course.mentors!}/>
                             {i < courses.length - 1 ? <Divider style={{marginTop: 5, marginBottom: 5}}/> : null}
