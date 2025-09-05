@@ -251,11 +251,12 @@ const StudentSolutionsPage: FC = () => {
                                style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
                             {taskSolutionsStats!.map((t, index) => {
                                 const isCurrent = versionsOfCurrentTask.includes(t.taskId!)
+                                const lastTaskId = versionsOfCurrentTask[versionsOfCurrentTask.length - 1]
                                 const color = isCurrent ? "primary" : "default"
                                 return <Stack key={index} direction={"row"} spacing={1} alignItems={"center"}>
                                     {index > 0 && <hr style={{width: 100}}/>}
                                     <Step active={isCurrent}>
-                                        <Link to={`/task/${t.taskId}/${currentStudentId}`}
+                                        <Link to={`/task/${lastTaskId}/${currentStudentId}`}
                                               style={{color: "black", textDecoration: "none"}}>
                                             <StepButton
                                                 ref={ref => {
@@ -343,7 +344,6 @@ const StudentSolutionsPage: FC = () => {
                         {currentHomeworksGroup && taskIndexInHomework !== -1 && currentHomeworksGroup.statsForHomeworks!.length > 1 &&
                             <Tabs
                                 onChange={(_, value) => navigate(`/task/${currentHomeworksGroup!.statsForHomeworks![value].statsForTasks![taskIndexInHomework]!.taskId!}/${currentStudentId}`)}
-                                defaultValue={currentHomeworksGroup!.statsForHomeworks!.length - 1}
                                 variant="scrollable"
                                 scrollButtons={"auto"}
                                 value={versionOfTask}
