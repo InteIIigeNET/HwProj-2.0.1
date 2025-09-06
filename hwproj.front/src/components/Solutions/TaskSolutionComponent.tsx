@@ -460,7 +460,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         <Grid item spacing={1} container direction="column">
                             <Stack direction={"row"} alignItems={"center"} spacing={0.5}>
                                 {solution.githubUrl && <Link
-                                    href={solution.githubUrl}
+                                    href={(solution.githubUrl.startsWith("https://") ? "" : "https://") + solution.githubUrl}
                                     target="_blank"
                                     style={{color: 'darkblue'}}
                                 >
