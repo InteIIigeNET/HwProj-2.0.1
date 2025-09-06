@@ -406,9 +406,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     style={{color: '#212529'}}
                     to={"/task/" + task.id!.toString()}>
                     <Button
-                        style={{width: '150px'}}
-                        size="small"
-                        variant="contained"
+                        size="medium"
+                        variant="text"
                         color="primary"
                     >
                         Решения
