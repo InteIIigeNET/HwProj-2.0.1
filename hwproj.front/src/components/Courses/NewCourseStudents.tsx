@@ -32,7 +32,7 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
             </div>
         )
     }
-    return <Grid container spacing={1} direction={"column"}>
+    return <Grid item container spacing={1} direction={"row"} xs={"auto"}>
         {props.students.map((cm, i) => (
             <Grid item>
                 <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>

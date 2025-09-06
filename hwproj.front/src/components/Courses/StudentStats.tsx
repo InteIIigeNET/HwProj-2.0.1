@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
+import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import {useNavigate, useParams} from 'react-router-dom';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
