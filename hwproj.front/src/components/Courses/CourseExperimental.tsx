@@ -5,6 +5,7 @@ import {
     HomeworkViewModel, Solution, StatisticsCourseMatesModel,
 } from "@/api";
 import {
+    AlertTitle,
     Button,
     Fab,
     Grid,
@@ -32,6 +33,7 @@ import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import EditIcon from "@mui/icons-material/Edit";
 import ErrorIcon from '@mui/icons-material/Error';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import SwitchAccessShortcutIcon from '@mui/icons-material/SwitchAccessShortcut';
 import Lodash from "lodash";
 
 interface ICourseExperimentalProps {
@@ -323,7 +325,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             .entries()
             .sortBy(x => x[1].length).last()?.[1][0]
 
-        const task =  {
+        const task = {
             homeworkId: homework.id,
             maxRating: ratingCandidate || 10,
             suggestedMaxRating: ratingCandidate,
@@ -369,7 +371,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         }))
                     }}
                     isProcessing={props.processingFiles[homework.id!]?.isLoading || false}
-                    onStartProcessing={(homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => 
+                    onStartProcessing={(homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) =>
                         props.onStartProcessing(homeworkId, previouslyExistingFilesCount, waitingNewFilesCount, deletingFilesIds)}
                 />
             </Card>
@@ -423,6 +425,14 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             autoplay
         />
 
+    const renderLecturerWelcomeScreen = () => <Stack spacing={1} direction={"column"} alignItems={"center"}>
+        <SwitchAccessShortcutIcon color={"success"} fontSize={"large"}/>
+        <Alert severity={"success"} icon={"😃"}>
+            <AlertTitle>Спасибо за ещё один курс</AlertTitle>
+            Самое время добавить новое задание!
+        </Alert>
+    </Stack>
+
     return <Grid container direction={{xs: "column", sm: "column", md: "row", lg: "row"}} spacing={1}>
         <Grid item xs={12} sm={12} md={4} lg={4} order={{xs: 2, sm: 2, md: 1, lg: 1}}>
             <Timeline style={{overflow: 'auto', paddingLeft: 0, paddingRight: 8}}
@@ -448,6 +458,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     style={{borderRadius: 8, marginBottom: 10}} variant={"text"} size={"small"}>
                     + Добавить задание
                 </Button>}
+                {isMentor && homeworks.length === 0 && renderLecturerWelcomeScreen()}
                 {homeworks.map((x: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
                     return <div key={x.id} style={selectedItemHomework?.id === x.id ? {
                         border: "1px solid #3f51b5",
@@ -544,7 +555,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         <Grid item sx={{display: {xs: 'flex', md: 'none'}}} order={{xs: 3, sm: 3}}>
             {renderGif()}
         </Grid>
-        
+
         {/* Кнопка "Наверх" для мобильных устройств */}
         <Zoom in={showScrollButton && isMobile}>
             <Fab
@@ -556,11 +567,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     position: 'fixed',
                     bottom: 40,
                     right: 40,
-                    display: { xs: 'flex', md: 'none' },
+                    display: {xs: 'flex', md: 'none'},
                     zIndex: 1000
                 }}
             >
-                <ArrowUpwardIcon />
+                <ArrowUpwardIcon/>
             </Fab>
         </Zoom>
     </Grid>
