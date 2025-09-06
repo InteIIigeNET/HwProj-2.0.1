@@ -45,7 +45,7 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
 
     return (
         <Dialog fullWidth
-                maxWidth="sm"
+                maxWidth="md"
                 open={true}
                 onClose={() => props.onCancel()} aria-labelledby="form-dialog-title">
             <DialogTitle id="form-dialog-title">
@@ -110,6 +110,7 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
                         <MarkdownEditor
                             label={"Комментарий"}
                             value={solution.comment ?? ""}
+                            previewMode={"live"}
                             onChange={(value) => {
                                 setSolution((prevState) => ({
                                     ...prevState,

@@ -1,5 +1,5 @@
 ﻿import {FC} from "react";
-import MDEditor from "@uiw/react-md-editor";
+import MDEditor, { PreviewType } from "@uiw/react-md-editor";
 import {getCommands, getExtraCommands} from "./Styles/MarkdownEditorCommands.ru";
 import rehypeSanitize, {defaultSchema} from 'rehype-sanitize';
 import * as React from "react";
@@ -16,6 +16,7 @@ interface MarkdownEditorProps {
     maxHeight?: number;
     height?: number;
     value: string;
+    previewMode?: PreviewType
     onChange: (value: string) => void;
 }
 
@@ -91,7 +92,7 @@ const MarkdownEditor: FC<MarkdownEditorProps> = (props) => {
                 maxHeight={props.maxHeight ?? 400}
                 height={props.height ?? 230}
                 textareaProps={{placeholder: props.label}}
-                preview="edit"
+                preview={props.previewMode || "edit"}
             />
         </div>
     );
