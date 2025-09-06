@@ -168,8 +168,8 @@ const TaskQuestions: FC<ITaskQuestionsProps> = (props) => {
                                    </Button>
                                </Stack>
                            }>
-                        {student && <ReactLink style={{color: "inherit", cursor: "pointer"}}
-                                               to={`/task/${props.taskId}/${student.userId}`}>
+                        {props.forMentor && student && <ReactLink style={{color: "inherit", cursor: "pointer"}}
+                                                                  to={`/task/${props.taskId}/${student.userId}`}>
                             <Stack alignItems={"center"} direction={"row"}>
                                 <Typography variant={"subtitle2"}>
                                     {student.surname + " " + student.name}
