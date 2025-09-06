@@ -2,7 +2,7 @@ import * as React from 'react';
 import {AccountDataDto, CourseViewModel} from '../../api/';
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC} from "react";
-import {Card, CardContent, CardActions, Grid, Button, Typography} from '@mui/material';
+import {Card, CardContent, CardActions, Grid, Button, Typography, Alert, AlertTitle} from '@mui/material';
 
 interface INewCourseStudentsProps {
     course: CourseViewModel,
@@ -27,9 +27,12 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
 
     if (studentsLength === 0) {
         return (
-            <div>
-                Нет новых заявок в курс.
-            </div>
+            <Alert>
+                <AlertTitle>
+                    На данный момент все заявки приняты!
+                </AlertTitle>
+                Уведомления о новых заявках на Ваших курсах так же будут отображены на главной странице сервиса
+            </Alert>
         )
     }
     return <Grid item container spacing={1} direction={"row"} xs={"auto"}>
