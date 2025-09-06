@@ -100,6 +100,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     return (
         <div>
+            {solutions.length === 0 && <Alert severity="info">
+                На курс пока ещё никто не записался
+            </Alert>}
             {searched &&
                 <Alert style={{marginBottom: 5}} severity="info"><b>Поиск: </b>
                     {searched.replaceAll(" ", "·")}
