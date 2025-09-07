@@ -1,13 +1,15 @@
 import {Box, Snackbar} from "@material-ui/core";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import {FileUploader} from "react-drag-drop-files";
 import * as React from "react";
 import {styled} from "@mui/material/styles";
 import {useEffect, useState} from "react";
 import {IFileInfo} from "./IFileInfo";
-import {Alert, Button, Grid} from "@mui/material";
+import {Alert, Card, CardContent, Grid, Stack, Typography} from "@mui/material";
 import FilesPreviewList from "./FilesPreviewList";
-import { CourseUnitType } from "./CourseUnitType";
-import { FileStatus } from "./FileStatus";
+import {CourseUnitType} from "./CourseUnitType";
+import {FileStatus} from "./FileStatus";
+import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
+import "./filesUploaderOverrides.css";
 
 interface IFilesUploaderProps {
     courseUnitType: CourseUnitType
@@ -43,7 +45,7 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
 
     const maxFileSizeInBytes = 100 * 1024 * 1024;
 
-    const validateFiles = (files: FileList): boolean => {
+    const validateFiles = (files: File[]): boolean => {
         for (const file of files) {
             if (file.size > maxFileSizeInBytes) {
                 setError(`Файл "${file.name}" слишком большой.
@@ -56,12 +58,13 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
     }
 
 
-    const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files == null) return
-        if (!validateFiles(e.target.files)) return
+    const handleFileInputChange = (input: Array<File> | File) => {
+        const files = input instanceof File ? [input] : input;
+        if (files == null) return
+        if (!validateFiles(files)) return
 
         const newFilesInfo: IFileInfo[] = []
-        for (const file of e.target.files) {
+        for (const file of files) {
             newFilesInfo.push({
                 name: file.name,
                 type: file.type,
@@ -80,7 +83,7 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
     }
 
     return (
-        <Grid container direction="row" alignItems="flex-start" spacing={1} marginBottom={props.isLoading ? 0 : 1}>
+        <Grid container direction="column" marginBottom={props.isLoading ? 0 : 1}>
             {error && (
                 <Snackbar
                     open={!!error}
@@ -91,24 +94,28 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
                     <Alert severity="error">{error}</Alert>
                 </Snackbar>
             )}
-            <Grid item>
-                <Button
-                    size="small"
-                    component="label"
-                    role={undefined}
-                    variant="outlined"
-                    tabIndex={-1}
-                    startIcon={<CloudUploadIcon/>}
-                    color="primary"
-                    style={{marginTop: "10px"}}
-                >
-                    Прикрепить файлы
-                    <VisuallyHiddenInput
-                        type="file"
-                        onChange={handleFileInputChange}
-                        multiple
-                    />
-                </Button>
+            <Grid item xs={12}>
+                <FileUploader
+                    classes="rddu-no-block"
+                    handleChange={handleFileInputChange}
+                    hoverTitle={"Перетащите файлы сюда для загрузки"}
+                    children={
+                        <Card
+                            style={{
+                                border: "1px dashed #1976d2",
+                                backgroundColor: "ghostwhite",
+                                textAlign: "center",
+                            }}
+                            variant={"outlined"}>
+                            <CardContent>
+                                <Typography color={"primary"} variant={"body1"}>
+                                    Загрузите материалы задания
+                                </Typography>
+                                <CloudUploadOutlinedIcon color="primary" fontSize={"medium"}/>
+                            </CardContent>
+                        </Card>}
+                    multiple={true}
+                    name="file"/>
             </Grid>
             {props.isLoading &&
                 <Grid item>
@@ -117,7 +124,7 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
                     </Box>
                 </Grid>
             }
-            <Grid item>
+            <Grid item xs={12}>
                 <FilesPreviewList
                     filesInfo={selectedFilesInfo}
                     onRemoveFileInfo={(fI) => {

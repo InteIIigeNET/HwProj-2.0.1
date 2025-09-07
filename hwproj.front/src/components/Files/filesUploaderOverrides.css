@@ -1,0 +1,4 @@
+/* Overrides for react-drag-drop-files FileUploader to prevent the hidden input from being block-level */
+.rddu-no-block {
+    display: inline !important; /* make input non-blocking */
+}
