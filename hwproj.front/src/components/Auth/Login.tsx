@@ -1,17 +1,15 @@
 import React, {FC, FormEvent} from "react";
-import Avatar from '@material-ui/core/Avatar';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import {Navigate, Link, useSearchParams} from "react-router-dom";
 import {TextField, Button, Typography} from "@material-ui/core";
 import Grid from '@material-ui/core/Grid';
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
 import {useState} from "react";
-import {LoginViewModel} from "../../api/"
+import {LoginViewModel} from "@/api"
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import ValidationUtils from "../Utils/ValidationUtils";
-import {Card, CardContent} from "@mui/material";
+import {Alert, Card, CardContent, Stack} from "@mui/material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface LoginProps {
@@ -26,11 +24,6 @@ interface ILoginState {
 }
 
 const useStyles = makeStyles((theme) => ({
-    paper: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
     login: {
         marginTop: '16px',
         width: '100%',
@@ -47,11 +40,6 @@ const useStyles = makeStyles((theme) => ({
     },
     button: {
         marginTop: theme.spacing(2)
-    },
-    clickable_text: {
-        marginTop: theme.spacing(1),
-        textAlign: "center",
-        color: "#949494"
     }
 }))
 
@@ -139,20 +127,17 @@ const Login: FC<LoginProps> = (props) => {
                 src="https://lottie.host/919997f6-e82f-4995-b17d-bb3dad2376be/jDvgCK2W1q.lottie"
                 autoplay
             />
-            <Card raised>
+            <Card raised sx={{borderRadius: '16px'}}>
                 <CardContent>
-                    <Grid container className={classes.paper}>
-                        <Avatar className={classes.avatar} style={{color: 'white', backgroundColor: '#ba2e2e'}}>
-                            <LockOutlinedIcon/>
-                        </Avatar>
-                        <Typography component="h1" variant="h5">
-                            Войти
-                        </Typography>
-                        {loginState.error && (
-                            <p style={{color: "red", marginBottom: "0"}}>
-                                {loginState.error}
-                            </p>
-                        )}
+                    <Grid container direction="column" spacing={1} alignItems={"center"}>
+                        <Grid item>
+                            <Typography component="h1" variant="h5">
+                                Привет 👋, рады Вас видеть
+                            </Typography>
+                        </Grid>
+                        {loginState.error && loginState.error.length > 0 && <Grid item><Alert severity={"error"}>
+                            {loginState.error}
+                        </Alert></Grid>}
                     </Grid>
                     <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
                         <Grid container direction="column" justifyContent="center">
@@ -181,6 +166,11 @@ const Login: FC<LoginProps> = (props) => {
                                     value={loginState.password}
                                     onChange={handleChangePassword}
                                 />
+                                <Link to="/recovery" state={{email: loginState.email}}>
+                                    <Typography variant={"caption"}>
+                                        Забыли пароль?
+                                    </Typography>
+                                </Link>
                             </Grid>
                             <Grid item className={classes.button}>
                                 <Button
@@ -195,21 +185,18 @@ const Login: FC<LoginProps> = (props) => {
                             </Grid>
                         </Grid>
                     </form>
-                    <Grid className={classes.button}>
-                        <Button
-                            fullWidth
-                            variant="contained"
-                            color="primary"
-                            onClick={() => window.location.assign("/register")}
-                        >
-                            Зарегистрироваться
-                        </Button>
-                    </Grid>
-                    <Grid className={classes.clickable_text}>
-                        <Link to="/recovery" state={{ email: loginState.email }} style={{textDecoration: "underline"}}>
-                            Забыли пароль?
+                    <Stack justifyContent={"center"} direction={"row"} alignItems={"baseline"}
+                           style={{paddingTop: 15}}
+                           spacing={1}>
+                        <Typography variant={"body2"}>
+                            Впервые тут?
+                        </Typography>
+                        <Link to="/register">
+                            <Typography variant={"body2"}>
+                                Регистрация
+                            </Typography>
                         </Link>
-                    </Grid>
+                    </Stack>
                 </CardContent>
             </Card>
         </Container>
