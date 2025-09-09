@@ -269,7 +269,7 @@ namespace HwProj.APIGateway.API.Controllers
             var workspace = new WorkspaceViewModel
             {
                 Homeworks = mentorCourseView.Value.Homeworks,
-                Students = students
+                Students = students.OrderBy(x => x.Surname).ThenBy(x => x.Name).ToArray(),
             };
             return Ok(workspace);
         }

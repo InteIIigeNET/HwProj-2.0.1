@@ -5,7 +5,7 @@ import {Autocomplete} from "@mui/material";
 import TextField from "@material-ui/core/TextField";
 import ApiSingleton from "../../api/ApiSingleton";
 import ErrorsHandler from "../Utils/ErrorsHandler";
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import {DotLottieReact} from '@lottiefiles/dotlottie-react';
 import Button from "@material-ui/core/Button";
 
 interface ICourseFilterProps {
@@ -158,7 +158,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                         <TextField
                                             {...params}
                                             variant="outlined"
-                                            label={state.selectedStudents.length === 0 ? "" : "Студенты"}
+                                            label={state.selectedStudents.length === 0 ? "" : `Студенты (${state.selectedStudents.length})`}
                                             placeholder={state.selectedStudents.length === 0 ? "Все студенты" : ""}
                                         />)}
                                     noOptionsText={'На курсе больше нет студентов'}
