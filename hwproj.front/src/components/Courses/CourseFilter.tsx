@@ -150,7 +150,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                     multiple
                                     fullWidth
                                     options={state.courseStudents}
-                                    getOptionLabel={(option: AccountDataDto) => option.name + ' ' + option.surname}
+                                    getOptionLabel={(option: AccountDataDto) => option.surname + ' ' + option.name}
                                     getOptionKey={(option: AccountDataDto) => option.userId ?? ""}
                                     filterSelectedOptions
                                     isOptionEqualToValue={(option, value) => option.userId === value.userId}
