@@ -471,7 +471,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     : <CircularProgress size={12}/>)}
                             </Stack>
                             <Typography variant={"caption"} style={{color: "GrayText"}}>
-                                {postedSolutionTime}
+                                {postedSolutionTime} {solution.isModified && "(отредактировано)"}
                             </Typography>
                         </Grid>
                     </Stack>

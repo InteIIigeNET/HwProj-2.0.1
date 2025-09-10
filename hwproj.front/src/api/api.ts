@@ -938,6 +938,12 @@ export interface GetSolutionModel {
     publicationDate?: Date;
     /**
      *
+     * @type {boolean}
+     * @memberof GetSolutionModel
+     */
+    isModified?: boolean;
+    /**
+     *
      * @type {string}
      * @memberof GetSolutionModel
      */
@@ -1823,6 +1829,12 @@ export interface Solution {
      * @memberof Solution
      */
     publicationDate?: Date;
+    /**
+     *
+     * @type {boolean}
+     * @memberof Solution
+     */
+    isModified?: boolean;
     /**
      *
      * @type {Date}
