@@ -162,7 +162,13 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                      <QuestionMark style={{fontSize: 15}}/>
                  </Badge>}/>
             {student !== undefined && <Tab label="Последнее решение"/>}
-            {arrayOfRatedSolutions.length > 0 && <Tab label="Предыдущие попытки"/>}
+            {arrayOfRatedSolutions.length > 0 && <Tab label={
+                <Stack direction="row" spacing={1}>
+                    <div>Предыдущие попытки</div>
+                    <Chip size={"small"}
+                          color={"default"}
+                          label={(arrayOfRatedSolutions.length)}/>
+                </Stack>}/>}
         </Tabs>
         {tabValue === 0 && <Grid item style={{marginTop: '5px'}}>
             <TaskQuestions forMentor={forMentor}
