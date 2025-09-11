@@ -26,6 +26,9 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {StudentCharacteristics} from "@/components/Students/StudentCharacteristics";
 import KeyboardCommandKeyIcon from '@mui/icons-material/KeyboardCommandKey';
 import MouseOutlinedIcon from '@mui/icons-material/MouseOutlined';
+import HdrStrongIcon from '@mui/icons-material/HdrStrong';
+import BlurOnIcon from '@mui/icons-material/BlurOn';
+import BlurOffIcon from '@mui/icons-material/BlurOff';
 
 interface ISolutionProps {
     courseId: number,
@@ -59,6 +62,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     }
 
     const [state, setState] = useState<ISolutionState>(getDefaultState)
+    const [showOriginalCommentText, setShowOriginalCommentText] = useState<boolean>(false)
     const [achievement, setAchievementState] = useState<number | undefined>(undefined)
     const [rateInProgress, setRateInProgressState] = useState<boolean | undefined>(false)
     const [solutionActuality, setSolutionActuality] = useState<SolutionActualityDto | undefined>(undefined)
@@ -70,6 +74,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         getAchievementState()
         setRateInProgressState(false)
         getActuality()
+        setShowOriginalCommentText(false)
     }, [props.student.userId, props.task.id, props.solution?.id, props.solution?.rating])
 
     const [isCtrlPressed, setIsCtrlPressed] = useState(false)
@@ -470,15 +475,31 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     ? renderTestsStatus(solutionActuality.testsActuality)
                                     : <CircularProgress size={12}/>)}
                             </Stack>
-                            <Typography variant={"caption"} style={{color: "GrayText"}}>
-                                {postedSolutionTime} {solution.isModified && "(отредактировано)"}
-                            </Typography>
+                            <Stack direction={"row"} alignItems={"baseline"} spacing={1}>
+                                <Typography variant={"caption"} style={{color: "GrayText"}}>
+                                    {postedSolutionTime} {solution.isModified && "(отредактировано)"}
+                                </Typography>
+                                {solution?.comment &&
+                                    <Tooltip arrow placement={"right"}
+                                             title={<div>
+                                                 {showOriginalCommentText ? "Показать отформатированный текст решения" : "Показать оригинальный текст решения"}
+                                             </div>}>
+                                        <div style={{cursor: "pointer", marginTop: -2}}
+                                             onClick={() => setShowOriginalCommentText(!showOriginalCommentText)}>
+                                            {showOriginalCommentText
+                                                ? <BlurOffIcon style={{fontSize: 14}} color={"inherit"}/>
+                                                : <BlurOnIcon style={{fontSize: 14}} color={"inherit"}/>}
+                                        </div>
+                                    </Tooltip>}
+                            </Stack>
                         </Grid>
                     </Stack>
                 </Grid>
                 {solution.comment &&
                     <Grid item style={{marginBottom: -16}}>
-                        <MarkdownPreview value={solution.comment}/>
+                        {showOriginalCommentText
+                            ? <Typography style={{marginBottom: 15}}>{solution.comment}</Typography>
+                            : <MarkdownPreview value={solution.comment}/>}
                     </Grid>
                 }
             </Grid>
