@@ -498,7 +498,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 {solution.comment &&
                     <Grid item style={{marginBottom: -16}}>
                         {showOriginalCommentText
-                            ? <Typography style={{marginBottom: 15}}>{solution.comment}</Typography>
+                            ? <Typography style={{marginBottom: 15, whiteSpace: 'break-spaces'}}>{solution.comment}</Typography>
                             : <MarkdownPreview value={solution.comment}/>}
                     </Grid>
                 }
