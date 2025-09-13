@@ -147,13 +147,26 @@ namespace HwProj.APIGateway.API.Controllers
         [Authorize]
         [HttpGet("tasks/{taskId}")]
         [ProducesResponseType(typeof(TaskSolutionStatisticsPageData), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetTaskSolutionsPageData(long taskId)
+        public async Task<IActionResult> GetTaskSolutionsPageData(long taskId, string? secondMentorId = null)
         {
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
             //TODO: CourseMentorOnlyAttribute
             if (course == null || !course.MentorIds.Contains(UserId)) return Forbid();
 
             var students = course.AcceptedStudents.ToDictionary(x => x.StudentId);
+            var secondMentorStudentIds = new HashSet<string>();
+            if (secondMentorId != null && course.MentorIds.Contains(secondMentorId))
+            {
+                var secondMentorCourseResult =
+                    await _coursesServiceClient.GetCourseByIdForMentor(course.Id, secondMentorId);
+                if (!secondMentorCourseResult.Succeeded) return BadRequest(secondMentorCourseResult.Errors);
+
+                foreach (var student in secondMentorCourseResult.Value.AcceptedStudents)
+                {
+                    secondMentorStudentIds.Add(student.StudentId);
+                    students.TryAdd(student.StudentId, student);
+                }
+            }
             var studentIds = students.Keys.ToArray();
 
             var currentDateTime = DateTime.UtcNow;
@@ -225,9 +238,11 @@ namespace HwProj.APIGateway.API.Controllers
                                 Student = new StudentDataDto(usersData[studentId])
                                 {
                                     Characteristics = students[studentId].Characteristics,
-                                }
+                                },
+                                HasDifferentReviewer = secondMentorStudentIds.Contains(studentId)
                             })
-                            .OrderBy(t => t.Student.Surname)
+                            .OrderBy(x => !x.HasDifferentReviewer)
+                            .ThenBy(t => t.Student.Surname)
                             .ThenBy(t => t.Student.Name)
                             .ToArray(),
                     };
@@ -253,7 +268,9 @@ namespace HwProj.APIGateway.API.Controllers
                             }).ToArray()
                         }).ToArray()
                     };
-                }).ToArray()
+                }).ToArray(),
+
+                CourseMentors = course.MentorIds.Select(t => usersData[t]).ToArray()
             };
 
             return Ok(result);

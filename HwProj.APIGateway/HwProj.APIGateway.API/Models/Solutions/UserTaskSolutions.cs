@@ -1,6 +1,5 @@
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
-using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 
@@ -10,6 +9,7 @@ namespace HwProj.APIGateway.API.Models.Solutions
     {
         public GetSolutionModel[] Solutions { get; set; }
         public StudentDataDto Student { get; set; }
+        public bool HasDifferentReviewer { get; set; }
     }
 
     public class UserTaskSolutions2
@@ -23,6 +23,7 @@ namespace HwProj.APIGateway.API.Models.Solutions
 
     public class TaskSolutionStatisticsPageData
     {
+        public AccountDataDto[] CourseMentors { get; set; }
         public TaskSolutions[] TaskSolutions { get; set; }
         public long CourseId { get; set; }
         public HomeworksGroupSolutionStats[] StatsForTasks { get; set; }

@@ -2378,6 +2378,12 @@ export interface TaskDeadlineView {
 export interface TaskSolutionStatisticsPageData {
     /**
      *
+     * @type {Array<AccountDataDto>}
+     * @memberof TaskSolutionStatisticsPageData
+     */
+    courseMentors?: Array<AccountDataDto>;
+    /**
+     *
      * @type {Array<TaskSolutions>}
      * @memberof TaskSolutionStatisticsPageData
      */
@@ -2627,6 +2633,12 @@ export interface UserTaskSolutions {
      * @memberof UserTaskSolutions
      */
     student?: StudentDataDto;
+    /**
+     *
+     * @type {boolean}
+     * @memberof UserTaskSolutions
+     */
+    hasDifferentReviewer?: boolean;
 }
 /**
  *
@@ -7815,10 +7827,11 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         /**
          *
          * @param {number} taskId
+         * @param {string} [secondMentorId]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        solutionsGetTaskSolutionsPageData(taskId: number, options: any = {}): FetchArgs {
+        solutionsGetTaskSolutionsPageData(taskId: number, secondMentorId?: string, options: any = {}): FetchArgs {
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
                 throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling solutionsGetTaskSolutionsPageData.');
@@ -7836,6 +7849,10 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                     ? configuration.apiKey("Authorization")
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (secondMentorId !== undefined) {
+                localVarQueryParameter['secondMentorId'] = secondMentorId;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -8182,11 +8199,12 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
         /**
          *
          * @param {number} taskId
+         * @param {string} [secondMentorId]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        solutionsGetTaskSolutionsPageData(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<TaskSolutionStatisticsPageData> {
-            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).solutionsGetTaskSolutionsPageData(taskId, options);
+        solutionsGetTaskSolutionsPageData(taskId: number, secondMentorId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<TaskSolutionStatisticsPageData> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).solutionsGetTaskSolutionsPageData(taskId, secondMentorId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -8367,11 +8385,12 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
         /**
          *
          * @param {number} taskId
+         * @param {string} [secondMentorId]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        solutionsGetTaskSolutionsPageData(taskId: number, options?: any) {
-            return SolutionsApiFp(configuration).solutionsGetTaskSolutionsPageData(taskId, options)(fetch, basePath);
+        solutionsGetTaskSolutionsPageData(taskId: number, secondMentorId?: string, options?: any) {
+            return SolutionsApiFp(configuration).solutionsGetTaskSolutionsPageData(taskId, secondMentorId, options)(fetch, basePath);
         },
         /**
          *
@@ -8500,12 +8519,13 @@ export class SolutionsApi extends BaseAPI {
     /**
      *
      * @param {number} taskId
+     * @param {string} [secondMentorId]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
      */
-    public solutionsGetTaskSolutionsPageData(taskId: number, options?: any) {
-        return SolutionsApiFp(this.configuration).solutionsGetTaskSolutionsPageData(taskId, options)(this.fetch, this.basePath);
+    public solutionsGetTaskSolutionsPageData(taskId: number, secondMentorId?: string, options?: any) {
+        return SolutionsApiFp(this.configuration).solutionsGetTaskSolutionsPageData(taskId, secondMentorId, options)(this.fetch, this.basePath);
     }
 
     /**

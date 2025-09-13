@@ -5,7 +5,7 @@ import {
     HomeworkTaskViewModel,
     Solution,
     TaskSolutionsStats,
-    SolutionState, StudentDataDto
+    SolutionState, StudentDataDto, AccountDataDto
 } from "@/api";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
@@ -26,7 +26,10 @@ import {
     SelectChangeEvent,
     Stack,
     Tooltip,
-    Checkbox
+    Checkbox,
+    Autocomplete,
+    AutocompleteRenderInputParams,
+    TextField
 } from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 
@@ -37,16 +40,19 @@ import {getTip} from "../Common/HomeworkTags";
 import {appBarStateManager} from "../AppBar";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {RemovedFromCourseTag} from "@/components/Common/StudentTags";
+import AuthService from "@/services/AuthService";
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
     task: HomeworkTaskViewModel
     isLoaded: boolean
     courseId: number,
+    courseMentors: AccountDataDto[],
     homeworkSolutionsStats: HomeworksGroupSolutionStats[],
     taskStudentsSolutionsPreview: {
         taskId: number,
         studentSolutionsPreview: {
+            hasDifferentReviewer: boolean,
             student: StudentDataDto,
             solutions: GetSolutionModel[]
             lastSolution: GetSolutionModel,
@@ -79,14 +85,18 @@ const StudentSolutionsPage: FC = () => {
     const [studentSolutionsState, setStudentSolutionsState] = useState<IStudentSolutionsPageState>({
         currentTaskId: "",
         task: {},
+        courseMentors: [],
         isLoaded: false,
         courseId: -1,
         homeworkSolutionsStats: [],
         taskStudentsSolutionsPreview: [],
     })
-    const [filterState, setFilterState] = React.useState<Filter[]>(
+    const [filterState, setFilterState] = useState<Filter[]>(
         localStorage.getItem(FilterStorageKey)?.split(", ").filter(x => x !== "").map(x => x as Filter) || []
     )
+
+    const [secondMentorId, setSecondMentorId] = useState<string | undefined>(undefined)
+
     const handleFilterChange = (event: SelectChangeEvent<typeof filterState>) => {
         const filters = filterState.length > 0 ? [] : ["Только непроверенные" as Filter]
         localStorage.setItem(FilterStorageKey, filters.join(", "))
@@ -100,8 +110,11 @@ const StudentSolutionsPage: FC = () => {
         currentTaskId,
         taskStudentsSolutionsPreview,
         courseId,
-        homeworkSolutionsStats
+        homeworkSolutionsStats,
+        courseMentors
     } = studentSolutionsState
+
+    const secondMentor = courseMentors.find(x => x.userId == secondMentorId)
 
     const currentTaskSolutionsPreview = taskStudentsSolutionsPreview.find(x => x.taskId === +currentTaskId)
     const currentTaskSolutions = currentTaskSolutionsPreview?.studentSolutionsPreview || []
@@ -157,7 +170,7 @@ const StudentSolutionsPage: FC = () => {
         ? []
         : homeworks.map(h => h.statsForTasks![taskIndexInHomework].taskId!)
 
-    const getTaskData = async (taskId: string, fullUpdate: boolean) => {
+    const getTaskData = async (taskId: string, secondMentorId: string | undefined, fullUpdate: boolean) => {
         const task = await ApiSingleton.tasksApi.tasksGetTask(+taskId!)
 
         if (!fullUpdate && versionsOfCurrentTask.includes(+taskId)) {
@@ -173,14 +186,16 @@ const StudentSolutionsPage: FC = () => {
         const {
             taskSolutions,
             courseId,
-            statsForTasks
-        } = await ApiSingleton.solutionsApi.solutionsGetTaskSolutionsPageData(+taskId!)
+            statsForTasks,
+            courseMentors
+        } = await ApiSingleton.solutionsApi.solutionsGetTaskSolutionsPageData(+taskId!, secondMentorId)
 
         const studentSolutionsPreview = taskSolutions!.map(ts => ({
             taskId: ts.taskId!,
             studentSolutionsPreview: ts.studentSolutions!.map(studentSolutions => {
                 const ratedSolutionInfo = StudentStatsUtils.calculateLastRatedSolutionInfo(studentSolutions.solutions!, task.maxRating!)
                 return {
+                    hasDifferentReviewer: studentSolutions.hasDifferentReviewer!,
                     student: studentSolutions.student!, ...ratedSolutionInfo,
                     solutions: studentSolutions.solutions!
                 }
@@ -194,6 +209,7 @@ const StudentSolutionsPage: FC = () => {
             currentTaskId: taskId,
             homeworkSolutionsStats: statsForTasks!,
             taskStudentsSolutionsPreview: studentSolutionsPreview,
+            courseMentors: courseMentors!.filter(x => x.userId !== ApiSingleton.authService.getUserId()),
             courseId: courseId!
         })
     }
@@ -204,7 +220,7 @@ const StudentSolutionsPage: FC = () => {
     }, [courseId])
 
     useEffect(() => {
-        getTaskData(taskId!, false)
+        getTaskData(taskId!, secondMentorId, false)
     }, [taskId])
 
     useEffect(() => {
@@ -221,9 +237,8 @@ const StudentSolutionsPage: FC = () => {
             : <TaskAltIcon color={isSelected ? "primary" : "success"}/>
     }
 
-    const renderStudentListItem = (student: StudentDataDto) => {
-        if (!student.characteristics || student.characteristics.tags?.length === 0) return student.surname + " " + student.name
-        const tags = student.characteristics.tags!
+    const renderStudentListItem = (student: StudentDataDto, hasDifferentReviewer: boolean) => {
+        const tags = student.characteristics?.tags || []
 
         const hasGoodCharacteristics = tags.some(x => x.startsWith("+"))
         const hasBadCharacteristics = tags.some(x => x.startsWith("-"))
@@ -232,13 +247,20 @@ const StudentSolutionsPage: FC = () => {
             ? <s>{student.surname + " " + student.name}</s>
             : student.surname + " " + student.name
 
-        if (!hasGoodCharacteristics && !hasBadCharacteristics) return studentFio
-
         return <div>{studentFio}
             <sup style={{paddingLeft: 5}}>
                 {hasGoodCharacteristics && <ThumbUpIcon color={"success"} style={{fontSize: 14}}/>}
                 {hasBadCharacteristics && <ThumbDownIcon color={"error"} style={{fontSize: 14}}/>}
             </sup>
+            {hasDifferentReviewer && secondMentor && <Typography
+                style={{
+                    color: "GrayText",
+                    fontSize: "12px",
+                    lineHeight: '1.2'
+                }}
+            >
+                {secondMentor.name} {secondMentor.surname}
+            </Typography>}
         </div>
     }
 
@@ -281,6 +303,23 @@ const StudentSolutionsPage: FC = () => {
                 </Grid>
                 <Grid container spacing={3} style={{marginTop: '1px'}} direction={"row"}>
                     <Grid item xs={12} sm={12} md={4} lg={3}>
+                        {courseMentors.length > 0 && <Autocomplete
+                            fullWidth
+                            freeSolo={false}
+                            size={"medium"}
+                            options={courseMentors}
+                            getOptionLabel={(option) => option.name! + ' ' + option.surname!}
+                            value={secondMentor}
+                            onChange={async (_, newValue) => {
+                                setSecondMentorId(newValue?.userId)
+                                await getTaskData(currentTaskId, newValue?.userId, true)
+                            }}
+                            renderInput={params => <TextField
+                                {...params}
+                                label="Другие решения"
+                                placeholder="Выберите преподавателя"
+                            />}
+                        />}
                         <Stack direction={"row"} alignItems={"center"}>
                             <Checkbox
                                 onChange={handleFilterChange}
@@ -294,7 +333,8 @@ const StudentSolutionsPage: FC = () => {
                                     color,
                                     solutionsDescription,
                                     lastRatedSolution,
-                                    student
+                                    student,
+                                    hasDifferentReviewer
                                 }, idx) => {
                                 const {userId} = student
                                 const storageKey = {
@@ -332,7 +372,9 @@ const StudentSolutionsPage: FC = () => {
                                                           size={"small"}
                                                           label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
                                                 </Tooltip>}
-                                            <ListItemText primary={renderStudentListItem(student)}/>
+                                            <ListItemText
+                                                key={student.userId}
+                                                primary={renderStudentListItem(student, hasDifferentReviewer)}/>
                                         </Stack>
                                     </ListItemButton>
                                 </Link>
@@ -375,7 +417,7 @@ const StudentSolutionsPage: FC = () => {
                             courseStudents={courseStudents}
                             onSolutionRateClick={async () => {
                                 //const nextStudentIndex = studentSolutionsPreview.findIndex(x => x.student.userId !== currentStudentId && x.lastSolution && x.lastSolution.state === Solution.StateEnum.NUMBER_0)
-                                await getTaskData(currentTaskId, true)
+                                await getTaskData(currentTaskId, secondMentorId, true)
                                 //else navigate(`/task/${currentTaskId}/${studentSolutionsPreview[nextStudentIndex].student.userId}`)
                             }}
                         />
