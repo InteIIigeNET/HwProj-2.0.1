@@ -165,7 +165,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                     options={state.courseStudents}
                                     getOptionLabel={(option: AccountDataDto) => {
                                         const assignedMentors = getAssignedMentors(option.userId!)
-                                        const suffix = assignedMentors.length > 0 ? " (преподаватель " + assignedMentors[0] + ")" : ""
+                                        const suffix = assignedMentors.length > 0 ? " — преподаватель " + assignedMentors[0] + "" : ""
                                         return option.surname + ' ' + option.name + suffix;
                                     }}
                                     getOptionKey={(option: AccountDataDto) => option.userId ?? ""}
