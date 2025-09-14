@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService.DTO;
 
 namespace HwProj.Models.CoursesService.ViewModels
 {
@@ -55,6 +56,12 @@ namespace HwProj.Models.CoursesService.ViewModels
         public AccountDataDto[] AcceptedStudents { get; set; }
         public AccountDataDto[] NewStudents { get; set; }
         public HomeworkViewModel[] Homeworks { get; set; }
+    }
+
+    public class CourseAllData
+    {
+        public CourseViewModel Course { get; set; }
+        public MentorToAssignedStudentsDTO[] AssignedStudents { get; set; }
     }
 
     // Модель для списка всех курсов

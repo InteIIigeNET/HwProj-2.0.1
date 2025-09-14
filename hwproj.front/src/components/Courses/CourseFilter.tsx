@@ -1,7 +1,7 @@
 ﻿import React, {FC, useEffect, useState} from 'react';
-import {HomeworkViewModel, AccountDataDto} from '../../api';
+import {HomeworkViewModel, AccountDataDto, MentorToAssignedStudentsDTO} from '../../api';
 import Grid from "@material-ui/core/Grid";
-import {Autocomplete} from "@mui/material";
+import {Autocomplete, Chip} from "@mui/material";
 import TextField from "@material-ui/core/TextField";
 import ApiSingleton from "../../api/ApiSingleton";
 import ErrorsHandler from "../Utils/ErrorsHandler";
@@ -22,6 +22,8 @@ interface ICourseFilterState {
     courseStudents: AccountDataDto[];
     selectedHomeworks: HomeworkViewModel[];
     selectedStudents: AccountDataDto[];
+    mentors: AccountDataDto[];
+    assignedStudents: MentorToAssignedStudentsDTO[]
 }
 
 // Если преподаватель не выбрал ни одного студента, по умолчанию регистрируем всех. Аналогично с выбором домашних работ
@@ -30,7 +32,9 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
         courseHomeworks: [],
         courseStudents: [],
         selectedHomeworks: [],
-        selectedStudents: []
+        selectedStudents: [],
+        assignedStudents: [],
+        mentors: []
     });
 
     // Состояние для отображения элемента загрузки
@@ -39,16 +43,15 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
     // Состояние для отображения поля выбора студентов
     const [isStudentsSelectionHidden, setIsStudentsSelectionHidden] = useState<boolean>(props.isStudentsSelectionHidden);
 
-    // Если у преподавателя в workspace все студенты, отображаем "Все" в компоненте, значений при этом не выбрано.
-    // Функция, необходимые для корректного отображения выбранных элементов.
-    function getItemsView<T>(selected: T[], all: T[]): T[] {
-        return selected.length === all.length ? [] : selected;
-    }
-
     useEffect(() => {
         const fetchCourseDataForMentor = async () => {
             try {
-                const courseViewModel = await ApiSingleton.coursesApi.coursesGetAllCourseData(props.courseId);
+                const {
+                    course,
+                    assignedStudents
+                } = await ApiSingleton.coursesApi.coursesGetAllCourseData(props.courseId);
+                if (course === undefined || assignedStudents === undefined) return
+
                 const mentorWorkspace =
                     await ApiSingleton.coursesApi.coursesGetMentorWorkspace(props.courseId, props.mentorId);
 
@@ -56,18 +59,20 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                 props.onSelectedHomeworksChange(mentorWorkspace.homeworks ?? [])
 
                 // Для корректного отображения "Все" при инцициализации (получении данных с бэкенда)
-                const allCourseStudentsCount = (courseViewModel.acceptedStudents?.length ?? 0) + (courseViewModel.newStudents?.length ?? 0);
+                const allCourseStudentsCount = (course.acceptedStudents?.length ?? 0) + (course.newStudents?.length ?? 0);
                 const initSelectedStudentsView = mentorWorkspace.students?.length === allCourseStudentsCount ?
                     [] : (mentorWorkspace.students) ?? [];
-                const initSelectedHomeworksView = mentorWorkspace.homeworks?.length === courseViewModel.homeworks?.length ?
+                const initSelectedHomeworksView = mentorWorkspace.homeworks?.length === course.homeworks?.length ?
                     [] : (mentorWorkspace.homeworks ?? []);
 
                 setState(prevState => ({
                     ...prevState,
-                    courseHomeworks: courseViewModel.homeworks ?? [],
-                    courseStudents: courseViewModel.acceptedStudents ?? [],
+                    courseHomeworks: course.homeworks ?? [],
+                    courseStudents: course.acceptedStudents ?? [],
                     selectedStudents: initSelectedStudentsView,
                     selectedHomeworks: initSelectedHomeworksView,
+                    mentors: course.mentors!,
+                    assignedStudents: assignedStudents.filter(x => x.mentorId !== props.mentorId)
                 }))
 
                 setIsLoading(false);
@@ -93,6 +98,14 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
     useEffect(() => {
         props.onSelectedHomeworksChange(state.selectedHomeworks)
     }, [state.selectedHomeworks]);
+
+    //TODO: memoize?
+    const getAssignedMentors = (studentId: string) =>
+        state.assignedStudents
+            .filter(x => x.selectedStudentsIds!.includes(studentId))
+            .map(x => state.mentors.find(m => m.userId === x.mentorId))
+            .filter(x => x !== undefined)
+            .map(x => x.name + ' ' + x.surname)
 
     return (
         <div>
@@ -150,7 +163,11 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                     multiple
                                     fullWidth
                                     options={state.courseStudents}
-                                    getOptionLabel={(option: AccountDataDto) => option.surname + ' ' + option.name}
+                                    getOptionLabel={(option: AccountDataDto) => {
+                                        const assignedMentors = getAssignedMentors(option.userId!)
+                                        const suffix = assignedMentors.length > 0 ? " (преподаватель " + assignedMentors[0] + ")" : ""
+                                        return option.surname + ' ' + option.name + suffix;
+                                    }}
                                     getOptionKey={(option: AccountDataDto) => option.userId ?? ""}
                                     filterSelectedOptions
                                     isOptionEqualToValue={(option, value) => option.userId === value.userId}
@@ -161,7 +178,19 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                             label={state.selectedStudents.length === 0 ? "" : `Студенты (${state.selectedStudents.length})`}
                                             placeholder={state.selectedStudents.length === 0 ? "Все студенты" : ""}
                                         />)}
-                                    noOptionsText={'На курсе больше нет студентов'}
+                                    renderTags={(value, getTagProps) =>
+                                        value.map((option, index) => {
+                                            const hasAssignedStudents = getAssignedMentors(option.userId!).length > 0
+                                            return (
+                                                <Chip
+                                                    label={option.surname + ' ' + option.name}
+                                                    {...getTagProps({index})}
+                                                    color={hasAssignedStudents ? "info" : "default"}
+                                                />
+                                            );
+                                        })
+                                    }
+                                    noOptionsText={'На курсе нет студентов'}
                                     value={state.selectedStudents}
                                     onChange={(_, values) => {
                                         setState((prevState) => ({

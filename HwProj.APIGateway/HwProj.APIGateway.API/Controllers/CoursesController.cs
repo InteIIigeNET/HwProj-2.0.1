@@ -47,14 +47,19 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpGet("getAllData/{courseId}")]
-        [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CourseAllData), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllCourseData(long courseId)
         {
             var courseResult = await _coursesClient.GetAllCourseData(courseId);
             if (!courseResult.Succeeded)
                 return BadRequest(courseResult.Errors[0]);
 
-            var result = await ToCourseViewModel(courseResult.Value);
+            var assignedStudents = await _coursesClient.GetMentorsToAssignedStudents(courseId);
+            var result = new CourseAllData()
+            {
+                Course = await ToCourseViewModel(courseResult.Value),
+                AssignedStudents = assignedStudents
+            };
             return Ok(result);
         }
 

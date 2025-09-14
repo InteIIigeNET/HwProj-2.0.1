@@ -11,6 +11,7 @@ namespace HwProj.CoursesService.Client
         Task<CoursePreview[]> GetAllCourses();
         Task<CourseDTO?> GetCourseById(long courseId);
         Task<Result<CourseDTO>> GetCourseByIdForMentor(long courseId, string mentorId);
+        /// Получить полную информацию о курсе без учетов фильтров для преподавателей
         Task<Result<CourseDTO>> GetAllCourseData(long courseId);
         Task<CourseDTO?> GetCourseByTask(long taskId);
         Task<Result> DeleteCourse(long courseId);

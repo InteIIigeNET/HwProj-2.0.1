@@ -302,6 +302,25 @@ export enum CategoryState {
 /**
  *
  * @export
+ * @interface CourseAllData
+ */
+export interface CourseAllData {
+    /**
+     *
+     * @type {CourseViewModel}
+     * @memberof CourseAllData
+     */
+    course?: CourseViewModel;
+    /**
+     *
+     * @type {Array<MentorToAssignedStudentsDTO>}
+     * @memberof CourseAllData
+     */
+    assignedStudents?: Array<MentorToAssignedStudentsDTO>;
+}
+/**
+ *
+ * @export
  * @interface CourseEvents
  */
 export interface CourseEvents {
@@ -1469,6 +1488,25 @@ export interface LoginViewModel {
      * @memberof LoginViewModel
      */
     rememberMe: boolean;
+}
+/**
+ *
+ * @export
+ * @interface MentorToAssignedStudentsDTO
+ */
+export interface MentorToAssignedStudentsDTO {
+    /**
+     *
+     * @type {string}
+     * @memberof MentorToAssignedStudentsDTO
+     */
+    mentorId?: string;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof MentorToAssignedStudentsDTO
+     */
+    selectedStudentsIds?: Array<string>;
 }
 /**
  *
@@ -5172,7 +5210,7 @@ export const CoursesApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        coursesGetAllCourseData(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<CourseViewModel> {
+        coursesGetAllCourseData(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<CourseAllData> {
             const localVarFetchArgs = CoursesApiFetchParamCreator(configuration).coursesGetAllCourseData(courseId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
