@@ -1,7 +1,7 @@
 ﻿import React, {FC, useEffect, useState} from 'react';
 import {HomeworkViewModel, AccountDataDto, MentorToAssignedStudentsDTO} from '../../api';
 import Grid from "@material-ui/core/Grid";
-import {Autocomplete, Chip} from "@mui/material";
+import {Autocomplete, Chip, Stack, Typography} from "@mui/material";
 import TextField from "@material-ui/core/TextField";
 import ApiSingleton from "../../api/ApiSingleton";
 import ErrorsHandler from "../Utils/ErrorsHandler";
@@ -107,6 +107,12 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
             .filter(x => x !== undefined)
             .map(x => x.name + ' ' + x.surname)
 
+    const studentsWithMultipleReviewers = new Set(
+        state.selectedStudents
+            .map(x => x.userId!)
+            .filter(x => getAssignedMentors(x).length > 0)
+    )
+
     return (
         <div>
             {isLoading ? (
@@ -138,7 +144,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                         placeholder={state.selectedHomeworks.length === 0 ? "Все задания" : ""}
                                     />
                                 )}
-                                noOptionsText={'На курсе больше нет заданий'}
+                                noOptionsText={'Больше нет заданий для выбора'}
                                 value={state.selectedHomeworks}
                                 onChange={(_, values) => {
                                     setState((prevState) => ({
@@ -159,46 +165,48 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                     ) : (
                         <Grid container spacing={2} style={{marginTop: '12px'}}>
                             <Grid item xs={12} sm={12}>
-                                <Autocomplete
-                                    multiple
-                                    fullWidth
-                                    options={state.courseStudents}
-                                    getOptionLabel={(option: AccountDataDto) => {
-                                        const assignedMentors = getAssignedMentors(option.userId!)
-                                        const suffix = assignedMentors.length > 0 ? " — преподаватель " + assignedMentors[0] + "" : ""
-                                        return option.surname + ' ' + option.name + suffix;
-                                    }}
-                                    getOptionKey={(option: AccountDataDto) => option.userId ?? ""}
-                                    filterSelectedOptions
-                                    isOptionEqualToValue={(option, value) => option.userId === value.userId}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            variant="outlined"
-                                            label={state.selectedStudents.length === 0 ? "" : `Студенты (${state.selectedStudents.length})`}
-                                            placeholder={state.selectedStudents.length === 0 ? "Все студенты" : ""}
-                                        />)}
-                                    renderTags={(value, getTagProps) =>
-                                        value.map((option, index) => {
-                                            const hasAssignedStudents = getAssignedMentors(option.userId!).length > 0
-                                            return (
+                                <Stack direction={"column"}>
+                                    <Autocomplete
+                                        multiple
+                                        fullWidth
+                                        options={state.courseStudents}
+                                        getOptionLabel={(option: AccountDataDto) => {
+                                            const assignedMentors = getAssignedMentors(option.userId!)
+                                            const suffix = assignedMentors.length > 0 ? " — преподаватель " + assignedMentors[0] + "" : ""
+                                            return option.surname + ' ' + option.name + suffix;
+                                        }}
+                                        getOptionKey={(option: AccountDataDto) => option.userId ?? ""}
+                                        filterSelectedOptions
+                                        isOptionEqualToValue={(option, value) => option.userId === value.userId}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                variant="outlined"
+                                                label={state.selectedStudents.length === 0 ? "" : `Студенты (${state.selectedStudents.length})`}
+                                                placeholder={state.selectedStudents.length === 0 ? "Все студенты" : ""}
+                                            />)}
+                                        renderTags={(value, getTagProps) =>
+                                            value.map((option, index) =>
                                                 <Chip
                                                     label={option.surname + ' ' + option.name}
                                                     {...getTagProps({index})}
-                                                    color={hasAssignedStudents ? "info" : "default"}
-                                                />
-                                            );
-                                        })
-                                    }
-                                    noOptionsText={'На курсе нет студентов'}
-                                    value={state.selectedStudents}
-                                    onChange={(_, values) => {
-                                        setState((prevState) => ({
-                                            ...prevState,
-                                            selectedStudents: values
-                                        }));
-                                    }}
-                                />
+                                                    style={studentsWithMultipleReviewers.has(option.userId!) ? {color: "#3f51b5"} : undefined}
+                                                />)
+                                        }
+                                        noOptionsText={'Больше нет студентов для выбора'}
+                                        value={state.selectedStudents}
+                                        onChange={(_, values) => {
+                                            setState((prevState) => ({
+                                                ...prevState,
+                                                selectedStudents: values
+                                            }));
+                                        }}
+                                    />
+                                    {studentsWithMultipleReviewers.size > 0 &&
+                                        <Typography align="center" variant={"caption"} color={"#3f51b5"}>
+                                            Синим выделены студенты, закрепленные за несколькими преподавателями
+                                        </Typography>}
+                                </Stack>
                             </Grid>
                         </Grid>
 
