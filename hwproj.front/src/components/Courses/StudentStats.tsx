@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import {useNavigate, useParams} from 'react-router-dom';
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
+import {LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
 import {Alert, Button, Chip, Typography} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
@@ -15,7 +15,7 @@ interface IStudentStatsProps {
     homeworks: HomeworkViewModel[];
     isMentor: boolean;
     userId: string;
-    solutions: StatisticsCourseMatesModel[];
+    solutions: StatisticsCourseMatesModel[] | undefined;
 }
 
 interface IStudentStatsState {
@@ -55,7 +55,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     const homeworks = props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
     const solutions = searched
-        ? props.solutions.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase()))
+        ? props.solutions?.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase()))
         : props.solutions
 
     const borderStyle = `1px solid ${greyBorder}`
@@ -100,7 +100,8 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     return (
         <div>
-            {solutions.length === 0 && <Alert severity="info">
+            {props.solutions === undefined && <LinearProgress/>}
+            {props.solutions && props.solutions.length === 0 && <Alert severity="info">
                 На курс пока ещё никто не записался
             </Alert>}
             {searched &&
@@ -146,7 +147,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                         <TableRow>
                             <TableCell style={{zIndex: 10}}
                                        component="td">
-                                {solutions.length > 0 &&
+                                {solutions && solutions.length > 0 &&
                                     <Button startIcon={<ShowChartIcon/>} color="primary"
                                             style={{backgroundColor: 'transparent'}} size='medium'
                                             onClick={handleClick}>
@@ -190,7 +191,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {solutions.map((cm, index) => {
+                        {solutions && solutions.map((cm, index) => {
                             const homeworksSum = notTests
                                 .flatMap(homework =>
                                     solutions

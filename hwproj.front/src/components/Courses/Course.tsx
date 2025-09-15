@@ -88,7 +88,7 @@ const Course: React.FC = () => {
         studentSolutions: [],
         showQrCode: false
     })
-    const [studentSolutions, setStudentSolutions] = useState<StatisticsCourseMatesModel[]>([])
+    const [studentSolutions, setStudentSolutions] = useState<StatisticsCourseMatesModel[] | undefined>(undefined)
     const [courseFilesState, setCourseFilesState] = useState<ICourseFilesState>({
         processingFilesState: {},
         courseFiles: []
@@ -126,7 +126,7 @@ const Course: React.FC = () => {
             }
         }));
     }
-    
+
     const stopProcessing = (homeworkId: number) => {
         if (intervalsRef.current[homeworkId]) {
             const {interval, timeout} = intervalsRef.current[homeworkId];
@@ -312,7 +312,7 @@ const Course: React.FC = () => {
         ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
             .then(res => setStudentSolutions(res))
     }, [courseId])
-    
+
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
 
     const joinCourse = async () => {
@@ -323,7 +323,7 @@ const Course: React.FC = () => {
     const {tabValue} = pageState
     const searchedHomeworkId = searchParams.get("homeworkId")
 
-    const unratedSolutionsCount = studentSolutions
+    const unratedSolutionsCount = (studentSolutions || [])
         .flatMap(x => x.homeworks)
         .flatMap(x => x!.tasks)
         .filter(t => t!.solution!.slice(-1)[0]?.state === 0) //last solution
@@ -492,7 +492,7 @@ const Course: React.FC = () => {
                         homeworks={courseHomeworks}
                         courseFilesInfo={courseFilesState.courseFiles}
                         isMentor={isCourseMentor}
-                        studentSolutions={studentSolutions}
+                        studentSolutions={studentSolutions || []}
                         isStudentAccepted={isAcceptedStudent}
                         selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
                         userId={userId!}
