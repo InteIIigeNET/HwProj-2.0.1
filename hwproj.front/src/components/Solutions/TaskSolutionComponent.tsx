@@ -15,7 +15,7 @@ import {Alert, Avatar, Rating, Stack, Tooltip, Card, CardContent, CardActions, I
 import AvatarUtils from "../Utils/AvatarUtils";
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
-import {Edit, ThumbDown, ThumbUp} from "@mui/icons-material";
+import {Edit, ThumbDown, ThumbDownOutlined, ThumbUp} from "@mui/icons-material";
 import {MarkdownEditor, MarkdownPreview} from "../Common/MarkdownEditor";
 import {LoadingButton} from "@mui/lab";
 import CheckIcon from '@mui/icons-material/Done';
@@ -26,7 +26,6 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {StudentCharacteristics} from "@/components/Students/StudentCharacteristics";
 import KeyboardCommandKeyIcon from '@mui/icons-material/KeyboardCommandKey';
 import MouseOutlinedIcon from '@mui/icons-material/MouseOutlined';
-import HdrStrongIcon from '@mui/icons-material/HdrStrong';
 import BlurOnIcon from '@mui/icons-material/BlurOn';
 import BlurOffIcon from '@mui/icons-material/BlurOff';
 
@@ -236,30 +235,37 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 </Stack>
                 </Grid>}
                 {!showThumbs && <Grid item>
-                    <Rating
-                        key={solution?.id}
-                        name="customized"
-                        size="large"
-                        defaultValue={2}
-                        max={maxRating}
-                        value={points}
-                        readOnly={!isEditable}
-                        onMouseDown={event => {
-                            const isFirefox = navigator.userAgent.toLowerCase().includes('firefox')
-                            if (event.ctrlKey && isFirefox) {
-                                const ratingElement = event.currentTarget
-                                const {left, width} = ratingElement.getBoundingClientRect()
-                                const relativeX = (event.clientX - left) / width
-                                const star = Math.ceil(relativeX * maxRating) || 0
-                                const rating = star === points ? 0 : star
+                    <Stack direction={"row"} alignItems={"center"}>
+                        {(isEditable || !isRated) &&
+                            <IconButton size="small" disabled={!isEditable} onClick={() => thumbsHandler(0)}>
+                                <ThumbDownOutlined
+                                    color={(isRated || state.clickedForRate) && points === 0 ? "error" : "disabled"}/>
+                            </IconButton>}
+                        <Rating
+                            key={solution?.id}
+                            name="customized"
+                            size="large"
+                            defaultValue={2}
+                            max={maxRating}
+                            value={points}
+                            readOnly={!isEditable}
+                            onMouseDown={event => {
+                                const isFirefox = navigator.userAgent.toLowerCase().includes('firefox')
+                                if (event.ctrlKey && isFirefox) {
+                                    const ratingElement = event.currentTarget
+                                    const {left, width} = ratingElement.getBoundingClientRect()
+                                    const relativeX = (event.clientX - left) / width
+                                    const star = Math.ceil(relativeX * maxRating) || 0
+                                    const rating = star === points ? 0 : star
 
-                                clickForRate(rating || 0, true)
-                            }
-                        }}
-                        onChange={(_, newValue) => {
-                            clickForRate(newValue || 0, true)
-                        }}
-                    />
+                                    clickForRate(rating || 0, true)
+                                }
+                            }}
+                            onChange={(_, newValue) => {
+                                clickForRate(newValue || 0, true)
+                            }}
+                        />
+                    </Stack>
                 </Grid>}
                 {!showThumbs && <Grid item>
                     {points + " / " + maxRating}
@@ -498,7 +504,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 {solution.comment &&
                     <Grid item style={{marginBottom: -16}}>
                         {showOriginalCommentText
-                            ? <Typography style={{marginBottom: 15, whiteSpace: 'break-spaces'}}>{solution.comment}</Typography>
+                            ? <Typography
+                                style={{marginBottom: 15, whiteSpace: 'break-spaces'}}>{solution.comment}</Typography>
                             : <MarkdownPreview value={solution.comment}/>}
                     </Grid>
                 }
