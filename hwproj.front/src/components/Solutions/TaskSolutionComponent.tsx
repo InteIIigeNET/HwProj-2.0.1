@@ -526,13 +526,6 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             </Grid>
         }
         {
-            points > maxRating && <Grid item>
-                <Alert variant="standard" severity="info">
-                    Решение оценено выше максимального балла.
-                </Alert>
-            </Grid>
-        }
-        {
             checkAchievement && <Grid item>
                 <Alert variant="outlined"
                        icon={achievement !== undefined ? null : <CircularProgress size={20} color={"inherit"}/>}
