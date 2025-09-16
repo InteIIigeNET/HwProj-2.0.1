@@ -421,6 +421,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             ...prevState,
                             points: props.solution?.rating || 0,
                             lecturerComment: props.solution?.lecturerComment || "",
+                            addBonusPoints: false,
                             clickedForRate: false
                         }))
                     }}
