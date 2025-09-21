@@ -110,15 +110,6 @@ namespace HwProj.AuthService.IntegrationTests
                 false,
                 model.MiddleName);
 
-        private static User GenerateUser(RegisterViewModel model)
-            => new User
-            {
-                Name = model.Name,
-                Surname = model.Surname,
-                MiddleName = model.MiddleName,
-                IsExternalAuth = false
-            };
-
         private IAuthServiceClient _authServiceClient;
 
         [SetUp]

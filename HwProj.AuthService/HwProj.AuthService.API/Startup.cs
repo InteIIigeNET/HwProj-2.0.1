@@ -14,6 +14,7 @@ using HwProj.Utils.Configuration;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Utils.Auth;
+using User = HwProj.AuthService.API.Models.User;
 
 namespace HwProj.AuthService.API
 {

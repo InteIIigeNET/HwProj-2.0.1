@@ -7,7 +7,6 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.CoursesService.API.Domains;
 using System.Linq;
 using HwProj.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services
 {

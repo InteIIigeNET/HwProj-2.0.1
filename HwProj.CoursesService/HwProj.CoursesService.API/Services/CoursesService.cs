@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using System.Threading.Tasks;
-using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
@@ -11,12 +10,10 @@ using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.Models.ContentService.DTO;
 using HwProj.ContentService.Client;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.CoursesService.API.Domains;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.Roles;
-using HwProj.Utils.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -29,7 +26,6 @@ namespace HwProj.CoursesService.API.Services
         private readonly ITasksRepository _tasksRepository;
         private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IEventBus _eventBus;
-        private readonly IAuthServiceClient _authServiceClient;
         private readonly IContentServiceClient _contentServiceClient;
         private readonly IGroupsRepository _groupsRepository;
         private readonly ICourseFilterService _courseFilterService;
@@ -40,7 +36,6 @@ namespace HwProj.CoursesService.API.Services
             ITasksRepository tasksRepository,
             ICourseMatesRepository courseMatesRepository,
             IEventBus eventBus,
-            IAuthServiceClient authServiceClient,
             IContentServiceClient contentServiceClient,
             IGroupsRepository groupsRepository,
             ICourseFilterService courseFilterService,
@@ -51,7 +46,6 @@ namespace HwProj.CoursesService.API.Services
             _tasksRepository = tasksRepository;
             _courseMatesRepository = courseMatesRepository;
             _eventBus = eventBus;
-            _authServiceClient = authServiceClient;
             _contentServiceClient = contentServiceClient;
             _groupsRepository = groupsRepository;
             _courseFilterService = courseFilterService;
@@ -369,17 +363,6 @@ namespace HwProj.CoursesService.API.Services
 
             await _context.SaveChangesAsync();
             return true;
-        }
-
-        public async Task<AccountDataDto[]> GetLecturersAvailableForCourse(long courseId, string mentorId)
-        {
-            var lecturers = await _authServiceClient.GetAllLecturers();
-            var mentorIds = await GetCourseLecturers(courseId);
-            var availableLecturers = lecturers.Where(u => !mentorIds.Contains(u.Id));
-
-            return availableLecturers
-                .Select(u => u.ToAccountDataDto(Roles.LecturerRole))
-                .ToArray();
         }
     }
 }

@@ -10,6 +10,7 @@ using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Internal;
+using User = HwProj.AuthService.API.Models.User;
 
 namespace HwProj.AuthService.API.Services
 {
