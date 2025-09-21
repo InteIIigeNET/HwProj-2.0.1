@@ -5,6 +5,7 @@ using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.CoursesService.API.Services;
+using HwProj.EventBus.Client;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

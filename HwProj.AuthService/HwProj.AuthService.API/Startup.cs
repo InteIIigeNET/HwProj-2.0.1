@@ -7,6 +7,7 @@ using HwProj.AuthService.API.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using HwProj.AuthService.API.Services;
+using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
