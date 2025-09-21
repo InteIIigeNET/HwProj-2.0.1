@@ -36,7 +36,6 @@ namespace HwProj.APIGateway.API
                     Configuration["StudentsInfo:Password"],
                     Configuration["StudentsInfo:LdapHost"], int.Parse(Configuration["StudentsInfo:LdapPort"]),
                     Configuration["StudentsInfo:SearchBase"]));
-            const string authenticationProviderKey = "GatewayKey";
 
             var appSettings = Configuration.GetSection("AppSettings");
 
@@ -45,7 +44,7 @@ namespace HwProj.APIGateway.API
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer(authenticationProviderKey, x =>
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>
                 {
                     x.RequireHttpsMetadata = false;
                     x.TokenValidationParameters = new TokenValidationParameters
