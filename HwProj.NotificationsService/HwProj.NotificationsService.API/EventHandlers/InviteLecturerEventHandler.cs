@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using HwProj.AuthService.API.Events;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.NotificationsService;
+using HwProj.NotificationService.Events.AuthService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
@@ -19,7 +19,6 @@ namespace HwProj.NotificationsService.API.EventHandlers
         public InviteLecturerEventHandler(
             INotificationsRepository notificationRepository,
             IEmailService emailService,
-            IAuthServiceClient authServiceClient,
             INotificationSettingsService settingsService)
         {
             _notificationRepository = notificationRepository;

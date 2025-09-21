@@ -35,7 +35,7 @@ namespace HwProj.AuthService.IntegrationTests
                 ValidateIssuer = true,
                 ValidateAudience = false,
                 ValidateLifetime = true,
-                IssuerSigningKey = AuthorizationKey.SecurityKey,
+                IssuerSigningKey = null,
                 ValidateIssuerSigningKey = true
             };
             var claims = handler.ValidateToken(resultData.Value.AccessToken, validations, out var tokenSecure);

@@ -9,12 +9,9 @@ using HwProj.ContentService.API.Models.Messages;
 using HwProj.ContentService.API.Repositories;
 using HwProj.ContentService.API.Services;
 using HwProj.ContentService.API.Services.Interfaces;
-using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 
@@ -120,8 +117,6 @@ public static class ConfigurationExtensions
             options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
         });
         services.ConfigureContentServiceSwaggerGen();
-        services.ConfigureContentServiceAuthentication();
-
         services.AddHttpContextAccessor();
     }
 
@@ -137,27 +132,5 @@ public static class ConfigurationExtensions
                 return $"{controllerName}{actionName}";
             });
         });
-    }
-
-    private static void ConfigureContentServiceAuthentication(this IServiceCollection services)
-    {
-        services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false; //TODO: dev env setting
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidIssuer = "AuthService",
-                    ValidateIssuer = true,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    IssuerSigningKey = AuthorizationKey.SecurityKey,
-                    ValidateIssuerSigningKey = true
-                };
-            });
     }
 }

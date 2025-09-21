@@ -4,14 +4,12 @@ using System.Threading;
 using AutoMapper;
 using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration.Middleware;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 
@@ -29,30 +27,7 @@ namespace HwProj.Utils.Configuration
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.ConfigureHwProjServiceSwaggerGen(serviceName);
-            if (serviceName != "AuthService API")
-            {
-                services.AddAuthentication(options =>
-                    {
-                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                    })
-                    .AddJwtBearer(x =>
-                    {
-                        x.RequireHttpsMetadata = false; //TODO: dev env setting
-                        x.TokenValidationParameters = new TokenValidationParameters
-                        {
-                            ValidIssuer = "AuthService",
-                            ValidateIssuer = true,
-                            ValidateAudience = false,
-                            ValidateLifetime = true,
-                            IssuerSigningKey = AuthorizationKey.SecurityKey,
-                            ValidateIssuerSigningKey = true
-                        };
-                    });
-            }
-
             services.AddTransient<NoApiGatewayMiddleware>();
-
             services.AddHttpContextAccessor();
 
             return services;

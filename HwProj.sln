@@ -76,6 +76,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IStudentsInfo", "HwProj.Stu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentInfo.Tests", "HwProj.StudentInfo\StudentsInfo.Tests\StudentsInfo.Tests.csproj", "{8DE955D7-FD97-4F11-B6D4-414E631B9F83}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.Common.Net8", "HwProj.Common\HwProj.Common.Net8\HwProj.Common.Net8.csproj", "{6D9F7095-5E38-4FC6-9913-C4015B233656}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.NotificationService.Events", "HwProj.NotificationsService\HwProj.NotificationService.Events\HwProj.NotificationService.Events.csproj", "{C04A9D3D-B299-4534-B7B1-36DF92B1BC87}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -182,6 +186,14 @@ Global
 		{8DE955D7-FD97-4F11-B6D4-414E631B9F83}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8DE955D7-FD97-4F11-B6D4-414E631B9F83}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8DE955D7-FD97-4F11-B6D4-414E631B9F83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D9F7095-5E38-4FC6-9913-C4015B233656}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D9F7095-5E38-4FC6-9913-C4015B233656}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D9F7095-5E38-4FC6-9913-C4015B233656}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D9F7095-5E38-4FC6-9913-C4015B233656}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C04A9D3D-B299-4534-B7B1-36DF92B1BC87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C04A9D3D-B299-4534-B7B1-36DF92B1BC87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C04A9D3D-B299-4534-B7B1-36DF92B1BC87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C04A9D3D-B299-4534-B7B1-36DF92B1BC87}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -212,6 +224,8 @@ Global
 		{886E6A4F-9F11-482D-AADF-CCB1049B6C14} = {CCA598FB-F8A9-4F20-BCE5-BE21725156BD}
 		{72A4C047-1F47-45DA-9BD6-54E62E7CFB78} = {CCA598FB-F8A9-4F20-BCE5-BE21725156BD}
 		{8DE955D7-FD97-4F11-B6D4-414E631B9F83} = {CCA598FB-F8A9-4F20-BCE5-BE21725156BD}
+		{6D9F7095-5E38-4FC6-9913-C4015B233656} = {77D857A8-45C6-4432-B4BF-A2F2C9ECA7FE}
+		{C04A9D3D-B299-4534-B7B1-36DF92B1BC87} = {1EAEB779-E7C8-4EF9-B9A9-22CB8E3C246D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C03BF138-4A5B-4261-9495-6D3AC6CE9779}
