@@ -109,7 +109,7 @@ namespace HwProj.AuthService.API.Controllers
         }
 
         [HttpGet("findByEmail/{email}")]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> FindByEmail(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
