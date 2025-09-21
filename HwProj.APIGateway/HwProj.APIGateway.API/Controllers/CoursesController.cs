@@ -13,7 +13,6 @@ using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using IStudentsInfo;
 
 namespace HwProj.APIGateway.API.Controllers
@@ -214,8 +213,10 @@ namespace HwProj.APIGateway.API.Controllers
         [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetLecturersAvailableForCourse(long courseId)
         {
-            var result = await _coursesClient.GetLecturersAvailableForCourse(courseId);
-            return Ok(result.Value);
+            var lecturers = await AuthServiceClient.GetAllLecturers();
+            var courseMentors = await _coursesClient.GetCourseLecturersIds(courseId);
+            var result = lecturers.Where(x => !courseMentors.Contains(x.UserId));
+            return Ok(result.ToArray());
         }
 
         [HttpGet("tags/{courseId}")]
