@@ -18,7 +18,7 @@ namespace HwProj.AuthService.Client
         Task<Result> InviteNewLecturer(InviteLecturerViewModel model);
         Task<string> FindByEmailAsync(string email);
         Task<AccountDataDto[]> GetAllStudents();
-        Task<User[]> GetAllLecturers();
+        Task<AccountDataDto[]> GetAllLecturers();
         Task<bool> Ping();
         Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model);
         Task<Result> ResetPassword(ResetPasswordViewModel model);

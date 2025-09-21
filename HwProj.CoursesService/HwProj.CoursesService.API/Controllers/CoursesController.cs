@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
@@ -10,9 +9,7 @@ using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
-using HwProj.AuthService.Client;
 using HwProj.CoursesService.API.Repositories;
-using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
 using HwProj.CoursesService.API.Domains;
@@ -187,17 +184,6 @@ namespace HwProj.CoursesService.API.Controllers
         {
             await _coursesService.AcceptLecturerAsync(courseId, lecturerEmail, lecturerId);
             return Ok();
-        }
-
-        [HttpGet("getLecturersAvailableForCourse/{courseId}")]
-        [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetLecturersAvailableForCourse(long courseId)
-        {
-            var mentorId = Request.GetMentorId();
-            var result = await _coursesService.GetLecturersAvailableForCourse(courseId, mentorId);
-            return result == null
-                ? NotFound() as IActionResult
-                : Ok(result);
         }
 
         [HttpGet("getCourseLecturers/{courseId}")]

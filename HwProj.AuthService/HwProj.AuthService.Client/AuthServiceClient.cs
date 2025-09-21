@@ -163,8 +163,8 @@ namespace HwProj.AuthService.Client
             };
 
             var response = await _httpClient.SendAsync(httpRequest);
-            var user = await response.DeserializeAsync<User>();
-            return user?.Id;
+            var user = await response.DeserializeAsync<AccountDataDto>();
+            return user?.UserId;
         }
 
         public async Task<AccountDataDto[]> GetAllStudents()
@@ -177,14 +177,14 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<AccountDataDto[]>().ConfigureAwait(false);
         }
 
-        public async Task<User[]> GetAllLecturers()
+        public async Task<AccountDataDto[]> GetAllLecturers()
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _authServiceUri + "api/account/getAllLecturers");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<User[]>().ConfigureAwait(false);
+            return await response.DeserializeAsync<AccountDataDto[]>().ConfigureAwait(false);
         }
 
         public async Task<bool> Ping()

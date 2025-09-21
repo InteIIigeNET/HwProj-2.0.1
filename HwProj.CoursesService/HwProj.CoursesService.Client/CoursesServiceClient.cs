@@ -6,8 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using HwProj.Exceptions;
 using HwProj.HttpUtils;
-using HwProj.Models.AuthService.DTO;
-using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
@@ -523,20 +521,6 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode
                 ? Result.Success()
                 : Result.Failed(response.ReasonPhrase);
-        }
-
-        public async Task<Result<AccountDataDto[]>> GetLecturersAvailableForCourse(long courseId)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get,
-                _coursesServiceUri + $"api/Courses/getLecturersAvailableForCourse/{courseId}");
-
-            httpRequest.TryAddUserId(_httpContextAccessor);
-
-            var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode
-                ? Result<AccountDataDto[]>.Success(await response.DeserializeAsync<AccountDataDto[]>())
-                : Result<AccountDataDto[]>.Failed(response.ReasonPhrase);
         }
 
         public async Task<string[]> GetCourseLecturersIds(long courseId)

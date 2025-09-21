@@ -18,7 +18,7 @@ using HwProj.Utils.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Octokit;
-using User = HwProj.Models.AuthService.ViewModels.User;
+using User = HwProj.AuthService.API.Models.User;
 
 
 namespace HwProj.AuthService.API.Services
