@@ -16,7 +16,7 @@ HwProj — это веб-сервис, созданный для автомат�
 Мы будем рады вашим вопросам, замечаниям по работе сервиса и предложениям по его улучшению. Вы можете связаться с нами, [открыв issue в репозитории](https://github.com/InteIIigeNET/HwProj-2.0.1/issues/new) или отправив сообщение в Telegram: [@yuri_ufimtsev](https://t.me/yuri_ufimtsev), [@DedSec256](https://t.me/DedSec256), [@yurii_litvinov](https://t.me/yurii_litvinov).
 ## Локальная сборка и запуск
 ### Подготовка окружения
-- [.NET Core 2.2 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/2.2)
+- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-8.0.414-windows-x64-installer)
 - [MS SQL LocalDB](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb?view=sql-server-ver16)
 - - После скачивания SQL Server Installer запускаем его, выбираем Download Media, в следующем окне тыкаем на LocalDB
 - Node JS, [v22.14.0](https://nodejs.org/download/release/v22.14.0/)
