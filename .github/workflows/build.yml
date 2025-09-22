@@ -8,7 +8,9 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
+    env:
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
