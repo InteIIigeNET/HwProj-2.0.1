@@ -2,7 +2,7 @@ name: Build (.NET 8)
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
 
 jobs:
