@@ -4,8 +4,6 @@ services:
     environment:
       SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
       ACCEPT_EULA: "Y"
-    ports:
-      - "${MSSQL_PORT}:1434"
     user: root
     volumes:
       - "${MSSQL_DATA_VOLUME}:/var/opt/mssql/data"
@@ -24,9 +22,6 @@ services:
     #environment:
      #- RABBITMQ_DEFAULT_USER=guest
      #- RABBITMQ_DEFAULT_PASS=guest
-    ports:
-      - "${RABBITMQ_5672_PORT}:5672"
-      - "${RABBITMQ_15672_PORT}:15672"
 
   hwproj.apigateway.api:
     environment:
@@ -49,7 +44,7 @@ services:
       - GoogleSheets:client_x509_cert_url=${GOOGLE_SHEETS_CLIENT_X509_CERT_URL}
       - GoogleSheets:private_key=${GOOGLE_SHEETS_PRIVATE_KEY}
     ports:
-      - "5000:5000"
+      - "127.0.0.1:5000:5000"
 
   hwproj.authservice.api:
     environment:
@@ -60,11 +55,6 @@ services:
       - Github:ClientSecretGithub=${GITHUB_CLIENT_SECRET}
       - Github:ScopeGitHub=read:user
       - Gtihub:OrganizationNameGithub=${GITHUB_ORGANIZATION_NAME}
-    ports:
-      - "5001:5001"
-    #volumes:
-     #- ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-     #- /root/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
 
   hwproj.coursesservice.api:
     environment:
@@ -73,8 +63,6 @@ services:
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
       - Services:Content=http://hwproj.contentservice.api
-    ports:
-      - "5002:5002"
 
   hwproj.notificationsservice.api:
     environment:
@@ -88,8 +76,6 @@ services:
       - Notification:ConnectSite=${NOTIFICATION_CONNECT_SITE}
       - Notification:Password=${NOTIFICATION_PASSWORD}
       - Notification:Url=https://hwproj.ru
-    ports:
-      - "5006:5006"
 
   hwproj.solutionsservice.api:
     environment:
@@ -99,8 +85,6 @@ services:
       - Services:Auth=http://hwproj.authservice.api
       - Services:Courses=http://hwproj.coursesservice.api
       - Github:Token=${GITHUB_TOKEN}
-    ports:
-      - "5007:5007"
 
   hwproj.contentservice.api:
     environment:
@@ -115,6 +99,3 @@ services:
       - ExternalStorageConfiguration:DefaultBucketName=hwproj-content
       - LocalStorageConfiguration:Path=/app/data/
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=ContentServiceDB;User=sa;Password=Your_password123;Trusted_Connection=True;
-
-    ports:
-      - "5008:5008"
