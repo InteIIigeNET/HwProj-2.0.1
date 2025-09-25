@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Models;
 using HwProj.AuthService.Client;
+using HwProj.ContentService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
@@ -15,16 +16,19 @@ namespace HwProj.APIGateway.API.Controllers
         private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly INotificationsServiceClient _notificationsServiceClient;
         private readonly ISolutionsServiceClient _solutionsServiceClient;
+        private readonly IContentServiceClient _contentServiceClient;
 
         public SystemController(
             IAuthServiceClient authServiceClient,
             ICoursesServiceClient coursesServiceClient,
             INotificationsServiceClient notificationsServiceClient,
-            ISolutionsServiceClient solutionsServiceClient) : base(authServiceClient)
+            ISolutionsServiceClient solutionsServiceClient,
+            IContentServiceClient contentServiceClient) : base(authServiceClient)
         {
             _coursesServiceClient = coursesServiceClient;
             _notificationsServiceClient = notificationsServiceClient;
             _solutionsServiceClient = solutionsServiceClient;
+            _contentServiceClient = contentServiceClient;
         }
 
         [HttpGet("status")]
@@ -34,6 +38,7 @@ namespace HwProj.APIGateway.API.Controllers
             var coursesPing = _coursesServiceClient.Ping();
             var notificationsPing = _notificationsServiceClient.Ping();
             var solutionsPing = _solutionsServiceClient.Ping();
+            var filesPing = _contentServiceClient.Ping();
 
             await Task.WhenAll(authPing, coursesPing, notificationsPing, solutionsPing);
 
@@ -58,6 +63,11 @@ namespace HwProj.APIGateway.API.Controllers
                 {
                     Service = "Solutions Service",
                     IsAvailable = solutionsPing.Result
+                },
+                new SystemInfo
+                {
+                    Service = "Content Service",
+                    IsAvailable = filesPing.Result
                 },
             };
         }

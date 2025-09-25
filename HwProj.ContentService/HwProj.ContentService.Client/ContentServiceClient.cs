@@ -167,5 +167,18 @@ namespace HwProj.ContentService.Client
                 return Result.Failed("Не удалось перенести информацию о файлах — попробуйте повторить позже");
             }
         }
+
+        public async Task<bool> Ping()
+        {
+            try
+            {
+                await _httpClient.GetAsync(_contentServiceUri + "api/system/ping");
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

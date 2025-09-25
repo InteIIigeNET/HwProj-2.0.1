@@ -12,5 +12,6 @@ namespace HwProj.ContentService.Client
         Task<Result<FileInfoDTO[]>> GetFilesInfo(long courseId);
         Task<Result<FileInfoDTO[]>> GetUploadedFilesInfo(long courseId);
         Task<Result> TransferFilesFromCourse(CourseFilesTransferDto filesTransfer);
+        Task<bool> Ping();
     }
 }
