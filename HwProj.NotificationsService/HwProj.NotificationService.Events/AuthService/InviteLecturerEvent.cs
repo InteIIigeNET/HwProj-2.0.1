@@ -1,6 +1,6 @@
 ﻿using HwProj.EventBus.Client;
 
-namespace HwProj.AuthService.API.Events
+namespace HwProj.NotificationService.Events.AuthService
 {
     public class InviteLecturerEvent : Event
     {

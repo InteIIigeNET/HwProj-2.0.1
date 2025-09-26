@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
-using HwProj.AuthService.API.Events;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.Roles;
+using HwProj.NotificationService.Events.AuthService;
 using User = HwProj.AuthService.API.Models.User;
 
 namespace HwProj.AuthService.API

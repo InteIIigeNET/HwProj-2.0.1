@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using HwProj.AuthService.API.Models;
@@ -7,14 +6,10 @@ using HwProj.AuthService.API.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using HwProj.AuthService.API.Services;
+using HwProj.Common.Net8;
 using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Interfaces;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using HwProj.Utils.Configuration;
-using HwProj.Models.AuthService.ViewModels;
-using HwProj.Models.Roles;
-using HwProj.Utils.Auth;
+using Microsoft.Extensions.Hosting;
 using User = HwProj.AuthService.API.Models.User;
 
 namespace HwProj.AuthService.API
@@ -31,25 +26,6 @@ namespace HwProj.AuthService.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.ConfigureHwProjServices("AuthService API");
-
-            //var appSettingsSection = Configuration.GetSection("AppSettings");
-            //services.Configure<AppSettings>(appSettingsSection);
-
-            services.AddAuthentication(options => { options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; })
-                .AddJwtBearer(x =>
-                {
-                    x.RequireHttpsMetadata = false; //TODO: dev env setting
-                    x.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidIssuer = "AuthService",
-                        ValidateIssuer = true,
-                        ValidateAudience = false,
-                        ValidateLifetime = true,
-                        IssuerSigningKey = AuthorizationKey.SecurityKey,
-                        ValidateIssuerSigningKey = true
-                    };
-                });
-
             services.AddHttpClient();
 
             var connectionString = ConnectionString.GetConnectionString(Configuration);
@@ -79,22 +55,19 @@ namespace HwProj.AuthService.API
                 .AddScoped<IExpertsRepository, ExpertsRepository>();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IdentityContext context)
+        public void Configure(IApplicationBuilder app, IHostEnvironment env, IdentityContext context)
         {
             app.ConfigureHwProj(env, "AuthService API", context);
 
-            using (var scope = app.ApplicationServices.CreateScope())
+            using var scope = app.ApplicationServices.CreateScope();
+            var userManager = scope.ServiceProvider.GetService<UserManager<User>>();
+
+            var rolesManager = scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
+            var eventBus = scope.ServiceProvider.GetService<IEventBus>();
+
+            if (env.IsDevelopment())
             {
-                var userManager = scope.ServiceProvider.GetService(typeof(UserManager<User>)) as UserManager<User>;
-
-                var rolesManager =
-                    scope.ServiceProvider.GetService(typeof(RoleManager<IdentityRole>)) as RoleManager<IdentityRole>;
-                var eventBus = scope.ServiceProvider.GetService<IEventBus>();
-
-                if (env.IsDevelopment())
-                {
-                    RoleInitializer.InitializeAsync(userManager, rolesManager, eventBus).Wait();
-                }
+                RoleInitializer.InitializeAsync(userManager, rolesManager, eventBus).Wait();
             }
         }
     }

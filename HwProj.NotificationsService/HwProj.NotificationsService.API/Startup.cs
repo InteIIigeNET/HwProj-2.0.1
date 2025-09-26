@@ -1,5 +1,4 @@
-﻿using HwProj.AuthService.API.Events;
-using HwProj.AuthService.Client;
+﻿using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.NotificationsService.API.EventHandlers;
 using HwProj.NotificationsService.API.Models;
@@ -13,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using HwProj.CoursesService.API.Events;
 using HwProj.EventBus.Client;
+using HwProj.NotificationService.Events.AuthService;
 using HwProj.SolutionsService.API.Events;
 using UpdateTaskMaxRatingEvent = HwProj.CoursesService.API.Events.UpdateTaskMaxRatingEvent;
 

@@ -1,9 +1,9 @@
-﻿using HwProj.AuthService.Client;
+﻿using System.Text;
+using HwProj.AuthService.Client;
 using HwProj.ContentService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
-using HwProj.Utils.Auth;
 using HwProj.Utils.Configuration;
 using HwProj.APIGateway.API.Filters;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using IStudentsInfo;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using StudentsInfo;
 
 namespace HwProj.APIGateway.API
@@ -35,10 +36,15 @@ namespace HwProj.APIGateway.API
                     Configuration["StudentsInfo:Password"],
                     Configuration["StudentsInfo:LdapHost"], int.Parse(Configuration["StudentsInfo:LdapPort"]),
                     Configuration["StudentsInfo:SearchBase"]));
-            const string authenticationProviderKey = "GatewayKey";
 
-            services.AddAuthentication()
-                .AddJwtBearer(authenticationProviderKey, x =>
+            var appSettings = Configuration.GetSection("Security");
+
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>
                 {
                     x.RequireHttpsMetadata = false;
                     x.TokenValidationParameters = new TokenValidationParameters
@@ -47,7 +53,8 @@ namespace HwProj.APIGateway.API
                         ValidateIssuer = true,
                         ValidateAudience = false,
                         ValidateLifetime = true,
-                        IssuerSigningKey = AuthorizationKey.SecurityKey,
+                        IssuerSigningKey =
+                            new SymmetricSecurityKey(Encoding.ASCII.GetBytes(appSettings["SecurityKey"])),
                         ValidateIssuerSigningKey = true
                     };
                 });

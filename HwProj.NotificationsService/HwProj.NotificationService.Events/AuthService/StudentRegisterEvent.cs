@@ -1,4 +1,4 @@
-﻿namespace HwProj.AuthService.API.Events
+﻿namespace HwProj.NotificationService.Events.AuthService
 {
     public class StudentRegisterEvent : RegisterEvent
     {

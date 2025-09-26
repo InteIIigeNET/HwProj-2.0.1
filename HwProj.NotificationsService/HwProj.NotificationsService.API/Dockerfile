@@ -4,7 +4,7 @@ WORKDIR /src
 COPY ["Directory.Build.props", "Directory.Build.props"]
 
 COPY ["HwProj.NotificationsService/HwProj.NotificationsService.API/", "HwProj.NotificationsService/HwProj.NotificationsService.API/"]
-COPY ["HwProj.AuthService/HwProj.AuthService.API/", "HwProj.AuthService/HwProj.AuthService.API/"]
+COPY ["HwProj.NotificationsService/HwProj.NotificationService.Events/", "HwProj.NotificationsService/HwProj.NotificationService.Events/"]
 COPY ["HwProj.Common/HwProj.Utils/", "HwProj.Common/HwProj.Utils/"]
 COPY ["HwProj.EventBus/HwProj.EventBus.Client/", "HwProj.EventBus/HwProj.EventBus.Client/"]
 COPY ["HwProj.Common/HwProj.Models/", "HwProj.Common/HwProj.Models/"]
