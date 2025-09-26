@@ -43,6 +43,7 @@ services:
       - GoogleSheets:auth_provider_x509_cert_url=https://www.googleapis.com/oauth2/v1/certs
       - GoogleSheets:client_x509_cert_url=${GOOGLE_SHEETS_CLIENT_X509_CERT_URL}
       - GoogleSheets:private_key=${GOOGLE_SHEETS_PRIVATE_KEY}
+      - Security:SecurityKey=${AUTH_SERVICE_SECURITY_KEY}
     ports:
       - "127.0.0.1:5000:5000"
 
@@ -51,6 +52,7 @@ services:
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=AuthServiceDB;User=sa;Password=Your_password123;TrustServerCertificate=true;
       - ASPNETCORE_ENVIRONMENT=Production
       - EventBus:EventBusHostName=rabbitmq
+      - AppSettings:SecurityKey=${AUTH_SERVICE_SECURITY_KEY}
       - Github:ClientIdGithub=${GITHUB_CLIENT_ID}
       - Github:ClientSecretGithub=${GITHUB_CLIENT_SECRET}
       - Github:ScopeGitHub=read:user
