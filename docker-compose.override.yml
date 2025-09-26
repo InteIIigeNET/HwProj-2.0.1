@@ -48,7 +48,7 @@ services:
 
   hwproj.authservice.api:
     environment:
-      - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=AuthServiceDB;User=sa;Password=Your_password123;
+      - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=AuthServiceDB;User=sa;Password=Your_password123;TrustServerCertificate=true;
       - ASPNETCORE_ENVIRONMENT=Production
       - EventBus:EventBusHostName=rabbitmq
       - Github:ClientIdGithub=${GITHUB_CLIENT_ID}
@@ -98,4 +98,4 @@ services:
       - ExternalStorageConfiguration:ServiceURL=https://storage.yandexcloud.net
       - ExternalStorageConfiguration:DefaultBucketName=hwproj-content
       - LocalStorageConfiguration:Path=/app/data/
-      - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=ContentServiceDB;User=sa;Password=Your_password123;Trusted_Connection=True;
+      - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=ContentServiceDB;User=sa;Password=Your_password123;TrustServerCertificate=true;

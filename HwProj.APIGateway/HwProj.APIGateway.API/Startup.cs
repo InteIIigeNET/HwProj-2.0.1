@@ -37,7 +37,7 @@ namespace HwProj.APIGateway.API
                     Configuration["StudentsInfo:LdapHost"], int.Parse(Configuration["StudentsInfo:LdapPort"]),
                     Configuration["StudentsInfo:SearchBase"]));
 
-            var appSettings = Configuration.GetSection("AppSettings");
+            var appSettings = Configuration.GetSection("Security");
 
             services.AddAuthentication(options =>
                 {
