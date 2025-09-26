@@ -15,6 +15,8 @@ COPY ["HwProj.Common/HwProj.Exceptions/", "HwProj.Common/HwProj.Exceptions/"]
 COPY ["HwProj.Common/HwProj.HttpUtils/", "HwProj.Common/HwProj.HttpUtils/"]
 COPY ["HwProj.CoursesService/HwProj.CoursesService.Client/", "HwProj.CoursesService/HwProj.CoursesService.Client/"]
 COPY ["HwProj.AuthService/HwProj.AuthService.Client/", "HwProj.AuthService/HwProj.AuthService.Client/"]
+
+COPY ["HwProj.ContentService/HwProj.ContentService.Client/", "HwProj.ContentService/HwProj.ContentService.Client/"]
 COPY ["HwProj.CoursesService/HwProj.CoursesService.API/", "HwProj.CoursesService/HwProj.CoursesService.API/"]
 
 WORKDIR "/src/HwProj.NotificationsService/HwProj.NotificationsService.API"
