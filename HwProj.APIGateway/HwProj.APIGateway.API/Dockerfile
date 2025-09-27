@@ -16,7 +16,6 @@ COPY ["HwProj.SolutionsService/HwProj.SolutionsService.Client/", "HwProj.Solutio
 COPY ["HwProj.Common/HwProj.Exceptions/", "HwProj.Common/HwProj.Exceptions/"]
 COPY ["HwProj.ContentService/HwProj.ContentService.Client/", "HwProj.ContentService/HwProj.ContentService.Client/"]
 COPY ["HwProj.StudentInfo/IStudentsInfo/", "HwProj.StudentInfo/IStudentsInfo/"]
-COPY ["HwProj.StudentInfo/StudentsInfo.Tests/", "HwProj.StudentInfo/StudentsInfo.Tests/"]
 COPY ["HwProj.StudentInfo/StudentsInfo/", "HwProj.StudentInfo/StudentsInfo/"]
 
 WORKDIR "/src/HwProj.APIGateway/HwProj.APIGateway.API"
