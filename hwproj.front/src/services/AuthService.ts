@@ -81,7 +81,7 @@ export default class AuthService {
 
     getProfile = () => {
         let result = decode<TokenPayload>(this.getToken() as string);
-        if (result.exp < 1761526043) {
+        if (result.exp < 1761527002) {
             this.logout()
             alert("Мы обновили кое-что важное, и чтобы все правильно работало, просим вас заново войти в аккаунт! Приносим извинения за неудобства.")
             window.location.reload()
