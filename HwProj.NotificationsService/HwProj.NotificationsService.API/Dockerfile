@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY ["Directory.Build.props", "Directory.Build.props"]
@@ -22,7 +22,7 @@ COPY ["HwProj.CoursesService/HwProj.CoursesService.API/", "HwProj.CoursesService
 WORKDIR "/src/HwProj.NotificationsService/HwProj.NotificationsService.API"
 RUN dotnet publish "HwProj.NotificationsService.API.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-stretch-slim AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
 COPY --from=build /app/publish .
