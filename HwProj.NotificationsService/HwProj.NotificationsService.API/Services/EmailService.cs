@@ -5,6 +5,7 @@ using HwProj.Models.NotificationsService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MimeKit;
+using Notification = HwProj.NotificationsService.API.Models.Notification;
 
 namespace HwProj.NotificationsService.API.Services
 {

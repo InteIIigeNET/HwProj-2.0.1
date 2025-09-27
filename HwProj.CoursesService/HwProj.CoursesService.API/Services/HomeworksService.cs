@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Domains;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.NotificationService.Events.CoursesService;
 
 namespace HwProj.CoursesService.API.Services
 {

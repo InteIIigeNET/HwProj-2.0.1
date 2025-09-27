@@ -1,5 +1,6 @@
 ﻿using HwProj.Models.NotificationsService;
 using System.Threading.Tasks;
+using Notification = HwProj.NotificationsService.API.Models.Notification;
 
 namespace HwProj.NotificationsService.API.Services
 {

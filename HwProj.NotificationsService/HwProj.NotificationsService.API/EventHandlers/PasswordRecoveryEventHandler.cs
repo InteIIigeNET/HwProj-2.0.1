@@ -2,13 +2,13 @@
 using System.Threading.Tasks;
 using System.Web;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models;
-using HwProj.Models.NotificationsService;
 using HwProj.NotificationService.Events.AuthService;
+using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Notification = HwProj.NotificationsService.API.Models.Notification;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
