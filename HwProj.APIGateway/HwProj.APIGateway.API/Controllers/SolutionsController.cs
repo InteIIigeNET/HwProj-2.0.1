@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.ExceptionFilters;
-using HwProj.APIGateway.API.Extensions;
 using HwProj.APIGateway.API.Models.Solutions;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;

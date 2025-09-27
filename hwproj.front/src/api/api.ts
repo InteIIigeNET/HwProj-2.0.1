@@ -2226,12 +2226,6 @@ export interface StudentCharacteristicsDto {
 export interface StudentDataDto {
     /**
      *
-     * @type {StudentCharacteristicsDto}
-     * @memberof StudentDataDto
-     */
-    characteristics?: StudentCharacteristicsDto;
-    /**
-     *
      * @type {string}
      * @memberof StudentDataDto
      */
@@ -2290,6 +2284,12 @@ export interface StudentDataDto {
      * @memberof StudentDataDto
      */
     companyName?: string;
+    /**
+     *
+     * @type {StudentCharacteristicsDto}
+     * @memberof StudentDataDto
+     */
+    characteristics?: StudentCharacteristicsDto;
 }
 /**
  *
@@ -2821,7 +2821,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -2886,7 +2886,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -2987,7 +2987,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -3022,7 +3022,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -3087,7 +3087,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -3122,7 +3122,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -3157,7 +3157,7 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -3727,7 +3727,7 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -4007,7 +4007,7 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -4527,7 +4527,7 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -4610,7 +4610,7 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -5040,7 +5040,7 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -5087,7 +5087,7 @@ export const CoursesApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -5954,7 +5954,7 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -5989,7 +5989,7 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -6024,7 +6024,7 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -6089,7 +6089,7 @@ export const ExpertsApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -6525,7 +6525,7 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -6902,7 +6902,7 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -7051,7 +7051,7 @@ export const HomeworksApiFetchParamCreator = function (configuration?: Configura
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -7317,7 +7317,7 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -7442,7 +7442,7 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -8037,7 +8037,7 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -8078,7 +8078,7 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -8119,7 +8119,7 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -9020,7 +9020,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -9055,7 +9055,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -9096,7 +9096,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -9311,7 +9311,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943

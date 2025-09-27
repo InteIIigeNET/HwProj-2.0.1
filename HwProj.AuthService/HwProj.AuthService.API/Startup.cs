@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using HwProj.AuthService.API.Models;
@@ -25,7 +26,13 @@ namespace HwProj.AuthService.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.ConfigureHwProjServices("AuthService API");
+            services
+                .AddCors()
+                .AddControllers()
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+            services.AddAutoMapper(x => x.AddProfile<ApplicationProfile>());
             services.AddHttpClient();
 
             var connectionString = ConnectionString.GetConnectionString(Configuration);
@@ -57,7 +64,20 @@ namespace HwProj.AuthService.API
 
         public void Configure(IApplicationBuilder app, IHostEnvironment env, IdentityContext context)
         {
-            app.ConfigureHwProj(env, "AuthService API", context);
+            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+            else app.UseHsts();
+
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(_ => true)
+                .AllowCredentials());
+
+            app.UseEndpoints(x => x.MapControllers());
+
+            app.UseDatabase(env, context);
 
             using var scope = app.ApplicationServices.CreateScope();
             var userManager = scope.ServiceProvider.GetService<UserManager<User>>();
