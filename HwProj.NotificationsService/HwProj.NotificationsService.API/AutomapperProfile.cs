@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using HwProj.Models.NotificationsService;
-using Notification = HwProj.NotificationsService.API.Models.Notification;
+using HwProj.NotificationsService.API.Models;
 
 namespace HwProj.NotificationsService.API
 {

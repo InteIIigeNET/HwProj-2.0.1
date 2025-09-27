@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using HwProj.Models.NotificationsService;
 using HwProj.Repositories.Net8;
 
 namespace HwProj.NotificationsService.API.Models

@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using HwProj.Models.NotificationsService;
-using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
