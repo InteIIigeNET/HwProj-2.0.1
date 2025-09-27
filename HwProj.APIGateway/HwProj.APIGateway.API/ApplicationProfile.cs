@@ -2,14 +2,13 @@
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.CoursesService.DTO;
 
-namespace HwProj.APIGateway.API
+namespace HwProj.APIGateway.API;
+
+public class ApplicationProfile : Profile
 {
-    public class ApplicationProfile : Profile
+    public ApplicationProfile()
     {
-        public ApplicationProfile()
-        {
-            CreateMap<InviteExpertViewModel, CreateCourseFilterDTO>();
-            CreateMap<EditMentorWorkspaceDTO, CreateCourseFilterDTO>();
-        }
+        CreateMap<InviteExpertViewModel, CreateCourseFilterDTO>();
+        CreateMap<EditMentorWorkspaceDTO, CreateCourseFilterDTO>();
     }
 }
