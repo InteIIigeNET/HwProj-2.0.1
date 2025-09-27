@@ -18,24 +18,9 @@ public static class StartupExtensions
             .AddJsonOptions(options =>
                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-        services.ConfigureHwProjServiceSwaggerGen(serviceName);
         services.AddHttpContextAccessor();
 
         return services;
-    }
-
-    private static void ConfigureHwProjServiceSwaggerGen(this IServiceCollection services, string serviceName)
-    {
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = serviceName, Version = "v1" });
-            c.CustomOperationIds(apiDesc =>
-            {
-                var controllerName = apiDesc.ActionDescriptor.RouteValues["controller"];
-                var actionName = apiDesc.ActionDescriptor.RouteValues["action"];
-                return $"{controllerName}{actionName}";
-            });
-        });
     }
 
     public static IApplicationBuilder ConfigureHwProj(this IApplicationBuilder app, IHostEnvironment env,

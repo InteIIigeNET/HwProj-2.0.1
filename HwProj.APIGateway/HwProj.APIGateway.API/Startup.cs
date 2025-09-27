@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 using HwProj.AuthService.Client;
 using HwProj.ContentService.Client;
 using HwProj.CoursesService.Client;
@@ -14,6 +15,7 @@ using IStudentsInfo;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using StudentsInfo;
 
 namespace HwProj.APIGateway.API
@@ -32,6 +34,7 @@ namespace HwProj.APIGateway.API
             services.ConfigureHwProjServices("API Gateway");
             services.AddAutoMapper(x => x.AddProfile<ApplicationProfile>());
             services.Configure<FormOptions>(options => { options.MultipartBodyLengthLimit = 200 * 1024 * 1024; });
+            ConfigureHwProjServiceSwaggerGen(services);
 
             services.AddSingleton<IStudentsInformationProvider>(provider =>
                 new StudentsInformationProvider(Configuration["StudentsInfo:Login"],
@@ -76,6 +79,43 @@ namespace HwProj.APIGateway.API
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
         {
             app.ConfigureHwProj(env, "API Gateway");
+        }
+
+        private static void ConfigureHwProjServiceSwaggerGen(IServiceCollection services)
+        {
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Gateway", Version = "v1" });
+                c.CustomOperationIds(apiDesc =>
+                {
+                    var controllerName = apiDesc.ActionDescriptor.RouteValues["controller"];
+                    var actionName = apiDesc.ActionDescriptor.RouteValues["action"];
+                    return $"{controllerName}{actionName}";
+                });
+                c.AddSecurityDefinition("Bearer",
+                    new OpenApiSecurityScheme
+                    {
+                        In = ParameterLocation.Header,
+                        Description = "Please enter into field the word 'Bearer' following by space and JWT",
+                        Name = "Authorization",
+                        Type = SecuritySchemeType.ApiKey
+                    });
+                c.AddSecurityRequirement(
+                    new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Id = "Bearer",
+                                    Type = ReferenceType.SecurityScheme
+                                }
+                            },
+                            new List<string>()
+                        }
+                    });
+            });
         }
     }
 }
