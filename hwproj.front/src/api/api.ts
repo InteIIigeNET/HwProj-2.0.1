@@ -1579,6 +1579,31 @@ export interface NotificationsSettingDto {
 /**
  *
  * @export
+ * @interface PostSolutionModel
+ */
+export interface PostSolutionModel {
+    /**
+     *
+     * @type {string}
+     * @memberof PostSolutionModel
+     */
+    githubUrl?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof PostSolutionModel
+     */
+    comment?: string;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof PostSolutionModel
+     */
+    groupMateIds?: Array<string>;
+}
+/**
+ *
+ * @export
  * @interface ProgramModel
  */
 export interface ProgramModel {
@@ -8054,11 +8079,11 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         /**
          *
          * @param {number} taskId
-         * @param {SolutionViewModel} [body]
+         * @param {PostSolutionModel} [body]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        solutionsPostSolution(taskId: number, body?: SolutionViewModel, options: any = {}): FetchArgs {
+        solutionsPostSolution(taskId: number, body?: PostSolutionModel, options: any = {}): FetchArgs {
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
                 throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling solutionsPostSolution.');
@@ -8084,7 +8109,7 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"SolutionViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            const needsSerialization = (<any>"PostSolutionModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
 
             return {
@@ -8329,11 +8354,11 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
         /**
          *
          * @param {number} taskId
-         * @param {SolutionViewModel} [body]
+         * @param {PostSolutionModel} [body]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        solutionsPostSolution(taskId: number, body?: SolutionViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
+        solutionsPostSolution(taskId: number, body?: PostSolutionModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<number> {
             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).solutionsPostSolution(taskId, body, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -8470,11 +8495,11 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
         /**
          *
          * @param {number} taskId
-         * @param {SolutionViewModel} [body]
+         * @param {PostSolutionModel} [body]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        solutionsPostSolution(taskId: number, body?: SolutionViewModel, options?: any) {
+        solutionsPostSolution(taskId: number, body?: PostSolutionModel, options?: any) {
             return SolutionsApiFp(configuration).solutionsPostSolution(taskId, body, options)(fetch, basePath);
         },
         /**
@@ -8614,12 +8639,12 @@ export class SolutionsApi extends BaseAPI {
     /**
      *
      * @param {number} taskId
-     * @param {SolutionViewModel} [body]
+     * @param {PostSolutionModel} [body]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SolutionsApi
      */
-    public solutionsPostSolution(taskId: number, body?: SolutionViewModel, options?: any) {
+    public solutionsPostSolution(taskId: number, body?: PostSolutionModel, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsPostSolution(taskId, body, options)(this.fetch, this.basePath);
     }
 

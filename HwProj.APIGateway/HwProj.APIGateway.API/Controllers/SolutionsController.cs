@@ -16,6 +16,7 @@ using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PostSolutionModel = HwProj.APIGateway.API.Models.Solutions.PostSolutionModel;
 
 namespace HwProj.APIGateway.API.Controllers;
 
@@ -279,10 +280,12 @@ public class SolutionsController : AggregationController
     [HttpPost("{taskId}")]
     [Authorize(Roles = Roles.StudentRole)]
     [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> PostSolution(SolutionViewModel model, long taskId)
+    public async Task<IActionResult> PostSolution(PostSolutionModel model, long taskId)
     {
-        var solutionModel = new PostSolutionModel(model)
+        var solutionModel = new HwProj.Models.SolutionsService.PostSolutionModel
         {
+            GithubUrl = model.GithubUrl,
+            Comment = model.Comment,
             StudentId = UserId
         };
 

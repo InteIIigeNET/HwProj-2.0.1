@@ -1,6 +1,12 @@
 import * as React from 'react';
 import ApiSingleton from "../../api/ApiSingleton";
-import {AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, SolutionState, SolutionViewModel} from "@/api";
+import {
+    AccountDataDto,
+    GetSolutionModel,
+    HomeworkTaskViewModel,
+    PostSolutionModel,
+    SolutionState
+} from "@/api";
 import {FC, useState} from "react";
 import {Alert, Autocomplete, Grid, DialogContent, Dialog, DialogTitle, DialogActions, Button} from "@mui/material";
 import {MarkdownEditor} from "../Common/MarkdownEditor";
@@ -23,7 +29,7 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     const isEdit = lastSolution?.state === SolutionState.NUMBER_0
     const lastGroup = lastSolution?.groupMates?.map(x => x.userId!) || []
 
-    const [solution, setSolution] = useState<SolutionViewModel>({
+    const [solution, setSolution] = useState<PostSolutionModel>({
         githubUrl: lastSolution?.githubUrl || "",
         comment: isEdit ? lastSolution!.comment : "",
         groupMateIds: lastGroup
