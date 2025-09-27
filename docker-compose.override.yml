@@ -70,6 +70,7 @@ services:
     environment:
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=CourseWorksServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5002
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
       - Services:Content=http://hwproj.contentservice.api
@@ -79,7 +80,8 @@ services:
   hwproj.notificationsservice.api:
     environment:
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=NotificationsServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5006
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
       - Services:Courses=http://hwproj.coursesservice.api
@@ -95,6 +97,7 @@ services:
     environment:
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=SolutionServiceDB;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5007
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
       - Services:Courses=http://hwproj.coursesservice.api
