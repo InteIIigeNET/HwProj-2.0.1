@@ -7,6 +7,7 @@ COPY ["HwProj.AuthService/HwProj.AuthService.API/", "HwProj.AuthService/HwProj.A
 COPY ["HwProj.Common/HwProj.Common.Net8/", "HwProj.Common/HwProj.Common.Net8/"]
 COPY ["HwProj.Common/HwProj.Models/", "HwProj.Common/HwProj.Models/"]
 COPY ["HwProj.Common/HwProj.Repositories/", "HwProj.Common/HwProj.Repositories/"]
+COPY ["HwProj.Common/HwProj.Repositories.Net8/", "HwProj.Common/HwProj.Repositories.Net8/"]
 COPY ["HwProj.EventBus/HwProj.EventBus.Client/", "HwProj.EventBus/HwProj.EventBus.Client/"]
 COPY ["HwProj.NotificationsService/HwProj.NotificationService.Events/", "HwProj.NotificationsService/HwProj.NotificationService.Events/"]
 

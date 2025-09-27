@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using HwProj.AuthService.API.Models;
-using HwProj.Repositories;
+using HwProj.Repositories.Net8;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.AuthService.API.Repositories
