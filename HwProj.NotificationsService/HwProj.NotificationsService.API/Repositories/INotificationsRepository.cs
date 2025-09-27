@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using HwProj.Models.NotificationsService;
-using HwProj.Repositories;
+using HwProj.NotificationsService.API.Models;
+using HwProj.Repositories.Net8;
 
 namespace HwProj.NotificationsService.API.Repositories
 {

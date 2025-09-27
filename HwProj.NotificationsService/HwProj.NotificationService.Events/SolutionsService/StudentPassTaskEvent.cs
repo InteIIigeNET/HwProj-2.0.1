@@ -3,7 +3,7 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 
-namespace HwProj.SolutionsService.API.Events
+namespace HwProj.NotificationService.Events.SolutionsService
 {
     public class StudentPassTaskEvent : Event
     {

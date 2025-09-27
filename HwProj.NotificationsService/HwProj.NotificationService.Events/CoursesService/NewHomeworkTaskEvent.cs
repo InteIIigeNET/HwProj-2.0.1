@@ -1,7 +1,7 @@
 using System;
 using HwProj.EventBus.Client;
 
-namespace HwProj.CoursesService.API.Events
+namespace HwProj.NotificationService.Events.CoursesService
 {
     public class NewHomeworkTaskEvent : Event
     {

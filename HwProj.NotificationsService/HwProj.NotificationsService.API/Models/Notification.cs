@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using HwProj.Repositories;
+using HwProj.Repositories.Net8;
 
-namespace HwProj.Models.NotificationsService
+namespace HwProj.NotificationsService.API.Models
 {
     public class Notification : IEntity<long>
     {
