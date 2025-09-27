@@ -4,15 +4,15 @@ using HwProj.ContentService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
-using HwProj.Utils.Configuration;
 using HwProj.APIGateway.API.Filters;
+using HwProj.Common.Net8;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using IStudentsInfo;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using StudentsInfo;
 
@@ -29,8 +29,10 @@ namespace HwProj.APIGateway.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<FormOptions>(options => { options.MultipartBodyLengthLimit = 200 * 1024 * 1024; });
             services.ConfigureHwProjServices("API Gateway");
+            services.AddAutoMapper(x => x.AddProfile<ApplicationProfile>());
+            services.Configure<FormOptions>(options => { options.MultipartBodyLengthLimit = 200 * 1024 * 1024; });
+
             services.AddSingleton<IStudentsInformationProvider>(provider =>
                 new StudentsInformationProvider(Configuration["StudentsInfo:Login"],
                     Configuration["StudentsInfo:Password"],
@@ -71,7 +73,7 @@ namespace HwProj.APIGateway.API
             services.AddScoped<CourseMentorOnlyAttribute>();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostEnvironment env)
         {
             app.ConfigureHwProj(env, "API Gateway");
         }

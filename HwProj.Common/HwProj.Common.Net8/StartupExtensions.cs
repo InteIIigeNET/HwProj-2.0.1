@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +12,7 @@ public static class StartupExtensions
 {
     public static IServiceCollection ConfigureHwProjServices(this IServiceCollection services, string serviceName)
     {
-        services.AddAutoMapper(x => x.AddMaps(Assembly.GetCallingAssembly()))
+        services
             .AddCors()
             .AddControllers()
             .AddJsonOptions(options =>

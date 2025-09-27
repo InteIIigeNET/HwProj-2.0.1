@@ -26,6 +26,7 @@ namespace HwProj.AuthService.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.ConfigureHwProjServices("AuthService API");
+            services.AddAutoMapper(x => x.AddProfile<ApplicationProfile>());
             services.AddHttpClient();
 
             var connectionString = ConnectionString.GetConnectionString(Configuration);
