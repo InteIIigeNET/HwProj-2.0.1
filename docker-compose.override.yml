@@ -56,32 +56,28 @@ services:
     environment:
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=AuthServiceDB;User=sa;Password=Your_password123;TrustServerCertificate=true;
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:5001
+      - ASPNETCORE_HTTP_PORTS=80
       - EventBus:EventBusHostName=rabbitmq
       - AppSettings:SecurityKey=${AUTH_SERVICE_SECURITY_KEY}
       - Github:ClientIdGithub=${GITHUB_CLIENT_ID}
       - Github:ClientSecretGithub=${GITHUB_CLIENT_SECRET}
       - Github:ScopeGitHub=read:user
       - Gtihub:OrganizationNameGithub=${GITHUB_ORGANIZATION_NAME}
-    expose:
-      - "5001"
 
   hwproj.coursesservice.api:
     environment:
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=CourseWorksServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:5002
+      - ASPNETCORE_HTTP_PORTS=80
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
       - Services:Content=http://hwproj.contentservice.api
-    expose:
-      - "5002"
 
   hwproj.notificationsservice.api:
     environment:
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=NotificationsServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:5006
+      - ASPNETCORE_HTTP_PORTS=80
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
       - Services:Courses=http://hwproj.coursesservice.api
@@ -90,25 +86,21 @@ services:
       - Notification:ConnectSite=${NOTIFICATION_CONNECT_SITE}
       - Notification:Password=${NOTIFICATION_PASSWORD}
       - Notification:Url=https://hwproj.ru
-    expose:
-      - "5006"
 
   hwproj.solutionsservice.api:
     environment:
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=SolutionServiceDB;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:5007
+      - ASPNETCORE_HTTP_PORTS=80
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
       - Services:Courses=http://hwproj.coursesservice.api
       - Github:Token=${GITHUB_TOKEN}
-    expose:
-      - "5007"
 
   hwproj.contentservice.api:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:5008
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_HTTP_PORTS=80
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
       - ExternalStorageConfiguration:AccessKeyId=${STORAGE_CLIENT_ACCESS_KEY_ID}
@@ -118,5 +110,3 @@ services:
       - ExternalStorageConfiguration:DefaultBucketName=hwproj-content
       - LocalStorageConfiguration:Path=/app/data/
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=ContentServiceDB;User=sa;Password=Your_password123;TrustServerCertificate=true;
-    ports:
-      - "5008"
