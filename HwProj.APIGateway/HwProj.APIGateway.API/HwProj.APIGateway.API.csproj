@@ -1,20 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
     <LangVersion>$(CSharpLanguageVersion)</LangVersion>
     <Nullable>$(NullableReferenceTypes)</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.All" />
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.3" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\HwProj.AuthService\HwProj.AuthService.Client\HwProj.AuthService.Client.csproj" />
@@ -26,5 +19,9 @@
     <ProjectReference Include="..\..\HwProj.StudentInfo\IStudentsInfo\IStudentsInfo.csproj" />
     <ProjectReference Include="..\..\HwProj.StudentInfo\StudentsInfo.Tests\StudentsInfo.Tests.csproj" />
     <ProjectReference Include="..\..\HwProj.StudentInfo\StudentsInfo\StudentsInfo.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.20" />
   </ItemGroup>
 </Project>
