@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 using HwProj.AuthService.Client;
 using HwProj.ContentService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
 using HwProj.APIGateway.API.Filters;
-using HwProj.Common.Net8;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
@@ -31,7 +31,13 @@ namespace HwProj.APIGateway.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.ConfigureHwProjServices("API Gateway");
+            services
+                .AddCors()
+                .AddControllers()
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+            services.AddHttpContextAccessor();
             services.AddAutoMapper(x => x.AddProfile<ApplicationProfile>());
             services.Configure<FormOptions>(options => { options.MultipartBodyLengthLimit = 200 * 1024 * 1024; });
             ConfigureHwProjServiceSwaggerGen(services);
@@ -78,7 +84,27 @@ namespace HwProj.APIGateway.API
 
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
         {
-            app.ConfigureHwProj(env, "API Gateway");
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage()
+                    .UseSwagger()
+                    .UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Gateway"); });
+            }
+            else
+            {
+                app.UseHsts();
+            }
+
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(_ => true)
+                .AllowCredentials());
+
+            app.UseEndpoints(x => x.MapControllers());
         }
 
         private static void ConfigureHwProjServiceSwaggerGen(IServiceCollection services)
