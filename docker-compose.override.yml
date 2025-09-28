@@ -74,7 +74,7 @@ services:
 
   hwproj.notificationsservice.api:
     environment:
-      - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=NotificationsServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
+      - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=NotificationsServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;TrustServerCertificate=true;
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_HTTP_PORTS=80
       - EventBus:EventBusHostName=rabbitmq
