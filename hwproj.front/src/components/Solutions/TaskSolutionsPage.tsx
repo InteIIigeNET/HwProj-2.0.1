@@ -12,8 +12,8 @@ import {
     SolutionState
 } from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
-import {FC, useEffect, useState} from "react";
-import {Grid, Tab, Tabs} from "@material-ui/core";
+import { FC, useEffect, useState } from "react";
+import { Grid, Tab, Tabs } from "@material-ui/core";
 import {
     Checkbox,
     Chip,
@@ -21,14 +21,14 @@ import {
     Stack,
     Tooltip
 } from "@mui/material";
-import {useParams, Link, useNavigate} from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Step from "@mui/material/Step";
 import StepButton from "@mui/material/StepButton";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import {getTip} from "../Common/HomeworkTags";
+import { getTip } from "../Common/HomeworkTags";
 import Lodash from "lodash";
-import {appBarStateManager} from "../AppBar";
-import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import { appBarStateManager } from "../AppBar";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 interface ITaskSolutionsState {
     isLoaded: boolean
@@ -52,7 +52,7 @@ const FilterProps = {
 }
 
 const TaskSolutionsPage: FC = () => {
-    const {taskId} = useParams()
+    const { taskId } = useParams()
     const navigate = useNavigate()
 
     const userId = ApiSingleton.authService.getUserId()
@@ -100,11 +100,11 @@ const TaskSolutionsPage: FC = () => {
         })
     }
 
-    const {homeworkGroupedSolutions, courseId, courseMates} = taskSolutionPage
+    const { homeworkGroupedSolutions, courseId, courseMates } = taskSolutionPage
     const student = courseMates.find(x => x.userId === userId)!
 
     useEffect(() => {
-        appBarStateManager.setContextAction({actionName: "К курсу", link: `/courses/${courseId}`})
+        appBarStateManager.setContextAction({ actionName: "К курсу", link: `/courses/${courseId}` })
         return () => appBarStateManager.reset()
     }, [courseId])
 
@@ -113,11 +113,11 @@ const TaskSolutionsPage: FC = () => {
         .map(x => ({
             ...x,
             homeworkSolutions: x.homeworkSolutions!.map(t =>
-                ({
-                    homeworkTitle: t.homeworkTitle,
-                    previews: t.studentSolutions!.map(y =>
-                        ({...y, ...StudentStatsUtils.calculateLastRatedSolutionInfo(y.solutions!, y.maxRating!)}))
-                }))
+            ({
+                homeworkTitle: t.homeworkTitle,
+                previews: t.studentSolutions!.map(y =>
+                    ({ ...y, ...StudentStatsUtils.calculateLastRatedSolutionInfo(y.solutions!, y.maxRating!) }))
+            }))
         }))
 
     const taskSolutionsPreview = taskSolutionsWithPreview.flatMap(x => {
@@ -171,19 +171,19 @@ const TaskSolutionsPage: FC = () => {
 
     const renderRatingChip = (solutionsDescription: string, color: string, lastRatedSolution: Solution) => {
         return <Tooltip arrow disableInteractive enterDelay={1000} title={<span
-            style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
-            <Chip style={{backgroundColor: color}}
-                  size={"small"}
-                  label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating}/>
+            style={{ whiteSpace: 'pre-line' }}>{solutionsDescription}</span>}>
+            <Chip style={{ backgroundColor: color }}
+                size={"small"}
+                label={lastRatedSolution == undefined ? "?" : lastRatedSolution.rating} />
         </Tooltip>
     }
 
-    return taskSolutionPage.isLoaded ? <div className={"container"} style={{marginBottom: '50px'}}>
-        <Grid container justify="center" style={{marginTop: '20px'}}>
+    return taskSolutionPage.isLoaded ? <div className={"container"} style={{ marginBottom: '50px' }}>
+        <Grid container justify="center" style={{ marginTop: '20px' }}>
             <Grid container spacing={2} xs={12}>
                 <Grid item xs={12}>
                     <Stack direction={"row"} spacing={1}
-                           style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
+                        style={{ overflowY: "hidden", overflowX: "auto", minHeight: 80 }}>
                         {taskSolutionsPreviewFiltered.map((t, index) => {
                             const isCurrent = versionsOfCurrentTask.includes(t.taskId!.toString())
                             const {
@@ -192,13 +192,13 @@ const TaskSolutionsPage: FC = () => {
                                 solutionsDescription
                             } = t
                             return <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                                {index > 0 && <hr style={{width: 100}}/>}
+                                {index > 0 && <hr style={{ width: 100 }} />}
                                 <Step active={isCurrent}>
                                     <Link to={`/task/${t.taskId}`}
-                                          style={{color: "black", textDecoration: "none"}}>
+                                        style={{ color: "black", textDecoration: "none" }}>
                                         <StepButton
                                             ref={ref => {
-                                                if (isCurrent) ref?.scrollIntoView({inline: "nearest"})
+                                                if (isCurrent) ref?.scrollIntoView({ inline: "nearest" })
                                             }}
                                             color={color}
                                             icon={renderRatingChip(solutionsDescription, color, lastRatedSolution)}>
@@ -216,7 +216,7 @@ const TaskSolutionsPage: FC = () => {
                             <Stack direction={"row"} alignItems={"center"}>
                                 <Checkbox
                                     onChange={handleFilterChange}
-                                    checked={filterState.includes("Только нерешенные")}/>
+                                    checked={filterState.includes("Только нерешенные")} />
                                 <Typography>Только нерешенные</Typography>
                             </Stack>
                         </Grid>
@@ -253,11 +253,11 @@ const TaskSolutionsPage: FC = () => {
                                             solutionsDescription
                                         } = h.previews[taskIndexInHomework]!
                                         return <Tab
-                                            style={{textTransform: "none"}}
+                                            style={{ textTransform: "none" }}
                                             label={<Stack direction={"row"} spacing={1} alignItems={"center"}>
                                                 {renderRatingChip(color, solutionsDescription, lastRatedSolution)}
                                                 <div>{h.homeworkTitle}</div>
-                                            </Stack>}/>;
+                                            </Stack>} />;
                                     })}
                                 </Tabs>
                             }
@@ -281,7 +281,7 @@ const TaskSolutionsPage: FC = () => {
                                     forMentor={false}
                                     student={student}
                                     courseStudents={[student]}
-                                    solutions={currentTaskSolutions}/>
+                                    solutions={currentTaskSolutions} />
                             </Grid>
                         )}
                     </Grid>
@@ -294,7 +294,8 @@ const TaskSolutionsPage: FC = () => {
                 onCancel={onCancelAddSolution}
                 lastSolution={lastSolution}
                 students={courseMates}
-                supportsGroup={task.isGroupWork!}/>}
+                supportsGroup={task.isGroupWork!}
+                filesInfo={[]} />}
         </Grid>
     </div> : (
         <div className="container">

@@ -38,7 +38,7 @@ import {enqueueSnackbar} from "notistack";
 import DeletionConfirmation from "../DeletionConfirmation";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ActionOptionsUI from "components/Common/ActionOptions";
-import {BonusTag, DefaultTags, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
+import {BonusTag, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
 import Lodash from "lodash";
 import {CourseUnitType} from "../Files/CourseUnitType"
 import ProcessFilesUtils from "../Utils/ProcessFilesUtils";
@@ -455,7 +455,7 @@ const CourseHomeworkExperimental: FC<{
     onStartProcessing: (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
 }> = (props) => {
     const {homework, filesInfo} = props.homeworkAndFilesInfo
-    const deferredTasks = homework.tasks!.filter(t => t.isDeferred!)
+    const deferredHomeworks = homework.tasks!.filter(t => t.isDeferred!)
     const tasksCount = homework.tasks!.length
     const [showEditMode, setShowEditMode] = useState(false)
     const [editMode, setEditMode] = useState(false)
@@ -486,11 +486,12 @@ const CourseHomeworkExperimental: FC<{
                         {homework.title}
                     </Typography>
                 </Grid>
+                {props.isMentor && deferredHomeworks!.length > 0 &&
+                    <Grid item><Chip label={"🕘 " + deferredHomeworks!.length}/></Grid>
+                }
                 {tasksCount > 0 && <Grid item>
                     <Chip
-                        label={tasksCount + " "
-                            + Utils.pluralizeHelper(["Задача", "Задачи", "Задач"], tasksCount)
-                            + (deferredTasks!.length > 0 ? ` (🕘 ${deferredTasks.length} ` + Utils.pluralizeHelper(["отложенная", "отложенные", "отложенных"], deferredTasks.length) + ")" : "")}/>
+                        label={tasksCount + " " + Utils.pluralizeHelper(["Задача", "Задачи", "Задач"], tasksCount)}/>
                 </Grid>}
                 {homework.tags?.filter(t => DefaultTags.includes(t)).map((tag, index) => (
                     <Grid item key={index}>
