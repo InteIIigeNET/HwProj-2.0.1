@@ -43,7 +43,7 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     const isEdit = lastSolution?.state === SolutionState.NUMBER_0
     const lastGroup = lastSolution?.groupMates?.map(x => x.userId!) || []
 
-    const [solution, setSolution] = useState<PostSolutionModel>({
+    const [solution, setSolution] = useState<SolutionViewModel>({
         githubUrl: lastSolution?.githubUrl || "",
         comment: isEdit ? lastSolution!.comment : "",
         groupMateIds: lastGroup
@@ -71,6 +71,13 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     const isTest = props.task.tags?.includes(TestTag)
     const showTestGithubInfo = isTest && githubUrl?.startsWith("https://github") && githubUrl.includes("/pull/")
     const courseMates = props.students.filter(s => props.userId !== s.userId)
+
+    const initialFilesInfo = props.filesInfo.filter(x => x.id !== undefined)
+    const [filesState, setFilesState] = useState<IEditFilesState>({
+        initialFilesInfo: initialFilesInfo,
+        selectedFilesInfo: props.filesInfo,
+        isLoadingInfo: false
+    });
 
     return (
         <Dialog fullWidth
