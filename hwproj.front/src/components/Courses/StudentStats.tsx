@@ -9,6 +9,7 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import {BonusTag, DefaultTags, TestTag} from "../Common/HomeworkTags";
 import Lodash from "lodash"
+import ApiSingleton from "@/api/ApiSingleton";
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -35,6 +36,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     }
 
     const {searched} = state
+    const isMentor = ApiSingleton.authService.isMentor()
 
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
@@ -97,6 +99,25 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     const hasHomeworks = homeworksMaxSum > 0
     const hasTests = testsMaxSum > 0
+
+    const bestTaskSolutions = new Map<number, string>()
+    if (solutions) {
+        Lodash(homeworks)
+            .flatMap(h => h.tasks!)
+            .map(t => solutions
+                .map(s => s.homeworks!
+                    .flatMap(h1 => h1.tasks!)
+                    .find(t1 => t1.id === t.id)?.solution || [])
+                .map(s => StudentStatsUtils.calculateLastRatedSolution(s))
+                .filter(x => x != undefined && x.rating! > 0))
+            .filter(x => x.length > 0)
+            .map(x => Lodash(x).orderBy([
+                    (x) => x.rating,
+                    (x) => new Date(x.publicationDate!).getTime()
+                ], ["desc", "asc"]).value()[0]
+            )
+            .forEach(x => bestTaskSolutions.set(x.taskId!, x.studentId!))
+    }
 
     return (
         <div>
@@ -291,6 +312,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                 studentId={String(cm.id)}
                                                 taskId={task.id!}
                                                 taskMaxRating={task.maxRating!}
+                                                isBestSolution={isMentor && bestTaskSolutions.get(task.id!) === cm.id}
                                                 {...additionalStyles}/>;
                                         })
                                     )}
