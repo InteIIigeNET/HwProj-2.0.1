@@ -101,7 +101,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const hasTests = testsMaxSum > 0
 
     const bestTaskSolutions = new Map<number, string>()
-    if (solutions) {
+    if (solutions && isMentor) {
         Lodash(homeworks)
             .flatMap(h => h.tasks!)
             .map(t => solutions
@@ -312,7 +312,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                 studentId={String(cm.id)}
                                                 taskId={task.id!}
                                                 taskMaxRating={task.maxRating!}
-                                                isBestSolution={isMentor && bestTaskSolutions.get(task.id!) === cm.id}
+                                                isBestSolution={bestTaskSolutions.get(task.id!) === cm.id}
                                                 {...additionalStyles}/>;
                                         })
                                     )}
