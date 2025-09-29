@@ -1,35 +1,34 @@
 import * as React from 'react';
 import ApiSingleton from "../../api/ApiSingleton";
-import {
-    AccountDataDto,
-    GetSolutionModel,
-    HomeworkTaskViewModel,
-    PostSolutionModel,
-    SolutionState
-} from "@/api";
-import {FC, useState} from "react";
-import {Alert, Autocomplete, Grid, DialogContent, Dialog, DialogTitle, DialogActions, Button} from "@mui/material";
-import {MarkdownEditor} from "../Common/MarkdownEditor";
-import {TestTag} from "../Common/HomeworkTags";
-import {LoadingButton} from "@mui/lab";
+import { AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, SolutionState, SolutionViewModel } from "@/api";
+import { FC, useState } from "react";
+import { Alert, Autocomplete, Grid, DialogContent, Dialog, DialogTitle, DialogActions, Button } from "@mui/material";
+import { MarkdownEditor } from "../Common/MarkdownEditor";
+import { TestTag } from "../Common/HomeworkTags";
+import { LoadingButton } from "@mui/lab";
 import TextField from "@mui/material/TextField";
+import FilesUploader from '../Files/FilesUploader';
+import { IEditFilesState } from '../Homeworks/CourseHomeworkExperimental';
+import { IFileInfo } from '../Files/IFileInfo';
+import { CourseUnitType } from '../Files/CourseUnitType';
 
 interface IAddSolutionProps {
     userId: string
     lastSolution: GetSolutionModel | undefined,
     task: HomeworkTaskViewModel,
     supportsGroup: boolean,
-    students: AccountDataDto[]
+    students: AccountDataDto[],
+    filesInfo: IFileInfo[],
     onAdd: () => void,
     onCancel: () => void,
 }
 
 const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
-    const {lastSolution} = props
+    const { lastSolution } = props
     const isEdit = lastSolution?.state === SolutionState.NUMBER_0
     const lastGroup = lastSolution?.groupMates?.map(x => x.userId!) || []
 
-    const [solution, setSolution] = useState<PostSolutionModel>({
+    const [solution, setSolution] = useState<SolutionViewModel>({
         githubUrl: lastSolution?.githubUrl || "",
         comment: isEdit ? lastSolution!.comment : "",
         groupMateIds: lastGroup
@@ -44,21 +43,28 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
         props.onAdd()
     }
 
-    const {githubUrl} = solution
+    const { githubUrl } = solution
     const isTest = props.task.tags?.includes(TestTag)
     const showTestGithubInfo = isTest && githubUrl?.startsWith("https://github") && githubUrl.includes("/pull/")
     const courseMates = props.students.filter(s => props.userId !== s.userId)
 
+    const initialFilesInfo = props.filesInfo.filter(x => x.id !== undefined)
+    const [filesState, setFilesState] = useState<IEditFilesState>({
+        initialFilesInfo: initialFilesInfo,
+        selectedFilesInfo: props.filesInfo,
+        isLoadingInfo: false
+    });
+
     return (
         <Dialog fullWidth
-                maxWidth="md"
-                open={true}
-                onClose={() => props.onCancel()} aria-labelledby="form-dialog-title">
+            maxWidth="md"
+            open={true}
+            onClose={() => props.onCancel()} aria-labelledby="form-dialog-title">
             <DialogTitle id="form-dialog-title">
                 Отправить новое решение
             </DialogTitle>
             <DialogContent>
-                <Grid style={{marginTop: 10}} container xs={12}>
+                <Grid style={{ marginTop: 10 }} container xs={12}>
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
@@ -74,17 +80,17 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
                             }}
                         />
                         {showTestGithubInfo &&
-                            <Alert sx={{paddingTop: 0, paddingBottom: 0, marginTop: 0.2}} severity="info">
+                            <Alert sx={{ paddingTop: 0, paddingBottom: 0, marginTop: 0.2 }} severity="info">
                                 Для данного решения будет сохранена информация о коммитах на момент отправки.
-                                <br/>
+                                <br />
                                 Убедитесь, что работа закончена, и отправьте решение в конце.
                             </Alert>}
                         {!isEdit && githubUrl === lastSolution?.githubUrl && !showTestGithubInfo &&
-                            <Alert sx={{paddingTop: 0, paddingBottom: 0, marginTop: 0.2}} severity="info">Ссылка
+                            <Alert sx={{ paddingTop: 0, paddingBottom: 0, marginTop: 0.2 }} severity="info">Ссылка
                                 взята из предыдущего
                                 решения</Alert>}
                     </Grid>
-                    {props.supportsGroup && <Grid item xs={12} style={{marginTop: '16px'}}>
+                    {props.supportsGroup && <Grid item xs={12} style={{ marginTop: '16px' }}>
                         <Autocomplete
                             multiple
                             id="tags-outlined"
@@ -108,11 +114,11 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
                             )}
                         />
                         {!isEdit && lastGroup?.length > 0 && solution.groupMateIds === lastGroup &&
-                            <Alert sx={{paddingTop: 0, paddingBottom: 0, marginTop: 0.2}} severity="info">Команда
+                            <Alert sx={{ paddingTop: 0, paddingBottom: 0, marginTop: 0.2 }} severity="info">Команда
                                 взята из предыдущего
                                 решения</Alert>}
                     </Grid>}
-                    <Grid item xs={12} style={{marginTop: '12px', marginBottom: -4}}>
+                    <Grid item xs={12} style={{ marginTop: '12px', marginBottom: -4 }}>
                         <MarkdownEditor
                             label={"Комментарий"}
                             value={solution.comment ?? ""}
@@ -124,6 +130,17 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
                                 }))
                             }}
                         />
+                        <FilesUploader
+                            initialFilesInfo={filesState.selectedFilesInfo}
+                            isLoading={filesState.isLoadingInfo}
+                            onChange={(filesInfo) => {
+                                setFilesState((prevState) => ({
+                                    ...prevState,
+                                    selectedFilesInfo: filesInfo
+                                }));
+                            }}
+                            courseUnitType={CourseUnitType.Solution}
+                            courseUnitId={lastSolution?.id !== undefined ? lastSolution.id : 0} />
                     </Grid>
                 </Grid>
             </DialogContent>
