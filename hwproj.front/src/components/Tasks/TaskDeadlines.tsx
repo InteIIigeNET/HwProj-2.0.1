@@ -65,12 +65,6 @@ const TaskDeadlines: FC<ITaskDeadlinesProps> = ({taskDeadlines, onGiveUpClick}) 
                                         </Typography>
                                     </NavLink>
                                 </Grid>
-                                {(solutionState == null) &&
-                                    <Grid item>
-                                        <Chip size={"small"} style={{height: 20}} color={'primary'}
-                                              label={renderBadgeLabel(`⭐ ${maxRating}`)}/>
-                                    </Grid>
-                                }
                                 {!deadlinePast && (
                                     <Grid item>
                                         {renderBadge(solutionState, rating!, deadline!.maxRating!)}
