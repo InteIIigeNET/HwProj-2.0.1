@@ -44,8 +44,14 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
     }, [props.initialFilesInfo]);
 
     const maxFileSizeInBytes = 100 * 1024 * 1024;
+    const maxFilesCount = 5;
 
     const validateFiles = (files: File[]): boolean => {
+        if ((props.initialFilesInfo == null ? 0 : props.initialFilesInfo.length) + files.length > maxFilesCount) {
+            setError(`Выбрано слишком много файлов.
+             Максимально допустимое количество файлов: ${maxFilesCount} штук.`);
+            return false;
+        }
         for (const file of files) {
             if (file.size > maxFileSizeInBytes) {
                 setError(`Файл "${file.name}" слишком большой.
