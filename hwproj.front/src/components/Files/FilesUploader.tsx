@@ -46,6 +46,7 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
     }, [props.initialFilesInfo]);
 
     const maxFileSizeInBytes = 100 * 1024 * 1024;
+    const maxFilesCount = 5;
 
     const forbiddenFileTypes = [
         'application/vnd.microsoft.portable-executable',
