@@ -58,6 +58,10 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
                  Максимальный допустимый размер: ${(maxFileSizeInBytes / 1024 / 1024).toFixed(1)} MB.`);
                 return false;
             }
+            if (file.type.startsWith("application")) {
+                setError(`Файл "${file.name}" имеет недопустимый тип "${file.type}`);
+                return false;
+            }
         }
 
         return true
