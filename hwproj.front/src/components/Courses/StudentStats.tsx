@@ -306,11 +306,13 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                               }}
                                               label={testsSum}/>
                                     </TableCell>}
-                                    {showBestSolutions && bestSolutionsCount > 0 && <TableCell
+                                    {showBestSolutions && <TableCell
                                         align="center"
                                         padding="none"
                                         style={{borderLeft: borderStyle}}>
-                                        <Typography variant={"caption"} color={"grey"}>{bestSolutionsCount}</Typography>
+                                        {bestSolutionsCount > 0 
+                                            ? <Typography variant={"caption"} color={"grey"}>{bestSolutionsCount}</Typography>
+                                            : ""}
                                     </TableCell>}
                                     {homeworks.map((homework, idx) =>
                                         homework.tasks!.map((task, i) => {
