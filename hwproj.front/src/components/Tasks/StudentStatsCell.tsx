@@ -58,7 +58,7 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
     };
 
     return (
-        <Tooltip arrow disableInteractive enterDelay={2000}
+        <Tooltip arrow disableInteractive enterDelay={100}
                  title={<span style={{whiteSpace: 'pre-line'}}>{tooltipTitle}</span>}>
             <TableCell
                 onClick={handleCellClick}

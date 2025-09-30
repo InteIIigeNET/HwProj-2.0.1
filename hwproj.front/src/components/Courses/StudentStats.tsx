@@ -99,6 +99,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     const hasHomeworks = homeworksMaxSum > 0
     const hasTests = testsMaxSum > 0
+    const showBestSolutions = isMentor
 
     const bestTaskSolutions = new Map<number, string>()
     if (solutions && isMentor) {
@@ -139,7 +140,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                             </TableCell>
                             {(hasHomeworks || hasTests) && <TableCell
                                 padding="checkbox"
-                                colSpan={(hasHomeworks ? 1 : 0) + (hasTests ? 1 : 0)}
+                                colSpan={(hasHomeworks ? 1 : 0) + (hasTests ? 1 : 0) + (showBestSolutions ? 1 : 0)}
                                 align="center"
                                 component="td"
                                 style={{
@@ -194,6 +195,10 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                     }}>
                                 КР ({testsMaxSum})
                             </TableCell>}
+                            {showBestSolutions && <TableCell padding="checkbox" component="td" align="center"
+                                                             style={{borderLeft: borderStyle}}>
+                                🥇
+                            </TableCell>}
                             {homeworks.map((homework, idx) =>
                                 homework.tasks!.map((task, i) => (
                                     <TableCell padding="checkbox" component="td" align="center"
@@ -239,6 +244,10 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 .flat()
                                 .reduce((sum, rating) => sum + rating, 0)
 
+                            const bestSolutionsCount = bestTaskSolutions.values()
+                                .filter(x => x === cm.id)
+                                .toArray().length
+
                             return (
                                 <TableRow key={index} hover style={{height: 50}}>
                                     <TableCell
@@ -268,7 +277,6 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         padding="none"
                                         style={{
                                             borderLeft: borderStyle,
-                                            backgroundColor: "white"
                                         }}
                                         component="td"
                                         scope="row"
@@ -286,7 +294,6 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         padding="none"
                                         style={{
                                             borderLeft: borderStyle,
-                                            backgroundColor: "white"
                                         }}
                                         component="td"
                                         scope="row"
@@ -298,6 +305,12 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                   fontSize: 16
                                               }}
                                               label={testsSum}/>
+                                    </TableCell>}
+                                    {showBestSolutions && <TableCell
+                                        align="center"
+                                        padding="none"
+                                        style={{borderLeft: borderStyle}}>
+                                        <Typography variant={"caption"} color={"grey"}>{bestSolutionsCount}</Typography>
                                     </TableCell>}
                                     {homeworks.map((homework, idx) =>
                                         homework.tasks!.map((task, i) => {
