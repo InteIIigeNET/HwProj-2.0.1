@@ -306,7 +306,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                               }}
                                               label={testsSum}/>
                                     </TableCell>}
-                                    {showBestSolutions && <TableCell
+                                    {showBestSolutions && bestSolutionsCount > 0 && <TableCell
                                         align="center"
                                         padding="none"
                                         style={{borderLeft: borderStyle}}>
