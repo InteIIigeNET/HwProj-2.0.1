@@ -102,10 +102,10 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const showBestSolutions = isMentor
 
     const bestTaskSolutions = new Map<number, string>()
-    if (solutions && isMentor) {
+    if (props.solutions && isMentor) {
         Lodash(homeworks)
             .flatMap(h => h.tasks!)
-            .map(t => solutions
+            .map(t => props.solutions!
                 .map(s => s.homeworks!
                     .flatMap(h1 => h1.tasks!)
                     .find(t1 => t1.id === t.id)?.solution || [])
