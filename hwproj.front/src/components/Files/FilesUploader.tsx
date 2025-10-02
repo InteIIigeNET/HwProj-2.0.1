@@ -47,7 +47,7 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
     const maxFilesCount = 5;
 
     const validateFiles = (files: File[]): boolean => {
-        if ((props.initialFilesInfo == null ? 0 : props.initialFilesInfo.length) + files.length > maxFilesCount) {
+        if ((props.initialFilesInfo ? props.initialFilesInfo.length : 0) + files.length > maxFilesCount) {
             setError(`Выбрано слишком много файлов.
              Максимально допустимое количество файлов: ${maxFilesCount} штук.`);
             return false;
