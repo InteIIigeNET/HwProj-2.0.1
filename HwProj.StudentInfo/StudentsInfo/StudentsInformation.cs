@@ -6,44 +6,12 @@ using System.Threading.Tasks;
 using IStudentsInfo;
 using Newtonsoft.Json;
 using Novell.Directory.Ldap;
-using System.Threading;
 
 namespace StudentsInfo
 {
-    public class InterruptibleLazy<T>
-    {
-        private Func<T> _valueFactory;
-        private readonly object _lockObj = new object();
-        private T _value;
-
-        public InterruptibleLazy(Func<T> valueFactory)
-        {
-            _valueFactory = valueFactory;
-        }
-
-        public T Value
-        {
-            get
-            {
-                if (_valueFactory == null) return _value;
-
-                lock (_lockObj)
-                {
-                    if (_valueFactory == null) return _value;
-
-                    _value = _valueFactory();
-                    Interlocked.MemoryBarrier();
-                    _valueFactory = null;
-                }
-
-                return _value;
-            }
-        }
-    }
-
     public class StudentsInformationProvider : IStudentsInformationProvider
     {
-        private readonly InterruptibleLazy<Task<Dictionary<string, List<string>>>> _programsGroups;
+        private readonly Task<Dictionary<string, List<string>>> _programsGroups;
         private readonly string _ldapHost = "ad.pu.ru";
         private readonly int _ldapPort = 389;
         private readonly string _searchBase = "DC=ad,DC=pu,DC=ru";
@@ -54,7 +22,7 @@ namespace StudentsInfo
 
         public async Task<List<GroupModel>> GetGroups(string programName)
         {
-            var programsGroups = await _programsGroups.Value;
+            var programsGroups = await _programsGroups;
             if (!programsGroups.TryGetValue(programName, out var groups))
                 return new List<GroupModel>();
 
@@ -152,7 +120,7 @@ namespace StudentsInfo
 
         public async Task<List<ProgramModel>> GetProgramNames()
         {
-            var programGroups = await _programsGroups.Value;
+            var programGroups = await _programsGroups;
             return programGroups.Keys
                 .Select(key => new ProgramModel { ProgramName = key })
                 .ToList();
@@ -168,7 +136,7 @@ namespace StudentsInfo
             _searchBase = searchBase;
             _httpClient = new HttpClient();
 
-            _programsGroups = new InterruptibleLazy<Task<Dictionary<string, List<string>>>>(async () =>
+            _programsGroups = Task.Run(async () =>
             {
                 var programsGroups = new Dictionary<string, List<string>>();
 
