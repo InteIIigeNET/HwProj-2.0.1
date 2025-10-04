@@ -7,7 +7,6 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {RegisterExpertViewModel} from "@/api";
 import "../Auth/Styles/Register.css";
 import Grid from "@material-ui/core/Grid";
-import {makeStyles} from '@material-ui/core/styles';
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import Avatar from "@material-ui/core/Avatar";
 import Tags from "../Common/Tags";
@@ -22,25 +21,7 @@ interface IRegisterExpertState {
     errors: string[];
 }
 
-const useStyles = makeStyles((theme) => ({
-    paper: {
-        marginTop: theme.spacing(3),
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
-    avatar: {
-        margin: theme.spacing(1),
-    },
-    form: {
-        marginTop: theme.spacing(3),
-        width: '100%'
-    }
-}))
-
 const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
-    const classes = useStyles()
-
     const [registerState, setRegisterState] = useState<RegisterExpertViewModel>({
         name: "",
         surname: "",
@@ -110,7 +91,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                 <DialogTitle id="form-dialog-title">
                     <Grid container>
                         <Grid item container direction={"row"} justifyContent={"center"}>
-                            <Avatar className={classes.avatar} style={{color: 'white', backgroundColor: '#00AB00'}}>
+                            <Avatar style={{color: 'white', backgroundColor: '#00AB00'}}>
                                 <PersonAddOutlinedIcon/>
                             </Avatar>
                         </Grid>
@@ -121,7 +102,7 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                         </Grid>
                     </Grid>
                 </DialogTitle>
-                <form onSubmit={handleSubmit} className={classes.form}>
+                <form onSubmit={handleSubmit}>
                     <DialogContent>
                         <Grid item container direction={"row"} justifyContent={"center"}>
                             {commonState.errors.length > 0 && (
