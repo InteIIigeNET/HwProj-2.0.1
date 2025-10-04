@@ -121,13 +121,13 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                         </Grid>
                     </Grid>
                 </DialogTitle>
-                <DialogContent>
-                    <Grid item container direction={"row"} justifyContent={"center"}>
-                        {commonState.errors.length > 0 && (
-                            <p style={{color: "red", marginBottom: "0"}}>{commonState.errors}</p>
-                        )}
-                    </Grid>
-                    <form onSubmit={handleSubmit} className={classes.form}>
+                <form onSubmit={handleSubmit} className={classes.form}>
+                    <DialogContent>
+                        <Grid item container direction={"row"} justifyContent={"center"}>
+                            {commonState.errors.length > 0 && (
+                                <p style={{color: "red", marginBottom: "0"}}>{commonState.errors}</p>
+                            )}
+                        </Grid>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={6}>
                                 <TextField
@@ -233,24 +233,24 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                                 />
                             </Grid>
                         </Grid>
-                    </form>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        type="submit"
-                    >
-                        Зарегистрировать
-                    </Button>
-                    <Button
-                        onClick={() => handleClose(false)}
-                        color="primary"
-                        variant="text"
-                    >
-                        Закрыть
-                    </Button>
-                </DialogActions>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            type="submit"
+                        >
+                            Зарегистрировать
+                        </Button>
+                        <Button
+                            onClick={() => handleClose(false)}
+                            color="primary"
+                            variant="text"
+                        >
+                            Закрыть
+                        </Button>
+                    </DialogActions>
+                </form>
             </Dialog>
         </div>
     )
