@@ -7,6 +7,7 @@ using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.APIGateway.API.Models.Solutions;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
+using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
@@ -342,19 +343,31 @@ public class SolutionsController : AggregationController
 
         var students =
             await AuthServiceClient.GetAccountsData(course.AcceptedStudents.Select(x => x.StudentId).ToArray());
-        var student = model.StudentIdType switch
+        var studentCandidates = model.StudentIdType switch
         {
-            StudentIdType.Id => students.FirstOrDefault(x => x.UserId == model.StudentId),
-            StudentIdType.FullName => students.FirstOrDefault(x =>
-                model.StudentId.Contains(x.Name) &&
-                model.StudentId.Contains(x.Surname) &&
-                (string.IsNullOrEmpty(x.MiddleName) || model.StudentId.Contains(x.MiddleName))),
-            StudentIdType.GitHub => students.FirstOrDefault(x => x.GithubId == model.TaskId),
-            _ => null
+            StudentIdType.Id => students.FirstOrDefault(x => x.UserId == model.StudentId) is { } s
+                ? [s]
+                : [],
+            StudentIdType.FullName => students
+                .Where(x =>
+                    model.StudentId.Contains(x.Name) &&
+                    model.StudentId.Contains(x.Surname) &&
+                    (string.IsNullOrEmpty(x.MiddleName) || model.StudentId.Contains(x.MiddleName)))
+                .ToArray(),
+            StudentIdType.GitHub => students.Where(x => x.GithubId == model.TaskId).ToArray(),
+            _ => []
         };
-        if (student == null)
-            return BadRequest($"Студент с {model.StudentIdType} = {model.StudentId} не записан на курс");
 
+        switch (studentCandidates.Length)
+        {
+            case 0:
+                return BadRequest($"Студент с {model.StudentIdType} = {model.StudentId} не записан на курс");
+            case > 1:
+                return BadRequest(
+                    $"Найдено несколько студентов с {model.StudentIdType} = {model.StudentId}. Измените StudentIdType или StudentId, чтобы уточнить запрос");
+        }
+
+        var student = studentCandidates.First();
         var solutions = await _solutionsClient.GetUserSolutions(task.Id, student.UserId);
         if (solutions.OrderBy(x => x.PublicationDate).LastOrDefault()?.State == SolutionState.Posted)
             return Ok(
