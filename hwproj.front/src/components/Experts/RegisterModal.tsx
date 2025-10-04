@@ -4,7 +4,7 @@ import {Dialog, DialogTitle, DialogContent, DialogActions} from "@mui/material";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../../api/ApiSingleton";
-import {RegisterExpertViewModel} from "../../api/";
+import {RegisterExpertViewModel} from "@/api";
 import "../Auth/Styles/Register.css";
 import Grid from "@material-ui/core/Grid";
 import {makeStyles} from '@material-ui/core/styles';
@@ -35,10 +35,7 @@ const useStyles = makeStyles((theme) => ({
     form: {
         marginTop: theme.spacing(3),
         width: '100%'
-    },
-    button: {
-        marginTop: theme.spacing(1)
-    },
+    }
 }))
 
 const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
@@ -108,7 +105,8 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
 
     return (
         <div>
-            <Dialog open={props.isOpen} onClose={handleClose} aria-labelledby="form-dialog-title" maxWidth="xs">
+            <Dialog open={props.isOpen} onClose={() => handleClose(false)} aria-labelledby="form-dialog-title"
+                    maxWidth="xs">
                 <DialogTitle id="form-dialog-title">
                     <Grid container>
                         <Grid item container direction={"row"} justifyContent={"center"}>
@@ -235,37 +233,23 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                                 />
                             </Grid>
                         </Grid>
-                        <Grid
-                            direction="row"
-                            justifyContent="flex-end"
-                            alignItems="flex-end"
-                            container
-                            style={{marginTop: '16px'}}
-                        >
-                            <Grid item>
-                                <Button
-                                    onClick={() => handleClose(false)}
-                                    color="primary"
-                                    variant="contained"
-                                    style={{marginRight: '10px'}}
-                                >
-                                    Закрыть
-                                </Button>
-                            </Grid>
-                            <Grid item>
-                                <Button
-                                    fullWidth
-                                    variant="contained"
-                                    color="primary"
-                                    type="submit"
-                                >
-                                    Зарегистрировать
-                                </Button>
-                            </Grid>
-                        </Grid>
                     </form>
                 </DialogContent>
                 <DialogActions>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                    >
+                        Зарегистрировать
+                    </Button>
+                    <Button
+                        onClick={() => handleClose(false)}
+                        color="primary"
+                        variant="text"
+                    >
+                        Закрыть
+                    </Button>
                 </DialogActions>
             </Dialog>
         </div>
