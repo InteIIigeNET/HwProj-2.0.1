@@ -1579,6 +1579,49 @@ export interface NotificationsSettingDto {
 /**
  *
  * @export
+ * @interface PostAutomatedSolutionModel
+ */
+export interface PostAutomatedSolutionModel {
+    /**
+     *
+     * @type {string}
+     * @memberof PostAutomatedSolutionModel
+     */
+    taskId: string;
+    /**
+     *
+     * @type {TaskIdType}
+     * @memberof PostAutomatedSolutionModel
+     */
+    taskIdType?: TaskIdType;
+    /**
+     *
+     * @type {string}
+     * @memberof PostAutomatedSolutionModel
+     */
+    studentId: string;
+    /**
+     *
+     * @type {StudentIdType}
+     * @memberof PostAutomatedSolutionModel
+     */
+    studentIdType?: StudentIdType;
+    /**
+     *
+     * @type {string}
+     * @memberof PostAutomatedSolutionModel
+     */
+    githubUrl?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof PostAutomatedSolutionModel
+     */
+    comment?: string;
+}
+/**
+ *
+ * @export
  * @interface PostSolutionModel
  */
 export interface PostSolutionModel {
@@ -2319,6 +2362,16 @@ export interface StudentDataDto {
 /**
  *
  * @export
+ * @enum {string}
+ */
+export enum StudentIdType {
+    NUMBER_0 = <any> 0,
+    NUMBER_1 = <any> 1,
+    NUMBER_2 = <any> 2
+}
+/**
+ *
+ * @export
  * @interface SystemInfo
  */
 export interface SystemInfo {
@@ -2432,6 +2485,15 @@ export interface TaskDeadlineView {
      * @memberof TaskDeadlineView
      */
     deadlinePast?: boolean;
+}
+/**
+ *
+ * @export
+ * @enum {string}
+ */
+export enum TaskIdType {
+    NUMBER_0 = <any> 0,
+    NUMBER_1 = <any> 1
 }
 /**
  *
@@ -8037,6 +8099,47 @@ export const SolutionsApiFetchParamCreator = function (configuration?: Configura
         },
         /**
          *
+         * @param {number} courseId
+         * @param {PostAutomatedSolutionModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        solutionsPostAutomatedSolution(courseId: number, body?: PostAutomatedSolutionModel, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling solutionsPostAutomatedSolution.');
+            }
+            const localVarPath = `/api/Solutions/automated/{courseId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"PostAutomatedSolutionModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
          * @param {number} taskId
          * @param {SolutionViewModel} [body]
          * @param {*} [options] Override http request option.
@@ -8334,6 +8437,25 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
         },
         /**
          *
+         * @param {number} courseId
+         * @param {PostAutomatedSolutionModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        solutionsPostAutomatedSolution(courseId: number, body?: PostAutomatedSolutionModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).solutionsPostAutomatedSolution(courseId, body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
          * @param {number} taskId
          * @param {SolutionViewModel} [body]
          * @param {*} [options] Override http request option.
@@ -8484,6 +8606,16 @@ export const SolutionsApiFactory = function (configuration?: Configuration, fetc
         },
         /**
          *
+         * @param {number} courseId
+         * @param {PostAutomatedSolutionModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        solutionsPostAutomatedSolution(courseId: number, body?: PostAutomatedSolutionModel, options?: any) {
+            return SolutionsApiFp(configuration).solutionsPostAutomatedSolution(courseId, body, options)(fetch, basePath);
+        },
+        /**
+         *
          * @param {number} taskId
          * @param {SolutionViewModel} [body]
          * @param {*} [options] Override http request option.
@@ -8622,6 +8754,18 @@ export class SolutionsApi extends BaseAPI {
      */
     public solutionsMarkSolution(solutionId: number, options?: any) {
         return SolutionsApiFp(this.configuration).solutionsMarkSolution(solutionId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {number} courseId
+     * @param {PostAutomatedSolutionModel} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof SolutionsApi
+     */
+    public solutionsPostAutomatedSolution(courseId: number, body?: PostAutomatedSolutionModel, options?: any) {
+        return SolutionsApiFp(this.configuration).solutionsPostAutomatedSolution(courseId, body, options)(this.fetch, this.basePath);
     }
 
     /**

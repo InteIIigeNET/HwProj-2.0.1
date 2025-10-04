@@ -323,6 +323,53 @@ public class SolutionsController : AggregationController
         return Ok(solutionModel);
     }
 
+    [HttpPost("automated/{courseId}")]
+    [Authorize(Roles = Roles.LecturerOrExpertRole)]
+    [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> PostAutomatedSolution(PostAutomatedSolutionModel model, long courseId)
+    {
+        var course = await _coursesServiceClient.GetCourseById(courseId);
+        if (course is null) return BadRequest($"Курс с Id {courseId} не найден");
+
+        var tasks = course.Homeworks.SelectMany(t => t.Tasks);
+        var task = model.TaskIdType switch
+        {
+            TaskIdType.Id when long.TryParse(model.TaskId, out var taskId) => tasks.FirstOrDefault(x => x.Id == taskId),
+            TaskIdType.Title => tasks.FirstOrDefault(x => x.Title == model.TaskId),
+            _ => null
+        };
+        if (task is null) return BadRequest($"Задача с {model.TaskIdType} = {model.TaskId} не найдена");
+
+        var students =
+            await AuthServiceClient.GetAccountsData(course.AcceptedStudents.Select(x => x.StudentId).ToArray());
+        var student = model.StudentIdType switch
+        {
+            StudentIdType.Id => students.FirstOrDefault(x => x.UserId == model.StudentId),
+            StudentIdType.FullName => students.FirstOrDefault(x =>
+                model.StudentId.Contains(x.Name) &&
+                model.StudentId.Contains(x.Surname) &&
+                (string.IsNullOrEmpty(x.MiddleName) || model.StudentId.Contains(x.MiddleName))),
+            StudentIdType.GitHub => students.FirstOrDefault(x => x.GithubId == model.TaskId),
+            _ => null
+        };
+        if (student == null)
+            return BadRequest($"Студент с {model.StudentIdType} = {model.StudentId} не записан на курс");
+
+        var solutions = await _solutionsClient.GetUserSolutions(task.Id, student.UserId);
+        if (solutions.OrderBy(x => x.PublicationDate).LastOrDefault()?.State == SolutionState.Posted)
+            return Ok(
+                "Последнее решение студента по задаче ещё не проверено. Все хорошо, но новое решение не будет добавлено");
+
+        await _solutionsClient.PostSolution(task.Id, new HwProj.Models.SolutionsService.PostSolutionModel
+        {
+            GithubUrl = model.GithubUrl,
+            Comment = model.Comment,
+            StudentId = student.UserId
+        });
+
+        return Ok("Решение успешно добавлено в очередь на проверку!");
+    }
+
     [HttpPost("rateEmptySolution/{taskId}")]
     [Authorize(Roles = Roles.LecturerOrExpertRole)]
     public async Task<IActionResult> PostEmptySolutionWithRate(long taskId, SolutionViewModel solution)
