@@ -112,6 +112,8 @@ namespace HwProj.CoursesService.API.Domains
                 errors.Add("Нельзя изменить дату публикации домашнего задания, если она уже показана студента");
             }
 
+            if (homework.StudentIds.Count > 0 && homework.StudentIds.Any(x => ))
+
             return errors;
         }
     }

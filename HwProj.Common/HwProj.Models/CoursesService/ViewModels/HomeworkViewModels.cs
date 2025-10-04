@@ -20,11 +20,14 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public DateTime PublicationDate { get; set; }
 
+        [Obsolete("Используйте Tags")]
         public bool IsGroupWork { get; set; }
 
         public List<string> Tags { get; set; } = new List<string>();
 
         public List<CreateTaskViewModel> Tasks { get; set; } = new List<CreateTaskViewModel>();
+
+        public List<string> StudentIds { get; set; } = new List<string>();
 
         public ActionOptions? ActionOptions { get; set; }
     }

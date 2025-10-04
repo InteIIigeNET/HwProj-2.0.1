@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
@@ -6,6 +7,7 @@ using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.CoursesService.API.Domains;
 using HwProj.Models;
+using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.NotificationService.Events.CoursesService;
 
@@ -16,13 +18,15 @@ namespace HwProj.CoursesService.API.Services
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly IEventBus _eventBus;
         private readonly ICoursesRepository _coursesRepository;
+        private readonly ICourseFilterService _courseFilterService;
 
         public HomeworksService(IHomeworksRepository homeworksRepository, IEventBus eventBus,
-            ICoursesRepository coursesRepository)
+            ICoursesRepository coursesRepository, ICourseFilterService courseFilterService)
         {
             _homeworksRepository = homeworksRepository;
             _eventBus = eventBus;
             _coursesRepository = coursesRepository;
+            _courseFilterService = courseFilterService;
         }
 
         public async Task<Homework> AddHomeworkAsync(long courseId, CreateHomeworkViewModel homeworkViewModel)
@@ -40,6 +44,19 @@ namespace HwProj.CoursesService.API.Services
             }
 
             await _homeworksRepository.AddAsync(homework);
+            if (homeworkViewModel.StudentIds.Count > 0)
+            {
+                await _courseFilterService.CreateOrUpdateCourseFilter(new CreateCourseFilterModel
+                {
+                    UserId = "",
+                    CourseId = courseId,
+                    HomeworkIds = new List<long>(homework.Id),
+                });
+                foreach (var studentId in studentIds)
+                {
+                    await _courseFilterService.CreateOrUpdateCourseFilter()
+                }
+            }
             return await GetHomeworkAsync(homework.Id);
         }
 
