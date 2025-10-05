@@ -331,6 +331,8 @@ public class SolutionsController : AggregationController
     {
         var course = await _coursesServiceClient.GetCourseById(courseId);
         if (course is null) return BadRequest($"Курс с Id {courseId} не найден");
+        if (!course.MentorIds.Contains(UserId))
+            return BadRequest("Добавлять автоматизированные решения могут только зарегистрированные на курс агенты");
 
         var tasks = course.Homeworks.SelectMany(t => t.Tasks);
         var task = model.TaskIdType switch
