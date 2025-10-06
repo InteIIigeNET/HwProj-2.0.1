@@ -97,6 +97,28 @@ const StudentSolutionsPage: FC = () => {
 
     const [secondMentorId, setSecondMentorId] = useState<string | undefined>(undefined)
 
+    const [courseFilesState, setCourseFilesState] = useState<ICourseFilesState>({
+        processingFilesState: {},
+        courseFiles: []
+    })
+
+    const getCourseFilesInfo = async () => {
+        let courseFilesInfo = [] as FileInfoDTO[]
+        try {
+            courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
+        } catch (e) {
+            const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
+            enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 1990});
+        }
+        setCourseFilesState(prevState => ({
+            ...prevState,
+            courseFiles: courseFilesInfo
+        }))
+    }
+    useEffect(() => {
+        getCourseFilesInfo()
+    })
+
     const handleFilterChange = (event: SelectChangeEvent<typeof filterState>) => {
         const filters = filterState.length > 0 ? [] : ["Только непроверенные" as Filter]
         localStorage.setItem(FilterStorageKey, filters.join(", "))
