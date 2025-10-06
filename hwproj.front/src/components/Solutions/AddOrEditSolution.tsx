@@ -140,7 +140,7 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
                                 }));
                             }}
                             courseUnitType={CourseUnitType.Solution}
-                            courseUnitId={lastSolution?.id !== undefined ? lastSolution.id : 0} />
+                            courseUnitId={lastSolution?.id !== undefined ? lastSolution.id : -1} />
                     </Grid>
                 </Grid>
             </DialogContent>
