@@ -5,7 +5,7 @@ import {
     HomeworkTaskViewModel,
     Solution,
     TaskSolutionsStats,
-    SolutionState, StudentDataDto, AccountDataDto
+    SolutionState, StudentDataDto, AccountDataDto, FileInfoDTO
 } from "@/api";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
@@ -41,6 +41,9 @@ import {appBarStateManager} from "../AppBar";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {RemovedFromCourseTag} from "@/components/Common/StudentTags";
 import AuthService from "@/services/AuthService";
+import {ICourseFilesState} from "@/components/Courses/Course";
+import {enqueueSnackbar} from "notistack";
+import ErrorsHandler from "@/components/Utils/ErrorsHandler";
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
