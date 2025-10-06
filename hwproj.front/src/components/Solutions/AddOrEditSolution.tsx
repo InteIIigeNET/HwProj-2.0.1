@@ -50,6 +50,7 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     })
 
     const [disableSend, setDisableSend] = useState(false)
+    const filesInfo = lastSolution?.id ? FileInfoConverter.getSolutionFilesInfo(props.courseFilesInfo, lastSolution.id) : []
 
     const maxFilesCount = 5;
 
@@ -77,10 +78,10 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     const showTestGithubInfo = isTest && githubUrl?.startsWith("https://github") && githubUrl.includes("/pull/")
     const courseMates = props.students.filter(s => props.userId !== s.userId)
 
-    const initialFilesInfo = props.filesInfo.filter(x => x.id !== undefined)
+    const initialFilesInfo = filesInfo.filter(x => x.id !== undefined)
     const [filesState, setFilesState] = useState<IEditFilesState>({
         initialFilesInfo: initialFilesInfo,
-        selectedFilesInfo: props.filesInfo,
+        selectedFilesInfo: filesInfo,
         isLoadingInfo: false
     });
 
