@@ -441,6 +441,7 @@ const TaskSolutionsPage: FC = () => {
                 </Grid>
             </Grid>
             {taskSolutionPage.addSolution && <AddOrEditSolution
+                courseId={courseId}
                 userId={userId}
                 task={task}
                 onAdd={getSolutions}
@@ -448,7 +449,8 @@ const TaskSolutionsPage: FC = () => {
                 lastSolution={lastSolution}
                 students={courseMates}
                 supportsGroup={task.isGroupWork!}
-                filesInfo={[]} />}
+                courseFilesInfo={courseFilesState.courseFiles}
+                onStartProcessing={getFilesByInterval}/>}
         </Grid>
     </div> : (
         <div className="container">

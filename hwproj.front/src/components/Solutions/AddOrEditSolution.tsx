@@ -11,16 +11,21 @@ import FilesUploader from '../Files/FilesUploader';
 import { IEditFilesState } from '../Homeworks/CourseHomeworkExperimental';
 import { IFileInfo } from '../Files/IFileInfo';
 import { CourseUnitType } from '../Files/CourseUnitType';
+import ErrorsHandler from "@/components/Utils/ErrorsHandler";
+import {enqueueSnackbar} from "notistack";
+import FileInfoConverter from "@/components/Utils/FileInfoConverter";
 
 interface IAddSolutionProps {
+    courseId: number
     userId: string
     lastSolution: GetSolutionModel | undefined,
     task: HomeworkTaskViewModel,
     supportsGroup: boolean,
     students: AccountDataDto[],
-    filesInfo: IFileInfo[],
+    courseFilesInfo: FileInfoDTO[],
     onAdd: () => void,
     onCancel: () => void,
+    onStartProcessing: (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
 }
 
 const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
@@ -35,12 +40,53 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     })
 
     const [disableSend, setDisableSend] = useState(false)
+    const filesInfo = lastSolution?.id ? FileInfoConverter.getSolutionFilesInfo(props.courseFilesInfo, lastSolution.id) : []
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         setDisableSend(true)
-        await ApiSingleton.solutionsApi.solutionsPostSolution(props.task.id!, solution)
-        props.onAdd()
+
+        let solutionId = await ApiSingleton.solutionsApi.solutionsPostSolution(props.task.id!, solution)
+
+        // Если какие-то файлы из ранее добавленных больше не выбраны, их потребуется удалить
+        const deletingFileIds = filesState.initialFilesInfo.filter(initialFile =>
+            initialFile.id && !filesState.selectedFilesInfo.some(sf => sf.id === initialFile.id))
+            .map(fileInfo => fileInfo.id!)
+
+        // Если какие-то файлы из выбранных сейчас не были добавлены раньше, они новые
+        const newFiles = filesState.selectedFilesInfo.filter(selectedFile =>
+            selectedFile.file && selectedFile.id == undefined).map(fileInfo => fileInfo.file!)
+
+        // Если требуется, отправляем запрос на обработку файлов
+        if (deletingFileIds.length + newFiles.length > 0) {
+            try {
+                await ApiSingleton.customFilesApi.processFiles({
+                    courseId: props.courseId!,
+                    courseUnitType: CourseUnitType.Solution,
+                    courseUnitId: solutionId,
+                    deletingFileIds: deletingFileIds,
+                    newFiles: newFiles,
+                });
+            } catch (e) {
+                const errors = await ErrorsHandler.getErrorMessages(e as Response);
+                enqueueSnackbar(`Проблема при обработке файлов. ${errors[0]}`, {
+                    variant: "warning",
+                    autoHideDuration: 2000
+                });
+            }
+        }
+        if (deletingFileIds.length === 0 && newFiles.length === 0) {
+            props.onAdd()
+        } else {
+            try {
+                props.onStartProcessing(solutionId, filesState.initialFilesInfo.length, newFiles.length, deletingFileIds)
+                props.onAdd()
+            } catch (e) {
+                const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
+                enqueueSnackbar(responseErrors[0], { variant: "warning", autoHideDuration: 4000 });
+                props.onAdd()
+            }
+        }
     }
 
     const { githubUrl } = solution
@@ -48,10 +94,10 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     const showTestGithubInfo = isTest && githubUrl?.startsWith("https://github") && githubUrl.includes("/pull/")
     const courseMates = props.students.filter(s => props.userId !== s.userId)
 
-    const initialFilesInfo = props.filesInfo.filter(x => x.id !== undefined)
+    const initialFilesInfo = filesInfo.filter(x => x.id !== undefined)
     const [filesState, setFilesState] = useState<IEditFilesState>({
         initialFilesInfo: initialFilesInfo,
-        selectedFilesInfo: props.filesInfo,
+        selectedFilesInfo: filesInfo,
         isLoadingInfo: false
     });
 
