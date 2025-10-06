@@ -5,9 +5,9 @@ import AddOrEditSolution from "./AddOrEditSolution";
 import Button from "@material-ui/core/Button";
 import TaskSolutions from "./TaskSolutions";
 import {
-    AccountDataDto,
+    AccountDataDto, FileInfoDTO,
     HomeworksGroupUserTaskSolutions,
-    HomeworkTaskViewModel,
+    HomeworkTaskViewModel, ScopeDTO,
     Solution,
     SolutionState
 } from "@/api";
@@ -29,6 +29,11 @@ import { getTip } from "../Common/HomeworkTags";
 import Lodash from "lodash";
 import { appBarStateManager } from "../AppBar";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import {CourseUnitType} from "@/components/Files/CourseUnitType";
+import {enqueueSnackbar} from "notistack";
+import {FileStatus} from "@/components/Files/FileStatus";
+import ErrorsHandler from "@/components/Utils/ErrorsHandler";
+import {ICourseFilesState} from "@/components/Courses/Course";
 
 interface ITaskSolutionsState {
     isLoaded: boolean
@@ -427,7 +432,9 @@ const TaskSolutionsPage: FC = () => {
                                     forMentor={false}
                                     student={student}
                                     courseStudents={[student]}
-                                    solutions={currentTaskSolutions} />
+                                    solutions={currentTaskSolutions}
+                                    courseFiles={courseFilesState.courseFiles}
+                                    processingFiles={courseFilesState.processingFilesState}/>
                             </Grid>
                         )}
                     </Grid>

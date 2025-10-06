@@ -2,6 +2,7 @@ import * as React from 'react';
 import {FC, useEffect, useState} from 'react';
 import TaskSolutionComponent from "./TaskSolutionComponent";
 import {
+    FileInfoDTO,
     GetSolutionModel,
     GetTaskQuestionDto,
     HomeworkTaskViewModel,
@@ -24,6 +25,12 @@ interface ITaskSolutionsProps {
     courseStudents: StudentDataDto[]
     forMentor: boolean
     onSolutionRateClick?: () => void
+    courseFiles: FileInfoDTO[]
+    processingFiles: {
+        [solutionId: number]: {
+            isLoading: boolean;
+        }
+    };
 }
 
 interface ITaskSolutionsState {
@@ -186,7 +193,9 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     lastRating={lastRating}
                     onRateSolutionClick={onSolutionRateClick}
                     isLastSolution={true}
-                    courseId={props.courseId}/>
+                    courseId={props.courseId}
+                    courseFilesInfo={props.courseFiles}
+                    isProcessing={props.processingFiles[lastSolution.id!]?.isLoading || false}/>
                 : <div>
                     Студент не отправил ни одного решения.
                     <DotLottieReact
@@ -206,7 +215,9 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                         student={student!}
                         onRateSolutionClick={onSolutionRateClick}
                         isLastSolution={false}
-                        courseId={props.courseId}/>
+                        courseId={props.courseId}
+                        courseFilesInfo={props.courseFiles}
+                        isProcessing={props.processingFiles[x.id!]?.isLoading || false}/>
                     {i < arrayOfRatedSolutions.length - 1 ?
                         <Divider style={{marginTop: 10, marginBottom: 4}}/> : null}
                 </Grid>)}
