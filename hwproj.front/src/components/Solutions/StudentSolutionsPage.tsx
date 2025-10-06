@@ -445,6 +445,8 @@ const StudentSolutionsPage: FC = () => {
                                 await getTaskData(currentTaskId, secondMentorId, true)
                                 //else navigate(`/task/${currentTaskId}/${studentSolutionsPreview[nextStudentIndex].student.userId}`)
                             }}
+                            courseFiles={courseFilesState.courseFiles}
+                            processingFiles={courseFilesState.processingFilesState}
                         />
                     </Grid>
                 </Grid>
