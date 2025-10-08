@@ -66,7 +66,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
-            if (isFullscreen) return
+            if (!!document.fullscreenElement) return
             if (event.ctrlKey || event.altKey) return
             if (searched && event.key === "Escape") {
                 setSearched({searched: ""});
