@@ -1,15 +1,17 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import {useNavigate, useParams} from 'react-router-dom';
 import {LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Button, Chip, Typography} from "@mui/material";
+import {Alert, Button, Chip, IconButton, Typography} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import {BonusTag, DefaultTags, TestTag} from "../Common/HomeworkTags";
 import Lodash from "lodash"
 import ApiSingleton from "@/api/ApiSingleton";
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -35,11 +37,36 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         navigate(`/statistics/${courseId}/charts`)
     }
 
+    const [isFullscreen, setIsFullscreen] = useState(false)
+
+    const tableRef = useRef<HTMLDivElement | null>(null)
+
+    const toggleFullscreen = () => {
+        const target = tableRef.current
+        if (!target) return
+        if (!document.fullscreenElement) {
+            if (target.requestFullscreen) {
+                target.requestFullscreen()
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen()
+            }
+        }
+    }
+
+    useEffect(() => {
+        const onFsChange = () => setIsFullscreen(!!document.fullscreenElement)
+        document.addEventListener('fullscreenchange', onFsChange)
+        return () => document.removeEventListener('fullscreenchange', onFsChange)
+    }, [])
+
     const {searched} = state
     const isMentor = ApiSingleton.authService.isMentor()
 
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
+            if (isFullscreen) return
             if (event.ctrlKey || event.altKey) return
             if (searched && event.key === "Escape") {
                 setSearched({searched: ""});
@@ -130,13 +157,18 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                 <Alert style={{marginBottom: 5}} severity="info"><b>Поиск: </b>
                     {searched.replaceAll(" ", "·")}
                 </Alert>}
-            <TableContainer style={{maxHeight: "93vh", marginBottom: -50}}>
+            <TableContainer ref={tableRef} style={{maxHeight: "93vh", marginBottom: -50}}>
                 <Table stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow>
-                            <TableCell style={{zIndex: -4, color: ""}} align="center"
+                            <TableCell style={{zIndex: 10}} align="center"
                                        padding="none"
                                        component="td">
+                                <IconButton size="medium" color={"primary"} onClick={toggleFullscreen}>
+                                    {isFullscreen
+                                        ? <FullscreenExitIcon fontSize={"medium"}/>
+                                        : <FullscreenIcon fontSize={"medium"}/>}
+                                </IconButton>
                             </TableCell>
                             {(hasHomeworks || hasTests) && <TableCell
                                 padding="checkbox"
@@ -277,6 +309,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         padding="none"
                                         style={{
                                             borderLeft: borderStyle,
+                                            backgroundColor: "white"
                                         }}
                                         component="td"
                                         scope="row"
@@ -294,6 +327,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         padding="none"
                                         style={{
                                             borderLeft: borderStyle,
+                                            backgroundColor: "white"
                                         }}
                                         component="td"
                                         scope="row"
@@ -309,9 +343,13 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     {showBestSolutions && <TableCell
                                         align="center"
                                         padding="none"
-                                        style={{borderLeft: borderStyle}}>
-                                        {bestSolutionsCount > 0 
-                                            ? <Typography variant={"caption"} color={"grey"}>{bestSolutionsCount}</Typography>
+                                        style={{
+                                            borderLeft: borderStyle,
+                                            backgroundColor: "white"
+                                        }}>
+                                        {bestSolutionsCount > 0
+                                            ? <Typography variant={"caption"}
+                                                          color={"grey"}>{bestSolutionsCount}</Typography>
                                             : ""}
                                     </TableCell>}
                                     {homeworks.map((homework, idx) =>
