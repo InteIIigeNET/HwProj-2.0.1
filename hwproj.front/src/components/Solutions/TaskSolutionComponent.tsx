@@ -267,9 +267,6 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         />
                     </Stack>
                 </Grid>}
-                {!showThumbs && <Grid item>
-                    {points + " / " + maxRating}
-                </Grid>}
                 {!addBonusPoints && props.forMentor && state.clickedForRate && <Grid item>
                     <Tooltip arrow title={"Позволяет поставить оценку выше максимальной"}>
                         <Typography variant={"caption"}>
