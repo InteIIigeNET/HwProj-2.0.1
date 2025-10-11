@@ -239,7 +239,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         if (groupedHomeworks.length === 1) return true
 
         const keys = new Set(groupedHomeworks.map(h => h.tasks!.map(t => t.maxRating).join(";")))
-        return {groupingTag: groupingTag, hasErrors: keys.size === 1}
+        return {groupingTag: groupingTag, hasErrors: keys.size !== 1}
     }
 
     const getDatesAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
