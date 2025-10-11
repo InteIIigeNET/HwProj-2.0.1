@@ -32,7 +32,7 @@ import {enqueueSnackbar} from "notistack";
 import DeletionConfirmation from "../DeletionConfirmation";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ActionOptionsUI from "components/Common/ActionOptions";
-import {BonusTag, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
+import {BonusTag, DefaultTags, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
 import Lodash from "lodash";
 import {CourseUnitType} from "../Files/CourseUnitType"
 import ProcessFilesUtils from "../Utils/ProcessFilesUtils";
@@ -487,7 +487,7 @@ const CourseHomeworkExperimental: FC<{
                     <Chip
                         label={tasksCount + " " + Utils.pluralizeHelper(["Задача", "Задачи", "Задач"], tasksCount)}/>
                 </Grid>}
-                {homework.tags?.filter(t => t !== '').map((tag, index) => (
+                {homework.tags?.filter(t => DefaultTags.includes(t)).map((tag, index) => (
                     <Grid item key={index}>
                         <Chip key={index} label={tag}/>
                     </Grid>
