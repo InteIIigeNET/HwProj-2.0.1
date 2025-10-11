@@ -292,6 +292,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 deadlineDateNotSet: false,
                 deadlineDate: undefined,
                 isDeadlineStrict: false,
+                description: "",
                 tasks: [],
                 tags: []
             },
@@ -332,6 +333,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             title: `Новая задача`,
             tags: homework.tags,
             isDeferred: homework.isDeferred,
+            description: "",
             id
         }
 
