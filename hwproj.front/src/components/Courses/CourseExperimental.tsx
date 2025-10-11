@@ -68,6 +68,7 @@ interface ICourseExperimentalState {
 export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const [hideDeferred, setHideDeferred] = useState<boolean>(false)
     const [showOnlyGroupedTest, setShowOnlyGroupedTest] = useState<string | undefined>(undefined)
+    const filterAdded = hideDeferred || showOnlyGroupedTest !== undefined
 
     // Определяем разрешение экрана пользователя
     const theme = useTheme();
@@ -281,9 +282,21 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         if (groupingTag === undefined) return null
 
         const groupedHomeworks = homeworks.filter(x => x.tags!.includes(TestTag) && x.tags!.includes(groupingTag))
+        if (groupedHomeworks.length === 1) return null
 
         const keys = new Set(groupedHomeworks.map(h => h.tasks!.map(t => t.maxRating).join(";")))
-        if (keys.size === 1) return null
+        if (keys.size === 1) return <Alert severity="success"
+                                           action={
+                                               <Button
+                                                   fullWidth
+                                                   color="inherit"
+                                                   size="small"
+                                                   onClick={() => setShowOnlyGroupedTest(groupingTag)}
+                                               >
+                                                   Задания
+                                               </Button>}>
+            Работа сгруппирована по ключу '<b>{groupingTag}</b>'.
+        </Alert>
 
         return <Alert severity="warning"
                       action={
@@ -293,7 +306,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                               size="small"
                               onClick={() => setShowOnlyGroupedTest(groupingTag)}
                           >
-                              Задания с '{groupingTag}'
+                              Задания
                           </Button>}>
             <AlertTitle>Группировка контрольных работ</AlertTitle>
             Создано несколько контрольных работ, сгруппированных по ключу '<b>{groupingTag}</b>',
@@ -333,8 +346,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             },
             fileInfos: []
         })
-        setHideDeferred(false)
-        setShowOnlyGroupedTest(undefined)
         setState((prevState) => ({
             ...prevState,
             selectedItem: {
@@ -492,7 +503,15 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                               borderRadius: 10
                           }
                       }}>
-                {props.isMentor && (homeworks[0]?.id || 1) > 0 && <Button
+                {props.isMentor && filterAdded && <Button
+                    onClick={() => {
+                        setHideDeferred(false)
+                        setShowOnlyGroupedTest(undefined)
+                    }}
+                    style={{borderRadius: 8, marginBottom: 10}} variant={"contained"} size={"medium"}>
+                    Показать все задания
+                </Button>}
+                {props.isMentor && !filterAdded && (homeworks[0]?.id || 1) > 0 && <Button
                     onClick={addNewHomework}
                     style={{borderRadius: 8, marginBottom: 10}} variant={"text"} size={"small"}>
                     + Добавить задание
