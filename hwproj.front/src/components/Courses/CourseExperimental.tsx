@@ -170,8 +170,14 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             .forEach(x => taskSolutionsMap.set(x.id!, x.solution!))
     }
 
-    const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel) =>
-        isMentor && (entity.publicationDateNotSet || entity.hasDeadline && entity.deadlineDateNotSet)
+    const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
+        if (!isMentor) return false
+        if (entity.publicationDateNotSet || entity.hasDeadline && entity.deadlineDateNotSet) return true
+
+        if (!isHomework) return false
+        const result = validateTestGrouping(entity)
+        return result !== true && result.hasErrors
+    }
 
     const renderHomeworkStatus = (homework: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
         const hasErrors = homework.id! < 0 && (homework.hasErrors || homework.tasks!.some((t: HomeworkTaskViewModel & {
@@ -181,7 +187,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             return <div style={{fontSize: 16}}><ErrorIcon fontSize="small" color={"error"}/><br/></div>
         if (homework.isModified)
             return <div style={{fontSize: 16}}><EditIcon fontSize="small" color={"primary"}/><br/></div>
-        return showWarningsForEntity(homework) && <div style={{fontSize: 16}}>⚠️<br/></div>
+        return showWarningsForEntity(homework, true) && <div style={{fontSize: 16}}>⚠️<br/></div>
     }
 
     const renderTaskStatus = (task: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
@@ -204,7 +210,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         }
         if (task.hasErrors) return <ErrorIcon fontSize="small" color={"error"}/>
         if (task.isModified) return <EditIcon fontSize="small" color={"primary"}/>
-        return showWarningsForEntity(task) ? (
+        return showWarningsForEntity(task, false) ? (
             <Typography color={task.isDeferred ? "textSecondary" : "textPrimary"}>
                 <TimelineDot variant="outlined" style={warningTimelineDotStyle}>⚠️</TimelineDot>
             </Typography>
@@ -222,6 +228,19 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             initialEditMode: true,
             selectedItem: {id: homework.id!, isHomework: true},
         })
+
+    const validateTestGrouping = (homework: HomeworkViewModel) => {
+        if (!homework.tags!.includes(TestTag)) return true
+
+        const groupingTag = homework.tags!.find(x => !DefaultTags.includes(x))
+        if (groupingTag === undefined) return true
+
+        const groupedHomeworks = homeworks.filter(x => x.tags!.includes(TestTag) && x.tags!.includes(groupingTag))
+        if (groupedHomeworks.length === 1) return true
+
+        const keys = new Set(groupedHomeworks.map(h => h.tasks!.map(t => t.maxRating).join(";")))
+        return {groupingTag: groupingTag, hasErrors: keys.size === 1}
+    }
 
     const getDatesAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
         if (entity.publicationDateNotSet) {
@@ -276,25 +295,19 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         )
     }
     const getGroupingAlert = (homework: HomeworkViewModel) => {
-        if (!homework.tags!.includes(TestTag)) return null
-
-        const groupingTag = homework.tags!.find(x => !DefaultTags.includes(x))
-        if (groupingTag === undefined) return null
-
-        const groupedHomeworks = homeworks.filter(x => x.tags!.includes(TestTag) && x.tags!.includes(groupingTag))
-        if (groupedHomeworks.length === 1) return null
-
-        const keys = new Set(groupedHomeworks.map(h => h.tasks!.map(t => t.maxRating).join(";")))
-        if (keys.size === 1) return <Alert severity="success"
-                                           action={
-                                               <Button
-                                                   fullWidth
-                                                   color="inherit"
-                                                   size="small"
-                                                   onClick={() => setShowOnlyGroupedTest(groupingTag)}
-                                               >
-                                                   Задания
-                                               </Button>}>
+        const result = validateTestGrouping(homework)
+        if (result === true) return null
+        const {hasErrors, groupingTag} = result
+        if (!hasErrors) return <Alert severity="success"
+                                      action={
+                                          <Button
+                                              fullWidth
+                                              color="inherit"
+                                              size="small"
+                                              onClick={() => setShowOnlyGroupedTest(groupingTag)}
+                                          >
+                                              Задания
+                                          </Button>}>
             Работа сгруппирована по ключу '<b>{groupingTag}</b>'.
         </Alert>
 
