@@ -25,7 +25,7 @@ import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 import {Alert, Card, CardActions, Chip, Paper, Stack, Tooltip} from "@mui/material";
 import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import {BonusTag, getTip, isBonusWork, isTestWork, TestTag} from "../Common/HomeworkTags";
+import {BonusTag, DefaultTags, getTip, isBonusWork, isTestWork, TestTag} from "../Common/HomeworkTags";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
 import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExperimental";
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
@@ -67,6 +67,7 @@ interface ICourseExperimentalState {
 
 export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const [hideDeferred, setHideDeferred] = useState<boolean>(false)
+    const [showOnlyGroupedTest, setShowOnlyGroupedTest] = useState<string | undefined>(undefined)
 
     // Определяем разрешение экрана пользователя
     const theme = useTheme();
@@ -75,7 +76,12 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     // Состояние для кнопки "Наверх"
     const [showScrollButton, setShowScrollButton] = useState(false);
 
-    const homeworks = props.homeworks.slice().reverse().filter(x => !hideDeferred || !x.isDeferred)
+    const homeworks = props.homeworks.slice().reverse().filter(x => {
+        if (hideDeferred) return !x.isDeferred
+        if (showOnlyGroupedTest !== undefined) return x.tags!.includes(TestTag) && x.tags!.includes(showOnlyGroupedTest)
+        return true
+    })
+
     const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId, courseFilesInfo} = props
 
     const [state, setState] = useState<ICourseExperimentalState>({
@@ -216,7 +222,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             selectedItem: {id: homework.id!, isHomework: true},
         })
 
-    const getAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
+    const getDatesAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
         if (entity.publicationDateNotSet) {
             return (
                 <Alert severity="warning">
@@ -268,6 +274,35 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Alert>
         )
     }
+    const getGroupingAlert = (homework: HomeworkViewModel) => {
+        if (!homework.tags!.includes(TestTag)) return null
+
+        const groupingTag = homework.tags!.find(x => !DefaultTags.includes(x))
+        if (groupingTag === undefined) return null
+
+        const groupedHomeworks = homeworks.filter(x => x.tags!.includes(TestTag) && x.tags!.includes(groupingTag))
+
+        const keys = new Set(groupedHomeworks.map(h => h.tasks!.map(t => t.maxRating).join(";")))
+        if (keys.size === 1) return null
+
+        return <Alert severity="warning"
+                      action={
+                          <Button
+                              fullWidth
+                              color="inherit"
+                              size="small"
+                              onClick={() => setShowOnlyGroupedTest(groupingTag)}
+                          >
+                              Задания с '{groupingTag}'
+                          </Button>}>
+            <AlertTitle>Группировка контрольных работ</AlertTitle>
+            Создано несколько контрольных работ, сгруппированных по ключу '<b>{groupingTag}</b>',
+            однако работы отличаются между собой по количеству задач или их максимальным баллам.
+            <br/>
+            <br/>
+            Количество задач должно быть <b>одинаковым</b>, а баллы между соответствующими задачами <b>равными</b>.
+        </Alert>
+    }
 
     const selectedItemHomework = isHomework
         ? homeworks.find(x => x.id === id)!
@@ -298,6 +333,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             },
             fileInfos: []
         })
+        setHideDeferred(false)
+        setShowOnlyGroupedTest(undefined)
         setState((prevState) => ({
             ...prevState,
             selectedItem: {
@@ -353,7 +390,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         const homeworkEditMode = homework && (homework.id! < 0 || homework.isModified === true)
         return homework && <Stack direction={"column"} spacing={2}>
             <Card style={{backgroundColor: "ghostwhite"}} raised={homeworkEditMode}>
-                {getAlert(homework, true)}
+                {getGroupingAlert(homework)}
+                {getDatesAlert(homework, true)}
                 <CourseHomeworkExperimental
                     key={homework.id}
                     getAllHomeworks={() => homeworks}
@@ -383,7 +421,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const renderTask = (task: HomeworkTaskViewModel & { isModified?: boolean }, homework: HomeworkViewModel) => {
         const taskEditMode = task && (task.id! < 0 || task.isModified === true)
         return task && <Card style={{backgroundColor: "ghostwhite"}} raised={taskEditMode}>
-            {getAlert(task, false)}
+            {getDatesAlert(task, false)}
             <CourseTaskExperimental
                 key={task.id}
                 task={task}
