@@ -449,7 +449,7 @@ const CourseHomeworkExperimental: FC<{
     onStartProcessing: (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
 }> = (props) => {
     const {homework, filesInfo} = props.homeworkAndFilesInfo
-    const deferredHomeworks = homework.tasks!.filter(t => t.isDeferred!)
+    const deferredTasks = homework.tasks!.filter(t => t.isDeferred!)
     const tasksCount = homework.tasks!.length
     const [showEditMode, setShowEditMode] = useState(false)
     const [editMode, setEditMode] = useState(false)
@@ -480,12 +480,11 @@ const CourseHomeworkExperimental: FC<{
                         {homework.title}
                     </Typography>
                 </Grid>
-                {props.isMentor && deferredHomeworks!.length > 0 &&
-                    <Grid item><Chip label={"🕘 " + deferredHomeworks!.length}/></Grid>
-                }
                 {tasksCount > 0 && <Grid item>
                     <Chip
-                        label={tasksCount + " " + Utils.pluralizeHelper(["Задача", "Задачи", "Задач"], tasksCount)}/>
+                        label={tasksCount + " "
+                            + Utils.pluralizeHelper(["Задача", "Задачи", "Задач"], tasksCount)
+                            + (deferredTasks!.length > 0 ? ` (🕘 ${deferredTasks.length} ` + Utils.pluralizeHelper(["отложенная", "отложенные", "отложенных"], deferredTasks.length) + ")" : "")}/>
                 </Grid>}
                 {homework.tags?.filter(t => DefaultTags.includes(t)).map((tag, index) => (
                     <Grid item key={index}>
