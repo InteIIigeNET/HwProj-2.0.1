@@ -516,14 +516,24 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                               borderRadius: 10
                           }
                       }}>
-                {props.isMentor && filterAdded && <Button
-                    onClick={() => {
-                        setHideDeferred(false)
-                        setShowOnlyGroupedTest(undefined)
-                    }}
-                    style={{borderRadius: 8, marginBottom: 10}} variant={"contained"} size={"medium"}>
-                    Показать все задания
-                </Button>}
+                {props.isMentor && filterAdded && <Stack direction={"column"} alignItems={"center"}>
+                    <Button
+                        fullWidth
+                        onClick={() => {
+                            setHideDeferred(false)
+                            setShowOnlyGroupedTest(undefined)
+                        }}
+                        style={{borderRadius: 8, marginBottom: 10}} variant={"outlined"} size={"medium"}>
+                        Показать все задания
+                    </Button>
+                    <Typography
+                        variant={"caption"}>{hideDeferred
+                        ? "только опубликованные задания"
+                        : showOnlyGroupedTest
+                            ? `контрольные работы '${showOnlyGroupedTest}'`
+                            : ""}
+                    </Typography>
+                </Stack>}
                 {props.isMentor && !filterAdded && (homeworks[0]?.id || 1) > 0 && <Button
                     onClick={addNewHomework}
                     style={{borderRadius: 8, marginBottom: 10}} variant={"text"} size={"small"}>
