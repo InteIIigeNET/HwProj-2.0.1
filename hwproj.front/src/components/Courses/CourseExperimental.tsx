@@ -565,8 +565,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 }))
                             }}>
                             <Typography variant="h6" style={{fontSize: 18}} align={"center"}
-                                        color={x.isDeferred ? "textSecondary" : "textPrimary"}>
-                                {renderHomeworkStatus(x)}
+                                        color={x.isDeferred
+                                            ? "textSecondary"
+                                            : x.tags!.includes(TestTag) ? "primary" : "textPrimary"}>
+                                {isMentor && renderHomeworkStatus(x)}
                                 {x.title}{getTip(x)}
                             </Typography>
                             {x.isDeferred && !x.publicationDateNotSet &&
