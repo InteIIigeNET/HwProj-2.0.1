@@ -414,8 +414,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         const homeworkEditMode = homework && (homework.id! < 0 || homework.isModified === true)
         return homework && <Stack direction={"column"} spacing={2}>
             <Card style={{backgroundColor: "ghostwhite"}} raised={homeworkEditMode}>
-                {getGroupingAlert(homework)}
-                {getDatesAlert(homework, true)}
+                {isMentor && getGroupingAlert(homework)}
+                {isMentor && getDatesAlert(homework, true)}
                 <CourseHomeworkExperimental
                     key={homework.id}
                     getAllHomeworks={() => homeworks}
@@ -445,7 +445,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const renderTask = (task: HomeworkTaskViewModel & { isModified?: boolean }, homework: HomeworkViewModel) => {
         const taskEditMode = task && (task.id! < 0 || task.isModified === true)
         return task && <Card style={{backgroundColor: "ghostwhite"}} raised={taskEditMode}>
-            {getDatesAlert(task, false)}
+            {isMentor && getDatesAlert(task, false)}
             <CourseTaskExperimental
                 key={task.id}
                 task={task}
