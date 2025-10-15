@@ -50,7 +50,7 @@ interface IEditHomeworkState {
     hasErrors: boolean;
 }
 
-interface IEditFilesState {
+export interface IEditFilesState {
     initialFilesInfo: IFileInfo[]
     selectedFilesInfo: IFileInfo[]
     isLoadingInfo: boolean
