@@ -511,29 +511,31 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             ? <Typography
                                 style={{marginBottom: 15, whiteSpace: 'break-spaces'}}>{solution.comment}</Typography>
                             : <MarkdownPreview value={solution.comment}/>}
-                        {props.isProcessing ? (
-                            <div style={{ display: 'flex', alignItems: 'center', color: '#1976d2', fontWeight: '500' }}>
-                                <CircularProgress size="20px" />
-                                &nbsp;&nbsp;Обрабатываем файлы...
-                            </div>
-                        ) : filesInfo.length > 0 && (
-                            <div>
-                                <FilesPreviewList
-                                    filesInfo={filesInfo}
-                                    onClickFileInfo={async (fileInfo: IFileInfo) => {
-                                        const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!, {
-                                            courseId: props.courseId,
-                                            courseUnitType: fileInfo.courseUnitType,
-                                            courseUnitId: fileInfo.courseUnitId
-                                        })
-                                        window.open(url, '_blank');
-                                    }}
-                                />
-                            </div>
-                        )
-                        }
                     </Grid>
                 }
+                <Grid item style={{marginBottom: -16}}>
+                    {props.isProcessing ? (
+                        <div style={{ display: 'flex', alignItems: 'center', color: '#1976d2', fontWeight: '500' }}>
+                            <CircularProgress size="20px" />
+                            &nbsp;&nbsp;Обрабатываем файлы...
+                        </div>
+                    ) : filesInfo.length > 0 && (
+                        <div>
+                            <FilesPreviewList
+                                showOkStatus={true}
+                                filesInfo={filesInfo}
+                                onClickFileInfo={async (fileInfo: IFileInfo) => {
+                                    const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!, {
+                                        courseId: props.courseId,
+                                        courseUnitType: fileInfo.courseUnitType,
+                                        courseUnitId: fileInfo.courseUnitId
+                                    })
+                                    window.open(url, '_blank');
+                                }}
+                            />
+                        </div>
+                    )}
+                </Grid>
             </Grid>
         }
         {props.forMentor && props.isLastSolution && student && <Grid item>
