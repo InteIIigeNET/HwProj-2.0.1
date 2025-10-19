@@ -49,12 +49,13 @@ public class FilesController : AggregationController
             : StatusCode((int)HttpStatusCode.ServiceUnavailable, filesStatusesResult.Errors);
     }
 
-    [HttpGet("downloadLink")]
+    [HttpPost("downloadLink")]
+    [ServiceFilter(typeof(SolutionPrivacyAttribute))]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> GetDownloadLink([FromQuery] long fileId)
+    public async Task<IActionResult> GetDownloadLink([FromForm] FileScopeDTO fileScope)
     {
-        var result = await _contentServiceClient.GetDownloadLinkAsync(fileId);
+        var result = await _contentServiceClient.GetDownloadLinkAsync(fileScope.FileId);
         return result.Succeeded
             ? Ok(result.Value)
             : NotFound(result.Errors);
