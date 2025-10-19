@@ -37,8 +37,8 @@ public class FilesController : AggregationController
     }
 
     [HttpPost("statuses")]
-    [Authorize(Roles = Roles.LecturerRole)]
-    [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+    [Authorize(Roles = Roles.LecturerOrStudentRole)]
+    [ServiceFilter(typeof(SolutionPrivacyAttribute))]
     [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
     public async Task<IActionResult> GetStatuses(ScopeDTO filesScope)
