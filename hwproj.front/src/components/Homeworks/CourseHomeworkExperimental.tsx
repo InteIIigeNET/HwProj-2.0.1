@@ -32,7 +32,7 @@ import {enqueueSnackbar} from "notistack";
 import DeletionConfirmation from "../DeletionConfirmation";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ActionOptionsUI from "components/Common/ActionOptions";
-import {BonusTag, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
+import {BonusTag, DefaultTags, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
 import Lodash from "lodash";
 import {CourseUnitType} from "../Files/CourseUnitType"
 import ProcessFilesUtils from "../Utils/ProcessFilesUtils";
@@ -526,7 +526,11 @@ const CourseHomeworkExperimental: FC<{
                     showOkStatus={props.isMentor}
                     filesInfo={filesInfo}
                     onClickFileInfo={async (fileInfo: IFileInfo) => {
-                        const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!)
+                        const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!, {
+                            courseId: homework.courseId,
+                            courseUnitType: CourseUnitType.Homework,
+                            courseUnitId: homework.id,
+                        })
                         window.open(url, '_blank');
                     }}
                 />
