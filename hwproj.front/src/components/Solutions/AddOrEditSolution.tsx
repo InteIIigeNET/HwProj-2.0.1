@@ -79,8 +79,8 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
             props.onAdd()
         } else {
             try {
-                props.onStartProcessing(solutionId, filesState.initialFilesInfo.length, newFiles.length, deletingFileIds)
                 props.onAdd()
+                props.onStartProcessing(solutionId, filesState.initialFilesInfo.length, newFiles.length, deletingFileIds)
             } catch (e) {
                 const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
                 enqueueSnackbar(responseErrors[0], { variant: "warning", autoHideDuration: 4000 });
