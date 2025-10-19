@@ -24,8 +24,8 @@ public class FilesController : AggregationController
     }
 
     [HttpPost("process")]
-    [Authorize(Roles = Roles.LecturerRole)]
-    [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+    [Authorize(Roles = Roles.LecturerOrStudentRole)]
+    [ServiceFilter(typeof(CourseMentorOrSolutionStudentAttribute))]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
     public async Task<IActionResult> Process([FromForm] ProcessFilesDTO processFilesDto)
