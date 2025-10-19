@@ -79,7 +79,9 @@ public class Startup
         services.AddNotificationsServiceClient();
         services.AddContentServiceClient();
 
-        services.AddScoped<CourseMentorOnlyAttribute>();
+        services.AddScoped<CourseMentorOnlyAttribute>(); //TODO : delete?
+        services.AddScoped<SolutionPrivacyAttribute>();
+        services.AddScoped<CourseMentorOrSolutionStudentAttribute>();
     }
 
     public void Configure(IApplicationBuilder app, IHostEnvironment env)
