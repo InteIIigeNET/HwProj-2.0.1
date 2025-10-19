@@ -519,10 +519,13 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         ) : filesInfo.length > 0 && (
                             <div>
                                 <FilesPreviewList
-                                    showOkStatus={false}
                                     filesInfo={filesInfo}
                                     onClickFileInfo={async (fileInfo: IFileInfo) => {
-                                        const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!)
+                                        const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!, {
+                                            courseId: props.courseId,
+                                            courseUnitType: fileInfo.courseUnitType,
+                                            courseUnitId: fileInfo.courseUnitId
+                                        })
                                         window.open(url, '_blank');
                                     }}
                                 />

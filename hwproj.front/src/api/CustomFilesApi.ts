@@ -1,4 +1,4 @@
-import {BaseAPI} from "./api";
+import {BaseAPI, ScopeDTO} from "./api";
 import { IProcessFilesDto } from "../components/Files/IProcessFilesDto";
 
 export default class CustomFilesApi extends BaseAPI {
@@ -35,10 +35,16 @@ export default class CustomFilesApi extends BaseAPI {
         }
     }
 
-    public getDownloadFileLink = async (fileKey: number) => {
-        // Необходимо, чтобы символы & и др. не влияли на обработку запроса на бэкенде
-        const response = await fetch(this.basePath + `/api/Files/downloadLink?fileId=${fileKey}`, {
-            method: 'GET',
+    public getDownloadFileLink = async (fileKey: number, fileScope: ScopeDTO) => {
+        const formData = new FormData();
+        formData.append('FileId', fileKey.toString());
+        formData.append('CourseId', fileScope.courseId?.toString() ?? "-1");
+        formData.append('CourseUnitType', fileScope.courseUnitType?.toString() ?? "-1");
+        formData.append('CourseUnitId', fileScope.courseUnitId?.toString() ?? "-1");
+
+        const response = await fetch(this.basePath + `/api/Files/downloadLink`, {
+            method: 'POST',
+            body: formData,
             headers: {
                 'Authorization': this.getApiKeyValue(),
             },
