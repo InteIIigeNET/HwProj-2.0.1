@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
@@ -61,21 +62,21 @@ public class SolutionPrivacyAttribute : ActionFilterAttribute
             courseUnitType = fileScopeDto.CourseUnitType;
             courseUnitId = fileScopeDto.CourseUnitId;
         }
-        
-        if (courseUnitType == "Homework") return;
+
+        if (courseUnitType == "Homework") next.Invoke();
         
         if (userRole == Roles.StudentRole)
         {
-            string? studentId = null;
-            Console.WriteLine(courseId);
+            IEnumerable<string> studentIds = [];
             if (courseId != -1)
             {
                 var solution = await _solutionsServiceClient.GetSolutionById(courseUnitId);
-                Console.WriteLine(courseUnitId);
-                studentId = solution.StudentId;
+                studentIds = studentIds.Append(solution.StudentId);
+                var group = await _coursesServiceClient.GetGroupsById(solution.GroupId ?? 0);
+                studentIds = studentIds.Concat(group.FirstOrDefault()?.StudentsIds ?? Array.Empty<string>());
             }
 
-            if (userId != studentId)
+            if (!studentIds.Contains(userId))
             {
                 context.Result = new ContentResult
                 {
