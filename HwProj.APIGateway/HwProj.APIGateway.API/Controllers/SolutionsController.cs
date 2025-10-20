@@ -293,12 +293,14 @@ public class SolutionsController : AggregationController
         var course = await _coursesServiceClient.GetCourseByTask(taskId);
         if (course is null) return BadRequest();
 
+        long result;
+
         var courseMate = course.AcceptedStudents.FirstOrDefault(t => t.StudentId == solutionModel.StudentId);
         if (courseMate == null) return BadRequest($"Студента с id {solutionModel.StudentId} не существует");
 
         if (model.GroupMateIds == null || model.GroupMateIds.Length == 0)
         {
-            var result = await _solutionsClient.PostSolution(taskId, solutionModel);
+            result = await _solutionsClient.PostSolution(taskId, solutionModel);
             return Ok(result);
         }
 
@@ -319,9 +321,9 @@ public class SolutionsController : AggregationController
             await _coursesServiceClient.CreateCourseGroup(new CreateGroupViewModel(arrFullStudentsGroup, course.Id),
                 taskId);
 
-        await _solutionsClient.PostSolution(taskId, solutionModel);
+        result = await _solutionsClient.PostSolution(taskId, solutionModel);
 
-        return Ok(solutionModel);
+        return Ok(result);
     }
 
     [HttpPost("automated/{courseId}")]
