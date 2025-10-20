@@ -10,6 +10,7 @@ namespace HwProj.Models.ContentService.DTO
         
         public List<long> DeletingFileIds { get; set; } = new List<long>();
         
+        [CorrectFileType]
         [MaxFileSize(100 * 1024 * 1024)]
         public List<IFormFile> NewFiles { get; set; } = new List<IFormFile>();
     }
