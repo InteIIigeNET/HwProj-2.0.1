@@ -191,6 +191,7 @@ const TaskSolutionsPage: FC = () => {
     };
 
     // Запускает получение информации о файлах элемента курса с интервалом в 1 секунду и 5 попытками
+    //TODO: вынести в отдельную функцию?
     const getFilesByInterval = (solutionId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => {
         // Очищаем предыдущие таймеры
         stopProcessing(solutionId);

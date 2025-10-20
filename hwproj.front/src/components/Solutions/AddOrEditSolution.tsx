@@ -49,6 +49,7 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
         let solutionId = await ApiSingleton.solutionsApi.solutionsPostSolution(props.task.id!, solution)
 
         // Если какие-то файлы из ранее добавленных больше не выбраны, их потребуется удалить
+        // TODO: вынести?
         const deletingFileIds = filesState.initialFilesInfo.filter(initialFile =>
             initialFile.id && !filesState.selectedFilesInfo.some(sf => sf.id === initialFile.id))
             .map(fileInfo => fileInfo.id!)
