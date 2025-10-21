@@ -293,37 +293,37 @@ public class SolutionsController : AggregationController
         var course = await _coursesServiceClient.GetCourseByTask(taskId);
         if (course is null) return BadRequest();
 
-        long result;
-
         var courseMate = course.AcceptedStudents.FirstOrDefault(t => t.StudentId == solutionModel.StudentId);
         if (courseMate == null) return BadRequest($"Студента с id {solutionModel.StudentId} не существует");
 
         if (model.GroupMateIds == null || model.GroupMateIds.Length == 0)
         {
-            result = await _solutionsClient.PostSolution(taskId, solutionModel);
+            var result = await _solutionsClient.PostSolution(taskId, solutionModel);
             return Ok(result);
         }
+        else
+        {
+            var fullStudentsGroup = model.GroupMateIds.ToList();
+            fullStudentsGroup.Add(solutionModel.StudentId);
+            var arrFullStudentsGroup = fullStudentsGroup.Distinct().ToArray();
 
-        var fullStudentsGroup = model.GroupMateIds.ToList();
-        fullStudentsGroup.Add(solutionModel.StudentId);
-        var arrFullStudentsGroup = fullStudentsGroup.Distinct().ToArray();
+            if (arrFullStudentsGroup.Intersect(course.CourseMates.Select(x => x.StudentId)).Count() !=
+                arrFullStudentsGroup.Length)
+                return BadRequest();
 
-        if (arrFullStudentsGroup.Intersect(course.CourseMates.Select(x => x.StudentId)).Count() !=
-            arrFullStudentsGroup.Length)
-            return BadRequest();
+            var existedGroup = course.Groups.SingleOrDefault(x =>
+                x.StudentsIds.Length == arrFullStudentsGroup.Length &&
+                x.StudentsIds.Intersect(arrFullStudentsGroup).Count() == arrFullStudentsGroup.Length);
 
-        var existedGroup = course.Groups.SingleOrDefault(x =>
-            x.StudentsIds.Length == arrFullStudentsGroup.Length &&
-            x.StudentsIds.Intersect(arrFullStudentsGroup).Count() == arrFullStudentsGroup.Length);
+            solutionModel.GroupId =
+                existedGroup?.Id ??
+                await _coursesServiceClient.CreateCourseGroup(new CreateGroupViewModel(arrFullStudentsGroup, course.Id),
+                    taskId);
 
-        solutionModel.GroupId =
-            existedGroup?.Id ??
-            await _coursesServiceClient.CreateCourseGroup(new CreateGroupViewModel(arrFullStudentsGroup, course.Id),
-                taskId);
+            var result = await _solutionsClient.PostSolution(taskId, solutionModel);
 
-        result = await _solutionsClient.PostSolution(taskId, solutionModel);
-
-        return Ok(result);
+            return Ok(result);
+        }
     }
 
     [HttpPost("automated/{courseId}")]
