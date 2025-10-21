@@ -301,27 +301,29 @@ public class SolutionsController : AggregationController
             var result = await _solutionsClient.PostSolution(taskId, solutionModel);
             return Ok(result);
         }
+        else
+        {
+            var fullStudentsGroup = model.GroupMateIds.ToList();
+            fullStudentsGroup.Add(solutionModel.StudentId);
+            var arrFullStudentsGroup = fullStudentsGroup.Distinct().ToArray();
 
-        var fullStudentsGroup = model.GroupMateIds.ToList();
-        fullStudentsGroup.Add(solutionModel.StudentId);
-        var arrFullStudentsGroup = fullStudentsGroup.Distinct().ToArray();
+            if (arrFullStudentsGroup.Intersect(course.CourseMates.Select(x => x.StudentId)).Count() !=
+                arrFullStudentsGroup.Length)
+                return BadRequest();
 
-        if (arrFullStudentsGroup.Intersect(course.CourseMates.Select(x => x.StudentId)).Count() !=
-            arrFullStudentsGroup.Length)
-            return BadRequest();
+            var existedGroup = course.Groups.SingleOrDefault(x =>
+                x.StudentsIds.Length == arrFullStudentsGroup.Length &&
+                x.StudentsIds.Intersect(arrFullStudentsGroup).Count() == arrFullStudentsGroup.Length);
 
-        var existedGroup = course.Groups.SingleOrDefault(x =>
-            x.StudentsIds.Length == arrFullStudentsGroup.Length &&
-            x.StudentsIds.Intersect(arrFullStudentsGroup).Count() == arrFullStudentsGroup.Length);
+            solutionModel.GroupId =
+                existedGroup?.Id ??
+                await _coursesServiceClient.CreateCourseGroup(new CreateGroupViewModel(arrFullStudentsGroup, course.Id),
+                    taskId);
 
-        solutionModel.GroupId =
-            existedGroup?.Id ??
-            await _coursesServiceClient.CreateCourseGroup(new CreateGroupViewModel(arrFullStudentsGroup, course.Id),
-                taskId);
+            var result = await _solutionsClient.PostSolution(taskId, solutionModel);
 
-        await _solutionsClient.PostSolution(taskId, solutionModel);
-
-        return Ok(solutionModel);
+            return Ok(result);
+        }
     }
 
     [HttpPost("automated/{courseId}")]
