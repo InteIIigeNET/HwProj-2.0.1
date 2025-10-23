@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -67,13 +66,13 @@ public class SolutionPrivacyAttribute : ActionFilterAttribute
         
         if (userRole == Roles.StudentRole)
         {
-            IEnumerable<string> studentIds = [];
+            HashSet<string> studentIds = [];
             if (courseId != -1)
             {
                 var solution = await _solutionsServiceClient.GetSolutionById(courseUnitId);
-                studentIds = studentIds.Append(solution.StudentId);
+                studentIds.Add(solution.StudentId);
                 var group = await _coursesServiceClient.GetGroupsById(solution.GroupId ?? 0);
-                studentIds = studentIds.Concat(group.FirstOrDefault()?.StudentsIds ?? Array.Empty<string>());
+                studentIds.UnionWith(group.FirstOrDefault()?.StudentsIds.ToHashSet() ?? new());
             }
 
             if (!studentIds.Contains(userId))
