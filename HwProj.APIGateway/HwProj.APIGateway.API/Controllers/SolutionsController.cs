@@ -358,7 +358,7 @@ public class SolutionsController : AggregationController
                     model.StudentId.Contains(x.Surname.Trim()) &&
                     (string.IsNullOrEmpty(x.MiddleName) || model.StudentId.Contains(x.MiddleName.Trim())))
                 .ToArray(),
-            StudentIdType.GitHub => students.Where(x => x.GithubId == model.TaskId).ToArray(),
+            StudentIdType.GitHub => students.Where(x => x.GithubId == model.StudentId).ToArray(),
             _ => []
         };
 
