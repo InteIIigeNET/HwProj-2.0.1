@@ -354,11 +354,11 @@ public class SolutionsController : AggregationController
                 : [],
             StudentIdType.FullName => students
                 .Where(x =>
-                    model.StudentId.Contains(x.Name) &&
-                    model.StudentId.Contains(x.Surname) &&
-                    (string.IsNullOrEmpty(x.MiddleName) || model.StudentId.Contains(x.MiddleName)))
+                    model.StudentId.Contains(x.Name.Trim()) &&
+                    model.StudentId.Contains(x.Surname.Trim()) &&
+                    (string.IsNullOrEmpty(x.MiddleName) || model.StudentId.Contains(x.MiddleName.Trim())))
                 .ToArray(),
-            StudentIdType.GitHub => students.Where(x => x.GithubId == model.TaskId).ToArray(),
+            StudentIdType.GitHub => students.Where(x => x.GithubId == model.StudentId).ToArray(),
             _ => []
         };
 
