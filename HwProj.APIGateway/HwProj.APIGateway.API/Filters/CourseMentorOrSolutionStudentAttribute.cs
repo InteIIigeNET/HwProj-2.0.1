@@ -1,6 +1,7 @@
 namespace HwProj.APIGateway.API.Filters;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using CoursesService.Client;
 using SolutionsService.Client;
 using HwProj.Models.ContentService.DTO;
@@ -38,7 +39,6 @@ public class CourseMentorOrSolutionStudentAttribute : ActionFilterAttribute
         var courseUnitType = "";
         long courseUnitId = -1;
 
-        // Для метода Process (параметр: processFilesDto)
         if (context.ActionArguments.TryGetValue("processFilesDto", out var processFilesDto) &&
             processFilesDto is ProcessFilesDTO dto)
         {
@@ -51,13 +51,16 @@ public class CourseMentorOrSolutionStudentAttribute : ActionFilterAttribute
         {
             string? studentId = null;
             
+            HashSet<string> studentIds = [];
             if (courseId != -1)
             {
                 var solution = await _solutionsServiceClient.GetSolutionById(courseUnitId);
-                studentId = solution.StudentId;
+                studentIds.Add(solution.StudentId);
+                var group = await _coursesServiceClient.GetGroupsById(solution.GroupId ?? 0);
+                studentIds.UnionWith(group.FirstOrDefault()?.StudentsIds.ToHashSet() ?? new());
             }
 
-            if (userId != studentId)
+            if (!studentIds.Contains(userId))
             {
                 context.Result = new ContentResult
                 {
