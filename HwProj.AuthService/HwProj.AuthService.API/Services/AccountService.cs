@@ -93,6 +93,11 @@ namespace HwProj.AuthService.API.Services
 
         public async Task<Result<string>> RegisterUserAsync(RegisterDataDTO model)
         {
+            model.Email = model.Email.Trim();
+            model.Name = model.Name.Trim();
+            model.Surname = model.Surname.Trim();
+            model.MiddleName = model.MiddleName.Trim();
+
             if (await _userManager.FindByEmailAsync(model.Email) != null)
                 return Result<string>.Failed("Пользователь уже зарегистрирован");
 
