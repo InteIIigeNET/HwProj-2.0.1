@@ -18,17 +18,15 @@ export const FilesAccessService = (courseId: number, isOwner?: boolean) => {
         courseFiles: []
     })
 
-    const stopIntervals = () => {
-        Object.values(intervalsRef).forEach(({interval, timeout}) => {
-            clearInterval(interval);
-            clearTimeout(timeout);
-        });
-        intervalsRef.current = {};
-    }
-
     // Останавливаем все активные интервалы при размонтировании
     useEffect(() => {
-        return () => stopIntervals();
+        return () => {
+            Object.values(intervalsRef.current).forEach(({interval, timeout}) => {
+                clearInterval(interval);
+                clearTimeout(timeout);
+            });
+            intervalsRef.current = {};
+        };
     }, []);
 
     const unsetCommonLoading = (courseUnitId: number) => {
