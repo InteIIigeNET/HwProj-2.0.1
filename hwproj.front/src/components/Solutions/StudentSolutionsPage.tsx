@@ -5,7 +5,7 @@ import {
     HomeworkTaskViewModel,
     Solution,
     TaskSolutionsStats,
-    SolutionState, StudentDataDto, AccountDataDto, FileInfoDTO
+    SolutionState, StudentDataDto, AccountDataDto
 } from "@/api";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
@@ -40,10 +40,7 @@ import {getTip} from "../Common/HomeworkTags";
 import {appBarStateManager} from "../AppBar";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {RemovedFromCourseTag} from "@/components/Common/StudentTags";
-import AuthService from "@/services/AuthService";
-import {ICourseFilesState} from "@/components/Courses/Course";
-import {enqueueSnackbar} from "notistack";
-import ErrorsHandler from "@/components/Utils/ErrorsHandler";
+import {FilesAccessService} from "@/components/Files/FilesAccessService";
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -99,28 +96,6 @@ const StudentSolutionsPage: FC = () => {
     )
 
     const [secondMentorId, setSecondMentorId] = useState<string | undefined>(undefined)
-
-    const [courseFilesState, setCourseFilesState] = useState<ICourseFilesState>({
-        processingFilesState: {},
-        courseFiles: []
-    })
-
-    const getCourseFilesInfo = async () => {
-        let courseFilesInfo = [] as FileInfoDTO[]
-        try {
-            courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
-        } catch (e) {
-            const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
-            enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 1990});
-        }
-        setCourseFilesState(prevState => ({
-            ...prevState,
-            courseFiles: courseFilesInfo
-        }))
-    }
-    useEffect(() => {
-        getCourseFilesInfo()
-    })
 
     const handleFilterChange = (event: SelectChangeEvent<typeof filterState>) => {
         const filters = filterState.length > 0 ? [] : ["Только непроверенные" as Filter]
@@ -288,6 +263,8 @@ const StudentSolutionsPage: FC = () => {
             </Typography>}
         </div>
     }
+
+    const {courseFilesState} = FilesAccessService(courseId, false);
 
     if (isLoaded) {
         return (

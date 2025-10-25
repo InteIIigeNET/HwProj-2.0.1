@@ -18,7 +18,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {DotLottieReact} from '@lottiefiles/dotlottie-react';
 
 interface ITaskSolutionsProps {
-    courseId: number,
+    courseId: number
     task: HomeworkTaskViewModel
     solutions: GetSolutionModel[]
     student: StudentDataDto | undefined
@@ -195,7 +195,8 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     isLastSolution={true}
                     courseId={props.courseId}
                     courseFilesInfo={props.courseFiles}
-                    isProcessing={props.processingFiles[lastSolution.id!]?.isLoading || false}/>
+                    isProcessing={props.processingFiles[lastSolution.id!]?.isLoading || false}
+                />
                 : <div>
                     Студент не отправил ни одного решения.
                     <DotLottieReact
@@ -217,7 +218,8 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                         isLastSolution={false}
                         courseId={props.courseId}
                         courseFilesInfo={props.courseFiles}
-                        isProcessing={props.processingFiles[x.id!]?.isLoading || false}/>
+                        isProcessing={props.processingFiles[x.id!]?.isLoading || false}
+                    />
                     {i < arrayOfRatedSolutions.length - 1 ?
                         <Divider style={{marginTop: 10, marginBottom: 4}}/> : null}
                 </Grid>)}

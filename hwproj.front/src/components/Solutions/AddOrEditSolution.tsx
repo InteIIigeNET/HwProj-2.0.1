@@ -1,16 +1,22 @@
 import * as React from 'react';
+import {FC, useState} from 'react';
 import ApiSingleton from "../../api/ApiSingleton";
-import { AccountDataDto, GetSolutionModel, HomeworkTaskViewModel, SolutionState, SolutionViewModel, FileInfoDTO } from "@/api";
-import { FC, useState } from "react";
-import { Alert, Autocomplete, Grid, DialogContent, Dialog, DialogTitle, DialogActions, Button } from "@mui/material";
-import { MarkdownEditor } from "../Common/MarkdownEditor";
-import { TestTag } from "../Common/HomeworkTags";
-import { LoadingButton } from "@mui/lab";
+import {
+    AccountDataDto,
+    FileInfoDTO,
+    GetSolutionModel,
+    HomeworkTaskViewModel,
+    SolutionState,
+    SolutionViewModel
+} from "@/api";
+import {Alert, Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid} from "@mui/material";
+import {MarkdownEditor} from "../Common/MarkdownEditor";
+import {TestTag} from "../Common/HomeworkTags";
+import {LoadingButton} from "@mui/lab";
 import TextField from "@mui/material/TextField";
 import FilesUploader from '../Files/FilesUploader';
-import { IEditFilesState } from '../Homeworks/CourseHomeworkExperimental';
-import { IFileInfo } from '../Files/IFileInfo';
-import { CourseUnitType } from '../Files/CourseUnitType';
+import {IEditFilesState} from '../Homeworks/CourseHomeworkExperimental';
+import {CourseUnitType} from '../Files/CourseUnitType';
 import ErrorsHandler from "@/components/Utils/ErrorsHandler";
 import {enqueueSnackbar} from "notistack";
 import FileInfoConverter from "@/components/Utils/FileInfoConverter";
@@ -25,7 +31,7 @@ interface IAddSolutionProps {
     courseFilesInfo: FileInfoDTO[],
     onAdd: () => void,
     onCancel: () => void,
-    onStartProcessing: (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
+    onStartProcessing: (solutionId: number, courseUnitType: CourseUnitType, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
 }
 
 const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
@@ -40,7 +46,14 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     })
 
     const [disableSend, setDisableSend] = useState(false)
+
     const filesInfo = lastSolution?.id ? FileInfoConverter.getSolutionFilesInfo(props.courseFilesInfo, lastSolution.id) : []
+    const initialFilesInfo = filesInfo.filter(x => x.id !== undefined)
+    const [filesState, setFilesState] = useState<IEditFilesState>({
+        initialFilesInfo: initialFilesInfo,
+        selectedFilesInfo: filesInfo,
+        isLoadingInfo: false
+    });
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
@@ -49,7 +62,6 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
         let solutionId = await ApiSingleton.solutionsApi.solutionsPostSolution(props.task.id!, solution)
 
         // Если какие-то файлы из ранее добавленных больше не выбраны, их потребуется удалить
-        // TODO: вынести?
         const deletingFileIds = filesState.initialFilesInfo.filter(initialFile =>
             initialFile.id && !filesState.selectedFilesInfo.some(sf => sf.id === initialFile.id))
             .map(fileInfo => fileInfo.id!)
@@ -80,8 +92,14 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
             props.onAdd()
         } else {
             try {
-                props.onAdd()
-                props.onStartProcessing(solutionId, filesState.initialFilesInfo.length, newFiles.length, deletingFileIds)
+                props.onAdd();
+                props.onStartProcessing(
+                    solutionId,
+                    CourseUnitType.Solution,
+                    filesState.initialFilesInfo.length,
+                    newFiles.length,
+                    deletingFileIds
+                );
             } catch (e) {
                 const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
                 enqueueSnackbar(responseErrors[0], { variant: "warning", autoHideDuration: 4000 });
@@ -94,13 +112,6 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     const isTest = props.task.tags?.includes(TestTag)
     const showTestGithubInfo = isTest && githubUrl?.startsWith("https://github") && githubUrl.includes("/pull/")
     const courseMates = props.students.filter(s => props.userId !== s.userId)
-
-    const initialFilesInfo = filesInfo.filter(x => x.id !== undefined)
-    const [filesState, setFilesState] = useState<IEditFilesState>({
-        initialFilesInfo: initialFilesInfo,
-        selectedFilesInfo: filesInfo,
-        isLoadingInfo: false
-    });
 
     return (
         <Dialog fullWidth
@@ -187,7 +198,8 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
                                 }));
                             }}
                             courseUnitType={CourseUnitType.Solution}
-                            courseUnitId={lastSolution?.id !== undefined ? lastSolution.id : -1} />
+                            courseUnitId={lastSolution?.id !== undefined ? lastSolution.id : -1}
+                        />
                     </Grid>
                 </Grid>
             </DialogContent>
