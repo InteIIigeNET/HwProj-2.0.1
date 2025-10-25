@@ -1077,7 +1077,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     ) : filesInfo.length > 0 && (
                         <div>
                             <FilesPreviewList
-                                showOkStatus={true}
+                                showOkStatus={ !props.forMentor }
                                 filesInfo={filesInfo}
                                 onClickFileInfo={async (fileInfo: IFileInfo) => {
                                     const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!, {
