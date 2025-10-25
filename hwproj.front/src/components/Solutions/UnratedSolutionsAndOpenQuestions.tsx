@@ -14,6 +14,7 @@ import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
 import TextField from "@mui/material/TextField";
 import ApiSingleton from "@/api/ApiSingleton";
+import {TestTip} from "@/components/Common/HomeworkTags";
 
 interface IUnratedSolutionsProps {
     unratedSolutionsPreviews: UnratedSolutionPreviews
@@ -212,8 +213,9 @@ const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => 
                                 to={`/task/${solution.taskId}/${solution.student!.userId}`}
                                 style={{color: "#212529"}}
                             >
-                                <Typography style={{fontSize: "20px"}}>
+                                <Typography style={{fontSize: "20px"}} color={solution.isTest ? "primary" : "default"}>
                                     {solution.student!.surname} {solution.student!.name} {" • "} {solution.taskTitle}
+                                    {solution.isTest && <TestTip/>}
                                 </Typography>
                             </NavLink>
                         </Grid>

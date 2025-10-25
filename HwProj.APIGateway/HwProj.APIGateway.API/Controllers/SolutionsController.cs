@@ -492,7 +492,8 @@ public class SolutionsController : AggregationController
                     GroupId = solution.GroupId,
                     SentAfterDeadline = solution.IsFirstTry && task.DeadlineDate != null &&
                                         solution.PublicationDate > task.DeadlineDate,
-                    IsCourseCompleted = course.IsCompleted
+                    IsCourseCompleted = course.IsCompleted,
+                    IsTest = task.Tags.Contains(HomeworkTags.Test)
                 };
             })
             .ToArray();

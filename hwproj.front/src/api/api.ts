@@ -2076,6 +2076,12 @@ export interface SolutionPreviewView {
      * @memberof SolutionPreviewView
      */
     isCourseCompleted?: boolean;
+    /**
+     *
+     * @type {boolean}
+     * @memberof SolutionPreviewView
+     */
+    isTest?: boolean;
 }
 /**
  *
