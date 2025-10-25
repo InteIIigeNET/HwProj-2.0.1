@@ -40,24 +40,27 @@ namespace HwProj.Models.ContentService.Attributes
                 {
                     // Первые байты для проверки сигнатуры
                     var buffer = new byte[4];
-                    var bytesRead = file.OpenReadStream().Read(buffer, 0, buffer.Length);
-
-                    if (bytesRead < 2)
-                        return ValidationResult.Success; // Слишком короткий файл, не исполняемый
-
-                    foreach (var signature in forbiddenFileSignatures)
+                    using (var stream = file.OpenReadStream())
                     {
-                        if (signature.SequenceEqual(buffer.Take(signature.Length)))
+                        var bytesRead = stream.Read(buffer, 0, buffer.Length);
+
+                        if (bytesRead < 2)
+                            return ValidationResult.Success; // Слишком короткий файл, не исполняемый
+
+                        foreach (var signature in forbiddenFileSignatures)
                         {
-                            return new ValidationResult(
-                                $"Файл `{file.FileName}` имеет недопустимый тип ${file.ContentType}");
+                            if (signature.SequenceEqual(buffer.Take(signature.Length)))
+                            {
+                                return new ValidationResult(
+                                    $"Файл `{file.FileName}` имеет недопустимый тип ${file.ContentType}");
+                            }
                         }
                     }
                 }
                 catch
                 {
                     return new ValidationResult(
-                        $"Невозможно открыть файл `{file.FileName}`");
+                        $"Невозможно прочитать файл `{file.FileName}`");
                 }
             }
 
