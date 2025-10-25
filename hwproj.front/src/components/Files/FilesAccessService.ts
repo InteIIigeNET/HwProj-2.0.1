@@ -29,22 +29,12 @@ export const FilesAccessService = (courseId: number, isOwner?: boolean) => {
         };
     }, []);
 
-    const unsetCommonLoading = (courseUnitId: number) => {
-        setCourseFilesState(prev => ({
-            ...prev,
-            processingFilesState: {
-                ...prev.processingFilesState,
-                [courseUnitId]: {isLoading: false}
-            }
-        }));
-    }
-
     const stopProcessing = (courseUnitId: number) => {
-        if (intervalsRef[courseUnitId]) {
-            const {interval, timeout} = intervalsRef[courseUnitId];
+        if (intervalsRef.current[courseUnitId]) {
+            const {interval, timeout} = intervalsRef.current[courseUnitId];
             clearInterval(interval);
             clearTimeout(timeout);
-            delete intervalsRef[courseUnitId];
+            delete intervalsRef.current[courseUnitId];
         }
     };
 
@@ -54,6 +44,16 @@ export const FilesAccessService = (courseId: number, isOwner?: boolean) => {
             processingFilesState: {
                 ...prev.processingFilesState,
                 [courseUnitId]: {isLoading: true}
+            }
+        }));
+    }
+
+    const unsetCommonLoading = (courseUnitId: number) => {
+        setCourseFilesState(prev => ({
+            ...prev,
+            processingFilesState: {
+                ...prev.processingFilesState,
+                [courseUnitId]: {isLoading: false}
             }
         }));
     }
@@ -160,7 +160,7 @@ export const FilesAccessService = (courseId: number, isOwner?: boolean) => {
             }, 10000);
 
             // Сохраняем интервал и таймаут в ref
-            intervalsRef[courseUnitId] = {interval, timeout};
+            intervalsRef.current[courseUnitId] = {interval, timeout};
 
             // Сигнализируем о начале загрузки через состояние
             setCommonLoading(courseUnitId);
