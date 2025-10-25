@@ -76,7 +76,7 @@ export const FilesAccessService = (courseId: number, isOwner?: boolean) => {
 
     useEffect(() => {
         updCourseFiles();
-    }, []);
+    }, [courseId, isOwner]);
 
     const updateCourseUnitFilesInfo = (files: FileInfoDTO[], unitType: CourseUnitType, unitId: number) => {
         setCourseFilesState(prev => ({
@@ -105,7 +105,7 @@ export const FilesAccessService = (courseId: number, isOwner?: boolean) => {
             let delay = 1000; // Начальная задержка 1 сек
 
             const scopeDto: ScopeDTO = {
-                courseId: +courseId,
+                courseId: +courseId!,
                 courseUnitType: courseUnitType,
                 courseUnitId: courseUnitId
             }
