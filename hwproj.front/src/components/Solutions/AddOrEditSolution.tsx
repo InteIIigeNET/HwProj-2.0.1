@@ -50,7 +50,14 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     })
 
     const [disableSend, setDisableSend] = useState(false)
+
     const filesInfo = lastSolution?.id ? FileInfoConverter.getSolutionFilesInfo(props.courseFilesInfo, lastSolution.id) : []
+    const initialFilesInfo = filesInfo.filter(x => x.id !== undefined)
+    const [filesState, setFilesState] = useState<IEditFilesState>({
+        initialFilesInfo: initialFilesInfo,
+        selectedFilesInfo: filesInfo,
+        isLoadingInfo: false
+    });
 
     const maxFilesCount = 5;
 
@@ -77,13 +84,6 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     const isTest = props.task.tags?.includes(TestTag)
     const showTestGithubInfo = isTest && githubUrl?.startsWith("https://github") && githubUrl.includes("/pull/")
     const courseMates = props.students.filter(s => props.userId !== s.userId)
-
-    const initialFilesInfo = filesInfo.filter(x => x.id !== undefined)
-    const [filesState, setFilesState] = useState<IEditFilesState>({
-        initialFilesInfo: initialFilesInfo,
-        selectedFilesInfo: filesInfo,
-        isLoadingInfo: false
-    });
 
     return (
         <Dialog fullWidth
