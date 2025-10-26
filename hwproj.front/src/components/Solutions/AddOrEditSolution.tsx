@@ -43,7 +43,7 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     const isEdit = lastSolution?.state === SolutionState.NUMBER_0
     const lastGroup = lastSolution?.groupMates?.map(x => x.userId!) || []
 
-    const [solution, setSolution] = useState<SolutionViewModel>({
+    const [solution, setSolution] = useState<PostSolutionModel>({
         githubUrl: lastSolution?.githubUrl || "",
         comment: isEdit ? lastSolution!.comment : "",
         groupMateIds: lastGroup
