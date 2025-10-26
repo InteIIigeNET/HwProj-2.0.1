@@ -505,35 +505,35 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         </Grid>
                     </Stack>
                 </Grid>
+            <Grid item spacing={8}>
                 {solution.comment &&
-                    <Grid item style={{marginBottom: -16}}>
+                    <Grid item style={{marginBottom: -10}} spacing={4}>
                         {showOriginalCommentText
                             ? <Typography
                                 style={{marginBottom: 15, whiteSpace: 'break-spaces'}}>{solution.comment}</Typography>
                             : <MarkdownPreview value={solution.comment}/>}
                     </Grid>
                 }
-                <Grid item style={{marginBottom: -16}}>
-                    {props.isProcessing ? (
-                        <div style={{ display: 'flex', alignItems: 'center', color: '#1976d2', fontWeight: '500' }}>
-                            <CircularProgress size="20px" />
-                            &nbsp;&nbsp;Обрабатываем файлы...
-                        </div>
-                    ) : filesInfo.length > 0 && (
-                        <div>
-                            <FilesPreviewList
-                                showOkStatus={ !props.forMentor }
-                                filesInfo={filesInfo}
-                                onClickFileInfo={async (fileInfo: IFileInfo) => {
-                                    const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!, {
-                                        courseId: props.courseId,
-                                        courseUnitType: fileInfo.courseUnitType,
-                                        courseUnitId: fileInfo.courseUnitId
-                                    })
-                                    window.open(url, '_blank');
-                                }}
-                            />
-                        </div>
+                {props.isProcessing ? (
+                    <div style={{ display: 'flex', alignItems: 'center', color: '#1976d2', fontWeight: '500' }}>
+                        <CircularProgress size="20px" />
+                        &nbsp;&nbsp;Обрабатываем файлы...
+                    </div>
+                ) : filesInfo.length > 0 && (
+                    <div>
+                        <FilesPreviewList
+                            showOkStatus={ !props.forMentor }
+                            filesInfo={filesInfo}
+                            onClickFileInfo={async (fileInfo: IFileInfo) => {
+                                const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!, {
+                                    courseId: props.courseId,
+                                    courseUnitType: fileInfo.courseUnitType,
+                                    courseUnitId: fileInfo.courseUnitId
+                                })
+                                window.open(url, '_blank');
+                            }}
+                        />
+                    </div>
                     )}
                 </Grid>
             </Grid>
