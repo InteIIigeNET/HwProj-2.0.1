@@ -6,8 +6,8 @@ import {
     FileInfoDTO,
     GetSolutionModel,
     HomeworkTaskViewModel,
+    PostSolutionModel,
     SolutionState,
-    SolutionViewModel
 } from "@/api";
 import {Alert, Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid} from "@mui/material";
 import {MarkdownEditor} from "../Common/MarkdownEditor";
@@ -39,7 +39,7 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     const isEdit = lastSolution?.state === SolutionState.NUMBER_0
     const lastGroup = lastSolution?.groupMates?.map(x => x.userId!) || []
 
-    const [solution, setSolution] = useState<SolutionViewModel>({
+    const [solution, setSolution] = useState<PostSolutionModel>({
         githubUrl: lastSolution?.githubUrl || "",
         comment: isEdit ? lastSolution!.comment : "",
         groupMateIds: lastGroup
