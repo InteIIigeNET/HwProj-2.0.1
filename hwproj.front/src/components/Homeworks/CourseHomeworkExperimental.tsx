@@ -233,14 +233,14 @@ const CourseHomeworkEditor: FC<{
             isDeadlineStrict: metadata.isDeadlineStrict,
             publicationDate: metadata.publicationDate,
             actionOptions: editOptions,
-            tasks: homework.tasks!.map(t => {
+            tasks: isNewHomework ? homework.tasks!.map(t => {
                 const task: CreateTaskViewModel = {
                     ...t,
                     title: t.title!,
                     maxRating: t.maxRating!
                 }
                 return task
-            })
+            }) : []
         }
 
         const updatedHomework = isNewHomework
