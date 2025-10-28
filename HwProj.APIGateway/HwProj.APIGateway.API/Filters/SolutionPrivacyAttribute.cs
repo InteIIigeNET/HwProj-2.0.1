@@ -1,3 +1,4 @@
+namespace HwProj.APIGateway.API.Filters;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,8 +9,6 @@ using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-
-namespace HwProj.APIGateway.API.Filters;
 
 public class SolutionPrivacyAttribute : ActionFilterAttribute
 {
@@ -62,11 +61,11 @@ public class SolutionPrivacyAttribute : ActionFilterAttribute
             courseUnitId = fileScopeDto.CourseUnitId;
         }
 
-        if (courseUnitType == "Homework") next.Invoke();
+        if (courseUnitType == "Homework") await next.Invoke();
         
         if (userRole == Roles.StudentRole)
         {
-            HashSet<string> studentIds = [];
+            var studentIds = new HashSet<string>();
             if (courseId != -1)
             {
                 var solution = await _solutionsServiceClient.GetSolutionById(courseUnitId);
