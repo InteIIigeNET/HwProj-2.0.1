@@ -50,7 +50,7 @@ interface IEditHomeworkState {
     hasErrors: boolean;
 }
 
-interface IEditFilesState {
+export interface IEditFilesState {
     initialFilesInfo: IFileInfo[]
     selectedFilesInfo: IFileInfo[]
     isLoadingInfo: boolean
@@ -525,7 +525,11 @@ const CourseHomeworkExperimental: FC<{
                     showOkStatus={props.isMentor}
                     filesInfo={filesInfo}
                     onClickFileInfo={async (fileInfo: IFileInfo) => {
-                        const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!)
+                        const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!, {
+                            courseId: homework.courseId,
+                            courseUnitType: CourseUnitType.Homework,
+                            courseUnitId: homework.id,
+                        })
                         window.open(url, '_blank');
                     }}
                 />

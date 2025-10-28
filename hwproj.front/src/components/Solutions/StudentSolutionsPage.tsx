@@ -40,7 +40,7 @@ import {getTip} from "../Common/HomeworkTags";
 import {appBarStateManager} from "../AppBar";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {RemovedFromCourseTag} from "@/components/Common/StudentTags";
-import AuthService from "@/services/AuthService";
+import {FilesAccessService} from "@/components/Files/FilesAccessService";
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -264,6 +264,8 @@ const StudentSolutionsPage: FC = () => {
         </div>
     }
 
+    const {courseFilesState} = FilesAccessService(courseId, false);
+
     if (isLoaded) {
         return (
             <div className={"container"} style={{marginBottom: '50px', marginTop: '15px'}}>
@@ -420,6 +422,8 @@ const StudentSolutionsPage: FC = () => {
                                 await getTaskData(currentTaskId, secondMentorId, true)
                                 //else navigate(`/task/${currentTaskId}/${studentSolutionsPreview[nextStudentIndex].student.userId}`)
                             }}
+                            courseFiles={courseFilesState.courseFiles}
+                            processingFiles={courseFilesState.processingFilesState}
                         />
                     </Grid>
                 </Grid>

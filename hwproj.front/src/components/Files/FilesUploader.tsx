@@ -44,12 +44,32 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
     }, [props.initialFilesInfo]);
 
     const maxFileSizeInBytes = 100 * 1024 * 1024;
+    const maxFilesCount = 5;
+
+    const forbiddenFileTypes = [
+        'application/vnd.microsoft.portable-executable',
+        'application/x-msdownload',
+        'application/x-ms-installer',
+        'application/x-ms-dos-executable',
+        'application/x-dosexec',
+        'application/x-msdos-program',
+        'application/octet-stream', // если тип двоичного файла не определен, отбрасывать
+    ]
 
     const validateFiles = (files: File[]): boolean => {
+        if ((props.initialFilesInfo ? props.initialFilesInfo.length : 0) + files.length > maxFilesCount) {
+            setError(`Выбрано слишком много файлов.
+             Максимально допустимое количество файлов: ${maxFilesCount} штук.`);
+            return false;
+        }
         for (const file of files) {
             if (file.size > maxFileSizeInBytes) {
                 setError(`Файл "${file.name}" слишком большой.
                  Максимальный допустимый размер: ${(maxFileSizeInBytes / 1024 / 1024).toFixed(1)} MB.`);
+                return false;
+            }
+            if (forbiddenFileTypes.includes(file.type)) {
+                setError(`Файл "${file.name}" имеет недопустимый тип "${file.type}`);
                 return false;
             }
         }

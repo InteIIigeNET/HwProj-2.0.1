@@ -58,9 +58,9 @@ interface ICourseState {
     showQrCode: boolean;
 }
 
-interface ICourseFilesState {
+export interface ICourseFilesState {
     processingFilesState: {
-        [homeworkId: number]: {
+        [courseUnitId: number]: {
             isLoading: boolean;
             intervalId?: NodeJS.Timeout;
         };
