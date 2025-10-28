@@ -49,9 +49,7 @@ public class CourseMentorOrSolutionStudentAttribute : ActionFilterAttribute
 
         if (courseUnitType == "Solution")
         {
-            string? studentId = null;
-            
-            HashSet<string> studentIds = [];
+            var studentIds = new HashSet<string>();
             if (courseId != -1)
             {
                 var solution = await _solutionsServiceClient.GetSolutionById(courseUnitId);
