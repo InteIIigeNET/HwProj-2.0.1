@@ -47,7 +47,7 @@ const withRouter = (Component: any) => {
         );
     };
 };
-
+``
 class App extends Component<{ navigate: any }, AppState> {
     constructor(props: { navigate: any }) {
         super(props);

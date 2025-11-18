@@ -12,6 +12,7 @@ using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers
@@ -102,7 +103,30 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             var tokenMeta = await AuthServiceClient.Login(model).ConfigureAwait(false);
-            return Ok(tokenMeta);
+            if (!tokenMeta.Succeeded)
+            {
+                ClearTokenCookie();
+                //return BadRequest(tokenMeta);
+                return Unauthorized();
+            }
+
+            Response.Cookies.Append("accessToken", tokenMeta.Value.AccessToken,
+                new CookieOptions
+                {
+                    Expires = tokenMeta.Value.ExpiresIn,
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict
+                });
+
+            if (string.IsNullOrEmpty(tokenMeta.Value.RefreshToken))
+            {
+                RefreshToken();
+            }
+
+            // var antiForgeryToken = );
+
+            return Ok( tokenMeta.Succeeded );
         }
 
         [Authorize]
@@ -111,7 +135,32 @@ namespace HwProj.APIGateway.API.Controllers
         public async Task<IActionResult> RefreshToken()
         {
             var tokenMeta = await AuthServiceClient.RefreshToken(UserId!);
-            return Ok(tokenMeta);
+            Response.Cookies.Append("refreshToken", tokenMeta.Value.AccessToken,
+                new CookieOptions
+                {
+                    Expires = tokenMeta.Value.ExpiresIn,
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict
+                });
+            return Ok(tokenMeta.Succeeded);
+        }
+
+        [HttpPost("logout")]
+        [AllowAnonymous]
+        public IActionResult Logout()
+        {
+            ClearTokenCookie();
+            return Ok();
+        }
+
+        private void ClearTokenCookie()
+        {
+            if (Request.Cookies.ContainsKey("accessToken"))
+            {
+                Response.Cookies.Delete("accessToken");
+                Response.Cookies.Delete("refreshToken");
+            }
         }
 
         [HttpPut("edit")]

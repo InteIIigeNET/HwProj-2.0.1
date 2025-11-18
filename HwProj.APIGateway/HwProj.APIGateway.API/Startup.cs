@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using HwProj.APIGateway.API.Filters;
 using HwProj.AuthService.Client;
 using HwProj.ContentService.Client;
@@ -10,6 +12,8 @@ using HwProj.SolutionsService.Client;
 using IStudentsInfo;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +31,7 @@ public class Startup
         Configuration = configuration;
     }
 
-    public IConfiguration Configuration { get; }
+    private IConfiguration Configuration { get; }
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -57,7 +61,7 @@ public class Startup
             })
             .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>
             {
-                x.RequireHttpsMetadata = false;
+                x.RequireHttpsMetadata = true;
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidIssuer = "AuthService",
@@ -66,13 +70,35 @@ public class Startup
                     ValidateLifetime = true,
                     IssuerSigningKey =
                         new SymmetricSecurityKey(Encoding.ASCII.GetBytes(appSettings["SecurityKey"])),
-                    ValidateIssuerSigningKey = true
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+                x.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        context.Request.Cookies.TryGetValue("accessToken", out var accessToken);
+
+                        if (!string.IsNullOrEmpty(accessToken))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    },
+
+                    //?
+                    OnAuthenticationFailed = context =>
+                    {
+                    if (context.Exception is SecurityTokenExpiredException){
+                        context.Response.Headers.Add("Token-Expired", "true");
+                    }
+                    return Task.CompletedTask;
+                   }
                 };
             });
 
         services.AddHttpClient();
-        services.AddHttpContextAccessor();
-
         services.AddAuthServiceClient();
         services.AddCoursesServiceClient();
         services.AddSolutionServiceClient();
@@ -97,9 +123,8 @@ public class Startup
         app.UseCors(x => x
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .SetIsOriginAllowed(_ => true)
+            .SetIsOriginAllowed(_ => true) // Configuration["Cors:AllowOrigins "]).Split(';');
             .AllowCredentials());
-
         app.UseEndpoints(x => x.MapControllers());
     }
 
