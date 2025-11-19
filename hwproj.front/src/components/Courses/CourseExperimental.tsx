@@ -55,7 +55,11 @@ interface ICourseExperimentalProps {
             isLoading: boolean;
         };
     };
-    onStartProcessing: (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
+    onStartProcessing: (homeworkId: number,
+        courseUnitType: CourseUnitType,
+        previouslyExistingFilesCount: number,
+        waitingNewFilesCount: number,
+        deletingFilesIds: number[]) => void;
 }
 
 interface ICourseExperimentalState {
@@ -435,8 +439,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         }))
                     }}
                     isProcessing={props.processingFiles[homework.id!]?.isLoading || false}
-                    onStartProcessing={(homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) =>
-                        props.onStartProcessing(homeworkId, previouslyExistingFilesCount, waitingNewFilesCount, deletingFilesIds)}
+                    onStartProcessing={props.onStartProcessing}
                 />
             </Card>
         </Stack>

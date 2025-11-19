@@ -38,8 +38,6 @@ import {useSnackbar} from 'notistack';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
-import {CourseUnitType} from "../Files/CourseUnitType";
-import {FileStatus} from "../Files/FileStatus";
 import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
 
 type TabValue = "homeworks" | "stats" | "applications"

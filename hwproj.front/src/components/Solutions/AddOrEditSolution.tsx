@@ -15,11 +15,11 @@ import {TestTag} from "../Common/HomeworkTags";
 import {LoadingButton} from "@mui/lab";
 import TextField from "@mui/material/TextField";
 import FilesUploader from '../Files/FilesUploader';
-import {IEditFilesState} from '../Homeworks/CourseHomeworkExperimental';
 import {CourseUnitType} from '../Files/CourseUnitType';
 import ErrorsHandler from "@/components/Utils/ErrorsHandler";
 import {enqueueSnackbar} from "notistack";
 import FileInfoConverter from "@/components/Utils/FileInfoConverter";
+import {FilesHandler} from "@/components/Files/FilesHandler";
 
 interface IAddSolutionProps {
     courseId: number
@@ -31,7 +31,11 @@ interface IAddSolutionProps {
     courseFilesInfo: FileInfoDTO[],
     onAdd: () => void,
     onCancel: () => void,
-    onStartProcessing: (solutionId: number, courseUnitType: CourseUnitType, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
+    onStartProcessing: (solutionId: number,
+        courseUnitType: CourseUnitType,
+        previouslyExistingFilesCount: number,
+        waitingNewFilesCount: number,
+        deletingFilesIds: number[]) => void,
 }
 
 const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
@@ -57,52 +61,10 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
         setDisableSend(true)
 
         let solutionId = await ApiSingleton.solutionsApi.solutionsPostSolution(props.task.id!, solution)
-
-        // Если какие-то файлы из ранее добавленных больше не выбраны, их потребуется удалить
-        const deletingFileIds = filesState.initialFilesInfo.filter(initialFile =>
-            initialFile.id && !filesState.selectedFilesInfo.some(sf => sf.id === initialFile.id))
-            .map(fileInfo => fileInfo.id!)
-
-        // Если какие-то файлы из выбранных сейчас не были добавлены раньше, они новые
-        const newFiles = filesState.selectedFilesInfo.filter(selectedFile =>
-            selectedFile.file && selectedFile.id == undefined).map(fileInfo => fileInfo.file!)
-
-        // Если требуется, отправляем запрос на обработку файлов
-        if (deletingFileIds.length + newFiles.length > 0) {
-            try {
-                await ApiSingleton.customFilesApi.processFiles({
-                    courseId: props.courseId!,
-                    courseUnitType: CourseUnitType.Solution,
-                    courseUnitId: solutionId,
-                    deletingFileIds: deletingFileIds,
-                    newFiles: newFiles,
-                });
-            } catch (e) {
-                const errors = await ErrorsHandler.getErrorMessages(e as Response);
-                enqueueSnackbar(`Проблема при обработке файлов. ${errors[0]}`, {
-                    variant: "warning",
-                    autoHideDuration: 2000
-                });
-            }
-        }
-        if (deletingFileIds.length === 0 && newFiles.length === 0) {
-            props.onAdd()
-        } else {
-            try {
-                props.onAdd();
-                props.onStartProcessing(
-                    solutionId,
-                    CourseUnitType.Solution,
-                    filesState.initialFilesInfo.length,
-                    newFiles.length,
-                    deletingFileIds
-                );
-            } catch (e) {
-                const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
-                enqueueSnackbar(responseErrors[0], { variant: "warning", autoHideDuration: 4000 });
-                props.onAdd()
-            }
-        }
+        await handleFilesChange(props.courseId, CourseUnitType.Solution, solutionId,
+            props.onStartProcessing,
+            props.onAdd
+        );
     }
 
     const { githubUrl } = solution
