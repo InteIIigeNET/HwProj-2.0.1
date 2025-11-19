@@ -1080,11 +1080,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             showOkStatus={ !props.forMentor }
                             filesInfo={filesInfo}
                             onClickFileInfo={async (fileInfo: IFileInfo) => {
-                                const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!, {
-                                    courseId: props.courseId,
-                                    courseUnitType: fileInfo.courseUnitType,
-                                    courseUnitId: fileInfo.courseUnitId
-                                })
+                                const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!)
                                 window.open(url, '_blank');
                             }}
                         />
