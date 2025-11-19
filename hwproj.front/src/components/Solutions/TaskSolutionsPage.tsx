@@ -29,7 +29,7 @@ import { getTip } from "../Common/HomeworkTags";
 import Lodash from "lodash";
 import { appBarStateManager } from "../AppBar";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-import { FilesAccessService } from "@/components/Files/FilesAccessService";
+import { FilesUploadWaiter } from "@/components/Files/FilesUploadWaiter";
 
 interface ITaskSolutionsState {
     isLoaded: boolean
@@ -142,7 +142,7 @@ const TaskSolutionsPage: FC = () => {
     const {
         courseFilesState,
         updCourseUnitFiles,
-    } = FilesAccessService(courseId, true);
+    } = FilesUploadWaiter(courseId, true);
 
     const currentHomeworksGroup = taskSolutionsWithPreview
         .find(x => x.homeworkSolutions!

@@ -40,7 +40,7 @@ import {getTip} from "../Common/HomeworkTags";
 import {appBarStateManager} from "../AppBar";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {RemovedFromCourseTag} from "@/components/Common/StudentTags";
-import {FilesAccessService} from "@/components/Files/FilesAccessService";
+import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -264,7 +264,7 @@ const StudentSolutionsPage: FC = () => {
         </div>
     }
 
-    const {courseFilesState} = FilesAccessService(courseId, false);
+    const {courseFilesState} = FilesUploadWaiter(courseId, false);
 
     if (isLoaded) {
         return (
