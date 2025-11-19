@@ -35,19 +35,12 @@ export default class CustomFilesApi extends BaseAPI {
         }
     }
 
-    public getDownloadFileLink = async (fileKey: number, fileScope: ScopeDTO) => {
-        const formData = new FormData();
-        formData.append('FileId', fileKey.toString());
-        formData.append('CourseId', fileScope.courseId?.toString() ?? "-1");
-        formData.append('CourseUnitType', fileScope.courseUnitType?.toString() ?? "-1");
-        formData.append('CourseUnitId', fileScope.courseUnitId?.toString() ?? "-1");
-
-        const response = await fetch(this.basePath + `/api/Files/downloadLink`, {
-            method: 'POST',
-            body: formData,
+    public getDownloadFileLink = async (fileKey: number) => {
+        const response = await fetch(this.basePath + `/api/Files/downloadLink?fileId=${fileKey}`, {
+            method: 'GET',
             headers: {
                 'Authorization': this.getApiKeyValue(),
-            },
+            }
         });
         
         if (response.status >= 200 && response.status < 300) {

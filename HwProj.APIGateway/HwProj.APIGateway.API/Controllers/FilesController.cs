@@ -4,7 +4,6 @@ using HwProj.APIGateway.API.Filters;
 using HwProj.AuthService.Client;
 using HwProj.ContentService.Client;
 using HwProj.Models.ContentService.DTO;
-using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,10 +44,10 @@ public class FilesController : AggregationController
             : StatusCode((int)HttpStatusCode.ServiceUnavailable, filesStatusesResult.Errors);
     }
 
-    [HttpPost("downloadLink")]
+    [HttpGet("downloadLink")]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> GetDownloadLink([FromForm] FileScopeDTO fileScope)
+    public async Task<IActionResult> GetDownloadLink([FromQuery] long fileId)
     {
         var result = await _contentServiceClient.GetDownloadLinkAsync(fileScope.FileId);
         return result.Succeeded
