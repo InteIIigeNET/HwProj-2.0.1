@@ -1,5 +1,4 @@
 import {useState, useEffect, useRef} from "react";
-import {ICourseFilesState} from "@/components/Courses/Course";
 import {FileInfoDTO, ScopeDTO} from "@/api";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
 import {enqueueSnackbar} from "notistack";
@@ -7,13 +6,23 @@ import ApiSingleton from "@/api/ApiSingleton";
 import {FileStatus} from "@/components/Files/FileStatus";
 import ErrorsHandler from "@/components/Utils/ErrorsHandler";
 
-export const FilesAccessService = (courseId: number, isOwner?: boolean) => {
+export interface IUploadFilesState {
+    processingFilesState: {
+        [courseUnitId: number]: {
+            isLoading: boolean;
+            intervalId?: NodeJS.Timeout;
+        };
+    };
+    courseFiles: FileInfoDTO[];
+}
+
+export const FilesUploadWaiter = (courseId: number, isOwner?: boolean) => {
     const intervalsRef = useRef<Record<number, {
         interval: NodeJS.Timeout | number,
         timeout: NodeJS.Timeout | number;
     }>>({});
 
-    const [courseFilesState, setCourseFilesState] = useState<ICourseFilesState>({
+    const [courseFilesState, setCourseFilesState] = useState<IUploadFilesState>({
         processingFilesState: {},
         courseFiles: []
     })
