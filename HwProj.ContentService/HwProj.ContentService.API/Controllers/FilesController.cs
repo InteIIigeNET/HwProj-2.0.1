@@ -81,14 +81,27 @@ public class FilesController : ControllerBase
     }
 
     [HttpGet("downloadLink")]
-    [ProducesResponseType(typeof(Result<string>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(FileLinkDTO), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetDownloadLink([FromQuery] long fileId)
     {
         var externalKey = await _filesInfoService.GetFileExternalKeyAsync(fileId);
-        if (externalKey is null) return Ok(Result<string>.Failed("Файл не найден"));
+        if (externalKey is null) return Ok(Result<FileLinkDTO>.Failed("Файл не найден"));
 
-        var downloadUrlResult = await _s3FilesService.GetDownloadUrl(externalKey);
-        return Ok(downloadUrlResult);
+        var fileScope = await _filesInfoService.GetFileScopeAsync(fileId);
+        if (fileScope is null) return Ok(Result<FileLinkDTO>.Failed("Файл не найден"));
+        
+        var downloadUrl = await _s3FilesService.GetDownloadUrl(externalKey);
+        if (!downloadUrl.Succeeded) return Ok(Result<FileLinkDTO>.Failed(downloadUrl.Errors));
+
+        var result = new FileLinkDTO
+        {
+            DownloadUrl = downloadUrl.Value,
+            CourseId = fileScope.CourseId,
+            CourseUnitType = fileScope.CourseUnitType.ToString(),
+            CourseUnitId = fileScope.CourseUnitId
+        };
+
+        return Ok(result);
     }
 
     [HttpGet("info/course/{courseId}")]
