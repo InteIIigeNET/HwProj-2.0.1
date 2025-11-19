@@ -10,6 +10,7 @@ import {CourseUnitType} from "./CourseUnitType";
 import {FileStatus} from "./FileStatus";
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import "./filesUploaderOverrides.css";
+import Utils from "@/services/Utils";
 
 interface IFilesUploaderProps {
     courseUnitType: CourseUnitType
@@ -17,6 +18,7 @@ interface IFilesUploaderProps {
     initialFilesInfo?: IFileInfo[];
     onChange: (selectedFiles: IFileInfo[]) => void;
     isLoading?: boolean;
+    maxFilesCount?: number;
 }
 
 // Кастомизированный Input для загрузки файла (из примеров MaterialUI)
@@ -44,7 +46,6 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
     }, [props.initialFilesInfo]);
 
     const maxFileSizeInBytes = 100 * 1024 * 1024;
-    const maxFilesCount = 5;
 
     const forbiddenFileTypes = [
         'application/vnd.microsoft.portable-executable',
@@ -57,9 +58,10 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
     ]
 
     const validateFiles = (files: File[]): boolean => {
-        if ((props.initialFilesInfo ? props.initialFilesInfo.length : 0) + files.length > maxFilesCount) {
+        if (props.maxFilesCount &&
+            (props.initialFilesInfo ? props.initialFilesInfo.length : 0) + files.length > props.maxFilesCount) {
             setError(`Выбрано слишком много файлов.
-             Максимально допустимое количество файлов: ${maxFilesCount} штук.`);
+             Максимально допустимое количество файлов: ${Utils.pluralizeHelper(["штука", "штука", "штук"], props.maxFilesCount)}`);
             return false;
         }
         for (const file of files) {
