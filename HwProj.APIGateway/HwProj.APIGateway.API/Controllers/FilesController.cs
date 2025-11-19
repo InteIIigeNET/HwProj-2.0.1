@@ -24,8 +24,6 @@ public class FilesController : AggregationController
     }
 
     [HttpPost("process")]
-    [Authorize(Roles = Roles.LecturerOrStudentRole)]
-    [ServiceFilter(typeof(CourseMentorOrSolutionStudentAttribute))]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
     public async Task<IActionResult> Process([FromForm] ProcessFilesDTO processFilesDto)
@@ -37,8 +35,6 @@ public class FilesController : AggregationController
     }
 
     [HttpPost("statuses")]
-    [Authorize(Roles = Roles.LecturerOrStudentRole)]
-    [ServiceFilter(typeof(SolutionPrivacyAttribute))]
     [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
     public async Task<IActionResult> GetStatuses(ScopeDTO filesScope)
@@ -50,7 +46,6 @@ public class FilesController : AggregationController
     }
 
     [HttpPost("downloadLink")]
-    [ServiceFilter(typeof(SolutionPrivacyAttribute))]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetDownloadLink([FromForm] FileScopeDTO fileScope)
