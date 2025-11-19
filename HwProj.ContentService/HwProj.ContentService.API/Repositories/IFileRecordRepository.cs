@@ -13,6 +13,7 @@ public interface IFileRecordRepository
     public Task UpdateAsync(long id,
         Expression<Func<SetPropertyCalls<FileRecord>, SetPropertyCalls<FileRecord>>> setPropertyCalls);
     public Task<FileRecord?> GetFileRecordByIdAsync(long fileRecordId);
+    public Task<Scope?> GetScopeByRecordIdAsync(long fileRecordId);
     public Task<List<FileRecord>> GetByScopeAsync(Scope scope);
     public Task<List<FileToCourseUnit>> GetByCourseIdAsync(long courseId);
     public Task<List<FileToCourseUnit>> GetByCourseIdAndStatusAsync(long courseId, FileStatus filesStatus);
