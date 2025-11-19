@@ -59,7 +59,7 @@ export interface IEditFilesState {
 const CourseHomeworkEditor: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
     getAllHomeworks: () => HomeworkViewModel[],
-    onUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] | undefined } & {
+    onUpdate: (update: { homework: HomeworkViewModel } & {
         isDeleted?: boolean,
         isSaved?: boolean
     }) => void
@@ -173,7 +173,7 @@ const CourseHomeworkEditor: FC<{
             isModified: true,
         }
 
-        props.onUpdate({fileInfos: filesState.selectedFilesInfo, homework: update})
+        props.onUpdate({homework: update})
     }, [title, description, tags, metadata, hasErrors, filesState.selectedFilesInfo])
 
     useEffect(() => {
@@ -204,7 +204,7 @@ const CourseHomeworkEditor: FC<{
             newFiles: []
         })
 
-        props.onUpdate({homework: loadedHomework, fileInfos: [], isDeleted: true})
+        props.onUpdate({homework: loadedHomework, isDeleted: true})
     }
 
     const getDeleteMessage = (homeworkName: string, filesInfo: IFileInfo[]) => {
@@ -302,16 +302,11 @@ const CourseHomeworkEditor: FC<{
                 enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
                 if (isNewHomework) props.onUpdate({
                     homework: update,
-                    fileInfos: [],
                     isDeleted: true
                 }) // remove fake homework
-                props.onUpdate({
-                    homework: updatedHomework.value!,
-                    fileInfos: filesState.selectedFilesInfo,
-                    isSaved: true
-                })
-            }
-        }
+                props.onUpdate({homework: updatedHomework.value!, isSaved: true});
+            },
+        );
     }
 
     const isDisabled = hasErrors || !isLoaded || taskHasErrors
@@ -441,7 +436,7 @@ const CourseHomeworkExperimental: FC<{
     isMentor: boolean,
     initialEditMode: boolean,
     onMount: () => void,
-    onUpdate: (x: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] | undefined } & {
+    onUpdate: (x: { homework: HomeworkViewModel } & {
         isDeleted?: boolean
     }) => void
     onAddTask: (homework: HomeworkViewModel) => void,
