@@ -92,7 +92,7 @@ namespace HwProj.ContentService.Client
             }
         }
 
-        public async Task<Result<string>> GetDownloadLinkAsync(long fileId)
+        public async Task<Result<FileLinkDTO>> GetDownloadLinkAsync(long fileId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
@@ -101,11 +101,13 @@ namespace HwProj.ContentService.Client
             try
             {
                 var response = await _httpClient.SendAsync(httpRequest);
-                return await response.DeserializeAsync<Result<string>>();
+                var result = await response.DeserializeAsync<FileLinkDTO>();
+
+                return Result<FileLinkDTO>.Success(result);
             }
             catch (HttpRequestException e)
             {
-                return Result<string>.Failed(
+                return Result<FileLinkDTO>.Failed(
                     "Пока не можем открыть файл. \nВсе ваши данные сохранены — попробуйте повторить позже");
             }
         }
