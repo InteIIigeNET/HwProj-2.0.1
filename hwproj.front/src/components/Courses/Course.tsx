@@ -40,6 +40,7 @@ import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {CourseUnitType} from "../Files/CourseUnitType";
 import {FileStatus} from "../Files/FileStatus";
+import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -56,16 +57,6 @@ interface ICourseState {
     newStudents: AccountDataDto[];
     studentSolutions: StatisticsCourseMatesModel[];
     showQrCode: boolean;
-}
-
-export interface ICourseFilesState {
-    processingFilesState: {
-        [courseUnitId: number]: {
-            isLoading: boolean;
-            intervalId?: NodeJS.Timeout;
-        };
-    };
-    courseFiles: FileInfoDTO[];
 }
 
 interface IPageState {
@@ -89,135 +80,11 @@ const Course: React.FC = () => {
         showQrCode: false
     })
     const [studentSolutions, setStudentSolutions] = useState<StatisticsCourseMatesModel[] | undefined>(undefined)
-    const [courseFilesState, setCourseFilesState] = useState<ICourseFilesState>({
-        processingFilesState: {},
-        courseFiles: []
-    })
 
-    const intervalsRef = React.useRef<Record<number, { interval: NodeJS.Timeout, timeout: NodeJS.Timeout }>>({});
-
-    const updateCourseFiles = (files: FileInfoDTO[], unitType: CourseUnitType, unitId: number) => {
-        setCourseFilesState(prev => ({
-            ...prev,
-            courseFiles: [
-                ...prev.courseFiles.filter(
-                    f => !(f.courseUnitType === unitType && f.courseUnitId === unitId)),
-                ...files
-            ]
-        }));
-    };
-
-    const setCommonLoading = (homeworkId: number) => {
-        setCourseFilesState(prev => ({
-            ...prev,
-            processingFilesState: {
-                ...prev.processingFilesState,
-                [homeworkId]: {isLoading: true}
-            }
-        }));
-    }
-
-    const unsetCommonLoading = (homeworkId: number) => {
-        setCourseFilesState(prev => ({
-            ...prev,
-            processingFilesState: {
-                ...prev.processingFilesState,
-                [homeworkId]: {isLoading: false}
-            }
-        }));
-    }
-
-    const stopProcessing = (homeworkId: number) => {
-        if (intervalsRef.current[homeworkId]) {
-            const {interval, timeout} = intervalsRef.current[homeworkId];
-            clearInterval(interval);
-            clearTimeout(timeout);
-            delete intervalsRef.current[homeworkId];
-        }
-    };
-
-    // Запускает получение информации о файлах элемента курса с интервалом в 1 секунду и 5 попытками
-    const getFilesByInterval = (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => {
-        // Очищаем предыдущие таймеры
-        stopProcessing(homeworkId);
-
-        let attempt = 0;
-        const maxAttempts = 10;
-        let delay = 1000; // Начальная задержка 1 сек
-
-        const scopeDto: ScopeDTO = {
-            courseId: +courseId!,
-            courseUnitType: CourseUnitType.Homework,
-            courseUnitId: homeworkId
-        }
-
-        const fetchFiles = async () => {
-            if (attempt >= maxAttempts) {
-                stopProcessing(homeworkId);
-                enqueueSnackbar("Превышено допустимое количество попыток получения информации о файлах", {
-                    variant: "warning",
-                    autoHideDuration: 2000
-                });
-                return;
-            }
-
-            attempt++;
-            try {
-                const files = await ApiSingleton.filesApi.filesGetStatuses(scopeDto);
-                console.log(`Попытка ${attempt}:`, files);
-
-                // Первый вариант для явного отображения всех файлов
-                if (waitingNewFilesCount === 0
-                    && files.filter(f => f.status === FileStatus.ReadyToUse).length === previouslyExistingFilesCount - deletingFilesIds.length) {
-                    updateCourseFiles(files, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
-                    unsetCommonLoading(homeworkId)
-                }
-
-                // Второй вариант для явного отображения всех файлов
-                if (waitingNewFilesCount > 0
-                    && files.filter(f => !deletingFilesIds.some(dfi => dfi === f.id)).length === previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount) {
-                    updateCourseFiles(files, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
-                    unsetCommonLoading(homeworkId)
-                }
-
-                // Условие прекращения отправки запросов на получения записей файлов
-                if (files.length === previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount
-                    && files.every(f => f.status !== FileStatus.Uploading && f.status !== FileStatus.Deleting)) {
-                    stopProcessing(homeworkId);
-                    unsetCommonLoading(homeworkId)
-                }
-
-            } catch (error) {
-                console.error(`Ошибка (попытка ${attempt}):`, error);
-            }
-        }
-
-        // Создаем интервал с задержкой
-        const interval = setInterval(fetchFiles, delay);
-
-        // Создаем таймаут для автоматической остановки
-        const timeout = setTimeout(() => {
-            stopProcessing(homeworkId);
-            unsetCommonLoading(homeworkId)
-        }, 10000);
-
-        // Сохраняем интервал и таймаут в ref
-        intervalsRef.current[homeworkId] = {interval, timeout};
-
-        // Сигнализируем о начале загрузки через состояние
-        setCommonLoading(homeworkId)
-    }
-
-    // Останавливаем все активные интевалы при размонтировании
-    useEffect(() => {
-        return () => {
-            Object.values(intervalsRef.current).forEach(({interval, timeout}) => {
-                clearInterval(interval);
-                clearTimeout(timeout);
-            });
-            intervalsRef.current = {};
-        };
-    }, []);
+    const {
+        courseFilesState,
+        updCourseUnitFiles,
+    } = FilesUploadWaiter(+courseId!, true);
 
     const [pageState, setPageState] = useState<IPageState>({
         tabValue: "homeworks"
@@ -284,29 +151,9 @@ const Course: React.FC = () => {
         }))
     }
 
-    const getCourseFilesInfo = async () => {
-        let courseFilesInfo = [] as FileInfoDTO[]
-        try {
-            courseFilesInfo = isCourseMentor
-                ? await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
-                : await ApiSingleton.filesApi.filesGetUploadedFilesInfo(+courseId!)
-        } catch (e) {
-            const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
-            enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 1990});
-        }
-        setCourseFilesState(prevState => ({
-            ...prevState,
-            courseFiles: courseFilesInfo
-        }))
-    }
-
     useEffect(() => {
         setCurrentState()
     }, [])
-
-    useEffect(() => {
-        getCourseFilesInfo()
-    }, [isCourseMentor])
 
     useEffect(() => {
         ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
@@ -499,6 +346,7 @@ const Course: React.FC = () => {
                         processingFiles={courseFilesState.processingFilesState}
                         onStartProcessing={getFilesByInterval}
                         onHomeworkUpdate={({fileInfos, homework, isDeleted}) => {
+                        onStartProcessing={updCourseUnitFiles}
                             const homeworkIndex = courseState.courseHomeworks.findIndex(x => x.id === homework.id)
                             const homeworks = courseState.courseHomeworks
 
