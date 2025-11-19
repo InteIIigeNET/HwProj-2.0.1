@@ -59,7 +59,7 @@ public class FilesController(
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> GetDownloadLink([FromForm] FileScopeDTO fileScope)
+    public async Task<IActionResult> GetDownloadLink([FromQuery] long fileId)
     {
         var linkDto = await contentServiceClient.GetDownloadLinkAsync(fileId);
         if (!linkDto.Succeeded) return BadRequest(linkDto.Errors);
