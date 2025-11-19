@@ -6,6 +6,5 @@
         public const string StudentRole = "Student";
         public const string ExpertRole = "Expert";
         public const string LecturerOrExpertRole = "Lecturer, Expert";
-        public const string LecturerOrStudentRole = "Lecturer, Student";
     }
 }
