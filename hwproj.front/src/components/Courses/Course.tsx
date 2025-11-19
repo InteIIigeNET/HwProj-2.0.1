@@ -344,9 +344,8 @@ const Course: React.FC = () => {
                         selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
                         userId={userId!}
                         processingFiles={courseFilesState.processingFilesState}
-                        onStartProcessing={getFilesByInterval}
-                        onHomeworkUpdate={({fileInfos, homework, isDeleted}) => {
                         onStartProcessing={updCourseUnitFiles}
+                        onHomeworkUpdate={({homework, isDeleted}) => {
                             const homeworkIndex = courseState.courseHomeworks.findIndex(x => x.id === homework.id)
                             const homeworks = courseState.courseHomeworks
 

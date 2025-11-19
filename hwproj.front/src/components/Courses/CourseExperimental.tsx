@@ -46,7 +46,7 @@ interface ICourseExperimentalProps {
     isStudentAccepted: boolean
     userId: string
     selectedHomeworkId: number | undefined
-    onHomeworkUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] | undefined } & {
+    onHomeworkUpdate: (update: { homework: HomeworkViewModel } & {
         isDeleted?: boolean
     }) => void
     onTaskUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => void,
@@ -357,8 +357,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 description: "",
                 tasks: [],
                 tags: []
-            },
-            fileInfos: []
+            }
         })
         setState((prevState) => ({
             ...prevState,
@@ -561,7 +560,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         data: x,
                                         isHomework: true,
                                         id: x.id,
-                                        homeworkFilesInfo: FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, x.id!)
+                                        homeworkFilesInfo: FileInfoConverter.getCourseUnitFilesInfo(courseFilesInfo, CourseUnitType.Homework, x.id!)
                                     }
                                 }))
                             }}>
