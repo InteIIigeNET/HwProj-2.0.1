@@ -31,9 +31,7 @@ public class FilesController : AggregationController
     public async Task<IActionResult> Process([FromForm] ProcessFilesDTO processFilesDto)
     {
         var isChecked = await _privacyFilter.CheckRights(User,
-            processFilesDto.FilesScope.CourseId,
-            processFilesDto.FilesScope.CourseUnitType,
-            processFilesDto.FilesScope.CourseUnitId,
+            processFilesDto.FilesScope,
             FilesPrivacyFilter.Method.Upload
         );
         if (!isChecked) return BadRequest();
@@ -50,9 +48,7 @@ public class FilesController : AggregationController
     public async Task<IActionResult> GetStatuses(ScopeDTO filesScope)
     {
         var isChecked = await _privacyFilter.CheckRights(User,
-            filesScope.CourseId,
-            filesScope.CourseUnitType,
-            filesScope.CourseUnitId,
+            filesScope,
             FilesPrivacyFilter.Method.Upload
         );
         if (!isChecked) return BadRequest();
@@ -72,9 +68,7 @@ public class FilesController : AggregationController
         if(!linkDto.Succeeded) return NotFound(linkDto.Errors);
 
         var checkRights = await _privacyFilter.CheckRights(User,
-            linkDto.Value.CourseId,
-            linkDto.Value.CourseUnitType,
-            linkDto.Value.CourseUnitId,
+            linkDto.Value.fileScope,
             FilesPrivacyFilter.Method.Download
         );
 

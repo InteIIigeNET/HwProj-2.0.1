@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
+using HwProj.Models.ContentService.DTO;
 using HwProj.Models.Roles;
 using HwProj.SolutionsService.Client;
 
@@ -25,7 +26,7 @@ public class FilesPrivacyFilter
         _solutionsServiceClient = solutionsServiceClient;
     }
 
-    public async Task<bool> CheckRights(ClaimsPrincipal user, long courseId, string courseUnitType, long courseUnitId, Method method)
+    public async Task<bool> CheckRights(ClaimsPrincipal user, ScopeDTO fileScope, Method method)
     {
         var userId = user.Claims
             .FirstOrDefault(claim => claim.Type.ToString() == "_id")?.Value;
@@ -35,25 +36,25 @@ public class FilesPrivacyFilter
             .FirstOrDefault(claim => claim.Type.ToString().EndsWith("role"))?.Value;
         if (userRole == null) return false;
     
-        if (courseUnitType == "Homework")
+        if (fileScope.CourseUnitType == "Homework")
         {
             if (method == Method.Download) return true; 
             if (method == Method.Upload)
             {
-                var mentorIds = await _coursesServiceClient.GetCourseLecturersIds(courseId);
+                var mentorIds = await _coursesServiceClient.GetCourseLecturersIds(fileScope.CourseId);
                 if (!mentorIds.Contains(userId))
                 {
                     return false;
                 }
                 return true;
             }
-        } else if (courseUnitType == "Solution")
+        } else if (fileScope.CourseUnitType == "Solution")
         {
 
             if (userRole == Roles.StudentRole)
             {
                 var studentIds = new HashSet<string>();
-                var solution = await _solutionsServiceClient.GetSolutionById(courseUnitId);
+                var solution = await _solutionsServiceClient.GetSolutionById(fileScope.CourseUnitId);
                 studentIds.Add(solution.StudentId);
                 var group = await _coursesServiceClient.GetGroupsById(solution.GroupId ?? 0);
                 studentIds.UnionWith(group.FirstOrDefault()?.StudentsIds.ToHashSet() ?? new());
@@ -62,7 +63,7 @@ public class FilesPrivacyFilter
             }
             else
             {
-                var mentorIds = await _coursesServiceClient.GetCourseLecturersIds(courseId);
+                var mentorIds = await _coursesServiceClient.GetCourseLecturersIds(fileScope.CourseId);
                 if (!mentorIds.Contains(userId)) return false;
             }
 
