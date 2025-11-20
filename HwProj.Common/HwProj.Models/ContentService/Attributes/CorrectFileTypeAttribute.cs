@@ -2,25 +2,36 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using FileTypeChecker;
 using Microsoft.AspNetCore.Http;
+using FileTypeChecker.Abstracts;
+using FileTypeChecker.Types;
 
 namespace HwProj.Models.ContentService.Attributes
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public class CorrectFileTypeAttribute : ValidationAttribute
+
+    public class MachO : FileType
     {
-        private static HashSet<byte[]> forbiddenFileSignatures = new HashSet<byte[]>{
-            
-            new byte[] { 0x4d, 0x5a }, // MZ (exe BE)
-            new byte[] { 0x5a, 0x4d }, // ZM (exe LE)
-            
-            new byte[] { 0x7F, 0x45, 0x4C, 0x46 }, // ELF
-            
+        public const string TypeName = "MacOS executable";
+        public const string TypeExtension = "macho";
+        private static readonly byte[][] MagicBytes =
+        {
             new byte[] { 0xfe, 0xed, 0xfa, 0xce }, // Mach-O BE 32-bit
             new byte[] { 0xfe, 0xed, 0xfa, 0xcf }, // Mach-O BE 64-bit
             new byte[] { 0xce, 0xfa, 0xed, 0xfe }, // Mach-O LE 32-bit
             new byte[] { 0xcf, 0xfa, 0xed, 0xfe }, // Mach-O LE 64-bit
-            
+        };
+
+        public MachO() : base(TypeName, TypeExtension, MagicBytes)
+        {
+        }
+    }
+    
+    [AttributeUsage(AttributeTargets.Property)]
+    public class CorrectFileTypeAttribute : ValidationAttribute
+    {
+        private static readonly HashSet<FileType> forbiddenFileTypes = new HashSet<FileType>{
+            new MachO(), new Executable(), new ExecutableAndLinkableFormat()
         };
 
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
@@ -34,26 +45,18 @@ namespace HwProj.Models.ContentService.Attributes
 
             if (files == null) return ValidationResult.Success;
 
+            FileTypeValidator.RegisterCustomTypes(typeof(MachO).Assembly);
             foreach (var file in files)
             {
                 try
                 {
-                    // Первые байты для проверки сигнатуры
-                    var buffer = new byte[4];
-                    using (var stream = file.OpenReadStream())
+                    using (var fileContent = file.OpenReadStream())
                     {
-                        var bytesRead = stream.Read(buffer, 0, buffer.Length);
-
-                        if (bytesRead < 2)
-                            return ValidationResult.Success; // Слишком короткий файл, не исполняемый
-
-                        foreach (var signature in forbiddenFileSignatures)
+                        if (!FileTypeValidator.IsTypeRecognizable(fileContent) ||
+                            forbiddenFileTypes.Any(type => type.DoesMatchWith(fileContent)))
                         {
-                            if (signature.SequenceEqual(buffer.Take(signature.Length)))
-                            {
-                                return new ValidationResult(
-                                    $"Файл `{file.FileName}` имеет недопустимый тип ${file.ContentType}");
-                            }
+                            return new ValidationResult(
+                                $"Файл `{file.FileName}` имеет недопустимый тип ${file.ContentType}");
                         }
                     }
                 }
