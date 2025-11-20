@@ -96,9 +96,7 @@ public class FilesController : ControllerBase
         var result = new FileLinkDTO
         {
             DownloadUrl = downloadUrl.Value,
-            CourseId = fileScope.CourseId,
-            CourseUnitType = fileScope.CourseUnitType.ToString(),
-            CourseUnitId = fileScope.CourseUnitId
+            fileScope = fileScope.ToScopeDTO()
         };
 
         return Ok(result);
