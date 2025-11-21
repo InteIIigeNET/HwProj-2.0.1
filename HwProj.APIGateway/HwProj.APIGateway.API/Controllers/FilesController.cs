@@ -16,13 +16,15 @@ public class FilesController : AggregationController
 {
     private readonly IContentServiceClient _contentServiceClient;
     private readonly FilesPrivacyFilter _privacyFilter;
+    private readonly FilesCountLimit _countFilter;
 
     public FilesController(IAuthServiceClient authServiceClient,
         IContentServiceClient contentServiceClient,
-        FilesPrivacyFilter privacyFilter) : base(authServiceClient)
+        FilesPrivacyFilter privacyFilter, FilesCountLimit countFilter) : base(authServiceClient)
     {
         _contentServiceClient = contentServiceClient;
         _privacyFilter = privacyFilter;
+        _countFilter = countFilter;
     }
 
     [HttpPost("process")]
@@ -35,8 +37,10 @@ public class FilesController : AggregationController
             processFilesDto.FilesScope,
             FilesPrivacyFilter.Method.Upload
         );
-        if (!isChecked) return BadRequest();
         if (!checkRights) return StatusCode((int)HttpStatusCode.Forbidden, "Недостаточно прав для загрузки файлов");
+
+        var checkCountLimit = await _countFilter.CheckCountLimit(processFilesDto);
+        if (!checkCountLimit) return StatusCode((int)HttpStatusCode.Forbidden, "Слишком много файлов в решении");
         
         var result = await _contentServiceClient.ProcessFilesAsync(processFilesDto);
         return result.Succeeded
