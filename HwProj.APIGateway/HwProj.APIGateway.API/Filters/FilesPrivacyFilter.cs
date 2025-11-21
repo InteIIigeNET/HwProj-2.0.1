@@ -60,8 +60,7 @@ public class FilesPrivacyFilter
                 studentIds.UnionWith(group.FirstOrDefault()?.StudentsIds.ToHashSet() ?? new());
 
                 if (!studentIds.Contains(userId)) return false;
-            }
-            else
+            } else if(method == Method.Download)
             {
                 var mentorIds = await _coursesServiceClient.GetCourseLecturersIds(fileScope.CourseId);
                 if (!mentorIds.Contains(userId)) return false;
