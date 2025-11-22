@@ -40,7 +40,8 @@ public class FilesController : AggregationController
         if (!checkRights) return StatusCode((int)HttpStatusCode.Forbidden, "Недостаточно прав для загрузки файлов");
 
         var checkCountLimit = await _countFilter.CheckCountLimit(processFilesDto);
-        if (!checkCountLimit) return StatusCode((int)HttpStatusCode.Forbidden, "Слишком много файлов в решении");
+        if (!checkCountLimit) return StatusCode((int)HttpStatusCode.Forbidden, "Слишком много файлов в решении." 
+            + $"Максимальное количество файлов - ${_countFilter.maxSolutionFiles}");
         
         var result = await _contentServiceClient.ProcessFilesAsync(processFilesDto);
         return result.Succeeded

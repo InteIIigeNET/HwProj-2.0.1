@@ -9,7 +9,7 @@ namespace HwProj.APIGateway.API.Filters;
 public class FilesCountLimit
 {
     private readonly IContentServiceClient _contentServiceClient;
-    private readonly long _maxSolutionFiles = 5;
+    public readonly long maxSolutionFiles = 5;
 
     public FilesCountLimit(IContentServiceClient contentServiceClient)
     {
@@ -29,7 +29,7 @@ public class FilesCountLimit
             return false;
         }
 
-        if (existingIds.Count() + processFilesDto.NewFiles.Count - processFilesDto.DeletingFileIds.Count > _maxSolutionFiles)
+        if (existingIds.Count() + processFilesDto.NewFiles.Count - processFilesDto.DeletingFileIds.Count > maxSolutionFiles)
         {
             return false;
         }
