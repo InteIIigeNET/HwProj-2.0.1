@@ -61,7 +61,7 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
         if (props.maxFilesCount &&
             (props.initialFilesInfo ? props.initialFilesInfo.length : 0) + files.length > props.maxFilesCount) {
             setError(`Выбрано слишком много файлов.
-             Максимально допустимое количество файлов: ${Utils.pluralizeHelper(["штука", "штука", "штук"], props.maxFilesCount)}`);
+             Максимально допустимое количество файлов: ${props.maxFilesCount} ${Utils.pluralizeHelper(["штука", "штука", "штук"], props.maxFilesCount)}`);
             return false;
         }
         for (const file of files) {
