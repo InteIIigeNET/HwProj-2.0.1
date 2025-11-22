@@ -51,6 +51,13 @@ public class FileRecordRepository : IFileRecordRepository
         => await _contentContext.FileRecords
             .AsNoTracking()
             .SingleOrDefaultAsync(fr => fr.Id == fileRecordId);
+    
+    public async Task<Scope?> GetScopeByRecordIdAsync(long fileRecordId)
+        => await _contentContext.FileToCourseUnits
+            .AsNoTracking()
+            .Where(fr => fr.FileRecordId == fileRecordId)
+            .Select(fc => fc.ToScope())
+            .SingleOrDefaultAsync();
 
     public async Task<List<FileRecord>> GetByScopeAsync(Scope scope)
         => await _contentContext.FileToCourseUnits
