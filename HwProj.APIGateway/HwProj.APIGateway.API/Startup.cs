@@ -81,6 +81,7 @@ public class Startup
 
         services.AddScoped<CourseMentorOnlyAttribute>();
         services.AddScoped<FilesPrivacyFilter>();
+        services.AddScoped<FilesCountLimit>();
     }
 
     public void Configure(IApplicationBuilder app, IHostEnvironment env)
