@@ -24,7 +24,7 @@ const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutPr
             if (!isExpired) {
                 const isExpertLoggedIn = await ApiSingleton.expertsApi.expertsLogin(credentials)
                 if (isExpertLoggedIn.succeeded) {
-                    ApiSingleton.authService.setToken(token!);
+                    await ApiSingleton.authService.getUser();
                     setIsTokenValid(true);
                     props.onLogin();
 

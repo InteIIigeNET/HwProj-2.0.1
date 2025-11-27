@@ -90,6 +90,15 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(aggregatedResult);
         }
 
+        [HttpGet("getUserSummary")]
+        [Authorize]
+        [ProducesResponseType(typeof(AccountSummaryDto), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetUserSummary()
+        {
+            var accountData = await AuthServiceClient.GetAccountSummary(UserId);
+            return Ok(accountData);
+        }
+
         [HttpPost("register")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Register(RegisterViewModel model)
@@ -99,14 +108,13 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("login")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             var tokenMeta = await AuthServiceClient.Login(model).ConfigureAwait(false);
             if (!tokenMeta.Succeeded)
             {
                 ClearTokenCookie();
-                //return BadRequest(tokenMeta);
                 return Unauthorized();
             }
 
@@ -119,23 +127,22 @@ namespace HwProj.APIGateway.API.Controllers
                     SameSite = SameSiteMode.Strict
                 });
 
-            if (string.IsNullOrEmpty(tokenMeta.Value.RefreshToken))
-            {
-                RefreshToken();
-            }
-
-            // var antiForgeryToken = );
-
-            return Ok( tokenMeta.Succeeded );
+            return Ok();
         }
 
         [Authorize]
         [HttpGet("refreshToken")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> RefreshToken()
         {
             var tokenMeta = await AuthServiceClient.RefreshToken(UserId!);
-            Response.Cookies.Append("refreshToken", tokenMeta.Value.AccessToken,
+            if (!tokenMeta.Succeeded)
+            {
+                ClearTokenCookie();
+                return Unauthorized();
+            }
+
+            Response.Cookies.Append("accessToken", tokenMeta.Value.AccessToken,
                 new CookieOptions
                 {
                     Expires = tokenMeta.Value.ExpiresIn,
@@ -143,11 +150,11 @@ namespace HwProj.APIGateway.API.Controllers
                     Secure = true,
                     SameSite = SameSiteMode.Strict
                 });
-            return Ok(tokenMeta.Succeeded);
+
+            return Ok();
         }
 
         [HttpPost("logout")]
-        [AllowAnonymous]
         public IActionResult Logout()
         {
             ClearTokenCookie();
@@ -159,7 +166,6 @@ namespace HwProj.APIGateway.API.Controllers
             if (Request.Cookies.ContainsKey("accessToken"))
             {
                 Response.Cookies.Delete("accessToken");
-                Response.Cookies.Delete("refreshToken");
             }
         }
 

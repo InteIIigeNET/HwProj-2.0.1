@@ -47,6 +47,17 @@ namespace HwProj.AuthService.API.Controllers
                 : NotFound();
         }
 
+        [HttpGet("getUserSummary/{userId}")]
+        [ProducesResponseType(typeof(AccountSummaryDto), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetUserSummaryById(string userId)
+        {
+            var accountSummary = await _accountService.GetAccountSummaryAsync(userId).ConfigureAwait(false);
+
+            return accountSummary != null
+                ? Ok(accountSummary) as IActionResult
+                : NotFound();
+        }
+
         [HttpGet("getUserDataByEmail/{email}")]
         [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserDataByEmail(string email)

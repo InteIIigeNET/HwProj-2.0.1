@@ -31,11 +31,11 @@ export default defineConfig({
     server: {
         host: '0.0.0.0',
         port: 3000,
-        allowedHosts: ["hwproj.ru"],
+        allowedHosts: ["hwproj.ru", "localhost"],
         hmr: {
             host: 'localhost',
             port: 3000,
-            protocol: 'wss'
+            protocol: 'ws'
         },
         open: true
     },

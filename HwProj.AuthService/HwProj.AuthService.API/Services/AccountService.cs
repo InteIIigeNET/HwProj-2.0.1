@@ -60,10 +60,24 @@ namespace HwProj.AuthService.API.Services
             return user.ToAccountDataDto(userRole);
         }
 
+        private async Task<AccountSummaryDto> GetAccountSummaryAsync(User user)
+        {
+            if (user == null) return null;
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var userRole = userRoles.FirstOrDefault() ?? Roles.StudentRole;
+            return user.ToAccountSummaryDto(userRole);
+        }
+
         public async Task<AccountDataDto> GetAccountDataAsync(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
             return await GetAccountDataAsync(user);
+        }
+
+        public async Task<AccountSummaryDto> GetAccountSummaryAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            return await GetAccountSummaryAsync(user);
         }
 
         public async Task<AccountDataDto[]> GetAccountsDataAsync(string[] userIds)

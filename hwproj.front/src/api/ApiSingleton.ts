@@ -14,7 +14,6 @@ import AuthService from "../services/AuthService";
 import CustomFilesApi from "./CustomFilesApi";
 
 class Api {
-    auth = new AuthService()
     readonly accountApi: AccountApi;
     readonly expertsApi: ExpertsApi;
     readonly coursesApi: CoursesApi;
@@ -70,22 +69,34 @@ function getApiBase(): string {
     return `${protocol}//${hostname}${effectivePort ? `:${effectivePort}` : ""}`
 }
 
+const cookieFetch = async (url: string, init: any) => {
+    const response = await fetch(url, {
+        ...init,
+        credentials: "include"
+    });
+
+    return response;
+}
+
 const basePath = getApiBase()
 const authService = new AuthService()
+const apiConfig = {
+    basePath: basePath,
+}
 
 let ApiSingleton: Api;
 ApiSingleton = new Api(
-    new AccountApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
-    new ExpertsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
-    new CoursesApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
-    new SolutionsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
-    new NotificationsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
-    new HomeworksApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
-    new TasksApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
-    new StatisticsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
-    new SystemApi({basePath: basePath}),
+    new AccountApi(apiConfig, undefined, cookieFetch),
+    new ExpertsApi(apiConfig, undefined, cookieFetch),
+    new CoursesApi(apiConfig, undefined, cookieFetch),
+    new SolutionsApi(apiConfig, undefined, cookieFetch),
+    new NotificationsApi(apiConfig, undefined, cookieFetch),
+    new HomeworksApi(apiConfig, undefined, cookieFetch),
+    new TasksApi(apiConfig, undefined, cookieFetch),
+    new StatisticsApi(apiConfig, undefined, cookieFetch),
+    new SystemApi(apiConfig, undefined, cookieFetch),
     authService,
-    new CustomFilesApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
-    new FilesApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!})
+    new CustomFilesApi(apiConfig, undefined, cookieFetch),
+    new FilesApi(apiConfig, undefined, cookieFetch)
 );
 export default ApiSingleton;
