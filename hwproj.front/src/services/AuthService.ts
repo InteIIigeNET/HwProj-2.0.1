@@ -27,7 +27,7 @@ export default class AuthService {
         this.getProfile = this.getProfile.bind(this);
     }
 
-    public async getUser(): Promise<void> {
+    public async getUser() {
         try {
             const accountData = await ApiSingleton.accountApi.accountGetUserSummary();
             if (accountData) {
@@ -88,7 +88,7 @@ export default class AuthService {
         }
     }
 
-    public async getProfile(): Promise<User | null> {
+    public async getProfile() {
         await this.getUser();
 
         return this._user;
@@ -100,12 +100,12 @@ export default class AuthService {
 
     setIsExpertProfileEdited = async () => await ApiSingleton.expertsApi.expertsSetProfileIsEdited();
 
-    getUserEmail = () => this._user?.email;
+    getUserEmail = () => this._user?.email ?? "";
 
-    getRole = () => this._user?.role;
+    getRole = () => this._user?.role ?? "";
 
     isMentor() {
-        const role = this._user?.role;
+        const role = this._user?.role ?? "";
         return role === "Lecturer" || role === "Expert";
     }
 
