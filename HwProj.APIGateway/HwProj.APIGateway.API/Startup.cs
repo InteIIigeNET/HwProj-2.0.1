@@ -61,7 +61,7 @@ public class Startup
             })
             .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>
             {
-                x.RequireHttpsMetadata = true;
+                x.RequireHttpsMetadata = false;
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidIssuer = "AuthService",
@@ -90,6 +90,7 @@ public class Startup
             });
 
         services.AddHttpClient();
+        services.AddHttpContextAccessor();
         services.AddAuthServiceClient();
         services.AddCoursesServiceClient();
         services.AddSolutionServiceClient();
