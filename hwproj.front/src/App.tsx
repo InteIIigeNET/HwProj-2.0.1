@@ -24,8 +24,6 @@ import PasswordRecovery from "components/Auth/PasswordRecovery";
 import AuthLayout from "./AuthLayout";
 import ExpertAuthLayout from "./components/Experts/AuthLayout";
 import TrackPageChanges from "TrackPageChanges";
-import {Alert} from "@mui/material";
-import {Snackbar} from "@material-ui/core";
 
 // TODO: add flux
 
@@ -36,7 +34,6 @@ interface AppState {
     newNotificationsCount: number;
     appBarContextAction: AppBarContextAction;
     authReady: boolean;
-    snackbarOpen: boolean;
 }
 
 const withRouter = (Component: any) => {
@@ -61,8 +58,7 @@ class App extends Component<{ navigate: any }, AppState> {
             isExpert: ApiSingleton.authService.isExpert(),
             newNotificationsCount: 0,
             appBarContextAction: "Default",
-            authReady: false,
-            snackbarOpen: localStorage.getItem("cookies") !== "true",
+            authReady: false
         };
         appBarStateManager.setOnContextActionChange(appBarState => this.setState({appBarContextAction: appBarState}))
     }
@@ -108,13 +104,6 @@ class App extends Component<{ navigate: any }, AppState> {
         this.props.navigate("/login");
     }
 
-    closeSnackbar = () => {
-        localStorage.setItem("cookies", "true");
-        this.setState({
-            snackbarOpen: false,
-        });
-    }
-
     render() {
         if (!this.state.authReady) {return null;}
         return (
@@ -126,17 +115,6 @@ class App extends Component<{ navigate: any }, AppState> {
                         onLogout={this.logout}
                         contextAction={this.state.appBarContextAction}/>
                 <TrackPageChanges/>
-                <Snackbar
-                    anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
-                    open={this.state.snackbarOpen}
-                >
-                    <Alert
-                        severity="info"
-                        onClose={this.closeSnackbar}
-                    >
-                        Мы используем куки для авторизации
-                    </Alert>
-                </Snackbar>
                 <Routes>
                     <Route element={<AuthLayout/>}>
                         <Route path="user/edit" element={<EditProfile isExpert={this.state.isExpert}/>}/>
