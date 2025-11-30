@@ -324,7 +324,7 @@ public class SolutionsController : AggregationController
     }
 
     [HttpPost("rateEmptySolution/{taskId}")]
-    [Authorize(Roles = Roles.LecturerOrExpertRole)]
+    [Authorize(Roles = Roles.LecturerOrExpertRole, AuthenticationSchemes = "JwtCookie, JwtBearer")]
     public async Task<IActionResult> PostEmptySolutionWithRate(long taskId, SolutionViewModel solution)
     {
         var course = await _coursesServiceClient.GetCourseByTask(taskId);

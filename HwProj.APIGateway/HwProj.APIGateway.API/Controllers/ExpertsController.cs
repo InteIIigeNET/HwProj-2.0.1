@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.AuthService.Client;
@@ -9,6 +10,7 @@ using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers;
@@ -68,6 +70,31 @@ public class ExpertsController : AggregationController
     public async Task<IActionResult> Login(TokenCredentials credentials)
     {
         var result = await AuthServiceClient.LoginExpert(credentials).ConfigureAwait(false);
+
+        if (!result.Succeeded)
+        {
+            if (Request.Cookies.ContainsKey("accessToken"))
+            {
+                Response.Cookies.Delete("accessToken");
+            }
+
+            return BadRequest(result);
+        }
+
+        var handler = new JwtSecurityTokenHandler();
+        var jwt = handler.ReadJwtToken(credentials.AccessToken);
+        var expiresIn = jwt.ValidTo;
+
+
+        Response.Cookies.Append("accessToken", credentials.AccessToken,
+            new CookieOptions
+            {
+                Expires = expiresIn,
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            });
+
         return Ok(result);
     }
 

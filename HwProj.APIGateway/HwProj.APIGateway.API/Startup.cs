@@ -56,10 +56,10 @@ public class Startup
 
         services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = "JwtCookie";
+                options.DefaultChallengeScheme = "JwtCookie";
             })
-            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>
+            .AddJwtBearer("JwtCookie", x =>
             {
                 x.RequireHttpsMetadata = false;
                 x.TokenValidationParameters = new TokenValidationParameters
@@ -86,6 +86,21 @@ public class Startup
 
                         return Task.CompletedTask;
                     }
+                };
+            })
+            .AddJwtBearer("JwtBearer", x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = "AuthService",
+                    ValidateIssuer = true,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(Encoding.ASCII.GetBytes(appSettings["SecurityKey"])),
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero
                 };
             });
 

@@ -20,10 +20,16 @@ const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutPr
 
     useEffect(() => {
         const checkToken = async () => {
+            if (!token) {
+                setIsTokenValid(false);
+                setIsLoading(false);
+                return;
+            }
+
             const isExpired = ApiSingleton.authService.isTokenExpired(token);
             if (!isExpired) {
-                const isExpertLoggedIn = await ApiSingleton.expertsApi.expertsLogin(credentials)
-                if (isExpertLoggedIn.succeeded) {
+                try {
+                    await ApiSingleton.expertsApi.expertsLogin(credentials);
                     await ApiSingleton.authService.getUser();
                     setIsTokenValid(true);
                     props.onLogin();
@@ -32,13 +38,17 @@ const ExpertAuthLayout: FC<IExpertAuthLayoutProps> = (props: IExpertAuthLayoutPr
                     if (isEdited.succeeded && isEdited.value) {
                         setIsProfileAlreadyEdited(true);
                     }
-
-                    setIsLoading(false);
-                    return
                 }
+                catch {
+                    setIsTokenValid(false);
+                }
+                finally {
+                    setIsLoading(false);
+                }
+            } else {
+                setIsTokenValid(false);
+                setIsLoading(false);
             }
-            setIsTokenValid(false);
-            setIsLoading(false);
         };
 
         checkToken();
