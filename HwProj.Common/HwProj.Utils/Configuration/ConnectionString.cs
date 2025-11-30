@@ -8,7 +8,8 @@ namespace HwProj.Utils.Configuration
     {
         public static string GetConnectionString(IConfiguration configuration)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
+                RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 return configuration.GetConnectionString("DefaultConnectionForLinux");
             }
