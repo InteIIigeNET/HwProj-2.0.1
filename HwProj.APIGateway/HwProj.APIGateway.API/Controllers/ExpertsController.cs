@@ -85,7 +85,6 @@ public class ExpertsController : AggregationController
         var jwt = handler.ReadJwtToken(credentials.AccessToken);
         var expiresIn = jwt.ValidTo;
 
-
         Response.Cookies.Append("accessToken", credentials.AccessToken,
             new CookieOptions
             {
