@@ -17,7 +17,7 @@ namespace HwProj.Repositories
             Context = context;
         }
 
-        public IQueryable<TEntity> GetAll()
+        public IQueryable<long> GetAll()
         {
             return Context.Set<TEntity>().AsNoTracking();
         }
