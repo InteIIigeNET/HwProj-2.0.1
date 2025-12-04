@@ -25,7 +25,7 @@ import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 import {Alert, Card, CardActions, Chip, Paper, Stack, Tooltip} from "@mui/material";
 import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import {BonusTag, getTip, isBonusWork, isTestWork, TestTag} from "../Common/HomeworkTags";
+import {BonusTag, DefaultTags, getTip, isBonusWork, isTestWork, TestTag} from "../Common/HomeworkTags";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
 import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExperimental";
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
@@ -67,6 +67,8 @@ interface ICourseExperimentalState {
 
 export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const [hideDeferred, setHideDeferred] = useState<boolean>(false)
+    const [showOnlyGroupedTest, setShowOnlyGroupedTest] = useState<string | undefined>(undefined)
+    const filterAdded = hideDeferred || showOnlyGroupedTest !== undefined
 
     // Определяем разрешение экрана пользователя
     const theme = useTheme();
@@ -75,7 +77,12 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     // Состояние для кнопки "Наверх"
     const [showScrollButton, setShowScrollButton] = useState(false);
 
-    const homeworks = props.homeworks.slice().reverse().filter(x => !hideDeferred || !x.isDeferred)
+    const homeworks = props.homeworks.slice().reverse().filter(x => {
+        if (hideDeferred) return !x.isDeferred
+        if (showOnlyGroupedTest !== undefined) return x.tags!.includes(TestTag) && x.tags!.includes(showOnlyGroupedTest)
+        return true
+    })
+
     const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId, courseFilesInfo} = props
 
     const [state, setState] = useState<ICourseExperimentalState>({
@@ -163,8 +170,14 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             .forEach(x => taskSolutionsMap.set(x.id!, x.solution!))
     }
 
-    const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel) =>
-        isMentor && (entity.publicationDateNotSet || entity.hasDeadline && entity.deadlineDateNotSet)
+    const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
+        if (!isMentor) return false
+        if (entity.publicationDateNotSet || entity.hasDeadline && entity.deadlineDateNotSet) return true
+
+        if (!isHomework) return false
+        const result = validateTestGrouping(entity)
+        return result !== true && result.hasErrors
+    }
 
     const renderHomeworkStatus = (homework: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
         const hasErrors = homework.id! < 0 && (homework.hasErrors || homework.tasks!.some((t: HomeworkTaskViewModel & {
@@ -174,7 +187,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             return <div style={{fontSize: 16}}><ErrorIcon fontSize="small" color={"error"}/><br/></div>
         if (homework.isModified)
             return <div style={{fontSize: 16}}><EditIcon fontSize="small" color={"primary"}/><br/></div>
-        return showWarningsForEntity(homework) && <div style={{fontSize: 16}}>⚠️<br/></div>
+        return showWarningsForEntity(homework, true) && <div style={{fontSize: 16}}>⚠️<br/></div>
     }
 
     const renderTaskStatus = (task: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
@@ -197,7 +210,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         }
         if (task.hasErrors) return <ErrorIcon fontSize="small" color={"error"}/>
         if (task.isModified) return <EditIcon fontSize="small" color={"primary"}/>
-        return showWarningsForEntity(task) ? (
+        return showWarningsForEntity(task, false) ? (
             <Typography color={task.isDeferred ? "textSecondary" : "textPrimary"}>
                 <TimelineDot variant="outlined" style={warningTimelineDotStyle}>⚠️</TimelineDot>
             </Typography>
@@ -216,7 +229,20 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             selectedItem: {id: homework.id!, isHomework: true},
         })
 
-    const getAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
+    const validateTestGrouping = (homework: HomeworkViewModel) => {
+        if (!homework.tags!.includes(TestTag)) return true
+
+        const groupingTag = homework.tags!.find(x => !DefaultTags.includes(x))
+        if (groupingTag === undefined) return true
+
+        const groupedHomeworks = homeworks.filter(x => x.tags!.includes(TestTag) && x.tags!.includes(groupingTag))
+        if (groupedHomeworks.length === 1) return true
+
+        const keys = new Set(groupedHomeworks.map(h => h.tasks!.map(t => t.maxRating).join(";")))
+        return {groupingTag: groupingTag, hasErrors: keys.size !== 1}
+    }
+
+    const getDatesAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
         if (entity.publicationDateNotSet) {
             return (
                 <Alert severity="warning">
@@ -268,6 +294,41 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Alert>
         )
     }
+    const getGroupingAlert = (homework: HomeworkViewModel) => {
+        const result = validateTestGrouping(homework)
+        if (result === true) return null
+        const {hasErrors, groupingTag} = result
+        if (!hasErrors) return <Alert severity="success"
+                                      action={
+                                          <Button
+                                              fullWidth
+                                              color="inherit"
+                                              size="small"
+                                              onClick={() => setShowOnlyGroupedTest(groupingTag)}
+                                          >
+                                              Задания
+                                          </Button>}>
+            Работа сгруппирована по ключу '<b>{groupingTag}</b>'.
+        </Alert>
+
+        return <Alert severity="warning"
+                      action={
+                          <Button
+                              fullWidth
+                              color="inherit"
+                              size="small"
+                              onClick={() => setShowOnlyGroupedTest(groupingTag)}
+                          >
+                              Задания
+                          </Button>}>
+            <AlertTitle>Группировка контрольных работ</AlertTitle>
+            Создано несколько контрольных работ, сгруппированных по ключу '<b>{groupingTag}</b>',
+            однако работы отличаются между собой по количеству задач или их максимальным баллам.
+            <br/>
+            <br/>
+            Количество задач должно быть <b>одинаковым</b>, а баллы между соответствующими задачами <b>равными</b>.
+        </Alert>
+    }
 
     const selectedItemHomework = isHomework
         ? homeworks.find(x => x.id === id)!
@@ -292,6 +353,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 deadlineDateNotSet: false,
                 deadlineDate: undefined,
                 isDeadlineStrict: false,
+                description: "",
                 tasks: [],
                 tags: []
             },
@@ -332,6 +394,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             title: `Новая задача`,
             tags: homework.tags,
             isDeferred: homework.isDeferred,
+            description: "",
             id
         }
 
@@ -351,7 +414,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         const homeworkEditMode = homework && (homework.id! < 0 || homework.isModified === true)
         return homework && <Stack direction={"column"} spacing={2}>
             <Card style={{backgroundColor: "ghostwhite"}} raised={homeworkEditMode}>
-                {getAlert(homework, true)}
+                {isMentor && getGroupingAlert(homework)}
+                {isMentor && getDatesAlert(homework, true)}
                 <CourseHomeworkExperimental
                     key={homework.id}
                     getAllHomeworks={() => homeworks}
@@ -381,7 +445,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const renderTask = (task: HomeworkTaskViewModel & { isModified?: boolean }, homework: HomeworkViewModel) => {
         const taskEditMode = task && (task.id! < 0 || task.isModified === true)
         return task && <Card style={{backgroundColor: "ghostwhite"}} raised={taskEditMode}>
-            {getAlert(task, false)}
+            {isMentor && getDatesAlert(task, false)}
             <CourseTaskExperimental
                 key={task.id}
                 task={task}
@@ -452,7 +516,25 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                               borderRadius: 10
                           }
                       }}>
-                {props.isMentor && (homeworks[0]?.id || 1) > 0 && <Button
+                {props.isMentor && filterAdded && <Stack direction={"column"} alignItems={"center"}>
+                    <Button
+                        fullWidth
+                        onClick={() => {
+                            setHideDeferred(false)
+                            setShowOnlyGroupedTest(undefined)
+                        }}
+                        style={{borderRadius: 8, marginBottom: 10}} variant={"outlined"} size={"medium"}>
+                        Показать все задания
+                    </Button>
+                    <Typography
+                        variant={"caption"}>{hideDeferred
+                        ? "только опубликованные задания"
+                        : showOnlyGroupedTest
+                            ? `контрольные работы '${showOnlyGroupedTest}'`
+                            : ""}
+                    </Typography>
+                </Stack>}
+                {props.isMentor && !filterAdded && (homeworks[0]?.id || 1) > 0 && <Button
                     onClick={addNewHomework}
                     style={{borderRadius: 8, marginBottom: 10}} variant={"text"} size={"small"}>
                     + Добавить задание
@@ -483,8 +565,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 }))
                             }}>
                             <Typography variant="h6" style={{fontSize: 18}} align={"center"}
-                                        color={x.isDeferred ? "textSecondary" : "textPrimary"}>
-                                {renderHomeworkStatus(x)}
+                                        color={x.isDeferred
+                                            ? "textSecondary"
+                                            : x.tags!.includes(TestTag) ? "primary" : "textPrimary"}>
+                                {isMentor && renderHomeworkStatus(x)}
                                 {x.title}{getTip(x)}
                             </Typography>
                             {x.isDeferred && !x.publicationDateNotSet &&

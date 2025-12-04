@@ -7,6 +7,7 @@ using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.APIGateway.API.Models.Solutions;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
+using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
@@ -300,27 +301,90 @@ public class SolutionsController : AggregationController
             var result = await _solutionsClient.PostSolution(taskId, solutionModel);
             return Ok(result);
         }
+        else
+        {
+            var fullStudentsGroup = model.GroupMateIds.ToList();
+            fullStudentsGroup.Add(solutionModel.StudentId);
+            var arrFullStudentsGroup = fullStudentsGroup.Distinct().ToArray();
 
-        var fullStudentsGroup = model.GroupMateIds.ToList();
-        fullStudentsGroup.Add(solutionModel.StudentId);
-        var arrFullStudentsGroup = fullStudentsGroup.Distinct().ToArray();
+            if (arrFullStudentsGroup.Intersect(course.CourseMates.Select(x => x.StudentId)).Count() !=
+                arrFullStudentsGroup.Length)
+                return BadRequest();
 
-        if (arrFullStudentsGroup.Intersect(course.CourseMates.Select(x => x.StudentId)).Count() !=
-            arrFullStudentsGroup.Length)
-            return BadRequest();
+            var existedGroup = course.Groups.SingleOrDefault(x =>
+                x.StudentsIds.Length == arrFullStudentsGroup.Length &&
+                x.StudentsIds.Intersect(arrFullStudentsGroup).Count() == arrFullStudentsGroup.Length);
 
-        var existedGroup = course.Groups.SingleOrDefault(x =>
-            x.StudentsIds.Length == arrFullStudentsGroup.Length &&
-            x.StudentsIds.Intersect(arrFullStudentsGroup).Count() == arrFullStudentsGroup.Length);
+            solutionModel.GroupId =
+                existedGroup?.Id ??
+                await _coursesServiceClient.CreateCourseGroup(new CreateGroupViewModel(arrFullStudentsGroup, course.Id),
+                    taskId);
 
-        solutionModel.GroupId =
-            existedGroup?.Id ??
-            await _coursesServiceClient.CreateCourseGroup(new CreateGroupViewModel(arrFullStudentsGroup, course.Id),
-                taskId);
+            var result = await _solutionsClient.PostSolution(taskId, solutionModel);
 
-        await _solutionsClient.PostSolution(taskId, solutionModel);
+            return Ok(result);
+        }
+    }
 
-        return Ok(solutionModel);
+    [HttpPost("automated/{courseId}")]
+    [Authorize(Roles = Roles.LecturerOrExpertRole)]
+    [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> PostAutomatedSolution(PostAutomatedSolutionModel model, long courseId)
+    {
+        var course = await _coursesServiceClient.GetCourseById(courseId);
+        if (course is null) return BadRequest($"Курс с Id {courseId} не найден");
+        if (!course.MentorIds.Contains(UserId))
+            return BadRequest("Добавлять автоматизированные решения могут только зарегистрированные на курс агенты");
+
+        var tasks = course.Homeworks.SelectMany(t => t.Tasks);
+        var task = model.TaskIdType switch
+        {
+            TaskIdType.Id when long.TryParse(model.TaskId, out var taskId) => tasks.FirstOrDefault(x => x.Id == taskId),
+            TaskIdType.Title => tasks.FirstOrDefault(x => x.Title == model.TaskId),
+            _ => null
+        };
+        if (task is null) return BadRequest($"Задача с {model.TaskIdType} = {model.TaskId} не найдена");
+
+        var students =
+            await AuthServiceClient.GetAccountsData(course.AcceptedStudents.Select(x => x.StudentId).ToArray());
+        var studentCandidates = model.StudentIdType switch
+        {
+            StudentIdType.Id => students.FirstOrDefault(x => x.UserId == model.StudentId) is { } s
+                ? [s]
+                : [],
+            StudentIdType.FullName => students
+                .Where(x =>
+                    model.StudentId.Contains(x.Name.Trim()) &&
+                    model.StudentId.Contains(x.Surname.Trim()) &&
+                    (string.IsNullOrEmpty(x.MiddleName) || model.StudentId.Contains(x.MiddleName.Trim())))
+                .ToArray(),
+            StudentIdType.GitHub => students.Where(x => x.GithubId == model.StudentId).ToArray(),
+            _ => []
+        };
+
+        switch (studentCandidates.Length)
+        {
+            case 0:
+                return BadRequest($"Студент с {model.StudentIdType} = {model.StudentId} не записан на курс");
+            case > 1:
+                return BadRequest(
+                    $"Найдено несколько студентов с {model.StudentIdType} = {model.StudentId}. Измените StudentIdType или StudentId, чтобы уточнить запрос");
+        }
+
+        var student = studentCandidates.First();
+        var solutions = await _solutionsClient.GetUserSolutions(task.Id, student.UserId);
+        if (solutions.OrderBy(x => x.PublicationDate).LastOrDefault()?.State == SolutionState.Posted)
+            return Ok(
+                "Последнее решение студента по задаче ещё не проверено. Все хорошо, но новое решение не будет добавлено");
+
+        await _solutionsClient.PostSolution(task.Id, new HwProj.Models.SolutionsService.PostSolutionModel
+        {
+            GithubUrl = model.GithubUrl,
+            Comment = model.Comment,
+            StudentId = student.UserId
+        });
+
+        return Ok("Решение успешно добавлено в очередь на проверку!");
     }
 
     [HttpPost("rateEmptySolution/{taskId}")]
@@ -428,7 +492,8 @@ public class SolutionsController : AggregationController
                     GroupId = solution.GroupId,
                     SentAfterDeadline = solution.IsFirstTry && task.DeadlineDate != null &&
                                         solution.PublicationDate > task.DeadlineDate,
-                    IsCourseCompleted = course.IsCompleted
+                    IsCourseCompleted = course.IsCompleted,
+                    IsTest = task.Tags.Contains(HomeworkTags.Test)
                 };
             })
             .ToArray();

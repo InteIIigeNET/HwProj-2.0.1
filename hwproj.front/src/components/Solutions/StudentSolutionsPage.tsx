@@ -269,7 +269,7 @@ const StudentSolutionsPage: FC = () => {
             <div className={"container"} style={{marginBottom: '50px', marginTop: '15px'}}>
                 <Grid container direction={"column"} justifyContent="center" alignContent={"stretch"} spacing={2}>
                     <Grid item container>
-                        <Stack direction={"row"} spacing={1}
+                        <Stack direction={"row"} spacing={1} minWidth={"100%"}
                                style={{overflowY: "hidden", overflowX: "auto", minHeight: 80}}>
                             {taskSolutionsStats!.map((t, index) => {
                                 const isCurrent = versionsOfCurrentTask.includes(t.taskId!)

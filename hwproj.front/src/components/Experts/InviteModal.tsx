@@ -78,7 +78,7 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
             const courses = await ApiSingleton.coursesApi.coursesGetAllUserCourses();
             setState(prevState => ({
                 ...prevState,
-                lecturerCourses: courses
+                lecturerCourses: courses.filter(x => !x.isCompleted).reverse()
             }));
             setIsCourseListLoading(false);
         }

@@ -17,6 +17,7 @@ public class SolutionPreviewView
     public bool IsFirstTry { get; set; }
     public bool SentAfterDeadline { get; set; }
     public bool IsCourseCompleted { get; set; }
+    public bool IsTest { get; set; }
 }
 
 public class UnratedSolutionPreviews
