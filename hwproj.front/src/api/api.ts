@@ -1492,6 +1492,25 @@ export interface LoginViewModel {
 /**
  *
  * @export
+ * @interface LtiToolDto
+ */
+export interface LtiToolDto {
+    /**
+     *
+     * @type {number}
+     * @memberof LtiToolDto
+     */
+    id?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof LtiToolDto
+     */
+    name?: string;
+}
+/**
+ *
+ * @export
  * @interface MentorToAssignedStudentsDTO
  */
 export interface MentorToAssignedStudentsDTO {
@@ -7380,6 +7399,336 @@ export class HomeworksApi extends BaseAPI {
      */
     public homeworksUpdateHomework(homeworkId: number, body?: CreateHomeworkViewModel, options?: any) {
         return HomeworksApiFp(this.configuration).homeworksUpdateHomework(homeworkId, body, options)(this.fetch, this.basePath);
+    }
+
+}
+/**
+ * LtiAuthApi - fetch parameter creator
+ * @export
+ */
+export const LtiAuthApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         *
+         * @param {string} [issOfTheTool]
+         * @param {string} [clientId]
+         * @param {string} [targetLinkUri]
+         * @param {string} [state]
+         * @param {string} [nonce]
+         * @param {string} [loginHint]
+         * @param {string} [ltiMessageHint]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ltiAuthAuthorizeLti(issOfTheTool?: string, clientId?: string, targetLinkUri?: string, state?: string, nonce?: string, loginHint?: string, ltiMessageHint?: string, options: any = {}): FetchArgs {
+            const localVarPath = `/api/lti/launch/authorize`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (issOfTheTool !== undefined) {
+                localVarQueryParameter['issOfTheTool'] = issOfTheTool;
+            }
+
+            if (clientId !== undefined) {
+                localVarQueryParameter['clientId'] = clientId;
+            }
+
+            if (targetLinkUri !== undefined) {
+                localVarQueryParameter['targetLinkUri'] = targetLinkUri;
+            }
+
+            if (state !== undefined) {
+                localVarQueryParameter['state'] = state;
+            }
+
+            if (nonce !== undefined) {
+                localVarQueryParameter['nonce'] = nonce;
+            }
+
+            if (loginHint !== undefined) {
+                localVarQueryParameter['login_hint'] = loginHint;
+            }
+
+            if (ltiMessageHint !== undefined) {
+                localVarQueryParameter['lti_message_hint'] = ltiMessageHint;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * LtiAuthApi - functional programming interface
+ * @export
+ */
+export const LtiAuthApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         *
+         * @param {string} [issOfTheTool]
+         * @param {string} [clientId]
+         * @param {string} [targetLinkUri]
+         * @param {string} [state]
+         * @param {string} [nonce]
+         * @param {string} [loginHint]
+         * @param {string} [ltiMessageHint]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ltiAuthAuthorizeLti(issOfTheTool?: string, clientId?: string, targetLinkUri?: string, state?: string, nonce?: string, loginHint?: string, ltiMessageHint?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = LtiAuthApiFetchParamCreator(configuration).ltiAuthAuthorizeLti(issOfTheTool, clientId, targetLinkUri, state, nonce, loginHint, ltiMessageHint, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * LtiAuthApi - factory interface
+ * @export
+ */
+export const LtiAuthApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         *
+         * @param {string} [issOfTheTool]
+         * @param {string} [clientId]
+         * @param {string} [targetLinkUri]
+         * @param {string} [state]
+         * @param {string} [nonce]
+         * @param {string} [loginHint]
+         * @param {string} [ltiMessageHint]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ltiAuthAuthorizeLti(issOfTheTool?: string, clientId?: string, targetLinkUri?: string, state?: string, nonce?: string, loginHint?: string, ltiMessageHint?: string, options?: any) {
+            return LtiAuthApiFp(configuration).ltiAuthAuthorizeLti(issOfTheTool, clientId, targetLinkUri, state, nonce, loginHint, ltiMessageHint, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * LtiAuthApi - object-oriented interface
+ * @export
+ * @class LtiAuthApi
+ * @extends {BaseAPI}
+ */
+export class LtiAuthApi extends BaseAPI {
+    /**
+     *
+     * @param {string} [issOfTheTool]
+     * @param {string} [clientId]
+     * @param {string} [targetLinkUri]
+     * @param {string} [state]
+     * @param {string} [nonce]
+     * @param {string} [loginHint]
+     * @param {string} [ltiMessageHint]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LtiAuthApi
+     */
+    public ltiAuthAuthorizeLti(issOfTheTool?: string, clientId?: string, targetLinkUri?: string, state?: string, nonce?: string, loginHint?: string, ltiMessageHint?: string, options?: any) {
+        return LtiAuthApiFp(this.configuration).ltiAuthAuthorizeLti(issOfTheTool, clientId, targetLinkUri, state, nonce, loginHint, ltiMessageHint, options)(this.fetch, this.basePath);
+    }
+
+}
+/**
+ * LtiToolsApi - fetch parameter creator
+ * @export
+ */
+export const LtiToolsApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         *
+         * @param {number} id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ltiToolsGet(id: number, options: any = {}): FetchArgs {
+            // verify required parameter 'id' is not null or undefined
+            if (id === null || id === undefined) {
+                throw new RequiredError('id','Required parameter id was null or undefined when calling ltiToolsGet.');
+            }
+            const localVarPath = `/api/lti/tools/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ltiToolsGetAll(options: any = {}): FetchArgs {
+            const localVarPath = `/api/lti/tools`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * LtiToolsApi - functional programming interface
+ * @export
+ */
+export const LtiToolsApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         *
+         * @param {number} id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ltiToolsGet(id: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<LtiToolDto> {
+            const localVarFetchArgs = LtiToolsApiFetchParamCreator(configuration).ltiToolsGet(id, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ltiToolsGetAll(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<LtiToolDto>> {
+            const localVarFetchArgs = LtiToolsApiFetchParamCreator(configuration).ltiToolsGetAll(options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * LtiToolsApi - factory interface
+ * @export
+ */
+export const LtiToolsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         *
+         * @param {number} id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ltiToolsGet(id: number, options?: any) {
+            return LtiToolsApiFp(configuration).ltiToolsGet(id, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ltiToolsGetAll(options?: any) {
+            return LtiToolsApiFp(configuration).ltiToolsGetAll(options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * LtiToolsApi - object-oriented interface
+ * @export
+ * @class LtiToolsApi
+ * @extends {BaseAPI}
+ */
+export class LtiToolsApi extends BaseAPI {
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LtiToolsApi
+     */
+    public ltiToolsGet(id: number, options?: any) {
+        return LtiToolsApiFp(this.configuration).ltiToolsGet(id, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LtiToolsApi
+     */
+    public ltiToolsGetAll(options?: any) {
+        return LtiToolsApiFp(this.configuration).ltiToolsGetAll(options)(this.fetch, this.basePath);
     }
 
 }

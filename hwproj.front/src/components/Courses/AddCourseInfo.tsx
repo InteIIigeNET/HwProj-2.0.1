@@ -3,6 +3,7 @@ import {
     Grid,
     TextField,
     Button, Typography,
+    MenuItem,
 } from "@material-ui/core";
 import {LoadingButton} from "@mui/lab";
 import {IStepComponentProps} from "./ICreateCourseState";
@@ -108,6 +109,39 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                             />
                         ))
                     }
+                    fullWidth
+                />
+            </Grid>
+
+            <Grid item xs={12}>
+                <Autocomplete
+                    // список опций
+                    options={state.ltiTools}
+
+                    getOptionLabel={(option) => option.name ?? ""}
+
+                    value={
+                        state.ltiToolId == null
+                            ? null
+                            : state.ltiTools.find(t => t.id === state.ltiToolId) ?? null
+                    }
+
+                    onChange={(_, newValue) => {
+                        setState(prev => ({
+                            ...prev,
+                            ltiToolId: newValue?.id ?? null
+                        }));
+                    }}
+
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="LTI-инструмент"
+                            required={false}
+                            variant="outlined"
+                            fullWidth
+                        />
+                    )}
                     fullWidth
                 />
             </Grid>
