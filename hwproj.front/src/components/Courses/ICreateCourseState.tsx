@@ -1,5 +1,5 @@
 import {Dispatch, SetStateAction} from "react"
-import {CoursePreviewView} from "api";
+import {CoursePreviewView, LtiToolDto} from "api";
 
 export enum CreateCourseStep {
     SelectBaseCourseStep = 0,
@@ -33,6 +33,9 @@ export interface ICreateCourseState {
 
     fetchingGroups: boolean;
     courseIsLoading: boolean;
+
+    ltiTools: LtiToolDto[];
+    ltiToolId: number | null;
 }
 
 export interface IStepComponentProps {
