@@ -69,11 +69,27 @@ function getApiBase(): string {
     return `${protocol}//${hostname}${effectivePort ? `:${effectivePort}` : ""}`
 }
 
+let unauthorizedHandler: (() => void) | null = null
+
+export const setUnauthorizedHandler = (handler: (() => void) | null) => {
+    unauthorizedHandler = handler;
+}
+
 const cookieFetch = async (url: string, init: any) => {
     const response = await fetch(url, {
         ...init,
         credentials: "include"
     });
+
+    const path = window.location.pathname;
+
+    if (response.status === 401 &&
+        !path.includes("login") &&
+        !path.includes("register")){
+        if (unauthorizedHandler) {
+            unauthorizedHandler()
+        }
+    }
 
     return response;
 }

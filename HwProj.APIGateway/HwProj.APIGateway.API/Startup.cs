@@ -126,7 +126,7 @@ public class Startup
 
         app.UseRouting();
         app.UseCors(x => x
-            .AllowAnyMethod()
+            .WithMethods("GET")
             .AllowAnyHeader()
             .SetIsOriginAllowed(_ => true)
             .AllowCredentials());
