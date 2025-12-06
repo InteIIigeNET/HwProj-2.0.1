@@ -16,7 +16,7 @@ import Register from "./components/Auth/Register";
 import ExpertsNotebook from "./components/Experts/Notebook";
 import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
-import ApiSingleton, {setAunauthorizedHandler} from "./api/ApiSingleton";
+import ApiSingleton from "./api/ApiSingleton";
 import SystemInfoComponent from "./components/System/SystemInfoComponent";
 import WrongPath from "./components/WrongPath";
 import ResetPassword from "components/Auth/ResetPassword";
@@ -24,6 +24,8 @@ import PasswordRecovery from "components/Auth/PasswordRecovery";
 import AuthLayout from "./AuthLayout";
 import ExpertAuthLayout from "./components/Experts/AuthLayout";
 import TrackPageChanges from "TrackPageChanges";
+import {Alert, Button} from "@mui/material";
+import {Snackbar} from "@material-ui/core";
 
 // TODO: add flux
 
@@ -34,7 +36,6 @@ interface AppState {
     newNotificationsCount: number;
     appBarContextAction: AppBarContextAction;
     authReady: boolean;
-    needAuth: boolean;
 }
 
 const withRouter = (Component: any) => {
@@ -59,15 +60,12 @@ class App extends Component<{ navigate: any }, AppState> {
             isExpert: ApiSingleton.authService.isExpert(),
             newNotificationsCount: 0,
             appBarContextAction: "Default",
-            authReady: false,
-            needAuth: false,
+            authReady: false
         };
         appBarStateManager.setOnContextActionChange(appBarState => this.setState({appBarContextAction: appBarState}))
     }
 
     componentDidMount = async () => {
-        setUnauthorizedHandler(() => this.setState({needAuth: true}));
-
         const user = await ApiSingleton.authService.getProfile();
         this.setState(
             {
@@ -94,8 +92,7 @@ class App extends Component<{ navigate: any }, AppState> {
         this.setState({
             loggedIn: true,
             isLecturer: isLecturer,
-            isExpert: isExpert,
-            needAuth: false,
+            isExpert: isExpert
         })
         if (!isExpert) {
             await this.updatedNewNotificationsCount()
@@ -105,7 +102,7 @@ class App extends Component<{ navigate: any }, AppState> {
 
     logout = async () => {
         await ApiSingleton.authService.logout();
-        this.setState({loggedIn: false, isLecturer: false, isExpert: false, newNotificationsCount: 0, authReady: true, needAuth: false});
+        this.setState({loggedIn: false, isLecturer: false, isExpert: false, newNotificationsCount: 0, authReady: true});
         this.props.navigate("/login");
     }
 
@@ -120,7 +117,6 @@ class App extends Component<{ navigate: any }, AppState> {
                         onLogout={this.logout}
                         contextAction={this.state.appBarContextAction}/>
                 <TrackPageChanges/>
-
                 <Routes>
                     <Route element={<AuthLayout/>}>
                         <Route path="user/edit" element={<EditProfile isExpert={this.state.isExpert}/>}/>

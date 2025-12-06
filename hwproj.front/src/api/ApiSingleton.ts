@@ -69,10 +69,15 @@ function getApiBase(): string {
     return `${protocol}//${hostname}${effectivePort ? `:${effectivePort}` : ""}`
 }
 
-let unauthorizedHandler: (() => void) | null = null
+let skipRedirect = false;
 
-export const setUnauthorizedHandler = (handler: (() => void) | null) => {
-    unauthorizedHandler = handler;
+export async function runWithoutAuthRedirect(functionToRun: () => Promise<any>) {
+    skipRedirect = true;
+    try {
+        return await functionToRun();
+    } finally {
+        skipRedirect = false;
+    }
 }
 
 const cookieFetch = async (url: string, init: any) => {
@@ -85,10 +90,9 @@ const cookieFetch = async (url: string, init: any) => {
 
     if (response.status === 401 &&
         !path.includes("login") &&
-        !path.includes("register")){
-        if (unauthorizedHandler) {
-            unauthorizedHandler()
-        }
+        !path.includes("register") &&
+        !skipRedirect){
+        window.location.href = `/login?returnUrl=${window.location.pathname}`;
     }
 
     return response;
