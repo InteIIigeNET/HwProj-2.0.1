@@ -1,5 +1,5 @@
 import {LoginViewModel, RegisterViewModel} from '../api';
-import ApiSingleton, {runWithoutAuthRedirect} from "../api/ApiSingleton";
+import ApiSingleton, {accountApiWithoutRedirect} from "../api/ApiSingleton";
 import decode from "jwt-decode";
 
 
@@ -29,8 +29,7 @@ export default class AuthService {
 
     public async getUser() {
         try {
-            const accountData = await runWithoutAuthRedirect(() =>
-                ApiSingleton.accountApi.accountGetUserSummary());
+            const accountData = await accountApiWithoutRedirect.accountGetUserSummary();
             if (accountData) {
                 this._user = {
                     id: accountData.userId!,

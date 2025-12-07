@@ -24,8 +24,6 @@ import PasswordRecovery from "components/Auth/PasswordRecovery";
 import AuthLayout from "./AuthLayout";
 import ExpertAuthLayout from "./components/Experts/AuthLayout";
 import TrackPageChanges from "TrackPageChanges";
-import {Alert, Button} from "@mui/material";
-import {Snackbar} from "@material-ui/core";
 
 // TODO: add flux
 

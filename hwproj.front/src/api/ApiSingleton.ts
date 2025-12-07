@@ -69,17 +69,6 @@ function getApiBase(): string {
     return `${protocol}//${hostname}${effectivePort ? `:${effectivePort}` : ""}`
 }
 
-let skipRedirect = false;
-
-export async function runWithoutAuthRedirect(functionToRun: () => Promise<any>) {
-    skipRedirect = true;
-    try {
-        return await functionToRun();
-    } finally {
-        skipRedirect = false;
-    }
-}
-
 const cookieFetch = async (url: string, init: any) => {
     const response = await fetch(url, {
         ...init,
@@ -90,10 +79,18 @@ const cookieFetch = async (url: string, init: any) => {
 
     if (response.status === 401 &&
         !path.includes("login") &&
-        !path.includes("register") &&
-        !skipRedirect){
+        !path.includes("register")){
         window.location.href = `/login?returnUrl=${window.location.pathname}`;
     }
+
+    return response;
+}
+
+const cookieFetchWithoutRedirect = async (url: string, init: any) => {
+    const response = await fetch(url, {
+        ...init,
+        credentials: "include"
+    });
 
     return response;
 }
@@ -103,6 +100,8 @@ const authService = new AuthService()
 const apiConfig = {
     basePath: basePath,
 }
+
+export const accountApiWithoutRedirect = new AccountApi(apiConfig, undefined, cookieFetchWithoutRedirect);
 
 let ApiSingleton: Api;
 ApiSingleton = new Api(
