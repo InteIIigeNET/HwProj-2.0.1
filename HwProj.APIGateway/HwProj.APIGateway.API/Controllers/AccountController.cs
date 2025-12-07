@@ -155,6 +155,7 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("logout")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         public IActionResult Logout()
         {
             ClearTokenCookie();

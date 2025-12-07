@@ -75,6 +75,23 @@ const cookieFetch = async (url: string, init: any) => {
         credentials: "include"
     });
 
+    const path = window.location.pathname;
+
+    if (response.status === 401 &&
+        !path.includes("login") &&
+        !path.includes("register")){
+        window.location.href = `/login?returnUrl=${window.location.pathname}`;
+    }
+
+    return response;
+}
+
+const cookieFetchWithoutRedirect = async (url: string, init: any) => {
+    const response = await fetch(url, {
+        ...init,
+        credentials: "include"
+    });
+
     return response;
 }
 
@@ -83,6 +100,8 @@ const authService = new AuthService()
 const apiConfig = {
     basePath: basePath,
 }
+
+export const accountApiWithoutRedirect = new AccountApi(apiConfig, undefined, cookieFetchWithoutRedirect);
 
 let ApiSingleton: Api;
 ApiSingleton = new Api(
