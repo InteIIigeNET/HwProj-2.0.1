@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using User = HwProj.AuthService.API.Models.User;
 
@@ -42,6 +44,17 @@ namespace HwProj.AuthService.API.Controllers
 
             return accountData != null
                 ? Ok(accountData) as IActionResult
+                : NotFound();
+        }
+
+        [HttpGet("getUserSummary/{userId}")]
+        [ProducesResponseType(typeof(AccountSummaryDto), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetUserSummaryById(string userId)
+        {
+            var accountSummary = await _accountService.GetAccountSummaryAsync(userId).ConfigureAwait(false);
+
+            return accountSummary != null
+                ? Ok(accountSummary) as IActionResult
                 : NotFound();
         }
 

@@ -267,8 +267,7 @@ const Course: React.FC = () => {
             course &&
             course.mentors!.some(t => t.userId === userId)
         if (shouldRefreshToken) {
-            const newToken = await ApiSingleton.accountApi.accountRefreshToken()
-            newToken.value && ApiSingleton.authService.refreshToken(newToken.value.accessToken!)
+            await ApiSingleton.authService.refreshAccessToken();
             return
         }
 

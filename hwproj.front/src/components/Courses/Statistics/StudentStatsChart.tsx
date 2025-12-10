@@ -30,7 +30,7 @@ interface IStudentStatsChartState {
 
 const StudentStatsChart: React.FC = () => {
     const {courseId} = useParams();
-    const isLoggedIn = ApiSingleton.authService.isLoggedIn();
+    const isLoggedIn = ApiSingleton.authService.loggedIn();
     const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
     const [state, setState] = useState<IStudentStatsChartState>({
         isFound: false,

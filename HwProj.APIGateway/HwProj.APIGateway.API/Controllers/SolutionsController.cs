@@ -327,7 +327,7 @@ public class SolutionsController : AggregationController
     }
 
     [HttpPost("automated/{courseId}")]
-    [Authorize(Roles = Roles.LecturerOrExpertRole)]
+    [Authorize(Roles = Roles.LecturerOrExpertRole,  AuthenticationSchemes = "JwtCookie, JwtBearer")]
     [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> PostAutomatedSolution(PostAutomatedSolutionModel model, long courseId)
     {

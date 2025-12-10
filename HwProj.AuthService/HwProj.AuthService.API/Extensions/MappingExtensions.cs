@@ -19,5 +19,13 @@ namespace HwProj.AuthService.API.Extensions
                 user.CompanyName,
                 user.Bio);
         }
+
+        public static AccountSummaryDto ToAccountSummaryDto(this User user, string role)
+        {
+            return new AccountSummaryDto(
+                user.Id,
+                user.Email,
+                role);
+        }
     }
 }

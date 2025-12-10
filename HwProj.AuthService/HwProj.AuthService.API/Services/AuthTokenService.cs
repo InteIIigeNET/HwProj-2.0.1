@@ -40,7 +40,7 @@ namespace HwProj.AuthService.API.Services
             var expiresIn = userRoles.FirstOrDefault() == Roles.ExpertRole
                 ? GetExpertTokenExpiresIn(timeNow)
                 : timeNow.AddMinutes(int.Parse(_configuration["ExpiresIn"]));
-            
+
             var token = new JwtSecurityToken(
                 issuer: _configuration["ApiName"],
                 notBefore: timeNow,
@@ -56,7 +56,8 @@ namespace HwProj.AuthService.API.Services
 
             var tokenCredentials = new TokenCredentials
             {
-                AccessToken = _tokenHandler.WriteToken(token)
+                AccessToken = _tokenHandler.WriteToken(token),
+                ExpiresIn = expiresIn
             };
 
             return tokenCredentials;
@@ -80,16 +81,16 @@ namespace HwProj.AuthService.API.Services
                             .Select(errors => errors.Description)
                             .ToArray());
                 }
-                
+
                 var tokenCredentials = await GetTokenAsync(expert);
                 var result = await _userManager.SetAuthenticationTokenAsync(expert, loginProvider,
                     tokenName, tokenCredentials.AccessToken);
                 if (result.Succeeded) return Result<TokenCredentials>.Success(tokenCredentials);
-                
+
                 return Result<TokenCredentials>.Failed(result.Errors.Select(errors => errors.Description)
                     .ToArray());
             }
-            
+
             return Result<TokenCredentials>.Success(new TokenCredentials
             {
                 AccessToken = token
