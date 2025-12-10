@@ -15,6 +15,7 @@ namespace HwProj.CoursesService.API.Models
         public DbSet<CourseFilter> CourseFilters { get; set; }
         public DbSet<UserToCourseFilter> UserToCourseFilters { get; set; }
         public DbSet<TaskQuestion> Questions { get; set; }
+        public DbSet<Criterions> Criterions { get; set; }
 
         public CourseContext(DbContextOptions options)
             : base(options)
@@ -27,6 +28,20 @@ namespace HwProj.CoursesService.API.Models
             modelBuilder.Entity<Assignment>().HasIndex(a => a.CourseId);
             modelBuilder.Entity<UserToCourseFilter>().HasKey(u => new { u.CourseId, u.UserId });
             modelBuilder.Entity<TaskQuestion>().HasIndex(t => t.TaskId);
+            modelBuilder.Entity<Criterions>(b =>
+            {
+                b.HasKey(c => c.Id);
+
+                b.Property(c => c.Name);
+                b.Property(c => c.Points);
+                b.Property(c => c.TaskId);
+                b.Property(c => c.Type);
+
+                b.HasOne<HomeworkTask>()
+                    .WithMany()
+                    .HasForeignKey(c => c.TaskId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }

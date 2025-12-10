@@ -17,7 +17,7 @@ import FilesPreviewList from "components/Files/FilesPreviewList";
 import {IFileInfo} from "components/Files/IFileInfo";
 import {FC, useEffect, useState} from "react"
 import Utils from "services/Utils";
-import {FileInfoDTO, HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, CreateTaskViewModel} from "@/api";
+import {FileInfoDTO, HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, CreateTaskViewModel, CriterionViewModel} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import Tags from "../Common/Tags";
 import apiSingleton from "../../api/ApiSingleton";
@@ -55,6 +55,7 @@ interface IEditFilesState {
     selectedFilesInfo: IFileInfo[]
     isLoadingInfo: boolean
 }
+type Criterias = CriterionViewModel;
 
 const CourseHomeworkEditor: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
@@ -234,10 +235,27 @@ const CourseHomeworkEditor: FC<{
             publicationDate: metadata.publicationDate,
             actionOptions: editOptions,
             tasks: isNewHomework ? homework.tasks!.map(t => {
-                const task: CreateTaskViewModel = {
+                const raw =
+                    (t as any).criterias ??
+                    [];
+
+                const normalized: Criterias[] = (raw as any[]).map((c) => ({
+                    id: c.id,
+                    type: c.type,
+                    name: c.name,
+                    points: Math.max(0, Math.floor(Number(c.points) || 0)),
+                }));
+
+                const maxFromCriteria =
+                    normalized.length > 0
+                        ? normalized.reduce((s, c) => s + (c.points ?? 0), 0)
+                        : t.maxRating!;
+
+                const task: CreateTaskViewModel & { criterias?: Criterias[] } = {
                     ...t,
                     title: t.title!,
-                    maxRating: t.maxRating!
+                    maxRating: maxFromCriteria,
+                    ...(normalized.length ? { criterias: normalized } : {}),
                 }
                 return task
             }) : []

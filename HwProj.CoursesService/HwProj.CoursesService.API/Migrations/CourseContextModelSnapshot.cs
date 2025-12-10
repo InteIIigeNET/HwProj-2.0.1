@@ -93,6 +93,27 @@ namespace HwProj.CoursesService.API.Migrations
                     b.ToTable("CourseMates");
                 });
 
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.Criterions", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name");
+
+                    b.Property<int>("Points");
+
+                    b.Property<long>("TaskId");
+
+                    b.Property<string>("Type");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("Criterions");
+                });
+
             modelBuilder.Entity("HwProj.CoursesService.API.Models.Group", b =>
                 {
                     b.Property<long>("Id")
@@ -269,6 +290,14 @@ namespace HwProj.CoursesService.API.Migrations
                     b.HasOne("HwProj.CoursesService.API.Models.Course")
                         .WithMany("CourseMates")
                         .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.Criterions", b =>
+                {
+                    b.HasOne("HwProj.CoursesService.API.Models.HomeworkTask")
+                        .WithMany()
+                        .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

@@ -16,13 +16,15 @@ namespace HwProj.CoursesService.API.Services
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly IEventBus _eventBus;
         private readonly ICoursesRepository _coursesRepository;
+        private readonly ICriterionsService _criterionsService;
 
         public HomeworksService(IHomeworksRepository homeworksRepository, IEventBus eventBus,
-            ICoursesRepository coursesRepository)
+            ICoursesRepository coursesRepository, ICriterionsService criterionsService)
         {
             _homeworksRepository = homeworksRepository;
             _eventBus = eventBus;
             _coursesRepository = coursesRepository;
+            _criterionsService = criterionsService;
         }
 
         public async Task<Homework> AddHomeworkAsync(long courseId, CreateHomeworkViewModel homeworkViewModel)
@@ -30,7 +32,7 @@ namespace HwProj.CoursesService.API.Services
             homeworkViewModel.Tags = homeworkViewModel.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
             var homework = homeworkViewModel.ToHomework();
             homework.CourseId = courseId;
-
+           
             var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(courseId);
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
             if (DateTime.UtcNow >= homework.PublicationDate)
@@ -40,7 +42,9 @@ namespace HwProj.CoursesService.API.Services
             }
 
             await _homeworksRepository.AddAsync(homework);
-            return await GetHomeworkAsync(homework.Id);
+            var getHome = await GetHomeworkAsync(homework.Id);
+            await _criterionsService.AddCriterionsAsync(homeworkViewModel, getHome.Tasks);
+            return getHome;
         }
 
         public async Task<Homework> GetHomeworkAsync(long homeworkId)

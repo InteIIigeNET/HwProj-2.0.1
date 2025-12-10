@@ -22,7 +22,7 @@ namespace HwProj.CoursesService.API.Models
         public DateTime? PublicationDate { get; set; }
 
         public long HomeworkId { get; set; }
-        
+
         public Homework Homework { get; set; }
     }
 }

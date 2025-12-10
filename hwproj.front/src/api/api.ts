@@ -691,6 +691,43 @@ export interface CreateTaskViewModel {
      * @memberof CreateTaskViewModel
      */
     actionOptions?: ActionOptions;
+    /**
+     *
+     * @type {Array<CriterionViewModel>}
+     * @memberof CreateTaskViewModel
+     */
+    criterias?: Array<CriterionViewModel>;
+}
+/**
+ *
+ * @export
+ * @interface CriterionViewModel
+ */
+export interface CriterionViewModel {
+    /**
+     *
+     * @type {number}
+     * @memberof CriterionViewModel
+     */
+    id?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof CriterionViewModel
+     */
+    type?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof CriterionViewModel
+     */
+    name: string;
+    /**
+     *
+     * @type {number}
+     * @memberof CriterionViewModel
+     */
+    points?: number;
 }
 /**
  *
@@ -1215,6 +1252,12 @@ export interface HomeworkTaskViewModel {
      * @memberof HomeworkTaskViewModel
      */
     isDeferred?: boolean;
+    /**
+     *
+     * @type {Array<CriterionViewModel>}
+     * @memberof HomeworkTaskViewModel
+     */
+    criterias?: Array<CriterionViewModel>;
 }
 /**
  *
@@ -9426,10 +9469,11 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
         /**
          *
          * @param {number} taskId
+         * @param {boolean} [withCriterias]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tasksGetTask(taskId: number, options: any = {}): FetchArgs {
+        tasksGetTask(taskId: number, withCriterias?: boolean, options: any = {}): FetchArgs {
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
                 throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling tasksGetTask.');
@@ -9447,6 +9491,10 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
                     ? configuration.apiKey("Authorization")
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (withCriterias !== undefined) {
+                localVarQueryParameter['withCriterias'] = withCriterias;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -9638,11 +9686,12 @@ export const TasksApiFp = function(configuration?: Configuration) {
         /**
          *
          * @param {number} taskId
+         * @param {boolean} [withCriterias]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tasksGetTask(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModel> {
-            const localVarFetchArgs = TasksApiFetchParamCreator(configuration).tasksGetTask(taskId, options);
+        tasksGetTask(taskId: number, withCriterias?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModel> {
+            const localVarFetchArgs = TasksApiFetchParamCreator(configuration).tasksGetTask(taskId, withCriterias, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -9747,11 +9796,12 @@ export const TasksApiFactory = function (configuration?: Configuration, fetch?: 
         /**
          *
          * @param {number} taskId
+         * @param {boolean} [withCriterias]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tasksGetTask(taskId: number, options?: any) {
-            return TasksApiFp(configuration).tasksGetTask(taskId, options)(fetch, basePath);
+        tasksGetTask(taskId: number, withCriterias?: boolean, options?: any) {
+            return TasksApiFp(configuration).tasksGetTask(taskId, withCriterias, options)(fetch, basePath);
         },
         /**
          *
@@ -9853,12 +9903,13 @@ export class TasksApi extends BaseAPI {
     /**
      *
      * @param {number} taskId
+     * @param {boolean} [withCriterias]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TasksApi
      */
-    public tasksGetTask(taskId: number, options?: any) {
-        return TasksApiFp(this.configuration).tasksGetTask(taskId, options)(this.fetch, this.basePath);
+    public tasksGetTask(taskId: number, withCriterias?: boolean, options?: any) {
+        return TasksApiFp(this.configuration).tasksGetTask(taskId, withCriterias, options)(this.fetch, this.basePath);
     }
 
     /**
