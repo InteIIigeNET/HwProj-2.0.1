@@ -26,6 +26,8 @@
     "@types/remarkable": "^1.7.4",
     "@uiw/react-markdown-preview": "4.2.2",
     "@uiw/react-md-editor": "3.25.6",
+    "avatarka": "^1.0.1",
+    "avatarka-react": "^1.0.1",
     "axios": "^0.30.2",
     "bootstrap": "^4.3.1",
     "classnames": "^2.3.1",

@@ -1,4 +1,4 @@
-import {AccountDataDto} from "../../api";
+import {AccountDataDto} from "@/api";
 
 export default class AvatarUtils {
 

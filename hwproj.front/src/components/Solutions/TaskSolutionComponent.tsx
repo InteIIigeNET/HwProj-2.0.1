@@ -13,7 +13,7 @@ import {
     CriterionViewModel
 } from '@/api'
 import ApiSingleton from "../../api/ApiSingleton";
-import { Alert, Avatar, Rating, Stack, Tooltip, Card, CardContent, CardActions, IconButton, Chip, Box } from "@mui/material";
+import { Alert, Avatar, Rating, Stack, Tooltip, Card, CardContent, CardActions, IconButton, Chip, Box, } from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
@@ -30,6 +30,7 @@ import KeyboardCommandKeyIcon from '@mui/icons-material/KeyboardCommandKey';
 import MouseOutlinedIcon from '@mui/icons-material/MouseOutlined';
 import BlurOnIcon from '@mui/icons-material/BlurOn';
 import BlurOffIcon from '@mui/icons-material/BlurOff';
+import {UserAvatar} from "../Common/UserAvatar";
 
 type Criterion = CriterionViewModel;
 
@@ -1056,7 +1057,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                            alignItems={students.length === 1 ? "center" : "normal"} spacing={1}>
                         <Stack direction={"row"} spacing={1}>
                             {students && students.map(t => <Tooltip title={t.surname + " " + t.name}>
-                                <Avatar {...AvatarUtils.stringAvatar(t)} />
+                                <span><UserAvatar user={t} key={t.userId}/></span>
                             </Tooltip>)}
                         </Stack>
                         <Grid item spacing={1} container direction="column">
