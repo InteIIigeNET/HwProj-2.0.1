@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.Models.CoursesService.ViewModels
 {
@@ -35,6 +37,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         public bool IsGroupWork { get; set; }
 
         public bool IsDeferred { get; set; }
+
+        public List<CriterionViewModel>? Criterias { get; set; } = new List<CriterionViewModel>();
     }
 
     public class HomeworkTaskForEditingViewModel
@@ -63,5 +67,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         [Required] public int MaxRating { get; set; }
 
         public ActionOptions? ActionOptions { get; set; }
+
+        public List<CriterionViewModel>? Criterias { get; set; }
     }
 }

@@ -305,11 +305,11 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<HomeworkTaskViewModel> GetTask(long taskId)
+        public async Task<HomeworkTaskViewModel> GetTask(long taskId, bool withCriterias = false)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _coursesServiceUri + $"api/Tasks/get/{taskId}");
+                _coursesServiceUri + $"api/Tasks/get/{taskId}?withCriterias={withCriterias}");
 
             httpRequest.TryAddUserId(_httpContextAccessor);
 

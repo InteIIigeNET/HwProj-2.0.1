@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
@@ -10,6 +7,9 @@ using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -32,20 +32,19 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("get/{taskId}")]
-        public async Task<IActionResult> GetTask(long taskId)
+        public async Task<IActionResult> GetTask(long taskId, [FromQuery] bool withCriterias)
         {
-            var taskFromDb = await _tasksService.GetTaskAsync(taskId);
-            if (taskFromDb == null) return NotFound();
+            var task = await _tasksService.GetTaskWithCriteriasAsync(taskId,withCriterias);
+            if (task == null) return NotFound();
 
-            if (taskFromDb.PublicationDate > DateTime.UtcNow)
+            if (task.PublicationDate > DateTime.UtcNow)
             {
                 var userId = Request.GetUserIdFromHeader();
-                var homework = taskFromDb.Homework;
+                var homework = _homeworksService.GetHomeworkAsync(task.HomeworkId).Result;
                 var lecturers = await _coursesService.GetCourseLecturers(homework.CourseId);
                 if (!lecturers.Contains(userId)) return BadRequest();
             }
 
-            var task = taskFromDb.ToHomeworkTaskViewModel();
             return Ok(task);
         }
 
@@ -53,14 +52,13 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> GetForEditingTask(long taskId)
         {
-            var taskFromDb = await _tasksService.GetForEditingTaskAsync(taskId);
+            var task = await _tasksService.GetForEditingTaskWithCriteriasAsync(taskId);
 
-            if (taskFromDb == null)
+            if (task == null)
             {
                 return NotFound();
             }
 
-            var task = taskFromDb.ToHomeworkTaskForEditingViewModel();
             return Ok(task);
         }
 
@@ -72,7 +70,7 @@ namespace HwProj.CoursesService.API.Controllers
             var validationResult = Validator.ValidateTask(taskViewModel, homework);
             if (validationResult.Any()) return BadRequest(validationResult);
 
-            var task = await _tasksService.AddTaskAsync(homeworkId, taskViewModel.ToHomeworkTask());
+            var task = await _tasksService.AddTaskAsync(homeworkId, taskViewModel);
 
             return Ok(task);
         }
@@ -95,7 +93,7 @@ namespace HwProj.CoursesService.API.Controllers
             if (validationResult.Any()) return BadRequest(validationResult);
 
             var updatedTask =
-                await _tasksService.UpdateTaskAsync(taskId, taskViewModel.ToHomeworkTask(),
+                await _tasksService.UpdateTaskAsync(taskId, taskViewModel,
                     taskViewModel.ActionOptions ?? ActionOptions.Default);
             return Ok(updatedTask.ToHomeworkTaskViewModel());
         }
