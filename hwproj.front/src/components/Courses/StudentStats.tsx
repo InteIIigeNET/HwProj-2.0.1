@@ -126,7 +126,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     const hasHomeworks = homeworksMaxSum > 0
     const hasTests = testsMaxSum > 0
-    const showBestSolutions = isMentor
+    const showBestSolutions = isMentor && (hasHomeworks || hasTests)
 
     const bestTaskSolutions = new Map<number, string>()
     if (props.solutions && isMentor) {
