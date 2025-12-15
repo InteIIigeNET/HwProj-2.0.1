@@ -126,7 +126,7 @@ namespace HwProj.SolutionsService.API.Services
                     GithubUrl = solution.GithubUrl,
                     Comment = solution.Comment,
                     GroupId = solution.GroupId,
-                    IsModified = IsModified,
+                    IsModified = isModified,
                     State = SolutionState.Posted,
                 });
                 solutionId = lastSolution.Id;
