@@ -71,6 +71,7 @@ namespace HwProj.CoursesService.API.Domains
             {
                 Task = task.ToHomeworkTaskViewModel(),
                 Homework = task.Homework.ToHomeworkViewModel(),
+                
             };
 
         public static CourseMateViewModel ToCourseMateViewModel(this CourseMate courseMate)

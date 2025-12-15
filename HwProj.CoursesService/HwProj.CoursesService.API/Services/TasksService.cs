@@ -71,11 +71,6 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<HomeworkTask> GetForEditingTaskAsync(long taskId)
         {
-            return await _tasksRepository.GetWithHomeworkAsync(taskId);
-        }
-
-        public async Task<HomeworkTaskForEditingViewModel> GetForEditingTaskWithCriteriasAsync(long taskId)
-        {
             var taskFromDb = await _tasksRepository.GetWithHomeworkAsync(taskId);
 
             if (taskFromDb == null)
@@ -83,11 +78,9 @@ namespace HwProj.CoursesService.API.Services
                 return null;
             }
 
-            var task = taskFromDb.ToHomeworkTaskForEditingViewModel();
+            taskFromDb.Criterias = await _criterionsService.GetTaskCriteriaAsync(taskId);
 
-          //  task.Task.Criterias = await _criterionsService.GetTaskCriteriaAsync(taskId);
-
-            return task;
+            return taskFromDb;
         }
 
         public async Task<HomeworkTask> AddTaskAsync(long homeworkId, CreateTaskViewModel taskViewModel)

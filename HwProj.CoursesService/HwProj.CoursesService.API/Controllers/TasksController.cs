@@ -51,14 +51,14 @@ namespace HwProj.CoursesService.API.Controllers
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> GetForEditingTask(long taskId)
         {
-            var task = await _tasksService.GetForEditingTaskWithCriteriasAsync(taskId);
+            var task = await _tasksService.GetForEditingTaskAsync(taskId);
 
             if (task == null)
             {
                 return NotFound();
             }
 
-            return Ok(task);
+            return Ok(task.ToHomeworkTaskForEditingViewModel());
         }
 
         [HttpPost("add/{homeworkId}")]
