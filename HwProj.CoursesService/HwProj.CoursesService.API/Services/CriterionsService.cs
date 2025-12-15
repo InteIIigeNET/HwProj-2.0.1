@@ -132,17 +132,17 @@ namespace HwProj.CoursesService.API.Services
             }
         }
 
-        public async Task<List<CriterionViewModel>> GetTaskCriteriaAsync(long taskId)
+        public async Task<List<Criterion>> GetTaskCriteriaAsync(long taskId)
         {
             var criteria = await _criteriaRepository.GetByTaskIdAsync(taskId);
 
             if (criteria == null)
             {
-                return new List<CriterionViewModel>();
+                return new List<Criterion>();
             }
 
             return criteria
-                .Select(c => new CriterionViewModel
+                .Select(c => new Criterion
                 {
                     Id = c.Id,
                     Type = c.Type,

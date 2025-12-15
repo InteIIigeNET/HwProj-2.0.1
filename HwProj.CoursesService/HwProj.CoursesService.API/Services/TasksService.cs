@@ -40,7 +40,7 @@ namespace HwProj.CoursesService.API.Services
             return task;
         }
 
-        public async Task<HomeworkTaskViewModel> GetTaskAsync(long taskId, bool withCriterias = false)
+        public async Task<HomeworkTask> GetTaskAsync(long taskId, bool withCriterias = false)
         {
             if (withCriterias)
             {
@@ -53,11 +53,10 @@ namespace HwProj.CoursesService.API.Services
 
                 CourseDomain.FillTask(taskFromDb.Homework, taskFromDb);
 
-                var taskVm = taskFromDb.ToHomeworkTaskViewModel();
-                taskVm.Criterias = (await _criterionsService.GetTaskCriteriaAsync(taskId))
-                                   ?? new List<CriterionViewModel>();
+                taskFromDb.Criterias = (await _criterionsService.GetTaskCriteriaAsync(taskId))
+                                   ?? new List<Criterion>();
 
-                return taskVm;
+                return taskFromDb;
             }
 
             var taskFromService = await GetTaskFromDbAsync(taskId);
@@ -67,7 +66,7 @@ namespace HwProj.CoursesService.API.Services
                 return null;
             }
 
-            return taskFromService.ToHomeworkTaskViewModel();
+            return taskFromService;
         }
 
         public async Task<HomeworkTask> GetForEditingTaskAsync(long taskId)
@@ -86,7 +85,7 @@ namespace HwProj.CoursesService.API.Services
 
             var task = taskFromDb.ToHomeworkTaskForEditingViewModel();
 
-            task.Task.Criterias = await _criterionsService.GetTaskCriteriaAsync(taskId);
+          //  task.Task.Criterias = await _criterionsService.GetTaskCriteriaAsync(taskId);
 
             return task;
         }

@@ -11,7 +11,7 @@ namespace HwProj.CoursesService.API.Services
 
         public Task UpdateTaskCriteriaAsync(CreateTaskViewModel taskViewModel, long taskId);
 
-        public Task<List<CriterionViewModel>> GetTaskCriteriaAsync(long taskId);
+        public Task<List<Criterion>> GetTaskCriteriaAsync(long taskId);
         public Task DeleteCriteriaByTaskIdAsync(long taskId);
 
         public Task DeleteCriteriaFromHomeworkAsync(long homeworkId);

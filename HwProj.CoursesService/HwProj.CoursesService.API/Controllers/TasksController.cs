@@ -34,7 +34,7 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("get/{taskId}")]
         public async Task<IActionResult> GetTask(long taskId, [FromQuery] bool withCriterias)
         {
-            var task = await _tasksService.GetTaskWithCriteriasAsync(taskId,withCriterias);
+            var task = await _tasksService.GetTaskAsync(taskId,withCriterias);
             if (task == null) return NotFound();
 
             if (task.PublicationDate > DateTime.UtcNow)
@@ -44,8 +44,7 @@ namespace HwProj.CoursesService.API.Controllers
                 var lecturers = await _coursesService.GetCourseLecturers(homework.CourseId);
                 if (!lecturers.Contains(userId)) return BadRequest();
             }
-
-            return Ok(task);
+            return Ok(task.ToHomeworkTaskViewModel());
         }
 
         [HttpGet("getForEditing/{taskId}")]
