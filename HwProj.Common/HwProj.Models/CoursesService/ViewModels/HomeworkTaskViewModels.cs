@@ -70,4 +70,6 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public List<CriterionViewModel>? Criterias { get; set; }
     }
+
+    public class EditTaskViewModel : CreateTaskViewModel { }
 }

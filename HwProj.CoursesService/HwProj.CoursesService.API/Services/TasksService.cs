@@ -109,7 +109,7 @@ namespace HwProj.CoursesService.API.Services
             await _tasksRepository.DeleteAsync(taskId);
         }
 
-        public async Task<HomeworkTask> UpdateTaskAsync(long taskId, CreateTaskViewModel taskViewModel, ActionOptions options)
+        public async Task<HomeworkTask> UpdateTaskAsync(long taskId, EditTaskViewModel taskViewModel, ActionOptions options)
         {
             await _criterionsService.UpdateTaskCriteriaAsync(taskViewModel, taskId);
             var update = taskViewModel.ToHomeworkTask();

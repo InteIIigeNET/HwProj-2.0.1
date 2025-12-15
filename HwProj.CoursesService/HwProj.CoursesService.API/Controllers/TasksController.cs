@@ -83,7 +83,7 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpPut("update/{taskId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> UpdateTask(long taskId, [FromBody] CreateTaskViewModel taskViewModel)
+        public async Task<IActionResult> UpdateTask(long taskId, [FromBody] EditTaskViewModel taskViewModel)
         {
             var previousState = await _tasksService.GetForEditingTaskAsync(taskId);
             var validationResult = Validator.ValidateTask(taskViewModel,

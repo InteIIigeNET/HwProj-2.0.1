@@ -83,7 +83,7 @@ namespace HwProj.CoursesService.API.Services
             await _criteriaRepository.AddRangeAsync(entities);
         }
 
-        public async Task UpdateTaskCriteriaAsync(CreateTaskViewModel taskViewModel, long taskId)
+        public async Task UpdateTaskCriteriaAsync(EditTaskViewModel taskViewModel, long taskId)
         {
             var criterions = taskViewModel.Criterias?.ToArray() ?? Array.Empty<CriterionViewModel>();
 

@@ -9,7 +9,7 @@ namespace HwProj.CoursesService.API.Services
     {
         public Task AddCriterionsAsync(CreateHomeworkViewModel homeworkViewModel, IReadOnlyList<HomeworkTask> tasks);
 
-        public Task UpdateTaskCriteriaAsync(CreateTaskViewModel taskViewModel, long taskId);
+        public Task UpdateTaskCriteriaAsync(EditTaskViewModel taskViewModel, long taskId);
 
         public Task<List<Criterion>> GetTaskCriteriaAsync(long taskId);
         public Task DeleteCriteriaByTaskIdAsync(long taskId);
