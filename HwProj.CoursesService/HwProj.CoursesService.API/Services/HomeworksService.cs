@@ -42,9 +42,11 @@ namespace HwProj.CoursesService.API.Services
             }
 
             await _homeworksRepository.AddAsync(homework);
-            var getHome = await GetHomeworkAsync(homework.Id);
-            await _criterionsService.AddCriterionsAsync(homeworkViewModel, getHome.Tasks);
-            return getHome;
+
+            var createdHomework = await GetHomeworkAsync(homework.Id);
+            await _criterionsService.AddCriterionsAsync(homeworkViewModel, createdHomework.Tasks);
+
+            return createdHomework;
         }
 
         public async Task<Homework> GetHomeworkAsync(long homeworkId)
