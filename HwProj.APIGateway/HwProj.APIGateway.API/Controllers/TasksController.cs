@@ -16,9 +16,9 @@ public class TasksController(ICoursesServiceClient coursesClient) : ControllerBa
     [HttpGet("get/{taskId}")]
     [Authorize]
     [ProducesResponseType(typeof(HomeworkTaskViewModel), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetTask(long taskId , [FromQuery] bool? withCriterias)
+    public async Task<IActionResult> GetTask(long taskId, [FromQuery] bool? withCriterias)
     {
-        var result = await coursesClient.GetTask(taskId,withCriterias ?? false);
+        var result = await coursesClient.GetTask(taskId, withCriterias ?? false);
         return result == null
             ? NotFound()
             : Ok(result);
