@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Filters;
@@ -58,7 +59,6 @@ public class FilesController(
     [HttpGet("downloadLink")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetDownloadLink([FromQuery] long fileId)
     {
