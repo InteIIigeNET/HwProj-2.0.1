@@ -81,14 +81,14 @@ public class FilesController : ControllerBase
     }
 
     [HttpGet("downloadLink")]
-    [ProducesResponseType(typeof(FileLinkDTO), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(FileLinkDTO[]), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetDownloadLink([FromQuery] long fileId)
     {
         var externalKey = await _filesInfoService.GetFileExternalKeyAsync(fileId);
         if (externalKey is null) return Ok(Result<FileLinkDTO>.Failed("Файл не найден"));
 
-        var fileScope = await _filesInfoService.GetFileScopeAsync(fileId);
-        if (fileScope is null) return Ok(Result<FileLinkDTO>.Failed("Файл не найден"));
+        var fileScopes = await _filesInfoService.GetFileScopesAsync(fileId);
+        if (fileScopes is null) return Ok(Result<FileLinkDTO>.Failed("Файл не найден"));
         
         var downloadUrl = await _s3FilesService.GetDownloadUrl(externalKey);
         if (!downloadUrl.Succeeded) return Ok(Result<FileLinkDTO>.Failed(downloadUrl.Errors));
@@ -96,7 +96,7 @@ public class FilesController : ControllerBase
         var result = new FileLinkDTO
         {
             DownloadUrl = downloadUrl.Value,
-            fileScope = fileScope.ToScopeDTO()
+            fileScopes = fileScopes.Select(fs => fs.ToScopeDTO()).ToList()
         };
 
         return Ok(result);

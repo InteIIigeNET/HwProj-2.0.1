@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Filters;
@@ -29,15 +30,14 @@ public class FilesController : AggregationController
 
     [HttpPost("process")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
     public async Task<IActionResult> Process([FromForm] ProcessFilesDTO processFilesDto)
     {
-        var checkRights = await _privacyFilter.CheckRights(User,
-            processFilesDto.FilesScope,
-            FilesPrivacyFilter.Method.Upload
-        );
-        if (!checkRights) return StatusCode((int)HttpStatusCode.Forbidden, "Недостаточно прав для загрузки файлов");
+        var checkRights = await _privacyFilter.CheckUploadRights(
+            User.Claims.FirstOrDefault(claim => claim.Type.ToString() == "_id")?.Value,
+            processFilesDto.FilesScope);
+        if (!checkRights) return Forbid("Недостаточно прав для загрузки файлов");
 
         var checkCountLimit = await _countFilter.CheckCountLimit(processFilesDto);
         if (!checkCountLimit) return StatusCode((int)HttpStatusCode.Forbidden, "Слишком много файлов в решении." 
@@ -50,16 +50,15 @@ public class FilesController : AggregationController
     }
 
     [HttpPost("statuses")]
+    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
     public async Task<IActionResult> GetStatuses(ScopeDTO filesScope)
     {
-        var checkRights = await _privacyFilter.CheckRights(User,
-            filesScope,
-            FilesPrivacyFilter.Method.Upload
-        );
-        if (!checkRights) return StatusCode((int)HttpStatusCode.Forbidden, "Недостаточно прав для получения информации о файлах");
+        var checkRights = await _privacyFilter.CheckUploadRights(
+            User.Claims.FirstOrDefault(claim => claim.Type.ToString() == "_id")?.Value,
+            filesScope);
+        if (!checkRights) return Forbid("Недостаточно прав для получения информации о файлах");
         
         var filesStatusesResult = await _contentServiceClient.GetFilesStatuses(filesScope);
         return filesStatusesResult.Succeeded
@@ -68,22 +67,28 @@ public class FilesController : AggregationController
     }
 
     [HttpGet("downloadLink")]
+    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetDownloadLink([FromQuery] long fileId)
     {
         var linkDto = await _contentServiceClient.GetDownloadLinkAsync(fileId);
         if(!linkDto.Succeeded) return StatusCode((int)HttpStatusCode.ServiceUnavailable, linkDto.Errors);
 
-        var checkRights = await _privacyFilter.CheckRights(User,
-            linkDto.Value.fileScope,
-            FilesPrivacyFilter.Method.Download
-        );
+        var userId = User.Claims.FirstOrDefault(claim => claim.Type.ToString() == "_id")?.Value;
+        var hasRights = false;
+        foreach (var scope in linkDto.Value.fileScopes)
+        {
+            if (await _privacyFilter.CheckDownloadRights(userId, scope))
+            {
+                hasRights = true;
+                break;
+            }
+        }
 
-        return checkRights
+        return hasRights
             ? Ok(linkDto.Value.DownloadUrl)
-            : StatusCode((int)HttpStatusCode.Forbidden, "Недостаточно прав для получения ссылки на файл");
+            : Forbid("Недостаточно прав для получения ссылки на файл");
     }
 
     [HttpGet("info/course/{courseId}")]
