@@ -22,11 +22,5 @@ namespace HwProj.CoursesService.API.Repositories
                 .ToListAsync();
         }
 
-        public Task<Criterion?> GetCriterions(long id)
-        {
-            return Context.Set<Criterion>()
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == id);
-        }
     }
 }

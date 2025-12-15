@@ -7,7 +7,6 @@ namespace HwProj.CoursesService.API.Repositories
 {
     public interface ICriterionsRepository : ICrudRepository<Criterion, long>
     {
-        Task<Criterion> GetCriterions(long id);
 
         Task<List<Criterion>> GetByTaskIdAsync(long taskId);
 

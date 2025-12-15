@@ -31,7 +31,7 @@ namespace HwProj.CoursesService.API.Services
             var taskViewModels = homeworkViewModel.Tasks.ToList();
             var taskCount = Math.Min(taskViewModels.Count, tasks.Count);
 
-            var criteriaToAdd = new List<Criterions>();
+            var criteriaToAdd = new List<Criterion>();
 
             for (var i = 0; i < taskCount; i++)
             {
@@ -45,7 +45,7 @@ namespace HwProj.CoursesService.API.Services
 
                 foreach (var criterionVm in taskViewModel.Criterias)
                 {
-                    criteriaToAdd.Add(new Criterions
+                    criteriaToAdd.Add(new Criterion
                     {
                         TaskId = task.Id,
                         Type = criterionVm.Type,
@@ -72,7 +72,7 @@ namespace HwProj.CoursesService.API.Services
                 return;
             }
 
-            var entities = criterias.Select(crit => new Criterions
+            var entities = criterias.Select(crit => new Criterion
             {
                 TaskId = taskId,
                 Type = crit.Type,
@@ -95,7 +95,7 @@ namespace HwProj.CoursesService.API.Services
 
             var toAdd = criterions
                 .Where(c => c.Id <= 0)
-                .Select(crit => new Criterions
+                .Select(crit => new Criterion
                 {
                     TaskId = taskId,
                     Type = crit.Type,
@@ -106,7 +106,7 @@ namespace HwProj.CoursesService.API.Services
 
             foreach (var crit in existing)
             {
-                await _criteriaRepository.UpdateAsync(crit.Id, t => new Criterions
+                await _criteriaRepository.UpdateAsync(crit.Id, t => new Criterion
                 {
                     Name = crit.Name,
                     Points = crit.Points
