@@ -37,9 +37,9 @@ public class FilesInfoService : IFilesInfoService
         return fileRecord?.ExternalKey;
     }
     
-    public async Task<Scope?> GetFileScopeAsync(long fileId)
+    public async Task<List<Scope>?> GetFileScopesAsync(long fileId)
     {
-        var fileToCourseUnit = await _fileRecordRepository.GetScopeByRecordIdAsync(fileId);
+        var fileToCourseUnit = await _fileRecordRepository.GetScopesAsync(fileId);
         return fileToCourseUnit;
     }
 

@@ -1,9 +1,11 @@
+using System.Collections.Generic;
+
 namespace HwProj.Models.ContentService.DTO
 {
     
     public class FileLinkDTO
     {
         public string DownloadUrl { get; set; }
-        public ScopeDTO fileScope { get; set; }
+        public List<ScopeDTO> fileScopes { get; set; }
     }
 }
