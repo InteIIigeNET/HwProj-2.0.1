@@ -120,12 +120,13 @@ namespace HwProj.SolutionsService.API.Services
 
             if (lastSolution != null && lastSolution.State == SolutionState.Posted)
             {
+                var isModified = lastSolution.GithubUrl != solution.GithubUrl || lastSolution.Comment != solution.Comment;
                 await _solutionsRepository.UpdateAsync(lastSolution.Id, x => new Solution
                 {
                     GithubUrl = solution.GithubUrl,
                     Comment = solution.Comment,
                     GroupId = solution.GroupId,
-                    IsModified = true,
+                    IsModified = isModified,
                     State = SolutionState.Posted,
                 });
                 solutionId = lastSolution.Id;
