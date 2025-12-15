@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
 using HwProj.Models.ContentService.DTO;
+using HwProj.Models.CourseUnitType;
 using HwProj.SolutionsService.Client;
 
 namespace HwProj.APIGateway.API.Filters;
@@ -20,10 +21,10 @@ public class FilesPrivacyFilter
 
     public async Task<bool> CheckDownloadRights(string? userId, ScopeDTO fileScope)
     {
-        if (fileScope.CourseUnitType == "Homework") return true;
-        if (fileScope.CourseUnitType == "Solution")
+        if (fileScope.CourseUnitType == CourseUnitType.Homework) return true;
+        if (fileScope.CourseUnitType == CourseUnitType.Solution)
         {
-            if(userId == null) return false;
+            if (userId == null) return false;
             var studentIds = new HashSet<string>();
             var solution = await _solutionsServiceClient.GetSolutionById(fileScope.CourseUnitId);
             studentIds.Add(solution.StudentId);
@@ -40,17 +41,17 @@ public class FilesPrivacyFilter
 
         return false;
     }
-    
+
     public async Task<bool> CheckUploadRights(string? userId, ScopeDTO fileScope)
     {
-        if(userId == null) return false;
-        if (fileScope.CourseUnitType == "Homework")
+        if (userId == null) return false;
+        if (fileScope.CourseUnitType == CourseUnitType.Homework)
         {
             var mentorIds = await _coursesServiceClient.GetCourseLecturersIds(fileScope.CourseId);
             if (!mentorIds.Contains(userId)) return false;
             return true;
-        } 
-        if (fileScope.CourseUnitType == "Solution")
+        }
+        if (fileScope.CourseUnitType == CourseUnitType.Solution)
         {
             var studentIds = new HashSet<string>();
             var solution = await _solutionsServiceClient.GetSolutionById(fileScope.CourseUnitId);
