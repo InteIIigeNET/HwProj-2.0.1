@@ -93,7 +93,7 @@ namespace HwProj.CoursesService.API.Migrations
                     b.ToTable("CourseMates");
                 });
 
-            modelBuilder.Entity("HwProj.CoursesService.API.Models.Criterions", b =>
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.Criterion", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -111,7 +111,7 @@ namespace HwProj.CoursesService.API.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("Criterions");
+                    b.ToTable("Criterion");
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.Group", b =>
@@ -293,7 +293,7 @@ namespace HwProj.CoursesService.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("HwProj.CoursesService.API.Models.Criterions", b =>
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.Criterion", b =>
                 {
                     b.HasOne("HwProj.CoursesService.API.Models.HomeworkTask")
                         .WithMany()

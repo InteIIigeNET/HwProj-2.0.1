@@ -3,12 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HwProj.CoursesService.API.Migrations
 {
-    public partial class Criterions : Migration
+    public partial class Criterion : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Criterions",
+                name: "Criterion",
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
@@ -20,14 +20,14 @@ namespace HwProj.CoursesService.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Criterions", x => x.Id);
+                    table.PrimaryKey("PK_Criterion", x => x.Id);
                 });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Criterions");
+                name: "Criterion");
         }
     }
 }

@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Repositories
 {
-    public interface ICriterionsRepository : ICrudRepository<Criterions, long>
+    public interface ICriterionsRepository : ICrudRepository<Criterion, long>
     {
-        Task<Criterions> GetCriterions(long id);
+        Task<Criterion> GetCriterions(long id);
 
-        Task<List<Criterions>> GetByTaskIdAsync(long taskId);
+        Task<List<Criterion>> GetByTaskIdAsync(long taskId);
 
     }
 }

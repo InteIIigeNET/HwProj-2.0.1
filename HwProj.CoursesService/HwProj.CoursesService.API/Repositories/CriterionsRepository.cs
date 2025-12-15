@@ -7,24 +7,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Repositories
 {
-    public class CriterionsRepository : CrudRepository<Criterions, long>, ICriterionsRepository
+    public class CriterionsRepository : CrudRepository<Criterion, long>, ICriterionsRepository
     {
         public CriterionsRepository(CourseContext context)
             : base(context)
         {
         }
 
-        public async Task<List<Criterions>> GetByTaskIdAsync(long taskId)
+        public async Task<List<Criterion>> GetByTaskIdAsync(long taskId)
         {
-            return await Context.Set<Criterions>()
+            return await Context.Set<Criterion>()
                 .AsNoTracking()
                 .Where(c => c.TaskId == taskId)
                 .ToListAsync();
         }
 
-        public Task<Criterions?> GetCriterions(long id)
+        public Task<Criterion?> GetCriterions(long id)
         {
-            return Context.Set<Criterions>()
+            return Context.Set<Criterion>()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
