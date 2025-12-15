@@ -125,7 +125,10 @@ namespace HwProj.SolutionsService.API.Services
                     GithubUrl = solution.GithubUrl,
                     Comment = solution.Comment,
                     GroupId = solution.GroupId,
-                    IsModified = true,
+                    if (lastSolution.GithubUrl != solution.GithubUrl || lastSolution.Comment != solution.Comment)
+                    {
+                        IsModified = true;
+                    }
                     State = SolutionState.Posted,
                 });
                 solutionId = lastSolution.Id;
