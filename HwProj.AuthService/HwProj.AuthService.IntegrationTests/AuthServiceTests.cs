@@ -24,10 +24,13 @@ namespace HwProj.AuthService.IntegrationTests
 {
     public class Tests
     {
+        private const string _testUserEmail = "admin@gmail.com";
+        private const string _testUserPassword = "Admin@1234";
+
         private Claim[] ValidateToken(Result<TokenCredentials> resultData)
         {
-            const string secret = "this is a string used for encrypt and decrypt token";
-            var key = Encoding.ASCII.GetBytes(secret);
+            const string secret = "U8_.wpvk93fPWG<f2$Op[vwegmQGF25_fNG2V0ijnm2e0igv24g";
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
             var handler = new JwtSecurityTokenHandler();
             var validations = new TokenValidationParameters
             {
@@ -35,7 +38,7 @@ namespace HwProj.AuthService.IntegrationTests
                 ValidateIssuer = true,
                 ValidateAudience = false,
                 ValidateLifetime = true,
-                IssuerSigningKey = null,
+                IssuerSigningKey = key,
                 ValidateIssuerSigningKey = true
             };
             var claims = handler.ValidateToken(resultData.Value.AccessToken, validations, out var tokenSecure);
@@ -60,12 +63,8 @@ namespace HwProj.AuthService.IntegrationTests
 
         private static RegisterViewModel GenerateRegisterViewModel()
         {
-            var password = new Fixture().Create<string>();
-
             var fixture = new Fixture().Build<RegisterViewModel>()
                 .With(x => x.Email, new Fixture().Create<MailAddress>().Address);
-                // .With(x => x.Password, password)
-                // .With(x => x.PasswordConfirm, password);
 
             return fixture.Create();
         }
@@ -74,7 +73,6 @@ namespace HwProj.AuthService.IntegrationTests
             => new LoginViewModel
             {
                 Email = model.Email,
-                // Password = model.Password,
                 RememberMe = false
             };
 
@@ -187,7 +185,13 @@ namespace HwProj.AuthService.IntegrationTests
             var userData = GenerateRegisterViewModel();
             await _authServiceClient.Register(userData);
 
-            var loginData = GenerateLoginViewModel(userData);
+            var loginData = new LoginViewModel
+            {
+                Email = _testUserEmail,
+                Password = _testUserPassword,
+                RememberMe = false,
+            };
+
             var resultData = await _authServiceClient.Login(loginData);
 
             resultData.Succeeded.Should().BeTrue();
@@ -195,11 +199,11 @@ namespace HwProj.AuthService.IntegrationTests
             resultData.Value.AccessToken.Should().NotBeNullOrEmpty();
 
             var claims = ValidateToken(resultData);
-            var userId = await _authServiceClient.FindByEmailAsync(userData.Email);
+            var userId = await _authServiceClient.FindByEmailAsync(_testUserEmail);
 
             claims[1].Value.Should().Be(userId);
-            claims[2].Value.Should().Be(userData.Email);
-            claims[3].Value.Should().Be(Roles.StudentRole);
+            claims[2].Value.Should().Be(_testUserEmail);
+            claims[3].Value.Should().Be(Roles.LecturerRole);
         }
 
         [Test]

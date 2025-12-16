@@ -51,7 +51,7 @@ const Login: FC<LoginProps> = (props) => {
         email: '',
         password: '',
         error: [],
-        isLogin: ApiSingleton.authService.isLoggedIn(),
+        isLogin: ApiSingleton.authService.loggedIn(),
     })
 
     // Состояние для ошибки электронной почты

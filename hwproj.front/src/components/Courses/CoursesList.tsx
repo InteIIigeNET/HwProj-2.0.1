@@ -37,7 +37,7 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                             >
                                 <Stack direction={"row"} alignItems={"center"} spacing={1}>
                                     <NavLink
-                                        to={isExpert ? "/task/" + course.taskId!.toString() + "/default"
+                                        to={isExpert && course.taskId != null ? "/task/" + course.taskId!.toString() + "/default"
                                             : "/courses/" + course.id!.toString()}
                                         style={{color: "#212529"}}
                                     >

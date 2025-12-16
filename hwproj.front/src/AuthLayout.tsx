@@ -3,7 +3,7 @@ import React, {FC} from "react";
 import ApiSingleton from "./api/ApiSingleton";
 
 const AuthLayout: FC = () =>
-    ApiSingleton.authService.isLoggedIn()
+    ApiSingleton.authService.loggedIn()
         ? <Outlet/>
         : <Navigate to={`/login?returnUrl=${window.location.pathname}`}/>
 

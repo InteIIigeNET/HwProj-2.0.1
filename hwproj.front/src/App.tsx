@@ -32,7 +32,8 @@ interface AppState {
     isLecturer: boolean;
     isExpert: boolean;
     newNotificationsCount: number;
-    appBarContextAction: AppBarContextAction
+    appBarContextAction: AppBarContextAction;
+    authReady: boolean;
 }
 
 const withRouter = (Component: any) => {
@@ -52,21 +53,32 @@ class App extends Component<{ navigate: any }, AppState> {
     constructor(props: { navigate: any }) {
         super(props);
         this.state = {
-            loggedIn: ApiSingleton.authService.isLoggedIn(),
+            loggedIn: ApiSingleton.authService.loggedIn(),
             isLecturer: ApiSingleton.authService.isLecturer(),
             isExpert: ApiSingleton.authService.isExpert(),
             newNotificationsCount: 0,
-            appBarContextAction: "Default"
+            appBarContextAction: "Default",
+            authReady: false
         };
         appBarStateManager.setOnContextActionChange(appBarState => this.setState({appBarContextAction: appBarState}))
     }
 
     componentDidMount = async () => {
+        const user = await ApiSingleton.authService.getProfile();
+        this.setState(
+            {
+                loggedIn: !!user,
+                isLecturer: ApiSingleton.authService.isLecturer(),
+                isExpert: ApiSingleton.authService.isExpert(),
+                authReady: true,
+            }
+        );
+
         await this.updatedNewNotificationsCount()
     }
 
     updatedNewNotificationsCount = async () => {
-        if (ApiSingleton.authService.isLoggedIn()) {
+        if (ApiSingleton.authService.loggedIn()) {
             const data = await ApiSingleton.notificationsApi.notificationsGetNewNotificationsCount()
             this.setState({newNotificationsCount: data})
         }
@@ -86,13 +98,14 @@ class App extends Component<{ navigate: any }, AppState> {
         }
     }
 
-    logout = () => {
-        ApiSingleton.authService.logout();
-        this.setState({loggedIn: false, isLecturer: false, isExpert: false, newNotificationsCount: 0});
+    logout = async () => {
+        await ApiSingleton.authService.logout();
+        this.setState({loggedIn: false, isLecturer: false, isExpert: false, newNotificationsCount: 0, authReady: true});
         this.props.navigate("/login");
     }
 
     render() {
+        if (!this.state.authReady) {return null;}
         return (
             <>
                 <Header loggedIn={this.state.loggedIn}

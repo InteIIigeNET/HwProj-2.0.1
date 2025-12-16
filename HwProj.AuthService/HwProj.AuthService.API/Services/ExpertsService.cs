@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -107,31 +108,20 @@ namespace HwProj.AuthService.API.Services
         {
             var tokenClaims = _tokenService.GetTokenClaims(tokenCredentials);
 
-            if (tokenClaims.Role != Roles.ExpertRole)
-            {
-                return Result.Failed("Невалидный токен: пользователь не является экспертом");
-            }
-
             if (tokenClaims.Email is null)
             {
                 return Result.Failed("Невалидный токен: пользователь не найден");
             }
 
             var expert = await _userManager.FindByEmailAsync(tokenClaims.Email);
-            if (expert.Id != tokenClaims.Id)
+            if (expert is null)
             {
                 return Result.Failed("Невалидный токен: пользователь не найден");
             }
 
-            var tokenCredentialsResult = await _tokenService.GetExpertTokenAsync(expert);
-            if (!tokenCredentialsResult.Succeeded)
-            {
-                return Result.Failed(tokenCredentialsResult.Errors);
-            }
-
-            if (tokenCredentials.AccessToken != tokenCredentialsResult.Value.AccessToken)
-            {
-                return Result.Failed("Невалидный токен");
+            var roles = await _userManager.GetRolesAsync(expert);
+            if (!roles.Contains(Roles.ExpertRole))             {
+                return Result.Failed("Невалидный токен: пользователь не является экспертом");
             }
 
             await _signInManager.SignInAsync(expert, false).ConfigureAwait(false);

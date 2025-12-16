@@ -33,6 +33,16 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<AccountDataDto>().ConfigureAwait(false);
         }
 
+        public async Task<AccountSummaryDto> GetAccountSummary(string userId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _authServiceUri + $"api/account/getUserSummary/{userId}");
+
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<AccountSummaryDto>().ConfigureAwait(false);
+        }
+
         public async Task<AccountDataDto> GetAccountDataByEmail(string email)
         {
             using var httpRequest = new HttpRequestMessage(

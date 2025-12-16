@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using HwProj.APIGateway.API.Filters;
 using HwProj.AuthService.Client;
 using HwProj.ContentService.Client;
@@ -27,7 +29,7 @@ public class Startup
         Configuration = configuration;
     }
 
-    public IConfiguration Configuration { get; }
+    private IConfiguration Configuration { get; }
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -52,10 +54,10 @@ public class Startup
 
         services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = "JwtCookie";
+                options.DefaultChallengeScheme = "JwtCookie";
             })
-            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>
+            .AddJwtBearer("JwtCookie", x =>
             {
                 x.RequireHttpsMetadata = false;
                 x.TokenValidationParameters = new TokenValidationParameters
@@ -66,13 +68,42 @@ public class Startup
                     ValidateLifetime = true,
                     IssuerSigningKey =
                         new SymmetricSecurityKey(Encoding.ASCII.GetBytes(appSettings["SecurityKey"])),
-                    ValidateIssuerSigningKey = true
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+                x.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        context.Request.Cookies.TryGetValue("accessToken", out var accessToken);
+
+                        if (!string.IsNullOrEmpty(accessToken))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
+            })
+            .AddJwtBearer("JwtBearer", x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = "AuthService",
+                    ValidateIssuer = true,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(Encoding.ASCII.GetBytes(appSettings["SecurityKey"])),
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero
                 };
             });
 
         services.AddHttpClient();
         services.AddHttpContextAccessor();
-
         services.AddAuthServiceClient();
         services.AddCoursesServiceClient();
         services.AddSolutionServiceClient();
@@ -92,14 +123,13 @@ public class Startup
             app.UseHsts();
 
         app.UseRouting();
-        app.UseAuthentication();
-        app.UseAuthorization();
         app.UseCors(x => x
-            .AllowAnyMethod()
+            .WithMethods("GET")
             .AllowAnyHeader()
             .SetIsOriginAllowed(_ => true)
             .AllowCredentials());
-
+        app.UseAuthentication();
+        app.UseAuthorization();
         app.UseEndpoints(x => x.MapControllers());
     }
 

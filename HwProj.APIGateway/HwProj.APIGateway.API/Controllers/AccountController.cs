@@ -12,6 +12,7 @@ using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers
@@ -89,6 +90,15 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(aggregatedResult);
         }
 
+        [HttpGet("getUserSummary")]
+        [Authorize]
+        [ProducesResponseType(typeof(AccountSummaryDto), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetUserSummary()
+        {
+            var accountData = await AuthServiceClient.GetAccountSummary(UserId);
+            return Ok(accountData);
+        }
+
         [HttpPost("register")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Register(RegisterViewModel model)
@@ -98,20 +108,66 @@ namespace HwProj.APIGateway.API.Controllers
         }
 
         [HttpPost("login")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             var tokenMeta = await AuthServiceClient.Login(model).ConfigureAwait(false);
-            return Ok(tokenMeta);
+            if (!tokenMeta.Succeeded)
+            {
+                ClearTokenCookie();
+                return Unauthorized();
+            }
+
+            Response.Cookies.Append("accessToken", tokenMeta.Value.AccessToken,
+                new CookieOptions
+                {
+                    Expires = tokenMeta.Value.ExpiresIn,
+                    HttpOnly = true,
+                    Secure = false,
+                    SameSite = SameSiteMode.Strict
+                });
+
+            return Ok();
         }
 
         [Authorize]
         [HttpGet("refreshToken")]
-        [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> RefreshToken()
         {
             var tokenMeta = await AuthServiceClient.RefreshToken(UserId!);
-            return Ok(tokenMeta);
+            if (!tokenMeta.Succeeded)
+            {
+                ClearTokenCookie();
+                return Unauthorized();
+            }
+
+            Response.Cookies.Append("accessToken", tokenMeta.Value.AccessToken,
+                new CookieOptions
+                {
+                    Expires = tokenMeta.Value.ExpiresIn,
+                    HttpOnly = true,
+                    Secure = false,
+                    SameSite = SameSiteMode.Strict
+                });
+
+            return Ok();
+        }
+
+        [HttpPost("logout")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public IActionResult Logout()
+        {
+            ClearTokenCookie();
+            return Ok();
+        }
+
+        private void ClearTokenCookie()
+        {
+            if (Request.Cookies.ContainsKey("accessToken"))
+            {
+                Response.Cookies.Delete("accessToken");
+            }
         }
 
         [HttpPut("edit")]
