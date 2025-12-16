@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using HwProj.AuthService.Client;
@@ -77,15 +78,25 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 PasswordConfirm = _devPassword
             };
 
-            var result = await _authServiceClient.ResetPassword(resetModel);
+            for (var attempt = 0; attempt < 10; attempt++)
+            {
+                var result = await _authServiceClient.ResetPassword(resetModel);
+                if (result.Succeeded)
+                {
+                    Console.WriteLine("Password changed");
+                    return;
+                }
 
-            if (result.Succeeded)
-            {
-                Console.WriteLine("Password changed");
-            }
-            else
-            {
                 Console.WriteLine("Password not changed");
+                var error = result.Errors.FirstOrDefault();
+
+                Console.WriteLine(error);
+                if (error is null || !error.Contains("Optimistic concurrency"))
+                {
+                    return;
+                }
+
+                await Task.Delay(500);
             }
         }
     }

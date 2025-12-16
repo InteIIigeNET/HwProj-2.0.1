@@ -11,7 +11,7 @@ using HwProj.Models.Result;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
-namespace AuthTests
+namespace HwProj.APIGateway.Tests
 {
     public class Tests
     {
@@ -122,205 +122,6 @@ namespace AuthTests
             return JsonConvert.DeserializeObject<T>(json);
         }
 
-        [Test]
-        public async Task LoginCorrectDataShouldSetCookie()
-        {
-            var user = GenerateRegisterViewModel();
-            var registerResponse = await PostJsonAsync(_cookieClient, "/api/Account/register", user);
-
-            var loginData = GenerateLoginViewModel(user);
-            var loginResponse = await RetryUntilSuccess(() => PostJsonAsync(_cookieClient, "/api/Account/login", loginData));
-
-            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            loginResponse.Headers.Contains("Set-Cookie").Should().BeTrue();
-            var cookie = loginResponse.Headers.GetValues("Set-Cookie").First();
-            cookie.Should().Contain("httponly");
-        }
-
-        [Test]
-        public async Task LoginIncorrectDataShouldNotSetCookie()
-        {
-            var user = GenerateRegisterViewModel();
-            var registerResponse = await PostJsonAsync(_cookieClient, "/api/Account/register", user);
-            registerResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var loginData = GenerateWrongLoginViewModel(user);
-            var loginResponse = await PostJsonAsync(_cookieClient, "/api/Account/login", loginData);
-
-            await Task.Delay(1000);
-
-            loginResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-            loginResponse.Headers.Contains("Set-Cookie").Should().BeFalse();
-        }
-
-        [Test]
-        public async Task GetUserSummaryShouldReturnsUser()
-        {
-            var user = GenerateRegisterViewModel();
-            var registerResponse = await PostJsonAsync(_cookieClient, "/api/Account/register", user);
-
-            var loginData = GenerateLoginViewModel(user);
-            var loginResponse = await RetryUntilSuccess(() => PostJsonAsync(_cookieClient, "/api/Account/login", loginData));
-
-            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var summaryResponse = await GetJsonAsync(_cookieClient, "/api/Account/getUserSummary");
-            summaryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var summary = await ReadJsonAsync<AccountSummaryDto>(summaryResponse);
-            summary.Email.Should().Be(user.Email);
-        }
-
-        [Test]
-        public async Task GetUserSummaryWithoutCookieShouldReturnsUnauthorized()
-        {
-            var user = GenerateRegisterViewModel();
-            var registerResponse = await PostJsonAsync(_noCookieClient, "/api/Account/register", user);
-
-            var loginData = GenerateLoginViewModel(user);
-            var loginResponse = await RetryUntilSuccess(() => PostJsonAsync(_cookieClient, "/api/Account/login", loginData));
-
-            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-
-            var response = await GetJsonAsync(_noCookieClient, "/api/Account/getUserSummary");
-            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-        }
-
-        [Test]
-        public async Task LogoutShouldRemoveCookie()
-        {
-            var user = GenerateRegisterViewModel();
-            var registerResponse = await PostJsonAsync(_cookieClient, "/api/Account/register", user);
-
-            var loginData = GenerateLoginViewModel(user);
-            var loginResponse = await RetryUntilSuccess(() => PostJsonAsync(_cookieClient, "/api/Account/login", loginData));
-
-            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var logoutResponse = await PostJsonAsync(_cookieClient, "/api/Account/logout", null);
-            logoutResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var cookie = _cookieContainer.GetCookies(new Uri("http://localhost:5000"));
-            var accessToken = cookie["accessToken"]?.Value;
-            accessToken.Should().BeNull();
-
-            var response = await GetJsonAsync(_cookieClient, "/api/Account/getUserSummary");
-            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-        }
-
-        [Test]
-        public async Task RefreshTokenShouldSetValidToken()
-        {
-            var user = GenerateRegisterViewModel();
-            var registerResponse = await PostJsonAsync(_cookieClient, "/api/Account/register", user);
-
-            var loginData = GenerateLoginViewModel(user);
-            var loginResponse = await RetryUntilSuccess(() => PostJsonAsync(_cookieClient, "/api/Account/login", loginData));
-
-            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var newEmail = "new" + user.Email;
-
-            var editModel = new EditAccountViewModel
-            {
-                Name = user.Name,
-                Surname = user.Surname,
-                Email = newEmail,
-            };
-
-            var editResponse = await PutJsonAsync(_cookieClient, "/api/Account/edit", editModel);
-            editResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var beforeCookie = _cookieContainer.GetCookies(new Uri("http://localhost:5000"));
-            var accessTokenBefore = beforeCookie["accessToken"]?.Value;
-
-            var refreshResponse = await GetJsonAsync(_cookieClient, "/api/Account/refreshToken");
-            refreshResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            refreshResponse.Headers.Contains("Set-Cookie").Should().BeTrue();
-
-            var afterCookie = _cookieContainer.GetCookies(new Uri("http://localhost:5000"));
-            var accessTokenAfter = afterCookie["accessToken"]?.Value;
-
-            var tokenClaims = ValidateToken(accessTokenAfter);
-
-            accessTokenBefore.Should().NotBe(accessTokenAfter);
-            tokenClaims[2].Value.Should().Be(newEmail);
-        }
-
-        [Test]
-        public async Task ExpertLoginShouldReturnExpectedResult()
-        {
-            var loginData = new LoginViewModel
-            {
-                Email = "admin@gmail.com",
-                Password = "Admin@1234"
-            };
-            var loginResponse = await PostJsonAsync(_cookieClient, "/api/Account/login", loginData);
-            for (int i = 0; i < 10; i++)
-            {
-                if (loginResponse.StatusCode == HttpStatusCode.OK)
-                {
-                    break;
-                }
-                loginResponse = await PostJsonAsync(_cookieClient, "/api/Account/login", loginData);
-
-                await Task.Delay(500);
-            }
-
-            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var model = new RegisterExpertViewModel
-            {
-                Name = "Expert",
-                Surname = "Expert",
-                Email = "expert@mail.ru"
-            };
-
-            var registerExpertResponse = await PostJsonAsync(_cookieClient, "/api/Experts/register", model);
-            registerExpertResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var getTokenResponse = await GetJsonAsync(_cookieClient, "/api/Experts/getToken?expertEmail=expert@mail.ru");
-            getTokenResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var tokenMeta = await ReadJsonAsync<Result<TokenCredentials>>(getTokenResponse);
-            tokenMeta.Succeeded.Should().BeTrue();
-
-            var logoutResponse = await PostJsonAsync(_cookieClient, "/api/Account/logout", null);
-            logoutResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var expertLoginResponse = await PostJsonAsync(_cookieClient, "/api/Experts/login", tokenMeta.Value);
-            expertLoginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var cookie = loginResponse.Headers.GetValues("Set-Cookie").First();
-            cookie.Should().Contain("httponly");
-
-            var protectedResponse = await PostJsonAsync(_cookieClient, "/api/Experts/SetProfileIsEdited", null);
-            protectedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        }
-
-        [Test]
-        public async Task AuthorizedEnpointShouldRequireRole()
-        {
-            var user = GenerateRegisterViewModel();
-            var registerResponse = await PostJsonAsync(_cookieClient, "/api/Account/register", user);
-
-            var loginData = GenerateLoginViewModel(user);
-
-            var loginResponse = await RetryUntilSuccess(() => PostJsonAsync(_cookieClient, "/api/Account/login", loginData));
-
-            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var lecturerModel = new InviteLecturerViewModel
-            {
-                Email = "lecturer@mail.ru"
-            };
-
-            var summaryResponse = await GetJsonAsync(_cookieClient, "/api/Account/getUserSummary");
-            summaryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var response = await PostJsonAsync(_cookieClient, "/api/Account/inviteNewLecturer", lecturerModel);
-            response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-        }
-
         private static async Task<HttpResponseMessage> RetryUntilSuccess(Func<Task<HttpResponseMessage>> action)
         {
             var response = await action();
@@ -337,11 +138,219 @@ namespace AuthTests
             return response;
         }
 
+        private static async Task ReadOkAsync(HttpResponseMessage response)
+        {
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var resultResponse = await ReadJsonAsync<Result>(response);
+            resultResponse.Succeeded.Should().BeTrue();
+        }
+
+        private static async Task ReadOkAsync<T>(HttpResponseMessage response)
+        {
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var resultResponse = await ReadJsonAsync<Result<T>>(response);
+            resultResponse.Succeeded.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task LoginCorrectDataShouldSetCookie()
+        {
+            var user = GenerateRegisterViewModel();
+            var registerResponse = await PostJsonAsync(_cookieClient, "/api/Account/register", user);
+            await ReadOkAsync<string>(registerResponse);
+
+            var loginData = GenerateLoginViewModel(user);
+            var loginResponse = await RetryUntilSuccess(() => PostJsonAsync(_cookieClient, "/api/Account/login", loginData));
+
+            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            loginResponse.Headers.Contains("Set-Cookie").Should().BeTrue();
+            var cookie = loginResponse.Headers.GetValues("Set-Cookie").First();
+            cookie.Should().Contain("httponly");
+        }
+
+        [Test]
+        public async Task LoginIncorrectDataShouldNotSetCookie()
+        {
+            var user = GenerateRegisterViewModel();
+            var registerResponse = await PostJsonAsync(_cookieClient, "/api/Account/register", user);
+            await ReadOkAsync<string>(registerResponse);
+
+            var loginData = GenerateWrongLoginViewModel(user);
+            var loginResponse = await PostJsonAsync(_cookieClient, "/api/Account/login", loginData);
+
+            await Task.Delay(1000);
+
+            loginResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            loginResponse.Headers.Contains("Set-Cookie").Should().BeFalse();
+        }
+
+        [Test]
+        public async Task GetUserSummaryShouldReturnsUser()
+        {
+            var user = GenerateRegisterViewModel();
+            var registerResponse = await PostJsonAsync(_cookieClient, "/api/Account/register", user);
+            await ReadOkAsync<string>(registerResponse);
+
+            var loginData = GenerateLoginViewModel(user);
+            var loginResponse = await RetryUntilSuccess(() => PostJsonAsync(_cookieClient, "/api/Account/login", loginData));
+
+            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var summaryResponse = await GetJsonAsync(_cookieClient, "/api/Account/getUserSummary");
+            var summary = await ReadJsonAsync<AccountSummaryDto>(summaryResponse);
+            summary.Email.Should().Be(user.Email);
+        }
+
+        [Test]
+        public async Task GetUserSummaryWithoutCookieShouldReturnsUnauthorized()
+        {
+            var user = GenerateRegisterViewModel();
+            var registerResponse = await PostJsonAsync(_noCookieClient, "/api/Account/register", user);
+            await ReadOkAsync<string>(registerResponse);
+
+            var loginData = GenerateLoginViewModel(user);
+            var loginResponse = await RetryUntilSuccess(() => PostJsonAsync(_cookieClient, "/api/Account/login", loginData));
+            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var response = await GetJsonAsync(_noCookieClient, "/api/Account/getUserSummary");
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
+
+        [Test]
+        public async Task LogoutShouldRemoveCookie()
+        {
+            var user = GenerateRegisterViewModel();
+            var registerResponse = await PostJsonAsync(_cookieClient, "/api/Account/register", user);
+            await ReadOkAsync<string>(registerResponse);
+
+            var loginData = GenerateLoginViewModel(user);
+            var loginResponse = await RetryUntilSuccess(() => PostJsonAsync(_cookieClient, "/api/Account/login", loginData));
+            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var logoutResponse = await PostJsonAsync(_cookieClient, "/api/Account/logout", null);
+
+            var cookie = _cookieContainer.GetCookies(new Uri("http://localhost:5000"));
+            var accessToken = cookie["accessToken"]?.Value;
+            accessToken.Should().BeNull();
+
+            var response = await GetJsonAsync(_cookieClient, "/api/Account/getUserSummary");
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
+
+        [Test]
+        public async Task RefreshTokenShouldSetValidToken()
+        {
+            var user = GenerateRegisterViewModel();
+            var registerResponse = await PostJsonAsync(_cookieClient, "/api/Account/register", user);
+            await ReadOkAsync<string>(registerResponse);
+
+            var loginData = GenerateLoginViewModel(user);
+            var loginResponse = await RetryUntilSuccess(() => PostJsonAsync(_cookieClient, "/api/Account/login", loginData));
+            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var newEmail = "new" + user.Email;
+            var editModel = new EditAccountViewModel
+            {
+                Name = user.Name,
+                Surname = user.Surname,
+                Email = newEmail,
+            };
+
+            var editResponse = await PutJsonAsync(_cookieClient, "/api/Account/edit", editModel);
+            await ReadOkAsync(editResponse);
+
+            var beforeCookie = _cookieContainer.GetCookies(new Uri("http://localhost:5000"));
+            var accessTokenBefore = beforeCookie["accessToken"]?.Value;
+
+            var refreshResponse = await GetJsonAsync(_cookieClient, "/api/Account/refreshToken");
+            refreshResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            refreshResponse.Headers.Contains("Set-Cookie").Should().BeTrue();
+
+            var afterCookie = _cookieContainer.GetCookies(new Uri("http://localhost:5000"));
+            var accessTokenAfter = afterCookie["accessToken"]?.Value;
+
+            var tokenClaims = ValidateToken(accessTokenAfter);
+            accessTokenBefore.Should().NotBe(accessTokenAfter);
+            tokenClaims[2].Value.Should().Be(newEmail);
+        }
+
+        [Test]
+        public async Task ExpertLoginShouldReturnExpectedResult()
+        {
+            var lecturerData = GenerateRegisterViewModel();
+            var registerResponse = await PostJsonAsync(_cookieClient, "/api/Account/register", lecturerData);
+            await ReadOkAsync<string>(registerResponse);
+
+            var inviteLecturerModel = new InviteLecturerViewModel
+            {
+                Email = lecturerData.Email
+            };
+
+            var lecturerInviteResponse = await PostJsonAsync(_authServiceClient, "api/account/inviteNewLecturer", inviteLecturerModel);
+            await ReadOkAsync(lecturerInviteResponse);
+
+            var lecturerLoginData = GenerateLoginViewModel(lecturerData);
+            var loginResponse = await RetryUntilSuccess(() => PostJsonAsync(_cookieClient, "/api/Account/login", lecturerLoginData));
+            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var email = "expertFrom" +  lecturerData.Email;
+            var model = new RegisterExpertViewModel
+            {
+                Name = "expertFrom" + lecturerData.Name,
+                Surname = "expertFrom" + lecturerData.Surname,
+                Email = email
+            };
+
+            var registerExpertResponse = await PostJsonAsync(_cookieClient, $"api/Experts/register", model);
+            await ReadOkAsync(registerExpertResponse);
+
+            var getTokenResponse = await GetJsonAsync(_cookieClient, $"/api/Experts/getToken?expertEmail={email}");
+            var tokenMeta = await ReadJsonAsync<Result<TokenCredentials>>(getTokenResponse);
+            tokenMeta.Succeeded.Should().BeTrue();
+
+            var logoutResponse = await PostJsonAsync(_cookieClient, "/api/Account/logout", null);
+
+            var expertLoginResponse = await PostJsonAsync(_cookieClient, "/api/Experts/login", tokenMeta.Value);
+            expertLoginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var cookie = expertLoginResponse.Headers.GetValues("Set-Cookie").First();
+            expertLoginResponse.Headers.Contains("Set-Cookie").Should().BeTrue();
+            cookie.Should().Contain("httponly");
+
+            var protectedResponse = await PostJsonAsync(_cookieClient, "/api/Experts/SetProfileIsEdited", null);
+            await ReadOkAsync(protectedResponse);
+        }
+
+        [Test]
+        public async Task AuthorizedEndpointShouldRequireRole()
+        {
+            var user = GenerateRegisterViewModel();
+            var registerResponse = await PostJsonAsync(_cookieClient, "/api/Account/register", user);
+            await ReadOkAsync<string>(registerResponse);
+
+            var loginData = GenerateLoginViewModel(user);
+            var loginResponse = await RetryUntilSuccess(() => PostJsonAsync(_cookieClient, "/api/Account/login", loginData));
+            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var lecturerModel = new InviteLecturerViewModel
+            {
+                Email = "lecturer@mail.ru"
+            };
+
+            var summaryResponse = await GetJsonAsync(_cookieClient, "/api/Account/getUserSummary");
+            var summary = await ReadJsonAsync<AccountSummaryDto>(summaryResponse);
+            summary.Email.Should().Be(user.Email);
+
+            var response = await PostJsonAsync(_cookieClient, "/api/Account/inviteNewLecturer", lecturerModel);
+            response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        }
+
         [TearDown]
         public void Dispose()
         {
             _noCookieClient.Dispose();
             _cookieClient.Dispose();
+            _authServiceClient.Dispose();
         }
     }
 }
