@@ -1,24 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="AutoFixture" Version="4.17.0" />
+        <PackageReference Include="FluentAssertions" Version="6.6.0" />
+        <PackageReference Include="Moq" Version="4.13.1" />
+        <PackageReference Include="nunit" Version="3.11.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="3.11.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.4" />
+    </ItemGroup>
+
   <ItemGroup>
-    <None Remove="Properties\launchSettings.json" />
+    <Using Include="NUnit.Framework" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Properties\launchSettings.json">
-      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <ProjectReference Include="..\..\HwProj.AuthService\HwProj.AuthService.Client\HwProj.AuthService.Client.csproj" />
+    <ProjectReference Include="..\HwProj.APIGateway.API\HwProj.APIGateway.API.csproj" />
   </ItemGroup>
 
 </Project>

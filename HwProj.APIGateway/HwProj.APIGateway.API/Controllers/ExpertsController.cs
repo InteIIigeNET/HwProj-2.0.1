@@ -78,7 +78,7 @@ public class ExpertsController : AggregationController
                 Response.Cookies.Delete("accessToken");
             }
 
-            return BadRequest(result);
+            return Unauthorized(result);
         }
 
         var handler = new JwtSecurityTokenHandler();
@@ -90,7 +90,7 @@ public class ExpertsController : AggregationController
             {
                 Expires = expiresIn,
                 HttpOnly = true,
-                Secure = true,
+                Secure = false,
                 SameSite = SameSiteMode.Strict
             });
 

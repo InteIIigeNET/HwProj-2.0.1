@@ -123,7 +123,7 @@ namespace HwProj.APIGateway.API.Controllers
                 {
                     Expires = tokenMeta.Value.ExpiresIn,
                     HttpOnly = true,
-                    Secure = true,
+                    Secure = false,
                     SameSite = SameSiteMode.Strict
                 });
 
@@ -147,7 +147,7 @@ namespace HwProj.APIGateway.API.Controllers
                 {
                     Expires = tokenMeta.Value.ExpiresIn,
                     HttpOnly = true,
-                    Secure = true,
+                    Secure = false,
                     SameSite = SameSiteMode.Strict
                 });
 
