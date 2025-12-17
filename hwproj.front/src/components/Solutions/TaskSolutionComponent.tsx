@@ -8,7 +8,7 @@ import {
     HomeworkTaskViewModel,
     SolutionState,
     SolutionActualityDto,
-    SolutionActualityPart, StudentDataDto
+    SolutionActualityPart, StudentDataDto, FileInfoDTO
 } from '@/api'
 import ApiSingleton from "../../api/ApiSingleton";
 import {Alert, Rating, Stack, Card, CardContent, CardActions, IconButton, Chip, Tooltip, Avatar} from "@mui/material";
@@ -29,6 +29,10 @@ import MouseOutlinedIcon from '@mui/icons-material/MouseOutlined';
 import BlurOnIcon from '@mui/icons-material/BlurOn';
 import BlurOffIcon from '@mui/icons-material/BlurOff';
 import {UserAvatar} from "../Common/UserAvatar";
+import FileInfoConverter from "@/components/Utils/FileInfoConverter";
+import {IFileInfo} from "@/components/Files/IFileInfo";
+import FilesPreviewList from "@/components/Files/FilesPreviewList";
+import {CourseUnitType} from "@/components/Files/CourseUnitType";
 
 interface ISolutionProps {
     courseId: number,
@@ -39,6 +43,8 @@ interface ISolutionProps {
     lastRating?: number,
     onRateSolutionClick?: () => void,
     isLastSolution: boolean,
+    courseFilesInfo: FileInfoDTO[],
+    isProcessing: boolean,
 }
 
 interface ISolutionState {
@@ -183,6 +189,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const lecturer = solution?.lecturer
     const lecturerName = lecturer && (lecturer.surname + " " + lecturer.name)
     const commitsActuality = solutionActuality?.commitsActuality
+    const filesInfo = solution?.id ? FileInfoConverter.getCourseUnitFilesInfo(props.courseFilesInfo, CourseUnitType.Solution, solution.id) : []
 
     const getDatesDiff = (_date1: Date, _date2: Date) => {
         const truncateToMinutes = (date: Date) => {
@@ -500,14 +507,33 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         </Grid>
                     </Stack>
                 </Grid>
+            <Grid item spacing={8}>
                 {solution.comment &&
-                    <Grid item style={{marginBottom: -16}}>
+                    <Grid item style={{marginBottom: -10}} spacing={4}>
                         {showOriginalCommentText
                             ? <Typography
                                 style={{marginBottom: 15, whiteSpace: 'break-spaces'}}>{solution.comment}</Typography>
                             : <MarkdownPreview value={solution.comment}/>}
                     </Grid>
                 }
+                {props.isProcessing ? (
+                    <div style={{ display: 'flex', alignItems: 'center', color: '#1976d2', fontWeight: '500' }}>
+                        <CircularProgress size="20px" />
+                        &nbsp;&nbsp;Обрабатываем файлы...
+                    </div>
+                ) : filesInfo.length > 0 && (
+                    <div>
+                        <FilesPreviewList
+                            showOkStatus={ !props.forMentor }
+                            filesInfo={filesInfo}
+                            onClickFileInfo={async (fileInfo: IFileInfo) => {
+                                const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!)
+                                window.open(url, '_blank');
+                            }}
+                        />
+                    </div>
+                    )}
+                </Grid>
             </Grid>
         }
         {props.forMentor && props.isLastSolution && student && <Grid item>

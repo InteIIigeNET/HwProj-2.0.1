@@ -80,6 +80,8 @@ public class Startup
         services.AddContentServiceClient();
 
         services.AddScoped<CourseMentorOnlyAttribute>();
+        services.AddScoped<FilesPrivacyFilter>();
+        services.AddScoped<FilesCountLimit>();
     }
 
     public void Configure(IApplicationBuilder app, IHostEnvironment env)
