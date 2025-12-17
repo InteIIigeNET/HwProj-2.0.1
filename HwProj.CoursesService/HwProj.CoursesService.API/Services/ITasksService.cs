@@ -1,15 +1,16 @@
-﻿using System.Threading.Tasks;
-using HwProj.CoursesService.API.Models;
+﻿using HwProj.CoursesService.API.Models;
 using HwProj.Models;
+using HwProj.Models.CoursesService.ViewModels;
+using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Services
 {
     public interface ITasksService
     {
-        Task<HomeworkTask> GetTaskAsync(long taskId);
+        Task<HomeworkTask> GetTaskAsync(long taskId, bool withCriterias = false);
         Task<HomeworkTask> GetForEditingTaskAsync(long taskId);
-        Task<HomeworkTask> AddTaskAsync(long homeworkId, HomeworkTask task);
+        Task<HomeworkTask> AddTaskAsync(long homeworkId, CreateTaskViewModel taskViewModel);
         Task DeleteTaskAsync(long taskId);
-        Task<HomeworkTask> UpdateTaskAsync(long taskId, HomeworkTask update, ActionOptions options);
+        Task<HomeworkTask> UpdateTaskAsync(long taskId, EditTaskViewModel taskViewModel, ActionOptions options);
     }
 }

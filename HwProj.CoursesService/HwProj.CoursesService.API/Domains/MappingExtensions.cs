@@ -55,6 +55,14 @@ namespace HwProj.CoursesService.API.Domains
                 IsGroupWork = tags.Contains(HomeworkTags.GroupWork),
                 HomeworkId = task.HomeworkId,
                 Tags = tags,
+                Criterias = task.Criterias.Select(c => new CriterionViewModel
+                {
+                    Id = c.Id,
+                    Type = c.Type,
+                    Name = c.Name,
+                    Points = c.Points
+                })
+                .ToList(),
             };
         }
 
@@ -63,6 +71,7 @@ namespace HwProj.CoursesService.API.Domains
             {
                 Task = task.ToHomeworkTaskViewModel(),
                 Homework = task.Homework.ToHomeworkViewModel(),
+                
             };
 
         public static CourseMateViewModel ToCourseMateViewModel(this CourseMate courseMate)

@@ -56,8 +56,13 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
 
     const {tabValue} = state
     const {solutions, student, forMentor, task} = props
-    const lastSolution = solutions[solutions.length - 1]
-    const arrayOfRatedSolutions = solutions.slice(0, solutions.length - 1)
+    const sortedSolutions = [...solutions].sort((a, b) => {
+        const da = new Date(a.ratingDate || a.publicationDate!).getTime();
+        const db = new Date(b.ratingDate || b.publicationDate!).getTime();
+        return da - db;
+    });
+    const lastSolution = sortedSolutions[sortedSolutions.length - 1]
+    const arrayOfRatedSolutions = sortedSolutions.slice(0, solutions.length - 1)
     const previousSolution = arrayOfRatedSolutions && arrayOfRatedSolutions[arrayOfRatedSolutions.length - 1]
     const lastRating = previousSolution && previousSolution.state !== SolutionState.NUMBER_0 // != Posted
         ? previousSolution.rating
@@ -66,7 +71,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     const newQuestions = questionsState.filter(x => x.answer === null).length
 
     const renderSolutionsRate = () => {
-        const ratedSolutions = solutions
+        const ratedSolutions = sortedSolutions
             .filter(x => x.state !== SolutionState.NUMBER_0)
             .map(x => ({
                 publicationTime: new Date(x.publicationDate!),

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using HwProj.Repositories;
 
 namespace HwProj.CoursesService.API.Models
@@ -22,7 +23,9 @@ namespace HwProj.CoursesService.API.Models
         public DateTime? PublicationDate { get; set; }
 
         public long HomeworkId { get; set; }
-        
+
         public Homework Homework { get; set; }
+
+        public List<Criterion> Criterias { get; set; }
     }
 }
