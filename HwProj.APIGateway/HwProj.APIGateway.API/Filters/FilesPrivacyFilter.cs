@@ -29,10 +29,9 @@ public class FilesPrivacyFilter
             var solution = await _solutionsServiceClient.GetSolutionById(fileScope.CourseUnitId);
             studentIds.Add(solution.StudentId);
             var groupIds = await _coursesServiceClient.GetGroupsById(solution.GroupId ?? 0);
+            studentIds.UnionWith(groupIds.FirstOrDefault()?.StudentsIds.ToHashSet() ?? new());
 
             var mentorIds = await _coursesServiceClient.GetCourseLecturersIds(fileScope.CourseId);
-            if (!mentorIds.Contains(userId)) return false;
-            studentIds.UnionWith(groupIds.FirstOrDefault()?.StudentsIds.ToHashSet() ?? new());
 
             if (!studentIds.Contains(userId) && !mentorIds.Contains(userId)) return false;
 
