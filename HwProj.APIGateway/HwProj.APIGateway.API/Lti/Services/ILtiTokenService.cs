@@ -5,10 +5,11 @@ namespace HwProj.APIGateway.API.LTI.Services;
 
 public interface ILtiTokenService
 {
-    string CreateLtiIdToken(
-        ClaimsPrincipal user,
+    string CreateDeepLinkingToken(
         string clientId,
-        string redirectUri,
-        string nonce,
-        string ltiMessageHint);
+        string toolId,
+        string courseId,
+        string targetLinkUri,
+        string userId,
+        string nonce);
 }

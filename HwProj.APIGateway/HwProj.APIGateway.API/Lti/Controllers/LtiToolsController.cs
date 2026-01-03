@@ -3,7 +3,6 @@ using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Lti.Models;
 using HwProj.APIGateway.API.Lti.Services;
-using HwProj.Models.AuthService.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Lti.Controllers;

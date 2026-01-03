@@ -42,6 +42,7 @@ import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import Lodash from "lodash";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
 import GroupIcon from '@mui/icons-material/Group';
+import {LtiImportButton} from "../Tasks/LtiImportButton";
 
 // Оформление списка заданий согласовано с редизайном страницы курса и списка курсов
 const listPanelSx = {
@@ -928,13 +929,21 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         </Typography>
                                     </Stack>}
                                 {x.id! < 0 &&
-                                    <Button fullWidth
-                                            onClick={() => addNewTask(x)}
-                                            size={"small"}
-                                            startIcon={<AddIcon/>}
-                                            sx={{textTransform: "none", borderRadius: "10px", mt: 0.5}}>
-                                        Добавить задачу
-                                    </Button>}
+                                    <Stack direction={"column"} spacing={0} sx={{mt: 0.5}}>
+                                        <Button fullWidth
+                                                onClick={() => addNewTask(x)}
+                                                size={"small"}
+                                                startIcon={<AddIcon/>}
+                                                sx={{textTransform: "none", borderRadius: "10px"}}>
+                                            Добавить задачу
+                                        </Button>
+                                        <LtiImportButton
+                                            homeworkId={x.id!}
+                                            courseId={props.courseId}
+                                            toolId={1}
+                                            onTasksAdded={() => window.location.reload()}
+                                        />
+                                    </Stack>}
                             </Box>;
                         })}
                     </Stack>

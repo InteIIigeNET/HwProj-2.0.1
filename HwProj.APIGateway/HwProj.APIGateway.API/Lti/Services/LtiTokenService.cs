@@ -1,74 +1,77 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using System.Security.Cryptography;
+using HwProj.APIGateway.API.Lti.Models;
 using HwProj.APIGateway.API.LTI.Services;
+using LtiAdvantage.DeepLinking;
 using LtiAdvantage.Lti;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace HwProj.APIGateway.API.Lti.Services;
 
-public class LtiTokenService(IOptions<LtiOptions> options) : ILtiTokenService
+public class LtiTokenService(IOptions<LtiPlatformConfig> options) : ILtiTokenService
 {
-    private readonly LtiOptions _options = options.Value;
-    private readonly JwtSecurityTokenHandler _tokenHandler = new();
+    private readonly LtiPlatformConfig _options = options.Value;
 
-    public string CreateLtiIdToken(
-        ClaimsPrincipal user,
+    public string CreateDeepLinkingToken(
         string clientId,
-        string redirectUri,
-        string nonce,
-        string ltiMessageHint)
+        string toolId,
+        string courseId,
+        string targetLinkUri,
+        string userId,
+        string nonce)
     {
-        // время жизни токена
-        var now = DateTime.UtcNow;
-        var expires = now.AddMinutes(this._options.TokenLifetimeMinutes);
-
-        var signingKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(this._options.SigningKey));    
-        var signingCredentials = new SigningCredentials(
-            signingKey,
-            SecurityAlgorithms.RsaSha256);
-
-        ContextClaimValueType context = new();
-        /*context.Id = ;
-        context.Label = ;
-        context.Title = ;
-        context.Type = ; */   
-
-        ResourceLinkClaimValueType  resourceLink = new();
-        /*resourceLink.Id = ;
-        resourceLink.Description = ;
-        resourceLink.Title = ;*/
-
-        // ???
-        LaunchPresentationClaimValueType launchPresentation = new();
-        
-        var request = new LtiResourceLinkRequest
+        var request = new LtiDeepLinkingRequest
         {
-            DeploymentId = _options.DeploymentId,
+            DeploymentId = toolId,
             Nonce = nonce,
-            // обязательные LTI claims:
-            Roles = [Role.InstitutionStudent],
-            Context = context,
-            ResourceLink = resourceLink,
-            TargetLinkUri = redirectUri,
-            // opaque user id внутри платформы
-            UserId = user.FindFirstValue(ClaimTypes.NameIdentifier) ?? "unknown-user",
-            LaunchPresentation = launchPresentation
+            UserId = userId,
+            TargetLinkUri = targetLinkUri, 
+            Roles = [Role.ContextInstructor], 
+
+            Context = new ContextClaimValueType
+            {
+                Id = courseId
+            },
+
+            DeepLinkingSettings = new DeepLinkingSettingsClaimValueType
+            {
+                AutoCreate = true,
+                AcceptMultiple = true,
+                AcceptTypes = ["ltiResourceLink"],
+                AcceptPresentationDocumentTargets = [DocumentTarget.Window],
+            
+                DeepLinkReturnUrl = this._options.DeepLinkReturnUrl, 
+            }
         };
 
-        // создаём сам JWT
+        var now = DateTime.UtcNow;
         var jwt = new JwtSecurityToken(
-            issuer: _options.Issuer,
+            issuer: this._options.Issuer,
             audience: clientId,
             claims: request.IssuedClaims,
             notBefore: now,
-            expires: expires,
-            signingCredentials: signingCredentials);
+            expires: now.AddMinutes(5),
+            signingCredentials: GetSigningCredentials()
+        );
 
-        var token = _tokenHandler.WriteToken(jwt);
-        return token;
+        return new JwtSecurityTokenHandler().WriteToken(jwt);
+    }
+
+    private SigningCredentials GetSigningCredentials()
+    {
+        var keyConfig = _options.SigningKey;
+
+        var rsa = RSA.Create();
+        
+        rsa.ImportFromPem(keyConfig.PrivateKeyPem);
+
+        var securityKey = new RsaSecurityKey(rsa)
+        {
+            KeyId = keyConfig.KeyId
+        };
+
+        return new SigningCredentials(securityKey, SecurityAlgorithms.RsaSha256);
     }
 }

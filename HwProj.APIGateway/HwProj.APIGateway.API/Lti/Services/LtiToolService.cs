@@ -13,7 +13,13 @@ public class LtiToolService(IOptions<List<LtiToolConfig>> options) : ILtiToolSer
     public Task<IReadOnlyList<LtiToolDto>> GetAllAsync()
     {
         var result = _tools
-            .Select(t => new LtiToolDto(t.Id, t.Name))
+            .Select(t => new LtiToolDto(
+                t.Id,
+                t.Name,
+                t.ClientId,
+                t.InitiateLoginUri,
+                t.LaunchUrl,
+                t.DeepLink))
             .ToList()
             .AsReadOnly();
         
@@ -26,7 +32,13 @@ public class LtiToolService(IOptions<List<LtiToolConfig>> options) : ILtiToolSer
         if (cfg == null)
             return Task.FromResult<LtiToolDto?>(null);
 
-        var dto = new LtiToolDto(cfg.Id, cfg.Name);
+        var dto = new LtiToolDto(
+            cfg.Id,
+            cfg.Name,
+            cfg.ClientId,
+            cfg.InitiateLoginUri,
+            cfg.LaunchUrl,
+            cfg.DeepLink);
 
         return Task.FromResult<LtiToolDto?>(dto);
     }

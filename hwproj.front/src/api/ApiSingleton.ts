@@ -11,6 +11,7 @@ import {
     FilesApi,
     CourseGroupsApi,
     LtiToolsApi,
+    LtiAuthApi,
 } from ".";
 import AuthService from "../services/AuthService";
 import CustomFilesApi from "./CustomFilesApi";
@@ -31,6 +32,7 @@ class Api {
     readonly customFilesApi: CustomFilesApi;
     readonly filesApi: FilesApi;
     readonly ltiToolsApi: LtiToolsApi;
+    readonly ltiAuthApi: LtiAuthApi;
 
     constructor(
         accountApi: AccountApi,
@@ -46,7 +48,8 @@ class Api {
         authService: AuthService,
         customFilesApi: CustomFilesApi,
         filesApi: FilesApi,
-        ltiToolsApi: LtiToolsApi
+        ltiToolsApi: LtiToolsApi,
+        ltiAuthApi: LtiAuthApi
     ) {
         this.accountApi = accountApi;
         this.expertsApi = expertsApi;
@@ -62,6 +65,7 @@ class Api {
         this.customFilesApi = customFilesApi;
         this.filesApi = filesApi;
         this.ltiToolsApi = ltiToolsApi;
+        this.ltiAuthApi = ltiAuthApi;
     }
 }
 
@@ -96,6 +100,7 @@ ApiSingleton = new Api(
     authService,
     new CustomFilesApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
     new FilesApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
-    new LtiToolsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!})
+    new LtiToolsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
+    new LtiAuthApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!})
 );
 export default ApiSingleton;
