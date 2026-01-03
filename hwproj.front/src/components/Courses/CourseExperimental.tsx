@@ -35,6 +35,7 @@ import ErrorIcon from '@mui/icons-material/Error';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import SwitchAccessShortcutIcon from '@mui/icons-material/SwitchAccessShortcut';
 import Lodash from "lodash";
+import { LtiImportButton } from "../Tasks/LtiImportButton";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -615,14 +616,30 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 </Typography>
                             </TimelineContent>
                         </TimelineItem>)}
-                        {x.id! < 0 &&
-                            <Button fullWidth
-                                    onClick={() => addNewTask(x)}
-                                    style={{borderRadius: 8, marginBottom: 10, marginTop: 5}}
-                                    variant={"text"}
-                                    size={"small"}>
-                                + Добавить задачу
-                            </Button>}
+                        {isMentor && (
+                            <Stack direction="column" spacing={0} style={{ margin: "5px 0 15px 0", padding: "0 4px" }}>
+                                {x.id! < 0 && (
+                                    <Button fullWidth
+                                                       onClick={() => addNewTask(x)}
+                                                       style={{borderRadius: 8}}
+                                                       variant={"text"}
+                                                       size={"small"}>
+                                    + Добавить задачу
+                                    </Button>)
+                                }
+
+                                {x.id! < 0 && (
+                                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+                                        <LtiImportButton
+                                            homeworkId={x.id!}
+                                            courseId={props.courseId}
+                                            toolId={1} // 111
+                                            onTasksAdded={() => window.location.reload()}
+                                        />
+                                    </div>
+                                )}
+                            </Stack>
+                        )}
                     </div>;
                 })}
             </Timeline>

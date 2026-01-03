@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using HwProj.APIGateway.API.Filters;
 using HwProj.APIGateway.API.Lti.Models;
 using HwProj.APIGateway.API.Lti.Services;
+using HwProj.APIGateway.API.LTI.Services;
 using HwProj.AuthService.Client;
 using HwProj.ContentService.Client;
 using HwProj.CoursesService.Client;
@@ -81,8 +82,10 @@ public class Startup
         services.AddNotificationsServiceClient();
         services.AddContentServiceClient();
 
+        services.Configure<LtiPlatformConfig>(Configuration.GetSection("LtiPlatform"));
         services.Configure<List<LtiToolConfig>>(Configuration.GetSection("LtiTools"));
         services.AddSingleton<ILtiToolService, LtiToolService>();
+        services.AddSingleton<ILtiTokenService, LtiTokenService>();
 
         services.AddScoped<CourseMentorOnlyAttribute>();
     }

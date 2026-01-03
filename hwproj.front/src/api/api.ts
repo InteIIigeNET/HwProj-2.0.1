@@ -1507,6 +1507,24 @@ export interface LtiToolDto {
      * @memberof LtiToolDto
      */
     name?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof LtiToolDto
+     */
+    initiateLoginUri?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof LtiToolDto
+     */
+    launchUrl?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof LtiToolDto
+     */
+    deepLink?: string;
 }
 /**
  *
@@ -7410,18 +7428,16 @@ export const LtiAuthApiFetchParamCreator = function (configuration?: Configurati
     return {
         /**
          *
-         * @param {string} [issOfTheTool]
          * @param {string} [clientId]
-         * @param {string} [targetLinkUri]
+         * @param {string} [redirectUri]
          * @param {string} [state]
          * @param {string} [nonce]
-         * @param {string} [loginHint]
          * @param {string} [ltiMessageHint]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ltiAuthAuthorizeLti(issOfTheTool?: string, clientId?: string, targetLinkUri?: string, state?: string, nonce?: string, loginHint?: string, ltiMessageHint?: string, options: any = {}): FetchArgs {
-            const localVarPath = `/api/lti/launch/authorize`;
+        ltiAuthAuthorizeLti(clientId?: string, redirectUri?: string, state?: string, nonce?: string, ltiMessageHint?: string, options: any = {}): FetchArgs {
+            const localVarPath = `/api/lti/authorize`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
@@ -7435,16 +7451,12 @@ export const LtiAuthApiFetchParamCreator = function (configuration?: Configurati
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            if (issOfTheTool !== undefined) {
-                localVarQueryParameter['issOfTheTool'] = issOfTheTool;
-            }
-
             if (clientId !== undefined) {
-                localVarQueryParameter['clientId'] = clientId;
+                localVarQueryParameter['client_id'] = clientId;
             }
 
-            if (targetLinkUri !== undefined) {
-                localVarQueryParameter['targetLinkUri'] = targetLinkUri;
+            if (redirectUri !== undefined) {
+                localVarQueryParameter['redirect_uri'] = redirectUri;
             }
 
             if (state !== undefined) {
@@ -7455,12 +7467,58 @@ export const LtiAuthApiFetchParamCreator = function (configuration?: Configurati
                 localVarQueryParameter['nonce'] = nonce;
             }
 
-            if (loginHint !== undefined) {
-                localVarQueryParameter['login_hint'] = loginHint;
-            }
-
             if (ltiMessageHint !== undefined) {
                 localVarQueryParameter['lti_message_hint'] = ltiMessageHint;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
+         * @param {string} [resourceLinkId]
+         * @param {string} [courseId]
+         * @param {string} [toolId]
+         * @param {boolean} [isDeepLink]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, isDeepLink?: boolean, options: any = {}): FetchArgs {
+            const localVarPath = `/api/lti/start`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (resourceLinkId !== undefined) {
+                localVarQueryParameter['resourceLinkId'] = resourceLinkId;
+            }
+
+            if (courseId !== undefined) {
+                localVarQueryParameter['courseId'] = courseId;
+            }
+
+            if (toolId !== undefined) {
+                localVarQueryParameter['toolId'] = toolId;
+            }
+
+            if (isDeepLink !== undefined) {
+                localVarQueryParameter['isDeepLink'] = isDeepLink;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -7484,18 +7542,37 @@ export const LtiAuthApiFp = function(configuration?: Configuration) {
     return {
         /**
          *
-         * @param {string} [issOfTheTool]
          * @param {string} [clientId]
-         * @param {string} [targetLinkUri]
+         * @param {string} [redirectUri]
          * @param {string} [state]
          * @param {string} [nonce]
-         * @param {string} [loginHint]
          * @param {string} [ltiMessageHint]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ltiAuthAuthorizeLti(issOfTheTool?: string, clientId?: string, targetLinkUri?: string, state?: string, nonce?: string, loginHint?: string, ltiMessageHint?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = LtiAuthApiFetchParamCreator(configuration).ltiAuthAuthorizeLti(issOfTheTool, clientId, targetLinkUri, state, nonce, loginHint, ltiMessageHint, options);
+        ltiAuthAuthorizeLti(clientId?: string, redirectUri?: string, state?: string, nonce?: string, ltiMessageHint?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = LtiAuthApiFetchParamCreator(configuration).ltiAuthAuthorizeLti(clientId, redirectUri, state, nonce, ltiMessageHint, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
+         * @param {string} [resourceLinkId]
+         * @param {string} [courseId]
+         * @param {string} [toolId]
+         * @param {boolean} [isDeepLink]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, isDeepLink?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = LtiAuthApiFetchParamCreator(configuration).ltiAuthStartLti(resourceLinkId, courseId, toolId, isDeepLink, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -7517,18 +7594,28 @@ export const LtiAuthApiFactory = function (configuration?: Configuration, fetch?
     return {
         /**
          *
-         * @param {string} [issOfTheTool]
          * @param {string} [clientId]
-         * @param {string} [targetLinkUri]
+         * @param {string} [redirectUri]
          * @param {string} [state]
          * @param {string} [nonce]
-         * @param {string} [loginHint]
          * @param {string} [ltiMessageHint]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ltiAuthAuthorizeLti(issOfTheTool?: string, clientId?: string, targetLinkUri?: string, state?: string, nonce?: string, loginHint?: string, ltiMessageHint?: string, options?: any) {
-            return LtiAuthApiFp(configuration).ltiAuthAuthorizeLti(issOfTheTool, clientId, targetLinkUri, state, nonce, loginHint, ltiMessageHint, options)(fetch, basePath);
+        ltiAuthAuthorizeLti(clientId?: string, redirectUri?: string, state?: string, nonce?: string, ltiMessageHint?: string, options?: any) {
+            return LtiAuthApiFp(configuration).ltiAuthAuthorizeLti(clientId, redirectUri, state, nonce, ltiMessageHint, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {string} [resourceLinkId]
+         * @param {string} [courseId]
+         * @param {string} [toolId]
+         * @param {boolean} [isDeepLink]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, isDeepLink?: boolean, options?: any) {
+            return LtiAuthApiFp(configuration).ltiAuthStartLti(resourceLinkId, courseId, toolId, isDeepLink, options)(fetch, basePath);
         },
     };
 };
@@ -7542,19 +7629,31 @@ export const LtiAuthApiFactory = function (configuration?: Configuration, fetch?
 export class LtiAuthApi extends BaseAPI {
     /**
      *
-     * @param {string} [issOfTheTool]
      * @param {string} [clientId]
-     * @param {string} [targetLinkUri]
+     * @param {string} [redirectUri]
      * @param {string} [state]
      * @param {string} [nonce]
-     * @param {string} [loginHint]
      * @param {string} [ltiMessageHint]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LtiAuthApi
      */
-    public ltiAuthAuthorizeLti(issOfTheTool?: string, clientId?: string, targetLinkUri?: string, state?: string, nonce?: string, loginHint?: string, ltiMessageHint?: string, options?: any) {
-        return LtiAuthApiFp(this.configuration).ltiAuthAuthorizeLti(issOfTheTool, clientId, targetLinkUri, state, nonce, loginHint, ltiMessageHint, options)(this.fetch, this.basePath);
+    public ltiAuthAuthorizeLti(clientId?: string, redirectUri?: string, state?: string, nonce?: string, ltiMessageHint?: string, options?: any) {
+        return LtiAuthApiFp(this.configuration).ltiAuthAuthorizeLti(clientId, redirectUri, state, nonce, ltiMessageHint, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {string} [resourceLinkId]
+     * @param {string} [courseId]
+     * @param {string} [toolId]
+     * @param {boolean} [isDeepLink]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LtiAuthApi
+     */
+    public ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, isDeepLink?: boolean, options?: any) {
+        return LtiAuthApiFp(this.configuration).ltiAuthStartLti(resourceLinkId, courseId, toolId, isDeepLink, options)(this.fetch, this.basePath);
     }
 
 }

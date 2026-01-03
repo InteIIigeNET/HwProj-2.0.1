@@ -192,6 +192,9 @@ const CourseTaskEditor: FC<{
                         }}
                     />
                 </Grid>
+
+                {/* LTI КНОПКА ОТСЮДА УДАЛЕНА, ТАК КАК ОНА ТЕПЕРЬ В РОДИТЕЛЕ */}
+
                 {metadata && homeworkPublicationDateIsSet &&
                     <Grid item xs={12} style={{marginBottom: "15px"}}>
                         <TaskPublicationAndDeadlineDates
@@ -207,7 +210,7 @@ const CourseTaskEditor: FC<{
                                     isDeadlineStrict: state.isDeadlineStrict,
                                     publicationDate: state.publicationDate,
                                     deadlineDate: state.deadlineDate,
-                                    isPublished: metadata.isPublished, // Остается прежним
+                                    isPublished: metadata.isPublished,
                                     hasErrors: state.hasErrors
                                 })
                             }}
