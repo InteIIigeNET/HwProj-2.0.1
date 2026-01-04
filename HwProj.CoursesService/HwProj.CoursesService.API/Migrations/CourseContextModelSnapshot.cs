@@ -272,6 +272,20 @@ namespace HwProj.CoursesService.API.Migrations
                     b.ToTable("Tasks");
                 });
 
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.HomeworkTaskLtiUrl", b =>
+                {
+                    b.Property<long>("TaskId");
+
+                    b.Property<string>("LtiLaunchUrl")
+                        .IsRequired();
+
+                    b.Property<int>("ToolId");
+
+                    b.HasKey("TaskId");
+
+                    b.ToTable("TaskLtiUrls");
+                });
+
             modelBuilder.Entity("HwProj.CoursesService.API.Models.StudentCharacteristics", b =>
                 {
                     b.Property<long>("CourseMateId")
@@ -418,6 +432,14 @@ namespace HwProj.CoursesService.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Homework");
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.HomeworkTaskLtiUrl", b =>
+                {
+                    b.HasOne("HwProj.CoursesService.API.Models.HomeworkTask")
+                        .WithOne()
+                        .HasForeignKey("HwProj.CoursesService.API.Models.HomeworkTaskLtiUrl", "TaskId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.StudentCharacteristics", b =>
