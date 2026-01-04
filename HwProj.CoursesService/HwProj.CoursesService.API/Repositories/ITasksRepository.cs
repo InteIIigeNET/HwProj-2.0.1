@@ -7,5 +7,8 @@ namespace HwProj.CoursesService.API.Repositories
     public interface ITasksRepository : ICrudRepository<HomeworkTask, long>
     {
         Task<HomeworkTask?> GetWithHomeworkAsync(long id);
+
+        Task AddLtiUrlAsync(long taskId, string ltiUrl);
+        Task<string?> GetLtiUrlAsync(long taskId);
     }
 }

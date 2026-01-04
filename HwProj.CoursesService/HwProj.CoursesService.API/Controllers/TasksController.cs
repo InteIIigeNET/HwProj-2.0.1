@@ -46,6 +46,9 @@ namespace HwProj.CoursesService.API.Controllers
             }
 
             var task = taskFromDb.ToHomeworkTaskViewModel();
+
+
+            task.LtiLaunchUrl = await _tasksService.GetTaskLtiUrlAsync(taskId);
             return Ok(task);
         }
 
@@ -72,7 +75,11 @@ namespace HwProj.CoursesService.API.Controllers
             var validationResult = Validator.ValidateTask(taskViewModel, homework);
             if (validationResult.Any()) return BadRequest(validationResult);
 
-            var task = await _tasksService.AddTaskAsync(homeworkId, taskViewModel.ToHomeworkTask());
+            var task = await _tasksService.AddTaskAsync(
+                homeworkId, 
+                taskViewModel.ToHomeworkTask(), 
+                taskViewModel.LtiLaunchUrl
+            );
 
             return Ok(task);
         }

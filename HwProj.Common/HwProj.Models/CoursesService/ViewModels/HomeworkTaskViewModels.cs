@@ -35,6 +35,9 @@ namespace HwProj.Models.CoursesService.ViewModels
         public bool IsGroupWork { get; set; }
 
         public bool IsDeferred { get; set; }
+
+        [JsonProperty]
+        public string? LtiLaunchUrl { get; set; } 
     }
 
     public class HomeworkTaskForEditingViewModel
@@ -63,5 +66,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         [Required] public int MaxRating { get; set; }
 
         public ActionOptions? ActionOptions { get; set; }
+
+        public string? LtiLaunchUrl { get; set; }
     }
 }

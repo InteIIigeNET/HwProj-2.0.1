@@ -19,5 +19,25 @@ namespace HwProj.CoursesService.API.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
+
+        public async Task AddLtiUrlAsync(long taskId, string ltiUrl)
+        {
+            var ltiRecord = new HomeworkTaskLtiUrl
+            {
+                TaskId = taskId,
+                LtiLaunchUrl = ltiUrl
+            };
+
+            await Context.Set<HomeworkTaskLtiUrl>().AddAsync(ltiRecord);
+            
+            await Context.SaveChangesAsync();
+        }
+
+        public async Task<string?> GetLtiUrlAsync(long taskId)
+        {
+            var record = await Context.Set<HomeworkTaskLtiUrl>().FindAsync(taskId);
+            
+            return record?.LtiLaunchUrl;
+        }
     }
 }

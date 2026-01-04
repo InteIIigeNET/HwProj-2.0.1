@@ -40,7 +40,7 @@ namespace HwProj.CoursesService.API.Services
             return await _tasksRepository.GetWithHomeworkAsync(taskId);
         }
 
-        public async Task<HomeworkTask> AddTaskAsync(long homeworkId, HomeworkTask task)
+        public async Task<HomeworkTask> AddTaskAsync(long homeworkId, HomeworkTask task, string? ltiLaunchUrl = null)
         {
             task.HomeworkId = homeworkId;
 
@@ -48,8 +48,14 @@ namespace HwProj.CoursesService.API.Services
             var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(homework.CourseId);
 
             var taskId = await _tasksRepository.AddAsync(task);
+
+            if (!string.IsNullOrEmpty(ltiLaunchUrl))
+            {
+                await _tasksRepository.AddLtiUrlAsync(taskId, ltiLaunchUrl!);
+            }
+
             var deadlineDate = task.DeadlineDate ?? homework.DeadlineDate;
-            var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
+            var studentIds = course!.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
             if (task.PublicationDate <= DateTime.UtcNow)
                 _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, deadlineDate, course.Name, course.Id,
@@ -91,6 +97,11 @@ namespace HwProj.CoursesService.API.Services
             updatedTask.Homework = task.Homework;
             CourseDomain.FillTask(updatedTask.Homework, updatedTask);
             return updatedTask;
+        }
+
+        public async Task<string?> GetTaskLtiUrlAsync(long taskId)
+        {
+            return await _tasksRepository.GetLtiUrlAsync(taskId);
         }
     }
 }

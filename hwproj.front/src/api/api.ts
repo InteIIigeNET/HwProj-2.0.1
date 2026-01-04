@@ -691,6 +691,12 @@ export interface CreateTaskViewModel {
      * @memberof CreateTaskViewModel
      */
     actionOptions?: ActionOptions;
+    /**
+     *
+     * @type {string}
+     * @memberof CreateTaskViewModel
+     */
+    ltiLaunchUrl?: string;
 }
 /**
  *
@@ -1215,6 +1221,12 @@ export interface HomeworkTaskViewModel {
      * @memberof HomeworkTaskViewModel
      */
     isDeferred?: boolean;
+    /**
+     *
+     * @type {string}
+     * @memberof HomeworkTaskViewModel
+     */
+    ltiLaunchUrl?: string;
 }
 /**
  *
@@ -1492,6 +1504,19 @@ export interface LoginViewModel {
 /**
  *
  * @export
+ * @interface LtiDeepLinkReturnBody
+ */
+export interface LtiDeepLinkReturnBody {
+    /**
+     *
+     * @type {Array<StringStringValuesKeyValuePair>}
+     * @memberof LtiDeepLinkReturnBody
+     */
+    form?: Array<StringStringValuesKeyValuePair>;
+}
+/**
+ *
+ * @export
  * @interface LtiToolDto
  */
 export interface LtiToolDto {
@@ -1507,6 +1532,12 @@ export interface LtiToolDto {
      * @memberof LtiToolDto
      */
     name?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof LtiToolDto
+     */
+    clientId?: string;
     /**
      *
      * @type {string}
@@ -2309,6 +2340,25 @@ export interface StatisticsLecturersModel {
      * @memberof StatisticsLecturersModel
      */
     numberOfCheckedUniqueSolutions?: number;
+}
+/**
+ *
+ * @export
+ * @interface StringStringValuesKeyValuePair
+ */
+export interface StringStringValuesKeyValuePair {
+    /**
+     *
+     * @type {string}
+     * @memberof StringStringValuesKeyValuePair
+     */
+    key?: string;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof StringStringValuesKeyValuePair
+     */
+    value?: Array<string>;
 }
 /**
  *
@@ -7421,6 +7471,106 @@ export class HomeworksApi extends BaseAPI {
 
 }
 /**
+ * JwksApi - fetch parameter creator
+ * @export
+ */
+export const JwksApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        jwksGetJwks(options: any = {}): FetchArgs {
+            const localVarPath = `/api/lti/jwks`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * JwksApi - functional programming interface
+ * @export
+ */
+export const JwksApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        jwksGetJwks(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = JwksApiFetchParamCreator(configuration).jwksGetJwks(options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * JwksApi - factory interface
+ * @export
+ */
+export const JwksApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        jwksGetJwks(options?: any) {
+            return JwksApiFp(configuration).jwksGetJwks(options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * JwksApi - object-oriented interface
+ * @export
+ * @class JwksApi
+ * @extends {BaseAPI}
+ */
+export class JwksApi extends BaseAPI {
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof JwksApi
+     */
+    public jwksGetJwks(options?: any) {
+        return JwksApiFp(this.configuration).jwksGetJwks(options)(this.fetch, this.basePath);
+    }
+
+}
+/**
  * LtiAuthApi - fetch parameter creator
  * @export
  */
@@ -7654,6 +7804,120 @@ export class LtiAuthApi extends BaseAPI {
      */
     public ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, isDeepLink?: boolean, options?: any) {
         return LtiAuthApiFp(this.configuration).ltiAuthStartLti(resourceLinkId, courseId, toolId, isDeepLink, options)(this.fetch, this.basePath);
+    }
+
+}
+/**
+ * LtiDeepLinkingReturnApi - fetch parameter creator
+ * @export
+ */
+export const LtiDeepLinkingReturnApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         *
+         * @param {Array<StringStringValuesKeyValuePair>} [form]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ltiDeepLinkingReturnOnDeepLinkingReturn(form?: Array<StringStringValuesKeyValuePair>, options: any = {}): FetchArgs {
+            const localVarPath = `/api/lti/deepLinkReturn`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+            const localVarFormParams = new URLSearchParams();
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (form) {
+                form.forEach((element) => {
+                    localVarFormParams.append('form', element as any);
+                })
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/x-www-form-urlencoded';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            localVarRequestOptions.body = localVarFormParams.toString();
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * LtiDeepLinkingReturnApi - functional programming interface
+ * @export
+ */
+export const LtiDeepLinkingReturnApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         *
+         * @param {Array<StringStringValuesKeyValuePair>} [form]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ltiDeepLinkingReturnOnDeepLinkingReturn(form?: Array<StringStringValuesKeyValuePair>, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = LtiDeepLinkingReturnApiFetchParamCreator(configuration).ltiDeepLinkingReturnOnDeepLinkingReturn(form, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * LtiDeepLinkingReturnApi - factory interface
+ * @export
+ */
+export const LtiDeepLinkingReturnApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         *
+         * @param {Array<StringStringValuesKeyValuePair>} [form]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        ltiDeepLinkingReturnOnDeepLinkingReturn(form?: Array<StringStringValuesKeyValuePair>, options?: any) {
+            return LtiDeepLinkingReturnApiFp(configuration).ltiDeepLinkingReturnOnDeepLinkingReturn(form, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * LtiDeepLinkingReturnApi - object-oriented interface
+ * @export
+ * @class LtiDeepLinkingReturnApi
+ * @extends {BaseAPI}
+ */
+export class LtiDeepLinkingReturnApi extends BaseAPI {
+    /**
+     *
+     * @param {Array<StringStringValuesKeyValuePair>} [form]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LtiDeepLinkingReturnApi
+     */
+    public ltiDeepLinkingReturnOnDeepLinkingReturn(form?: Array<StringStringValuesKeyValuePair>, options?: any) {
+        return LtiDeepLinkingReturnApiFp(this.configuration).ltiDeepLinkingReturnOnDeepLinkingReturn(form, options)(this.fetch, this.basePath);
     }
 
 }
