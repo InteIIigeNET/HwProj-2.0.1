@@ -378,7 +378,7 @@ const Course: React.FC = () => {
                             <Grid item>
                                 <Grid container alignItems="center" justifyContent="flex-end">
                                     <Grid item>
-                                        <MentorsList mentors={mentors}/>
+                                        <MentorsList />
                                     </Grid>
                                     {lecturerStatsState &&
                                         <LecturerStatistics
@@ -442,21 +442,12 @@ const Course: React.FC = () => {
                     {tabValue === "stats" &&
                         <Grid container style={{marginBottom: "15px"}}>
                             <Grid item xs={12}>
-                                <StudentStats
-                                    homeworks={courseHomeworks}
-                                    userId={userId as string}
-                                    isMentor={isCourseMentor}
-                                    course={course!}
-                                    solutions={studentSolutions.length > 0 ? studentSolutions : undefined}
-                                />
+                                <StudentStats />
                             </Grid>
                         </Grid>}
                     {tabValue === "applications" && showApplicationsTab &&
                         <NewCourseStudents
                             onUpdate={() => setCurrentState()}
-                            course={course!}
-                            students={newStudents}
-                            courseId={courseId!}
                         />
                     }
                 </Grid>
