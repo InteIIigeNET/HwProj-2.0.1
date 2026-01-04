@@ -43,21 +43,13 @@ import {FileStatus} from "../Files/FileStatus";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setCourse, setMentors, setAcceptedStudents, setNewStudents } from "@/store/slices/courseSlice";
 import { setHomeworks } from "@/store/slices/homeworkSlice";
+import { setStudentSolutions } from "@/store/slices/solutionSlice";
+import { setCourseFiles, updateCourseFiles, setProcessingLoading } from "@/store/slices/courseFileSlice";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
 function isAcceptableTabValue(str: string): str is TabValue {
     return str === "homeworks" || str === "stats" || str === "applications";
-}
-
-interface ICourseFilesState {
-    processingFilesState: {
-        [homeworkId: number]: {
-            isLoading: boolean;
-            intervalId?: NodeJS.Timeout;
-        };
-    };
-    courseFiles: FileInfoDTO[];
 }
 
 interface IPageState {
@@ -77,45 +69,23 @@ const Course: React.FC = () => {
     const acceptedStudents = useAppSelector(state => state.course.acceptedStudents);
     const newStudents = useAppSelector(state => state.course.newStudents);
     const courseHomeworks = useAppSelector(state => state.homework.homeworks);
+    const studentSolutions = useAppSelector(state => state.solutions.studentSolutions);
+    const courseFiles = useAppSelector(state => state.courseFiles.courseFiles);
+    const processingFilesState = useAppSelector(state => state.courseFiles.processingFilesState);
     const [showQrCode, setShowQrCode] = useState(false);
-
-    const [studentSolutions, setStudentSolutions] = useState<StatisticsCourseMatesModel[] | undefined>(undefined)
-    const [courseFilesState, setCourseFilesState] = useState<ICourseFilesState>({
-        processingFilesState: {},
-        courseFiles: []
-    })
 
     const intervalsRef = React.useRef<Record<number, { interval: NodeJS.Timeout, timeout: NodeJS.Timeout }>>({});
 
-    const updateCourseFiles = (files: FileInfoDTO[], unitType: CourseUnitType, unitId: number) => {
-        setCourseFilesState(prev => ({
-            ...prev,
-            courseFiles: [
-                ...prev.courseFiles.filter(
-                    f => !(f.courseUnitType === unitType && f.courseUnitId === unitId)),
-                ...files
-            ]
-        }));
+    const handleUpdateCourseFiles = (files: FileInfoDTO[], unitType: CourseUnitType, unitId: number) => {
+        dispatch(updateCourseFiles({ files, unitType, unitId }));
     };
 
     const setCommonLoading = (homeworkId: number) => {
-        setCourseFilesState(prev => ({
-            ...prev,
-            processingFilesState: {
-                ...prev.processingFilesState,
-                [homeworkId]: {isLoading: true}
-            }
-        }));
+        dispatch(setProcessingLoading({ homeworkId, isLoading: true }));
     }
 
     const unsetCommonLoading = (homeworkId: number) => {
-        setCourseFilesState(prev => ({
-            ...prev,
-            processingFilesState: {
-                ...prev.processingFilesState,
-                [homeworkId]: {isLoading: false}
-            }
-        }));
+        dispatch(setProcessingLoading({ homeworkId, isLoading: false }));
     }
 
     const stopProcessing = (homeworkId: number) => {
@@ -160,14 +130,14 @@ const Course: React.FC = () => {
                 // Первый вариант для явного отображения всех файлов
                 if (waitingNewFilesCount === 0
                     && files.filter(f => f.status === FileStatus.ReadyToUse).length === previouslyExistingFilesCount - deletingFilesIds.length) {
-                    updateCourseFiles(files, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
+                    handleUpdateCourseFiles(files, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
                     unsetCommonLoading(homeworkId)
                 }
 
                 // Второй вариант для явного отображения всех файлов
                 if (waitingNewFilesCount > 0
                     && files.filter(f => !deletingFilesIds.some(dfi => dfi === f.id)).length === previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount) {
-                    updateCourseFiles(files, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
+                    handleUpdateCourseFiles(files, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
                     unsetCommonLoading(homeworkId)
                 }
 
@@ -266,15 +236,12 @@ const Course: React.FC = () => {
         try {
             courseFilesInfo = isCourseMentor
                 ? await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
-                : await ApiSingleton.filesApi.filesGetUploadedFilesInfo(+courseId!)
+                : await ApiSingleton.filesApi.filesGetUploadedFilesInfo(+courseId!);
         } catch (e) {
             const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
             enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 1990});
         }
-        setCourseFilesState(prevState => ({
-            ...prevState,
-            courseFiles: courseFilesInfo
-        }))
+        dispatch(setCourseFiles(courseFilesInfo));
     }
 
     useEffect(() => {
@@ -287,7 +254,7 @@ const Course: React.FC = () => {
 
     useEffect(() => {
         ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
-            .then(res => setStudentSolutions(res))
+            .then(res => dispatch(setStudentSolutions(res)))
     }, [courseId])
 
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
@@ -300,7 +267,7 @@ const Course: React.FC = () => {
     const {tabValue} = pageState
     const searchedHomeworkId = searchParams.get("homeworkId")
 
-    const unratedSolutionsCount = (studentSolutions || [])
+    const unratedSolutionsCount = studentSolutions
         .flatMap(x => x.homeworks)
         .flatMap(x => x!.tasks)
         .filter(t => t!.solution!.slice(-1)[0]?.state === 0) //last solution
@@ -463,13 +430,13 @@ const Course: React.FC = () => {
                     </Tabs>
                     {tabValue === "homeworks" && <CourseExperimental
                         courseId={+courseId!}
-                        courseFilesInfo={courseFilesState.courseFiles}
+                        courseFilesInfo={courseFiles}
                         isMentor={isCourseMentor}
-                        studentSolutions={studentSolutions || []}
+                        studentSolutions={studentSolutions}
                         isStudentAccepted={isAcceptedStudent}
                         selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
                         userId={userId!}
-                        processingFiles={courseFilesState.processingFilesState}
+                        processingFiles={processingFilesState}
                         onStartProcessing={getFilesByInterval}
                     />
                     }
@@ -481,7 +448,7 @@ const Course: React.FC = () => {
                                     userId={userId as string}
                                     isMentor={isCourseMentor}
                                     course={course!}
-                                    solutions={studentSolutions}
+                                    solutions={studentSolutions.length > 0 ? studentSolutions : undefined}
                                 />
                             </Grid>
                         </Grid>}
