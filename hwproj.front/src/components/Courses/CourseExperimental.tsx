@@ -4,6 +4,8 @@ import {
     HomeworkTaskViewModel,
     HomeworkViewModel, Solution, StatisticsCourseMatesModel,
 } from "@/api";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {setHomeworks} from "@/store/slices/homeworkSlice";
 import {
     AlertTitle,
     Button,
@@ -37,7 +39,6 @@ import SwitchAccessShortcutIcon from '@mui/icons-material/SwitchAccessShortcut';
 import Lodash from "lodash";
 
 interface ICourseExperimentalProps {
-    homeworks: HomeworkViewModel[]
     courseFilesInfo: FileInfoDTO[]
     studentSolutions: StatisticsCourseMatesModel[]
     courseId: number
@@ -45,10 +46,6 @@ interface ICourseExperimentalProps {
     isStudentAccepted: boolean
     userId: string
     selectedHomeworkId: number | undefined
-    onHomeworkUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] | undefined } & {
-        isDeleted?: boolean
-    }) => void
-    onTaskUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => void,
     processingFiles: {
         [homeworkId: number]: {
             isLoading: boolean;
@@ -66,6 +63,8 @@ interface ICourseExperimentalState {
 }
 
 export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
+    const dispatch = useAppDispatch()
+    const allHomeworks = useAppSelector(state => state.homework.homeworks)
     const [hideDeferred, setHideDeferred] = useState<boolean>(false)
     const [showOnlyGroupedTest, setShowOnlyGroupedTest] = useState<string | undefined>(undefined)
     const filterAdded = hideDeferred || showOnlyGroupedTest !== undefined
@@ -77,7 +76,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     // Состояние для кнопки "Наверх"
     const [showScrollButton, setShowScrollButton] = useState(false);
 
-    const homeworks = props.homeworks.slice().reverse().filter(x => {
+    const homeworks = allHomeworks.slice().reverse().filter(x => {
         if (hideDeferred) return !x.isDeferred
         if (showOnlyGroupedTest !== undefined) return x.tags!.includes(TestTag) && x.tags!.includes(showOnlyGroupedTest)
         return true
@@ -340,8 +339,40 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const [newTaskCounter, setNewTaskCounter] = useState<number>(-1)
 
+    const handleHomeworkUpdate = (update: { homework: HomeworkViewModel, fileInfos?: FileInfoDTO[], isDeleted?: boolean }) => {
+        const { homework, isDeleted } = update;
+        const homeworkIndex = allHomeworks.findIndex(h => h.id === homework.id);
+        const newHomeworks = [...allHomeworks];
+    
+        if (isDeleted) newHomeworks.splice(homeworkIndex, 1);
+        else if (homeworkIndex === -1) newHomeworks.push(homework);
+        else newHomeworks[homeworkIndex] = homework;
+
+        dispatch(setHomeworks(newHomeworks))
+    };
+
+    const handleTaskUpdate = (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => {
+        const { task, isDeleted } = update;
+        const homeworkIndex = allHomeworks.findIndex(h => h.id === task.homeworkId);
+        
+        if (homeworkIndex === -1) return;
+
+        const  homework = allHomeworks[homeworkIndex];
+        const tasks = [...(homework.tasks || [])];
+        const taskIndex = tasks.findIndex(t => t?.id === task.id);
+
+        if (isDeleted) tasks.splice(taskIndex, 1);
+        else if (taskIndex === -1) tasks.push(task);
+        else tasks[taskIndex] = task;
+
+        const updatedHomework = { ...homework, tasks };
+        const newHomeworks = [...allHomeworks];
+        newHomeworks[homeworkIndex] = updatedHomework;
+        dispatch(setHomeworks(newHomeworks))
+    }
+
     const addNewHomework = () => {
-        props.onHomeworkUpdate({
+        handleHomeworkUpdate({
             homework: {
                 courseId: props.courseId,
                 title: "Новое задание",
@@ -398,7 +429,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             id
         }
 
-        props.onTaskUpdate({task})
+        handleTaskUpdate({task})
         setState((prevState) => ({
             ...prevState,
             selectedItem: {
@@ -425,7 +456,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     onMount={onSelectedItemMount}
                     onAddTask={addNewTask}
                     onUpdate={update => {
-                        props.onHomeworkUpdate(update)
+                        handleHomeworkUpdate(update)
                         setState((prevState) => ({
                             ...prevState,
                             selectedItem: {
@@ -454,7 +485,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 initialEditMode={initialEditMode || taskEditMode}
                 onMount={onSelectedItemMount}
                 onUpdate={update => {
-                    props.onTaskUpdate(update)
+                    handleTaskUpdate(update)
                     if (update.isDeleted)
                         setState((prevState) => ({
                             ...prevState,

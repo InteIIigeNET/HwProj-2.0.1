@@ -463,7 +463,6 @@ const Course: React.FC = () => {
                     </Tabs>
                     {tabValue === "homeworks" && <CourseExperimental
                         courseId={+courseId!}
-                        homeworks={courseHomeworks}
                         courseFilesInfo={courseFilesState.courseFiles}
                         isMentor={isCourseMentor}
                         studentSolutions={studentSolutions || []}
@@ -472,31 +471,6 @@ const Course: React.FC = () => {
                         userId={userId!}
                         processingFiles={courseFilesState.processingFilesState}
                         onStartProcessing={getFilesByInterval}
-                        onHomeworkUpdate={({fileInfos, homework, isDeleted}) => {
-                            const homeworkIndex = courseHomeworks.findIndex(x => x.id === homework.id)
-                            const homeworks = [...courseHomeworks]
-
-                            if (isDeleted) homeworks.splice(homeworkIndex, 1)
-                            else if (homeworkIndex === -1) homeworks.push(homework)
-                            else homeworks[homeworkIndex] = homework
-
-                            dispatch(setHomeworks(homeworks));
-                        }}
-                        onTaskUpdate={update => {
-                            const task = update.task
-                            const homeworks = [...courseHomeworks]
-                            const homework = homeworks.find(x => x.id === task.homeworkId)!
-                            const tasks = [...homework.tasks!]
-                            const taskIndex = tasks.findIndex(x => x!.id === task.id)
-
-                            if (update.isDeleted) tasks.splice(taskIndex, 1)
-                            else if (taskIndex !== -1) tasks![taskIndex] = task
-                            else tasks.push(task)
-
-                            homework.tasks = tasks
-
-                            dispatch(setHomeworks(homeworks));
-                        }}
                     />
                     }
                     {tabValue === "stats" &&
