@@ -356,6 +356,7 @@ const CourseTaskEditor: FC<{
                                                 <TextField
                                                     fullWidth
                                                     size="small"
+                                                    variant={"standard"}
                                                     label="Название критерия"
                                                     value={c.name}
                                                     inputProps={{maxLength: 50}}
