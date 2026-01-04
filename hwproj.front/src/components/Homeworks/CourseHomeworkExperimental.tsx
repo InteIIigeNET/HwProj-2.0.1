@@ -17,7 +17,13 @@ import FilesPreviewList from "components/Files/FilesPreviewList";
 import {IFileInfo} from "components/Files/IFileInfo";
 import {FC, useEffect, useState} from "react"
 import Utils from "services/Utils";
-import {FileInfoDTO, HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, CreateTaskViewModel} from "@/api";
+import {
+    FileInfoDTO,
+    HomeworkViewModel,
+    ActionOptions,
+    HomeworkTaskViewModel,
+    PostTaskViewModel
+} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import Tags from "../Common/Tags";
 import apiSingleton from "../../api/ApiSingleton";
@@ -234,7 +240,7 @@ const CourseHomeworkEditor: FC<{
             publicationDate: metadata.publicationDate,
             actionOptions: editOptions,
             tasks: isNewHomework ? homework.tasks!.map(t => {
-                const task: CreateTaskViewModel = {
+                const task: PostTaskViewModel = {
                     ...t,
                     title: t.title!,
                     maxRating: t.maxRating!

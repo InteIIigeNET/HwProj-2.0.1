@@ -67,9 +67,9 @@ namespace HwProj.CoursesService.API.Services
             return await GetAsync(task.Homework.CourseId, userId);
         }
 
-        public async Task<CourseDTO?> GetAsync(long id, string userId = "")
+        public async Task<CourseDTO?> GetAsync(long id, string userId = "", bool asView = false)
         {
-            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(id);
+            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(id, withCriteria: asView);
             if (course == null) return null;
 
             CourseDomain.FillTasksInCourses(course);

@@ -171,7 +171,7 @@ const StudentSolutionsPage: FC = () => {
         : homeworks.map(h => h.statsForTasks![taskIndexInHomework].taskId!)
 
     const getTaskData = async (taskId: string, secondMentorId: string | undefined, fullUpdate: boolean) => {
-        const task = await ApiSingleton.tasksApi.tasksGetTask(+taskId!)
+        const task = await ApiSingleton.tasksApi.tasksGetTask(+taskId!, true)
 
         if (!fullUpdate && versionsOfCurrentTask.includes(+taskId)) {
             setStudentSolutionsState({

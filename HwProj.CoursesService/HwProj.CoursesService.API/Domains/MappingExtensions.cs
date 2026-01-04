@@ -5,6 +5,7 @@ using System;
 using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore.Internal;
+using CriterionType = HwProj.Models.CoursesService.ViewModels.CriterionType;
 
 namespace HwProj.CoursesService.API.Domains
 {
@@ -55,6 +56,14 @@ namespace HwProj.CoursesService.API.Domains
                 IsGroupWork = tags.Contains(HomeworkTags.GroupWork),
                 HomeworkId = task.HomeworkId,
                 Tags = tags,
+                Criteria = task.Criteria.Select(c => new CriterionViewModel
+                {
+                    Id = c.Id,
+                    Type = (CriterionType)c.Type,
+                    Name = c.Name,
+                    MaxPoints = c.MaxPoints
+                })
+                .ToList(),
             };
         }
 
@@ -103,16 +112,25 @@ namespace HwProj.CoursesService.API.Domains
                 MentorIds = course.MentorIds.Split('/', splitOptions),
             };
 
-        public static HomeworkTask ToHomeworkTask(this CreateTaskViewModel createTaskViewModel)
+        public static Criterion ToCriterion(this CriterionViewModel criterion) => new Criterion
+        {
+            Id = criterion.Id,
+            Type = (Models.CriterionType)criterion.Type,
+            Name = criterion.Name,
+            MaxPoints = criterion.MaxPoints
+        };
+
+        public static HomeworkTask ToHomeworkTask(this PostTaskViewModel postTaskViewModel)
             => new HomeworkTask()
             {
-                Title = createTaskViewModel.Title,
-                Description = createTaskViewModel.Description,
-                MaxRating = createTaskViewModel.MaxRating,
-                HasDeadline = createTaskViewModel.HasDeadline,
-                DeadlineDate = createTaskViewModel.DeadlineDate,
-                IsDeadlineStrict = createTaskViewModel.IsDeadlineStrict,
-                PublicationDate = createTaskViewModel.PublicationDate,
+                Title = postTaskViewModel.Title,
+                Description = postTaskViewModel.Description,
+                MaxRating = postTaskViewModel.MaxRating,
+                HasDeadline = postTaskViewModel.HasDeadline,
+                DeadlineDate = postTaskViewModel.DeadlineDate,
+                IsDeadlineStrict = postTaskViewModel.IsDeadlineStrict,
+                PublicationDate = postTaskViewModel.PublicationDate,
+                Criteria = postTaskViewModel.Criteria.Select(x => x.ToCriterion()).ToList(),
             };
 
         public static Homework ToHomework(this CreateHomeworkViewModel createHomeworkViewModel)

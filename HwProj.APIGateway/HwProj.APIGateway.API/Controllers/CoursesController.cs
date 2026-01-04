@@ -49,7 +49,7 @@ public class CoursesController : AggregationController
     [ProducesResponseType(typeof(CourseAllData), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetAllCourseData(long courseId)
     {
-        var courseResult = await _coursesClient.GetAllCourseData(courseId);
+        var courseResult = await _coursesClient.GetCourseDataRaw(courseId);
         if (!courseResult.Succeeded)
             return BadRequest(courseResult.Errors[0]);
 
@@ -66,7 +66,7 @@ public class CoursesController : AggregationController
     [ProducesResponseType(typeof(CourseViewModel), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetCourseData(long courseId)
     {
-        var course = await _coursesClient.GetCourseById(courseId);
+        var course = await _coursesClient.GetCourseView(courseId);
         if (course == null) return NotFound();
 
         var result = await ToCourseViewModel(course);
