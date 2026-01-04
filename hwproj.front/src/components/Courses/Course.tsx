@@ -40,22 +40,14 @@ import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {CourseUnitType} from "../Files/CourseUnitType";
 import {FileStatus} from "../Files/FileStatus";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setCourse, setMentors, setAcceptedStudents, setNewStudents } from "@/store/slices/courseSlice";
+import { setHomeworks } from "@/store/slices/homeworkSlice";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
 function isAcceptableTabValue(str: string): str is TabValue {
     return str === "homeworks" || str === "stats" || str === "applications";
-}
-
-interface ICourseState {
-    isFound: boolean;
-    course: CourseViewModel;
-    courseHomeworks: HomeworkViewModel[];
-    mentors: AccountDataDto[];
-    acceptedStudents: AccountDataDto[];
-    newStudents: AccountDataDto[];
-    studentSolutions: StatisticsCourseMatesModel[];
-    showQrCode: boolean;
 }
 
 interface ICourseFilesState {
@@ -78,16 +70,15 @@ const Course: React.FC = () => {
     const navigate = useNavigate()
     const {enqueueSnackbar} = useSnackbar()
 
-    const [courseState, setCourseState] = useState<ICourseState>({
-        isFound: false,
-        course: {},
-        courseHomeworks: [],
-        mentors: [],
-        acceptedStudents: [],
-        newStudents: [],
-        studentSolutions: [],
-        showQrCode: false
-    })
+    const dispatch = useAppDispatch();
+    const course = useAppSelector(state => state.course.course);
+    const isFound = useAppSelector(state => state.course.isFound);
+    const mentors = useAppSelector(state => state.course.mentors);
+    const acceptedStudents = useAppSelector(state => state.course.acceptedStudents);
+    const newStudents = useAppSelector(state => state.course.newStudents);
+    const courseHomeworks = useAppSelector(state => state.homework.homeworks);
+    const [showQrCode, setShowQrCode] = useState(false);
+
     const [studentSolutions, setStudentSolutions] = useState<StatisticsCourseMatesModel[] | undefined>(undefined)
     const [courseFilesState, setCourseFilesState] = useState<ICourseFilesState>({
         processingFilesState: {},
@@ -223,15 +214,6 @@ const Course: React.FC = () => {
         tabValue: "homeworks"
     })
 
-    const {
-        isFound,
-        course,
-        mentors,
-        newStudents,
-        acceptedStudents,
-        courseHomeworks,
-    } = courseState
-
     const userId = ApiSingleton.authService.getUserId()
 
     const isLecturer = ApiSingleton.authService.isLecturer()
@@ -272,16 +254,11 @@ const Course: React.FC = () => {
             return
         }
 
-        setCourseState(prevState => ({
-            ...prevState,
-            isFound: true,
-            course: course,
-            courseHomeworks: course.homeworks!,
-            createHomework: false,
-            mentors: course.mentors!,
-            acceptedStudents: course.acceptedStudents!,
-            newStudents: course.newStudents!,
-        }))
+        dispatch(setCourse(course));
+        dispatch(setMentors(course.mentors!));
+        dispatch(setAcceptedStudents(course.acceptedStudents!));
+        dispatch(setNewStudents(course.newStudents!));
+        dispatch(setHomeworks(course.homeworks!));
     }
 
     const getCourseFilesInfo = async () => {
@@ -367,10 +344,7 @@ const Course: React.FC = () => {
                             </ListItemIcon>
                             <ListItemText>Управление</ListItemText>
                         </MenuItem>}
-                    <MenuItem onClick={() => setCourseState(prevState => ({
-                        ...prevState,
-                        showQrCode: true
-                    }))}>
+                    <MenuItem onClick={() => setShowQrCode(true)}>
                         <ListItemIcon>
                             <QrCode2Icon fontSize="small"/>
                         </ListItemIcon>
@@ -391,8 +365,8 @@ const Course: React.FC = () => {
         return (
             <div className="container">
                 <Dialog
-                    open={courseState.showQrCode}
-                    onClose={() => setCourseState(prevState => ({...prevState, showQrCode: false}))}
+                    open={showQrCode}
+                    onClose={() => setShowQrCode(false)}
                 >
                     <DialogTitle>
                         Поделитесь ссылкой на курс с помощью QR-кода
@@ -407,7 +381,7 @@ const Course: React.FC = () => {
                 </Dialog>
                 <Grid style={{marginTop: "15px"}}>
                     <Grid container direction={"column"} spacing={2}>
-                        {course.isCompleted && <Grid item>
+                        {course?.isCompleted && <Grid item>
                             <Alert severity="warning">
                                 <AlertTitle>Курс завершен!</AlertTitle>
                                 {isAcceptedStudent
@@ -422,7 +396,7 @@ const Course: React.FC = () => {
                             <Grid item>
                                 <Stack direction={"row"} spacing={1} alignItems={"start"}>
                                     <Typography component="div" style={{fontSize: '22px'}}>
-                                        {NameBuilder.getCourseFullName(course.name!, course.groupName)}
+                                        {NameBuilder.getCourseFullName(course?.name || "", course?.groupName || "")}
                                     </Typography>
                                     <CourseMenu/>
                                 </Stack>
@@ -499,21 +473,18 @@ const Course: React.FC = () => {
                         processingFiles={courseFilesState.processingFilesState}
                         onStartProcessing={getFilesByInterval}
                         onHomeworkUpdate={({fileInfos, homework, isDeleted}) => {
-                            const homeworkIndex = courseState.courseHomeworks.findIndex(x => x.id === homework.id)
-                            const homeworks = courseState.courseHomeworks
+                            const homeworkIndex = courseHomeworks.findIndex(x => x.id === homework.id)
+                            const homeworks = [...courseHomeworks]
 
                             if (isDeleted) homeworks.splice(homeworkIndex, 1)
                             else if (homeworkIndex === -1) homeworks.push(homework)
                             else homeworks[homeworkIndex] = homework
 
-                            setCourseState(prevState => ({
-                                ...prevState,
-                                courseHomeworks: homeworks
-                            }))
+                            dispatch(setHomeworks(homeworks));
                         }}
                         onTaskUpdate={update => {
                             const task = update.task
-                            const homeworks = courseState.courseHomeworks
+                            const homeworks = [...courseHomeworks]
                             const homework = homeworks.find(x => x.id === task.homeworkId)!
                             const tasks = [...homework.tasks!]
                             const taskIndex = tasks.findIndex(x => x!.id === task.id)
@@ -524,10 +495,7 @@ const Course: React.FC = () => {
 
                             homework.tasks = tasks
 
-                            setCourseState(prevState => ({
-                                ...prevState,
-                                courseHomeworks: homeworks
-                            }))
+                            dispatch(setHomeworks(homeworks));
                         }}
                     />
                     }
@@ -538,7 +506,7 @@ const Course: React.FC = () => {
                                     homeworks={courseHomeworks}
                                     userId={userId as string}
                                     isMentor={isCourseMentor}
-                                    course={courseState.course}
+                                    course={course!}
                                     solutions={studentSolutions}
                                 />
                             </Grid>
@@ -546,8 +514,8 @@ const Course: React.FC = () => {
                     {tabValue === "applications" && showApplicationsTab &&
                         <NewCourseStudents
                             onUpdate={() => setCurrentState()}
-                            course={courseState.course}
-                            students={courseState.newStudents}
+                            course={course!}
+                            students={newStudents}
                             courseId={courseId!}
                         />
                     }
