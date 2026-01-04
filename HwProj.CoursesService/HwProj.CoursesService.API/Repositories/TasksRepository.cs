@@ -19,8 +19,6 @@ namespace HwProj.CoursesService.API.Repositories
 
         private async Task UpdateCriteria(List<Criterion> criteria)
         {
-            if (criteria.Count == 0) return;
-
             var taskIds = criteria.Select(x => x.TaskId).ToList();
             var criteriaToCheck = await Context.Set<Criterion>()
                 .AsNoTracking()
