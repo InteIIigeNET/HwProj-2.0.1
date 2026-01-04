@@ -45,6 +45,7 @@ import { setCourse, setMentors, setAcceptedStudents, setNewStudents } from "@/st
 import { setHomeworks } from "@/store/slices/homeworkSlice";
 import { setStudentSolutions } from "@/store/slices/solutionSlice";
 import { setCourseFiles, updateCourseFiles, setProcessingLoading } from "@/store/slices/courseFileSlice";
+import { setAuth } from "@/store/slices/authSlice";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -184,10 +185,16 @@ const Course: React.FC = () => {
         tabValue: "homeworks"
     })
 
-    const userId = ApiSingleton.authService.getUserId()
+    useEffect(() => {
+        const userId = ApiSingleton.authService.getUserId();
+        const isLecturer = ApiSingleton.authService.isLecturer();
+        const isExpert = ApiSingleton.authService.isExpert();
+        dispatch(setAuth({ userId, isLecturer, isExpert }))
+    }, [])
 
-    const isLecturer = ApiSingleton.authService.isLecturer()
-    const isExpert = ApiSingleton.authService.isExpert()
+    const userId = useAppSelector(state => state.auth.userId);
+    const isLecturer = useAppSelector(state => state.auth.isLecturer);
+    const isExpert = useAppSelector(state => state.auth.isExpert);
     const isMentor = isLecturer || isExpert
     const isCourseMentor = mentors.some(t => t.userId === userId)
     const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
@@ -429,14 +436,6 @@ const Course: React.FC = () => {
                             </Stack>}/>}
                     </Tabs>
                     {tabValue === "homeworks" && <CourseExperimental
-                        courseId={+courseId!}
-                        courseFilesInfo={courseFiles}
-                        isMentor={isCourseMentor}
-                        studentSolutions={studentSolutions}
-                        isStudentAccepted={isAcceptedStudent}
-                        selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
-                        userId={userId!}
-                        processingFiles={processingFilesState}
                         onStartProcessing={getFilesByInterval}
                     />
                     }

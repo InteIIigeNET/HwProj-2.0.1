@@ -25,7 +25,7 @@ import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 import {Alert, Card, CardActions, Chip, Paper, Stack, Tooltip} from "@mui/material";
-import {Link} from "react-router-dom";
+import {Link, useSearchParams} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {BonusTag, DefaultTags, getTip, isBonusWork, isTestWork, TestTag} from "../Common/HomeworkTags";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
@@ -37,20 +37,9 @@ import ErrorIcon from '@mui/icons-material/Error';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import SwitchAccessShortcutIcon from '@mui/icons-material/SwitchAccessShortcut';
 import Lodash from "lodash";
+import MentorsList from "../Common/MentorsList";
 
 interface ICourseExperimentalProps {
-    courseFilesInfo: FileInfoDTO[]
-    studentSolutions: StatisticsCourseMatesModel[]
-    courseId: number
-    isMentor: boolean
-    isStudentAccepted: boolean
-    userId: string
-    selectedHomeworkId: number | undefined
-    processingFiles: {
-        [homeworkId: number]: {
-            isLoading: boolean;
-        };
-    };
     onStartProcessing: (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
 }
 
@@ -65,10 +54,22 @@ interface ICourseExperimentalState {
 export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const dispatch = useAppDispatch()
     const allHomeworks = useAppSelector(state => state.homework.homeworks)
+    const studentSolutions = useAppSelector(state => state.solutions.studentSolutions)
+    const courseFilesInfo = useAppSelector(state => state.courseFiles.courseFiles)
+    const processingFiles = useAppSelector(state => state.courseFiles.processingFilesState)
+    const mentors = useAppSelector(state => state.course.mentors)
+    const course = useAppSelector(state => state.course.course)
+    const acceptedStudents = useAppSelector(state => state.course.acceptedStudents)
+    const userId = useAppSelector(state => state.auth.userId)
+    
+    const courseId = course?.id ?? 0
+    const isAcceptedStudent = acceptedStudents.some(s => s.userId === userId)
+
     const [hideDeferred, setHideDeferred] = useState<boolean>(false)
     const [showOnlyGroupedTest, setShowOnlyGroupedTest] = useState<string | undefined>(undefined)
     const filterAdded = hideDeferred || showOnlyGroupedTest !== undefined
 
+    const isMentor = mentors.some(m => m.userId === userId)
     // Определяем разрешение экрана пользователя
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -82,7 +83,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return true
     })
 
-    const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId, courseFilesInfo} = props
+    const [ searchParams ]= useSearchParams();
+    const selectedHomeworkId = searchParams.get("homeworkId") ? +searchParams.get("homeworkId")! : undefined
 
     const [state, setState] = useState<ICourseExperimentalState>({
         initialEditMode: false,
@@ -161,7 +163,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const taskSolutionsMap = new Map<number, Solution[]>()
 
-    if (!isMentor && isStudentAccepted) {
+    if (!isMentor && isAcceptedStudent) {
         studentSolutions
             .filter(t => t.id === userId)
             .flatMap(t => t.homeworks!)
@@ -374,7 +376,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const addNewHomework = () => {
         handleHomeworkUpdate({
             homework: {
-                courseId: props.courseId,
+                courseId: courseId,
                 title: "Новое задание",
                 publicationDateNotSet: false,
                 publicationDate: undefined,
@@ -465,7 +467,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             }
                         }))
                     }}
-                    isProcessing={props.processingFiles[homework.id!]?.isLoading || false}
+                    isProcessing={processingFiles[homework.id!]?.isLoading || false}
                     onStartProcessing={(homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) =>
                         props.onStartProcessing(homeworkId, previouslyExistingFilesCount, waitingNewFilesCount, deletingFilesIds)}
                 />
@@ -496,7 +498,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         }))
                 }}
                 toEditHomework={() => toEditHomework(homework!)} getAllHomeworks={() => homeworks}/>
-            {!props.isMentor && props.isStudentAccepted && < CardActions>
+            {!isMentor && isAcceptedStudent && < CardActions>
                 <Link
                     style={{color: '#212529'}}
                     to={"/task/" + task.id!.toString()}>
@@ -547,7 +549,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                               borderRadius: 10
                           }
                       }}>
-                {props.isMentor && filterAdded && <Stack direction={"column"} alignItems={"center"}>
+                {isMentor && filterAdded && <Stack direction={"column"} alignItems={"center"}>
                     <Button
                         fullWidth
                         onClick={() => {
@@ -565,7 +567,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             : ""}
                     </Typography>
                 </Stack>}
-                {props.isMentor && !filterAdded && (homeworks[0]?.id || 1) > 0 && <Button
+                {isMentor && !filterAdded && (homeworks[0]?.id || 1) > 0 && <Button
                     onClick={addNewHomework}
                     style={{borderRadius: 8, marginBottom: 10}} variant={"text"} size={"small"}>
                     + Добавить задание
