@@ -52,6 +52,12 @@ namespace HwProj.CoursesService.API.Services
             var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(homework.CourseId);
 
             var taskId = await _tasksRepository.AddAsync(task);
+
+            if (!string.IsNullOrEmpty(taskViewModel.LtiLaunchUrl))
+            {
+                await _tasksRepository.AddLtiUrlAsync(taskId, taskViewModel.LtiLaunchUrl);
+            }
+
             var deadlineDate = task.DeadlineDate ?? homework.DeadlineDate;
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
@@ -60,6 +66,11 @@ namespace HwProj.CoursesService.API.Services
                     studentIds));
 
             return await GetTaskAsync(taskId, true);
+        }
+
+        public async Task<string?> GetTaskLtiUrlAsync(long taskId)
+        {
+            return await _tasksRepository.GetLtiUrlAsync(taskId);
         }
 
         public async Task DeleteTaskAsync(long taskId)

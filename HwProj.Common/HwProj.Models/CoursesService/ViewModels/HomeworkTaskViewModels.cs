@@ -38,6 +38,9 @@ namespace HwProj.Models.CoursesService.ViewModels
         public bool IsDeferred { get; set; }
 
         public List<CriterionViewModel>? Criteria { get; set; } = new List<CriterionViewModel>();
+
+        [JsonProperty]
+        public string? LtiLaunchUrl { get; set; }
     }
 
     public class HomeworkTaskForEditingViewModel
@@ -70,5 +73,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public ActionOptions? ActionOptions { get; set; }
 
         public List<CriterionViewModel> Criteria { get; set; }
+
+        public string? LtiLaunchUrl { get; set; }
     }
 }

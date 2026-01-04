@@ -76,6 +76,24 @@ namespace HwProj.CoursesService.API.Repositories
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task AddLtiUrlAsync(long taskId, string ltiUrl)
+        {
+            var ltiRecord = new HomeworkTaskLtiUrl
+            {
+                TaskId = taskId,
+                LtiLaunchUrl = ltiUrl
+            };
+
+            await Context.Set<HomeworkTaskLtiUrl>().AddAsync(ltiRecord);
+            await Context.SaveChangesAsync();
+        }
+
+        public async Task<string?> GetLtiUrlAsync(long taskId)
+        {
+            var record = await Context.Set<HomeworkTaskLtiUrl>().FindAsync(taskId);
+            return record?.LtiLaunchUrl;
+        }
+
         private static readonly CriterionComparer _criterionComparer = new CriterionComparer();
 
         private class CriterionComparer : IEqualityComparer<Criterion>

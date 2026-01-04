@@ -12,5 +12,6 @@ namespace HwProj.CoursesService.API.Services
         Task<HomeworkTask> AddTaskAsync(long homeworkId, PostTaskViewModel taskViewModel);
         Task DeleteTaskAsync(long taskId);
         Task<HomeworkTask> UpdateTaskAsync(long taskId, PostTaskViewModel taskViewModel, ActionOptions options);
+        Task<string?> GetTaskLtiUrlAsync(long taskId);
     }
 }

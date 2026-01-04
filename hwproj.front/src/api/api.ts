@@ -1230,6 +1230,12 @@ export interface HomeworkTaskViewModel {
      * @memberof HomeworkTaskViewModel
      */
     criteria?: Array<CriterionViewModel>;
+    /**
+     *
+     * @type {string}
+     * @memberof HomeworkTaskViewModel
+     */
+    ltiLaunchUrl?: string;
 }
 /**
  *
@@ -1768,6 +1774,12 @@ export interface PostTaskViewModel {
      * @memberof PostTaskViewModel
      */
     criteria?: Array<CriterionViewModel>;
+    /**
+     *
+     * @type {string}
+     * @memberof PostTaskViewModel
+     */
+    ltiLaunchUrl?: string;
 }
 /**
  *

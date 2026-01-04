@@ -44,7 +44,9 @@ namespace HwProj.CoursesService.API.Controllers
                 var lecturers = await _coursesService.GetCourseLecturers(homework.CourseId);
                 if (!lecturers.Contains(userId)) return BadRequest();
             }
-            return Ok(task.ToHomeworkTaskViewModel());
+            var taskViewModel = task.ToHomeworkTaskViewModel();
+            taskViewModel.LtiLaunchUrl = await _tasksService.GetTaskLtiUrlAsync(taskId);
+            return Ok(taskViewModel);
         }
 
         [HttpGet("getForEditing/{taskId}")]

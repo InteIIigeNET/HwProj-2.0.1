@@ -7,14 +7,13 @@ import { CreateTaskViewModel } from "@/api";
 interface LtiImportButtonProps {
     homeworkId: number;
     courseId: number;
-    toolId: number; // ID инструмента (например, 1 для Miminet)
-    onTasksAdded: () => void; // Функция, которую вызовем, чтобы обновить список задач на странице
+    toolId: number;
+    onTasksAdded: () => void;
 }
 
 export const LtiImportButton: FC<LtiImportButtonProps> = ({ homeworkId, courseId, toolId, onTasksAdded }) => {
     const [isLoading, setIsLoading] = useState(false);
 
-    // 1. Создаем и отправляем форму в новой вкладке
     const submitLtiForm = (formData: any) => {
         if (!formData || !formData.actionUrl) {
             console.error("Invalid LTI Form Data");
@@ -24,7 +23,7 @@ export const LtiImportButton: FC<LtiImportButtonProps> = ({ homeworkId, courseId
         const form = document.createElement("form");
         form.method = formData.method;
         form.action = formData.actionUrl;
-        form.target = "_blank"; // Открываем в новой вкладке
+        form.target = "_blank";
 
         if (formData.fields) {
             Object.entries(formData.fields).forEach(([key, value]) => {
@@ -40,7 +39,6 @@ export const LtiImportButton: FC<LtiImportButtonProps> = ({ homeworkId, courseId
         document.body.removeChild(form);
     };
 
-    // 2. Старт процесса (запрос к нашему API)
     const handleStartLti = async () => {
         setIsLoading(true);
         try {
@@ -60,6 +58,7 @@ export const LtiImportButton: FC<LtiImportButtonProps> = ({ homeworkId, courseId
 
             submitLtiForm(dto);
 
+            // Снимаем лоадер через 15 секунд (если пользователь просто закрыл вкладку и ничего не выбрал)
             setTimeout(() => setIsLoading(false), 15000);
 
         } catch (e) {
@@ -89,12 +88,18 @@ export const LtiImportButton: FC<LtiImportButtonProps> = ({ homeworkId, courseId
                     for (const item of items) {
                         const newTask: CreateTaskViewModel = {
                             title: item.title || "External Task",
-                            // Формируем ссылку в Markdown
-                            description: `[Перейти к заданию](${item.url})`,
-                            maxRating: 10, // Дефолтные баллы
+
+                            // ИЗМЕНЕНИЕ: Простое описание без ссылки
+                            description: "Это интерактивное задание. Нажмите кнопку 'Перейти к выполнению', чтобы начать.",
+
+                            maxRating: 10,
                             hasDeadline: false,
                             isDeadlineStrict: false,
-                            publicationDate: undefined // Сразу или по настройкам домашки
+                            publicationDate: undefined,
+
+                            // ИЗМЕНЕНИЕ: Передаем URL в специальное поле
+                            // (Убедитесь, что вы перегенерировали API клиент, и это поле доступно)
+                            ltiLaunchUrl: item.url
                         };
 
                         await ApiSingleton.tasksApi.tasksAddTask(homeworkId, newTask);

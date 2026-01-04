@@ -12,5 +12,7 @@ namespace HwProj.CoursesService.API.Repositories
         Task<HomeworkTask> GetWithHomeworkAsync(long id);
         Task UpdateAsync(long id, Expression<Func<HomeworkTask, HomeworkTask>> updateFunc, List<Criterion> criteria);
         Task<HomeworkTask> GetWithHomeworkAndCriteriaAsync(long id);
+        Task AddLtiUrlAsync(long taskId, string ltiUrl);
+        Task<string?> GetLtiUrlAsync(long taskId);
     }
 }
