@@ -17,12 +17,11 @@ namespace HwProj.CoursesService.API.Repositories
         {
         }
 
-        private async Task UpdateCriteria(List<Criterion> criteria)
+        private async Task UpdateCriteria(List<Criterion> criteria, long taskId)
         {
-            var taskIds = criteria.Select(x => x.TaskId).ToList();
             var criteriaToCheck = await Context.Set<Criterion>()
                 .AsNoTracking()
-                .Where(x => taskIds.Contains(x.TaskId))
+                .Where(x => x.TaskId == taskId)
                 .ToDictionaryAsync(x => x.Id, x => x);
 
             var criteriaToAdd = new List<Criterion>();
@@ -30,6 +29,8 @@ namespace HwProj.CoursesService.API.Repositories
 
             foreach (var criterion in criteria)
             {
+                criterion.TaskId = taskId;
+
                 if (criterion.Id == 0) criteriaToAdd.Add(criterion);
                 else if (criteriaToCheck.TryGetValue(criterion.Id, out var existingCriterion))
                 {
@@ -59,9 +60,7 @@ namespace HwProj.CoursesService.API.Repositories
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             await UpdateAsync(id, updateFunc);
-
-            foreach (var criterion in criteria) criterion.TaskId = id;
-            await UpdateCriteria(criteria);
+            await UpdateCriteria(criteria, id);
 
             await Context.SaveChangesAsync();
             transactionScope.Complete();
