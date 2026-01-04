@@ -491,7 +491,6 @@ const CourseTaskExperimental: FC<{
             speculativeTask={task}
             speculativeHomework={homework}
             onUpdate={update => {
-                if (update.isSaved) setEditMode(false)
                 const updateFix = {
                     ...update,
                     task: {
@@ -500,6 +499,7 @@ const CourseTaskExperimental: FC<{
                     }
                 }
                 props.onUpdate(updateFix)
+                if (update.isSaved) setEditMode(false)
             }}
             getAllHomeworks={props.getAllHomeworks}
             toEditHomework={props.toEditHomework}
