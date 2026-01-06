@@ -10,7 +10,7 @@ namespace HwProj.CoursesService.API.Services
         Task<HomeworkTask> GetForEditingTaskAsync(long taskId);
         Task<HomeworkTask> AddTaskAsync(long homeworkId, HomeworkTask task, string? ltiLaunchUrl = null);
         Task DeleteTaskAsync(long taskId);
-        Task<HomeworkTask> UpdateTaskAsync(long taskId, HomeworkTask update, ActionOptions options);
+        Task<HomeworkTask> UpdateTaskAsync(long taskId, HomeworkTask update, ActionOptions options, string? ltiLaunchUrl = null);
         Task<string?> GetTaskLtiUrlAsync(long taskId);
     }
 }

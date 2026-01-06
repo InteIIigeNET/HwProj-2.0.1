@@ -69,7 +69,7 @@ namespace HwProj.CoursesService.API.Services
             await _tasksRepository.DeleteAsync(taskId);
         }
 
-        public async Task<HomeworkTask> UpdateTaskAsync(long taskId, HomeworkTask update, ActionOptions options)
+        public async Task<HomeworkTask> UpdateTaskAsync(long taskId, HomeworkTask update, ActionOptions options, string? ltiLaunchUrl = null)
         {
             var task = await _tasksRepository.GetWithHomeworkAsync(taskId);
             if (task == null) throw new InvalidOperationException("Task not found");
@@ -92,6 +92,12 @@ namespace HwProj.CoursesService.API.Services
                 IsDeadlineStrict = update.IsDeadlineStrict,
                 PublicationDate = update.PublicationDate
             });
+
+            if (ltiLaunchUrl != null) 
+            {
+                await _tasksRepository.AddLtiUrlAsync(taskId, ltiLaunchUrl); 
+            }
+
 
             var updatedTask = await _tasksRepository.GetAsync(taskId);
             updatedTask.Homework = task.Homework;

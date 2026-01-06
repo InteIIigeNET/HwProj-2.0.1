@@ -76,6 +76,23 @@ namespace HwProj.CoursesService.API.Services
 
             var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArrayAsync();
             var courseDto = course.ToCourseDto();
+            var allTasks = courseDto.Homeworks.SelectMany(h => h.Tasks).ToList();
+    
+            if (allTasks.Any())
+            {
+                var taskIds = allTasks.Select(t => t.Id).ToArray();
+
+                var ltiUrls = await _tasksRepository.GetLtiUrlsForTasksAsync(taskIds);
+        
+                foreach (var taskDto in allTasks)
+                {
+                    if (ltiUrls.TryGetValue(taskDto.Id, out var url))
+                    {
+                        taskDto.LtiLaunchUrl = url;
+                    }
+                }
+            }
+
             courseDto.Groups = groups.Select(g =>
                 new GroupViewModel
                 {

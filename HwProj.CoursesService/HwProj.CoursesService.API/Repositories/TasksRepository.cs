@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -22,14 +24,23 @@ namespace HwProj.CoursesService.API.Repositories
 
         public async Task AddLtiUrlAsync(long taskId, string ltiUrl)
         {
-            var ltiRecord = new HomeworkTaskLtiUrl
-            {
-                TaskId = taskId,
-                LtiLaunchUrl = ltiUrl
-            };
+            var existingRecord = await Context.Set<HomeworkTaskLtiUrl>().FindAsync(taskId);
 
-            await Context.Set<HomeworkTaskLtiUrl>().AddAsync(ltiRecord);
-            
+            if (existingRecord != null)
+            {
+                existingRecord.LtiLaunchUrl = ltiUrl;
+                Context.Set<HomeworkTaskLtiUrl>().Update(existingRecord);
+            }
+            else
+            {
+                var ltiRecord = new HomeworkTaskLtiUrl
+                {
+                    TaskId = taskId,
+                    LtiLaunchUrl = ltiUrl
+                };
+                await Context.Set<HomeworkTaskLtiUrl>().AddAsync(ltiRecord);
+            }
+    
             await Context.SaveChangesAsync();
         }
 
@@ -38,6 +49,13 @@ namespace HwProj.CoursesService.API.Repositories
             var record = await Context.Set<HomeworkTaskLtiUrl>().FindAsync(taskId);
             
             return record?.LtiLaunchUrl;
+        }
+
+        public async Task<Dictionary<long, string>> GetLtiUrlsForTasksAsync(IEnumerable<long> taskIds)
+        {
+            return await Context.Set<HomeworkTaskLtiUrl>()
+                .Where(t => taskIds.Contains(t.TaskId))
+                .ToDictionaryAsync(t => t.TaskId, t => t.LtiLaunchUrl);
         }
     }
 }
