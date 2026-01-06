@@ -1579,6 +1579,44 @@ export interface MentorToAssignedStudentsDTO {
 /**
  *
  * @export
+ * @interface MocktoolCallbackBody
+ */
+export interface MocktoolCallbackBody {
+    /**
+     *
+     * @type {string}
+     * @memberof MocktoolCallbackBody
+     */
+    idToken?: string;
+}
+/**
+ *
+ * @export
+ * @interface MocktoolLoginBody
+ */
+export interface MocktoolLoginBody {
+    /**
+     *
+     * @type {string}
+     * @memberof MocktoolLoginBody
+     */
+    iss?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof MocktoolLoginBody
+     */
+    loginHint?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof MocktoolLoginBody
+     */
+    ltiMessageHint?: string;
+}
+/**
+ *
+ * @export
  * @interface NotificationViewModel
  */
 export interface NotificationViewModel {
@@ -7589,7 +7627,7 @@ export const LtiAuthApiFetchParamCreator = function (configuration?: Configurati
         ltiAuthAuthorizeLti(clientId?: string, redirectUri?: string, state?: string, nonce?: string, ltiMessageHint?: string, options: any = {}): FetchArgs {
             const localVarPath = `/api/lti/authorize`;
             const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
@@ -8092,6 +8130,211 @@ export class LtiToolsApi extends BaseAPI {
      */
     public ltiToolsGetAll(options?: any) {
         return LtiToolsApiFp(this.configuration).ltiToolsGetAll(options)(this.fetch, this.basePath);
+    }
+
+}
+/**
+ * MockToolApi - fetch parameter creator
+ * @export
+ */
+export const MockToolApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         *
+         * @param {string} [idToken]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mockToolCallback(idToken?: string, options: any = {}): FetchArgs {
+            const localVarPath = `/api/mocktool/callback`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+            const localVarFormParams = new URLSearchParams();
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (idToken !== undefined) {
+                localVarFormParams.set('id_token', idToken as any);
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/x-www-form-urlencoded';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            localVarRequestOptions.body = localVarFormParams.toString();
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
+         * @param {string} [iss]
+         * @param {string} [loginHint]
+         * @param {string} [ltiMessageHint]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mockToolLogin(iss?: string, loginHint?: string, ltiMessageHint?: string, options: any = {}): FetchArgs {
+            const localVarPath = `/api/mocktool/login`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+            const localVarFormParams = new URLSearchParams();
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (iss !== undefined) {
+                localVarFormParams.set('iss', iss as any);
+            }
+
+            if (loginHint !== undefined) {
+                localVarFormParams.set('login_hint', loginHint as any);
+            }
+
+            if (ltiMessageHint !== undefined) {
+                localVarFormParams.set('lti_message_hint', ltiMessageHint as any);
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/x-www-form-urlencoded';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            localVarRequestOptions.body = localVarFormParams.toString();
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * MockToolApi - functional programming interface
+ * @export
+ */
+export const MockToolApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         *
+         * @param {string} [idToken]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mockToolCallback(idToken?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = MockToolApiFetchParamCreator(configuration).mockToolCallback(idToken, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
+         * @param {string} [iss]
+         * @param {string} [loginHint]
+         * @param {string} [ltiMessageHint]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mockToolLogin(iss?: string, loginHint?: string, ltiMessageHint?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = MockToolApiFetchParamCreator(configuration).mockToolLogin(iss, loginHint, ltiMessageHint, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * MockToolApi - factory interface
+ * @export
+ */
+export const MockToolApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         *
+         * @param {string} [idToken]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mockToolCallback(idToken?: string, options?: any) {
+            return MockToolApiFp(configuration).mockToolCallback(idToken, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {string} [iss]
+         * @param {string} [loginHint]
+         * @param {string} [ltiMessageHint]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mockToolLogin(iss?: string, loginHint?: string, ltiMessageHint?: string, options?: any) {
+            return MockToolApiFp(configuration).mockToolLogin(iss, loginHint, ltiMessageHint, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * MockToolApi - object-oriented interface
+ * @export
+ * @class MockToolApi
+ * @extends {BaseAPI}
+ */
+export class MockToolApi extends BaseAPI {
+    /**
+     *
+     * @param {string} [idToken]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MockToolApi
+     */
+    public mockToolCallback(idToken?: string, options?: any) {
+        return MockToolApiFp(this.configuration).mockToolCallback(idToken, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {string} [iss]
+     * @param {string} [loginHint]
+     * @param {string} [ltiMessageHint]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MockToolApi
+     */
+    public mockToolLogin(iss?: string, loginHint?: string, ltiMessageHint?: string, options?: any) {
+        return MockToolApiFp(this.configuration).mockToolLogin(iss, loginHint, ltiMessageHint, options)(this.fetch, this.basePath);
     }
 
 }
@@ -9989,7 +10232,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            const needsSerialization = (<any>"CreateTaskVCreateTaskViewModeliewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
 
             return {

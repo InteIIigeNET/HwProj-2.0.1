@@ -35,7 +35,7 @@ import ErrorIcon from '@mui/icons-material/Error';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import SwitchAccessShortcutIcon from '@mui/icons-material/SwitchAccessShortcut';
 import Lodash from "lodash";
-import { LtiImportButton } from "../Tasks/LtiImportButton";
+import { LtiImportButton, LtiItemDto } from "../Tasks/LtiImportButton";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -375,18 +375,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         const isTest = tags.includes(TestTag)
         const isBonus = tags.includes(BonusTag)
 
-        const ratingCandidate = Lodash(homeworks
-            .map(h => h.tasks![0])
-            .filter(x => {
-                if (x === undefined) return false
-                const xIsTest = isTestWork(x)
-                const xIsBonus = isBonusWork(x)
-                return x.id! > 0 && (isTest && xIsTest || isBonus && xIsBonus || !isTest && !isBonus && !xIsTest && !xIsBonus)
-            }))
-            .map(x => x.maxRating!)
-            .groupBy(x => [x])
-            .entries()
-            .sortBy(x => x[1].length).last()?.[1][0]
+        const ratingCandidate = calculateSuggestedRating(homework);
 
         const task = {
             homeworkId: homework.id,
@@ -481,6 +470,67 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </CardActions>}
         </Card>
     }
+
+    const calculateSuggestedRating = (homework: HomeworkViewModel) => {
+        const tags = homework.tags!;
+        const isTest = tags.includes(TestTag);
+        const isBonus = tags.includes(BonusTag);
+
+        const ratingCandidate = Lodash(homeworks
+            .map(h => h.tasks![0])
+            .filter(x => {
+                if (x === undefined) return false;
+                const xIsTest = isTestWork(x);
+                const xIsBonus = isBonusWork(x);
+                return x.id! > 0 && ((isTest && xIsTest) || (isBonus && xIsBonus) || (!isTest && !isBonus && !xIsTest && !xIsBonus));
+            }))
+            .map(x => x.maxRating!)
+            .groupBy(x => [x])
+            .entries()
+            .sortBy(x => x[1].length).last()?.[1][0];
+
+        return ratingCandidate || 10;
+    };
+
+    const handleLtiImport = (items: LtiItemDto[], homework: HomeworkViewModel) => {
+        let currentCounter = newTaskCounter;
+
+        const suggestedRating = calculateSuggestedRating(homework);
+
+        items.forEach(item => {
+
+            if (!item.url) {
+                return;
+            }
+            
+            const taskId = currentCounter;
+            const description = item.text && item.text.trim().length > 0
+                ? item.text
+                : "";
+
+            const newTask = {
+                id: taskId,
+                homeworkId: homework.id,
+                title: item.title || "External Task",
+
+                description: description,
+
+                maxRating: suggestedRating,
+                suggestedMaxRating: suggestedRating,
+
+                tags: homework.tags,
+                isDeferred: homework.isDeferred,
+
+                ltiLaunchUrl: item.url
+            };
+
+            props.onTaskUpdate({ task: newTask });
+
+            currentCounter--;
+        });
+
+        setNewTaskCounter(currentCounter);
+    };
 
     const renderGif = () =>
         <DotLottieReact
@@ -613,6 +663,23 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 <Typography className="antiLongWords"
                                             color={t.isDeferred ? "textSecondary" : "textPrimary"}>
                                     {t.title}{getTip(x)}
+                                    {(t.ltiLaunchUrl) && (
+                                        <Tooltip title="Задание из внешнего инструмента" arrow>
+                                            <Chip
+                                                label="LTI"
+                                                size="small"
+                                                variant="outlined"
+                                                color="info"
+                                                style={{
+                                                    marginLeft: 8,
+                                                    height: 20,
+                                                    fontSize: '0.65rem',
+                                                    verticalAlign: 'middle',
+                                                    cursor: 'help'
+                                                }}
+                                            />
+                                        </Tooltip>
+                                    )}
                                 </Typography>
                             </TimelineContent>
                         </TimelineItem>)}
@@ -620,10 +687,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             <Stack direction="column" spacing={0} style={{ margin: "5px 0 15px 0", padding: "0 4px" }}>
                                 {x.id! < 0 && (
                                     <Button fullWidth
-                                                       onClick={() => addNewTask(x)}
-                                                       style={{borderRadius: 8}}
-                                                       variant={"text"}
-                                                       size={"small"}>
+                                       onClick={() => addNewTask(x)}
+                                       style={{borderRadius: 8}}
+                                       variant={"text"}
+                                       size={"small"}>
                                     + Добавить задачу
                                     </Button>)
                                 }
@@ -631,10 +698,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 {x.id! < 0 && (
                                     <div style={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
                                         <LtiImportButton
-                                            homeworkId={x.id!}
                                             courseId={props.courseId}
-                                            toolId={1} // 111
-                                            onTasksAdded={() => window.location.reload()}
+                                            toolId={1}
+                                            // Передаем данные в нашу новую функцию
+                                            onImport={(items) => handleLtiImport(items, x)}
                                         />
                                     </div>
                                 )}

@@ -98,7 +98,8 @@ const CourseTaskEditor: FC<{
             description: description,
             deadlineDateNotSet: metadata?.hasDeadline === true && !metadata.deadlineDate,
             maxRating: maxRating,
-            hasErrors: hasErrors
+            hasErrors: hasErrors,
+            ltiLaunchUrl: props.speculativeTask.ltiLaunchUrl
         }
         props.onUpdate({task: update})
     }, [title, description, maxRating, metadata, hasErrors])
@@ -117,6 +118,7 @@ const CourseTaskEditor: FC<{
             description: description,
             maxRating: maxRating,
             actionOptions: editOptions,
+            ltiLaunchUrl: props.speculativeTask.ltiLaunchUrl
         }
 
         const updatedTask = isNewTask
@@ -192,8 +194,6 @@ const CourseTaskEditor: FC<{
                         }}
                     />
                 </Grid>
-
-                {/* LTI КНОПКА ОТСЮДА УДАЛЕНА, ТАК КАК ОНА ТЕПЕРЬ В РОДИТЕЛЕ */}
 
                 {metadata && homeworkPublicationDateIsSet &&
                     <Grid item xs={12} style={{marginBottom: "15px"}}>

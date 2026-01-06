@@ -76,22 +76,8 @@ namespace HwProj.CoursesService.API.Services
 
             var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArrayAsync();
             var courseDto = course.ToCourseDto();
-            var allTasks = courseDto.Homeworks.SelectMany(h => h.Tasks).ToList();
-    
-            if (allTasks.Any())
-            {
-                var taskIds = allTasks.Select(t => t.Id).ToArray();
 
-                var ltiUrls = await _tasksRepository.GetLtiUrlsForTasksAsync(taskIds);
-        
-                foreach (var taskDto in allTasks)
-                {
-                    if (ltiUrls.TryGetValue(taskDto.Id, out var url))
-                    {
-                        taskDto.LtiLaunchUrl = url;
-                    }
-                }
-            }
+            await FillLtiUrlsForCourseDtos(new[] { courseDto });
 
             courseDto.Groups = groups.Select(g =>
                 new GroupViewModel
@@ -166,9 +152,25 @@ namespace HwProj.CoursesService.API.Services
             var homeworks = courseTemplate.Homeworks.Select(hwTemplate => hwTemplate.ToHomework(courseId));
             var homeworkIds = await _homeworksRepository.AddRangeAsync(homeworks);
 
-            var tasks = courseTemplate.Homeworks.SelectMany((hwTemplate, i) =>
-                hwTemplate.Tasks.Select(taskTemplate => taskTemplate.ToHomeworkTask(homeworkIds[i])));
-            await _tasksRepository.AddRangeAsync(tasks);
+            var taskPairs = courseTemplate.Homeworks
+                .SelectMany((hwTemplate, i) => 
+                    hwTemplate.Tasks.Select(taskTemplate => new 
+                    { 
+                        Template = taskTemplate, 
+                        NewEntity = taskTemplate.ToHomeworkTask(homeworkIds[i]) 
+                    }))
+                .ToList();
+
+            var tasksToSave = taskPairs.Select(x => x.NewEntity);
+            await _tasksRepository.AddRangeAsync(tasksToSave);
+
+            foreach (var pair in taskPairs)
+            {
+                if (!string.IsNullOrEmpty(pair.Template.LtiLaunchUrl))
+                {
+                    await _tasksRepository.AddLtiUrlAsync(pair.NewEntity.Id, pair.Template.LtiLaunchUrl);
+                }
+            }
 
             if (studentIds.Any())
             {
@@ -302,6 +304,8 @@ namespace HwProj.CoursesService.API.Services
             var result = await _courseFilterService.ApplyFiltersToCourses(
                 userId, coursesWithValues.Select(c => c.ToCourseDto()).ToArray());
 
+            await FillLtiUrlsForCourseDtos(result);
+
             if (role == Roles.ExpertRole)
             {
                 foreach (var courseDto in result)
@@ -380,6 +384,26 @@ namespace HwProj.CoursesService.API.Services
 
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private async Task FillLtiUrlsForCourseDtos(IEnumerable<CourseDTO> courses)
+        {
+            var allTasks = courses.SelectMany(c => c.Homeworks).SelectMany(h => h.Tasks).ToList();
+
+            if (allTasks.Any())
+            {
+                var taskIds = allTasks.Select(t => t.Id).ToArray();
+
+                var ltiUrls = await _tasksRepository.GetLtiUrlsForTasksAsync(taskIds);
+
+                foreach (var taskDto in allTasks)
+                {
+                    if (ltiUrls.TryGetValue(taskDto.Id, out var url))
+                    {
+                        taskDto.LtiLaunchUrl = url;
+                    }
+                }
+            }
         }
     }
 }

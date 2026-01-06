@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
@@ -108,6 +109,11 @@ namespace HwProj.CoursesService.API.Services
         public async Task<string?> GetTaskLtiUrlAsync(long taskId)
         {
             return await _tasksRepository.GetLtiUrlAsync(taskId);
+        }
+
+        public async Task<Dictionary<long, string>> GetLtiUrlsForTasksAsync(long[] taskIds)
+        {
+            return await _tasksRepository.GetLtiUrlsForTasksAsync(taskIds);
         }
     }
 }

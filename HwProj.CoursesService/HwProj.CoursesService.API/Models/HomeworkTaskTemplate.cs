@@ -15,5 +15,7 @@ namespace HwProj.CoursesService.API.Models
         public bool HasSpecialPublicationDate { get; set; }
 
         public bool HasSpecialDeadlineDate { get; set; }
+
+        public string? LtiLaunchUrl { get; set; }
     }
 }

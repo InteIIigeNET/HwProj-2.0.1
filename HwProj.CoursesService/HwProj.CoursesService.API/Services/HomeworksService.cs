@@ -41,15 +41,13 @@ namespace HwProj.CoursesService.API.Services
                     homework.DeadlineDate));
             }
 
-            var homeworkId = await _homeworksRepository.AddAsync(homework); 
+            await _homeworksRepository.AddAsync(homework); 
 
             if (homeworkViewModel.Tasks != null && homework.Tasks != null)
             {
-                // Превращаем в списки для доступа по индексу
                 var createdTasks = homework.Tasks.ToList();
                 var taskModels = homeworkViewModel.Tasks;
 
-                // Проходимся по списку и сохраняем URL, если он был передан
                 for (var i = 0; i < createdTasks.Count && i < taskModels.Count; i++)
                 {
                     var url = taskModels[i].LtiLaunchUrl;
