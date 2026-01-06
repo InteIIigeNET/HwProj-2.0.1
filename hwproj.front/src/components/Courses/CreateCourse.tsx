@@ -80,7 +80,7 @@ export const CreateCourse: FC = () => {
         fetchingGroups: false,
         courseIsLoading: false,
         ltiTools: [],
-        ltiToolId: null,
+        ltiToolId: undefined,
     })
 
     const {activeStep, completedSteps, baseCourses, selectedBaseCourse} = state

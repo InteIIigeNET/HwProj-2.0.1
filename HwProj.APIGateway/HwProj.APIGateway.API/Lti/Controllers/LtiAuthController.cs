@@ -177,7 +177,7 @@ public class LtiAuthController(
                 ["login_hint"] = userId,
                 ["target_link_uri"] = targetUrl,
                 ["lti_message_hint"] = messageHint,
-                ["client_id"] = "MyPlatformClientId"
+                ["client_id"] = tool.ClientId,
             }
         };
 

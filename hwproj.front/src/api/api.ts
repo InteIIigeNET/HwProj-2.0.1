@@ -485,6 +485,12 @@ export interface CourseViewModel {
     groups?: Array<GroupViewModel>;
     /**
      *
+     * @type {number}
+     * @memberof CourseViewModel
+     */
+    ltiToolId?: number;
+    /**
+     *
      * @type {Array<AccountDataDto>}
      * @memberof CourseViewModel
      */
@@ -550,6 +556,12 @@ export interface CreateCourseViewModel {
      * @memberof CreateCourseViewModel
      */
     baseCourseId?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof CreateCourseViewModel
+     */
+    ltiToolId?: number;
 }
 /**
  *
@@ -2800,6 +2812,12 @@ export interface UpdateCourseViewModel {
      * @memberof UpdateCourseViewModel
      */
     isCompleted?: boolean;
+    /**
+     *
+     * @type {number}
+     * @memberof UpdateCourseViewModel
+     */
+    ltiToolId?: number;
 }
 /**
  *

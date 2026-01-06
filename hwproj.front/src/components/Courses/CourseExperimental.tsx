@@ -193,6 +193,7 @@ interface ICourseExperimentalProps {
     courseFilesInfo: FileInfoDTO[]
     studentSolutions: StatisticsCourseMatesModel[]
     courseId: number
+    ltiToolId: number | undefined
     isMentor: boolean
     isStudentAccepted: boolean
     userId: string
@@ -977,11 +978,12 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                                 sx={{textTransform: "none", borderRadius: "10px"}}>
                                             Добавить задачу
                                         </Button>
-                                        <LtiImportButton
-                                            courseId={props.courseId}
-                                            toolId={1}
-                                            onImport={(items) => handleLtiImport(items, x)}
-                                        />
+                                        {props.ltiToolId &&
+                                            <LtiImportButton
+                                                courseId={props.courseId}
+                                                toolId={props.ltiToolId}
+                                                onImport={(items) => handleLtiImport(items, x)}
+                                            />}
                                     </Stack>}
                             </Box>;
                         })}

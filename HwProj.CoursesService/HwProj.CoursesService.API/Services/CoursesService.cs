@@ -157,6 +157,7 @@ namespace HwProj.CoursesService.API.Services
             course.MentorIds = mentorId;
             course.InviteCode = Guid.NewGuid().ToString();
             var courseId = await _coursesRepository.AddAsync(course);
+            course.LtiToolId = courseTemplate.LtiToolId; 
 
             var homeworks = courseTemplate.Homeworks.Select(hwTemplate => hwTemplate.ToHomework(courseId));
             var homeworkIds = await _homeworksRepository.AddRangeAsync(homeworks);
@@ -222,7 +223,8 @@ namespace HwProj.CoursesService.API.Services
                 Name = updated.Name,
                 GroupName = updated.GroupName,
                 IsCompleted = updated.IsCompleted,
-                IsOpen = updated.IsOpen
+                IsOpen = updated.IsOpen,
+                LtiToolId = updated.LtiToolId,
             });
         }
 

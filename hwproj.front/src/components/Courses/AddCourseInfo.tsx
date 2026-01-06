@@ -180,17 +180,20 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                 onChange={(_, newValue) => {
                     setState(prev => ({
                         ...prev,
-                        ltiToolId: newValue?.id ?? null,
+                        ltiToolId: newValue?.id ?? undefined,
                     }));
                 }}
                 renderInput={(params) => (
                     <TextField
                         {...params}
-                        label="LTI-инструмент"
+                        label="Внешний LTI-инструмент"
+                        placeholder="Выберите инструмент"
                         variant="outlined"
                         fullWidth
+                        helperText="Позволяет импортировать задачи из внешних систем"
                     />
                 )}
+                clearOnEscape
             />
             {state.isGroupFromList &&
                 <Box sx={optionRowSx}>

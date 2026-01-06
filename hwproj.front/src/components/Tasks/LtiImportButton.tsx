@@ -19,7 +19,6 @@ export const LtiImportButton: FC<LtiImportButtonProps> = ({ courseId, toolId, on
     const [isLoading, setIsLoading] = useState(false);
 
     const submitLtiForm = (formData: any) => {
-        // ... (код отправки формы тот же самый, без изменений) ...
         const windowName = "lti_popup_" + new Date().getTime();
         const width = 800; const height = 700;
         const left = (window.screen.width - width) / 2;
