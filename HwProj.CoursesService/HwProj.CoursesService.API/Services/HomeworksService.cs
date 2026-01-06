@@ -57,6 +57,20 @@ namespace HwProj.CoursesService.API.Services
                     homework.DeadlineDate));
             }
 
+            if (homeworkViewModel.Tasks != null && homework.Tasks != null)
+            {
+                var createdTasks = homework.Tasks.ToList();
+                var taskModels = homeworkViewModel.Tasks;
+
+                for (var i = 0; i < createdTasks.Count && i < taskModels.Count; i++)
+                {
+                    var url = taskModels[i].LtiLaunchUrl;
+                    if (!string.IsNullOrEmpty(url))
+                    {
+                        await _tasksRepository.AddLtiUrlAsync(createdTasks[i].Id, url);
+                    }
+                }
+            }
             return await GetHomeworkAsync(homework.Id, withCriteria: true);
         }
 

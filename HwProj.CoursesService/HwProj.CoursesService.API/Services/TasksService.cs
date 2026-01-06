@@ -105,6 +105,11 @@ namespace HwProj.CoursesService.API.Services
                 IsBonusExplicit = update.IsBonusExplicit,
             }, update.Criteria);
 
+            if (!string.IsNullOrEmpty(taskViewModel.LtiLaunchUrl))
+            {
+                await _tasksRepository.AddLtiUrlAsync(taskId, taskViewModel.LtiLaunchUrl);
+            }
+
             return await GetTaskAsync(taskId, true);
         }
     }
