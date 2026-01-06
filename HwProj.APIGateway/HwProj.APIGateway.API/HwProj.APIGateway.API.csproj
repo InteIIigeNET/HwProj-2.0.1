@@ -29,7 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Lti\Validators\" />
     <Folder Include="Lti\Views\" />
   </ItemGroup>
 </Project>
