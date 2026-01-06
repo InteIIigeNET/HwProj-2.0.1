@@ -115,33 +115,44 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
 
             <Grid item xs={12}>
                 <Autocomplete
-                    // список опций
-                    options={state.ltiTools}
+                    // Список доступных инструментов из стейта
+                    options={state.ltiTools || []} // Добавил || [], чтобы не падало, если ltiTools undefined
 
-                    getOptionLabel={(option) => option.name ?? ""}
+                    // Как отображать объект в списке (берем имя)
+                    getOptionLabel={(option) => option.name || "Без названия"}
 
+                    // Текущее значение. Ищем объект в массиве по ID.
                     value={
-                        state.ltiToolId == null
-                            ? null
-                            : state.ltiTools.find(t => t.id === state.ltiToolId) ?? null
+                        state.ltiToolId
+                            ? state.ltiTools?.find(t => t.id === state.ltiToolId) || null
+                            : null
                     }
 
+                    // Обработчик изменения
                     onChange={(_, newValue) => {
                         setState(prev => ({
                             ...prev,
-                            ltiToolId: newValue?.id ?? null
+                            // Если выбрали (newValue не null), берем ID. Иначе undefined.
+                            ltiToolId: newValue ? newValue.id : undefined
                         }));
                     }}
 
+                    // Рендер инпута
                     renderInput={(params) => (
                         <TextField
                             {...params}
-                            label="LTI-инструмент"
+                            label="Внешний LTI Инструмент"
+                            placeholder="Выберите инструмент (например, Miminet)"
                             required={false}
                             variant="outlined"
                             fullWidth
+                            // Подсказка для пользователя
+                            helperText="Позволяет импортировать задачи из внешних систем"
                         />
                     )}
+
+                    // Позволяет очистить выбор (крестик)
+                    clearOnEscape
                     fullWidth
                 />
             </Grid>

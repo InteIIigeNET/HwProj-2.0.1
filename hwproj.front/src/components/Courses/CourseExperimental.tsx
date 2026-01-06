@@ -42,6 +42,7 @@ interface ICourseExperimentalProps {
     courseFilesInfo: FileInfoDTO[]
     studentSolutions: StatisticsCourseMatesModel[]
     courseId: number
+    ltiToolId: number | undefined
     isMentor: boolean
     isStudentAccepted: boolean
     userId: string
@@ -687,7 +688,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             <Stack direction="column" spacing={0} style={{ margin: "5px 0 15px 0", padding: "0 4px" }}>
                                 {x.id! < 0 && (
                                     <Button fullWidth
-                                       onClick={() => addNewTask(x)}
+                                       onClick={() => {
+                                           console.log(props.ltiToolId)
+                                           addNewTask(x)
+                                       }}
                                        style={{borderRadius: 8}}
                                        variant={"text"}
                                        size={"small"}>
@@ -695,11 +699,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                     </Button>)
                                 }
 
-                                {x.id! < 0 && (
+                                {x.id! < 0 && props.ltiToolId && (
                                     <div style={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
                                         <LtiImportButton
                                             courseId={props.courseId}
-                                            toolId={1}
+                                            toolId={props.ltiToolId}
                                             // Передаем данные в нашу новую функцию
                                             onImport={(items) => handleLtiImport(items, x)}
                                         />

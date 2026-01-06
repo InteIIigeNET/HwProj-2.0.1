@@ -309,7 +309,8 @@ public class CoursesController : AggregationController
             NewStudents = newStudents.ToArray(),
             Homeworks = course.Homeworks,
             IsCompleted = course.IsCompleted,
-            IsOpen = course.IsOpen
+            IsOpen = course.IsOpen,
+            LtiToolId =  course.LtiToolId,
         };
     }
 }

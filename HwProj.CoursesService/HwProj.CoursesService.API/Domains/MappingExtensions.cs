@@ -91,6 +91,7 @@ namespace HwProj.CoursesService.API.Domains
                 InviteCode = course.InviteCode,
                 CourseMates = course.CourseMates.Select(cm => cm.ToCourseMateViewModel()).ToArray(),
                 Homeworks = course.Homeworks.Select(h => h.ToHomeworkViewModel()).ToArray(),
+                LtiToolId =  course.LtiToolId,
             };
 
         public static CoursePreview ToCoursePreview(this Course course)
@@ -134,6 +135,7 @@ namespace HwProj.CoursesService.API.Domains
                 Name = createCourseViewModel.Name,
                 GroupName = string.Join(", ", createCourseViewModel.GroupNames),
                 IsOpen = createCourseViewModel.IsOpen,
+                LtiToolId = createCourseViewModel.LtiToolId,
             };
 
         public static CourseTemplate ToCourseTemplate(this CourseDTO course)
@@ -143,6 +145,7 @@ namespace HwProj.CoursesService.API.Domains
                 GroupName = course.GroupName,
                 IsOpen = course.IsOpen,
                 Homeworks = course.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList(),
+                LtiToolId = course.LtiToolId,
             };
 
         public static HomeworkTemplate ToHomeworkTemplate(this HomeworkViewModel homework)
@@ -175,6 +178,7 @@ namespace HwProj.CoursesService.API.Domains
                 Name = courseTemplate.Name,
                 GroupName = courseTemplate.GroupName,
                 IsOpen = courseTemplate.IsOpen,
+                LtiToolId = courseTemplate.LtiToolId,
             };
 
         public static Homework ToHomework(this HomeworkTemplate homeworkTemplate, long courseId)

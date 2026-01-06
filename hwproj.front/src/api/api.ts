@@ -479,6 +479,12 @@ export interface CourseViewModel {
     isCompleted?: boolean;
     /**
      *
+     * @type {number}
+     * @memberof CourseViewModel
+     */
+    ltiToolId?: number;
+    /**
+     *
      * @type {Array<AccountDataDto>}
      * @memberof CourseViewModel
      */
@@ -544,6 +550,12 @@ export interface CreateCourseViewModel {
      * @memberof CreateCourseViewModel
      */
     baseCourseId?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof CreateCourseViewModel
+     */
+    ltiToolId?: number;
 }
 /**
  *
@@ -2788,6 +2800,12 @@ export interface UpdateCourseViewModel {
      * @memberof UpdateCourseViewModel
      */
     isCompleted?: boolean;
+    /**
+     *
+     * @type {number}
+     * @memberof UpdateCourseViewModel
+     */
+    ltiToolId?: number;
 }
 /**
  *
@@ -10232,7 +10250,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"CreateTaskVCreateTaskViewModeliewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
 
             return {
