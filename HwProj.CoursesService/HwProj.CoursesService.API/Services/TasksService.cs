@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
@@ -5,9 +9,6 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.NotificationService.Events.CoursesService;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -111,6 +112,11 @@ namespace HwProj.CoursesService.API.Services
             }
 
             return await GetTaskAsync(taskId, true);
+        }
+
+        public async Task<Dictionary<long, string>> GetLtiUrlsForTasksAsync(long[] taskIds)
+        {
+            return await _tasksRepository.GetLtiUrlsForTasksAsync(taskIds);
         }
     }
 }

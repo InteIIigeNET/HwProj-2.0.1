@@ -26,8 +26,8 @@ public class LtiAuthController(
     private readonly IDataProtector protector = provider.CreateProtector("LtiPlatform.MessageHint.v1");
 
     // Tool редиректит сюда браузер (шаг "redirect browser to Platform for Auth")
-    [HttpPost("authorize")]
-    [Authorize]
+    [HttpGet("authorize")]
+    [AllowAnonymous]
     public async Task<IActionResult> AuthorizeLti(
         [FromQuery(Name = "client_id")] string clientId,
         [FromQuery(Name = "redirect_uri")] string redirectUri,

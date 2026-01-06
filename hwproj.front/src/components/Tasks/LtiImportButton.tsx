@@ -2,28 +2,34 @@ import React, { FC, useEffect, useState } from "react";
 import { LoadingButton } from "@mui/lab";
 import ApiSingleton from "../../api/ApiSingleton";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
-import { CreateTaskViewModel } from "@/api";
 
-interface LtiImportButtonProps {
-    homeworkId: number;
-    courseId: number;
-    toolId: number;
-    onTasksAdded: () => void;
+export interface LtiItemDto {
+    title: string;
+    url: string;
+    text?: string;
 }
 
-export const LtiImportButton: FC<LtiImportButtonProps> = ({ homeworkId, courseId, toolId, onTasksAdded }) => {
+interface LtiImportButtonProps {
+    courseId: number;
+    toolId: number;
+    onImport: (items: LtiItemDto[]) => void;
+}
+
+export const LtiImportButton: FC<LtiImportButtonProps> = ({ courseId, toolId, onImport }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const submitLtiForm = (formData: any) => {
-        if (!formData || !formData.actionUrl) {
-            console.error("Invalid LTI Form Data");
-            return;
-        }
+        // ... (код отправки формы тот же самый, без изменений) ...
+        const windowName = "lti_popup_" + new Date().getTime();
+        const width = 800; const height = 700;
+        const left = (window.screen.width - width) / 2;
+        const top = (window.screen.height - height) / 2;
+        window.open('about:blank', windowName, `width=${width},height=${height},top=${top},left=${left},resizable,scrollbars,status`);
 
         const form = document.createElement("form");
         form.method = formData.method;
         form.action = formData.actionUrl;
-        form.target = "_blank";
+        form.target = windowName;
 
         if (formData.fields) {
             Object.entries(formData.fields).forEach(([key, value]) => {
@@ -42,94 +48,54 @@ export const LtiImportButton: FC<LtiImportButtonProps> = ({ homeworkId, courseId
     const handleStartLti = async () => {
         setIsLoading(true);
         try {
-            // isDeepLink = true
             const response = await ApiSingleton.ltiAuthApi.ltiAuthStartLti(
-                undefined,
-                String(courseId),
-                String(toolId),
-                true
+                undefined, String(courseId), String(toolId), true
             );
-
-            // Обработка ответа (если NSwag вернул Response вместо JSON)
             let dto = response;
             if (response && typeof (response as any).json === 'function') {
                 dto = await (response as any).json();
             }
-
             submitLtiForm(dto);
-
-            // Снимаем лоадер через 15 секунд (если пользователь просто закрыл вкладку и ничего не выбрал)
-            setTimeout(() => setIsLoading(false), 15000);
-
+            setTimeout(() => setIsLoading(false), 30000); // Тайм-аут побольше
         } catch (e) {
             console.error(e);
-            alert("Не удалось запустить инструмент");
             setIsLoading(false);
         }
     };
 
-    // 3. Слушаем ответ от вкладки с Инструментом
     useEffect(() => {
-        const handleLtiMessage = async (event: MessageEvent) => {
-            // Проверяем, что это сообщение от нашего LTI контроллера
+        const handleLtiMessage = (event: MessageEvent) => {
             if (event.data && event.data.type === 'LTI_DEEP_LINK_SUCCESS') {
                 const payload = event.data.payload;
 
-                // Приводим к массиву (даже если вернулся один элемент)
-                const items = Array.isArray(payload) ? payload : [payload];
+                const rawItems = Array.isArray(payload) ? payload : [payload];
 
-                if (items.length === 0) return;
-
-                setIsLoading(true);
-                try {
-                    let count = 0;
-
-                    // Создаем задачи по очереди
-                    for (const item of items) {
-                        const newTask: CreateTaskViewModel = {
-                            title: item.title || "External Task",
-
-                            // ИЗМЕНЕНИЕ: Простое описание без ссылки
-                            description: "Это интерактивное задание. Нажмите кнопку 'Перейти к выполнению', чтобы начать.",
-
-                            maxRating: 10,
-                            hasDeadline: false,
-                            isDeadlineStrict: false,
-                            publicationDate: undefined,
-
-                            // ИЗМЕНЕНИЕ: Передаем URL в специальное поле
-                            // (Убедитесь, что вы перегенерировали API клиент, и это поле доступно)
-                            ltiLaunchUrl: item.url
-                        };
-
-                        await ApiSingleton.tasksApi.tasksAddTask(homeworkId, newTask);
-                        count++;
+                const items = rawItems.map((item: any) => {
+                    if (typeof item === 'string') {
+                        try {
+                            return JSON.parse(item);
+                        } catch (e) {
+                            console.error("Ошибка парсинга JSON от LTI:", item);
+                            return null;
+                        }
                     }
+                    return item;
+                }).filter(item => item !== null);
 
-                    // Успех!
-                    alert(`Успешно импортировано задач: ${count}`);
-                    onTasksAdded(); // Обновляем список задач на странице
-
-                } catch (e) {
-                    console.error("Ошибка импорта", e);
-                    alert("Произошла ошибка при создании задач.");
-                } finally {
-                    setIsLoading(false);
+                if (items.length > 0) {
+                    onImport(items);
                 }
+                setIsLoading(false);
             }
         };
-
         window.addEventListener("message", handleLtiMessage);
         return () => window.removeEventListener("message", handleLtiMessage);
-    }, [homeworkId, onTasksAdded]);
+    }, [onImport]);
 
     return (
         <LoadingButton
-            fullWidth
-            variant="text"
-            color="primary"
-            onClick={handleStartLti}
-            loading={isLoading}
+            fullWidth variant="text" color="primary"
+            onClick={handleStartLti} loading={isLoading}
             startIcon={<CloudDownloadIcon />}
         >
             Импорт из внешнего инструмента

@@ -18,16 +18,19 @@ namespace HwProj.CoursesService.API.Services
         private readonly ICoursesRepository _coursesRepository;
         private readonly IGroupsService _groupsService;
         private readonly ICourseFilterService _courseFilterService;
+        private readonly ITasksRepository _tasksRepository;
 
         public HomeworksService(IHomeworksRepository homeworksRepository, IEventBus eventBus,
             ICoursesRepository coursesRepository,
-            IGroupsService groupsService, ICourseFilterService courseFilterService)
+            IGroupsService groupsService, ICourseFilterService courseFilterService,
+            ITasksRepository tasksRepository)
         {
             _homeworksRepository = homeworksRepository;
             _eventBus = eventBus;
             _coursesRepository = coursesRepository;
             _groupsService = groupsService;
             _courseFilterService = courseFilterService;
+            _tasksRepository = tasksRepository;
         }
 
         public async Task<Homework> AddHomeworkAsync(long courseId, CreateHomeworkViewModel homeworkViewModel)

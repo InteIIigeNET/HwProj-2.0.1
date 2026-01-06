@@ -191,7 +191,8 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = task.IsDeadlineStrict,
                 HasSpecialPublicationDate = task.PublicationDate != null,
                 HasSpecialDeadlineDate = task.DeadlineDate != null,
-                IsBonusExplicit = task.IsBonusExplicit
+                IsBonusExplicit = task.IsBonusExplicit,
+                LtiLaunchUrl = task.LtiLaunchUrl
             };
 
         public static Course ToCourse(this CourseTemplate courseTemplate)

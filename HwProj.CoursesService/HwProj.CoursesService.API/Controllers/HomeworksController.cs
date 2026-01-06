@@ -13,10 +13,12 @@ namespace HwProj.CoursesService.API.Controllers
     public class HomeworksController : Controller
     {
         private readonly IHomeworksService _homeworksService;
+        private readonly ITasksService _tasksService;
 
-        public HomeworksController(IHomeworksService homeworksService)
+        public HomeworksController(IHomeworksService homeworksService, ITasksService tasksService)
         {
             _homeworksService = homeworksService;
+            _tasksService = tasksService;
         }
 
         [HttpPost("{courseId}/add")]
@@ -28,15 +30,22 @@ namespace HwProj.CoursesService.API.Controllers
             if (validationResult.Any()) return BadRequest(validationResult);
 
             var newHomework = await _homeworksService.AddHomeworkAsync(courseId, homeworkViewModel);
-            return Ok(newHomework.ToHomeworkViewModel());
+            var responseViewModel = newHomework.ToHomeworkViewModel();
+
+            await FillLtiUrls(responseViewModel);
+
+            return Ok(responseViewModel);
         }
 
         [HttpGet("get/{homeworkId}")]
         public async Task<HomeworkViewModel> GetHomework(long homeworkId)
         {
             var homeworkFromDb = await _homeworksService.GetHomeworkAsync(homeworkId);
-            var homework = homeworkFromDb.ToHomeworkViewModel();
-            return homework;
+            var homeworkViewModel = homeworkFromDb.ToHomeworkViewModel();
+
+            await FillLtiUrls(homeworkViewModel);
+
+            return homeworkViewModel;
         }
 
         [HttpGet("getForEditing/{homeworkId}")]
@@ -44,8 +53,11 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<HomeworkViewModel> GetForEditingHomework(long homeworkId)
         {
             var homeworkFromDb = await _homeworksService.GetForEditingHomeworkAsync(homeworkId);
-            var homework = homeworkFromDb.ToHomeworkViewModel();
-            return homework;
+            var homeworkViewModel = homeworkFromDb.ToHomeworkViewModel();
+
+            await FillLtiUrls(homeworkViewModel);
+
+            return homeworkViewModel;
         }
 
         [HttpDelete("delete/{homeworkId}")]
@@ -65,7 +77,28 @@ namespace HwProj.CoursesService.API.Controllers
             if (validationResult.Any()) return BadRequest(validationResult);
 
             var updatedHomework = await _homeworksService.UpdateHomeworkAsync(homeworkId, homeworkViewModel);
-            return Ok(updatedHomework.ToHomeworkViewModel());
+            var responseViewModel = updatedHomework.ToHomeworkViewModel();
+
+            await FillLtiUrls(responseViewModel);
+
+            return Ok(responseViewModel);
+        }
+
+        private async Task FillLtiUrls(HomeworkViewModel viewModel)
+        {
+            if (viewModel.Tasks != null && viewModel.Tasks.Any())
+            {
+                var taskIds = viewModel.Tasks.Select(t => t.Id).ToArray();
+                var ltiUrls = await _tasksService.GetLtiUrlsForTasksAsync(taskIds);
+
+                foreach (var task in viewModel.Tasks)
+                {
+                    if (ltiUrls.TryGetValue(task.Id, out var url))
+                    {
+                        task.LtiLaunchUrl = url;
+                    }
+                }
+            }
         }
     }
 }
