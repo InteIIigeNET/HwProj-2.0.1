@@ -1,14 +1,18 @@
 ﻿import {FC} from "react";
-import {AccountDataDto} from "@/api";
 import {Typography} from "@material-ui/core";
 import * as React from "react";
 import {Stack, Tooltip} from "@mui/material";
+import { useAppSelector } from "@/store/hooks";
+import { AccountDataDto } from "@/api";
 
-const MentorsList: FC<{
-    mentors: AccountDataDto[]
-}> = (props) => {
+interface MentorsListProps {
+    mentors?: AccountDataDto[];
+}
+
+const MentorsList: FC<MentorsListProps> = ({ mentors: propMentors }) => {
+    const reduxMentors = useAppSelector(state => state.course.mentors);
+    const mentors = propMentors ?? reduxMentors;
     const count = 1
-    const {mentors} = props
     const mentorsToShow = mentors.length > count ? mentors.slice(0, count) : mentors
     const mentorsToHide = mentors.length > count ? mentors.slice(count) : []
     const fontSize = 18
