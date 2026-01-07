@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { FileInfoDTO } from "@/api";
-import { CourseUnitType } from "@/components/Files/CourseUnitType";
+import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {FileInfoDTO} from "@/api";
+import {CourseUnitType} from "@/components/Files/CourseUnitType";
 
 interface ProcessingState {
     isLoading: boolean;
@@ -48,5 +48,10 @@ const courseFilesSlice = createSlice({
     },
 })
 
-export const { setCourseFiles, updateCourseFiles, setProcessingLoading, clearCourseFiles } = courseFilesSlice.actions;
+export const { setCourseFiles, 
+    updateCourseFiles, 
+    setProcessingLoading, 
+    clearCourseFiles 
+} = courseFilesSlice.actions;
+
 export default courseFilesSlice.reducer;

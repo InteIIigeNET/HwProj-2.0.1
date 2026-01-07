@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { StatisticsCourseMatesModel } from '@/api';
+import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {StatisticsCourseMatesModel} from '@/api';
 
 interface SolutionState {
     studentSolutions: StatisticsCourseMatesModel[];
@@ -27,5 +27,8 @@ const solutionSlice = createSlice({
     },
 });
 
-export const { setStudentSolutions, clearStudentSolutions } = solutionSlice.actions;
+export const { setStudentSolutions, 
+    clearStudentSolutions 
+} = solutionSlice.actions;
+
 export default solutionSlice.reducer;

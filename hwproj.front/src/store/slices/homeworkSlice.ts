@@ -1,5 +1,5 @@
-import {createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {HomeworkViewModel, HomeworkTaskViewModel } from '@/api';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {HomeworkViewModel, HomeworkTaskViewModel} from '@/api';
 
 interface HomeworkState {
     homeworks: HomeworkViewModel[];
@@ -20,19 +20,17 @@ const homeworkSlice = createSlice({
             state.isLoading = false;
         },
         
-        addHomework(state, action: PayloadAction<HomeworkViewModel>) {
-            state.homeworks.push(action.payload);
+        deleteHomework(state, action: PayloadAction<number>) {
+            state.homeworks = state.homeworks.filter(hw => hw.id !== action.payload);
         },
 
-        updateHomework(state, action: PayloadAction<HomeworkViewModel>) {
+        updateOrInsertHomework(state, action: PayloadAction<HomeworkViewModel>) {
             const index = state.homeworks.findIndex(hw => hw.id === action.payload.id);
             if (index !== -1) {
                 state.homeworks[index] = action.payload;
+            } else {
+                state.homeworks.push(action.payload);
             }
-        },
-        
-        deleteHomework(state, action: PayloadAction<number>) {
-            state.homeworks = state.homeworks.filter(hw => hw.id !== action.payload);
         },
 
         updateTask(state, action: PayloadAction<HomeworkTaskViewModel>) {
@@ -69,8 +67,7 @@ const homeworkSlice = createSlice({
 
 export const {
     setHomeworks,
-    addHomework,
-    updateHomework,
+    updateOrInsertHomework,
     deleteHomework,
     updateTask,
     deleteTask,
