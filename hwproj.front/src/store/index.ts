@@ -4,12 +4,11 @@ import homeworkReducer from './slices/homeworkSlice';
 import solutionsReducer from './slices/solutionSlice';
 import courseFilesReducer from './slices/courseFileSlice';
 import authReducer from './slices/authSlice';
-import {TypedUseSelectorHook, useDispatch, useSelector} from 'react-redux';
 
 export const store = configureStore({
   reducer: {
     course: courseReducer,
-    homework: homeworkReducer,
+    homeworks: homeworkReducer,
     solutions: solutionsReducer,
     courseFiles: courseFilesReducer,
     auth: authReducer,

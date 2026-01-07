@@ -72,7 +72,7 @@ const CourseHomeworkEditor: FC<{
 }> = (props) => {
     const homework = props.homeworkAndFilesInfo.homework
     const isNewHomework = homework.id! < 0
-    const homeworks = useAppSelector(state => state.homework.homeworks);
+    const homeworks = useAppSelector(state => state.homeworks.homeworks);
 
     const [homeworkData, setHomeworkData] = useState<{
         loadedHomework: HomeworkViewModel,

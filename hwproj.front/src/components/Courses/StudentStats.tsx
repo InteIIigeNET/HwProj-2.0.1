@@ -28,7 +28,7 @@ const StudentStats: React.FC = () => {
     const navigate = useNavigate();
 
     const course = useAppSelector(state => state.course.course);
-    const allHomeworks = useAppSelector(state => state.homework.homeworks);
+    const allHomeworks = useAppSelector(state => state.homeworks.homeworks);
     const studentSolutions = useAppSelector(state => state.solutions.studentSolutions);
     const userId = useAppSelector(state => state.auth.userId);
     const isLecturer = useAppSelector(state => state.auth.isLecturer);

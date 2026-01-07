@@ -62,7 +62,7 @@ const Course: React.FC = () => {
     const mentors = useAppSelector(state => state.course.mentors);
     const acceptedStudents = useAppSelector(state => state.course.acceptedStudents);
     const newStudents = useAppSelector(state => state.course.newStudents);
-    const courseHomeworks = useAppSelector(state => state.homework.homeworks);
+    const courseHomeworks = useAppSelector(state => state.homeworks.homeworks);
     const studentSolutions = useAppSelector(state => state.solutions.studentSolutions);
     const courseFiles = useAppSelector(state => state.courseFiles.courseFiles);
     const processingFilesState = useAppSelector(state => state.courseFiles.processingFilesState);

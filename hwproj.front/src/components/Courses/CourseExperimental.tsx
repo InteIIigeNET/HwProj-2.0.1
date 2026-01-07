@@ -52,7 +52,7 @@ interface ICourseExperimentalState {
 
 export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const dispatch = useAppDispatch()
-    const allHomeworks = useAppSelector(state => state.homework.homeworks)
+    const allHomeworks = useAppSelector(state => state.homeworks.homeworks)
     const studentSolutions = useAppSelector(state => state.solutions.studentSolutions)
     const courseFilesInfo = useAppSelector(state => state.courseFiles.courseFiles)
     const mentors = useAppSelector(state => state.course.mentors)
