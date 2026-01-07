@@ -1,13 +1,6 @@
 import * as React from "react";
 import {useSearchParams} from "react-router-dom";
-import {
-    AccountDataDto,
-    CourseViewModel,
-    FileInfoDTO,
-    HomeworkViewModel,
-    ScopeDTO,
-    StatisticsCourseMatesModel
-} from "@/api";
+import {FileInfoDTO,ScopeDTO,} from "@/api";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
@@ -40,12 +33,12 @@ import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {CourseUnitType} from "../Files/CourseUnitType";
 import {FileStatus} from "../Files/FileStatus";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setCourse, setMentors, setAcceptedStudents, setNewStudents } from "@/store/slices/courseSlice";
-import { setHomeworks } from "@/store/slices/homeworkSlice";
-import { setStudentSolutions } from "@/store/slices/solutionSlice";
-import { setCourseFiles, updateCourseFiles, setProcessingLoading } from "@/store/slices/courseFileSlice";
-import { setAuth } from "@/store/slices/authSlice";
+import {useAppDispatch, useAppSelector} from "@/store/hooks";
+import {setCourse, setMentors, setAcceptedStudents, setNewStudents} from "@/store/slices/courseSlice";
+import {setHomeworks} from "@/store/slices/homeworkSlice";
+import {setStudentSolutions} from "@/store/slices/solutionSlice";
+import {setCourseFiles, updateCourseFiles, setProcessingLoading} from "@/store/slices/courseFileSlice";
+import {setAuth} from "@/store/slices/authSlice";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -253,7 +246,7 @@ const Course: React.FC = () => {
 
     useEffect(() => {
         setCurrentState()
-    }, [])
+    }, [courseId])
 
     useEffect(() => {
         getCourseFilesInfo()
@@ -382,7 +375,6 @@ const Course: React.FC = () => {
                                     </Grid>
                                     {lecturerStatsState &&
                                         <LecturerStatistics
-                                            courseId={+courseId!}
                                             onClose={() => setLecturerStatsState(false)}
                                         />
                                     }
@@ -446,9 +438,7 @@ const Course: React.FC = () => {
                             </Grid>
                         </Grid>}
                     {tabValue === "applications" && showApplicationsTab &&
-                        <NewCourseStudents
-                            onUpdate={() => setCurrentState()}
-                        />
+                        <NewCourseStudents/>
                     }
                 </Grid>
             </div>
