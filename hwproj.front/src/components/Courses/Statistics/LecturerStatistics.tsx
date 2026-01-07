@@ -4,18 +4,20 @@ import ApiSingleton from "../../../api/ApiSingleton";
 import {Dialog, DialogContent, DialogTitle, Typography, Grid, Tooltip, Chip} from "@mui/material";
 import * as React from "react";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import { useAppSelector } from "@/store/hooks";
 
 const LecturerStatistics: FC<{
-    courseId: number
     onClose: () => void
 }> = (props) => {
+
+    const courseId = useAppSelector(state => state.course.course?.id);
 
     const [isLoading, setIsLoading] = useState(true);
     const [statistics, setStatistics] = useState<StatisticsLecturersModel[]>([])
 
     const getStatistics = async () => {
         const statistics: StatisticsLecturersModel[] =
-            await ApiSingleton.statisticsApi.statisticsGetLecturersStatistics(props.courseId)
+            await ApiSingleton.statisticsApi.statisticsGetLecturersStatistics(courseId!);
         setStatistics(statistics)
         setIsLoading(false);
     }
