@@ -35,7 +35,7 @@ public class LtiAuthController(
         [FromQuery(Name = "nonce")] string nonce,
         [FromQuery(Name = "lti_message_hint")] string ltiMessageHint)
     {
-        LtiHintPayload payload;
+        LtiHintPayload? payload;
         try
         {
             var json = this.protector.Unprotect(ltiMessageHint);
@@ -46,7 +46,12 @@ public class LtiAuthController(
             return BadRequest("Invalid or expired lti_message_hint");
         }
 
-        var tool = await toolService.GetByIdAsync(long.Parse(payload.ToolId));
+        if (payload == null)
+        {
+            return BadRequest("Invalid or expired lti_message_hint");
+        }
+
+        var tool = await toolService.GetByIdAsync(long.Parse(payload.ToolId!));
         if (tool == null)
         {
             return BadRequest("Tool not found");

@@ -503,11 +503,15 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             if (!item.url) {
                 return;
             }
-            
+
+            const defaultRating = calculateSuggestedRating(homework);
             const taskId = currentCounter;
             const description = item.text && item.text.trim().length > 0
                 ? item.text
                 : "";
+            const targetRating = (item.scoreMaximum && item.scoreMaximum > 0)
+                ? item.scoreMaximum
+                : defaultRating;
 
             const newTask = {
                 id: taskId,
@@ -516,8 +520,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
                 description: description,
 
-                maxRating: suggestedRating,
-                suggestedMaxRating: suggestedRating,
+                maxRating: targetRating,
+                suggestedMaxRating: targetRating,
 
                 tags: homework.tags,
                 isDeferred: homework.isDeferred,

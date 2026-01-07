@@ -11,7 +11,5 @@ namespace HwProj.CoursesService.API.Models
 
         [Required]
         public string LtiLaunchUrl { get; set; }
-
-        public int ToolId { get; set; }
     }
 }

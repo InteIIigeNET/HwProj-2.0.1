@@ -1,81 +1,104 @@
+using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
+using System.Threading.Tasks;
+using HwProj.APIGateway.API.Lti.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens; // Убедитесь, что установлен пакет Microsoft.IdentityModel.Tokens
+using Microsoft.IdentityModel.Tokens;
 
 namespace HwProj.APIGateway.API.Lti.Controllers;
 
 [Route("api/lti")]
 [ApiController]
-public class LtiDeepLinkingReturnController : ControllerBase
+public class LtiDeepLinkingReturnController(
+    ILtiToolService toolService,
+    ILtiKeyService ltiKeyService
+    ) : ControllerBase
 {
-    // Инструмент отправляет форму с полем JWT на этот адрес
     [HttpPost("deepLinkReturn")]
-    [AllowAnonymous] // Анонимно, так как запрос идет от браузера при редиректе из тула
-    public IActionResult OnDeepLinkingReturn([FromForm] IFormCollection form)
+    [AllowAnonymous]
+    public async Task<IActionResult> OnDeepLinkingReturnAsync([FromForm] IFormCollection form)
     {
-        // 1. Проверяем наличие параметра JWT
         if (!form.ContainsKey("JWT"))
         {
             return BadRequest("Missing JWT parameter");
         }
 
         string tokenString = form["JWT"]!;
-        
-        // 2. Разбиваем токен на части (Header.Payload.Signature)
-        var parts = tokenString.Split('.');
-        if (parts.Length != 3)
+        var handler = new JwtSecurityTokenHandler();
+
+        if (!handler.CanReadToken(tokenString))
         {
             return BadRequest("Invalid JWT structure");
         }
 
-        // В ПРОДАКШЕНЕ ЗДЕСЬ НУЖНА ВАЛИДАЦИЯ ПОДПИСИ (Signature)
-        // Для этого нужно достать Public Key инструмента (JWKS) и проверить подпись.
-        // Пока мы просто доверяем содержимому для тестов.
+        var unverifiedToken = handler.ReadJwtToken(tokenString);
+        var issuer = unverifiedToken.Issuer;
 
-        // 3. Декодируем Payload из Base64Url
-        string payloadJson;
+        // 2. Ищем инструмент в БД по Issuer
+        // (Предполагается, что у toolService есть метод GetByIssuerAsync или аналогичный)
+        var tool = await toolService.GetByIssuerAsync(issuer);
+        if (tool == null)
+        {
+            return Unauthorized($"Unknown tool issuer: {issuer}");
+        }
+
+        // 3. Получаем публичные ключи (JWKS) инструмента через сервис
+        var signingKeys = await ltiKeyService.GetKeysAsync(tool.JwksEndpoint);
+
+        // 4. Валидируем подпись
         try
         {
-            payloadJson = Base64UrlEncoder.Decode(parts[1]);
-        }
-        catch
-        {
-            return BadRequest("Invalid Base64 in JWT");
-        }
+            handler.ValidateToken(tokenString, new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = issuer,
 
-        // 4. Парсим JSON вручную с помощью JsonDocument
-        // Это самый надежный способ, который не падает из-за несовпадения типов C# классов.
-        using var doc = JsonDocument.Parse(payloadJson);
-        var root = doc.RootElement;
+                ValidateAudience = true,
+                ValidAudience = tool.ClientId,
+
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.FromMinutes(5),
+
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKeys = signingKeys
+            }, out var validatedToken);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Token signature validation failed: {ex.Message}");
+        }
         
-        // Имя поля по стандарту LTI 1.3 Deep Linking
-        var itemsClaimName = "https://purl.imsglobal.org/spec/lti-dl/claim/content_items";
+        const string itemsClaimName = "https://purl.imsglobal.org/spec/lti-dl/claim/content_items";
         
         var resultList = new List<object>();
 
-        // 5. Ищем массив content_items
-        if (root.TryGetProperty(itemsClaimName, out var itemsElement) && itemsElement.ValueKind == JsonValueKind.Array)
+        if (unverifiedToken.Payload.TryGetValue(itemsClaimName, out var itemsObject))
         {
-            foreach (var rawItem in itemsElement.EnumerateArray())
+            var jsonString = itemsObject.ToString();
+            if (!string.IsNullOrEmpty(jsonString))
             {
-                resultList.Add(rawItem.Clone().ToString());
+                using var doc = JsonDocument.Parse(jsonString);
+                if (doc.RootElement.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var rawItem in doc.RootElement.EnumerateArray())
+                    {
+                        resultList.Add(rawItem.Clone().ToString());
+                    }
+                }
             }
         }
 
-        // Если список пуст (инструмент ничего не выбрал или формат неверен)
         if (resultList.Count == 0)
         {
-            // Просто закрываем окно
             return Content("<script>window.close();</script>", "text/html");
         }
 
-        // 6. Сериализуем список обратно в JSON для передачи на фронтенд HwProj
         var responsePayloadJson = JsonSerializer.Serialize(resultList);
 
-        // 7. Генерируем HTML-страницу, которая передаст данные родительскому окну и закроется
         var htmlResponse = $@"
         <!DOCTYPE html>
         <html>

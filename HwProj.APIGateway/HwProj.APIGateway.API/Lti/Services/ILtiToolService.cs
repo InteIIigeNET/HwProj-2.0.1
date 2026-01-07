@@ -8,4 +8,5 @@ public interface ILtiToolService
 {
     Task<IReadOnlyList<LtiToolDto>> GetAllAsync();
     Task<LtiToolDto?> GetByIdAsync(long id);
+    Task<LtiToolDto?> GetByIssuerAsync(string issuer);
 }

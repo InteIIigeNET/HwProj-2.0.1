@@ -86,6 +86,7 @@ public class Startup
         services.Configure<List<LtiToolConfig>>(Configuration.GetSection("LtiTools"));
         services.AddSingleton<ILtiToolService, LtiToolService>();
         services.AddSingleton<ILtiTokenService, LtiTokenService>();
+        services.AddSingleton<ILtiKeyService, LtiKeyService>(); 
 
         services.AddScoped<CourseMentorOnlyAttribute>();
     }
