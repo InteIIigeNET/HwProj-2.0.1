@@ -8,7 +8,7 @@ namespace HwProj.CoursesService.API.Domains
 {
     public static class Validator
     {
-        public static List<string> ValidateTask(CreateTaskViewModel task, Homework homework,
+        public static List<string> ValidateTask(PostTaskViewModel task, Homework homework,
             HomeworkTask? previousState = null)
         {
             var errors = new List<string>();

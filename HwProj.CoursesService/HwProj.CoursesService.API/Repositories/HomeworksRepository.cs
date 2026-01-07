@@ -27,10 +27,12 @@ namespace HwProj.CoursesService.API.Repositories
                 .ToArrayAsync();
         }
 
-        public async Task<Homework> GetWithTasksAsync(long id)
+        public async Task<Homework> GetWithTasksAsync(long id, bool withCriteria = false)
         {
-            return await Context.Set<Homework>().AsNoTracking().Include(h => h.Tasks)
-                .FirstOrDefaultAsync(h => h.Id == id);
+            var query = Context.Set<Homework>().AsNoTracking().Include(h => h.Tasks);
+            return withCriteria
+                ? await query.ThenInclude(x => x.Criteria).FirstOrDefaultAsync(h => h.Id == id)
+                : await query.FirstOrDefaultAsync(h => h.Id == id);
         }
     }
 }

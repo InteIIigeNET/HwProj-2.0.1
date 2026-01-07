@@ -8,7 +8,7 @@ namespace HwProj.CoursesService.API.Services
     public interface ICoursesService
     {
         Task<Course[]> GetAllAsync();
-        Task<CourseDTO?> GetAsync(long id, string userId = "");
+        Task<CourseDTO?> GetAsync(long id, string userId = "", bool asView = false);
         Task<CourseDTO?> GetForEditingAsync(long id);
         Task<CourseDTO?> GetByTaskAsync(long taskId, string userId);
         Task<long> AddAsync(CreateCourseViewModel courseViewModel, CourseDTO? baseCourse, string mentorId);
