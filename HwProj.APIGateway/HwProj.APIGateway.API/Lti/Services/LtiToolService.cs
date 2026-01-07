@@ -13,13 +13,7 @@ public class LtiToolService(IOptions<List<LtiToolConfig>> options) : ILtiToolSer
     public Task<IReadOnlyList<LtiToolDto>> GetAllAsync()
     {
         var result = _tools
-            .Select(t => new LtiToolDto(
-                t.Id,
-                t.Name,
-                t.ClientId,
-                t.InitiateLoginUri,
-                t.LaunchUrl,
-                t.DeepLink))
+            .Select(MapToDto)
             .ToList()
             .AsReadOnly();
         
@@ -29,17 +23,27 @@ public class LtiToolService(IOptions<List<LtiToolConfig>> options) : ILtiToolSer
     public Task<LtiToolDto?> GetByIdAsync(long id)
     {
         var cfg = _tools.FirstOrDefault(t => t.Id == id);
-        if (cfg == null)
-            return Task.FromResult<LtiToolDto?>(null);
+        return Task.FromResult(cfg == null ? null : MapToDto(cfg));
+    }
 
-        var dto = new LtiToolDto(
-            cfg.Id,
-            cfg.Name,
-            cfg.ClientId,
-            cfg.InitiateLoginUri,
-            cfg.LaunchUrl,
-            cfg.DeepLink);
+    public Task<LtiToolDto?> GetByIssuerAsync(string issuer)
+    {
+        // Ищем конфиг, где Issuer совпадает с тем, что пришел в токене
+        var cfg = _tools.FirstOrDefault(t => t.Issuer == issuer);
+        return Task.FromResult(cfg == null ? null : MapToDto(cfg));
+    }
 
-        return Task.FromResult<LtiToolDto?>(dto);
+    // Вынес создание DTO в отдельный метод, чтобы не дублировать код
+    private static LtiToolDto MapToDto(LtiToolConfig t)
+    {
+        return new LtiToolDto(
+            t.Id,
+            t.Name,
+            t.ClientId,
+            t.JwksEndpoint,
+            t.InitiateLoginUri,
+            t.LaunchUrl,
+            t.DeepLink
+        );
     }
 }

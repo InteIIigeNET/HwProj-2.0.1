@@ -282,8 +282,6 @@ namespace HwProj.CoursesService.API.Migrations
                     b.Property<string>("LtiLaunchUrl")
                         .IsRequired();
 
-                    b.Property<int>("ToolId");
-
                     b.HasKey("TaskId");
 
                     b.ToTable("TaskLtiUrls");

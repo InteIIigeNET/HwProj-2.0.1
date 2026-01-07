@@ -664,6 +664,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
         items.forEach(item => {
             if (!item.url) return
+            const targetRating = item.scoreMaximum > 0 ? item.scoreMaximum : suggestedRating
 
             props.onTaskUpdate({
                 task: {
@@ -671,8 +672,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     homeworkId: homework.id,
                     title: item.title || "External Task",
                     description: item.text?.trim() || "",
-                    maxRating: suggestedRating,
-                    suggestedMaxRating: suggestedRating,
+                    maxRating: targetRating,
+                    suggestedMaxRating: targetRating,
                     tags: homework.tags,
                     isDeferred: homework.isDeferred,
                     ltiLaunchUrl: item.url,

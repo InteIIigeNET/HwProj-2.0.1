@@ -5,8 +5,9 @@ import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 
 export interface LtiItemDto {
     title: string;
-    url: string;
     text?: string;
+    url: string;
+    scoreMaximum: number;
 }
 
 interface LtiImportButtonProps {
