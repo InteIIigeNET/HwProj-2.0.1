@@ -1,29 +1,26 @@
 import * as React from 'react';
-import {AccountDataDto, CourseViewModel} from '../../api/';
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC} from "react";
 import {Card, CardContent, CardActions, Grid, Button, Typography, Alert, AlertTitle} from '@mui/material';
+import {useAppSelector, useAppDispatch} from "@/store/hooks";
+import {fetchCourseData} from '@/store/slices/courseSlice';
 
-interface INewCourseStudentsProps {
-    course: CourseViewModel,
-    students: AccountDataDto[],
-    onUpdate: () => void,
-    courseId: string,
-}
-
-const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
+const NewCourseStudents: FC = () => {
+    const course = useAppSelector(state => state.course.course);
+    const students = useAppSelector(state => state.course.newStudents);
+    const dispatch = useAppDispatch();
 
     const acceptStudent = async (studentId: string) => {
-        await ApiSingleton.coursesApi.coursesAcceptStudent(props.course.id!, studentId)
-        props.onUpdate()
+        await ApiSingleton.coursesApi.coursesAcceptStudent(course?.id!, studentId)
+        dispatch(fetchCourseData(course?.id!));
     }
 
     const rejectStudent = async (studentId: string) => {
-        await ApiSingleton.coursesApi.coursesRejectStudent(props.course.id!, studentId)
-        props.onUpdate()
+        await ApiSingleton.coursesApi.coursesRejectStudent(course?.id!, studentId)
+        dispatch(fetchCourseData(course?.id!));
     }
 
-    const studentsLength = props.students.length
+    const studentsLength = students.length
 
     if (studentsLength === 0) {
         return (
@@ -36,7 +33,7 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
         )
     }
     return <Grid item container spacing={1} direction={"row"} xs={"auto"}>
-        {props.students.map((cm, i) => (
+        {students.map((cm, i) => (
             <Grid item>
                 <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
                     <CardContent>
