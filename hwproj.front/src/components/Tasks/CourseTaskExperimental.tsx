@@ -11,6 +11,7 @@ import {LoadingButton} from "@mui/lab";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import DeletionConfirmation from "../DeletionConfirmation";
 import ActionOptionsUI from "../Common/ActionOptions";
+import {useAppSelector} from "@/store/hooks";
 
 interface IEditTaskMetadataState {
     hasDeadline: boolean | undefined;
@@ -25,7 +26,6 @@ const CourseTaskEditor: FC<{
     speculativeTask: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean, suggestedMaxRating?: number },
     speculativeHomework: HomeworkViewModel,
     onUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean, isSaved?: boolean }) => void,
-    getAllHomeworks: () => HomeworkViewModel[],
     toEditHomework: () => void,
 }> = (props) => {
     const [taskData, setTaskData] = useState<{
@@ -273,13 +273,15 @@ const CourseTaskEditor: FC<{
 const CourseTaskExperimental: FC<{
     task: HomeworkTaskViewModel,
     homework: HomeworkViewModel,
-    isMentor: boolean,
     initialEditMode: boolean,
     onMount: () => void,
     onUpdate: (x: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => void
     toEditHomework: () => void,
-    getAllHomeworks: () => HomeworkViewModel[],
 }> = (props) => {
+    const mentors = useAppSelector(state => state.course.mentors);
+    const userId = useAppSelector(state => state.auth.userId);
+    const isMentor = mentors.some(m => m.userId === userId);
+
     const {task, homework} = props
     const [showEditMode, setShowEditMode] = useState(false)
     const [editMode, setEditMode] = useState(false)
@@ -305,13 +307,12 @@ const CourseTaskExperimental: FC<{
                 }
                 props.onUpdate(updateFix)
             }}
-            getAllHomeworks={props.getAllHomeworks}
             toEditHomework={props.toEditHomework}
         />
     }
 
     return <CardContent
-        onMouseEnter={() => setShowEditMode(props.isMentor)}
+        onMouseEnter={() => setShowEditMode(isMentor)}
         onMouseLeave={() => setShowEditMode(false)}>
         <Grid xs={12} container direction={"row"} alignItems={"center"} alignContent={"center"}
               justifyContent={"space-between"}>
