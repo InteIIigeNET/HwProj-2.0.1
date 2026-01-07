@@ -4,8 +4,8 @@ import {
     HomeworkTaskViewModel,
     HomeworkViewModel, Solution, StatisticsCourseMatesModel,
 } from "@/api";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {setHomeworks} from "@/store/slices/homeworkSlice";
+import {useAppDispatch, useAppSelector} from "@/store/hooks";
+import {updateOrInsertHomework, deleteHomework, updateTask, deleteTask} from "@/store/slices/homeworkSlice";
 import {
     AlertTitle,
     Button,
@@ -37,7 +37,6 @@ import ErrorIcon from '@mui/icons-material/Error';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import SwitchAccessShortcutIcon from '@mui/icons-material/SwitchAccessShortcut';
 import Lodash from "lodash";
-import MentorsList from "../Common/MentorsList";
 
 interface ICourseExperimentalProps {
     onStartProcessing: (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
@@ -56,7 +55,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const allHomeworks = useAppSelector(state => state.homework.homeworks)
     const studentSolutions = useAppSelector(state => state.solutions.studentSolutions)
     const courseFilesInfo = useAppSelector(state => state.courseFiles.courseFiles)
-    const processingFiles = useAppSelector(state => state.courseFiles.processingFilesState)
     const mentors = useAppSelector(state => state.course.mentors)
     const course = useAppSelector(state => state.course.course)
     const acceptedStudents = useAppSelector(state => state.course.acceptedStudents)
@@ -343,34 +341,20 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const handleHomeworkUpdate = (update: { homework: HomeworkViewModel, fileInfos?: FileInfoDTO[], isDeleted?: boolean }) => {
         const { homework, isDeleted } = update;
-        const homeworkIndex = allHomeworks.findIndex(h => h.id === homework.id);
-        const newHomeworks = [...allHomeworks];
-    
-        if (isDeleted) newHomeworks.splice(homeworkIndex, 1);
-        else if (homeworkIndex === -1) newHomeworks.push(homework);
-        else newHomeworks[homeworkIndex] = homework;
-
-        dispatch(setHomeworks(newHomeworks))
+        if (isDeleted) {
+            dispatch(deleteHomework(homework.id!));
+        } else {
+            dispatch(updateOrInsertHomework(homework));
+        }
     };
 
     const handleTaskUpdate = (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => {
-        const { task, isDeleted } = update;
-        const homeworkIndex = allHomeworks.findIndex(h => h.id === task.homeworkId);
-        
-        if (homeworkIndex === -1) return;
-
-        const  homework = allHomeworks[homeworkIndex];
-        const tasks = [...(homework.tasks || [])];
-        const taskIndex = tasks.findIndex(t => t?.id === task.id);
-
-        if (isDeleted) tasks.splice(taskIndex, 1);
-        else if (taskIndex === -1) tasks.push(task);
-        else tasks[taskIndex] = task;
-
-        const updatedHomework = { ...homework, tasks };
-        const newHomeworks = [...allHomeworks];
-        newHomeworks[homeworkIndex] = updatedHomework;
-        dispatch(setHomeworks(newHomeworks))
+        const { task, isDeleted } = update;        
+        if (isDeleted) {
+            dispatch(deleteTask({homeworkId: task.homeworkId!, taskId: task.id!}));
+        } else {
+            dispatch(updateTask(task));
+        }
     }
 
     const addNewHomework = () => {
@@ -451,9 +435,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 {isMentor && getDatesAlert(homework, true)}
                 <CourseHomeworkExperimental
                     key={homework.id}
-                    getAllHomeworks={() => homeworks}
                     homeworkAndFilesInfo={{homework, filesInfo}}
-                    isMentor={isMentor}
                     initialEditMode={initialEditMode || homeworkEditMode}
                     onMount={onSelectedItemMount}
                     onAddTask={addNewTask}
@@ -467,7 +449,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             }
                         }))
                     }}
-                    isProcessing={processingFiles[homework.id!]?.isLoading || false}
                     onStartProcessing={(homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) =>
                         props.onStartProcessing(homeworkId, previouslyExistingFilesCount, waitingNewFilesCount, deletingFilesIds)}
                 />
@@ -483,7 +464,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 key={task.id}
                 task={task}
                 homework={homework!}
-                isMentor={isMentor}
                 initialEditMode={initialEditMode || taskEditMode}
                 onMount={onSelectedItemMount}
                 onUpdate={update => {
@@ -497,7 +477,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             }
                         }))
                 }}
-                toEditHomework={() => toEditHomework(homework!)} getAllHomeworks={() => homeworks}/>
+                toEditHomework={() => toEditHomework(homework!)}/>
             {!isMentor && isAcceptedStudent && < CardActions>
                 <Link
                     style={{color: '#212529'}}
