@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef} from "react";
-import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
+import {HomeworkViewModel} from "@/api";
 import {useNavigate, useParams} from 'react-router-dom';
 import {LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
@@ -9,17 +9,10 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import {BonusTag, DefaultTags, TestTag} from "../Common/HomeworkTags";
 import Lodash from "lodash"
-import ApiSingleton from "@/api/ApiSingleton";
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
+import {useAppSelector} from "@/store/hooks";
 
-interface IStudentStatsProps {
-    course: CourseViewModel;
-    homeworks: HomeworkViewModel[];
-    isMentor: boolean;
-    userId: string;
-    solutions: StatisticsCourseMatesModel[] | undefined;
-}
 
 interface IStudentStatsState {
     searched: string
@@ -27,12 +20,21 @@ interface IStudentStatsState {
 
 const greyBorder = grey[300]
 
-const StudentStats: React.FC<IStudentStatsProps> = (props) => {
+const StudentStats: React.FC = () => {
     const [state, setSearched] = useState<IStudentStatsState>({
         searched: ""
     });
     const {courseId} = useParams();
     const navigate = useNavigate();
+
+    const course = useAppSelector(state => state.course.course);
+    const allHomeworks = useAppSelector(state => state.homeworks.homeworks);
+    const studentSolutions = useAppSelector(state => state.solutions.studentSolutions);
+    const userId = useAppSelector(state => state.auth.userId);
+    const isLecturer = useAppSelector(state => state.auth.isLecturer);
+    const isExpert = useAppSelector(state => state.auth.isExpert);
+    const isMentor = isLecturer || isExpert;
+
     const handleClick = () => {
         navigate(`/statistics/${courseId}/charts`)
     }
@@ -62,7 +64,6 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     }, [])
 
     const {searched} = state
-    const isMentor = ApiSingleton.authService.isMentor()
 
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
@@ -82,10 +83,10 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         return () => document.removeEventListener('keydown', keyDownHandler);
     }, [searched]);
 
-    const homeworks = props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
+    const homeworks = allHomeworks.filter(h => h.tasks && h.tasks.length > 0)
     const solutions = searched
-        ? props.solutions?.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase()))
-        : props.solutions
+        ? studentSolutions?.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase()))
+        : studentSolutions
 
     const borderStyle = `1px solid ${greyBorder}`
     const testHomeworkStyle = {
@@ -129,10 +130,10 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const showBestSolutions = isMentor && (hasHomeworks || hasTests)
 
     const bestTaskSolutions = new Map<number, string>()
-    if (props.solutions && isMentor) {
+    if (studentSolutions && isMentor) {
         Lodash(homeworks)
             .flatMap(h => h.tasks!)
-            .map(t => props.solutions!
+            .map(t => studentSolutions
                 .map(s => s.homeworks!
                     .flatMap(h1 => h1.tasks!)
                     .find(t1 => t1.id === t.id)?.solution || [])
@@ -149,8 +150,8 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     return (
         <div>
-            {props.solutions === undefined && <LinearProgress/>}
-            {props.solutions && props.solutions.length === 0 && <Alert severity="info">
+            {studentSolutions === undefined && <LinearProgress/>}
+            {studentSolutions && studentSolutions.length === 0 && <Alert severity="info">
                 На курс пока ещё никто не записался
             </Alert>}
             {searched &&
@@ -299,7 +300,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                             }}
                                         >
                                             {cm.reviewers && cm.reviewers
-                                                .filter(r => r.userId !== props.userId)
+                                                .filter(r => r.userId !== userId)
                                                 .map(r => `${r.name} ${r.surname}`)
                                                 .join(', ')}
                                         </Typography>
@@ -360,8 +361,8 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                 solutions={cm.homeworks
                                                     ?.find(h => h.id === homework.id)?.tasks
                                                     ?.find(t => t.id === task.id)?.solution || []}
-                                                userId={props.userId}
-                                                forMentor={props.isMentor}
+                                                userId={userId!}
+                                                forMentor={isMentor}
                                                 studentId={String(cm.id)}
                                                 taskId={task.id!}
                                                 taskMaxRating={task.maxRating!}

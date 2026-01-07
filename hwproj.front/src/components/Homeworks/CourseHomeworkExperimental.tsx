@@ -26,7 +26,6 @@ import {
 } from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import Tags from "../Common/Tags";
-import apiSingleton from "../../api/ApiSingleton";
 import FilesUploader from "../Files/FilesUploader";
 import PublicationAndDeadlineDates from "../Common/PublicationAndDeadlineDates";
 import * as React from "react";
@@ -42,6 +41,7 @@ import {BonusTag, DefaultTags, isBonusWork, isTestWork, TestTag} from "@/compone
 import Lodash from "lodash";
 import {CourseUnitType} from "../Files/CourseUnitType"
 import ProcessFilesUtils from "../Utils/ProcessFilesUtils";
+import {useAppSelector} from "@/store/hooks";
 
 export interface HomeworkAndFilesInfo {
     homework: HomeworkViewModel & { isModified?: boolean },
@@ -64,7 +64,6 @@ interface IEditFilesState {
 
 const CourseHomeworkEditor: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
-    getAllHomeworks: () => HomeworkViewModel[],
     onUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] | undefined } & {
         isDeleted?: boolean,
         isSaved?: boolean
@@ -73,6 +72,7 @@ const CourseHomeworkEditor: FC<{
 }> = (props) => {
     const homework = props.homeworkAndFilesInfo.homework
     const isNewHomework = homework.id! < 0
+    const homeworks = useAppSelector(state => state.homeworks.homeworks);
 
     const [homeworkData, setHomeworkData] = useState<{
         loadedHomework: HomeworkViewModel,
@@ -139,7 +139,7 @@ const CourseHomeworkEditor: FC<{
         const isTest = tags.includes(TestTag)
         const isBonus = tags.includes(BonusTag)
 
-        const dateCandidate = Lodash(props.getAllHomeworks()
+        const dateCandidate = Lodash(homeworks
             .filter(x => {
                 const xIsTest = isTestWork(x)
                 const xIsBonus = isBonusWork(x)
@@ -285,7 +285,7 @@ const CourseHomeworkEditor: FC<{
 
         if (deletingFileIds.length === 0 && newFiles.length === 0) {
             if (isNewHomework) props.onUpdate({
-                homework: update,
+                homework: homework,
                 fileInfos: [],
                 isDeleted: true
             }) // remove fake homework
@@ -297,7 +297,7 @@ const CourseHomeworkEditor: FC<{
         } else {
             try {
                 if (isNewHomework) props.onUpdate({
-                    homework: update,
+                    homework: homework,
                     fileInfos: [],
                     isDeleted: true
                 }) // remove fake homework
@@ -307,7 +307,7 @@ const CourseHomeworkEditor: FC<{
                 const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
                 enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 4000});
                 if (isNewHomework) props.onUpdate({
-                    homework: update,
+                    homework: homework,
                     fileInfos: [],
                     isDeleted: true
                 }) // remove fake homework
@@ -346,7 +346,7 @@ const CourseHomeworkEditor: FC<{
                 <Grid item xs={6} style={{marginTop: 6}}>
                     <Tags tags={tags} onTagsChange={setTags} isElementSmall={false}
                           suggestion={tagSuggestion}
-                          requestTags={() => apiSingleton.coursesApi.coursesGetAllTagsForCourse(courseId)}/>
+                          requestTags={() => ApiSingleton.coursesApi.coursesGetAllTagsForCourse(courseId)}/>
                 </Grid>
             </Grid>
             <Grid container>
@@ -443,17 +443,19 @@ const CourseHomeworkEditor: FC<{
 
 const CourseHomeworkExperimental: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
-    getAllHomeworks: () => HomeworkViewModel[],
-    isMentor: boolean,
     initialEditMode: boolean,
     onMount: () => void,
     onUpdate: (x: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] | undefined } & {
         isDeleted?: boolean
     }) => void
     onAddTask: (homework: HomeworkViewModel) => void,
-    isProcessing: boolean;
     onStartProcessing: (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
 }> = (props) => {
+    const mentors = useAppSelector(state => state.course.mentors);
+    const userId = useAppSelector(state => state.auth.userId);
+    const isMentor = mentors.some(m => m.userId === userId);
+    const processingFilesState = useAppSelector(state => state.courseFiles.processingFilesState);
+
     const {homework, filesInfo} = props.homeworkAndFilesInfo
     const deferredTasks = homework.tasks!.filter(t => t.isDeferred!)
     const tasksCount = homework.tasks!.length
@@ -466,7 +468,6 @@ const CourseHomeworkExperimental: FC<{
     }, [homework.id])
 
     if (editMode) return <CourseHomeworkEditor
-        getAllHomeworks={props.getAllHomeworks}
         homeworkAndFilesInfo={{homework, filesInfo}}
         onUpdate={update => {
             if (update.isSaved) setEditMode(false)
@@ -476,7 +477,7 @@ const CourseHomeworkExperimental: FC<{
     />
 
     return <CardContent
-        onMouseEnter={() => setShowEditMode(props.isMentor)}
+        onMouseEnter={() => setShowEditMode(isMentor)}
         onMouseLeave={() => setShowEditMode(false)}>
         <Grid xs={12} container direction={"row"} alignItems={"start"} alignContent={"center"}
               justifyContent={"space-between"}>
@@ -520,7 +521,7 @@ const CourseHomeworkExperimental: FC<{
         <Typography component="div" style={{color: "#454545"}} gutterBottom variant="body1">
             <MarkdownPreview value={homework.description!}/>
         </Typography>
-        {props.isProcessing ? (
+        {processingFilesState[homework.id!]?.isLoading ? (
             <div style={{display: 'flex', alignItems: 'center', color: '#1976d2', fontWeight: '500'}}>
                 <CircularProgress size="20px"/>
                 &nbsp;&nbsp;Обрабатываем файлы...
@@ -528,7 +529,7 @@ const CourseHomeworkExperimental: FC<{
         ) : filesInfo.length > 0 && (
             <div>
                 <FilesPreviewList
-                    showOkStatus={props.isMentor}
+                    showOkStatus={isMentor}
                     filesInfo={filesInfo}
                     onClickFileInfo={async (fileInfo: IFileInfo) => {
                         const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!)

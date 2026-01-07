@@ -23,12 +23,12 @@ import {LoadingButton} from "@mui/lab";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import DeletionConfirmation from "../DeletionConfirmation";
 import ActionOptionsUI from "../Common/ActionOptions";
+import {useAppSelector} from "@/store/hooks";
 import {Stack} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Collapse from "@mui/material/Collapse";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
 
 interface IEditTaskMetadataState {
     hasDeadline: boolean | undefined;
@@ -49,7 +49,6 @@ const CourseTaskEditor: FC<{
     speculativeTask: TaskEditData,
     speculativeHomework: HomeworkViewModel,
     onUpdate: (update: { task: TaskEditData, isDeleted?: boolean, isSaved?: boolean }) => void,
-    getAllHomeworks: () => HomeworkViewModel[],
     toEditHomework: () => void,
 }> = (props) => {
     const [taskData, setTaskData] = useState<{
@@ -468,13 +467,15 @@ const CourseTaskEditor: FC<{
 const CourseTaskExperimental: FC<{
     task: TaskEditData,
     homework: HomeworkViewModel,
-    isMentor: boolean,
     initialEditMode: boolean,
     onMount: () => void,
     onUpdate: (x: { task: TaskEditData, isDeleted?: boolean }) => void
     toEditHomework: () => void,
-    getAllHomeworks: () => HomeworkViewModel[],
 }> = (props) => {
+    const mentors = useAppSelector(state => state.course.mentors);
+    const userId = useAppSelector(state => state.auth.userId);
+    const isMentor = mentors.some(m => m.userId === userId);
+
     const {task, homework} = props
     const [showEditMode, setShowEditMode] = useState(false)
     const [editMode, setEditMode] = useState(false)
@@ -501,14 +502,13 @@ const CourseTaskExperimental: FC<{
                 props.onUpdate(updateFix)
                 if (update.isSaved) setEditMode(false)
             }}
-            getAllHomeworks={props.getAllHomeworks}
             toEditHomework={props.toEditHomework}
         />
     }
 
     return (
         <CardContent
-            onMouseEnter={() => setShowEditMode(props.isMentor)}
+            onMouseEnter={() => setShowEditMode(isMentor)}
             onMouseLeave={() => setShowEditMode(false)}
         >
             <Grid xs={12} container direction={"row"} alignItems={"center"} alignContent={"center"}

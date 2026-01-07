@@ -8,6 +8,8 @@ import {BrowserRouter} from "react-router-dom";
 import ThemeProvider from "@material-ui/styles/ThemeProvider";
 import {createTheme} from "@material-ui/core/styles";
 import {SnackbarProvider} from "notistack";
+import { Provider } from "react-redux";
+import { store } from "./store";
 
 const theme = createTheme({
     typography: {
@@ -22,13 +24,15 @@ const theme = createTheme({
 });
 
 ReactDOM.render(
-    <ThemeProvider theme={theme}>
-        <SnackbarProvider maxSnack={3}>
-            <BrowserRouter>
-                <App/>
-            </BrowserRouter>
-        </SnackbarProvider>
-    </ThemeProvider>,
+    <Provider store={store}>
+        <ThemeProvider theme={theme}>
+            <SnackbarProvider maxSnack={3}>
+                <BrowserRouter>
+                    <App/>
+                </BrowserRouter>
+            </SnackbarProvider>
+        </ThemeProvider>
+    </Provider>,
     document.getElementById("root")
 );
 
