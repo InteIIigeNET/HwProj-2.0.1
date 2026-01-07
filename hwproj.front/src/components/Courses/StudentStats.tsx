@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef} from "react";
-import { HomeworkViewModel } from "@/api";
+import {HomeworkViewModel} from "@/api";
 import {useNavigate, useParams} from 'react-router-dom';
 import {LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
@@ -9,10 +9,9 @@ import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import {BonusTag, DefaultTags, TestTag} from "../Common/HomeworkTags";
 import Lodash from "lodash"
-import ApiSingleton from "@/api/ApiSingleton";
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
-import { useAppSelector } from "@/store";
+import {useAppSelector} from "@/store/hooks";
 
 
 interface IStudentStatsState {
@@ -32,6 +31,9 @@ const StudentStats: React.FC = () => {
     const allHomeworks = useAppSelector(state => state.homework.homeworks);
     const studentSolutions = useAppSelector(state => state.solutions.studentSolutions);
     const userId = useAppSelector(state => state.auth.userId);
+    const isLecturer = useAppSelector(state => state.auth.isLecturer);
+    const isExpert = useAppSelector(state => state.auth.isExpert);
+    const isMentor = isLecturer || isExpert;
 
     const handleClick = () => {
         navigate(`/statistics/${courseId}/charts`)
@@ -62,7 +64,6 @@ const StudentStats: React.FC = () => {
     }, [])
 
     const {searched} = state
-    const isMentor = ApiSingleton.authService.isMentor()
 
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
