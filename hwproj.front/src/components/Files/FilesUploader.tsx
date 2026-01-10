@@ -131,7 +131,9 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
                             variant={"outlined"}>
                             <CardContent>
                                 <Typography color={"primary"} variant={"body1"}>
-                                    Загрузите материалы задания
+                                    {props.courseUnitType === CourseUnitType.Solution
+                                        ? "Загрузите файлы решения"
+                                        : "Загрузите материалы задания"}
                                 </Typography>
                                 <CloudUploadOutlinedIcon color="primary" fontSize={"medium"}/>
                             </CardContent>
