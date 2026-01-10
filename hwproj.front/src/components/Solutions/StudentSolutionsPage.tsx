@@ -264,7 +264,7 @@ const StudentSolutionsPage: FC = () => {
         </div>
     }
 
-    const {courseFilesState} = FilesUploadWaiter(courseId, false);
+    const {courseFilesState} = FilesUploadWaiter(courseId, isLoaded);
 
     if (isLoaded) {
         return (
