@@ -8,61 +8,64 @@ using HwProj.SolutionsService.Client;
 
 namespace HwProj.APIGateway.API.Filters;
 
-public class FilesPrivacyFilter
+public class FilesPrivacyFilter(
+    ICoursesServiceClient coursesServiceClient,
+    ISolutionsServiceClient solutionsServiceClient)
 {
-    private readonly ICoursesServiceClient _coursesServiceClient;
-    private readonly ISolutionsServiceClient _solutionsServiceClient;
-
-    public FilesPrivacyFilter(ICoursesServiceClient coursesServiceClient, ISolutionsServiceClient solutionsServiceClient)
+    private async Task<HashSet<string>> GetSolutionStudentIds(long solutionId)
     {
-        _coursesServiceClient = coursesServiceClient;
-        _solutionsServiceClient = solutionsServiceClient;
+        var studentIds = new HashSet<string>();
+        var solution = await solutionsServiceClient.GetSolutionById(solutionId);
+        studentIds.Add(solution.StudentId);
+
+        if (solution.GroupId is { } groupId)
+        {
+            var groups = await coursesServiceClient.GetGroupsById(groupId);
+            if (groups is [var group]) studentIds.UnionWith(group.StudentsIds.ToHashSet());
+        }
+
+        return studentIds;
     }
 
     public async Task<bool> CheckDownloadRights(string? userId, ScopeDTO fileScope)
     {
-        if (fileScope.CourseUnitType == CourseUnitType.Homework) return true;
-        if (fileScope.CourseUnitType == CourseUnitType.Solution)
+        if (userId == null) return false;
+
+        switch (fileScope.CourseUnitType)
         {
-            if (userId == null) return false;
-            var studentIds = new HashSet<string>();
-            var solution = await _solutionsServiceClient.GetSolutionById(fileScope.CourseUnitId);
-            studentIds.Add(solution.StudentId);
-            var groupIds = await _coursesServiceClient.GetGroupsById(solution.GroupId ?? 0);
-            studentIds.UnionWith(groupIds.FirstOrDefault()?.StudentsIds.ToHashSet() ?? new());
+            case CourseUnitType.Homework:
+                return true;
+            case CourseUnitType.Solution:
+            {
+                var studentIds = await GetSolutionStudentIds(fileScope.CourseUnitId);
+                if (studentIds.Contains(userId)) return true;
 
-            var mentorIds = await _coursesServiceClient.GetCourseLecturersIds(fileScope.CourseId);
-
-            if (!studentIds.Contains(userId) && !mentorIds.Contains(userId)) return false;
-
-            return true;
+                var mentorIds = await coursesServiceClient.GetCourseLecturersIds(fileScope.CourseId);
+                return mentorIds.Contains(userId);
+            }
+            default:
+                return false;
         }
-
-        return false;
     }
 
     public async Task<bool> CheckUploadRights(string? userId, ScopeDTO fileScope)
     {
         if (userId == null) return false;
-        if (fileScope.CourseUnitType == CourseUnitType.Homework)
+
+        switch (fileScope.CourseUnitType)
         {
-            var mentorIds = await _coursesServiceClient.GetCourseLecturersIds(fileScope.CourseId);
-            if (!mentorIds.Contains(userId)) return false;
-            return true;
+            case CourseUnitType.Homework:
+            {
+                var mentorIds = await coursesServiceClient.GetCourseLecturersIds(fileScope.CourseId);
+                return mentorIds.Contains(userId);
+            }
+            case CourseUnitType.Solution:
+            {
+                var studentIds = await GetSolutionStudentIds(fileScope.CourseUnitId);
+                return studentIds.Contains(userId);
+            }
+            default:
+                return false;
         }
-        if (fileScope.CourseUnitType == CourseUnitType.Solution)
-        {
-            var studentIds = new HashSet<string>();
-            var solution = await _solutionsServiceClient.GetSolutionById(fileScope.CourseUnitId);
-            studentIds.Add(solution.StudentId);
-            var group = await _coursesServiceClient.GetGroupsById(solution.GroupId ?? 0);
-            studentIds.UnionWith(group.FirstOrDefault()?.StudentsIds.ToHashSet() ?? new());
-
-            if (!studentIds.Contains(userId)) return false;
-
-            return true;
-        }
-
-        return false;
     }
 }

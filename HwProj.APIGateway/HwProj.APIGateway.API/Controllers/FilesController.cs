@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Filters;
@@ -13,57 +12,46 @@ namespace HwProj.APIGateway.API.Controllers;
 [Route("api/[controller]")]
 [Authorize]
 [ApiController]
-public class FilesController : AggregationController
+public class FilesController(
+    IAuthServiceClient authServiceClient,
+    IContentServiceClient contentServiceClient,
+    FilesPrivacyFilter privacyFilter,
+    FilesCountLimiter filesCountLimiter)
+    : AggregationController(authServiceClient)
 {
-    private readonly IContentServiceClient _contentServiceClient;
-    private readonly FilesPrivacyFilter _privacyFilter;
-    private readonly FilesCountLimit _countFilter;
-
-    public FilesController(IAuthServiceClient authServiceClient,
-        IContentServiceClient contentServiceClient,
-        FilesPrivacyFilter privacyFilter, FilesCountLimit countFilter) : base(authServiceClient)
-    {
-        _contentServiceClient = contentServiceClient;
-        _privacyFilter = privacyFilter;
-        _countFilter = countFilter;
-    }
-
     [HttpPost("process")]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
+    [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Process([FromForm] ProcessFilesDTO processFilesDto)
     {
-        var checkRights = await _privacyFilter.CheckUploadRights(
-            User.Claims.FirstOrDefault(claim => claim.Type.ToString() == "_id")?.Value,
-            processFilesDto.FilesScope);
+        var checkRights = await privacyFilter.CheckUploadRights(UserId, processFilesDto.FilesScope);
         if (!checkRights) return Forbid("Недостаточно прав для загрузки файлов");
 
-        var checkCountLimit = await _countFilter.CheckCountLimit(processFilesDto);
-        if (!checkCountLimit) return StatusCode((int)HttpStatusCode.Forbidden, "Слишком много файлов в решении." 
-            + $"Максимальное количество файлов - ${_countFilter.maxSolutionFiles}");
-        
-        var result = await _contentServiceClient.ProcessFilesAsync(processFilesDto);
+        var checkCountLimit = await filesCountLimiter.CheckCountLimit(processFilesDto);
+        if (!checkCountLimit)
+            return Forbid("Слишком много файлов в решении." +
+                          $"Максимальное количество файлов - ${FilesCountLimiter.MaxSolutionFiles}");
+
+        var result = await contentServiceClient.ProcessFilesAsync(processFilesDto);
         return result.Succeeded
             ? Ok()
-            : StatusCode((int)HttpStatusCode.ServiceUnavailable, result.Errors);
+            : BadRequest(result.Errors);
     }
 
     [HttpPost("statuses")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
+    [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> GetStatuses(ScopeDTO filesScope)
     {
-        var checkRights = await _privacyFilter.CheckUploadRights(
-            User.Claims.FirstOrDefault(claim => claim.Type.ToString() == "_id")?.Value,
-            filesScope);
+        var checkRights = await privacyFilter.CheckUploadRights(UserId, filesScope);
         if (!checkRights) return Forbid("Недостаточно прав для получения информации о файлах");
-        
-        var filesStatusesResult = await _contentServiceClient.GetFilesStatuses(filesScope);
-        return filesStatusesResult.Succeeded
-            ? Ok(filesStatusesResult.Value) as IActionResult
-            : StatusCode((int)HttpStatusCode.ServiceUnavailable, filesStatusesResult.Errors);
+
+        var result = await contentServiceClient.GetFilesStatuses(filesScope);
+        return result.Succeeded
+            ? Ok(result.Value)
+            : BadRequest(result.Errors);
     }
 
     [HttpGet("downloadLink")]
@@ -72,44 +60,40 @@ public class FilesController : AggregationController
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> GetDownloadLink([FromQuery] long fileId)
     {
-        var linkDto = await _contentServiceClient.GetDownloadLinkAsync(fileId);
-        if(!linkDto.Succeeded) return StatusCode((int)HttpStatusCode.ServiceUnavailable, linkDto.Errors);
+        var linkDto = await contentServiceClient.GetDownloadLinkAsync(fileId);
+        if (linkDto.Succeeded) return BadRequest(linkDto.Errors);
 
-        var userId = User.Claims.FirstOrDefault(claim => claim.Type.ToString() == "_id")?.Value;
-        var hasRights = false;
-        foreach (var scope in linkDto.Value.fileScopes)
+        var result = linkDto.Value;
+        var userId = UserId;
+
+        foreach (var scope in result.FileScopes)
         {
-            if (await _privacyFilter.CheckDownloadRights(userId, scope))
-            {
-                hasRights = true;
-                break;
-            }
+            if (await privacyFilter.CheckDownloadRights(userId, scope))
+                return Ok(result.DownloadUrl);
         }
 
-        return hasRights
-            ? Ok(linkDto.Value.DownloadUrl)
-            : Forbid("Недостаточно прав для получения ссылки на файл");
+        return Forbid("Недостаточно прав для получения ссылки на файл");
     }
 
     [HttpGet("info/course/{courseId}")]
     [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
+    [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> GetFilesInfo(long courseId)
     {
-        var filesInfoResult = await _contentServiceClient.GetFilesInfo(courseId);
+        var filesInfoResult = await contentServiceClient.GetFilesInfo(courseId);
         return filesInfoResult.Succeeded
-            ? Ok(filesInfoResult.Value) as IActionResult
-            : StatusCode((int)HttpStatusCode.ServiceUnavailable, filesInfoResult.Errors);
+            ? Ok(filesInfoResult.Value)
+            : BadRequest(filesInfoResult.Errors);
     }
 
     [HttpGet("info/course/{courseId}/uploaded")]
     [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.ServiceUnavailable)]
+    [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> GetUploadedFilesInfo(long courseId)
     {
-        var filesInfoResult = await _contentServiceClient.GetUploadedFilesInfo(courseId);
+        var filesInfoResult = await contentServiceClient.GetUploadedFilesInfo(courseId);
         return filesInfoResult.Succeeded
-            ? Ok(filesInfoResult.Value) as IActionResult
-            : StatusCode((int)HttpStatusCode.ServiceUnavailable, filesInfoResult.Errors);
+            ? Ok(filesInfoResult.Value)
+            : BadRequest(filesInfoResult.Errors);
     }
 }

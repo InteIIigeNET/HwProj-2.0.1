@@ -96,7 +96,7 @@ public class FilesController : ControllerBase
         var result = new FileLinkDTO
         {
             DownloadUrl = downloadUrl.Value,
-            fileScopes = fileScopes.Select(fs => fs.ToScopeDTO()).ToList()
+            FileScopes = fileScopes.Select(fs => fs.ToScopeDTO()).ToList()
         };
 
         return Ok(result);
