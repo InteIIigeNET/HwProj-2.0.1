@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using FileTypeChecker;
 using Microsoft.AspNetCore.Http;
 using FileTypeChecker.Abstracts;
 using FileTypeChecker.Types;
