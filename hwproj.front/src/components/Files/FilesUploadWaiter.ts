@@ -16,7 +16,7 @@ export interface IUploadFilesState {
     courseFiles: FileInfoDTO[];
 }
 
-export const FilesUploadWaiter = (courseId: number, isOwner?: boolean) => {
+export const FilesUploadWaiter = (courseId: number, isCourseMentor?: boolean) => {
     const intervalsRef = useRef<Record<number, {
         interval: NodeJS.Timeout | number,
         timeout: NodeJS.Timeout | number;
@@ -70,7 +70,7 @@ export const FilesUploadWaiter = (courseId: number, isOwner?: boolean) => {
     const updCourseFiles = async () => {
         let courseFilesInfo = [] as FileInfoDTO[]
         try {
-            courseFilesInfo = isOwner
+            courseFilesInfo = isCourseMentor
                 ? await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
                 : await ApiSingleton.filesApi.filesGetUploadedFilesInfo(+courseId!)
         } catch (e) {
@@ -85,7 +85,7 @@ export const FilesUploadWaiter = (courseId: number, isOwner?: boolean) => {
 
     useEffect(() => {
         updCourseFiles();
-    }, [courseId, isOwner]);
+    }, [courseId, isCourseMentor]);
 
     const updateCourseUnitFilesInfo = (files: FileInfoDTO[], unitType: CourseUnitType, unitId: number) => {
         setCourseFilesState(prev => ({

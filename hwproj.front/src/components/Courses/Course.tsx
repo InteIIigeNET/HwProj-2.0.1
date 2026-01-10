@@ -3,9 +3,7 @@ import {useSearchParams} from "react-router-dom";
 import {
     AccountDataDto,
     CourseViewModel,
-    FileInfoDTO,
     HomeworkViewModel,
-    ScopeDTO,
     StatisticsCourseMatesModel
 } from "@/api";
 import StudentStats from "./StudentStats";
@@ -33,8 +31,6 @@ import LecturerStatistics from "./Statistics/LecturerStatistics";
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import NameBuilder from "../Utils/NameBuilder";
 import {QRCodeSVG} from 'qrcode.react';
-import ErrorsHandler from "components/Utils/ErrorsHandler";
-import {useSnackbar} from 'notistack';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
@@ -65,7 +61,6 @@ const Course: React.FC = () => {
     const {courseId, tab} = useParams()
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
-    const {enqueueSnackbar} = useSnackbar()
 
     const [courseState, setCourseState] = useState<ICourseState>({
         isFound: false,
@@ -78,11 +73,6 @@ const Course: React.FC = () => {
         showQrCode: false
     })
     const [studentSolutions, setStudentSolutions] = useState<StatisticsCourseMatesModel[] | undefined>(undefined)
-
-    const {
-        courseFilesState,
-        updCourseUnitFiles,
-    } = FilesUploadWaiter(+courseId!, true);
 
     const [pageState, setPageState] = useState<IPageState>({
         tabValue: "homeworks"
@@ -104,6 +94,11 @@ const Course: React.FC = () => {
     const isMentor = isLecturer || isExpert
     const isCourseMentor = mentors.some(t => t.userId === userId)
     const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
+
+    const {
+        courseFilesState,
+        updCourseUnitFiles,
+    } = FilesUploadWaiter(+courseId!, isCourseMentor);
 
     const isAcceptedStudent = acceptedStudents!.some(cm => cm.userId === userId)
 
