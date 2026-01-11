@@ -35,6 +35,7 @@ import ErrorIcon from '@mui/icons-material/Error';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import SwitchAccessShortcutIcon from '@mui/icons-material/SwitchAccessShortcut';
 import Lodash from "lodash";
+import {CourseUnitType} from "@/components/Files/CourseUnitType";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -45,7 +46,7 @@ interface ICourseExperimentalProps {
     isStudentAccepted: boolean
     userId: string
     selectedHomeworkId: number | undefined
-    onHomeworkUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] | undefined } & {
+    onHomeworkUpdate: (update: { homework: HomeworkViewModel } & {
         isDeleted?: boolean
     }) => void
     onTaskUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => void,
@@ -54,7 +55,11 @@ interface ICourseExperimentalProps {
             isLoading: boolean;
         };
     };
-    onStartProcessing: (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
+    onStartProcessing: (homeworkId: number,
+        courseUnitType: CourseUnitType,
+        previouslyExistingFilesCount: number,
+        waitingNewFilesCount: number,
+        deletingFilesIds: number[]) => void;
 }
 
 interface ICourseExperimentalState {
@@ -356,8 +361,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 description: "",
                 tasks: [],
                 tags: []
-            },
-            fileInfos: []
+            }
         })
         setState((prevState) => ({
             ...prevState,
@@ -410,7 +414,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     const renderHomework = (homework: HomeworkViewModel & { isModified?: boolean }) => {
-        const filesInfo = id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, id) : []
+        const filesInfo = id ? FileInfoConverter.getCourseUnitFilesInfo(courseFilesInfo, CourseUnitType.Homework, id) : []
         const homeworkEditMode = homework && (homework.id! < 0 || homework.isModified === true)
         return homework && <Stack direction={"column"} spacing={2}>
             <Card style={{backgroundColor: "ghostwhite"}} raised={homeworkEditMode}>
@@ -435,8 +439,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         }))
                     }}
                     isProcessing={props.processingFiles[homework.id!]?.isLoading || false}
-                    onStartProcessing={(homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) =>
-                        props.onStartProcessing(homeworkId, previouslyExistingFilesCount, waitingNewFilesCount, deletingFilesIds)}
+                    onStartProcessing={props.onStartProcessing}
                 />
             </Card>
         </Stack>
@@ -560,7 +563,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         data: x,
                                         isHomework: true,
                                         id: x.id,
-                                        homeworkFilesInfo: FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, x.id!)
+                                        homeworkFilesInfo: FileInfoConverter.getCourseUnitFilesInfo(courseFilesInfo, CourseUnitType.Homework, x.id!)
                                     }
                                 }))
                             }}>

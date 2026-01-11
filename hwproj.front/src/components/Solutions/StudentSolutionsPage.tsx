@@ -1,17 +1,20 @@
 import * as React from "react";
 import {FC, useEffect, useState} from "react";
 import {
-    GetSolutionModel, HomeworksGroupSolutionStats,
+    AccountDataDto,
+    GetSolutionModel,
+    HomeworksGroupSolutionStats,
     HomeworkTaskViewModel,
     Solution,
-    TaskSolutionsStats,
-    SolutionState, StudentDataDto, AccountDataDto
+    SolutionState,
+    StudentDataDto,
+    TaskSolutionsStats
 } from "@/api";
 import Typography from "@material-ui/core/Typography";
 import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Grid, Tabs, Tab} from "@material-ui/core";
+import {Grid, Tab, Tabs} from "@material-ui/core";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import EditIcon from '@mui/icons-material/Edit';
@@ -19,17 +22,16 @@ import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import {
     Alert,
+    Autocomplete,
+    Checkbox,
     Chip,
     List,
     ListItemButton,
     ListItemText,
     SelectChangeEvent,
     Stack,
-    Tooltip,
-    Checkbox,
-    Autocomplete,
-    AutocompleteRenderInputParams,
-    TextField
+    TextField,
+    Tooltip
 } from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 
@@ -40,7 +42,8 @@ import {getTip} from "../Common/HomeworkTags";
 import {appBarStateManager} from "../AppBar";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {RemovedFromCourseTag} from "@/components/Common/StudentTags";
-import AuthService from "@/services/AuthService";
+import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
+import {CourseUnitType} from "@/components/Files/CourseUnitType";
 
 interface IStudentSolutionsPageState {
     currentTaskId: string
@@ -264,6 +267,8 @@ const StudentSolutionsPage: FC = () => {
         </div>
     }
 
+    const {courseFilesState} = FilesUploadWaiter(courseId, CourseUnitType.Solution, false);
+
     if (isLoaded) {
         return (
             <div className={"container"} style={{marginBottom: '50px', marginTop: '15px'}}>
@@ -420,6 +425,8 @@ const StudentSolutionsPage: FC = () => {
                                 await getTaskData(currentTaskId, secondMentorId, true)
                                 //else navigate(`/task/${currentTaskId}/${studentSolutionsPreview[nextStudentIndex].student.userId}`)
                             }}
+                            courseFiles={courseFilesState.courseFiles}
+                            processingFiles={courseFilesState.processingFilesState}
                         />
                     </Grid>
                 </Grid>

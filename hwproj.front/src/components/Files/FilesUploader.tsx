@@ -10,6 +10,7 @@ import {CourseUnitType} from "./CourseUnitType";
 import {FileStatus} from "./FileStatus";
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import "./filesUploaderOverrides.css";
+import Utils from "@/services/Utils";
 
 interface IFilesUploaderProps {
     courseUnitType: CourseUnitType
@@ -17,6 +18,7 @@ interface IFilesUploaderProps {
     initialFilesInfo?: IFileInfo[];
     onChange: (selectedFiles: IFileInfo[]) => void;
     isLoading?: boolean;
+    maxFilesCount?: number;
 }
 
 // Кастомизированный Input для загрузки файла (из примеров MaterialUI)
@@ -45,11 +47,31 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
 
     const maxFileSizeInBytes = 100 * 1024 * 1024;
 
+    const forbiddenFileTypes = [
+        'application/vnd.microsoft.portable-executable',
+        'application/x-msdownload',
+        'application/x-ms-installer',
+        'application/x-ms-dos-executable',
+        'application/x-dosexec',
+        'application/x-msdos-program',
+        'application/octet-stream', // если тип двоичного файла не определен, отбрасывать
+    ]
+
     const validateFiles = (files: File[]): boolean => {
+        if (props.maxFilesCount &&
+            (props.initialFilesInfo ? props.initialFilesInfo.length : 0) + files.length > props.maxFilesCount) {
+            setError(`Выбрано слишком много файлов.
+             Максимально допустимое количество файлов: ${props.maxFilesCount} ${Utils.pluralizeHelper(["штука", "штука", "штук"], props.maxFilesCount)}`);
+            return false;
+        }
         for (const file of files) {
             if (file.size > maxFileSizeInBytes) {
                 setError(`Файл "${file.name}" слишком большой.
                  Максимальный допустимый размер: ${(maxFileSizeInBytes / 1024 / 1024).toFixed(1)} MB.`);
+                return false;
+            }
+            if (forbiddenFileTypes.includes(file.type)) {
+                setError(`Файл "${file.name}" имеет недопустимый тип "${file.type}`);
                 return false;
             }
         }
@@ -109,7 +131,9 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
                             variant={"outlined"}>
                             <CardContent>
                                 <Typography color={"primary"} variant={"body1"}>
-                                    Загрузите материалы задания
+                                    {props.courseUnitType === CourseUnitType.Solution
+                                        ? "Загрузите файлы решения"
+                                        : "Загрузите материалы задания"}
                                 </Typography>
                                 <CloudUploadOutlinedIcon color="primary" fontSize={"medium"}/>
                             </CardContent>

@@ -36,24 +36,17 @@ public class FilesInfoService : IFilesInfoService
         var fileRecord = await _fileRecordRepository.GetFileRecordByIdAsync(fileId);
         return fileRecord?.ExternalKey;
     }
-
-    public async Task<List<FileInfoDTO>> GetFilesInfoAsync(long courseId)
+    
+    public async Task<List<Scope>?> GetFileScopesAsync(long fileId)
     {
-        var filesToCourseUnits = await _fileRecordRepository.GetByCourseIdAsync(courseId);
-        return filesToCourseUnits.Select(fcu => new FileInfoDTO
-        {
-            Id = fcu.FileRecord.Id,
-            Name = fcu.FileRecord.OriginalName,
-            Status = fcu.FileRecord.Status.ToString(),
-            SizeInBytes = fcu.FileRecord.SizeInBytes,
-            CourseUnitType = fcu.CourseUnitType.ToString(),
-            CourseUnitId = fcu.CourseUnitId
-        }).ToList();
+        var fileToCourseUnit = await _fileRecordRepository.GetScopesAsync(fileId);
+        return fileToCourseUnit;
     }
 
-    public async Task<List<FileInfoDTO>> GetFilesInfoAsync(long courseId, FileStatus filesStatus)
+    public async Task<List<FileInfoDTO>> GetFilesInfoAsync(long courseId, FileStatus? filesStatus,
+        CourseUnitType courseUnitType)
     {
-        var filesRecords = await _fileRecordRepository.GetByCourseIdAndStatusAsync(courseId, filesStatus);
+        var filesRecords = await _fileRecordRepository.GetAsync(courseId, filesStatus, courseUnitType);
         return filesRecords.Select(fcu => new FileInfoDTO
         {
             Id = fcu.FileRecord.Id,
@@ -72,7 +65,7 @@ public class FilesInfoService : IFilesInfoService
             x => new Scope(filesTransfer.TargetCourseId, CourseUnitType.Homework, x.Target)
         );
 
-        var sourceCourseUnits = await _fileRecordRepository.GetByCourseIdAsync(filesTransfer.SourceCourseId);
+        var sourceCourseUnits = await _fileRecordRepository.GetAsync(filesTransfer.SourceCourseId);
         var unitsToAdd = sourceCourseUnits
             .Select(unit => (unit.FileRecord, Scope: unit.ToScope()))
             .Where(pair => map.ContainsKey(pair.Scope))

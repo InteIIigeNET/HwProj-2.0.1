@@ -8,9 +8,8 @@ namespace HwProj.ContentService.Client
     {
         Task<Result> ProcessFilesAsync(ProcessFilesDTO processFilesDto);
         Task<Result<FileInfoDTO[]>> GetFilesStatuses(ScopeDTO scopeDto);
-        Task<Result<string>> GetDownloadLinkAsync(long fileId);
-        Task<Result<FileInfoDTO[]>> GetFilesInfo(long courseId);
-        Task<Result<FileInfoDTO[]>> GetUploadedFilesInfo(long courseId);
+        Task<Result<FileLinkDTO>> GetDownloadLinkAsync(long fileId);
+        Task<Result<FileInfoDTO[]>> GetFilesInfo(long courseId, bool uploadedOnly, string courseUnitType);
         Task<Result> TransferFilesFromCourse(CourseFilesTransferDto filesTransfer);
         Task<bool> Ping();
     }

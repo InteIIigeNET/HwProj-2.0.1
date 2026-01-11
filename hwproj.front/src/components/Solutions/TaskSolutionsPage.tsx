@@ -1,27 +1,15 @@
 import * as React from "react";
+import {FC, useEffect, useState} from "react";
 import Task from "../Tasks/Task";
 import Typography from "@material-ui/core/Typography";
 import AddOrEditSolution from "./AddOrEditSolution";
 import Button from "@material-ui/core/Button";
 import TaskSolutions from "./TaskSolutions";
-import {
-    AccountDataDto,
-    HomeworksGroupUserTaskSolutions,
-    HomeworkTaskViewModel,
-    Solution,
-    SolutionState
-} from "@/api";
+import {AccountDataDto, HomeworksGroupUserTaskSolutions, HomeworkTaskViewModel, Solution, SolutionState} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
-import {FC, useEffect, useState} from "react";
 import {Grid, Tab, Tabs} from "@material-ui/core";
-import {
-    Checkbox,
-    Chip,
-    SelectChangeEvent,
-    Stack,
-    Tooltip
-} from "@mui/material";
-import {useParams, Link, useNavigate} from "react-router-dom";
+import {Checkbox, Chip, SelectChangeEvent, Stack, Tooltip} from "@mui/material";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import Step from "@mui/material/Step";
 import StepButton from "@mui/material/StepButton";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
@@ -29,6 +17,8 @@ import {getTip} from "../Common/HomeworkTags";
 import Lodash from "lodash";
 import {appBarStateManager} from "../AppBar";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
+import {CourseUnitType} from "@/components/Files/CourseUnitType";
 
 interface ITaskSolutionsState {
     isLoaded: boolean
@@ -137,6 +127,11 @@ const TaskSolutionsPage: FC = () => {
             });
         });
     })
+
+    const {
+        courseFilesState,
+        updateCourseUnitFiles,
+    } = FilesUploadWaiter(courseId, CourseUnitType.Solution, false);
 
     const currentHomeworksGroup = taskSolutionsWithPreview
         .find(x => x.homeworkSolutions!
@@ -281,20 +276,27 @@ const TaskSolutionsPage: FC = () => {
                                     forMentor={false}
                                     student={student}
                                     courseStudents={[student]}
-                                    solutions={currentTaskSolutions}/>
+                                    solutions={currentTaskSolutions}
+                                    courseFiles={courseFilesState.courseFiles}
+                                    processingFiles={courseFilesState.processingFilesState}
+                                />
                             </Grid>
                         )}
                     </Grid>
                 </Grid>
             </Grid>
             {taskSolutionPage.addSolution && <AddOrEditSolution
+                courseId={courseId}
                 userId={userId}
                 task={task}
                 onAdd={getSolutions}
                 onCancel={onCancelAddSolution}
                 lastSolution={lastSolution}
                 students={courseMates}
-                supportsGroup={task.isGroupWork!}/>}
+                supportsGroup={task.isGroupWork!}
+                courseFilesInfo={courseFilesState.courseFiles}
+                onStartProcessing={updateCourseUnitFiles}
+            />}
         </Grid>
     </div> : (
         <div className="container">

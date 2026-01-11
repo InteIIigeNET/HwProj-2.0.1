@@ -107,7 +107,6 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
                 };
             case FileStatus.ReadyToUse:
                 return {
-                    text: props.showOkStatus ? "Сохранён" : "",
                     tooltipText: "",
                     icon: props.showOkStatus ?
                         <CheckCircleIcon sx={{fontSize: '0.85rem', color: theme.palette.success.dark}}/> : <></>,

@@ -1,4 +1,4 @@
-import {BaseAPI} from "./api";
+import {BaseAPI, ScopeDTO} from "./api";
 import { IProcessFilesDto } from "../components/Files/IProcessFilesDto";
 
 export default class CustomFilesApi extends BaseAPI {
@@ -36,12 +36,11 @@ export default class CustomFilesApi extends BaseAPI {
     }
 
     public getDownloadFileLink = async (fileKey: number) => {
-        // Необходимо, чтобы символы & и др. не влияли на обработку запроса на бэкенде
         const response = await fetch(this.basePath + `/api/Files/downloadLink?fileId=${fileKey}`, {
             method: 'GET',
             headers: {
                 'Authorization': this.getApiKeyValue(),
-            },
+            }
         });
         
         if (response.status >= 200 && response.status < 300) {
