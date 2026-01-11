@@ -200,7 +200,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     isLastSolution={true}
                     courseId={props.courseId}
                     courseFilesInfo={props.courseFiles}
-                    isProcessing={props.processingFiles[lastSolution.id!]?.isLoading || false}
+                    isProcessing={lastSolution && (props.processingFiles[lastSolution.id!]?.isLoading || false)}
                 />
                 : <div>
                     Студент не отправил ни одного решения.
