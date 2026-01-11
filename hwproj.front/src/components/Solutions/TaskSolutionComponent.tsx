@@ -41,7 +41,6 @@ import KeyboardCommandKeyIcon from '@mui/icons-material/KeyboardCommandKey';
 import MouseOutlinedIcon from '@mui/icons-material/MouseOutlined';
 import BlurOnIcon from '@mui/icons-material/BlurOn';
 import BlurOffIcon from '@mui/icons-material/BlurOff';
-import {UserAvatar} from "../Common/UserAvatar";
 import FileInfoConverter from "@/components/Utils/FileInfoConverter";
 import {IFileInfo} from "@/components/Files/IFileInfo";
 import FilesPreviewList from "@/components/Files/FilesPreviewList";
