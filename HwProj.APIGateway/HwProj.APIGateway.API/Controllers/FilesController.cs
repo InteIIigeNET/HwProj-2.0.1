@@ -62,7 +62,7 @@ public class FilesController(
     public async Task<IActionResult> GetDownloadLink([FromQuery] long fileId)
     {
         var linkDto = await contentServiceClient.GetDownloadLinkAsync(fileId);
-        if (linkDto.Succeeded) return BadRequest(linkDto.Errors);
+        if (!linkDto.Succeeded) return BadRequest(linkDto.Errors);
 
         var result = linkDto.Value;
         var userId = UserId;
