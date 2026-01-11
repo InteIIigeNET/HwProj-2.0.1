@@ -6615,10 +6615,12 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
         /**
          *
          * @param {number} courseId
+         * @param {boolean} [uploadedOnly]
+         * @param {string} [courseUnitType]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        filesGetFilesInfo(courseId: number, options: any = {}): FetchArgs {
+        filesGetFilesInfo(courseId: number, uploadedOnly?: boolean, courseUnitType?: string, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
                 throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling filesGetFilesInfo.');
@@ -6636,6 +6638,14 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
                     ? configuration.apiKey("Authorization")
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (uploadedOnly !== undefined) {
+                localVarQueryParameter['uploadedOnly'] = uploadedOnly;
+            }
+
+            if (courseUnitType !== undefined) {
+                localVarQueryParameter['courseUnitType'] = courseUnitType;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -6677,42 +6687,6 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"ScopeDTO" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         *
-         * @param {number} courseId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        filesGetUploadedFilesInfo(courseId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'courseId' is not null or undefined
-            if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling filesGetUploadedFilesInfo.');
-            }
-            const localVarPath = `/api/Files/info/course/{courseId}/uploaded`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Bearer required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
-                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
             return {
                 url: url.format(localVarUrlObj),
@@ -6812,11 +6786,13 @@ export const FilesApiFp = function(configuration?: Configuration) {
         /**
          *
          * @param {number} courseId
+         * @param {boolean} [uploadedOnly]
+         * @param {string} [courseUnitType]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        filesGetFilesInfo(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<FileInfoDTO>> {
-            const localVarFetchArgs = FilesApiFetchParamCreator(configuration).filesGetFilesInfo(courseId, options);
+        filesGetFilesInfo(courseId: number, uploadedOnly?: boolean, courseUnitType?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<FileInfoDTO>> {
+            const localVarFetchArgs = FilesApiFetchParamCreator(configuration).filesGetFilesInfo(courseId, uploadedOnly, courseUnitType, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -6835,24 +6811,6 @@ export const FilesApiFp = function(configuration?: Configuration) {
          */
         filesGetStatuses(body?: ScopeDTO, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<FileInfoDTO>> {
             const localVarFetchArgs = FilesApiFetchParamCreator(configuration).filesGetStatuses(body, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         *
-         * @param {number} courseId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        filesGetUploadedFilesInfo(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<FileInfoDTO>> {
-            const localVarFetchArgs = FilesApiFetchParamCreator(configuration).filesGetUploadedFilesInfo(courseId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -6906,11 +6864,13 @@ export const FilesApiFactory = function (configuration?: Configuration, fetch?: 
         /**
          *
          * @param {number} courseId
+         * @param {boolean} [uploadedOnly]
+         * @param {string} [courseUnitType]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        filesGetFilesInfo(courseId: number, options?: any) {
-            return FilesApiFp(configuration).filesGetFilesInfo(courseId, options)(fetch, basePath);
+        filesGetFilesInfo(courseId: number, uploadedOnly?: boolean, courseUnitType?: string, options?: any) {
+            return FilesApiFp(configuration).filesGetFilesInfo(courseId, uploadedOnly, courseUnitType, options)(fetch, basePath);
         },
         /**
          *
@@ -6920,15 +6880,6 @@ export const FilesApiFactory = function (configuration?: Configuration, fetch?: 
          */
         filesGetStatuses(body?: ScopeDTO, options?: any) {
             return FilesApiFp(configuration).filesGetStatuses(body, options)(fetch, basePath);
-        },
-        /**
-         *
-         * @param {number} courseId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        filesGetUploadedFilesInfo(courseId: number, options?: any) {
-            return FilesApiFp(configuration).filesGetUploadedFilesInfo(courseId, options)(fetch, basePath);
         },
         /**
          *
@@ -6967,12 +6918,14 @@ export class FilesApi extends BaseAPI {
     /**
      *
      * @param {number} courseId
+     * @param {boolean} [uploadedOnly]
+     * @param {string} [courseUnitType]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public filesGetFilesInfo(courseId: number, options?: any) {
-        return FilesApiFp(this.configuration).filesGetFilesInfo(courseId, options)(this.fetch, this.basePath);
+    public filesGetFilesInfo(courseId: number, uploadedOnly?: boolean, courseUnitType?: string, options?: any) {
+        return FilesApiFp(this.configuration).filesGetFilesInfo(courseId, uploadedOnly, courseUnitType, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -6984,17 +6937,6 @@ export class FilesApi extends BaseAPI {
      */
     public filesGetStatuses(body?: ScopeDTO, options?: any) {
         return FilesApiFp(this.configuration).filesGetStatuses(body, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     *
-     * @param {number} courseId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof FilesApi
-     */
-    public filesGetUploadedFilesInfo(courseId: number, options?: any) {
-        return FilesApiFp(this.configuration).filesGetUploadedFilesInfo(courseId, options)(this.fetch, this.basePath);
     }
 
     /**

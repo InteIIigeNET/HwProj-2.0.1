@@ -4,6 +4,7 @@ using HwProj.APIGateway.API.Filters;
 using HwProj.AuthService.Client;
 using HwProj.ContentService.Client;
 using HwProj.Models.ContentService.DTO;
+using HwProj.Models.CourseUnitType;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -78,20 +79,11 @@ public class FilesController(
     [HttpGet("info/course/{courseId}")]
     [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
     [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.BadRequest)]
-    public async Task<IActionResult> GetFilesInfo(long courseId)
+    public async Task<IActionResult> GetFilesInfo(long courseId,
+        [FromQuery] bool uploadedOnly = true,
+        [FromQuery] string courseUnitType = CourseUnitType.Homework)
     {
-        var filesInfoResult = await contentServiceClient.GetFilesInfo(courseId);
-        return filesInfoResult.Succeeded
-            ? Ok(filesInfoResult.Value)
-            : BadRequest(filesInfoResult.Errors);
-    }
-
-    [HttpGet("info/course/{courseId}/uploaded")]
-    [ProducesResponseType(typeof(FileInfoDTO[]), (int)HttpStatusCode.OK)]
-    [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.BadRequest)]
-    public async Task<IActionResult> GetUploadedFilesInfo(long courseId)
-    {
-        var filesInfoResult = await contentServiceClient.GetUploadedFilesInfo(courseId);
+        var filesInfoResult = await contentServiceClient.GetFilesInfo(courseId, uploadedOnly, courseUnitType);
         return filesInfoResult.Succeeded
             ? Ok(filesInfoResult.Value)
             : BadRequest(filesInfoResult.Errors);

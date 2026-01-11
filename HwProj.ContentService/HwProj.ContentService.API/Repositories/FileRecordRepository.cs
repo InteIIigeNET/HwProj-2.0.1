@@ -44,14 +44,14 @@ public class FileRecordRepository : IFileRecordRepository
             .AsNoTracking()
             .Where(fr => fileRecordIds.Contains(fr.Id))
             .ExecuteUpdateAsync(setters =>
-                setters.SetProperty(fr => fr!.Status, newStatus)
+                setters.SetProperty(fr => fr.Status, newStatus)
             );
 
     public async Task<FileRecord?> GetFileRecordByIdAsync(long fileRecordId)
         => await _contentContext.FileRecords
             .AsNoTracking()
             .SingleOrDefaultAsync(fr => fr.Id == fileRecordId);
-    
+
     public async Task<List<Scope>?> GetScopesAsync(long fileRecordId)
         => await _contentContext.FileToCourseUnits
             .AsNoTracking()
@@ -67,20 +67,22 @@ public class FileRecordRepository : IFileRecordRepository
             .Select(fc => fc.FileRecord)
             .ToListAsync();
 
-    public async Task<List<FileToCourseUnit>> GetByCourseIdAsync(long courseId)
-        => await _contentContext.FileToCourseUnits
+    public async Task<List<FileToCourseUnit>> GetAsync(long courseId, FileStatus? filesStatus = null,
+        CourseUnitType? courseUnitType = null)
+    {
+        IQueryable<FileToCourseUnit> query = _contentContext.FileToCourseUnits
             .AsNoTracking()
             .Where(fc => fc.CourseId == courseId)
-            .Include(fc => fc.FileRecord)
-            .ToListAsync();
+            .Include(fc => fc.FileRecord);
 
-    public async Task<List<FileToCourseUnit>> GetByCourseIdAndStatusAsync(long courseId, FileStatus filesStatus)
-        => await _contentContext.FileToCourseUnits
-            .AsNoTracking()
-            .Where(fc => fc.CourseId == courseId)
-            .Include(fc => fc.FileRecord)
-            .Where(fc => fc.FileRecord.Status == filesStatus)
-            .ToListAsync();
+        if (filesStatus != null)
+            query = query.Where(fc => fc.FileRecord.Status == filesStatus);
+
+        if (courseUnitType != null)
+            query = query.Where(fc => fc.CourseUnitType == courseUnitType);
+
+        return await query.ToListAsync();
+    }
 
     public async Task<List<long>> GetIdsByStatusAsync(FileStatus status)
         => await _contentContext.FileRecords

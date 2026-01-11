@@ -112,27 +112,10 @@ namespace HwProj.ContentService.Client
             }
         }
 
-        public async Task<Result<FileInfoDTO[]>> GetFilesInfo(long courseId)
+        public async Task<Result<FileInfoDTO[]>> GetFilesInfo(long courseId, bool uploadedOnly, string courseUnitType)
         {
-            var url = _contentServiceUri + $"api/Files/info/course/{courseId}";
-            using var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
-
-            try
-            {
-                var response = await _httpClient.SendAsync(httpRequest);
-                var filesInfo = await response.DeserializeAsync<FileInfoDTO[]>();
-                return Result<FileInfoDTO[]>.Success(filesInfo);
-            }
-            catch (HttpRequestException e)
-            {
-                return Result<FileInfoDTO[]>.Failed(
-                    "Пока не можем получить информацию о файлах. \nВсе ваши данные сохранены — попробуйте повторить позже");
-            }
-        }
-
-        public async Task<Result<FileInfoDTO[]>> GetUploadedFilesInfo(long courseId)
-        {
-            var url = _contentServiceUri + $"api/Files/info/course/{courseId}/uploaded";
+            var url = _contentServiceUri +
+                      $"api/Files/info/course/{courseId}?uploadedOnly={uploadedOnly}&courseUnitType={courseUnitType}";
             using var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
 
             try

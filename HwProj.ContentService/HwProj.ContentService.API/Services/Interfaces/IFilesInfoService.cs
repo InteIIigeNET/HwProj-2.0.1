@@ -10,7 +10,6 @@ public interface IFilesInfoService
     public Task<List<FileInfoDTO>> GetFilesStatusesAsync(Scope filesScope);
     public Task<string?> GetFileExternalKeyAsync(long fileId);
     public Task<List<Scope>?> GetFileScopesAsync(long fileId);
-    public Task<List<FileInfoDTO>> GetFilesInfoAsync(long courseId);
-    public Task<List<FileInfoDTO>> GetFilesInfoAsync(long courseId, FileStatus filesStatus);
+    public Task<List<FileInfoDTO>> GetFilesInfoAsync(long courseId, FileStatus? filesStatus, CourseUnitType courseUnitType);
     public Task TransferFilesFromCourse(CourseFilesTransferDto filesTransfer);
 }

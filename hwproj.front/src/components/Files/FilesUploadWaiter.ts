@@ -16,7 +16,7 @@ export interface IUploadFilesState {
     courseFiles: FileInfoDTO[];
 }
 
-export const FilesUploadWaiter = (courseId: number, isCourseMentor?: boolean) => {
+export const FilesUploadWaiter = (courseId: number, courseUnitType: CourseUnitType, uploadedOnly: boolean) => {
     const intervalsRef = useRef<Record<number, {
         interval: NodeJS.Timeout | number,
         timeout: NodeJS.Timeout | number;
@@ -67,12 +67,10 @@ export const FilesUploadWaiter = (courseId: number, isCourseMentor?: boolean) =>
         }));
     }
 
-    const updCourseFiles = async () => {
+    const updateFiles = async () => {
         let courseFilesInfo = [] as FileInfoDTO[]
         try {
-            courseFilesInfo = isCourseMentor
-                ? await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
-                : await ApiSingleton.filesApi.filesGetUploadedFilesInfo(+courseId!)
+            courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!, uploadedOnly, courseUnitType)
         } catch (e) {
             const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
             enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 1990});
@@ -84,8 +82,8 @@ export const FilesUploadWaiter = (courseId: number, isCourseMentor?: boolean) =>
     }
 
     useEffect(() => {
-        updCourseFiles();
-    }, [courseId, isCourseMentor]);
+        updateFiles();
+    }, [courseId, uploadedOnly, courseUnitType]);
 
     const updateCourseUnitFilesInfo = (files: FileInfoDTO[], unitType: CourseUnitType, unitId: number) => {
         setCourseFilesState(prev => ({
@@ -99,7 +97,7 @@ export const FilesUploadWaiter = (courseId: number, isCourseMentor?: boolean) =>
     };
 
     // Запускает получение информации о файлах элемента курса с интервалом в 1 секунду и 5 попытками
-    const updCourseUnitFiles =
+    const updateCourseUnitFiles =
         (courseUnitId: number,
          courseUnitType: CourseUnitType,
          previouslyExistingFilesCount: number,
@@ -177,7 +175,7 @@ export const FilesUploadWaiter = (courseId: number, isCourseMentor?: boolean) =>
 
     return {
         courseFilesState,
-        updCourseFiles,
-        updCourseUnitFiles,
+        updateFiles,
+        updateCourseUnitFiles,
     }
 }
