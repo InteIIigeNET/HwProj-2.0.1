@@ -477,7 +477,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                         onClick={() => thumbsHandler(0)}
                                     >
                                         <ThumbDown
-                                            color={isRated && points === 0 ? "error" : "disabled"}
+                                            color={state.clickedForRate && points === 0 ? "error" : "disabled"}
                                         />
                                     </IconButton>
                                 )}
