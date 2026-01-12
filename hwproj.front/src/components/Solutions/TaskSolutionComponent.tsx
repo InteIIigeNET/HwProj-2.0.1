@@ -45,6 +45,7 @@ import FileInfoConverter from "@/components/Utils/FileInfoConverter";
 import {IFileInfo} from "@/components/Files/IFileInfo";
 import FilesPreviewList from "@/components/Files/FilesPreviewList";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
+import {UserAvatar} from "@/components/Common/UserAvatar";
 
 type TaskWithCriteria = HomeworkTaskViewModel & {};
 
@@ -1026,7 +1027,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                            alignItems={students.length === 1 ? "center" : "normal"} spacing={1}>
                         <Stack direction={"row"} spacing={1}>
                             {students && students.map(t => <Tooltip title={t.surname + " " + t.name}>
-                                <Avatar {...AvatarUtils.stringAvatar(t)} />
+                                <span><UserAvatar user={t} key={t.userId}/></span>
                             </Tooltip>)}
                         </Stack>
                         <Grid item spacing={1} container direction="column">
