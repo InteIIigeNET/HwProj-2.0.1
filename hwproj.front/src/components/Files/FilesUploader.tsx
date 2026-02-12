@@ -153,7 +153,7 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
                     filesInfo={selectedFilesInfo}
                     onRemoveFileInfo={(fI) => {
                         setSelectedFilesInfo(previouslySelected => {
-                            const updatedArray = previouslySelected.filter(f => f.name !== fI.name);
+                            const updatedArray = previouslySelected.filter(f => f.name !== fI.name || f.id !== fI.id);
                             props.onChange(updatedArray);
                             return updatedArray;
                         });

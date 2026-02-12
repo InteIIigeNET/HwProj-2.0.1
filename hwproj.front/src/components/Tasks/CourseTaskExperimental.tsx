@@ -478,7 +478,6 @@ const CourseTaskExperimental: FC<{
     const {task, homework} = props
     const [showEditMode, setShowEditMode] = useState(false)
     const [editMode, setEditMode] = useState(false)
-    console.log(task)
 
     useEffect(() => {
         setEditMode(props.initialEditMode)
