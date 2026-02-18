@@ -708,7 +708,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         <LtiImportButton
                                             courseId={props.courseId}
                                             toolId={props.ltiToolId}
-                                            // Передаем данные в нашу новую функцию
                                             onImport={(items) => handleLtiImport(items, x)}
                                         />
                                     </div>

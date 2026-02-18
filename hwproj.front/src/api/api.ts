@@ -1555,6 +1555,12 @@ export interface LtiToolDto {
      * @type {string}
      * @memberof LtiToolDto
      */
+    jwksEndpoint?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof LtiToolDto
+     */
     initiateLoginUri?: string;
     /**
      *
@@ -2963,6 +2969,12 @@ export interface UserTaskSolutionsPageData {
      * @memberof UserTaskSolutionsPageData
      */
     courseId?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof UserTaskSolutionsPageData
+     */
+    ltiToolId?: number;
     /**
      *
      * @type {Array<AccountDataDto>}
@@ -7692,11 +7704,12 @@ export const LtiAuthApiFetchParamCreator = function (configuration?: Configurati
          * @param {string} [resourceLinkId]
          * @param {string} [courseId]
          * @param {string} [toolId]
+         * @param {string} [ltiLaunchUrl]
          * @param {boolean} [isDeepLink]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, isDeepLink?: boolean, options: any = {}): FetchArgs {
+        ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, ltiLaunchUrl?: string, isDeepLink?: boolean, options: any = {}): FetchArgs {
             const localVarPath = `/api/lti/start`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
@@ -7721,6 +7734,10 @@ export const LtiAuthApiFetchParamCreator = function (configuration?: Configurati
 
             if (toolId !== undefined) {
                 localVarQueryParameter['toolId'] = toolId;
+            }
+
+            if (ltiLaunchUrl !== undefined) {
+                localVarQueryParameter['ltiLaunchUrl'] = ltiLaunchUrl;
             }
 
             if (isDeepLink !== undefined) {
@@ -7773,12 +7790,13 @@ export const LtiAuthApiFp = function(configuration?: Configuration) {
          * @param {string} [resourceLinkId]
          * @param {string} [courseId]
          * @param {string} [toolId]
+         * @param {string} [ltiLaunchUrl]
          * @param {boolean} [isDeepLink]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, isDeepLink?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = LtiAuthApiFetchParamCreator(configuration).ltiAuthStartLti(resourceLinkId, courseId, toolId, isDeepLink, options);
+        ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, ltiLaunchUrl?: string, isDeepLink?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = LtiAuthApiFetchParamCreator(configuration).ltiAuthStartLti(resourceLinkId, courseId, toolId, ltiLaunchUrl, isDeepLink, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -7816,12 +7834,13 @@ export const LtiAuthApiFactory = function (configuration?: Configuration, fetch?
          * @param {string} [resourceLinkId]
          * @param {string} [courseId]
          * @param {string} [toolId]
+         * @param {string} [ltiLaunchUrl]
          * @param {boolean} [isDeepLink]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, isDeepLink?: boolean, options?: any) {
-            return LtiAuthApiFp(configuration).ltiAuthStartLti(resourceLinkId, courseId, toolId, isDeepLink, options)(fetch, basePath);
+        ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, ltiLaunchUrl?: string, isDeepLink?: boolean, options?: any) {
+            return LtiAuthApiFp(configuration).ltiAuthStartLti(resourceLinkId, courseId, toolId, ltiLaunchUrl, isDeepLink, options)(fetch, basePath);
         },
     };
 };
@@ -7853,13 +7872,14 @@ export class LtiAuthApi extends BaseAPI {
      * @param {string} [resourceLinkId]
      * @param {string} [courseId]
      * @param {string} [toolId]
+     * @param {string} [ltiLaunchUrl]
      * @param {boolean} [isDeepLink]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LtiAuthApi
      */
-    public ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, isDeepLink?: boolean, options?: any) {
-        return LtiAuthApiFp(this.configuration).ltiAuthStartLti(resourceLinkId, courseId, toolId, isDeepLink, options)(this.fetch, this.basePath);
+    public ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, ltiLaunchUrl?: string, isDeepLink?: boolean, options?: any) {
+        return LtiAuthApiFp(this.configuration).ltiAuthStartLti(resourceLinkId, courseId, toolId, ltiLaunchUrl, isDeepLink, options)(this.fetch, this.basePath);
     }
 
 }
@@ -8198,6 +8218,36 @@ export const MockToolApiFetchParamCreator = function (configuration?: Configurat
         },
         /**
          *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mockToolGetJwks(options: any = {}): FetchArgs {
+            const localVarPath = `/api/mocktool/jwks`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
          * @param {string} [iss]
          * @param {string} [loginHint]
          * @param {string} [ltiMessageHint]
@@ -8274,6 +8324,23 @@ export const MockToolApiFp = function(configuration?: Configuration) {
         },
         /**
          *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mockToolGetJwks(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = MockToolApiFetchParamCreator(configuration).mockToolGetJwks(options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
          * @param {string} [iss]
          * @param {string} [loginHint]
          * @param {string} [ltiMessageHint]
@@ -8312,6 +8379,14 @@ export const MockToolApiFactory = function (configuration?: Configuration, fetch
         },
         /**
          *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        mockToolGetJwks(options?: any) {
+            return MockToolApiFp(configuration).mockToolGetJwks(options)(fetch, basePath);
+        },
+        /**
+         *
          * @param {string} [iss]
          * @param {string} [loginHint]
          * @param {string} [ltiMessageHint]
@@ -8340,6 +8415,16 @@ export class MockToolApi extends BaseAPI {
      */
     public mockToolCallback(idToken?: string, options?: any) {
         return MockToolApiFp(this.configuration).mockToolCallback(idToken, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof MockToolApi
+     */
+    public mockToolGetJwks(options?: any) {
+        return MockToolApiFp(this.configuration).mockToolGetJwks(options)(this.fetch, this.basePath);
     }
 
     /**

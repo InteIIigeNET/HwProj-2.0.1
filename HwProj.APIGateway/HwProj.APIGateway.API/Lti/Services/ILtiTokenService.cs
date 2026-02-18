@@ -12,4 +12,13 @@ public interface ILtiTokenService
         string targetLinkUri,
         string userId,
         string nonce);
+
+    public string CreateResourceLinkToken(
+        string clientId,
+        string toolId,
+        string courseId,
+        string targetLinkUri,
+        string userId,
+        string nonce,
+        string resourceLinkId);
 }

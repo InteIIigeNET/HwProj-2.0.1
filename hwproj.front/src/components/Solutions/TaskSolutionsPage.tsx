@@ -29,11 +29,13 @@ import {getTip} from "../Common/HomeworkTags";
 import Lodash from "lodash";
 import {appBarStateManager} from "../AppBar";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import {LtiLaunchButton} from "@/components/Solutions/LtiLaunchButton";
 
 interface ITaskSolutionsState {
     isLoaded: boolean
     addSolution: boolean
     courseId: number
+    ltiToolId: number
     homeworkGroupedSolutions: HomeworksGroupUserTaskSolutions[]
     courseMates: AccountDataDto[]
 }
@@ -60,6 +62,7 @@ const TaskSolutionsPage: FC = () => {
     const [taskSolutionPage, setTaskSolutionPage] = useState<ITaskSolutionsState>({
         isLoaded: false,
         courseId: 0,
+        ltiToolId: 0,
         addSolution: false,
         homeworkGroupedSolutions: [],
         courseMates: []
@@ -95,12 +98,13 @@ const TaskSolutionsPage: FC = () => {
             isLoaded: true,
             addSolution: false,
             courseId: pageData.courseId!,
+            ltiToolId: pageData.ltiToolId!,
             homeworkGroupedSolutions: pageData.taskSolutions!,
             courseMates: pageData.courseMates!,
         })
     }
 
-    const {homeworkGroupedSolutions, courseId, courseMates} = taskSolutionPage
+    const {homeworkGroupedSolutions, courseId, courseMates, ltiToolId} = taskSolutionPage
     const student = courseMates.find(x => x.userId === userId)!
 
     useEffect(() => {
@@ -220,21 +224,37 @@ const TaskSolutionsPage: FC = () => {
                                 <Typography>Только нерешенные</Typography>
                             </Stack>
                         </Grid>
-                        {task.canSendSolution && <Grid item><Button
-                            fullWidth
-                            size="large"
-                            variant="contained"
-                            color="primary"
-                            onClick={(e) => {
-                                e.persist()
-                                setTaskSolutionPage((prevState) => ({
-                                    ...prevState,
-                                    addSolution: true,
-                                }))
-                            }}
-                        >
-                            {lastSolution?.state === SolutionState.NUMBER_0 ? "Изменить решение" : "Добавить решение"}
-                        </Button></Grid>}
+                        <Grid item>
+                            {task.ltiLaunchUrl ? (
+                                <LtiLaunchButton
+                                    courseId={courseId}
+                                    toolId={ltiToolId}
+                                    taskId={task.id || 0}
+                                    ltiLaunchUrl={task.ltiLaunchUrl}
+                                />
+                            ) : (
+                                task.canSendSolution && (
+                                    <Button
+                                        fullWidth
+                                        size="large"
+                                        variant="contained"
+                                        // Негативный цвет, если решение уже есть
+                                        color={lastSolution ? "secondary" : "primary"}
+                                        onClick={(e) => {
+                                            e.persist()
+                                            setTaskSolutionPage((prevState) => ({
+                                                ...prevState,
+                                                addSolution: true,
+                                            }))
+                                        }}
+                                    >
+                                        {lastSolution?.state === SolutionState.NUMBER_0
+                                            ? "Изменить решение"
+                                            : "Добавить решение"}
+                                    </Button>
+                                )
+                            )}
+                        </Grid>
                     </Grid>
                     <Grid container item lg={9}>
                         <Grid item xs={12}>

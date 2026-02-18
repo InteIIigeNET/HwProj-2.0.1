@@ -28,7 +28,7 @@ public class LtiTokenService(IOptions<LtiPlatformConfig> options) : ILtiTokenSer
             Nonce = nonce,
             UserId = userId,
             TargetLinkUri = targetLinkUri, 
-            Roles = [Role.ContextInstructor], 
+            Roles = [Role.ContextInstructor, Role.InstitutionInstructor], 
 
             Context = new ContextClaimValueType
             {
@@ -46,17 +46,45 @@ public class LtiTokenService(IOptions<LtiPlatformConfig> options) : ILtiTokenSer
             }
         };
 
-        var now = DateTime.UtcNow;
-        var jwt = new JwtSecurityToken(
-            issuer: this._options.Issuer,
-            audience: clientId,
-            claims: request.IssuedClaims,
-            notBefore: now,
-            expires: now.AddMinutes(5),
-            signingCredentials: GetSigningCredentials()
-        );
+        return this.CreateJwt(clientId, request);
+    }
 
-        return new JwtSecurityTokenHandler().WriteToken(jwt);
+    public string CreateResourceLinkToken(
+        string clientId,
+        string toolId,
+        string courseId,
+        string targetLinkUri,
+        string userId,
+        string nonce,
+        string resourceLinkId)
+    {
+        var request = new LtiResourceLinkRequest
+        {
+            DeploymentId = toolId,
+            Nonce = nonce,
+            UserId = userId,
+            TargetLinkUri = targetLinkUri,
+
+            Roles = [Role.ContextLearner, Role.InstitutionStudent],
+
+            Context = new ContextClaimValueType
+            {
+                Id = courseId
+            },
+
+            ResourceLink = new ResourceLinkClaimValueType
+            {
+                Id = resourceLinkId
+            },
+
+            LaunchPresentation = new LaunchPresentationClaimValueType
+            {
+                DocumentTarget = DocumentTarget.Window, 
+                ReturnUrl = _options.ResourceLinkReturnUrl,
+            }
+        };
+
+        return this.CreateJwt(clientId, request);
     }
 
     private SigningCredentials GetSigningCredentials()
@@ -73,5 +101,20 @@ public class LtiTokenService(IOptions<LtiPlatformConfig> options) : ILtiTokenSer
         };
 
         return new SigningCredentials(securityKey, SecurityAlgorithms.RsaSha256);
+    }
+
+    private string CreateJwt(string clientId, LtiRequest request)
+    {
+        var now = DateTime.UtcNow;
+        var jwt = new JwtSecurityToken(
+            issuer: this._options.Issuer,
+            audience: clientId,
+            claims: request.IssuedClaims,
+            notBefore: now,
+            expires: now.AddMinutes(5),
+            signingCredentials: GetSigningCredentials()
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(jwt);
     }
 }

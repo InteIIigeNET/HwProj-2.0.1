@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Net.Http; // Добавлено
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text.Json;
-using System.Threading.Tasks; // Добавлено
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,11 +15,19 @@ public class MockToolController : ControllerBase
 {
     private static readonly RsaSecurityKey _signingKey;
     private static readonly string _keyId;
-    
-    // Добавляем фабрику для выполнения HTTP-запросов за ключами Платформы
     private readonly IHttpClientFactory _httpClientFactory;
 
-    // Внедряем зависимость через конструктор
+    // --- Имитация базы данных задач ---
+    private record MockTask(string Id, string Title, string Description, int Score);
+    private static readonly List<MockTask> _availableTasks = new()
+    {
+        new("1", "Интегралы (Mock)", "Вычислить определенный интеграл", 10),
+        new("2", "Производные (Mock)", "Найти производную сложной функции", 5),
+        new("3", "Пределы (Mock)", "Вычислить предел последовательности", 8),
+        new("4", "Ряды (Mock)", "Исследовать ряд на сходимость", 12),
+        new("5", "Диффуры (Mock)", "Решить линейное уравнение", 15)
+    };
+
     public MockToolController(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
@@ -48,32 +56,25 @@ public class MockToolController : ControllerBase
                           $"redirect_uri=http://localhost:5000/api/mocktool/callback&" +
                           $"login_hint={login_hint}&" +
                           $"lti_message_hint={lti_message_hint}&" +
-                          $"scope=openid&state=xyz&nonce=123";
+                          $"scope=openid&state=xyz&nonce={Guid.NewGuid()}";
 
         return Redirect(callbackUrl);
     }
 
-    // Делаем метод асинхронным (async Task)
     [HttpPost("callback")]
     public async Task<IActionResult> Callback([FromForm] string id_token)
     {
         var handler = new JwtSecurityTokenHandler();
-        
-        // 1. Читаем токен БЕЗ валидации, чтобы узнать, кто его прислал (Issuer)
         if (!handler.CanReadToken(id_token)) return BadRequest("Invalid Token");
         var unverifiedToken = handler.ReadJwtToken(id_token);
-        
-        string issuer = unverifiedToken.Issuer; // Это URL вашего HwProj (например, http://localhost:5000)
 
-        // 2. Определяем адрес JWKS Платформы.
-        // В реальном LTI этот URL часто передается при регистрации.
-        // Для теста предположим, что HwProj отдает ключи по стандартному пути:
-        string platformJwksUrl = $"{issuer}/api/lti/jwks"; 
+        // --- ВАЛИДАЦИЯ (Без изменений) ---
+        string issuer = unverifiedToken.Issuer;
+        string platformJwksUrl = $"{issuer}/api/lti/jwks";
 
-        // 3. Скачиваем ключи Платформы
         var client = _httpClientFactory.CreateClient();
         string jwksJson;
-        try 
+        try
         {
             jwksJson = await client.GetStringAsync(platformJwksUrl);
         }
@@ -81,90 +82,216 @@ public class MockToolController : ControllerBase
         {
             return BadRequest($"Не удалось скачать ключи HwProj по адресу {platformJwksUrl}");
         }
-        
+
         var platformKeySet = new JsonWebKeySet(jwksJson);
 
-        // 4. ВАЛИДИРУЕМ ВХОДЯЩИЙ ТОКЕН ОТ ПЛАТФОРМЫ
         try
         {
             handler.ValidateToken(id_token, new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = issuer, // Токен должен быть от HwProj
-
+                ValidIssuer = issuer,
                 ValidateAudience = true,
-                ValidAudience = "mock-tool-client-id", // Токен должен быть предназначен НАМ (этому инструменту)
-
-                ValidateLifetime = true, // Не протух ли?
-
+                ValidAudience = "mock-tool-client-id",
+                ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKeys = platformKeySet.Keys // Проверяем подпись ключами Платформы
-            }, out var validatedToken);
+                IssuerSigningKeys = platformKeySet.Keys
+            }, out _);
         }
         catch (Exception ex)
         {
             return Unauthorized($"Ошибка проверки подписи HwProj: {ex.Message}");
         }
 
-        // --- Если мы здесь, токен от HwProj настоящий. Продолжаем логику ---
+        var messageType = unverifiedToken.Claims.FirstOrDefault(c => c.Type == "https://purl.imsglobal.org/spec/lti/claim/message_type")?.Value;
 
-        var settingsClaim = unverifiedToken.Claims.FirstOrDefault(c => c.Type == "https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings");
+        if (messageType == "LtiDeepLinkingRequest")
+        {
+            // Здесь мы больше не отправляем ответ сразу, а рендерим UI
+            return RenderDeepLinkingSelectionUI(unverifiedToken);
+        }
+        else if (messageType == "LtiResourceLinkRequest")
+        {
+            return HandleResourceLink(unverifiedToken);
+        }
+        else
+        {
+            return BadRequest($"Unknown message type: {messageType}");
+        }
+    }
+
+    // --- ЭТАП 1: Отображение списка задач (HTML Form) ---
+    private IActionResult RenderDeepLinkingSelectionUI(JwtSecurityToken token)
+    {
+        var settingsClaim = token.Claims.FirstOrDefault(c => c.Type == "https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings");
         if (settingsClaim == null) return BadRequest("No deep linking settings found");
 
         var settings = JsonDocument.Parse(settingsClaim.Value);
         var returnUrl = settings.RootElement.GetProperty("deep_link_return_url").GetString();
+        
+        // Нам нужно сохранить эти данные, чтобы использовать их на следующем шаге (в POST запросе)
+        // В реальном приложении это кэшируется, но здесь передадим через скрытые поля формы
+        var dataPayload = settings.RootElement.TryGetProperty("data", out var dataEl) ? dataEl.GetString() : "";
 
-        // Формируем ответ (как и раньше)
-        var contentItems = new List<Dictionary<string, object>>
+        // Генерируем HTML списка задач
+        var tasksHtml = string.Join("", _availableTasks.Select(t => $@"
+            <div class='task-item'>
+                <label>
+                    <input type='checkbox' name='selectedIds' value='{t.Id}' />
+                    <span class='title'>{t.Title}</span>
+                    <span class='score'>({t.Score} баллов)</span>
+                    <p class='desc'>{t.Description}</p>
+                </label>
+            </div>"));
+
+        var html = $@"
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Выбор задач (Mock Tool)</title>
+            <style>
+                body {{ font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f9f9f9; }}
+                .container {{ max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }}
+                h2 {{ color: #333; }}
+                .task-item {{ border-bottom: 1px solid #eee; padding: 15px 0; }}
+                .task-item:last-child {{ border-bottom: none; }}
+                .title {{ font-weight: bold; font-size: 1.1em; margin-left: 10px; }}
+                .score {{ color: #666; font-size: 0.9em; }}
+                .desc {{ margin: 5px 0 0 28px; color: #555; }}
+                .actions {{ margin-top: 20px; text-align: right; }}
+                button {{ background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; }}
+                button:hover {{ background: #0056b3; }}
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <h2>Библиотека задач (Mock Tool)</h2>
+                <p>Выберите задачи, которые хотите добавить в курс HwProj:</p>
+                
+                <form action='/api/mocktool/submit-selection' method='POST'>
+                    <!-- Скрытые поля для сохранения контекста возврата -->
+                    <input type='hidden' name='returnUrl' value='{returnUrl}' />
+                    <input type='hidden' name='data' value='{dataPayload}' />
+                    <input type='hidden' name='iss' value='{token.Issuer}' />
+                    <input type='hidden' name='aud' value='mock-tool-client-id' />
+
+                    <div class='tasks-list'>
+                        {tasksHtml}
+                    </div>
+
+                    <div class='actions'>
+                        <button type='submit'>Импортировать выбранное</button>
+                    </div>
+                </form>
+            </div>
+        </body>
+        </html>";
+
+        return Content(html, "text/html");
+    }
+
+    // --- ЭТАП 2: Обработка выбора и отправка в HwProj ---
+    [HttpPost("submit-selection")]
+    public IActionResult SubmitDeepLinkingSelection(
+        [FromForm] List<string> selectedIds, 
+        [FromForm] string returnUrl,
+        [FromForm] string? data,
+        [FromForm] string iss,
+        [FromForm] string aud)
+    {
+        // 1. Фильтруем задачи по выбору пользователя
+        var selectedTasks = _availableTasks.Where(t => selectedIds.Contains(t.Id)).ToList();
+
+        // 2. Формируем LTI Content Items
+        var contentItems = selectedTasks.Select(t => new Dictionary<string, object>
         {
-            new()
-            {
-                ["type"] = "ltiResourceLink",
-                ["title"] = "Тестовая Задача0 (Secure)",
-                ["url"] = "http://localhost:5000/mock/task/0",
-                ["text"] = "Задача проверена двусторонней подписью!",
-                ["scoreMaximum"] = 15
-            },
-            new()
-            {
-                ["type"] = "ltiResourceLink",
-                ["title"] = "Тестовая Задача1 (Secure)",
-                ["url"] = "http://localhost:5000/mock/task/1",
-                ["text"] = "Задача проверена двусторонней подписью!",
-                ["scoreMaximum"] = 20
-            }
-        };
+            ["type"] = "ltiResourceLink",
+            ["title"] = t.Title,
+            ["text"] = t.Description,
+            // Ссылка запуска этой конкретной задачи
+            ["url"] = $"http://localhost:5000/mock/task/{t.Id}", 
+            ["scoreMaximum"] = t.Score,
+            // Кастомные параметры, если нужны
+            ["custom"] = new Dictionary<string, string> { ["internal_id"] = t.Id }
+        }).ToList();
 
+        // 3. Создаем JWT ответ (LtiDeepLinkingResponse)
         var payload = new JwtPayload
         {
-            { "iss", "http://localhost:5000" }, 
-            { "aud", "mock-tool-client-id" }, // HwProj ожидает этот Audience (или свой ClientId, зависит от настроек HwProj)
+            { "iss", iss }, // В LTI ответе issuer - это URL инструмента (но для подписи используем наши настройки)
+            { "aud", aud }, 
             { "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() },
             { "exp", DateTimeOffset.UtcNow.AddMinutes(5).ToUnixTimeSeconds() },
-            { "nonce", "random-nonce-123" },
+            { "nonce", "resp-nonce-" + Guid.NewGuid() },
             { "https://purl.imsglobal.org/spec/lti-dl/claim/message_type", "LtiDeepLinkingResponse" },
             { "https://purl.imsglobal.org/spec/lti-dl/claim/version", "1.3.0" },
             { "https://purl.imsglobal.org/spec/lti-dl/claim/content_items", contentItems }
         };
 
-        // Подписываем НАШ ответ НАШИМ ключом
+        // Если HwProj прислал параметр 'data', мы ОБЯЗАНЫ вернуть его обратно
+        if (!string.IsNullOrEmpty(data))
+        {
+            payload.Add("https://purl.imsglobal.org/spec/lti-dl/claim/data", data);
+        }
+
+        // Подписываем токен НАШИМ ключом
         var credentials = new SigningCredentials(_signingKey, SecurityAlgorithms.RsaSha256);
         var header = new JwtHeader(credentials);
+        
+        // ВАЖНО: iss в токене должен совпадать с тем, что ожидает HwProj (обычно URL инструмента)
+        // Для локального теста оставим http://localhost:5000
+        payload["iss"] = "http://localhost:5000"; 
+        
         var responseToken = new JwtSecurityToken(header, payload);
-        var responseString = handler.WriteToken(responseToken);
+        var responseString = new JwtSecurityTokenHandler().WriteToken(responseToken);
 
+        // 4. Возвращаем авто-сабмит форму, которая отправит токен в HwProj
         var html = $@"
         <html>
-        <body>
-            <h1>Tool Interface (Secure)</h1>
-            <p style='color:green'>The incoming token from HwProj has been successfully verified!</p>
+        <body onload='document.forms[0].submit()'>
+            <div style='text-align:center; margin-top:50px; font-family:sans-serif;'>
+                <h3>Возвращаемся в HwProj...</h3>
+                <p>Передача {selectedTasks.Count} выбранных задач.</p>
+            </div>
             <form method='POST' action='{returnUrl}'>
                 <input type='hidden' name='JWT' value='{responseString}' />
-                <button type='submit'>Return the result</button>
             </form>
         </body>
         </html>";
 
+        return Content(html, "text/html");
+    }
+
+    private IActionResult HandleResourceLink(JwtSecurityToken token)
+    {
+        // ... (Этот метод оставьте как был в предыдущем ответе, он работает корректно) ...
+        var presentationClaim = token.Claims.FirstOrDefault(c => c.Type == "https://purl.imsglobal.org/spec/lti/claim/launch_presentation");
+        var presentationJson = JsonDocument.Parse(presentationClaim?.Value ?? "{}");
+        var returnUrl = string.Empty;
+        if (presentationJson.RootElement.TryGetProperty("return_url", out var returnUrlProp))
+        {
+            returnUrl = returnUrlProp.GetString();
+        }
+
+        var resourceLinkClaim = token.Claims.FirstOrDefault(c => c.Type == "https://purl.imsglobal.org/spec/lti/claim/resource_link");
+        var resourceLinkJson = JsonDocument.Parse(resourceLinkClaim?.Value ?? "{}");
+        var taskId = "";
+        if(resourceLinkJson.RootElement.TryGetProperty("id", out var idProp)) taskId = idProp.GetString();
+
+        var html = $@"
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>body {{ font-family: sans-serif; text-align: center; padding: 50px; }} button {{ padding: 10px 20px; font-size: 16px; cursor: pointer; }}</style>
+        </head>
+        <body>
+            <h1>Решение задачи (Mock Tool)</h1>
+            <p>ID задачи: <b>{taskId}</b></p>
+            <p>Вы успешно зашли через LTI 1.3!</p>
+            <br/>
+            <button onclick=""window.location.href='{returnUrl}'"">Завершить и вернуться</button>
+        </body>
+        </html>";
         return Content(html, "text/html");
     }
 }
