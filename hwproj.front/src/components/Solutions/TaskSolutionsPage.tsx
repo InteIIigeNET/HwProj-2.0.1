@@ -20,11 +20,13 @@ import {appBarStateManager} from "../AppBar";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
+import {LtiLaunchButton} from "@/components/Solutions/LtiLaunchButton";
 
 interface ITaskSolutionsState {
     isLoaded: boolean
     addSolution: boolean
     courseId: number
+    ltiToolId: number
     homeworkGroupedSolutions: HomeworksGroupUserTaskSolutions[]
     courseMates: AccountDataDto[]
 }
@@ -147,6 +149,7 @@ const TaskSolutionsPage: FC = () => {
     const [taskSolutionPage, setTaskSolutionPage] = useState<ITaskSolutionsState>({
         isLoaded: false,
         courseId: 0,
+        ltiToolId: 0,
         addSolution: false,
         homeworkGroupedSolutions: [],
         courseMates: []
@@ -182,12 +185,13 @@ const TaskSolutionsPage: FC = () => {
             isLoaded: true,
             addSolution: false,
             courseId: pageData.courseId!,
+            ltiToolId: pageData.ltiToolId!,
             homeworkGroupedSolutions: pageData.taskSolutions!,
             courseMates: pageData.courseMates!,
         })
     }
 
-    const {homeworkGroupedSolutions, courseId, courseMates} = taskSolutionPage
+    const {homeworkGroupedSolutions, courseId, courseMates, ltiToolId} = taskSolutionPage
     const student = courseMates.find(x => x.userId === userId)!
 
     useEffect(() => {
@@ -331,22 +335,29 @@ const TaskSolutionsPage: FC = () => {
                         }
                         label={<Typography variant={"body2"}>Только нерешенные</Typography>}
                     />
-                    {task.canSendSolution && <Button
-                        variant="contained"
-                        color="primary"
-                        disableElevation
-                        startIcon={isEdit ? <EditOutlinedIcon/> : <AddCircleOutlineIcon/>}
-                        sx={actionButtonSx}
-                        onClick={(e) => {
-                            e.persist()
-                            setTaskSolutionPage((prevState) => ({
-                                ...prevState,
-                                addSolution: true,
-                            }))
-                        }}
-                    >
-                        {isEdit ? "Изменить решение" : "Добавить решение"}
-                    </Button>}
+                    {task.ltiLaunchUrl
+                        ? <LtiLaunchButton
+                            courseId={courseId}
+                            toolId={ltiToolId}
+                            taskId={task.id || 0}
+                            ltiLaunchUrl={task.ltiLaunchUrl}
+                        />
+                        : task.canSendSolution && <Button
+                            variant="contained"
+                            color="primary"
+                            disableElevation
+                            startIcon={isEdit ? <EditOutlinedIcon/> : <AddCircleOutlineIcon/>}
+                            sx={actionButtonSx}
+                            onClick={(e) => {
+                                e.persist()
+                                setTaskSolutionPage((prevState) => ({
+                                    ...prevState,
+                                    addSolution: true,
+                                }))
+                            }}
+                        >
+                            {isEdit ? "Изменить решение" : "Добавить решение"}
+                        </Button>}
                 </Stack>
             </Paper>
             {currentHomeworksGroup && taskIndexInHomework !== -1 && currentHomeworksGroup.homeworkSolutions!.length > 1 &&

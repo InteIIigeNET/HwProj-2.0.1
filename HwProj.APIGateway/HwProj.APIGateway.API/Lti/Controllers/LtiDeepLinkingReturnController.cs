@@ -46,10 +46,8 @@ public class LtiDeepLinkingReturnController(
             return Unauthorized($"Unknown tool issuer: {issuer}");
         }
 
-        // 3. Получаем публичные ключи (JWKS) инструмента через сервис
         var signingKeys = await ltiKeyService.GetKeysAsync(tool.JwksEndpoint);
 
-        // 4. Валидируем подпись
         try
         {
             handler.ValidateToken(tokenString, new TokenValidationParameters
@@ -106,20 +104,16 @@ public class LtiDeepLinkingReturnController(
         <body>
             <p>Задача выбрана. Возвращаемся в HwProj...</p>
             <script>
-                // Данные из C#
                 var payload = {responsePayloadJson};
                 
                 function sendAndClose() {{
-                    // Проверяем, что окно было открыто как popup (есть opener)
                     if (window.opener) {{
-                        // Отправляем сообщение (postMessage) в родительское окно
                         window.opener.postMessage({{
                             type: 'LTI_DEEP_LINK_SUCCESS', // Уникальный тип события, который слушает ваш React/Angular
                             payload: payload
                         }}, '*'); // В продакшене вместо '*' лучше указать домен HwProj
                     }}
                     
-                    // Закрываем текущее окно (popup)
                     window.close();
                 }}
                 

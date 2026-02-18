@@ -20,11 +20,8 @@ export const LtiImportButton: FC<LtiImportButtonProps> = ({ courseId, toolId, on
     const [isLoading, setIsLoading] = useState(false);
 
     const submitLtiForm = (formData: any) => {
-        const windowName = "lti_popup_" + new Date().getTime();
-        const width = 800; const height = 700;
-        const left = (window.screen.width - width) / 2;
-        const top = (window.screen.height - height) / 2;
-        window.open('about:blank', windowName, `width=${width},height=${height},top=${top},left=${left},resizable,scrollbars,status`);
+        const windowName = "lti_tab_" + new Date().getTime();
+        window.open('about:blank', windowName);
 
         const form = document.createElement("form");
         form.method = formData.method;
@@ -49,14 +46,14 @@ export const LtiImportButton: FC<LtiImportButtonProps> = ({ courseId, toolId, on
         setIsLoading(true);
         try {
             const response = await ApiSingleton.ltiAuthApi.ltiAuthStartLti(
-                undefined, String(courseId), String(toolId), true
+                undefined, String(courseId), String(toolId), undefined, true
             );
             let dto = response;
             if (response && typeof (response as any).json === 'function') {
                 dto = await (response as any).json();
             }
             submitLtiForm(dto);
-            setTimeout(() => setIsLoading(false), 30000); // Тайм-аут побольше
+            setTimeout(() => setIsLoading(false), 30000);
         } catch (e) {
             console.error(e);
             setIsLoading(false);

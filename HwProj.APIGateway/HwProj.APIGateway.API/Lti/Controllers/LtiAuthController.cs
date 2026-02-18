@@ -63,28 +63,30 @@ public class LtiAuthController(
         }
 
         string idToken;
-        if (payload.Type == "DeepLinking")
+        switch (payload.Type)
         {
-            idToken = tokenService.CreateDeepLinkingToken(
-                clientId: clientId,
-                toolId: payload.ToolId,
-                courseId: payload.CourseId,
-                targetLinkUri: tool.DeepLink,
-                userId:  payload.UserId,
-                nonce: nonce
-            );
-        }
-        else
-        {
-            // (Логика для обычного запуска, пока опустим)
-            idToken = tokenService.CreateDeepLinkingToken(
-                clientId: clientId,
-                courseId: payload.CourseId,
-                toolId: payload.ToolId,
-                targetLinkUri: tool.DeepLink,
-                userId:  payload.UserId,
-                nonce: nonce
-            );
+            case "DeepLinking":
+                idToken = tokenService.CreateDeepLinkingToken(
+                    clientId: clientId,
+                    toolId: payload.ToolId!,
+                    courseId: payload.CourseId!,
+                    targetLinkUri: tool.DeepLink,
+                    userId:  payload.UserId,
+                    nonce: nonce
+                );
+                break;
+            case "ResourceLink":
+                idToken = tokenService.CreateResourceLinkToken(
+                    clientId: clientId,
+                    toolId: payload.ToolId!,
+                    courseId: payload.CourseId!,
+                    targetLinkUri: tool.LaunchUrl,
+                    userId: payload.UserId,
+                    nonce: nonce,
+                    resourceLinkId: payload.ResourceLinkId!);
+                break;
+            default:
+                return BadRequest("Invalid or expired lti_message_hint");
         }
 
         var html = $"""
@@ -108,6 +110,7 @@ public class LtiAuthController(
         [FromQuery] string? resourceLinkId,
         [FromQuery] string? courseId,
         [FromQuery] string? toolId,
+        [FromQuery] string? ltiLaunchUrl,
         [FromQuery] bool isDeepLink = false)
     {
         var userId = User.FindFirstValue("_id");
@@ -116,23 +119,22 @@ public class LtiAuthController(
             return Unauthorized("User ID not found");
         }
 
-        LtiToolDto? tool;
         string targetUrl;
         LtiHintPayload payload;
 
+        if (courseId == null || toolId == null)
+        {
+            return BadRequest("For Deep Linking, courseId and toolId are required.");
+        }
+
+        var tool = await toolService.GetByIdAsync(long.Parse(toolId));
+        if (tool == null)
+        {
+            return NotFound("Tool not found");
+        }
+
         if (isDeepLink)
         {
-            if (courseId == null || toolId == null)
-            {
-                return BadRequest("For Deep Linking, courseId and toolId are required.");
-            }
-
-            tool = await toolService.GetByIdAsync(long.Parse(toolId));
-            if (tool == null)
-            {
-                return NotFound("Tool not found");
-            }
-
             targetUrl = !string.IsNullOrEmpty(tool.DeepLink) 
                 ? tool.DeepLink 
                 : tool.LaunchUrl;
@@ -145,22 +147,16 @@ public class LtiAuthController(
                 ToolId = toolId
             };
         }
-        else if (!string.IsNullOrEmpty(resourceLinkId))
+        else if (!string.IsNullOrEmpty(resourceLinkId) && !string.IsNullOrEmpty(ltiLaunchUrl))
         {
-            // Здесь логика поиска тула может быть сложнее (через LinkService)
-            tool = await toolService.GetByIdAsync(1);
-
-            if (tool == null)
-            {
-                return NotFound("Tool not found");
-            }
-
-            targetUrl = tool.LaunchUrl;
+            targetUrl = ltiLaunchUrl;
 
             payload = new LtiHintPayload
             {
                 Type = "ResourceLink",
                 UserId = userId,
+                CourseId = courseId,
+                ToolId = toolId,
                 ResourceLinkId = resourceLinkId
             };
         }
@@ -189,17 +185,38 @@ public class LtiAuthController(
         return Ok(dto);
     }
 
-    private async Task<bool> CheckTheRequest(
-        string issOfTheTool,
-        string clientId,
-        string redirectUri,
-        string loginHint)
+    [HttpGet("closeLtiSession")]
+    public IActionResult CloseLtiSession()
     {
-        // - client_id существует и соответствует зарегистрированному Tool
-        // - redirect_uri допустим
-        // - пользователь аутентифицирован (Authorize уже проверил)
-        // - можешь сверить login_hint с текущим пользователем и т.д.
-        return true;
+        const string htmlContent = @"
+        <!DOCTYPE html>
+        <html lang='ru'>
+        <head>
+            <meta charset='UTF-8'>
+            <title>Сессия завершена</title>
+            <style>
+                body { font-family: 'Segoe UI', sans-serif; text-align: center; padding-top: 50px; background-color: #f5f5f5; }
+                .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: inline-block; }
+                button { padding: 10px 20px; background-color: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+                button:hover { background-color: #115293; }
+            </style>
+            <script>
+                window.onload = function() {
+                    window.close();
+                };
+            </script>
+        </head>
+        <body>
+            <div class='container'>
+                <h3>Работа с инструментом завершена</h3>
+                <p>Вкладка должна закрыться автоматически.</p>
+                <p>Если этого не произошло, нажмите кнопку ниже:</p>
+                <button onclick='window.close()'>Закрыть вкладку</button>
+            </div>
+        </body>
+        </html>";
+
+        return Content(htmlContent, "text/html");
     }
 
     private class LtiHintPayload
