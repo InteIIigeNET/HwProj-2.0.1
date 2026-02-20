@@ -56,10 +56,10 @@ interface ICourseExperimentalProps {
         };
     };
     onStartProcessing: (homeworkId: number,
-        courseUnitType: CourseUnitType,
-        previouslyExistingFilesCount: number,
-        waitingNewFilesCount: number,
-        deletingFilesIds: number[]) => void;
+                        courseUnitType: CourseUnitType,
+                        previouslyExistingFilesCount: number,
+                        waitingNewFilesCount: number,
+                        deletingFilesIds: number[]) => void;
 }
 
 interface ICourseExperimentalState {
@@ -149,7 +149,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const clickedItemStyle = {
         backgroundColor: "ghostwhite",
-        borderRadius: "10px",
+        borderRadius: 9,
         cursor: "pointer",
         border: "1px solid lightgrey"
     }
@@ -512,11 +512,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                           },
                           '&::-webkit-scrollbar-track': {
                               backgroundColor: "ghostwhite",
-                              borderRadius: "10px"
+                              borderRadius: 9
                           },
                           '&::-webkit-scrollbar-thumb': {
                               backgroundColor: "lightgrey",
-                              borderRadius: 10
+                              borderRadius: 9
                           }
                       }}>
                 {props.isMentor && filterAdded && <Stack direction={"column"} alignItems={"center"}>
@@ -543,91 +543,95 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     + Добавить задание
                 </Button>}
                 {isMentor && homeworks.length === 0 && renderLecturerWelcomeScreen()}
-                {homeworks.map((x: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
-                    return <div key={x.id} style={selectedItemHomework?.id === x.id ? {
-                        border: "1px solid #3f51b5",
-                        borderRadius: 9,
-                    } : undefined}>
-                        <Paper
-                            key={x.id}
-                            elevation={0}
-                            component={Stack}
-                            justifyContent="center"
-                            alignContent={"center"}
-                            sx={{":hover": hoveredItemStyle}}
-                            style={{...getStyle(true, x.id!), marginBottom: 2, minHeight: 50}}
-                            onClick={() => {
-                                setState(prevState => ({
-                                    ...prevState,
-                                    selectedItem: {
-                                        data: x,
-                                        isHomework: true,
-                                        id: x.id,
-                                        homeworkFilesInfo: FileInfoConverter.getCourseUnitFilesInfo(courseFilesInfo, CourseUnitType.Homework, x.id!)
+                <Stack direction={"column"} spacing={0.5}>
+                    {homeworks.map((x: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
+                        return <div key={x.id} style={selectedItemHomework?.id === x.id ? {
+                            border: "1px solid #3f51b5",
+                            borderRadius: 9,
+                        } : undefined}>
+                            <Stack direction={"column"} spacing={0.5}>
+                                <Paper
+                                    key={x.id}
+                                    elevation={0}
+                                    component={Stack}
+                                    justifyContent="center"
+                                    alignContent={"center"}
+                                    sx={{":hover": hoveredItemStyle}}
+                                    style={{...getStyle(true, x.id!), minHeight: 50}}
+                                    onClick={() => {
+                                        setState(prevState => ({
+                                            ...prevState,
+                                            selectedItem: {
+                                                data: x,
+                                                isHomework: true,
+                                                id: x.id,
+                                                homeworkFilesInfo: FileInfoConverter.getCourseUnitFilesInfo(courseFilesInfo, CourseUnitType.Homework, x.id!)
+                                            }
+                                        }))
+                                    }}>
+                                    <Typography variant="h6" style={{fontSize: 18}} align={"center"}
+                                                color={x.isDeferred
+                                                    ? "textSecondary"
+                                                    : x.tags!.includes(TestTag) ? "primary" : "textPrimary"}>
+                                        {isMentor && renderHomeworkStatus(x)}
+                                        {x.title}{getTip(x)}
+                                    </Typography>
+                                    {x.isDeferred && !x.publicationDateNotSet &&
+                                        <Typography style={{fontSize: "14px"}} align={"center"}>
+                                            {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}
+                                        </Typography>}
+                                    {x.tasks?.length === 0 &&
+                                        <TimelineItem style={{minHeight: 30, marginBottom: -5}}>
+                                            <TimelineOppositeContent></TimelineOppositeContent>
+                                            <TimelineSeparator><TimelineConnector/></TimelineSeparator>
+                                            <TimelineContent></TimelineContent>
+                                        </TimelineItem>}
+                                </Paper>
+                                {x.tasks!.map(t => <TimelineItem
+                                    key={t.id}
+                                    onClick={() => {
+                                        setState(prevState => ({
+                                            ...prevState,
+                                            selectedItem: {
+                                                data: t,
+                                                isHomework: false,
+                                                id: t.id,
+                                                homeworkFilesInfo: []
+                                            }
+                                        }))
+                                    }}
+                                    style={getStyle(false, t.id!)}
+                                    sx={{":hover": hoveredItemStyle}}>
+                                    {!t.deadlineDateNotSet &&
+                                        <TimelineOppositeContent color="textSecondary">
+                                            {t.deadlineDate ? renderDate(t.deadlineDate) : ""}
+                                            <br/>
+                                            {t.deadlineDate ? renderTime(t.deadlineDate) : ""}
+                                        </TimelineOppositeContent>
                                     }
-                                }))
-                            }}>
-                            <Typography variant="h6" style={{fontSize: 18}} align={"center"}
-                                        color={x.isDeferred
-                                            ? "textSecondary"
-                                            : x.tags!.includes(TestTag) ? "primary" : "textPrimary"}>
-                                {isMentor && renderHomeworkStatus(x)}
-                                {x.title}{getTip(x)}
-                            </Typography>
-                            {x.isDeferred && !x.publicationDateNotSet &&
-                                <Typography style={{fontSize: "14px"}} align={"center"}>
-                                    {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}
-                                </Typography>}
-                            {x.tasks?.length === 0 &&
-                                <TimelineItem style={{minHeight: 30, marginBottom: -5}}>
-                                    <TimelineOppositeContent></TimelineOppositeContent>
-                                    <TimelineSeparator><TimelineConnector/></TimelineSeparator>
-                                    <TimelineContent></TimelineContent>
-                                </TimelineItem>}
-                        </Paper>
-                        {x.tasks!.map(t => <TimelineItem
-                            key={t.id}
-                            onClick={() => {
-                                setState(prevState => ({
-                                    ...prevState,
-                                    selectedItem: {
-                                        data: t,
-                                        isHomework: false,
-                                        id: t.id,
-                                        homeworkFilesInfo: []
-                                    }
-                                }))
-                            }}
-                            style={{...getStyle(false, t.id!), marginBottom: 2}}
-                            sx={{":hover": hoveredItemStyle}}>
-                            {!t.deadlineDateNotSet &&
-                                <TimelineOppositeContent color="textSecondary">
-                                    {t.deadlineDate ? renderDate(t.deadlineDate) : ""}
-                                    <br/>
-                                    {t.deadlineDate ? renderTime(t.deadlineDate) : ""}
-                                </TimelineOppositeContent>
-                            }
-                            <TimelineSeparator>
-                                {renderTaskStatus(t)}
-                                <TimelineConnector/>
-                            </TimelineSeparator>
-                            <TimelineContent alignItems={"center"}>
-                                <Typography className="antiLongWords"
-                                            color={t.isDeferred ? "textSecondary" : "textPrimary"}>
-                                    {t.title}{getTip(x)}
-                                </Typography>
-                            </TimelineContent>
-                        </TimelineItem>)}
-                        {x.id! < 0 &&
-                            <Button fullWidth
-                                    onClick={() => addNewTask(x)}
-                                    style={{borderRadius: 8, marginBottom: 10, marginTop: 5}}
-                                    variant={"text"}
-                                    size={"small"}>
-                                + Добавить задачу
-                            </Button>}
-                    </div>;
-                })}
+                                    <TimelineSeparator>
+                                        {renderTaskStatus(t)}
+                                        <TimelineConnector/>
+                                    </TimelineSeparator>
+                                    <TimelineContent alignItems={"center"}>
+                                        <Typography className="antiLongWords"
+                                                    color={t.isDeferred ? "textSecondary" : "textPrimary"}>
+                                            {t.title}{getTip(x)}
+                                        </Typography>
+                                    </TimelineContent>
+                                </TimelineItem>)}
+                            </Stack>
+                            {x.id! < 0 &&
+                                <Button fullWidth
+                                        onClick={() => addNewTask(x)}
+                                        style={{borderRadius: 8, marginBottom: 10, marginTop: 5}}
+                                        variant={"text"}
+                                        size={"small"}>
+                                    + Добавить задачу
+                                </Button>}
+                        </div>;
+                    })}
+                </Stack>
             </Timeline>
         </Grid>
         <Grid item xs={12} sm={12} md={8} lg={8} order={{xs: 1, sm: 1, md: 2, lg: 2}}>
