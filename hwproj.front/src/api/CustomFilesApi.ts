@@ -1,13 +1,26 @@
-import {BaseAPI} from "./api";
+import {BaseAPI, ScopeDTO} from "./api";
+import { IProcessFilesDto } from "../components/Files/IProcessFilesDto";
 
 export default class CustomFilesApi extends BaseAPI {
-    public uploadFile = async (file: File, courseId: number, homeworkId: number) => {
+    public processFiles = async (processFilesDto: IProcessFilesDto) => {
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('courseId', courseId.toString());
-        formData.append('homeworkId', homeworkId.toString());
 
-        const response = await fetch(this.basePath + '/api/Files/upload', {
+        // Добавляем идентификаторы удаляемых файлов
+        processFilesDto.deletingFileIds.forEach((fileId) => {
+            formData.append(`DeletingFileIds`, fileId.toString());
+        });
+
+        // Добавляем новые файлы
+        processFilesDto.newFiles.forEach((file) => {
+            formData.append(`NewFiles`, file);
+        });
+        
+        // Добавляем информацию о области нахождения файлов (Scope)
+        formData.append('FilesScope.CourseId', processFilesDto.courseId.toString());
+        formData.append('FilesScope.CourseUnitType', processFilesDto.courseUnitType.toString());
+        formData.append('FilesScope.CourseUnitId', processFilesDto.courseUnitId.toString());
+
+        const response = await fetch(this.basePath + '/api/Files/process', {
             method: 'POST',
             body: formData,
             headers: {
@@ -22,14 +35,12 @@ export default class CustomFilesApi extends BaseAPI {
         }
     }
 
-    public getDownloadFileLink = async (fileKey: string) => {
-        // Необходимо, чтобы символы & и др. не влияли на обработку запроса на бэкенде
-        const encodedFileKey = encodeURIComponent(fileKey);
-        const response = await fetch(this.basePath + `/api/Files/downloadLink?key=${encodedFileKey}`, {
+    public getDownloadFileLink = async (fileKey: number) => {
+        const response = await fetch(this.basePath + `/api/Files/downloadLink?fileId=${fileKey}`, {
             method: 'GET',
             headers: {
                 'Authorization': this.getApiKeyValue(),
-            },
+            }
         });
         
         if (response.status >= 200 && response.status < 300) {
@@ -39,10 +50,8 @@ export default class CustomFilesApi extends BaseAPI {
         }
     }
 
-    public deleteFileByKey = async (courseId: number, fileKey: string) => {
-        // Необходимо, чтобы символы & и др. не влияли на обработку запроса на бэкенде
-        const encodedFileKey = encodeURIComponent(fileKey);
-        const response = await fetch(this.basePath + `/api/Files?courseId=${courseId}&key=${encodedFileKey}`, {
+    public deleteFileByKey = async (courseId: number, fileId: number) => {
+        const response = await fetch(this.basePath + `/api/Files?courseId=${courseId}&key=${fileId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': this.getApiKeyValue(),

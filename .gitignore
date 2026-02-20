@@ -361,3 +361,4 @@ StyleCop.Cache
 .env
 swagger-codegen
 hwproj.front/static_dist/
+hwproj.front/dist/

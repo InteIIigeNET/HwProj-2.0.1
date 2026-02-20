@@ -64,7 +64,14 @@ const Register: FC = () => {
         }
         e.preventDefault()
         try {
-            const result = await ApiSingleton.authService.register(registerState)
+            const registerModel: RegisterViewModel =
+                {
+                    email: registerState.email.trim(),
+                    name: registerState.name.trim(),
+                    surname: registerState.surname.trim(),
+                    middleName: registerState.middleName?.trim() || ""
+                }
+            const result = await ApiSingleton.authService.register(registerModel)
             setCommonState((prevState) => ({
                 ...prevState,
                 error: result!.error!,

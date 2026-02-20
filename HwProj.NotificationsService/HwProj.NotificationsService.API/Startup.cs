@@ -1,19 +1,21 @@
-﻿using HwProj.AuthService.API.Events;
+﻿using System.Text.Json.Serialization;
 using HwProj.AuthService.Client;
+using HwProj.Common.Net8;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.NotificationsService.API.EventHandlers;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
-using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using HwProj.CoursesService.API.Events;
-using HwProj.SolutionsService.API.Events;
-using UpdateTaskMaxRatingEvent = HwProj.CoursesService.API.Events.UpdateTaskMaxRatingEvent;
+using HwProj.EventBus.Client;
+using HwProj.NotificationService.Events.AuthService;
+using HwProj.NotificationService.Events.CoursesService;
+using HwProj.NotificationService.Events.SolutionsService;
+using Microsoft.Extensions.Hosting;
+using UpdateTaskMaxRatingEvent = HwProj.NotificationService.Events.CoursesService.UpdateTaskMaxRatingEvent;
 
 namespace HwProj.NotificationsService.API
 {
@@ -51,10 +53,16 @@ namespace HwProj.NotificationsService.API
             services.AddHttpClient();
             services.AddAuthServiceClient();
 
-            services.ConfigureHwProjServices("Notifications API");
+            services
+                .AddCors()
+                .AddControllers()
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+            services.AddAutoMapper(x => x.AddProfile<AutomapperProfile>());
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus,
+        public void Configure(IApplicationBuilder app, IHostEnvironment env, IEventBus eventBus,
             NotificationsContext context)
         {
             using (var eventBustSubscriber = eventBus.CreateSubscriber())
@@ -74,7 +82,19 @@ namespace HwProj.NotificationsService.API
                 eventBustSubscriber.Subscribe<PasswordRecoveryEvent, PasswordRecoveryEventHandler>();
             }
 
-            app.ConfigureHwProj(env, "Notifications API", context);
+            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+            else app.UseHsts();
+
+            app.UseRouting();
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(_ => true)
+                .AllowCredentials());
+
+            app.UseEndpoints(x => x.MapControllers());
+
+            app.UseDatabase(env, context);
         }
     }
 }

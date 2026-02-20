@@ -1,14 +1,17 @@
+using System.Threading.Channels;
 using Amazon;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.Runtime;
 using Amazon.S3;
 using HwProj.ContentService.API.Configuration;
+using HwProj.ContentService.API.Models.Database;
+using HwProj.ContentService.API.Models.Messages;
+using HwProj.ContentService.API.Repositories;
 using HwProj.ContentService.API.Services;
-using HwProj.Utils.Auth;
-using HwProj.Utils.Configuration.Middleware;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using HwProj.ContentService.API.Services.Interfaces;
+using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 
@@ -16,11 +19,16 @@ namespace HwProj.ContentService.API.Extensions;
 
 public static class ConfigurationExtensions
 {
-    public static IServiceCollection ConfigureWithAWS(this IServiceCollection services,
+    public static IServiceCollection ConfigureWithAWS(this IServiceCollection services, IHostEnvironment env,
         IConfigurationRoot configuration)
     {
-        var clientConfigurationSection = configuration.GetSection("StorageClientConfiguration");
-        services.Configure<StorageClientConfiguration>(clientConfigurationSection);
+        // Достаем конфигурацию удаленного хранилища
+        var externalStorageSection = configuration.GetSection("ExternalStorageConfiguration");
+        services.Configure<ExternalStorageConfiguration>(externalStorageSection);
+        
+        // Достаем конфигурацию локального хранилища для временного хранения файлов
+        var localStorageSection = configuration.GetSection("LocalStorageConfiguration");
+        services.Configure<LocalStorageConfiguration>(localStorageSection);
         
         // Увеличиваем допустимый размер тела запросов, содержащих multipart/form-data
         services.Configure<FormOptions>(options =>
@@ -28,9 +36,30 @@ public static class ConfigurationExtensions
             options.MultipartBodyLengthLimit = 200 * 1024 * 1024;
         });
 
-        services.ConfigureStorageClient(clientConfigurationSection);
+        // Подготавливаем инфраструктуру БД
+        var connectionString = ConnectionString.GetConnectionString(configuration);
+        services.AddDbContext<ContentContext>(options => options.UseSqlServer(connectionString));
+        services.AddScoped<IFileRecordRepository, FileRecordRepository>();
+
+        if (env.IsDevelopment())
+        {
+            services.AddSingleton<IS3FilesService, LocalTestingS3FilesService>();
+        }
+        else
+        {
+            services.ConfigureExternalStorageClient(externalStorageSection);
+            services.AddSingleton<IS3FilesService, S3FilesService>();
+        }
+
+        services.ConfigureChannelInfrastructure<IProcessFileMessage>();
+        
+        // Регистрируем как синглтоны, чтобы использовать в MessageConsumer
         services.AddSingleton<IFileKeyService, FileKeyService>();
-        services.AddScoped<IFilesService, FilesService>();
+
+        services.AddSingleton<ILocalFilesService, LocalFilesService>();
+        
+        services.AddScoped<IFilesInfoService, FilesInfoService>();
+        services.AddScoped<IRecoveryService, RecoveryService>();
         
         services.AddHttpClient();
 
@@ -38,9 +67,29 @@ public static class ConfigurationExtensions
         return services;
     }
 
-    private static void ConfigureStorageClient(this IServiceCollection services, IConfigurationSection configuration)
+    private static void ConfigureChannelInfrastructure<T>(this IServiceCollection services)
     {
-        var clientConfiguration = configuration.Get<StorageClientConfiguration>();
+        services.AddSingleton<Channel<T>>(_ =>
+            Channel.CreateUnbounded<T>(
+                new UnboundedChannelOptions
+            {
+                SingleWriter = false,
+                SingleReader = true // Один читатель, последовательно работающий с БД
+            }));
+
+        services.AddSingleton<ChannelWriter<T>>(serviceProvider => 
+            serviceProvider.GetRequiredService<Channel<T>>().Writer);
+        services.AddSingleton<ChannelReader<T>>(serviceProvider => 
+            serviceProvider.GetRequiredService<Channel<T>>().Reader);
+
+        // Регистрируем как синглтон, чтобы использовать в MessageConsumer
+        services.AddSingleton<IMessageProducer, MessageProducer>();
+        services.AddHostedService<MessageConsumer>();
+    }
+    
+    private static void ConfigureExternalStorageClient(this IServiceCollection services, IConfigurationSection configuration)
+    {
+        var clientConfiguration = configuration.Get<ExternalStorageConfiguration>();
         if (clientConfiguration == null)
             throw new NullReferenceException("Ошибка при чтении конфигурации StorageClientConfiguration");
 
@@ -68,9 +117,6 @@ public static class ConfigurationExtensions
             options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
         });
         services.ConfigureContentServiceSwaggerGen();
-        services.ConfigureContentServiceAuthentication();
-
-        services.AddTransient<NoApiGatewayMiddleware>();
         services.AddHttpContextAccessor();
     }
 
@@ -86,27 +132,5 @@ public static class ConfigurationExtensions
                 return $"{controllerName}{actionName}";
             });
         });
-    }
-
-    private static void ConfigureContentServiceAuthentication(this IServiceCollection services)
-    {
-        services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false; //TODO: dev env setting
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidIssuer = "AuthService",
-                    ValidateIssuer = true,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    IssuerSigningKey = AuthorizationKey.SecurityKey,
-                    ValidateIssuerSigningKey = true
-                };
-            });
     }
 }

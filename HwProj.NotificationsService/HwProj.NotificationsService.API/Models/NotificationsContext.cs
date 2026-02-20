@@ -1,5 +1,4 @@
-﻿using HwProj.Models.NotificationsService;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.NotificationsService.API.Models
 {

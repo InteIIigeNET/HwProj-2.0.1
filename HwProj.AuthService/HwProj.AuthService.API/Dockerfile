@@ -1,18 +1,20 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY ["Directory.Build.props", "Directory.Build.props"]
 
 COPY ["HwProj.AuthService/HwProj.AuthService.API/", "HwProj.AuthService/HwProj.AuthService.API/"]
-COPY ["HwProj.Common/HwProj.Utils/", "HwProj.Common/HwProj.Utils/"]
-COPY ["HwProj.EventBus/HwProj.EventBus.Client/", "HwProj.EventBus/HwProj.EventBus.Client/"]
+COPY ["HwProj.Common/HwProj.Common.Net8/", "HwProj.Common/HwProj.Common.Net8/"]
 COPY ["HwProj.Common/HwProj.Models/", "HwProj.Common/HwProj.Models/"]
 COPY ["HwProj.Common/HwProj.Repositories/", "HwProj.Common/HwProj.Repositories/"]
+COPY ["HwProj.Common/HwProj.Repositories.Net8/", "HwProj.Common/HwProj.Repositories.Net8/"]
+COPY ["HwProj.EventBus/HwProj.EventBus.Client/", "HwProj.EventBus/HwProj.EventBus.Client/"]
+COPY ["HwProj.NotificationsService/HwProj.NotificationService.Events/", "HwProj.NotificationsService/HwProj.NotificationService.Events/"]
 
 WORKDIR "/src/HwProj.AuthService/HwProj.AuthService.API"
 RUN dotnet publish "HwProj.AuthService.API.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-stretch-slim AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
 COPY --from=build /app/publish .

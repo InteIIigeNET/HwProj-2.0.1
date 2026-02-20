@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -37,16 +37,19 @@ namespace HwProj.CoursesService.API.Repositories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
 
-        public async Task<Course?> GetWithCourseMatesAndHomeworksAsync(long id)
+        public async Task<Course?> GetWithCourseMatesAndHomeworksAsync(long id, bool withCriteria)
         {
-            var course = await Context.Set<Course>()
+            var query = Context.Set<Course>()
+                .AsNoTracking()
                 .Include(x => x.Mentors)
                 .Include(c => c.CourseMates)
                 .ThenInclude(c => c.Characteristics)
                 .Include(c => c.Homeworks)
-                .ThenInclude(c => c.Tasks)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .ThenInclude(c => c.Tasks);
+
+            var course = withCriteria
+                ? await query.ThenInclude(x => x.Criteria).FirstOrDefaultAsync(c => c.Id == id)
+                : await query.FirstOrDefaultAsync(c => c.Id == id);
 
             // todo: перенести OrderBy в Include после обновления до EF Core 5.x
             course.Homeworks = course.Homeworks.OrderBy(h => h.PublicationDate).ToList();

@@ -8,17 +8,15 @@ using System.Web;
 using AutoMapper;
 using HwProj.AuthService.API.Extensions;
 using HwProj.Models.Roles;
-using HwProj.AuthService.API.Events;
-using HwProj.AuthService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
-using HwProj.Utils.Authorization;
+using HwProj.NotificationService.Events.AuthService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Octokit;
-using User = HwProj.Models.AuthService.ViewModels.User;
+using User = HwProj.AuthService.API.Models.User;
 
 
 namespace HwProj.AuthService.API.Services
@@ -95,6 +93,11 @@ namespace HwProj.AuthService.API.Services
 
         public async Task<Result<string>> RegisterUserAsync(RegisterDataDTO model)
         {
+            model.Email = model.Email.Trim();
+            model.Name = model.Name.Trim();
+            model.Surname = model.Surname.Trim();
+            model.MiddleName = model.MiddleName.Trim();
+
             if (await _userManager.FindByEmailAsync(model.Email) != null)
                 return Result<string>.Failed("Пользователь уже зарегистрирован");
 

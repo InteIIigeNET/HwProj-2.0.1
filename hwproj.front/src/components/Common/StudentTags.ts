@@ -1,0 +1,1 @@
+export const RemovedFromCourseTag = "Удален с курса"

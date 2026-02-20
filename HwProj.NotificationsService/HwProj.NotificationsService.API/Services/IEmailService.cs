@@ -1,5 +1,5 @@
-﻿using HwProj.Models.NotificationsService;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using HwProj.NotificationsService.API.Models;
 
 namespace HwProj.NotificationsService.API.Services
 {

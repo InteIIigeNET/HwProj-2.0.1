@@ -3,15 +3,15 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.AuthService.API.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using HwProj.AuthService.API.Services;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
-using HwProj.Utils.Authorization;
 using Microsoft.Extensions.Configuration;
-using User = HwProj.Models.AuthService.ViewModels.User;
+using User = HwProj.AuthService.API.Models.User;
 
 namespace HwProj.AuthService.API.Controllers
 {
@@ -109,19 +109,12 @@ namespace HwProj.AuthService.API.Controllers
         }
 
         [HttpGet("findByEmail/{email}")]
-        [ProducesResponseType(typeof(User), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> FindByEmail(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
-            return Ok(user);
-        }
-
-        [HttpGet("getRole")]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetRolesAsync([FromBody] User user)
-        {
             var roles = await _userManager.GetRolesAsync(user);
-            return Ok(roles[0]);
+            return Ok(user.ToAccountDataDto(roles.First()));
         }
 
         [HttpGet("getAllStudents")]
@@ -141,7 +134,7 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> GetAllLecturers()
         {
             var allLecturers = await _accountService.GetUsersInRole(Roles.LecturerRole);
-            var result = allLecturers.ToArray();
+            var result = allLecturers.Select(x => x.ToAccountDataDto(Roles.LecturerRole)).ToArray();
 
             return Ok(result);
         }

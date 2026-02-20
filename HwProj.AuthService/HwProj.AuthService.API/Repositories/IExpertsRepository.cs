@@ -1,8 +1,6 @@
 ﻿using System.Threading.Tasks;
 using HwProj.AuthService.API.Models;
-using HwProj.Models.AuthService.DTO;
-using HwProj.Models.AuthService.ViewModels;
-using HwProj.Repositories;
+using HwProj.Repositories.Net8;
 
 namespace HwProj.AuthService.API.Repositories
 {

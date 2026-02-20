@@ -1,14 +1,13 @@
 ﻿import * as React from "react";
-import {Typography, Grid, Tabs, Tab} from "@material-ui/core";
+import {Tabs, Tab} from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
-import {UnratedSolutionPreviews, UserDataDto} from "../api/";
+import {UnratedSolutionPreviews, UserDataDto} from "@/api";
 import "./Styles/Profile.css";
 import {FC, useEffect, useState} from "react";
 import {Link, useParams} from "react-router-dom";
-import {makeStyles} from "@material-ui/styles";
 import TaskDeadlines from "./Tasks/TaskDeadlines";
-import UnratedSolutions from "./Solutions/UnratedSolutions";
-import {Alert, Chip, Stack} from "@mui/material";
+import UnratedSolutionsAndOpenQuestions from "./Solutions/UnratedSolutionsAndOpenQuestions";
+import {Alert, Chip, Grid, Stack, Typography} from "@mui/material";
 import NewCourseEvents from "./Courses/NewCourseEvents";
 import {TestTag} from "./Common/HomeworkTags";
 import Utils from "../services/Utils";
@@ -19,12 +18,6 @@ interface IWorkspaceState {
     isLoaded: boolean;
     tabValue: number;
 }
-
-const useStyles = makeStyles(() => ({
-    info: {
-        justifyContent: "space-between",
-    },
-}))
 
 const Workspace: FC = () => {
     const {id} = useParams()
@@ -41,7 +34,6 @@ const Workspace: FC = () => {
         unratedSolutionPreviews: undefined
     })
 
-    const classes = useStyles()
     const isLecturer = ApiSingleton.authService.isLecturer()
     const isExpert = ApiSingleton.authService.isExpert()
     const isMentor = isLecturer || isExpert
@@ -99,9 +91,9 @@ const Workspace: FC = () => {
 
         return (
             <div className="container" style={{marginBottom: '50px'}}>
-                <Grid container style={{marginTop: "15px"}} spacing={2}>
-                    <Grid item container className={classes.info} direction={"row"}>
-                        <Grid item direction={"row"} spacing={2} style={{display: "flex"}}>
+                <Grid container style={{marginTop: "5px"}} spacing={2}>
+                    <Grid item container direction={"row"} justifyContent={"space-between"}>
+                        <Grid item direction={"row"} spacing={2}>
                             <Grid item>
                                 <Typography style={{fontSize: '20px'}}>
                                     {fullName}
@@ -134,7 +126,6 @@ const Workspace: FC = () => {
                             variant="scrollable"
                             scrollButtons={"auto"}
                             value={tabValue}
-                            style={{marginTop: 10}}
                             indicatorColor="primary"
                             onChange={(event, value) => {
                                 setProfileState(prevState => ({
@@ -176,7 +167,7 @@ const Workspace: FC = () => {
                         <div style={{marginTop: 15}}>
                             {tabValue === 0 &&
                                 (isMentor
-                                    ? <UnratedSolutions unratedSolutionsPreviews={unratedSolutionPreviews!}/>
+                                    ? <UnratedSolutionsAndOpenQuestions unratedSolutionsPreviews={unratedSolutionPreviews!}/>
                                     : <TaskDeadlines taskDeadlines={nearestTaskDeadlines}
                                                      onGiveUpClick={onGiveUpClick}/>)}
                             {tabValue === 1 && !isExpert &&
@@ -186,7 +177,7 @@ const Workspace: FC = () => {
                                                      onGiveUpClick={onGiveUpClick}/>)}
                         </div>
                     </Grid>}
-                    <Grid item>
+                    <Grid item alignSelf="flex-start">
                         <DotLottieReact
                             src="https://lottie.host/3f7405d2-3644-4abf-80de-cea68a618ca5/NYIk0RI1Mw.lottie"
                             loop

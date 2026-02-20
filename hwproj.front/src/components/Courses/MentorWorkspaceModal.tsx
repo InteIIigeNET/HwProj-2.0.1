@@ -74,73 +74,57 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
                     </Typography>
                 </DialogTitle>
                 <DialogContent>
-                    <div>
-                        <Grid item container direction={"row"} justifyContent={"center"}>
-                            {state.errors.length > 0 && (
-                                <p style={{color: "red", marginBottom: "5px"}}>{state.errors}</p>
-                            )}
-                        </Grid>
-                        {!isWorkspaceLoading &&
-                            <Typography>
-                                Здесь Вы можете изменить область работы преподавателя
-                            </Typography>}
-                        <CourseFilter courseId={props.courseId}
-                                      mentorId={props.mentorId}
-                                      isStudentsSelectionHidden={false}
-                                      onSelectedHomeworksChange={(homeworks) =>
+                    <Grid item container direction={"row"} justifyContent={"center"}>
+                        {state.errors.length > 0 && (
+                            <p style={{color: "red", marginBottom: "5px"}}>{state.errors}</p>
+                        )}
+                    </Grid>
+                    {!isWorkspaceLoading &&
+                        <Typography>
+                            Здесь Вы можете изменить область работы преподавателя
+                        </Typography>}
+                    <CourseFilter courseId={props.courseId}
+                                  mentorId={props.mentorId}
+                                  isStudentsSelectionHidden={false}
+                                  onSelectedHomeworksChange={(homeworks) =>
+                                      setState(prevState => ({
+                                          ...prevState,
+                                          selectedHomeworks: homeworks
+                                      }))
+                                  }
+                                  onSelectedStudentsChange={(students) =>
+                                      setState(prevState => ({
+                                          ...prevState,
+                                          selectedStudents: students
+                                      }))
+                                  }
+                                  onWorkspaceInitialize={(success, errors) => {
+                                      if (!success) {
                                           setState(prevState => ({
                                               ...prevState,
-                                              selectedHomeworks: homeworks
+                                              errors: errors ?? ['Сервис недоступен']
                                           }))
                                       }
-                                      onSelectedStudentsChange={(students) =>
-                                          setState(prevState => ({
-                                              ...prevState,
-                                              selectedStudents: students
-                                          }))
-                                      }
-                                      onWorkspaceInitialize={(success, errors) => {
-                                          if (!success) {
-                                              setState(prevState => ({
-                                                  ...prevState,
-                                                  errors: errors ?? ['Сервис недоступен']
-                                              }))
-                                          }
-                                          setIsWorkspaceLoading(false)
-                                      }}
-                        />
-                        {!isWorkspaceLoading &&
-                            <Grid
-                                direction="row"
-                                justifyContent="flex-end"
-                                alignItems="flex-end"
-                                container
-                                style={{marginTop: '15px'}}
-                            >
-                                <Grid item>
-                                    <Button
-                                        onClick={props.onClose}
-                                        color="primary"
-                                        variant="contained"
-                                        style={{marginRight: '10px'}}
-                                    >
-                                        Закрыть
-                                    </Button>
-                                </Grid>
-                                <Grid item>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={handleWorkspaceChanges}
-                                    >
-                                        Изменить
-                                    </Button>
-                                </Grid>
-                            </Grid>}
-                    </div>
+                                      setIsWorkspaceLoading(false)
+                                  }}
+                    />
                 </DialogContent>
-                <DialogActions>
-                </DialogActions>
+                {!isWorkspaceLoading && <DialogActions style={{marginTop: 10}}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleWorkspaceChanges}
+                    >
+                        Изменить
+                    </Button>
+                    <Button
+                        onClick={props.onClose}
+                        color="primary"
+                        variant="text"
+                    >
+                        Закрыть
+                    </Button>
+                </DialogActions>}
                 <Snackbar
                     anchorOrigin={{vertical: 'top', horizontal: 'center'}}
                     open={isWorkspaceUpdated}

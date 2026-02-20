@@ -1,13 +1,13 @@
 using System;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Domains;
 using HwProj.Models;
+using HwProj.Models.CoursesService.ViewModels;
+using HwProj.NotificationService.Events.CoursesService;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -25,8 +25,10 @@ namespace HwProj.CoursesService.API.Services
             _coursesRepository = coursesRepository;
         }
 
-        public async Task<long> AddHomeworkAsync(long courseId, Homework homework)
+        public async Task<Homework> AddHomeworkAsync(long courseId, CreateHomeworkViewModel homeworkViewModel)
         {
+            homeworkViewModel.Tags = homeworkViewModel.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
+            var homework = homeworkViewModel.ToHomework();
             homework.CourseId = courseId;
 
             var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(courseId);
@@ -37,12 +39,13 @@ namespace HwProj.CoursesService.API.Services
                     homework.DeadlineDate));
             }
 
-            return await _homeworksRepository.AddAsync(homework);
+            await _homeworksRepository.AddAsync(homework);
+            return await GetHomeworkAsync(homework.Id, withCriteria: true);
         }
 
-        public async Task<Homework> GetHomeworkAsync(long homeworkId)
+        public async Task<Homework> GetHomeworkAsync(long homeworkId, bool withCriteria = false)
         {
-            var homework = await _homeworksRepository.GetWithTasksAsync(homeworkId);
+            var homework = await _homeworksRepository.GetWithTasksAsync(homeworkId, withCriteria);
 
             CourseDomain.FillTasksInHomework(homework);
 
@@ -60,11 +63,14 @@ namespace HwProj.CoursesService.API.Services
             await _homeworksRepository.DeleteAsync(homeworkId);
         }
 
-        public async Task<Homework> UpdateHomeworkAsync(long homeworkId, Homework update, ActionOptions options)
+        public async Task<Homework> UpdateHomeworkAsync(long homeworkId, CreateHomeworkViewModel homeworkViewModel)
         {
+            homeworkViewModel.Tags = homeworkViewModel.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
+            var update = homeworkViewModel.ToHomework();
+            var options = homeworkViewModel.ActionOptions ?? ActionOptions.Default;
+
             var homework = await _homeworksRepository.GetAsync(homeworkId);
             var course = await _coursesRepository.GetWithCourseMates(homework.CourseId);
-
             var studentIds = course!.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
             if (options.SendNotification && update.PublicationDate <= DateTime.UtcNow)

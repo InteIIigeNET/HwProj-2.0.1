@@ -1,19 +1,17 @@
-using Microsoft.AspNetCore.Mvc.Filters;
 using System;
 using HwProj.Exceptions;
+using Microsoft.AspNetCore.Mvc.Filters;
 
+namespace HwProj.APIGateway.API.ExceptionFilters;
 
-namespace HwProj.APIGateway.API.ExceptionFilters
+public class ForbiddenExceptionFilter : Attribute, IExceptionFilter
 {
-    public class ForbiddenExceptionFilter : Attribute, IExceptionFilter
+    public void OnException(ExceptionContext context)
     {
-        public void OnException(ExceptionContext context)
+        if (context.Exception is ForbiddenException)
         {
-            if (context.Exception is ForbiddenException)
-            {
-                context.ExceptionHandled = true;
-                context.HttpContext.Response.StatusCode = 403;
-            }
+            context.ExceptionHandled = true;
+            context.HttpContext.Response.StatusCode = 403;
         }
     }
 }

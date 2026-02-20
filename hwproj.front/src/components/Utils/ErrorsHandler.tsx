@@ -5,12 +5,14 @@
         return str === undefined || str.trim().length === 0;
     }
 
-    static async getErrorMessages(response: Response): Promise<string[]> {
+    static async getErrorMessages(response: Response, expectedJsonField?: string): Promise<string[]> {
         try {
             const contentType = response.headers.get("Content-Type");
-            
             if (contentType?.includes("application/json")) {
-                return await response.json();
+                var errorJson = await response.json();
+                return expectedJsonField ?
+                    errorJson[expectedJsonField] ?? errorJson
+                    : errorJson
             } else {
                 return [await response.text()];
             }

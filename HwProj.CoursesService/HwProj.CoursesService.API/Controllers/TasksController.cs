@@ -1,16 +1,15 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
-using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -20,62 +19,59 @@ namespace HwProj.CoursesService.API.Controllers
     {
         private readonly ITasksService _tasksService;
         private readonly IHomeworksService _homeworksService;
-        private readonly ITaskQuestionsRepository _questionsRepository;
+        private readonly ITaskQuestionsService _taskQuestionsService;
         private readonly ICoursesService _coursesService;
 
         public TasksController(ITasksService tasksService, ICoursesService coursesService,
-            IHomeworksService homeworksService, ITaskQuestionsRepository questionsRepository)
+            IHomeworksService homeworksService, ITaskQuestionsService taskQuestionsService)
         {
             _tasksService = tasksService;
             _coursesService = coursesService;
             _homeworksService = homeworksService;
-            _questionsRepository = questionsRepository;
+            _taskQuestionsService = taskQuestionsService;
         }
 
         [HttpGet("get/{taskId}")]
-        public async Task<IActionResult> GetTask(long taskId)
+        public async Task<IActionResult> GetTask(long taskId, [FromQuery] bool withCriteria)
         {
-            var taskFromDb = await _tasksService.GetTaskAsync(taskId);
-            if (taskFromDb == null) return NotFound();
+            var task = await _tasksService.GetTaskAsync(taskId, withCriteria);
+            if (task == null) return NotFound();
 
-            if (taskFromDb.PublicationDate > DateTime.UtcNow)
+            if (task.PublicationDate > DateTime.UtcNow)
             {
                 var userId = Request.GetUserIdFromHeader();
-                var homework = taskFromDb.Homework;
+                var homework = await _homeworksService.GetHomeworkAsync(task.HomeworkId);
                 var lecturers = await _coursesService.GetCourseLecturers(homework.CourseId);
                 if (!lecturers.Contains(userId)) return BadRequest();
             }
-
-            var task = taskFromDb.ToHomeworkTaskViewModel();
-            return Ok(task);
+            return Ok(task.ToHomeworkTaskViewModel());
         }
 
         [HttpGet("getForEditing/{taskId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> GetForEditingTask(long taskId)
         {
-            var taskFromDb = await _tasksService.GetForEditingTaskAsync(taskId);
+            var task = await _tasksService.GetForEditingTaskAsync(taskId);
 
-            if (taskFromDb == null)
+            if (task == null)
             {
                 return NotFound();
             }
 
-            var task = taskFromDb.ToHomeworkTaskForEditingViewModel();
-            return Ok(task);
+            return Ok(task.ToHomeworkTaskForEditingViewModel());
         }
 
         [HttpPost("add/{homeworkId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> AddTask(long homeworkId, [FromBody] CreateTaskViewModel taskViewModel)
+        public async Task<IActionResult> AddTask(long homeworkId, [FromBody] PostTaskViewModel taskViewModel)
         {
             var homework = await _homeworksService.GetHomeworkAsync(homeworkId);
             var validationResult = Validator.ValidateTask(taskViewModel, homework);
             if (validationResult.Any()) return BadRequest(validationResult);
 
-            var taskId = await _tasksService.AddTaskAsync(homeworkId, taskViewModel.ToHomeworkTask());
+            var task = await _tasksService.AddTaskAsync(homeworkId, taskViewModel);
 
-            return Ok(taskId);
+            return Ok(task);
         }
 
         [HttpDelete("delete/{taskId}")] //bug with rights
@@ -87,7 +83,7 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpPut("update/{taskId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> UpdateTask(long taskId, [FromBody] CreateTaskViewModel taskViewModel)
+        public async Task<IActionResult> UpdateTask(long taskId, [FromBody] PostTaskViewModel taskViewModel)
         {
             var previousState = await _tasksService.GetForEditingTaskAsync(taskId);
             var validationResult = Validator.ValidateTask(taskViewModel,
@@ -96,7 +92,7 @@ namespace HwProj.CoursesService.API.Controllers
             if (validationResult.Any()) return BadRequest(validationResult);
 
             var updatedTask =
-                await _tasksService.UpdateTaskAsync(taskId, taskViewModel.ToHomeworkTask(),
+                await _tasksService.UpdateTaskAsync(taskId, taskViewModel,
                     taskViewModel.ActionOptions ?? ActionOptions.Default);
             return Ok(updatedTask.ToHomeworkTaskViewModel());
         }
@@ -114,7 +110,7 @@ namespace HwProj.CoursesService.API.Controllers
             if (!await _coursesService.HasStudent(task.Homework.CourseId, studentId))
                 return Forbid();
 
-            await _questionsRepository.AddAsync(new TaskQuestion
+            await _taskQuestionsService.AddQuestionAsync(new TaskQuestion
             {
                 TaskId = task.Id,
                 StudentId = studentId,
@@ -137,10 +133,11 @@ namespace HwProj.CoursesService.API.Controllers
             if (!isLecturer && !isStudent)
                 return Forbid();
 
-            var questions = _questionsRepository.FindAll(x => x.TaskId == taskId);
-            questions = isLecturer ? questions : questions.Where(x => !x.IsPrivate || x.StudentId == userId);
+            var questions = isLecturer
+                ? await _taskQuestionsService.GetQuestionsForLecturerAsync(taskId)
+                : await _taskQuestionsService.GetStudentQuestionsAsync(taskId, userId);
 
-            var result = (await questions.ToListAsync()).Select(x => new GetTaskQuestionDto
+            var result = questions.Select(x => new GetTaskQuestionDto
             {
                 Id = x.Id,
                 StudentId = x.StudentId,
@@ -152,8 +149,40 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("openQuestions")]
+        public async Task<IActionResult> GetOpenQuestions()
+        {
+            var userId = Request.GetUserIdFromHeader();
+            var courses = await _coursesService.GetUserCoursesAsync(userId, Roles.LecturerRole);
+
+            var tasks = courses
+                .Where(x => x.IsOpen)
+                .SelectMany(x => x.Homeworks.SelectMany(h => h.Tasks))
+                .ToDictionary(t => t.Id);
+
+            var taskIds = tasks.Keys.ToArray();
+            var questions = await _taskQuestionsService.GetQuestionsForLecturerAsync(taskIds);
+
+            var result = questions
+                .Where(x => x.Answer == null)
+                .GroupBy(x => x.TaskId)
+                .Select(x =>
+                {
+                    var task = tasks[x.Key];
+                    return new QuestionsSummary
+                    {
+                        TaskId = x.Key,
+                        TaskTitle = task.Title,
+                        Count = x.Count()
+                    };
+                })
+                .ToArray();
+
+            return Ok(result);
+        }
+
         [HttpPost("addAnswer")]
-        public async Task<IActionResult> GetQuestionsForTask(AddAnswerForQuestionDto answer)
+        public async Task<IActionResult> AddAnswerForQuestion(AddAnswerForQuestionDto answer)
         {
             if (string.IsNullOrEmpty(answer.Answer))
                 return BadRequest("Текст ответа пуст");
@@ -161,7 +190,7 @@ namespace HwProj.CoursesService.API.Controllers
             var lecturerId = Request.GetUserIdFromHeader();
             if (lecturerId == null) return NotFound();
 
-            var question = await _questionsRepository.FindAsync(x => x.Id == answer.QuestionId);
+            var question = await _taskQuestionsService.GetQuestionAsync(answer.QuestionId);
             if (question == null) return NotFound();
 
             var task = await _tasksService.GetTaskAsync(question.TaskId);
@@ -171,11 +200,7 @@ namespace HwProj.CoursesService.API.Controllers
             var isLecturer = (await _coursesService.GetCourseLecturers(courseId)).Contains(lecturerId);
             if (!isLecturer) return Forbid();
 
-            await _questionsRepository.UpdateAsync(question.Id, x => new TaskQuestion
-            {
-                LecturerId = lecturerId,
-                Answer = answer.Answer
-            });
+            await _taskQuestionsService.AddAnswerAsync(question.Id, lecturerId, answer.Answer);
             return Ok();
         }
     }

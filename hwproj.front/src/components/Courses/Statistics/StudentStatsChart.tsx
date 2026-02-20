@@ -6,7 +6,7 @@ import {
     HomeworkViewModel, StatisticsCourseHomeworksModel,
     StatisticsCourseMatesModel,
     StatisticsCourseMeasureSolutionModel
-} from "../../../api/";
+} from "@/api";
 import ApiSingleton from "../../../api/ApiSingleton";
 import HelpPopoverChartInfo from './HelpPopoverChartInfo';
 import StudentCheckboxList from "./StudentCheckboxList";
@@ -14,6 +14,8 @@ import StudentProgressChart from "./StudentProgressChart";
 import StudentPunctualityChart from './StudentPunctualityChart';
 import NameBuilder from "../../Utils/NameBuilder";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import { StudentsRadarChart } from "./StudentsRadarChart";
+import {appBarStateManager} from "@/components/AppBar";
 
 interface IStudentStatsChartState {
     isFound: boolean;
@@ -41,11 +43,11 @@ const StudentStatsChart: React.FC = () => {
         averageStudent: []
     })
     const [sectorSizes, setSectorSizes] = useState<number[]>([]);
-    const tasksSolutionLength = (hw :  StatisticsCourseHomeworksModel[], tasksWithDeadline : HomeworkTaskViewModel[]) =>
+    const tasksSolutionLength = (hw: StatisticsCourseHomeworksModel[], tasksWithDeadline: HomeworkTaskViewModel[]) =>
         hw.flatMap(h => h.tasks!
             .filter(task => tasksWithDeadline.find(t => t.id === task.id))
             .map(t => t.solution!.length))
-    const handleStudentSelection = (studentIds : string[]) => {
+    const handleStudentSelection = (studentIds: string[]) => {
         const newSectorSizes = sectorSizes.map((_, i) => {
             const taskSectorSizes = studentIds.map(id => {
                 const studentHomeworks = state.solutions
@@ -86,6 +88,8 @@ const StudentStatsChart: React.FC = () => {
 
     useEffect(() => {
         setCurrentState()
+        appBarStateManager.setContextAction({actionName: "К курсу", link: `/courses/${courseId}/stats`})
+        return () => appBarStateManager.reset()
     }, [])
 
     useEffect(() => {
@@ -97,19 +101,6 @@ const StudentStatsChart: React.FC = () => {
     const nameById = (id: string) => {
         const student = state.solutions.find(solution => solution.id === id)!
         return student.name + ' ' + student.surname;
-    }
-
-    const renderGoBackToCoursesStatsLink = () => {
-        return (
-            <Link
-                to={`/courses/${state.course.id}/stats`}
-                style={{color: '#212529'}}
-            >
-                <Typography>
-                    Назад к курсу
-                </Typography>
-            </Link>
-        )
     }
 
     const tasks = state.homeworks.flatMap(h => h.tasks ?? [])
@@ -138,9 +129,6 @@ const StudentStatsChart: React.FC = () => {
                                     <sup style={{color: "#2979ff"}}> бета</sup>
                                 </Typography>
                             </Grid>
-                            <Grid item>
-                                {isLoggedIn && renderGoBackToCoursesStatsLink()}
-                            </Grid>
                         </Grid>
                         {state.isSelectionMode &&
                             <Grid item>
@@ -155,6 +143,15 @@ const StudentStatsChart: React.FC = () => {
                             </Grid>
                         }
                     </Grid>
+                    {selectedStudents.length > 0 && <Grid xs={12} item>
+                        <StudentsRadarChart
+                            selectedStudents={selectedStudents}
+                            homeworks={state.homeworks}
+                            solutions={state.solutions}
+                            averageStudent={state.averageStudent}
+
+                        />
+                    </Grid>}
                     <Grid xs={12} item>
                         <Box mt={3} mb={8}>
                             <Paper elevation={2}>

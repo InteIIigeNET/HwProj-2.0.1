@@ -35,7 +35,7 @@ namespace HwProj.AuthService.IntegrationTests
                 ValidateIssuer = true,
                 ValidateAudience = false,
                 ValidateLifetime = true,
-                IssuerSigningKey = AuthorizationKey.SecurityKey,
+                IssuerSigningKey = null,
                 ValidateIssuerSigningKey = true
             };
             var claims = handler.ValidateToken(resultData.Value.AccessToken, validations, out var tokenSecure);
@@ -109,15 +109,6 @@ namespace HwProj.AuthService.IntegrationTests
                 "Student",
                 false,
                 model.MiddleName);
-
-        private static User GenerateUser(RegisterViewModel model)
-            => new User
-            {
-                Name = model.Name,
-                Surname = model.Surname,
-                MiddleName = model.MiddleName,
-                IsExternalAuth = false
-            };
 
         private IAuthServiceClient _authServiceClient;
 

@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using HwProj.Models.AuthService.ViewModels;
-using HwProj.Repositories;
+using HwProj.Repositories.Net8;
 
 namespace HwProj.AuthService.API.Models
 {

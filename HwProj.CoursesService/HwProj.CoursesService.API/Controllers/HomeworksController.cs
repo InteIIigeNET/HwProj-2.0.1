@@ -5,7 +5,6 @@ using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
-using HwProj.Models;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -28,9 +27,8 @@ namespace HwProj.CoursesService.API.Controllers
             var validationResult = Validator.ValidateHomework(homeworkViewModel);
             if (validationResult.Any()) return BadRequest(validationResult);
 
-            var homework = homeworkViewModel.ToHomework();
-            var homeworkId = await _homeworksService.AddHomeworkAsync(courseId, homework);
-            return Ok(homeworkId);
+            var newHomework = await _homeworksService.AddHomeworkAsync(courseId, homeworkViewModel);
+            return Ok(newHomework.ToHomeworkViewModel());
         }
 
         [HttpGet("get/{homeworkId}")]
@@ -66,9 +64,7 @@ namespace HwProj.CoursesService.API.Controllers
             var validationResult = Validator.ValidateHomework(homeworkViewModel, homework);
             if (validationResult.Any()) return BadRequest(validationResult);
 
-            var updatedHomework =
-                await _homeworksService.UpdateHomeworkAsync(homeworkId, homeworkViewModel.ToHomework(),
-                    homeworkViewModel.ActionOptions ?? ActionOptions.Default);
+            var updatedHomework = await _homeworksService.UpdateHomeworkAsync(homeworkId, homeworkViewModel);
             return Ok(updatedHomework.ToHomeworkViewModel());
         }
     }

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Models
 {
@@ -16,6 +16,7 @@ namespace HwProj.CoursesService.API.Models
         public DbSet<CourseFilter> CourseFilters { get; set; }
         public DbSet<UserToCourseFilter> UserToCourseFilters { get; set; }
         public DbSet<TaskQuestion> Questions { get; set; }
+        public DbSet<Criterion> Criteria { get; set; }
 
         public CourseContext(DbContextOptions options)
             : base(options)

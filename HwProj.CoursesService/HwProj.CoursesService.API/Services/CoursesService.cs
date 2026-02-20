@@ -8,6 +8,8 @@ using HwProj.CoursesService.API.Events;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
+using HwProj.Models.ContentService.DTO;
+using HwProj.ContentService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
@@ -16,6 +18,7 @@ using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -27,6 +30,7 @@ namespace HwProj.CoursesService.API.Services
         private readonly ICourseMatesRepository _courseMatesRepository;
         private readonly IEventBus _eventBus;
         private readonly IAuthServiceClient _authServiceClient;
+        private readonly IContentServiceClient _contentServiceClient;
         private readonly IGroupsRepository _groupsRepository;
         private readonly ICourseFilterService _courseFilterService;
         private readonly CourseContext _context;
@@ -37,6 +41,7 @@ namespace HwProj.CoursesService.API.Services
             ICourseMatesRepository courseMatesRepository,
             IEventBus eventBus,
             IAuthServiceClient authServiceClient,
+            IContentServiceClient contentServiceClient,
             IGroupsRepository groupsRepository,
             ICourseFilterService courseFilterService,
             CourseContext context)
@@ -47,6 +52,7 @@ namespace HwProj.CoursesService.API.Services
             _courseMatesRepository = courseMatesRepository;
             _eventBus = eventBus;
             _authServiceClient = authServiceClient;
+            _contentServiceClient = contentServiceClient;
             _groupsRepository = groupsRepository;
             _courseFilterService = courseFilterService;
             _context = context;
@@ -67,9 +73,9 @@ namespace HwProj.CoursesService.API.Services
             return await GetAsync(task.Homework.CourseId, userId);
         }
 
-        public async Task<CourseDTO?> GetAsync(long id, string userId = "")
+        public async Task<CourseDTO?> GetAsync(long id, string userId = "", bool asView = false)
         {
-            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(id);
+            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(id, withCriteria: asView);
             if (course == null) return null;
 
             CourseDomain.FillTasksInCourses(course);
@@ -99,15 +105,44 @@ namespace HwProj.CoursesService.API.Services
         {
             var courseTemplate = courseViewModel.ToCourseTemplate();
 
+            courseTemplate.Homeworks =
+                baseCourse?.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList() ??
+                new List<HomeworkTemplate>();
+
+            using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            var newCourse = await AddFromTemplateAsync(courseTemplate, courseViewModel.StudentIDs, mentorId);
+
             if (baseCourse != null)
             {
-                courseTemplate.Homeworks = baseCourse.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList();
+                var sourceHwIds = baseCourse.Homeworks.Select(hw => hw.Id);
+                var targetHwIds = newCourse.Homeworks.Select(hw => hw.Id);
+
+                var homeworksMapping = sourceHwIds
+                    .Zip(targetHwIds, (source, target) => new ScopeMappingDto
+                    {
+                        Source = source,
+                        Target = target
+                    }).ToList();
+
+                if (homeworksMapping.Count > 0)
+                {
+                    var result = await _contentServiceClient.TransferFilesFromCourse(new CourseFilesTransferDto
+                    {
+                        SourceCourseId = baseCourse.Id,
+                        TargetCourseId = newCourse.Id,
+                        HomeworksMapping = homeworksMapping
+                    });
+
+                    if (!result.Succeeded) throw new TransactionAbortedException(result.Errors.Join("\n"));
+                }
             }
 
-            return await AddFromTemplateAsync(courseTemplate, courseViewModel.StudentIDs, mentorId);
+            transactionScope.Complete();
+            return newCourse.Id;
         }
 
-        public async Task<long> AddFromTemplateAsync(CourseTemplate courseTemplate, List<string> studentIds,
+        private async Task<Course> AddFromTemplateAsync(CourseTemplate courseTemplate, List<string> studentIds,
             string mentorId)
         {
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
@@ -147,7 +182,9 @@ namespace HwProj.CoursesService.API.Services
             }
 
             transactionScope.Complete();
-            return courseId;
+
+            var result = await _coursesRepository.GetAsync(courseId);
+            return result;
         }
 
         public async Task DeleteAsync(long id)
@@ -281,6 +318,8 @@ namespace HwProj.CoursesService.API.Services
                     MentorId = lecturerId,
                     MentorEmail = lecturerEmail
                 });
+                //TODO: remove
+                await RejectCourseMateAsync(courseId, lecturerId);
             }
 
             return true;
@@ -309,7 +348,7 @@ namespace HwProj.CoursesService.API.Services
 
             if (courseMate == null) return false;
 
-            var tags = string.Join(";", characteristics.Tags.Distinct());
+            var tags = string.Join(";", characteristics.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).Distinct());
 
             var hasCharacteristic = courseMate.Characteristics != null;
 

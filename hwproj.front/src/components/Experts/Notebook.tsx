@@ -231,7 +231,8 @@ const ExpertsNotebook: FC = () => {
                         </Grid>
                         <Grid item justify-content={"flex-to-end"}>
                             <FormControlLabel
-                                control={<Checkbox size="small" onChange={handleAllExpertsSelection}/>}
+                                control={<Checkbox size="small" color={"primary"}
+                                                   onChange={handleAllExpertsSelection}/>}
                                 label="Показать всех"/>
                         </Grid>
                     </Grid>
