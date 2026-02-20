@@ -370,11 +370,9 @@ namespace HwProj.CoursesService.API.Services
         {
             var lecturers = await _authServiceClient.GetAllLecturers();
             var mentorIds = await GetCourseLecturers(courseId);
-            var availableLecturers = lecturers.Where(u => !mentorIds.Contains(u.Id));
+            var availableLecturers = lecturers.Where(u => !mentorIds.Contains(u.UserId));
 
-            return availableLecturers
-                .Select(u => u.ToAccountDataDto(Roles.LecturerRole))
-                .ToArray();
+            return availableLecturers.ToArray();
         }
     }
 }
