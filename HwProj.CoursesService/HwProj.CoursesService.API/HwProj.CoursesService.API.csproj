@@ -22,9 +22,11 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\HwProj.ContentService\HwProj.ContentService.Client\HwProj.ContentService.Client.csproj" />
     <ProjectReference Include="..\..\HwProj.AuthService\HwProj.AuthService.Client\HwProj.AuthService.Client.csproj" />
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Repositories\HwProj.Repositories.csproj" />
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Utils\HwProj.Utils.csproj" />
+    <ProjectReference Include="..\..\HwProj.NotificationsService\HwProj.NotificationService.Events\HwProj.NotificationService.Events.csproj" />
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties properties_4launchsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 </Project>

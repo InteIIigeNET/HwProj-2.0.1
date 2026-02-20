@@ -18,20 +18,12 @@ namespace HwProj.APIGateway.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountController : AggregationController
+    public class AccountController(
+        IAuthServiceClient authClient,
+        ICoursesServiceClient coursesClient,
+        ISolutionsServiceClient solutionsServiceClient)
+        : AggregationController(authClient)
     {
-        private readonly ICoursesServiceClient _coursesClient;
-        private readonly ISolutionsServiceClient _solutionsServiceClient;
-
-        public AccountController(
-            IAuthServiceClient authClient,
-            ICoursesServiceClient coursesClient,
-            ISolutionsServiceClient solutionsServiceClient) : base(authClient)
-        {
-            _coursesClient = coursesClient;
-            _solutionsServiceClient = solutionsServiceClient;
-        }
-
         [HttpGet("getUserData/{userId}")]
         [ProducesResponseType(typeof(AccountDataDto), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUserDataById(string userId)
@@ -52,7 +44,7 @@ namespace HwProj.APIGateway.API.Controllers
 
             if (User.IsInRole(Roles.LecturerRole))
             {
-                var courses = await _coursesClient.GetAllUserCourses();
+                var courses = await coursesClient.GetAllUserCourses();
                 var courseEvents = courses
                     .Select(t => new CourseEvents
                     {
@@ -74,9 +66,9 @@ namespace HwProj.APIGateway.API.Controllers
             }
 
             var currentTime = DateTime.UtcNow;
-            var taskDeadlines = await _coursesClient.GetTaskDeadlines();
+            var taskDeadlines = await coursesClient.GetTaskDeadlines();
             var taskIds = taskDeadlines.Select(t => t.TaskId).ToArray();
-            var solutions = await _solutionsServiceClient.GetLastTaskSolutions(taskIds, UserId);
+            var solutions = await solutionsServiceClient.GetLastTaskSolutions(taskIds, UserId);
             var taskDeadlinesInfo = taskDeadlines
                 .Zip(solutions, (deadline, solution) => (deadline, solution))
                 .Where(t => currentTime <= t.deadline.DeadlineDate || t.solution == null)
@@ -160,7 +152,7 @@ namespace HwProj.APIGateway.API.Controllers
         {
             return await AuthServiceClient.ResetPassword(model);
         }
-        
+
         [Authorize]
         [HttpPost("github/url")]
         [ProducesResponseType(typeof(UrlDto), (int)HttpStatusCode.OK)]

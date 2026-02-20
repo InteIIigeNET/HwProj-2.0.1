@@ -6,7 +6,7 @@ import {
 } from "@material-ui/core";
 import {LoadingButton} from "@mui/lab";
 import {IStepComponentProps} from "./ICreateCourseState";
-import {Alert, Autocomplete, Checkbox, FormControlLabel} from "@mui/material";
+import {Alert, Autocomplete, Checkbox, FormControlLabel, Chip} from "@mui/material";
 
 const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
     const handleCourseNameChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -28,6 +28,17 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
             })
         })
 
+    const handleGroupSelection = (event: React.SyntheticEvent, newValue: string[]) => {
+        setState(prev => ({
+            ...prev,
+            selectedGroups: newValue,
+            isGroupFromList: newValue.some(group => isGroupFromList(group)),
+            fetchStudents: newValue.every(group => state.groupNames.includes(group)) ? prev.fetchStudents : false,
+        }));
+    }
+
+    const isGroupFromList = (group: string) => state.groupNames.includes(group);
+
     return (
         <Grid container spacing={2}>
             <Grid item xs={12}>
@@ -48,7 +59,7 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                         setState(prev => ({
                             ...prev,
                             programName: newValue || '',
-                            groupName: '',
+                            selectedGroups: [],
                             isGroupFromList: false,
                         }));
                     }}
@@ -68,52 +79,39 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                     студентов из базы студентов университета</Alert>
             </Grid>
 
-            {state.programName ? (
-                <Grid item xs={12}>
-                    <Autocomplete
-                        freeSolo
-                        value={state.groupName}
-                        onChange={(_, newValue) => {
-                            const isFromList = state.groupNames.includes(newValue || '');
-                            setState(prev => ({
-                                ...prev,
-                                groupName: newValue || '',
-                                isGroupFromList: isFromList,
-                                fetchStudents: isFromList ? prev.fetchStudents : false,
-                            }));
-                        }}
-                        options={state.groupNames}
-                        loading={state.fetchingGroups}
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                label="Название группы"
-                                variant="outlined"
-                                fullWidth
+            <Grid item xs={12}>
+                <Autocomplete
+                    multiple
+                    freeSolo
+                    value={state.selectedGroups}
+                    onChange={handleGroupSelection}
+                    options={state.programName ? state.groupNames : []}
+                    loading={state.fetchingGroups}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Название группы (групп)"
+                            variant="outlined"
+                            fullWidth
+                            helperText={"После ввода нажмите Enter"}
+                            placeholder={state.programName 
+                                ? "Выберите или введите название группы или нескольких групп" 
+                                : "Введите название группы или нескольких групп"}
+                        />
+                    )}
+                    renderTags={(value, getTagProps) =>
+                        value.map((option, index) => (
+                            <Chip
+                                label={option}
+                                {...getTagProps({ index })}
+                                color={isGroupFromList(option) ? "primary" : "default"}
                             />
-                        )}
-                        fullWidth
-                    />
-                </Grid>
-            ) : (
-                <Grid item xs={12}>
-                    <TextField
-                        label="Название группы"
-                        variant="outlined"
-                        fullWidth
-                        required={true}
-                        value={state.groupName}
-                        onChange={(e) => {
-                            setState(prev => ({
-                                ...prev,
-                                groupName: e.target.value,
-                                isGroupFromList: false,
-                                fetchStudents: false,
-                            }));
-                        }}
-                    />
-                </Grid>
-            )}
+                        ))
+                    }
+                    fullWidth
+                />
+            </Grid>
+
             {state.isGroupFromList && (
                 <Grid item xs={12}>
                     <FormControlLabel
@@ -126,7 +124,7 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                                 color="primary"
                             />
                         }
-                        label="Добавить всех студентов из группы"
+                        label="Добавить студентов из выбранных групп"
                     />
                 </Grid>
             )}
@@ -148,7 +146,7 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                         color: "#3f51b5",
                         ":hover": {background: "#f7f8fc"},
                     }}
-                    disabled={!state.courseName || !state.groupName}
+                    disabled={!state.courseName || state.selectedGroups.length === 0}
                     loading={state.courseIsLoading}
                 >
                     Создать курс

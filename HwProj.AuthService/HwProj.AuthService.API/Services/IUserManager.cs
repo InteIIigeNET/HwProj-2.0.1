@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using HwProj.Models.AuthService.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using User = HwProj.AuthService.API.Models.User;
 
 namespace HwProj.AuthService.API.Services
 {

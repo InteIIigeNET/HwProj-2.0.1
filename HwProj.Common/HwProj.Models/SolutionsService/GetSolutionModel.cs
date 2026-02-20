@@ -19,6 +19,7 @@ namespace HwProj.Models.SolutionsService
                          ?? Array.Empty<AccountDataDto>();
             LecturerComment = model.LecturerComment;
             PublicationDate = model.PublicationDate;
+            IsModified = model.IsModified;
             Rating = model.Rating;
             StudentId = model.StudentId;
             TaskId = model.TaskId;
@@ -44,6 +45,7 @@ namespace HwProj.Models.SolutionsService
         public long TaskId { get; set; }
 
         public DateTime PublicationDate { get; set; }
+        public bool IsModified { get; set; }
 
         public string LecturerComment { get; set; }
 

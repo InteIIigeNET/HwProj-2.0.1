@@ -4,10 +4,9 @@ import {Dialog, DialogTitle, DialogContent, DialogActions} from "@mui/material";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import ApiSingleton from "../../api/ApiSingleton";
-import {RegisterExpertViewModel} from "../../api/";
+import {RegisterExpertViewModel} from "@/api";
 import "../Auth/Styles/Register.css";
 import Grid from "@material-ui/core/Grid";
-import {makeStyles} from '@material-ui/core/styles';
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import Avatar from "@material-ui/core/Avatar";
 import Tags from "../Common/Tags";
@@ -22,28 +21,7 @@ interface IRegisterExpertState {
     errors: string[];
 }
 
-const useStyles = makeStyles((theme) => ({
-    paper: {
-        marginTop: theme.spacing(3),
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
-    avatar: {
-        margin: theme.spacing(1),
-    },
-    form: {
-        marginTop: theme.spacing(3),
-        width: '100%'
-    },
-    button: {
-        marginTop: theme.spacing(1)
-    },
-}))
-
 const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
-    const classes = useStyles()
-
     const [registerState, setRegisterState] = useState<RegisterExpertViewModel>({
         name: "",
         surname: "",
@@ -108,11 +86,12 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
 
     return (
         <div>
-            <Dialog open={props.isOpen} onClose={handleClose} aria-labelledby="form-dialog-title" maxWidth="xs">
+            <Dialog open={props.isOpen} onClose={() => handleClose(false)} aria-labelledby="form-dialog-title"
+                    maxWidth="xs">
                 <DialogTitle id="form-dialog-title">
                     <Grid container>
                         <Grid item container direction={"row"} justifyContent={"center"}>
-                            <Avatar className={classes.avatar} style={{color: 'white', backgroundColor: '#00AB00'}}>
+                            <Avatar style={{color: 'white', backgroundColor: '#00AB00'}}>
                                 <PersonAddOutlinedIcon/>
                             </Avatar>
                         </Grid>
@@ -123,13 +102,13 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                         </Grid>
                     </Grid>
                 </DialogTitle>
-                <DialogContent>
-                    <Grid item container direction={"row"} justifyContent={"center"}>
-                        {commonState.errors.length > 0 && (
-                            <p style={{color: "red", marginBottom: "0"}}>{commonState.errors}</p>
-                        )}
-                    </Grid>
-                    <form onSubmit={handleSubmit} className={classes.form}>
+                <form onSubmit={handleSubmit}>
+                    <DialogContent>
+                        <Grid item container direction={"row"} justifyContent={"center"}>
+                            {commonState.errors.length > 0 && (
+                                <p style={{color: "red", marginBottom: "0"}}>{commonState.errors}</p>
+                            )}
+                        </Grid>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={6}>
                                 <TextField
@@ -235,38 +214,24 @@ const RegisterExpertModal: FC<IRegisterExpertProps> = (props) => {
                                 />
                             </Grid>
                         </Grid>
-                        <Grid
-                            direction="row"
-                            justifyContent="flex-end"
-                            alignItems="flex-end"
-                            container
-                            style={{marginTop: '16px'}}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            type="submit"
                         >
-                            <Grid item>
-                                <Button
-                                    onClick={() => handleClose(false)}
-                                    color="primary"
-                                    variant="contained"
-                                    style={{marginRight: '10px'}}
-                                >
-                                    Закрыть
-                                </Button>
-                            </Grid>
-                            <Grid item>
-                                <Button
-                                    fullWidth
-                                    variant="contained"
-                                    color="primary"
-                                    type="submit"
-                                >
-                                    Зарегистрировать
-                                </Button>
-                            </Grid>
-                        </Grid>
-                    </form>
-                </DialogContent>
-                <DialogActions>
-                </DialogActions>
+                            Зарегистрировать
+                        </Button>
+                        <Button
+                            onClick={() => handleClose(false)}
+                            color="primary"
+                            variant="text"
+                        >
+                            Закрыть
+                        </Button>
+                    </DialogActions>
+                </form>
             </Dialog>
         </div>
     )

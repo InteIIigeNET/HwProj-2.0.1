@@ -2,11 +2,12 @@ import * as React from 'react';
 import {FC, useEffect, useState} from 'react';
 import TaskSolutionComponent from "./TaskSolutionComponent";
 import {
+    FileInfoDTO,
     GetSolutionModel,
     GetTaskQuestionDto,
     HomeworkTaskViewModel,
     SolutionState, StudentDataDto
-} from '../../api';
+} from '@/api';
 import {Grid, Tab, Tabs} from "@material-ui/core";
 import {Chip, Divider, Stack, Tooltip, Badge} from "@mui/material";
 import Utils from "../../services/Utils";
@@ -17,12 +18,19 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {DotLottieReact} from '@lottiefiles/dotlottie-react';
 
 interface ITaskSolutionsProps {
-    courseId: number,
+    courseId: number
     task: HomeworkTaskViewModel
     solutions: GetSolutionModel[]
-    student: StudentDataDto
+    student: StudentDataDto | undefined
+    courseStudents: StudentDataDto[]
     forMentor: boolean
     onSolutionRateClick?: () => void
+    courseFiles: FileInfoDTO[]
+    processingFiles: {
+        [solutionId: number]: {
+            isLoading: boolean;
+        }
+    };
 }
 
 interface ITaskSolutionsState {
@@ -46,8 +54,8 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     }
 
     useEffect(() => {
-        setState({tabValue: 1})
-    }, [props.student.userId, props.task.id])
+        setState({tabValue: props.student == null ? 0 : 1})
+    }, [props.student?.userId, props.task.id])
 
     useEffect(() => {
         getQuestions()
@@ -55,8 +63,13 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
 
     const {tabValue} = state
     const {solutions, student, forMentor, task} = props
-    const lastSolution = solutions[solutions.length - 1]
-    const arrayOfRatedSolutions = solutions.slice(0, solutions.length - 1)
+    const sortedSolutions = [...solutions].sort((a, b) => {
+        const da = new Date(a.ratingDate || a.publicationDate!).getTime();
+        const db = new Date(b.ratingDate || b.publicationDate!).getTime();
+        return da - db;
+    });
+    const lastSolution = sortedSolutions[sortedSolutions.length - 1]
+    const arrayOfRatedSolutions = sortedSolutions.slice(0, solutions.length - 1)
     const previousSolution = arrayOfRatedSolutions && arrayOfRatedSolutions[arrayOfRatedSolutions.length - 1]
     const lastRating = previousSolution && previousSolution.state !== SolutionState.NUMBER_0 // != Posted
         ? previousSolution.rating
@@ -65,7 +78,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     const newQuestions = questionsState.filter(x => x.answer === null).length
 
     const renderSolutionsRate = () => {
-        const ratedSolutions = solutions
+        const ratedSolutions = sortedSolutions
             .filter(x => x.state !== SolutionState.NUMBER_0)
             .map(x => ({
                 publicationTime: new Date(x.publicationDate!),
@@ -160,26 +173,35 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                                color={newQuestions === 0 ? "success" : "primary"}>
                      <QuestionMark style={{fontSize: 15}}/>
                  </Badge>}/>
-            <Tab label="Последнее решение"/>
-            {arrayOfRatedSolutions.length > 0 && <Tab label="Предыдущие попытки"/>}
+            {student !== undefined && <Tab label="Последнее решение"/>}
+            {arrayOfRatedSolutions.length > 0 && <Tab label={
+                <Stack direction="row" spacing={1}>
+                    <div>Предыдущие попытки</div>
+                    <Chip size={"small"}
+                          color={"default"}
+                          label={(arrayOfRatedSolutions.length)}/>
+                </Stack>}/>}
         </Tabs>
         {tabValue === 0 && <Grid item style={{marginTop: '5px'}}>
             <TaskQuestions forMentor={forMentor}
                            taskId={task.id!}
-                           student={student}
+                           courseStudents={props.courseStudents}
                            questions={questionsState} onChange={getQuestions}/>
         </Grid>}
         {tabValue === 1 && <Grid item style={{marginTop: '16px'}}>
-            {lastSolution || forMentor
+            {(lastSolution || forMentor) && student !== undefined
                 ? <TaskSolutionComponent
                     task={props.task}
                     forMentor={forMentor}
                     solution={lastSolution!}
-                    student={student!}
+                    student={student}
                     lastRating={lastRating}
                     onRateSolutionClick={onSolutionRateClick}
                     isLastSolution={true}
-                    courseId={props.courseId}/>
+                    courseId={props.courseId}
+                    courseFilesInfo={props.courseFiles}
+                    isProcessing={lastSolution && (props.processingFiles[lastSolution.id!]?.isLoading || false)}
+                />
                 : <div>
                     Студент не отправил ни одного решения.
                     <DotLottieReact
@@ -199,7 +221,10 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                         student={student!}
                         onRateSolutionClick={onSolutionRateClick}
                         isLastSolution={false}
-                        courseId={props.courseId}/>
+                        courseId={props.courseId}
+                        courseFilesInfo={props.courseFiles}
+                        isProcessing={props.processingFiles[x.id!]?.isLoading || false}
+                    />
                     {i < arrayOfRatedSolutions.length - 1 ?
                         <Divider style={{marginTop: 10, marginBottom: 4}}/> : null}
                 </Grid>)}

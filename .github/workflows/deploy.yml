@@ -11,8 +11,10 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 30m
           script: |
             cd /home/${{ secrets.SSH_USER }}/docker/HwProj-2.0.1
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S ./update.sh

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using HwProj.Models.AuthService.DTO;
+using HwProj.Models.CoursesService.DTO;
 
 namespace HwProj.Models.CoursesService.ViewModels
 {
@@ -12,12 +13,10 @@ namespace HwProj.Models.CoursesService.ViewModels
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
         public string Name { get; set; }
 
-        public string GroupName { get; set; }
-        
-        public List<string> StudentIDs { get; set; }  = new List<string>();
-        public bool FetchStudents { get; set; } 
+        public List<string> GroupNames { get; set; } = new List<string>();
+        public List<string> StudentIDs { get; set; } = new List<string>();
+        public bool FetchStudents { get; set; }
         [Required] public bool IsOpen { get; set; }
-
         public long? BaseCourseId { get; set; }
     }
 
@@ -57,6 +56,12 @@ namespace HwProj.Models.CoursesService.ViewModels
         public AccountDataDto[] AcceptedStudents { get; set; }
         public AccountDataDto[] NewStudents { get; set; }
         public HomeworkViewModel[] Homeworks { get; set; }
+    }
+
+    public class CourseAllData
+    {
+        public CourseViewModel Course { get; set; }
+        public MentorToAssignedStudentsDTO[] AssignedStudents { get; set; }
     }
 
     // Модель для списка всех курсов

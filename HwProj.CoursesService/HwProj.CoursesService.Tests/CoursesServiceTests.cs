@@ -56,33 +56,33 @@ namespace HwProj.CoursesService.Tests
         }
 
         private static CreateHomeworkViewModel GenerateCreateHomeworkViewModel(DateTime publicationDate,
-            bool hasDeadline, DateTime? deadlineDate, bool isStrict, List<CreateTaskViewModel>? tasks = null)
+            bool hasDeadline, DateTime? deadlineDate, bool isStrict, List<PostTaskViewModel>? tasks = null)
             => new Fixture().Build<CreateHomeworkViewModel>()
                     .With(hvc => hvc.HasDeadline, hasDeadline)
                     .With(hvc => hvc.PublicationDate, publicationDate)
                     .With(hvc => hvc.DeadlineDate, deadlineDate)
                     .With(hvc => hvc.IsDeadlineStrict, isStrict)
-                    .With(hvm => hvm.Tasks, tasks ?? new List<CreateTaskViewModel>())
+                    .With(hvm => hvm.Tasks, tasks ?? new List<PostTaskViewModel>())
                     .Create();
 
         private static CreateHomeworkViewModel GenerateDefaultHomeworkViewModel()
             => GenerateCreateHomeworkViewModel(utcNow, false, null, false);
         
-        private static CreateTaskViewModel GenerateCreateTaskViewModel(DateTime? publicationDate,
+        private static PostTaskViewModel GenerateCreateTaskViewModel(DateTime? publicationDate,
             bool? hasDeadline, DateTime? deadlineDate, bool? isStrict)
-            => new Fixture().Build<CreateTaskViewModel>()
+            => new Fixture().Build<PostTaskViewModel>()
                 .With(hvc => hvc.HasDeadline, hasDeadline)
                 .With(hvc => hvc.PublicationDate, publicationDate)
                 .With(hvc => hvc.DeadlineDate, deadlineDate)
                 .With(hvc => hvc.IsDeadlineStrict, isStrict)
                 .Create();
 
-        private static CreateTaskViewModel GenerateDefaultTaskViewModel()
+        private static PostTaskViewModel GenerateDefaultTaskViewModel()
             => GenerateCreateTaskViewModel(null, null, null, null);
 
-        private static CreateTaskViewModel GenerateCreateTaskViewModelWithNullProperties()
+        private static PostTaskViewModel GenerateCreateTaskViewModelWithNullProperties()
         {
-            return new Fixture().Build<CreateTaskViewModel>()
+            return new Fixture().Build<PostTaskViewModel>()
                 .Without(t => t.PublicationDate)
                 .Without(t => t.DeadlineDate)
                 .Without(t => t.IsDeadlineStrict)
@@ -135,7 +135,7 @@ namespace HwProj.CoursesService.Tests
             return (id, lectureCourseClient);
         }
 
-        private async Task<(long courseId, CreateHomeworkViewModel homework, Result<long> homeworkResult, CoursesServiceClient client)> CreateCourseWithHomework()
+        private async Task<(long courseId, CreateHomeworkViewModel homework, Result<HomeworkViewModel> homeworkResult, CoursesServiceClient client)> CreateCourseWithHomework()
         {
             var course = await CreateClientAndCourse();
             var homework = GenerateDefaultHomeworkViewModel();
@@ -145,13 +145,13 @@ namespace HwProj.CoursesService.Tests
         }
         
         private async Task<(Result<HomeworkTaskViewModel> editResult, HomeworkTaskForEditingViewModel tasksFromDb)>
-            AddTaskToHomeworkAndUpdate(CreateTaskViewModel firstTaskState, CreateTaskViewModel secondTaskState)
+            AddTaskToHomeworkAndUpdate(PostTaskViewModel firstTaskState, PostTaskViewModel secondTaskState)
         {
             var homework = GenerateDefaultHomeworkViewModel();
             var homeworkResult = await client.AddHomeworkToCourse(homework, courseId);
-            var taskResult = await client.AddTask(homeworkResult.Value, firstTaskState);
-            var editResult = await client.UpdateTask(taskResult.Value, secondTaskState);
-            var taskFromDb = await client.GetForEditingTask(taskResult.Value);
+            var taskResult = await client.AddTask(homeworkResult.Value.Id, firstTaskState);
+            var editResult = await client.UpdateTask(taskResult.Value.Id, secondTaskState);
+            var taskFromDb = await client.GetForEditingTask(taskResult.Value.Id);
 
             return (editResult, taskFromDb);
         }
@@ -174,12 +174,12 @@ namespace HwProj.CoursesService.Tests
                 .With(hvc => hvc.PublicationDate, expectedPublicationDate)
                 .With(hvc => hvc.DeadlineDate, expectedDeadlineDate)
                 .With(hvc => hvc.IsDeadlineStrict, expectedIsDeadlineStrict)
-                .With(hvc => hvc.Tasks, new List<CreateTaskViewModel> { GenerateCreateTaskViewModelWithNullProperties() })
+                .With(hvc => hvc.Tasks, new List<PostTaskViewModel> { GenerateCreateTaskViewModelWithNullProperties() })
                 .Create();
 
             var homeworkResult = await client.AddHomeworkToCourse(homework, courseId);
 
-            var actualResult = (await client.GetHomework(homeworkResult.Value)).Tasks.FirstOrDefault();
+            var actualResult = (await client.GetHomework(homeworkResult.Value.Id)).Tasks.FirstOrDefault();
 
             homeworkResult.Succeeded.Should().BeTrue();
             homeworkResult.Errors.Should().BeNull();
@@ -192,7 +192,7 @@ namespace HwProj.CoursesService.Tests
         }
 
         [TestCaseSource(nameof(InvalidCreateHomeworkData))]
-        public async Task AddHomeworkWithInvalidPropertiesShouldReturnFailedResult((DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<CreateTaskViewModel> tasks) data)
+        public async Task AddHomeworkWithInvalidPropertiesShouldReturnFailedResult((DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<PostTaskViewModel> tasks) data)
         {
             var homework = GenerateCreateHomeworkViewModel(data.publication, data.hasDeadline, data.deadline,
                 data.isStrict, data.tasks);
@@ -206,7 +206,7 @@ namespace HwProj.CoursesService.Tests
         }
 
         [TestCaseSource(nameof(ValidCreateHomeworkData))]
-        public async Task AddHomeworkWithValidPropertiesShouldReturnSucceededResult((DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<CreateTaskViewModel>? tasks) data)
+        public async Task AddHomeworkWithValidPropertiesShouldReturnSucceededResult((DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<PostTaskViewModel>? tasks) data)
         {
             var homework = GenerateCreateHomeworkViewModel(data.publication, data.hasDeadline, data.deadline, data.isStrict, data.tasks);
             var homeworkResult = await client.AddHomeworkToCourse(homework, courseId);
@@ -217,14 +217,14 @@ namespace HwProj.CoursesService.Tests
             course?.Homeworks.Should().ContainEquivalentOf(homework,
                 option => option.ExcludingMissingMembers().Excluding(h => h.Tasks));
         }
-        
+
         [TestCaseSource(nameof(InvalidCreateTaskData))]
         public async Task AddTaskWithInvalidPropertiesShouldReturnFailedResult((CreateHomeworkViewModel homework, DateTime? publication, bool? hasDeadline, DateTime? deadline, bool? isStrict) data)
         {
             var task = GenerateCreateTaskViewModel(data.publication, data.hasDeadline, data.deadline, data.isStrict);
             var homeworkResult = await client.AddHomeworkToCourse(data.homework, courseId);
-            var taskResult = await client.AddTask(homeworkResult.Value, task);
-            var homeworkFromDb = await client.GetForEditingHomework(homeworkResult.Value);
+            var taskResult = await client.AddTask(homeworkResult.Value.Id, task);
+            var homeworkFromDb = await client.GetForEditingHomework(homeworkResult.Value.Id);
 
             homeworkResult.Succeeded.Should().BeTrue();
 
@@ -241,8 +241,8 @@ namespace HwProj.CoursesService.Tests
         {
             var task = GenerateCreateTaskViewModel(data.publication, data.hasDeadline, data.deadline, data.isStrict);
             var homeworkResult = await client.AddHomeworkToCourse(data.homework, courseId);
-            var taskResult = await client.AddTask(homeworkResult.Value, task);
-            var homeworkFromDb = await client.GetForEditingHomework(homeworkResult.Value);
+            var taskResult = await client.AddTask(homeworkResult.Value.Id, task);
+            var homeworkFromDb = await client.GetForEditingHomework(homeworkResult.Value.Id);
 
             homeworkResult.Succeeded.Should().BeTrue();
 
@@ -261,8 +261,8 @@ namespace HwProj.CoursesService.Tests
             var secondHomeworkState =
                 GenerateCreateHomeworkViewModel(data.publication, data.hasDeadline, data.deadline, data.isStrict);
             var homeworkResult = await client.AddHomeworkToCourse(data.firstHomeworkState, courseId);
-            var updateResult = await client.UpdateHomework(homeworkResult.Value, secondHomeworkState);
-            var homeworkFromDb = await client.GetHomework(homeworkResult.Value);
+            var updateResult = await client.UpdateHomework(homeworkResult.Value.Id, secondHomeworkState);
+            var homeworkFromDb = await client.GetHomework(homeworkResult.Value.Id);
 
             homeworkFromDb.Should().NotBeNull();
             homeworkResult.Succeeded.Should().BeTrue();
@@ -281,8 +281,8 @@ namespace HwProj.CoursesService.Tests
             var secondHomeworkState =
                 GenerateCreateHomeworkViewModel(data.publication, data.hasDeadline, data.deadline, data.isStrict);
             var homeworkResult = await client.AddHomeworkToCourse(data.firstHomeworkState, courseId);
-            var updateResult = await client.UpdateHomework(homeworkResult.Value, secondHomeworkState);
-            var taskFromDb = await client.GetHomework(homeworkResult.Value);
+            var updateResult = await client.UpdateHomework(homeworkResult.Value.Id, secondHomeworkState);
+            var taskFromDb = await client.GetHomework(homeworkResult.Value.Id);
                 
             taskFromDb.Should().NotBeNull();
             homeworkResult.Succeeded.Should().BeTrue();
@@ -341,8 +341,8 @@ namespace HwProj.CoursesService.Tests
             var (_, _, homeworkResult,  _) = await CreateCourseWithHomework();
             
             var task = GenerateDefaultTaskViewModel();
-            var addHomeworkResult = await client.AddTask(homeworkResult.Value, task);
-            var homeworkFromDb = await client.GetHomework(homeworkResult.Value);
+            var addHomeworkResult = await client.AddTask(homeworkResult.Value.Id, task);
+            var homeworkFromDb = await client.GetHomework(homeworkResult.Value.Id);
             
             addHomeworkResult.Succeeded.Should().BeFalse();
             homeworkFromDb.Tasks.Should().BeEmpty();
@@ -354,8 +354,8 @@ namespace HwProj.CoursesService.Tests
             var (_, createdHomework, homeworkResult,  _) = await CreateCourseWithHomework();
 
             var homework = GenerateCreateHomeworkViewModel(utcNow.AddHours(2), true, utcNow.AddHours(4), true);
-            var updateHomeworkResult = await client.UpdateHomework(homeworkResult.Value, homework);
-            var homeworkFromDb = await client.GetHomework(homeworkResult.Value);
+            var updateHomeworkResult = await client.UpdateHomework(homeworkResult.Value.Id, homework);
+            var homeworkFromDb = await client.GetHomework(homeworkResult.Value.Id);
             
             updateHomeworkResult.Succeeded.Should().BeFalse();
             homeworkFromDb.Should().BeEquivalentTo(createdHomework,
@@ -369,9 +369,9 @@ namespace HwProj.CoursesService.Tests
             var oldTask = GenerateDefaultTaskViewModel();
             var newTask = GenerateCreateTaskViewModel(utcNow, false, null, false);
 
-            var addTaskResult = await foreignClient.AddTask(homeworkResult.Value, oldTask);
-            var updateTaskResult = await client.UpdateTask(addTaskResult.Value, newTask);
-            var taskFromDb = await foreignClient.GetForEditingTask(addTaskResult.Value);
+            var addTaskResult = await foreignClient.AddTask(homeworkResult.Value.Id, oldTask);
+            var updateTaskResult = await client.UpdateTask(addTaskResult.Value.Id, newTask);
+            var taskFromDb = await foreignClient.GetForEditingTask(addTaskResult.Value.Id);
             
             updateTaskResult.Succeeded.Should().BeFalse();
             taskFromDb.Should().BeEquivalentTo(oldTask,
@@ -380,32 +380,32 @@ namespace HwProj.CoursesService.Tests
         
         // TODO: тесты для GetForEditingTask/Homework
 
-        public static IEnumerable<(DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<CreateTaskViewModel>? tasks)> ValidCreateHomeworkData()
+        public static IEnumerable<(DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<PostTaskViewModel>? tasks)> ValidCreateHomeworkData()
         {
             yield return (utcNow.AddHours(1), true, utcNow.AddHours(2), true, null);
             yield return (utcNow, false, null, false, null);
             yield return (utcNow, false, null, false,
-                new List<CreateTaskViewModel> {GenerateCreateTaskViewModel(utcNow.AddHours(1), null, null, null)});
+                new List<PostTaskViewModel> {GenerateCreateTaskViewModel(utcNow.AddHours(1), null, null, null)});
             yield return (utcNow, false, null, false, 
-                new List<CreateTaskViewModel> {GenerateCreateTaskViewModel(null, null, null, null)});
+                new List<PostTaskViewModel> {GenerateCreateTaskViewModel(null, null, null, null)});
             yield return (utcNow, false, null, false,
-                new List<CreateTaskViewModel> {GenerateCreateTaskViewModel(utcNow, true, utcNow, false)});
+                new List<PostTaskViewModel> {GenerateCreateTaskViewModel(utcNow, true, utcNow, false)});
             yield return (utcNow, false, null, false,
-                new List<CreateTaskViewModel> {GenerateCreateTaskViewModel(utcNow, null, null, false)});
+                new List<PostTaskViewModel> {GenerateCreateTaskViewModel(utcNow, null, null, false)});
         }
 
-        public static IEnumerable<(DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<CreateTaskViewModel>? tasks)> InvalidCreateHomeworkData()
+        public static IEnumerable<(DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<PostTaskViewModel>? tasks)> InvalidCreateHomeworkData()
         {
             yield return (utcNow, false, utcNow, false, null);
             yield return (utcNow.AddHours(1), false, utcNow, false, null);
             yield return (utcNow, true, null, false, null);
             yield return (utcNow, false, null, true, null);
             yield return (utcNow, false, null, false,
-                new List<CreateTaskViewModel> {GenerateCreateTaskViewModel(utcNow.AddHours(-1), null, null, null)});
+                new List<PostTaskViewModel> {GenerateCreateTaskViewModel(utcNow.AddHours(-1), null, null, null)});
             yield return (utcNow, false, null, false,
-                new List<CreateTaskViewModel> {GenerateCreateTaskViewModel(utcNow, true, null, true)});
+                new List<PostTaskViewModel> {GenerateCreateTaskViewModel(utcNow, true, null, true)});
             yield return (utcNow, false, null, false,
-                new List<CreateTaskViewModel> {GenerateCreateTaskViewModel(utcNow, null, null, true)});
+                new List<PostTaskViewModel> {GenerateCreateTaskViewModel(utcNow, null, null, true)});
         }
 
         public static IEnumerable<(CreateHomeworkViewModel, DateTime? publication, bool? hasDeadline, DateTime? deadline, bool? isStrict)> InvalidCreateTaskData()
@@ -439,7 +439,7 @@ namespace HwProj.CoursesService.Tests
         { 
             var publishedHomework = GenerateCreateHomeworkViewModel(utcNow.AddHours(-1), false, null, false);
             var delayedHomework = GenerateCreateHomeworkViewModel(utcNow.AddHours(1), false, null, false,
-                new List<CreateTaskViewModel> { GenerateCreateTaskViewModel(utcNow.AddHours(1), null, null, null)});
+                new List<PostTaskViewModel> { GenerateCreateTaskViewModel(utcNow.AddHours(1), null, null, null)});
 
             yield return (publishedHomework, publishedHomework.PublicationDate.AddHours(1), true, utcNow, true);
             yield return (delayedHomework, delayedHomework.Tasks[0].PublicationDate?.AddHours(1) ?? utcNow, true,
@@ -450,7 +450,7 @@ namespace HwProj.CoursesService.Tests
         {
             var publishedHomework = GenerateCreateHomeworkViewModel(utcNow.AddHours(-1), false, null, false);
             var delayedHomework = GenerateCreateHomeworkViewModel(utcNow.AddHours(1), false, null, false,
-                new List<CreateTaskViewModel> { GenerateCreateTaskViewModel(utcNow.AddHours(1), null, null, null)});
+                new List<PostTaskViewModel> { GenerateCreateTaskViewModel(utcNow.AddHours(1), null, null, null)});
 
             yield return (publishedHomework, publishedHomework.PublicationDate, true, publishedHomework.PublicationDate, true);
             yield return (delayedHomework, delayedHomework.PublicationDate, true, utcNow.AddHours(10), true);

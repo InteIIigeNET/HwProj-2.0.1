@@ -71,13 +71,17 @@ Write-Host "Выполняем текстовые замены в api.ts..."
 $apiFilePath = Join-Path $apiDestination "api.ts"
 
 if (Test-Path -Path $apiFilePath) {
-    $apiContent = Get-Content -Path $apiFilePath -Raw
+    $apiContent = Get-Content -Path $apiFilePath
 
     # 1. Замена импорта isomorphic-fetch на ESM-совместимый
     $apiContent = $apiContent -replace 'import\s+\*\s+as\s+isomorphicFetch\s+from\s+"isomorphic-fetch";', 'import isomorphicFetch from "isomorphic-fetch";'
 
     # 2. Делаем конфигурацию опциональной
     $apiContent = $apiContent -replace 'configuration:\s*Configuration;', 'configuration: Configuration | undefined;'
+
+    # 3. Форматируем пробелы
+    $apiContent = $apiContent | ForEach {$_.TrimEnd()}
+    $apiContent = $apiContent -replace '\t', (' ' * 4)
 
     # Сохраняем изменения
     $apiContent | Set-Content -Path $apiFilePath -Encoding UTF8 -Force

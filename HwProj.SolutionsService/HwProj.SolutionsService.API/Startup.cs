@@ -1,5 +1,6 @@
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
+using HwProj.EventBus.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;

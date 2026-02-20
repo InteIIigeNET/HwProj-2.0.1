@@ -57,7 +57,20 @@ class Api {
     }
 }
 
-const basePath = import.meta.env.VITE_BASE_PATH
+function getApiBase(): string {
+    const {protocol, hostname, port} = window.location;
+
+    const isLocal =
+        hostname === "localhost" ||
+        hostname === "127.0.0.1" ||
+        hostname === "::1";
+
+    const effectivePort = isLocal ? "5000" : (port || "");
+
+    return `${protocol}//${hostname}${effectivePort ? `:${effectivePort}` : ""}`
+}
+
+const basePath = getApiBase()
 const authService = new AuthService()
 
 let ApiSingleton: Api;

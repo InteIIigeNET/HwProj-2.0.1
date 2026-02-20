@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Autofac.Core;
-using HwProj.Models.NotificationsService;
+using HwProj.NotificationsService.API.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MimeKit;

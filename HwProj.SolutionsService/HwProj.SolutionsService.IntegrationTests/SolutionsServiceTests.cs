@@ -61,7 +61,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             fixture.Customizations.Add(new RandomDateTimeSequenceGenerator(DateTime.UtcNow, DateTime.UtcNow.AddYears(addYears)));
 
             var result = fixture.Build<CreateHomeworkViewModel>()
-                .With(hvm => hvm.Tasks, new List<CreateTaskViewModel>())
+                .With(hvm => hvm.Tasks, new List<PostTaskViewModel>())
                 .With(hvm => hvm.PublicationDate, DateTime.UtcNow)
                 .Without(hvm => hvm.DeadlineDate)
                 .Without(hvm => hvm.PublicationDate)
@@ -74,9 +74,9 @@ namespace HwProj.SolutionsService.IntegrationTests
             return result.Create();
         }
 
-        private CreateTaskViewModel GenerateCreateTaskViewModelWithoutDeadLine()
+        private PostTaskViewModel GenerateCreateTaskViewModelWithoutDeadLine()
         {
-            return new Fixture().Build<CreateTaskViewModel>()
+            return new Fixture().Build<PostTaskViewModel>()
                 .With(t => t.HasDeadline, false)
                 .Without(t => t.IsDeadlineStrict)
                 .Without(t => t.PublicationDate)
@@ -84,9 +84,9 @@ namespace HwProj.SolutionsService.IntegrationTests
                 .Create();
         }
 
-        private CreateTaskViewModel GenerateCreateTaskViewModelWithStrictDeadLine()
+        private PostTaskViewModel GenerateCreateTaskViewModelWithStrictDeadLine()
         {
-            return new Fixture().Build<CreateTaskViewModel>()
+            return new Fixture().Build<PostTaskViewModel>()
                 .With(t => t.HasDeadline, true)
                 .With(t => t.IsDeadlineStrict, true)
                 .With(t => t.PublicationDate, DateTime.UtcNow)
@@ -192,9 +192,9 @@ namespace HwProj.SolutionsService.IntegrationTests
             var courseId = await CreateCourse(lectureCourseClient, lectureId);
             var newHomeworkViewModel = GenerateCreateHomeworkViewModel();
             var newTaskViewModel = GenerateCreateTaskViewModelWithoutDeadLine();
-            var homeworkId = await lectureCourseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
-            var taskId = await lectureCourseClient.AddTask(homeworkId.Value, newTaskViewModel);
-            return (courseId, homeworkId.Value, taskId.Value);
+            var homework = await lectureCourseClient.AddHomeworkToCourse(newHomeworkViewModel, courseId);
+            var task = await lectureCourseClient.AddTask(homework.Value.Id, newTaskViewModel);
+            return (courseId, homework.Value.Id, task.Value.Id);
         }
 
         [Test, Explicit]
@@ -404,18 +404,18 @@ namespace HwProj.SolutionsService.IntegrationTests
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
             var courseId = await CreateCourse(lectureCourseClient, lectureId);
             var homeworkViewModel = GenerateCreateHomeworkViewModel();
-            var homeworkId = await lectureCourseClient.AddHomeworkToCourse(homeworkViewModel, courseId);
+            var homework = await lectureCourseClient.AddHomeworkToCourse(homeworkViewModel, courseId);
             var taskViewModel = GenerateCreateTaskViewModelWithStrictDeadLine();
             taskViewModel.IsDeadlineStrict = false;
-            var taskId = await lectureCourseClient.AddTask(homeworkId.Value, taskViewModel);
+            var task = await lectureCourseClient.AddTask(homework.Value.Id, taskViewModel);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var solutionsClient = CreateSolutionsServiceClient(studentId);
 
             var solutionViewModel = GenerateSolutionViewModel(studentId);
             solutionViewModel.PublicationDate = DateTime.MaxValue;
 
-            var solutionId = await solutionsClient.PostSolution(taskId.Value, solutionViewModel);
-            var solutionIdGet = await solutionsClient.GetUserSolutions(taskId.Value, studentId);
+            var solutionId = await solutionsClient.PostSolution(task.Value.Id, solutionViewModel);
+            var solutionIdGet = await solutionsClient.GetUserSolutions(task.Value.Id, studentId);
 
             solutionIdGet.Should().HaveCount(1);
             solutionIdGet.Should().Contain(s => s.Id == solutionId);
@@ -429,9 +429,9 @@ namespace HwProj.SolutionsService.IntegrationTests
             var lectureCourseClient = CreateCourseServiceClient(lectureId);
             var courseId = await CreateCourse(lectureCourseClient, lectureId);
             var homeworkViewModel = GenerateCreateHomeworkViewModel();
-            var homeworkId = await lectureCourseClient.AddHomeworkToCourse(homeworkViewModel, courseId);
+            var homework = await lectureCourseClient.AddHomeworkToCourse(homeworkViewModel, courseId);
             var taskViewModel = GenerateCreateTaskViewModelWithStrictDeadLine();
-            var taskId = await lectureCourseClient.AddTask(homeworkId.Value, taskViewModel);
+            var task = await lectureCourseClient.AddTask(homework.Value.Id, taskViewModel);
             await SignStudentInCourse(studentCourseClient, lectureCourseClient, courseId, studentId);
             var solutionsClient = CreateSolutionsServiceClient(studentId);
 
@@ -439,7 +439,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             solutionViewModel.PublicationDate = DateTime.MaxValue;
 
             Assert.ThrowsAsync<ForbiddenException>(async () =>
-                await solutionsClient.PostSolution(taskId.Value, solutionViewModel));
+                await solutionsClient.PostSolution(task.Value.Id, solutionViewModel));
         }
 
         [Test]

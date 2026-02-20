@@ -9,7 +9,9 @@ COPY ["HwProj.EventBus/HwProj.EventBus.Client/", "HwProj.EventBus/HwProj.EventBu
 COPY ["HwProj.Common/HwProj.Models/", "HwProj.Common/HwProj.Models/"]
 COPY ["HwProj.Common/HwProj.Repositories/", "HwProj.Common/HwProj.Repositories/"]
 COPY ["HwProj.AuthService/HwProj.AuthService.Client/", "HwProj.AuthService/HwProj.AuthService.Client/"]
+COPY ["HwProj.ContentService/HwProj.ContentService.Client/", "HwProj.ContentService/HwProj.ContentService.Client/"]
 COPY ["HwProj.Common/HwProj.HttpUtils/", "HwProj.Common/HwProj.HttpUtils/"]
+COPY ["HwProj.NotificationsService/HwProj.NotificationService.Events/", "HwProj.NotificationsService/HwProj.NotificationService.Events/"]
 
 WORKDIR "/src/HwProj.CoursesService/HwProj.CoursesService.API"
 RUN dotnet publish "HwProj.CoursesService.API.csproj" -c Release -o /app/publish

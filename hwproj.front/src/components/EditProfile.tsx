@@ -1,14 +1,15 @@
 import * as React from "react";
 import {FC, FormEvent, useEffect, useState} from "react";
 import {Navigate} from "react-router-dom";
-import Avatar from '@material-ui/core/Avatar';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import {Button, Container, Grid, TextField, Typography, Link} from "@material-ui/core";
 import ApiSingleton from "../api/ApiSingleton";
 import {useSearchParams} from 'react-router-dom';
 import EditIcon from "@material-ui/icons/Edit";
 import {makeStyles} from '@material-ui/core/styles';
-import {EditAccountViewModel} from "../api";
+import {EditAccountViewModel} from "@/api";
+import AvatarUtils from "@/components/Utils/AvatarUtils";
+import Avatar from "@mui/material/Avatar";
 
 interface IEditProfileProps {
     isExpert: boolean;
@@ -163,11 +164,9 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
             {!profile.isExternalAuth && (
                 <Container component="main" maxWidth="xs">
                     <div className={classes.paper}>
-                        <Avatar
-                            src="/broken-image.jpg"
-                            style={{color: 'white', backgroundColor: '#3fcb27'}}
-                            className={classes.avatar}
-                        />
+                        <Avatar {...AvatarUtils.stringAvatar(profile!)}
+                                sx={{width: 56, height: 56}}
+                                className={classes.avatar}/>
                         <Typography component="h1" variant="h5">
                             Редактировать профиль
                         </Typography>
@@ -317,11 +316,9 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
             {profile.isExternalAuth && (
                 <Container component="main" maxWidth="xs">
                     <div className={classes.paper}>
-                        <Avatar
-                            src="/broken-image.jpg"
-                            style={{color: 'white', backgroundColor: '#3fcb27'}}
-                            className={classes.avatar}
-                        />
+                        <Avatar {...AvatarUtils.stringAvatar(profile)}
+                                sx={{width: 56, height: 56}}
+                                className={classes.avatar}/>
                         <Typography component="h1" variant="h5">
                             Редактировать профиль
                         </Typography>

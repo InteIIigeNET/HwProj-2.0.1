@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HwProj.EventBus.Client.Interfaces;
-using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Polly.Retry;
@@ -30,12 +29,11 @@ namespace HwProj.EventBus.Client.Implementations
         private readonly Dictionary<string, List<Type>> _handlers =
             new Dictionary<string, List<Type>>();
 
-        public EventBusRabbitMq(IDefaultConnection connection, IServiceProvider serviceProvider,
-            IServiceScopeFactory scopeFactory, RetryPolicy policy)
+        public EventBusRabbitMq(IDefaultConnection connection, IConfiguration configuration, IConnectionFactory connectionFactory, IServiceScopeFactory scopeFactory, RetryPolicy policy)
         {
             _connection = connection;
             _scopeFactory = scopeFactory;
-            _queueName = serviceProvider.GetApplicationUniqueIdentifier().Split('\\').Last();
+            _queueName = configuration.GetSection("EventBus")["EventBusQueueName"];
             _policy = policy;
             _consumerChannel = CreateConsumerChannel();
         }

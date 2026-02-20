@@ -1,11 +1,11 @@
 ﻿import React, {FC, useEffect, useState} from 'react';
-import {HomeworkViewModel, AccountDataDto} from '../../api';
+import {HomeworkViewModel, AccountDataDto, MentorToAssignedStudentsDTO} from '../../api';
 import Grid from "@material-ui/core/Grid";
-import {Autocomplete} from "@mui/material";
+import {Autocomplete, Chip, Stack, Typography} from "@mui/material";
 import TextField from "@material-ui/core/TextField";
 import ApiSingleton from "../../api/ApiSingleton";
 import ErrorsHandler from "../Utils/ErrorsHandler";
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import {DotLottieReact} from '@lottiefiles/dotlottie-react';
 import Button from "@material-ui/core/Button";
 
 interface ICourseFilterProps {
@@ -22,6 +22,8 @@ interface ICourseFilterState {
     courseStudents: AccountDataDto[];
     selectedHomeworks: HomeworkViewModel[];
     selectedStudents: AccountDataDto[];
+    mentors: AccountDataDto[];
+    assignedStudents: MentorToAssignedStudentsDTO[]
 }
 
 // Если преподаватель не выбрал ни одного студента, по умолчанию регистрируем всех. Аналогично с выбором домашних работ
@@ -30,7 +32,9 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
         courseHomeworks: [],
         courseStudents: [],
         selectedHomeworks: [],
-        selectedStudents: []
+        selectedStudents: [],
+        assignedStudents: [],
+        mentors: []
     });
 
     // Состояние для отображения элемента загрузки
@@ -39,16 +43,15 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
     // Состояние для отображения поля выбора студентов
     const [isStudentsSelectionHidden, setIsStudentsSelectionHidden] = useState<boolean>(props.isStudentsSelectionHidden);
 
-    // Если у преподавателя в workspace все студенты, отображаем "Все" в компоненте, значений при этом не выбрано.
-    // Функция, необходимые для корректного отображения выбранных элементов.
-    function getItemsView<T>(selected: T[], all: T[]): T[] {
-        return selected.length === all.length ? [] : selected;
-    }
-
     useEffect(() => {
         const fetchCourseDataForMentor = async () => {
             try {
-                const courseViewModel = await ApiSingleton.coursesApi.coursesGetAllCourseData(props.courseId);
+                const {
+                    course,
+                    assignedStudents
+                } = await ApiSingleton.coursesApi.coursesGetAllCourseData(props.courseId);
+                if (course === undefined || assignedStudents === undefined) return
+
                 const mentorWorkspace =
                     await ApiSingleton.coursesApi.coursesGetMentorWorkspace(props.courseId, props.mentorId);
 
@@ -56,18 +59,20 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                 props.onSelectedHomeworksChange(mentorWorkspace.homeworks ?? [])
 
                 // Для корректного отображения "Все" при инцициализации (получении данных с бэкенда)
-                const allCourseStudentsCount = (courseViewModel.acceptedStudents?.length ?? 0) + (courseViewModel.newStudents?.length ?? 0);
+                const allCourseStudentsCount = (course.acceptedStudents?.length ?? 0) + (course.newStudents?.length ?? 0);
                 const initSelectedStudentsView = mentorWorkspace.students?.length === allCourseStudentsCount ?
                     [] : (mentorWorkspace.students) ?? [];
-                const initSelectedHomeworksView = mentorWorkspace.homeworks?.length === courseViewModel.homeworks?.length ?
+                const initSelectedHomeworksView = mentorWorkspace.homeworks?.length === course.homeworks?.length ?
                     [] : (mentorWorkspace.homeworks ?? []);
 
                 setState(prevState => ({
                     ...prevState,
-                    courseHomeworks: courseViewModel.homeworks ?? [],
-                    courseStudents: courseViewModel.acceptedStudents ?? [],
+                    courseHomeworks: course.homeworks ?? [],
+                    courseStudents: course.acceptedStudents ?? [],
                     selectedStudents: initSelectedStudentsView,
                     selectedHomeworks: initSelectedHomeworksView,
+                    mentors: course.mentors!,
+                    assignedStudents: assignedStudents.filter(x => x.mentorId !== props.mentorId)
                 }))
 
                 setIsLoading(false);
@@ -93,6 +98,20 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
     useEffect(() => {
         props.onSelectedHomeworksChange(state.selectedHomeworks)
     }, [state.selectedHomeworks]);
+
+    //TODO: memoize?
+    const getAssignedMentors = (studentId: string) =>
+        state.assignedStudents
+            .filter(x => x.selectedStudentsIds!.includes(studentId))
+            .map(x => state.mentors.find(m => m.userId === x.mentorId))
+            .filter(x => x !== undefined)
+            .map(x => x.name + ' ' + x.surname)
+
+    const studentsWithMultipleReviewers = new Set(
+        state.selectedStudents
+            .map(x => x.userId!)
+            .filter(x => getAssignedMentors(x).length > 0)
+    )
 
     return (
         <div>
@@ -121,11 +140,11 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                     <TextField
                                         {...params}
                                         variant="outlined"
-                                        label={state.selectedHomeworks.length === 0 ? "" : "Работы"}
-                                        placeholder={state.selectedHomeworks.length === 0 ? "Все работы" : ""}
+                                        label={state.selectedHomeworks.length === 0 ? "" : "Задания"}
+                                        placeholder={state.selectedHomeworks.length === 0 ? "Все задания" : ""}
                                     />
                                 )}
-                                noOptionsText={'На курсе больше нет работ'}
+                                noOptionsText={'Больше нет заданий для выбора'}
                                 value={state.selectedHomeworks}
                                 onChange={(_, values) => {
                                     setState((prevState) => ({
@@ -146,30 +165,48 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                     ) : (
                         <Grid container spacing={2} style={{marginTop: '12px'}}>
                             <Grid item xs={12} sm={12}>
-                                <Autocomplete
-                                    multiple
-                                    fullWidth
-                                    options={state.courseStudents}
-                                    getOptionLabel={(option: AccountDataDto) => option.name + ' ' + option.surname}
-                                    getOptionKey={(option: AccountDataDto) => option.userId ?? ""}
-                                    filterSelectedOptions
-                                    isOptionEqualToValue={(option, value) => option.userId === value.userId}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            variant="outlined"
-                                            label={state.selectedStudents.length === 0 ? "" : "Студенты"}
-                                            placeholder={state.selectedStudents.length === 0 ? "Все студенты" : ""}
-                                        />)}
-                                    noOptionsText={'На курсе больше нет студентов'}
-                                    value={state.selectedStudents}
-                                    onChange={(_, values) => {
-                                        setState((prevState) => ({
-                                            ...prevState,
-                                            selectedStudents: values
-                                        }));
-                                    }}
-                                />
+                                <Stack direction={"column"}>
+                                    <Autocomplete
+                                        multiple
+                                        fullWidth
+                                        options={state.courseStudents}
+                                        getOptionLabel={(option: AccountDataDto) => {
+                                            const assignedMentors = getAssignedMentors(option.userId!)
+                                            const suffix = assignedMentors.length > 0 ? " — преподаватель " + assignedMentors[0] + "" : ""
+                                            return option.surname + ' ' + option.name + suffix;
+                                        }}
+                                        getOptionKey={(option: AccountDataDto) => option.userId ?? ""}
+                                        filterSelectedOptions
+                                        isOptionEqualToValue={(option, value) => option.userId === value.userId}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                variant="outlined"
+                                                label={state.selectedStudents.length === 0 ? "" : `Студенты (${state.selectedStudents.length})`}
+                                                placeholder={state.selectedStudents.length === 0 ? "Все студенты" : ""}
+                                            />)}
+                                        renderTags={(value, getTagProps) =>
+                                            value.map((option, index) =>
+                                                <Chip
+                                                    label={option.surname + ' ' + option.name}
+                                                    {...getTagProps({index})}
+                                                    style={studentsWithMultipleReviewers.has(option.userId!) ? {color: "#3f51b5"} : undefined}
+                                                />)
+                                        }
+                                        noOptionsText={'Больше нет студентов для выбора'}
+                                        value={state.selectedStudents}
+                                        onChange={(_, values) => {
+                                            setState((prevState) => ({
+                                                ...prevState,
+                                                selectedStudents: values
+                                            }));
+                                        }}
+                                    />
+                                    {studentsWithMultipleReviewers.size > 0 &&
+                                        <Typography align="center" variant={"caption"} color={"#3f51b5"}>
+                                            Синим выделены студенты, закрепленные за несколькими преподавателями
+                                        </Typography>}
+                                </Stack>
                             </Grid>
                         </Grid>
 

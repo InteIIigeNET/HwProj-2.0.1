@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY ["Directory.Build.props", "Directory.Build.props"]
@@ -16,13 +16,12 @@ COPY ["HwProj.SolutionsService/HwProj.SolutionsService.Client/", "HwProj.Solutio
 COPY ["HwProj.Common/HwProj.Exceptions/", "HwProj.Common/HwProj.Exceptions/"]
 COPY ["HwProj.ContentService/HwProj.ContentService.Client/", "HwProj.ContentService/HwProj.ContentService.Client/"]
 COPY ["HwProj.StudentInfo/IStudentsInfo/", "HwProj.StudentInfo/IStudentsInfo/"]
-COPY ["HwProj.StudentInfo/StudentsInfo.Tests/", "HwProj.StudentInfo/StudentsInfo.Tests/"]
 COPY ["HwProj.StudentInfo/StudentsInfo/", "HwProj.StudentInfo/StudentsInfo/"]
 
 WORKDIR "/src/HwProj.APIGateway/HwProj.APIGateway.API"
 RUN dotnet publish "HwProj.APIGateway.API.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-stretch-slim AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
 COPY --from=build /app/publish .

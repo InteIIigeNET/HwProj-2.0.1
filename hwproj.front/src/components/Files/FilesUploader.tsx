@@ -1,16 +1,24 @@
 import {Box, Snackbar} from "@material-ui/core";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import {FileUploader} from "react-drag-drop-files";
 import * as React from "react";
 import {styled} from "@mui/material/styles";
 import {useEffect, useState} from "react";
 import {IFileInfo} from "./IFileInfo";
-import {Alert, Button, Grid} from "@mui/material";
+import {Alert, Card, CardContent, Grid, Stack, Typography} from "@mui/material";
 import FilesPreviewList from "./FilesPreviewList";
+import {CourseUnitType} from "./CourseUnitType";
+import {FileStatus} from "./FileStatus";
+import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
+import "./filesUploaderOverrides.css";
+import Utils from "@/services/Utils";
 
 interface IFilesUploaderProps {
+    courseUnitType: CourseUnitType
+    courseUnitId: number;
     initialFilesInfo?: IFileInfo[];
     onChange: (selectedFiles: IFileInfo[]) => void;
     isLoading?: boolean;
+    maxFilesCount?: number;
 }
 
 // Кастомизированный Input для загрузки файла (из примеров MaterialUI)
@@ -37,21 +45,33 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
         }
     }, [props.initialFilesInfo]);
 
-    const validFileNameRegex = /^(?!.*[:*?"<>|!])[\p{L}0-9_\-\.() ]+(\.[\p{L}0-9]+)?$/u;
     const maxFileSizeInBytes = 100 * 1024 * 1024;
 
-    const validateFiles = (files: FileList): boolean => {
-        for (const file of files) {
-            const isValidName = validFileNameRegex.test(file.name);
-            if (!isValidName) {
-                setError(`Недопустимое имя файла: ${file.name}.
-                 Пожалуйста, используйте буквы, цифры, символы _ - . ( ) : или пробел`);
-                return false;
-            }
+    const forbiddenFileTypes = [
+        'application/vnd.microsoft.portable-executable',
+        'application/x-msdownload',
+        'application/x-ms-installer',
+        'application/x-ms-dos-executable',
+        'application/x-dosexec',
+        'application/x-msdos-program',
+        'application/octet-stream', // если тип двоичного файла не определен, отбрасывать
+    ]
 
+    const validateFiles = (files: File[]): boolean => {
+        if (props.maxFilesCount &&
+            (props.initialFilesInfo ? props.initialFilesInfo.length : 0) + files.length > props.maxFilesCount) {
+            setError(`Выбрано слишком много файлов.
+             Максимально допустимое количество файлов: ${props.maxFilesCount} ${Utils.pluralizeHelper(["штука", "штука", "штук"], props.maxFilesCount)}`);
+            return false;
+        }
+        for (const file of files) {
             if (file.size > maxFileSizeInBytes) {
                 setError(`Файл "${file.name}" слишком большой.
                  Максимальный допустимый размер: ${(maxFileSizeInBytes / 1024 / 1024).toFixed(1)} MB.`);
+                return false;
+            }
+            if (forbiddenFileTypes.includes(file.type)) {
+                setError(`Файл "${file.name}" имеет недопустимый тип "${file.type}`);
                 return false;
             }
         }
@@ -60,17 +80,21 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
     }
 
 
-    const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files == null) return
-        if (!validateFiles(e.target.files)) return
+    const handleFileInputChange = (input: Array<File> | File) => {
+        const files = input instanceof File ? [input] : input;
+        if (files == null) return
+        if (!validateFiles(files)) return
 
         const newFilesInfo: IFileInfo[] = []
-        for (const file of e.target.files) {
+        for (const file of files) {
             newFilesInfo.push({
                 name: file.name,
                 type: file.type,
                 sizeInBytes: file.size,
-                file: file
+                file: file,
+                courseUnitType: props.courseUnitType,
+                courseUnitId: props.courseUnitId,
+                status: FileStatus.Local
             })
         }
         setSelectedFilesInfo(previouslySelected => {
@@ -81,7 +105,7 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
     }
 
     return (
-        <Grid container direction="row" alignItems="flex-start" spacing={1} marginBottom={props.isLoading ? 0 : 1}>
+        <Grid container direction="column" marginBottom={props.isLoading ? 0 : 1}>
             {error && (
                 <Snackbar
                     open={!!error}
@@ -92,24 +116,30 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
                     <Alert severity="error">{error}</Alert>
                 </Snackbar>
             )}
-            <Grid item>
-                <Button
-                    size="small"
-                    component="label"
-                    role={undefined}
-                    variant="outlined"
-                    tabIndex={-1}
-                    startIcon={<CloudUploadIcon/>}
-                    color="primary"
-                    style={{marginTop: "10px"}}
-                >
-                    Прикрепить файлы
-                    <VisuallyHiddenInput
-                        type="file"
-                        onChange={handleFileInputChange}
-                        multiple
-                    />
-                </Button>
+            <Grid item xs={12}>
+                <FileUploader
+                    classes="rddu-no-block"
+                    handleChange={handleFileInputChange}
+                    hoverTitle={"Перетащите файлы сюда для загрузки"}
+                    children={
+                        <Card
+                            style={{
+                                border: "1px dashed #1976d2",
+                                backgroundColor: "ghostwhite",
+                                textAlign: "center",
+                            }}
+                            variant={"outlined"}>
+                            <CardContent>
+                                <Typography color={"primary"} variant={"body1"}>
+                                    {props.courseUnitType === CourseUnitType.Solution
+                                        ? "Загрузите файлы решения"
+                                        : "Загрузите материалы задания"}
+                                </Typography>
+                                <CloudUploadOutlinedIcon color="primary" fontSize={"medium"}/>
+                            </CardContent>
+                        </Card>}
+                    multiple={true}
+                    name="file"/>
             </Grid>
             {props.isLoading &&
                 <Grid item>
@@ -118,12 +148,12 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
                     </Box>
                 </Grid>
             }
-            <Grid item>
+            <Grid item xs={12}>
                 <FilesPreviewList
                     filesInfo={selectedFilesInfo}
                     onRemoveFileInfo={(fI) => {
                         setSelectedFilesInfo(previouslySelected => {
-                            const updatedArray = previouslySelected.filter(f => f.name !== fI.name);
+                            const updatedArray = previouslySelected.filter(f => f.name !== fI.name || f.id !== fI.id);
                             props.onChange(updatedArray);
                             return updatedArray;
                         });

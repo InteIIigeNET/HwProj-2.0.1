@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using HwProj.Repositories;
 
@@ -13,7 +12,6 @@ namespace HwProj.CoursesService.API.Models
         public bool IsOpen { get; set; }
         public string InviteCode { get; set; }
         public bool IsCompleted { get; set; }
-        [Obsolete] public string MentorIds { get; set; }
         public List<CourseMentor> Mentors { get; set; } = new List<CourseMentor>();
         public List<CourseMate> CourseMates { get; set; } = new List<CourseMate>();
         public List<Homework> Homeworks { get; set; } = new List<Homework>();

@@ -3,12 +3,17 @@ import {
     FileInfoDTO,
     HomeworkTaskViewModel,
     HomeworkViewModel, Solution, StatisticsCourseMatesModel,
-} from "../../api";
+} from "@/api";
 import {
+    AlertTitle,
     Button,
+    Fab,
     Grid,
-    Typography
-} from "@material-ui/core";
+    Typography,
+    useMediaQuery,
+    useTheme,
+    Zoom
+} from "@mui/material";
 import {FC, useEffect, useState} from "react";
 import Timeline from '@mui/lab/Timeline';
 import TimelineItem from '@mui/lab/TimelineItem';
@@ -20,24 +25,41 @@ import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 import {Alert, Card, CardActions, Chip, Paper, Stack, Tooltip} from "@mui/material";
 import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import {getTip} from "../Common/HomeworkTags";
+import {BonusTag, DefaultTags, getTip, isBonusWork, isTestWork, TestTag} from "../Common/HomeworkTags";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
 import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExperimental";
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import EditIcon from "@mui/icons-material/Edit";
+import ErrorIcon from '@mui/icons-material/Error';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import SwitchAccessShortcutIcon from '@mui/icons-material/SwitchAccessShortcut';
+import Lodash from "lodash";
+import {CourseUnitType} from "@/components/Files/CourseUnitType";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
     courseFilesInfo: FileInfoDTO[]
     studentSolutions: StatisticsCourseMatesModel[]
+    courseId: number
     isMentor: boolean
     isStudentAccepted: boolean
     userId: string
     selectedHomeworkId: number | undefined
-    onHomeworkUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] } & {
+    onHomeworkUpdate: (update: { homework: HomeworkViewModel } & {
         isDeleted?: boolean
     }) => void
-    onTaskUpdate: (update: HomeworkTaskViewModel & { isDeleted?: boolean }) => void
+    onTaskUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => void,
+    processingFiles: {
+        [homeworkId: number]: {
+            isLoading: boolean;
+        };
+    };
+    onStartProcessing: (homeworkId: number,
+        courseUnitType: CourseUnitType,
+        previouslyExistingFilesCount: number,
+        waitingNewFilesCount: number,
+        deletingFilesIds: number[]) => void;
 }
 
 interface ICourseExperimentalState {
@@ -48,15 +70,29 @@ interface ICourseExperimentalState {
     }
 }
 
-const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
+export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const [hideDeferred, setHideDeferred] = useState<boolean>(false)
+    const [showOnlyGroupedTest, setShowOnlyGroupedTest] = useState<string | undefined>(undefined)
+    const filterAdded = hideDeferred || showOnlyGroupedTest !== undefined
 
-    const homeworks = props.homeworks.slice().reverse().filter(x => !hideDeferred || !x.isDeferred)
+    // Определяем разрешение экрана пользователя
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+    // Состояние для кнопки "Наверх"
+    const [showScrollButton, setShowScrollButton] = useState(false);
+
+    const homeworks = props.homeworks.slice().reverse().filter(x => {
+        if (hideDeferred) return !x.isDeferred
+        if (showOnlyGroupedTest !== undefined) return x.tags!.includes(TestTag) && x.tags!.includes(showOnlyGroupedTest)
+        return true
+    })
+
     const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId, courseFilesInfo} = props
 
     const [state, setState] = useState<ICourseExperimentalState>({
         initialEditMode: false,
-        selectedItem: {id: undefined, isHomework: false},
+        selectedItem: {id: undefined, isHomework: true},
     })
 
     useEffect(() => {
@@ -67,6 +103,28 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             selectedItem: {isHomework: true, id: defaultHomework?.id},
         }))
     }, [hideDeferred])
+
+    // Обработчик прокрутки страницы
+    useEffect(() => {
+        const handleScroll = () => {
+            // Показывать кнопку при прокрутке ниже 400px
+            const shouldShow = window.scrollY > 400;
+            if (shouldShow !== showScrollButton) {
+                setShowScrollButton(shouldShow);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [showScrollButton]);
+
+    // Функция прокрутки вверх
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 110,
+            behavior: 'instant'
+        });
+    };
 
     const initialEditMode = state.initialEditMode
     const {id, isHomework} = state.selectedItem
@@ -105,7 +163,7 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     const getStyle = (itemIsHomework: boolean, itemId: number) =>
-        itemIsHomework === isHomework && itemId === id ? clickedItemStyle : {}
+        itemIsHomework === isHomework && itemId === id ? clickedItemStyle : {borderRadius: 9}
 
     const taskSolutionsMap = new Map<number, Solution[]>()
 
@@ -117,10 +175,27 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             .forEach(x => taskSolutionsMap.set(x.id!, x.solution!))
     }
 
-    const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel) =>
-        isMentor && (entity.publicationDateNotSet || entity.hasDeadline && entity.deadlineDateNotSet)
+    const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
+        if (!isMentor) return false
+        if (entity.publicationDateNotSet || entity.hasDeadline && entity.deadlineDateNotSet) return true
 
-    const renderTaskStatus = (task: HomeworkTaskViewModel) => {
+        if (!isHomework) return false
+        const result = validateTestGrouping(entity)
+        return result !== true && result.hasErrors
+    }
+
+    const renderHomeworkStatus = (homework: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
+        const hasErrors = homework.id! < 0 && (homework.hasErrors || homework.tasks!.some((t: HomeworkTaskViewModel & {
+            hasErrors?: boolean
+        }) => t.hasErrors))
+        if (hasErrors)
+            return <div style={{fontSize: 16}}><ErrorIcon fontSize="small" color={"error"}/><br/></div>
+        if (homework.isModified)
+            return <div style={{fontSize: 16}}><EditIcon fontSize="small" color={"primary"}/><br/></div>
+        return showWarningsForEntity(homework, true) && <div style={{fontSize: 16}}>⚠️<br/></div>
+    }
+
+    const renderTaskStatus = (task: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
         if (taskSolutionsMap.has(task.id!)) {
             const solutions = taskSolutionsMap.get(task.id!)
             const {
@@ -138,7 +213,9 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 </Tooltip>
             )
         }
-        return showWarningsForEntity(task) ? (
+        if (task.hasErrors) return <ErrorIcon fontSize="small" color={"error"}/>
+        if (task.isModified) return <EditIcon fontSize="small" color={"primary"}/>
+        return showWarningsForEntity(task, false) ? (
             <Typography color={task.isDeferred ? "textSecondary" : "textPrimary"}>
                 <TimelineDot variant="outlined" style={warningTimelineDotStyle}>⚠️</TimelineDot>
             </Typography>
@@ -157,12 +234,27 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             selectedItem: {id: homework.id!, isHomework: true},
         })
 
-    const getAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel) => {
-        if (entity.publicationDateNotSet) return (
-            <Alert severity="warning">
-                {"Не выставлена дата публикации"}
-            </Alert>
-        )
+    const validateTestGrouping = (homework: HomeworkViewModel) => {
+        if (!homework.tags!.includes(TestTag)) return true
+
+        const groupingTag = homework.tags!.find(x => !DefaultTags.includes(x))
+        if (groupingTag === undefined) return true
+
+        const groupedHomeworks = homeworks.filter(x => x.tags!.includes(TestTag) && x.tags!.includes(groupingTag))
+        if (groupedHomeworks.length === 1) return true
+
+        const keys = new Set(groupedHomeworks.map(h => h.tasks!.map(t => t.maxRating).join(";")))
+        return {groupingTag: groupingTag, hasErrors: keys.size !== 1}
+    }
+
+    const getDatesAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
+        if (entity.publicationDateNotSet) {
+            return (
+                <Alert severity="warning">
+                    {"Не выставлена дата публикации"}
+                </Alert>
+            )
+        }
 
         if (isMentor && entity.hasDeadline && entity.deadlineDateNotSet) return (
             <Alert severity="warning">
@@ -170,9 +262,30 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Alert>
         )
 
+        if (entity.id! < 0) {
+            if (isHomework)
+                return <Alert severity="info">Новое задание будет добавлено после нажатия на 'Добавить задание'</Alert>
+            if ((entity as HomeworkTaskViewModel)?.homeworkId! < 0)
+                return <Alert severity="info"
+                              action={
+                                  <Button
+                                      color="inherit"
+                                      size="small"
+                                      onClick={() => setState((prevState) => ({
+                                          ...prevState,
+                                          selectedItem: {
+                                              isHomework: true,
+                                              id: (entity as HomeworkTaskViewModel).homeworkId!
+                                          }
+                                      }))}
+                                  >
+                                      Перейти к заданию
+                                  </Button>}>Часть добавления нового задания</Alert>
+            return <Alert severity="info">Новая задача будет добавлена после нажатия на 'Добавить задачу'</Alert>
+        }
+
         if (entity.isDeferred) return (
             <Alert severity="info"
-                   style={{marginTop: 2}}
                    action={
                        <Button
                            color="inherit"
@@ -186,96 +299,214 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Alert>
         )
     }
+    const getGroupingAlert = (homework: HomeworkViewModel) => {
+        const result = validateTestGrouping(homework)
+        if (result === true) return null
+        const {hasErrors, groupingTag} = result
+        if (!hasErrors) return <Alert severity="success"
+                                      action={
+                                          <Button
+                                              fullWidth
+                                              color="inherit"
+                                              size="small"
+                                              onClick={() => setShowOnlyGroupedTest(groupingTag)}
+                                          >
+                                              Задания
+                                          </Button>}>
+            Работа сгруппирована по ключу '<b>{groupingTag}</b>'.
+        </Alert>
 
-    const renderSelectedItem = () => {
-        if (isHomework) {
-            const homework = homeworks.find(x => x.id === id) as HomeworkViewModel
-            const filesInfo = id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, id) : []
-            return homework && <Grid container direction={"column"} spacing={1}>
-                <Grid item>{getAlert(homework)}</Grid>
-                <Grid item>
-                    <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
-                        <CourseHomeworkExperimental
-                            homeworkAndFilesInfo={{homework, filesInfo}}
-                            isMentor={isMentor}
-                            initialEditMode={initialEditMode}
-                            onMount={onSelectedItemMount}
-                            onUpdate={update => {
-                                props.onHomeworkUpdate(update)
-                                if (update.isDeleted)
-                                    setState((prevState) => ({
-                                        ...prevState,
-                                        selectedItem: {
-                                            isHomework: true,
-                                            id: undefined
-                                        }
-                                    }))
-                            }}/>
-                    </Card>
-                </Grid>
-                <Grid item>
-                    <DotLottieReact
-                        src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
-                        loop
-                        autoplay
-                    />
-                </Grid>
-            </Grid>
-        }
-
-        const homework = homeworks.find(x => x.tasks!.some(t => t.id === id))
-        const task = homework?.tasks!.find(x => x.id === id) as HomeworkTaskViewModel
-        return task && <Grid container direction={"column"} spacing={1}>
-            <Grid item>{getAlert(task)}</Grid>
-            <Grid item>
-                <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
-                    <CourseTaskExperimental task={task}
-                                            homework={homework!}
-                                            isMentor={isMentor}
-                                            initialEditMode={initialEditMode}
-                                            onMount={onSelectedItemMount}
-                                            onUpdate={update => {
-                                                props.onTaskUpdate(update)
-                                                if (update.isDeleted)
-                                                    setState((prevState) => ({
-                                                        ...prevState,
-                                                        selectedItem: {
-                                                            isHomework: true,
-                                                            id: homework!.id
-                                                        }
-                                                    }))
-                                            }}
-                                            toEditHomework={() => toEditHomework(homework!)}/>
-                    {!props.isMentor && props.isStudentAccepted && < CardActions>
-                        <Link
-                            style={{color: '#212529'}}
-                            to={"/task/" + task.id!.toString()}>
-                            <Button
-                                style={{width: '150px'}}
-                                size="small"
-                                variant="contained"
-                                color="primary"
-                            >
-                                Решения
-                            </Button>
-                        </Link>
-                    </CardActions>}
-                </Card>
-            </Grid>
-            <Grid item>
-                <DotLottieReact
-                    src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
-                    loop
-                    autoplay
-                />
-            </Grid>
-        </Grid>
+        return <Alert severity="warning"
+                      action={
+                          <Button
+                              fullWidth
+                              color="inherit"
+                              size="small"
+                              onClick={() => setShowOnlyGroupedTest(groupingTag)}
+                          >
+                              Задания
+                          </Button>}>
+            <AlertTitle>Группировка контрольных работ</AlertTitle>
+            Создано несколько контрольных работ, сгруппированных по ключу '<b>{groupingTag}</b>',
+            однако работы отличаются между собой по количеству задач или их максимальным баллам.
+            <br/>
+            <br/>
+            Количество задач должно быть <b>одинаковым</b>, а баллы между соответствующими задачами <b>равными</b>.
+        </Alert>
     }
 
-    return <Grid container direction={"row"} spacing={1}>
-        <Grid item xs={12} sm={12} md={4} lg={4}>
-            <Timeline style={{maxHeight: "75vh", overflow: 'auto', paddingLeft: 0, paddingRight: 8}}
+    const selectedItemHomework = isHomework
+        ? homeworks.find(x => x.id === id)!
+        : homeworks.find(x => x.tasks!.some(t => t.id === id))!
+
+    const selectedItem = isHomework
+        ? selectedItemHomework
+        : selectedItemHomework?.tasks!.find(x => x.id === id) as HomeworkTaskViewModel
+
+    const [newTaskCounter, setNewTaskCounter] = useState<number>(-1)
+
+    const addNewHomework = () => {
+        props.onHomeworkUpdate({
+            homework: {
+                courseId: props.courseId,
+                title: "Новое задание",
+                publicationDateNotSet: false,
+                publicationDate: undefined,
+                hasDeadline: false,
+                id: -1,
+                isGroupWork: false,
+                deadlineDateNotSet: false,
+                deadlineDate: undefined,
+                isDeadlineStrict: false,
+                description: "",
+                tasks: [],
+                tags: []
+            }
+        })
+        setState((prevState) => ({
+            ...prevState,
+            selectedItem: {
+                isHomework: true,
+                id: -1
+            }
+        }))
+    }
+
+    const addNewTask = (homework: HomeworkViewModel) => {
+        const id = newTaskCounter
+        const tags = homework.tags!
+        const isTest = tags.includes(TestTag)
+        const isBonus = tags.includes(BonusTag)
+
+        const ratingCandidate = Lodash(homeworks
+            .map(h => h.tasks![0])
+            .filter(x => {
+                if (x === undefined) return false
+                const xIsTest = isTestWork(x)
+                const xIsBonus = isBonusWork(x)
+                return x.id! > 0 && (isTest && xIsTest || isBonus && xIsBonus || !isTest && !isBonus && !xIsTest && !xIsBonus)
+            }))
+            .map(x => x.maxRating!)
+            .groupBy(x => [x])
+            .entries()
+            .sortBy(x => x[1].length).last()?.[1][0]
+
+        const task = {
+            homeworkId: homework.id,
+            maxRating: ratingCandidate || 10,
+            suggestedMaxRating: ratingCandidate,
+            title: `Новая задача`,
+            tags: homework.tags,
+            isDeferred: homework.isDeferred,
+            description: "",
+            id
+        }
+
+        props.onTaskUpdate({task})
+        setState((prevState) => ({
+            ...prevState,
+            selectedItem: {
+                isHomework: false,
+                id: id
+            }
+        }))
+        setNewTaskCounter(id - 1)
+    }
+
+    const renderHomework = (homework: HomeworkViewModel & { isModified?: boolean }) => {
+        const filesInfo = id ? FileInfoConverter.getCourseUnitFilesInfo(courseFilesInfo, CourseUnitType.Homework, id) : []
+        const homeworkEditMode = homework && (homework.id! < 0 || homework.isModified === true)
+        return homework && <Stack direction={"column"} spacing={2}>
+            <Card style={{backgroundColor: "ghostwhite"}} raised={homeworkEditMode}>
+                {isMentor && getGroupingAlert(homework)}
+                {isMentor && getDatesAlert(homework, true)}
+                <CourseHomeworkExperimental
+                    key={homework.id}
+                    getAllHomeworks={() => homeworks}
+                    homeworkAndFilesInfo={{homework, filesInfo}}
+                    isMentor={isMentor}
+                    initialEditMode={initialEditMode || homeworkEditMode}
+                    onMount={onSelectedItemMount}
+                    onAddTask={addNewTask}
+                    onUpdate={update => {
+                        props.onHomeworkUpdate(update)
+                        setState((prevState) => ({
+                            ...prevState,
+                            selectedItem: {
+                                isHomework: true,
+                                id: update.isDeleted ? undefined : update.homework.id!
+                            }
+                        }))
+                    }}
+                    isProcessing={props.processingFiles[homework.id!]?.isLoading || false}
+                    onStartProcessing={props.onStartProcessing}
+                />
+            </Card>
+        </Stack>
+    }
+
+    const renderTask = (task: HomeworkTaskViewModel & { isModified?: boolean }, homework: HomeworkViewModel) => {
+        const taskEditMode = task && (task.id! < 0 || task.isModified === true)
+        return task && <Card style={{backgroundColor: "ghostwhite"}} raised={taskEditMode}>
+            {isMentor && getDatesAlert(task, false)}
+            <CourseTaskExperimental
+                key={task.id}
+                task={task}
+                homework={homework!}
+                isMentor={isMentor}
+                initialEditMode={initialEditMode || taskEditMode}
+                onMount={onSelectedItemMount}
+                onUpdate={update => {
+                    props.onTaskUpdate(update)
+                    if (update.isDeleted)
+                        setState((prevState) => ({
+                            ...prevState,
+                            selectedItem: {
+                                isHomework: true,
+                                id: homework!.id
+                            }
+                        }))
+                }}
+                toEditHomework={() => toEditHomework(homework!)} getAllHomeworks={() => homeworks}/>
+            {!props.isMentor && props.isStudentAccepted && < CardActions>
+                <Link
+                    style={{color: '#212529'}}
+                    to={"/task/" + task.id!.toString()}>
+                    <Button
+                        size="medium"
+                        variant="text"
+                        color="primary"
+                    >
+                        Решения
+                    </Button>
+                </Link>
+            </CardActions>}
+        </Card>
+    }
+
+    const renderGif = () =>
+        <DotLottieReact
+            src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
+            loop
+            autoplay
+        />
+
+    const renderLecturerWelcomeScreen = () => <Stack spacing={1} direction={"column"} alignItems={"center"}>
+        <SwitchAccessShortcutIcon color={"success"} fontSize={"large"}/>
+        <Alert severity={"success"} icon={"😃"}>
+            <AlertTitle>Спасибо за ещё один курс</AlertTitle>
+            Самое время добавить новое задание!
+        </Alert>
+    </Stack>
+
+    return <Grid container direction={{xs: "column", sm: "column", md: "row", lg: "row"}} spacing={1}>
+        <Grid item xs={12} sm={12} md={4} lg={4} order={{xs: 2, sm: 2, md: 1, lg: 1}}>
+            <Timeline style={{overflow: 'auto', paddingLeft: 0, paddingRight: 8}}
                       sx={{
+                          maxHeight: {
+                              xs: 'none',
+                              md: '75vh'
+                          },
                           '&::-webkit-scrollbar': {
                               width: "3px",
                           },
@@ -288,8 +519,35 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                               borderRadius: 10
                           }
                       }}>
-                {homeworks.map(x => {
-                    return <div key={x.id}>
+                {props.isMentor && filterAdded && <Stack direction={"column"} alignItems={"center"}>
+                    <Button
+                        fullWidth
+                        onClick={() => {
+                            setHideDeferred(false)
+                            setShowOnlyGroupedTest(undefined)
+                        }}
+                        style={{borderRadius: 8, marginBottom: 10}} variant={"outlined"} size={"medium"}>
+                        Показать все задания
+                    </Button>
+                    <Typography
+                        variant={"caption"}>{hideDeferred
+                        ? "только опубликованные задания"
+                        : showOnlyGroupedTest
+                            ? `контрольные работы '${showOnlyGroupedTest}'`
+                            : ""}
+                    </Typography>
+                </Stack>}
+                {props.isMentor && !filterAdded && (homeworks[0]?.id || 1) > 0 && <Button
+                    onClick={addNewHomework}
+                    style={{borderRadius: 8, marginBottom: 10}} variant={"text"} size={"small"}>
+                    + Добавить задание
+                </Button>}
+                {isMentor && homeworks.length === 0 && renderLecturerWelcomeScreen()}
+                {homeworks.map((x: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
+                    return <div key={x.id} style={selectedItemHomework?.id === x.id ? {
+                        border: "1px solid #3f51b5",
+                        borderRadius: 9,
+                    } : undefined}>
                         <Paper
                             key={x.id}
                             elevation={0}
@@ -305,13 +563,15 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         data: x,
                                         isHomework: true,
                                         id: x.id,
-                                        homeworkFilesInfo: FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, x.id!)
+                                        homeworkFilesInfo: FileInfoConverter.getCourseUnitFilesInfo(courseFilesInfo, CourseUnitType.Homework, x.id!)
                                     }
                                 }))
                             }}>
                             <Typography variant="h6" style={{fontSize: 18}} align={"center"}
-                                        color={x.isDeferred ? "textSecondary" : "textPrimary"}>
-                                {showWarningsForEntity(x) && <div style={{fontSize: 16}}>⚠️<br/></div>}
+                                        color={x.isDeferred
+                                            ? "textSecondary"
+                                            : x.tags!.includes(TestTag) ? "primary" : "textPrimary"}>
+                                {isMentor && renderHomeworkStatus(x)}
                                 {x.title}{getTip(x)}
                             </Typography>
                             {x.isDeferred && !x.publicationDateNotSet &&
@@ -358,15 +618,47 @@ const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 </Typography>
                             </TimelineContent>
                         </TimelineItem>)}
+                        {x.id! < 0 &&
+                            <Button fullWidth
+                                    onClick={() => addNewTask(x)}
+                                    style={{borderRadius: 8, marginBottom: 10, marginTop: 5}}
+                                    variant={"text"}
+                                    size={"small"}>
+                                + Добавить задачу
+                            </Button>}
                     </div>;
                 })}
             </Timeline>
         </Grid>
-
-        <Grid item xs={12} sm={12} md={8} lg={8}>
-            {renderSelectedItem()}
+        <Grid item xs={12} sm={12} md={8} lg={8} order={{xs: 1, sm: 1, md: 2, lg: 2}}>
+            {isHomework
+                ? renderHomework(selectedItem as HomeworkViewModel)
+                : renderTask(selectedItem as HomeworkTaskViewModel, selectedItemHomework!)}
+            <Grid item sx={{display: {xs: 'none', md: 'flex'}}}>
+                {renderGif()}
+            </Grid>
         </Grid>
+        <Grid item sx={{display: {xs: 'flex', md: 'none'}}} order={{xs: 3, sm: 3}}>
+            {renderGif()}
+        </Grid>
+
+        {/* Кнопка "Наверх" для мобильных устройств */}
+        <Zoom in={showScrollButton && isMobile}>
+            <Fab
+                size="medium"
+                color="primary"
+                aria-label="up"
+                onClick={scrollToTop}
+                sx={{
+                    position: 'fixed',
+                    bottom: 40,
+                    right: 40,
+                    display: {xs: 'flex', md: 'none'},
+                    zIndex: 1000
+                }}
+            >
+                <ArrowUpwardIcon/>
+            </Fab>
+        </Zoom>
     </Grid>
 }
-
-export default CourseExperimental

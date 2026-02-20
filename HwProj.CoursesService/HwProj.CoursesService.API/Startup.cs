@@ -1,9 +1,11 @@
 ﻿using HwProj.AuthService.Client;
+using HwProj.ContentService.Client;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.CoursesService.API.Services;
+using HwProj.EventBus.Client;
 using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -39,6 +41,7 @@ namespace HwProj.CoursesService.API
             services.AddScoped<ITasksService, TasksService>();
             services.AddScoped<ICourseFilterRepository, CourseFilterRepository>();
             services.AddScoped<ITaskQuestionsRepository, TaskQuestionsRepository>();
+            services.AddScoped<ITaskQuestionsService, TaskQuestionsService>();
             services.AddScoped<ICourseFilterService, CourseFilterService>();
             services.AddScoped<CourseMentorOnlyAttribute>();
 
@@ -46,6 +49,7 @@ namespace HwProj.CoursesService.API
 
             services.AddHttpClient();
             services.AddAuthServiceClient();
+            services.AddContentServiceClient();
 
             services.ConfigureHwProjServices("Courses API");
         }

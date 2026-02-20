@@ -1,13 +1,13 @@
-using System;
-using System.Threading.Tasks;
-using HwProj.CoursesService.API.Events;
+using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.CoursesService.API.Domains;
-using System.Linq;
 using HwProj.Models;
-using Microsoft.EntityFrameworkCore;
+using HwProj.Models.CoursesService.ViewModels;
+using HwProj.NotificationService.Events.CoursesService;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -18,8 +18,8 @@ namespace HwProj.CoursesService.API.Services
         private readonly ICoursesRepository _coursesRepository;
         private readonly IHomeworksRepository _homeworksRepository;
 
-        public TasksService(ITasksRepository tasksRepository, IEventBus eventBus,
-            ICoursesRepository coursesRepository, IHomeworksRepository homeworksRepository)
+        public TasksService(ITasksRepository tasksRepository, IEventBus eventBus, ICoursesRepository coursesRepository,
+            IHomeworksRepository homeworksRepository)
         {
             _tasksRepository = tasksRepository;
             _homeworksRepository = homeworksRepository;
@@ -27,22 +27,25 @@ namespace HwProj.CoursesService.API.Services
             _coursesRepository = coursesRepository;
         }
 
-        public async Task<HomeworkTask> GetTaskAsync(long taskId)
+        public async Task<HomeworkTask> GetTaskAsync(long taskId, bool withCriteria = false)
         {
-            var task = await _tasksRepository.GetWithHomeworkAsync(taskId);
+            var taskFromDb = withCriteria
+                ? await _tasksRepository.GetWithHomeworkAndCriteriaAsync(taskId)
+                : await _tasksRepository.GetWithHomeworkAsync(taskId);
 
-            CourseDomain.FillTask(task.Homework, task);
+            CourseDomain.FillTask(taskFromDb.Homework, taskFromDb);
 
-            return task;
+            return taskFromDb;
         }
 
         public async Task<HomeworkTask> GetForEditingTaskAsync(long taskId)
         {
-            return await _tasksRepository.GetWithHomeworkAsync(taskId);
+            return await _tasksRepository.GetWithHomeworkAndCriteriaAsync(taskId);
         }
 
-        public async Task<long> AddTaskAsync(long homeworkId, HomeworkTask task)
+        public async Task<HomeworkTask> AddTaskAsync(long homeworkId, PostTaskViewModel taskViewModel)
         {
+            var task = taskViewModel.ToHomeworkTask();
             task.HomeworkId = homeworkId;
 
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
@@ -56,7 +59,7 @@ namespace HwProj.CoursesService.API.Services
                 _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, deadlineDate, course.Name, course.Id,
                     studentIds));
 
-            return taskId;
+            return await GetTaskAsync(taskId, true);
         }
 
         public async Task DeleteTaskAsync(long taskId)
@@ -64,8 +67,10 @@ namespace HwProj.CoursesService.API.Services
             await _tasksRepository.DeleteAsync(taskId);
         }
 
-        public async Task<HomeworkTask> UpdateTaskAsync(long taskId, HomeworkTask update, ActionOptions options)
+        public async Task<HomeworkTask> UpdateTaskAsync(long taskId, PostTaskViewModel taskViewModel,
+            ActionOptions options)
         {
+            var update = taskViewModel.ToHomeworkTask();
             var task = await _tasksRepository.GetWithHomeworkAsync(taskId);
             if (task == null) throw new InvalidOperationException("Task not found");
 
@@ -85,13 +90,10 @@ namespace HwProj.CoursesService.API.Services
                 DeadlineDate = update.DeadlineDate,
                 HasDeadline = update.HasDeadline,
                 IsDeadlineStrict = update.IsDeadlineStrict,
-                PublicationDate = update.PublicationDate
-            });
+                PublicationDate = update.PublicationDate,
+            }, update.Criteria);
 
-            var updatedTask = await _tasksRepository.GetAsync(taskId);
-            updatedTask.Homework = task.Homework;
-            CourseDomain.FillTask(updatedTask.Homework, updatedTask);
-            return updatedTask;
+            return await GetTaskAsync(taskId, true);
         }
     }
 }

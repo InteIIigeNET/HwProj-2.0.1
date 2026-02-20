@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 using HwProj.Models.Roles;
 using Microsoft.Extensions.Configuration;
 using HwProj.Models.AuthService.DTO;
-using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.Result;
+using User = HwProj.AuthService.API.Models.User;
 
 namespace HwProj.AuthService.API.Services
 {

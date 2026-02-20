@@ -1,21 +1,24 @@
-import React, {useEffect, useState} from "react";
-import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "../../api/";
+import React, {useEffect, useState, useRef} from "react";
+import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import {useNavigate, useParams} from 'react-router-dom';
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
+import {LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Button, Chip, Typography} from "@mui/material";
+import {Alert, Button, Chip, IconButton, Typography} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import {BonusTag, DefaultTags, TestTag} from "../Common/HomeworkTags";
 import Lodash from "lodash"
+import ApiSingleton from "@/api/ApiSingleton";
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 
 interface IStudentStatsProps {
     course: CourseViewModel;
     homeworks: HomeworkViewModel[];
     isMentor: boolean;
     userId: string;
-    solutions: StatisticsCourseMatesModel[];
+    solutions: StatisticsCourseMatesModel[] | undefined;
 }
 
 interface IStudentStatsState {
@@ -34,10 +37,36 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         navigate(`/statistics/${courseId}/charts`)
     }
 
+    const [isFullscreen, setIsFullscreen] = useState(false)
+
+    const tableRef = useRef<HTMLDivElement | null>(null)
+
+    const toggleFullscreen = () => {
+        const target = tableRef.current
+        if (!target) return
+        if (!document.fullscreenElement) {
+            if (target.requestFullscreen) {
+                target.requestFullscreen()
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen()
+            }
+        }
+    }
+
+    useEffect(() => {
+        const onFsChange = () => setIsFullscreen(!!document.fullscreenElement)
+        document.addEventListener('fullscreenchange', onFsChange)
+        return () => document.removeEventListener('fullscreenchange', onFsChange)
+    }, [])
+
     const {searched} = state
+    const isMentor = ApiSingleton.authService.isMentor()
 
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
+            if (document.fullscreenElement) return
             if (event.ctrlKey || event.altKey) return
             if (searched && event.key === "Escape") {
                 setSearched({searched: ""});
@@ -55,7 +84,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     const homeworks = props.homeworks.filter(h => h.tasks && h.tasks.length > 0)
     const solutions = searched
-        ? props.solutions.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase()))
+        ? props.solutions?.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase()))
         : props.solutions
 
     const borderStyle = `1px solid ${greyBorder}`
@@ -97,24 +126,53 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     const hasHomeworks = homeworksMaxSum > 0
     const hasTests = testsMaxSum > 0
+    const showBestSolutions = isMentor && (hasHomeworks || hasTests)
+
+    const bestTaskSolutions = new Map<number, string>()
+    if (props.solutions && isMentor) {
+        Lodash(homeworks)
+            .flatMap(h => h.tasks!)
+            .map(t => props.solutions!
+                .map(s => s.homeworks!
+                    .flatMap(h1 => h1.tasks!)
+                    .find(t1 => t1.id === t.id)?.solution || [])
+                .map(s => StudentStatsUtils.calculateLastRatedSolution(s))
+                .filter(x => x != undefined && x.rating! > 0))
+            .filter(x => x.length > 0)
+            .map(x => Lodash(x).orderBy([
+                    (x) => x.rating,
+                    (x) => new Date(x.publicationDate!).getTime()
+                ], ["desc", "asc"]).value()[0]
+            )
+            .forEach(x => bestTaskSolutions.set(x.taskId!, x.studentId!))
+    }
 
     return (
         <div>
+            {props.solutions === undefined && <LinearProgress/>}
+            {props.solutions && props.solutions.length === 0 && <Alert severity="info">
+                На курс пока ещё никто не записался
+            </Alert>}
             {searched &&
                 <Alert style={{marginBottom: 5}} severity="info"><b>Поиск: </b>
                     {searched.replaceAll(" ", "·")}
                 </Alert>}
-            <TableContainer style={{maxHeight: "93vh", marginBottom: -50}}>
+            <TableContainer ref={tableRef} style={{maxHeight: "93vh", marginBottom: -50}}>
                 <Table stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow>
-                            <TableCell style={{zIndex: -4, color: ""}} align="center"
+                            <TableCell style={{zIndex: 10}} align="center"
                                        padding="none"
                                        component="td">
+                                <IconButton size="medium" color={"primary"} onClick={toggleFullscreen}>
+                                    {isFullscreen
+                                        ? <FullscreenExitIcon fontSize={"medium"}/>
+                                        : <FullscreenIcon fontSize={"medium"}/>}
+                                </IconButton>
                             </TableCell>
                             {(hasHomeworks || hasTests) && <TableCell
                                 padding="checkbox"
-                                colSpan={(hasHomeworks ? 1 : 0) + (hasTests ? 1 : 0)}
+                                colSpan={(hasHomeworks ? 1 : 0) + (hasTests ? 1 : 0) + (showBestSolutions ? 1 : 0)}
                                 align="center"
                                 component="td"
                                 style={{
@@ -143,7 +201,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                         <TableRow>
                             <TableCell style={{zIndex: 10}}
                                        component="td">
-                                {solutions.length > 0 &&
+                                {solutions && solutions.length > 0 &&
                                     <Button startIcon={<ShowChartIcon/>} color="primary"
                                             style={{backgroundColor: 'transparent'}} size='medium'
                                             onClick={handleClick}>
@@ -169,6 +227,10 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                     }}>
                                 КР ({testsMaxSum})
                             </TableCell>}
+                            {showBestSolutions && <TableCell padding="checkbox" component="td" align="center"
+                                                             style={{borderLeft: borderStyle}}>
+                                🥇
+                            </TableCell>}
                             {homeworks.map((homework, idx) =>
                                 homework.tasks!.map((task, i) => (
                                     <TableCell padding="checkbox" component="td" align="center"
@@ -187,7 +249,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {solutions.map((cm, index) => {
+                        {solutions && solutions.map((cm, index) => {
                             const homeworksSum = notTests
                                 .flatMap(homework =>
                                     solutions
@@ -204,7 +266,8 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                             solutions
                                                 .find(s => s.id === cm.id)?.homeworks!
                                                 .find(h => h.id === homework.id)?.tasks!
-                                                .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0)!
+                                                .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0)
+                                            || []
                                         )
                                     return testRatings[0]!
                                         .map((_, columnId) => testRatings.map(row => row[columnId]))
@@ -212,6 +275,10 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 })
                                 .flat()
                                 .reduce((sum, rating) => sum + rating, 0)
+
+                            const bestSolutionsCount = bestTaskSolutions.values()
+                                .filter(x => x === cm.id)
+                                .toArray().length
 
                             return (
                                 <TableRow key={index} hover style={{height: 50}}>
@@ -273,6 +340,18 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                               }}
                                               label={testsSum}/>
                                     </TableCell>}
+                                    {showBestSolutions && <TableCell
+                                        align="center"
+                                        padding="none"
+                                        style={{
+                                            borderLeft: borderStyle,
+                                            backgroundColor: "white"
+                                        }}>
+                                        {bestSolutionsCount > 0
+                                            ? <Typography variant={"caption"}
+                                                          color={"grey"}>{bestSolutionsCount}</Typography>
+                                            : ""}
+                                    </TableCell>}
                                     {homeworks.map((homework, idx) =>
                                         homework.tasks!.map((task, i) => {
                                             const additionalStyles = i === 0 && homeworkStyles(homeworks, idx)
@@ -286,6 +365,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                 studentId={String(cm.id)}
                                                 taskId={task.id!}
                                                 taskMaxRating={task.maxRating!}
+                                                isBestSolution={bestTaskSolutions.get(task.id!) === cm.id}
                                                 {...additionalStyles}/>;
                                         })
                                     )}

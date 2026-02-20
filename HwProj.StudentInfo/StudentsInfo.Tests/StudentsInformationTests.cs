@@ -22,9 +22,9 @@ namespace StudentsInfo.Tests
         }
 
         [Test]
-        public void Constructor_ShouldPopulateProgramGroups()
+        public async Task Constructor_ShouldPopulateProgramGroups()
         {
-            var programNamesModels = _studentsInformation.GetProgramNames();
+            var programNamesModels = await _studentsInformation.GetProgramNames();
             var programNames = programNamesModels.Select(model => model.ProgramName).ToList();
 
             Assert.IsNotEmpty(programNames);

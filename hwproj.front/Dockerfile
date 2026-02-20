@@ -8,10 +8,14 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Устанавливаем зависимости в node_modules
-RUN npm install
+RUN npm install --force
 
 # Bundle app source
 COPY . .
+
+# Устанвливаем переменные для production-сборки
+# Актуальные значения подтягиваются из docker-compose.override.yml
+ARG VITE_YANDEX_METRICA_ID
 
 # Собираем статику в /usr/src/app/dist
 RUN npm run build

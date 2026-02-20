@@ -31,6 +31,8 @@ namespace HwProj.SolutionsService.API.Migrations
 
                     b.Property<long?>("GroupId");
 
+                    b.Property<bool>("IsModified");
+
                     b.Property<string>("LecturerComment");
 
                     b.Property<string>("LecturerId");

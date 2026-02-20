@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\HwProj.Common\HwProj.Models\HwProj.Models.csproj" />
+      <ProjectReference Include="..\..\HwProj.EventBus\HwProj.EventBus.Client\HwProj.EventBus.Client.csproj" />
+    </ItemGroup>
+
+</Project>

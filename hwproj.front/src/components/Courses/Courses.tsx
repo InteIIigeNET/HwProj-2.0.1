@@ -38,18 +38,6 @@ export default class Courses extends React.Component<Props, ICoursesState> {
         const {isLoaded, allCourses, myCourses, tabValue} = this.state;
         const {navigate} = this.props.navigate;
 
-        if (!isLoaded) {
-            return (
-                <div className="container">
-                    <DotLottieReact
-                        src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
-                        loop
-                        autoplay
-                    />
-                </div>
-            );
-        }
-
         const activeCourses = myCourses.filter(course => !course.isCompleted)
         const completedCourses = myCourses.filter(course => course.isCompleted)
         const isExpert = this.props.isExpert
@@ -76,11 +64,14 @@ export default class Courses extends React.Component<Props, ICoursesState> {
                     {completedCourses.length > 0 && <Tab label="Завершенные курсы"/>}
                 </Tabs>
                 {tabValue === activeCoursesTab &&
-                    <CoursesList navigate={navigate} courses={activeCourses} isExpert={isExpert}/>}
+                    <CoursesList navigate={navigate} courses={isLoaded ? activeCourses : undefined}
+                                 isExpert={isExpert}/>}
                 {tabValue === allCoursesTab && !isExpert
-                    && <CoursesList navigate={navigate} courses={allCourses} isExpert={isExpert}/>}
+                    &&
+                    <CoursesList navigate={navigate} courses={isLoaded ? allCourses : undefined} isExpert={isExpert}/>}
                 {tabValue === completedCoursesTab &&
-                    <CoursesList navigate={navigate} courses={completedCourses} isExpert={isExpert}/>}
+                    <CoursesList navigate={navigate} courses={isLoaded ? completedCourses : undefined}
+                                 isExpert={isExpert}/>}
             </div>
         );
     }
