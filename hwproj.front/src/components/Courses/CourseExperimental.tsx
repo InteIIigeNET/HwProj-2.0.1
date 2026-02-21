@@ -581,7 +581,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                             {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}
                                         </Typography>}
                                     {x.tasks?.length === 0 &&
-                                        <TimelineItem style={{minHeight: 30, marginBottom: -5}}>
+                                        <TimelineItem style={{minHeight: 30}}>
                                             <TimelineOppositeContent></TimelineOppositeContent>
                                             <TimelineSeparator><TimelineConnector/></TimelineSeparator>
                                             <TimelineContent></TimelineContent>
