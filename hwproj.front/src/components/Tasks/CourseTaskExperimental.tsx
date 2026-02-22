@@ -238,7 +238,7 @@ const CourseTaskEditor: FC<{
                         />
                         {!homework.tags!.includes(BonusTag) && <FormControlLabel
                             style={{height: 32}}
-                            label="Бонусное"
+                            label="Бонусная"
                             control={
                                 <Checkbox
                                     disableRipple
