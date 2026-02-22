@@ -616,7 +616,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                     <TimelineContent alignItems={"center"}>
                                         <Typography className="antiLongWords"
                                                     color={t.isDeferred ? "textSecondary" : "textPrimary"}>
-                                            {t.title}{getTip(x)}
+                                            {t.title}{getTip(t)}
                                         </Typography>
                                     </TimelineContent>
                                 </TimelineItem>)}

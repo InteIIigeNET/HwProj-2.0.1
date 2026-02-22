@@ -10,7 +10,9 @@ import {
     Typography,
     Button,
     Box,
-    Link
+    Link,
+    Checkbox,
+    FormControlLabel
 } from "@mui/material";
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
 import {FC, useEffect, useState, useMemo} from "react"
@@ -29,6 +31,7 @@ import Collapse from "@mui/material/Collapse";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TaskCriteria from "./TaskCriteria";
+import {BonusTag} from "@/components/Common/HomeworkTags";
 
 
 interface IEditTaskMetadataState {
@@ -144,7 +147,9 @@ const CourseTaskEditor: FC<{
     const [maxRating, setMaxRating] = useState<number>(
         criteria.length > 0 ? criteriaTotalPoints : task.maxRating!
     )
-    const [description, setDescription] = useState<string>(task.description!)
+    const [description, setDescription] = useState<string>(task.description || "")
+    const [isBonusExplicit, setIsBonusExplicit] = useState<boolean>(props.speculativeTask.tags!.includes(BonusTag) && !props.speculativeHomework.tags!.includes(BonusTag))
+
     const [hasErrors, setHasErrors] = useState<boolean>(props.speculativeTask.hasErrors || false)
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false)
 
@@ -161,11 +166,13 @@ const CourseTaskEditor: FC<{
             description: description,
             deadlineDateNotSet: metadata?.hasDeadline === true && !metadata.deadlineDate,
             maxRating: maxRating,
+            isBonusExplicit: isBonusExplicit,
+            tags: isBonusExplicit ? [...homework.tags!, BonusTag] : homework.tags!,
             hasErrors: hasErrors,
             criteria: criteria,
-        };
+        }
         props.onUpdate({task: update});
-    }, [title, description, maxRating, metadata, hasErrors, criteria]);
+    }, [title, description, maxRating, metadata, isBonusExplicit, hasErrors, criteria]);
 
     useEffect(() => {
         setHasErrors(!title || maxRating <= 0 || metadata?.hasErrors === true)
@@ -179,6 +186,7 @@ const CourseTaskEditor: FC<{
             ...metadata!,
             title: title!,
             description: description,
+            isBonusExplicit: isBonusExplicit,
             maxRating: maxRating,
             actionOptions: editOptions,
             criteria: criteria,
@@ -212,21 +220,38 @@ const CourseTaskEditor: FC<{
     return (
         <CardContent>
             <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
-                  alignItems={"center"} alignContent={"start"} style={{marginTop: -20}}>
+                  alignItems={"flex-start"} alignContent={"start"}>
                 <Grid item xs={8}>
-                    <TextField
-                        required
-                        fullWidth
-                        error={!title}
-                        label="Название задачи"
-                        variant="standard"
-                        margin="normal"
-                        value={title}
-                        onChange={(e) => {
-                            e.persist()
-                            setTitle(e.target.value)
-                        }}
-                    />
+                    <Stack direction={"row"} spacing={1} alignItems={"flex-end"}>
+                        <TextField
+                            required
+                            fullWidth
+                            error={!title}
+                            label="Название задачи"
+                            variant="standard"
+                            margin="normal"
+                            value={title}
+                            onChange={(e) => {
+                                e.persist()
+                                setTitle(e.target.value)
+                            }}
+                        />
+                        {!homework.tags!.includes(BonusTag) && <FormControlLabel
+                            style={{height: 32}}
+                            label="Бонусное"
+                            control={
+                                <Checkbox
+                                    disableRipple
+                                    size={"small"}
+                                    color="primary"
+                                    checked={isBonusExplicit}
+                                    onChange={(e) => {
+                                        setIsBonusExplicit(prevState => !prevState)
+                                    }}
+                                />
+                            }
+                        />}
+                    </Stack>
                 </Grid>
                 <Grid item>
                     <TextField
@@ -235,7 +260,7 @@ const CourseTaskEditor: FC<{
                         fullWidth
                         error={maxRating <= 0 || maxRating > 100}
                         helperText={maxRatingLabel}
-                        style={{width: "90px"}}
+                        style={{width: "90px", marginTop: 3}}
                         label="Баллы"
                         variant="outlined"
                         margin="normal"

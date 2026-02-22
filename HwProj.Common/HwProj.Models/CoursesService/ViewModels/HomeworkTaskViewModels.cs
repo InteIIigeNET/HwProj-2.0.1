@@ -65,6 +65,8 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         [Required] public int MaxRating { get; set; }
 
+        public bool IsBonusExplicit { get; set; }
+
         public ActionOptions? ActionOptions { get; set; }
 
         public List<CriterionViewModel> Criteria { get; set; }

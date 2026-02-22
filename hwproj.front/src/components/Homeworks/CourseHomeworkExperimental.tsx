@@ -59,10 +59,10 @@ const CourseHomeworkEditor: FC<{
         isSaved?: boolean
     }) => void
     onStartProcessing: (homeworkId: number,
-        courseUnitType: CourseUnitType,
-        previouslyExistingFilesCount: number,
-        waitingNewFilesCount: number,
-        deletingFilesIds: number[]) => void;
+                        courseUnitType: CourseUnitType,
+                        previouslyExistingFilesCount: number,
+                        waitingNewFilesCount: number,
+                        deletingFilesIds: number[]) => void;
 }> = (props) => {
     const homework = props.homeworkAndFilesInfo.homework
     const isNewHomework = homework.id! < 0
@@ -262,7 +262,7 @@ const CourseHomeworkEditor: FC<{
     return (
         <CardContent>
             <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
-                  alignItems={"center"} alignContent={"center"} style={{marginTop: -20}}>
+                  alignItems={"center"} alignContent={"center"} style={{marginTop: -24}}>
                 <Grid item>
                     <TextField
                         required
@@ -390,10 +390,10 @@ const CourseHomeworkExperimental: FC<{
     onAddTask: (homework: HomeworkViewModel) => void,
     isProcessing: boolean;
     onStartProcessing: (homeworkId: number,
-        courseUnitType: CourseUnitType,
-        previouslyExistingFilesCount: number,
-        waitingNewFilesCount: number,
-        deletingFilesIds: number[]) => void;
+                        courseUnitType: CourseUnitType,
+                        previouslyExistingFilesCount: number,
+                        waitingNewFilesCount: number,
+                        deletingFilesIds: number[]) => void;
 }> = (props) => {
     const {homework, filesInfo} = props.homeworkAndFilesInfo
     const deferredTasks = homework.tasks!.filter(t => t.isDeferred!)

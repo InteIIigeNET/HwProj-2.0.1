@@ -100,17 +100,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel)
         {
             var mentorId = Request.GetUserIdFromHeader();
-            CourseDTO? baseCourse = null;
-
-            if (courseViewModel.BaseCourseId != null)
-            {
-                baseCourse = await _coursesService.GetForEditingAsync((long)courseViewModel.BaseCourseId);
-                if (baseCourse == null) return NotFound();
-
-                if (!baseCourse.MentorIds.Contains(mentorId)) return Forbid();
-            }
-
-            var courseId = await _coursesService.AddAsync(courseViewModel, baseCourse, mentorId);
+            var courseId = await _coursesService.AddAsync(courseViewModel, mentorId);
 
             return Ok(courseId);
         }

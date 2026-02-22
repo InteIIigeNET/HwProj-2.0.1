@@ -122,7 +122,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const testsMaxSum = testGroups
         .map(h => h[0])
         .flatMap(homework => homework.tasks)
-        .reduce((sum, task) => sum + (task!.maxRating || 0), 0)
+        .reduce((sum, task) => sum + (task!.tags!.includes(BonusTag) ? 0 : (task!.maxRating || 0)), 0)
 
     const hasHomeworks = homeworksMaxSum > 0
     const hasTests = testsMaxSum > 0

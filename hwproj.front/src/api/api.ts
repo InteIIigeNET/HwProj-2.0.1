@@ -1684,6 +1684,12 @@ export interface PostTaskViewModel {
     maxRating: number;
     /**
      *
+     * @type {boolean}
+     * @memberof PostTaskViewModel
+     */
+    isBonusExplicit?: boolean;
+    /**
+     *
      * @type {ActionOptions}
      * @memberof PostTaskViewModel
      */
