@@ -80,7 +80,20 @@ const TaskSolutionsPage: FC = () => {
     const showOnlyNotSolved = filterState.some(x => x === "Только нерешенные")
 
     useEffect(() => {
-        getSolutions()
+        getSolutions();
+
+        const handleLtiMessage = (event: MessageEvent) => {
+
+            if (event.data === 'lti_success_refresh') {
+                getSolutions();
+            }
+        };
+
+        window.addEventListener("message", handleLtiMessage);
+
+        return () => {
+            window.removeEventListener("message", handleLtiMessage);
+        };
     }, [])
 
     useEffect(() => {

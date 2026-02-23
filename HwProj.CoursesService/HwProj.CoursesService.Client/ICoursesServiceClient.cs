@@ -13,6 +13,7 @@ namespace HwProj.CoursesService.Client
         /// Получить полную информацию о курсе без учетов фильтров для преподавателей
         Task<Result<CourseDTO>> GetAllCourseData(long courseId);
         Task<CourseDTO?> GetCourseByTask(long taskId);
+        Task<CourseDTO?> GetCourseByTaskForLti(long taskId, string userId);
         Task<Result> DeleteCourse(long courseId);
         Task<Result<long>> CreateCourse(CreateCourseViewModel model);
         Task<Result> UpdateCourse(UpdateCourseViewModel model, long courseId);

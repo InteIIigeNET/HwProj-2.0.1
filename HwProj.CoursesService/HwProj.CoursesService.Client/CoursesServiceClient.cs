@@ -41,13 +41,12 @@ namespace HwProj.CoursesService.Client
 
         public async Task<CourseDTO?> GetCourseByTask(long taskId)
         {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get,
-                _coursesServiceUri + $"api/Courses/getByTask/{taskId}");
+            return await GetCourseByTaskInternal(taskId);
+        }
 
-            httpRequest.TryAddUserId(_httpContextAccessor);
-            var response = await _httpClient.SendAsync(httpRequest);
-            return response.IsSuccessStatusCode ? await response.DeserializeAsync<CourseDTO>() : null;
+        public async Task<CourseDTO?> GetCourseByTaskForLti(long taskId, string userId)
+        {
+            return await GetCourseByTaskInternal(taskId, userId, true);
         }
 
         public async Task<CourseDTO?> GetCourseById(long courseId)
@@ -640,6 +639,20 @@ namespace HwProj.CoursesService.Client
             {
                 return false;
             }
+        }
+
+        private async Task<CourseDTO?> GetCourseByTaskInternal(
+            long taskId, string? userId = null, bool isLtiRequest = false)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/" +
+                $"{(isLtiRequest ? $"getByTaskForLti/{taskId}/{userId}" : $"getByTask/{taskId}")}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            var result =response.IsSuccessStatusCode ? await response.DeserializeAsync<CourseDTO>() : null;
+            return result;
         }
     }
 }

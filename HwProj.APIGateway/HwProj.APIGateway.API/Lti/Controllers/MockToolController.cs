@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
+using LtiAdvantage.AssignmentGradeServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -262,36 +264,150 @@ public class MockToolController : ControllerBase
         return Content(html, "text/html");
     }
 
-    private IActionResult HandleResourceLink(JwtSecurityToken token)
+    [HttpPost("send-score")]
+    public async Task<IActionResult> SendScore(
+        [FromForm] string lineItemUrl, 
+        [FromForm] string userId, 
+        [FromForm] string platformIss,
+        [FromForm] string taskId,
+        [FromForm] string returnUrl)
     {
-        // ... (Этот метод оставьте как был в предыдущем ответе, он работает корректно) ...
-        var presentationClaim = token.Claims.FirstOrDefault(c => c.Type == "https://purl.imsglobal.org/spec/lti/claim/launch_presentation");
-        var presentationJson = JsonDocument.Parse(presentationClaim?.Value ?? "{}");
-        var returnUrl = string.Empty;
-        if (presentationJson.RootElement.TryGetProperty("return_url", out var returnUrlProp))
+        var client = _httpClientFactory.CreateClient();
+
+        // --- ШАГ 1: Получаем Access Token от HwProj ---
+        var clientAssertion = CreateClientAssertion(platformIss);
+        
+        var tokenRequest = new Dictionary<string, string>
         {
-            returnUrl = returnUrlProp.GetString();
+            ["grant_type"] = "client_credentials",
+            ["client_assertion_type"] = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+            ["client_assertion"] = clientAssertion,
+            ["scope"] = "https://purl.imsglobal.org/spec/lti-ags/scope/score"
+        };
+
+        var tokenResponse = await client.PostAsync($"{platformIss}/api/lti/token", new FormUrlEncodedContent(tokenRequest));
+        var tokenContent = await tokenResponse.Content.ReadAsStringAsync();
+        
+        if (!tokenResponse.IsSuccessStatusCode) 
+            return BadRequest($"Ошибка получения токена HwProj: {tokenContent}");
+
+        var accessToken = JsonDocument.Parse(tokenContent).RootElement.GetProperty("access_token").GetString();
+
+        // --- ШАГ 2: Отправляем JSON с оценкой на ваш lineItemUrl ---
+        var scoreObj = new Score
+        {
+            UserId = userId,
+            ScoreGiven = 100.0,
+            ScoreMaximum = 100.0,
+            Comment = "Работа выполнена идеально (Отправлено из Mock Tool)",
+            GradingProgress = GradingProgress.FullyGraded,
+            TimeStamp = DateTime.UtcNow
+        };
+
+        var scoreRequest = new HttpRequestMessage(HttpMethod.Post, lineItemUrl)
+        {
+            Content = new StringContent(JsonSerializer.Serialize(scoreObj), System.Text.Encoding.UTF8, "application/vnd.ims.lti-ags.v1.score+json")
+        };
+        
+        // Вставляем полученный токен в заголовок Authorization
+        scoreRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+        var scoreResponse = await client.SendAsync(scoreRequest);
+        var scoreResult = await scoreResponse.Content.ReadAsStringAsync();
+
+        if (scoreResponse.IsSuccessStatusCode)
+        {
+            var html = $@"
+            <div style='text-align:center; margin-top:50px; font-family:sans-serif;'>
+                <h1 style='color:green;'>Успех!</h1>
+                <p>Оценка 100 баллов успешно передана в HwProj (Задача: {taskId}).</p>
+                <a href='{returnUrl}' style='padding:10px 20px; background:#007bff; color:white; text-decoration:none; border-radius:4px;'>Вернуться в курс</a>
+            </div>";
+            return Content(html, "text/html");
         }
 
+        return BadRequest($"Ошибка при отправке оценки. Статус: {scoreResponse.StatusCode}. Детали: {scoreResult}");
+    }
+
+    private IActionResult HandleResourceLink(JwtSecurityToken token)
+    {
+        // Извлекаем URL возврата
+        var presentationClaim = token.Claims.FirstOrDefault(c => c.Type == "https://purl.imsglobal.org/spec/lti/claim/launch_presentation");
+        var presentationJson = JsonDocument.Parse(presentationClaim?.Value ?? "{}");
+        var returnUrl = presentationJson.RootElement.TryGetProperty("return_url", out var returnUrlProp) ? returnUrlProp.GetString() : "";
+
+        // Извлекаем ID задачи
         var resourceLinkClaim = token.Claims.FirstOrDefault(c => c.Type == "https://purl.imsglobal.org/spec/lti/claim/resource_link");
         var resourceLinkJson = JsonDocument.Parse(resourceLinkClaim?.Value ?? "{}");
-        var taskId = "";
-        if(resourceLinkJson.RootElement.TryGetProperty("id", out var idProp)) taskId = idProp.GetString();
+        var taskId = resourceLinkJson.RootElement.TryGetProperty("id", out var idProp) ? idProp.GetString() : "";
+
+        // НОВОЕ: Извлекаем AGS (ссылку для выставления оценок)
+        var agsClaim = token.Claims.FirstOrDefault(c => c.Type == "https://purl.imsglobal.org/spec/lti-ags/claim/endpoint");
+        var lineItemUrl = "";
+        if (agsClaim != null)
+        {
+            var agsJson = JsonDocument.Parse(agsClaim.Value);
+            if (agsJson.RootElement.TryGetProperty("lineitem", out var lineItemProp))
+                lineItemUrl = lineItemProp.GetString();
+        }
+
+        var userId = token.Subject; // Идентификатор студента в HwProj
+        var issuer = token.Issuer;  // URL HwProj
 
         var html = $@"
         <!DOCTYPE html>
         <html>
         <head>
-            <style>body {{ font-family: sans-serif; text-align: center; padding: 50px; }} button {{ padding: 10px 20px; font-size: 16px; cursor: pointer; }}</style>
+            <style>body {{ font-family: sans-serif; text-align: center; padding: 50px; }} button {{ padding: 10px 20px; font-size: 16px; cursor: pointer; margin-top:10px; }}</style>
         </head>
         <body>
-            <h1>Решение задачи (Mock Tool)</h1>
-            <p>ID задачи: <b>{taskId}</b></p>
-            <p>Вы успешно зашли через LTI 1.3!</p>
-            <br/>
-            <button onclick=""window.location.href='{returnUrl}'"">Завершить и вернуться</button>
+            <div style='border: 1px solid #ccc; padding: 20px; border-radius: 8px; max-width: 500px; margin: 0 auto;'>
+                <h1>Решение задачи (Mock Tool)</h1>
+                <p>ID задачи: <b>{taskId}</b></p>
+                <p>Студент: <b>{userId}</b></p>
+                <hr/>
+                
+                <form action='/api/mocktool/send-score' method='POST'>
+                    <input type='hidden' name='lineItemUrl' value='{lineItemUrl}' />
+                    <input type='hidden' name='userId' value='{userId}' />
+                    <input type='hidden' name='platformIss' value='{issuer}' />
+                    <input type='hidden' name='taskId' value='{taskId}' />
+                    <input type='hidden' name='returnUrl' value='{returnUrl}' />
+                    
+                    <button type='submit' style='background: #28a745; color: white; border: none; border-radius: 4px;'>
+                        Завершить и отправить 100 баллов
+                    </button>
+                </form>
+
+                <br/>
+                <button onclick=""window.location.href='{returnUrl}'"">Вернуться без оценки</button>
+            </div>
         </body>
         </html>";
         return Content(html, "text/html");
+    }
+
+    private string CreateClientAssertion(string platformIssuer)
+    {
+        var now = DateTime.UtcNow;
+        // URL, куда инструмент пойдет за токеном (ваш LtiAccessTokenController)
+        var tokenEndpoint = $"{platformIssuer}/api/lti/token"; 
+    
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Iss, "http://localhost:5000"), // ClientId нашего инструмента
+            new(JwtRegisteredClaimNames.Sub, "mock-tool-client-id"),
+            new(JwtRegisteredClaimNames.Aud, tokenEndpoint),         // Audience = URL вашего эндпоинта
+            new(JwtRegisteredClaimNames.Iat, new DateTimeOffset(now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
+            new(JwtRegisteredClaimNames.Exp, new DateTimeOffset(now.AddMinutes(5)).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
+
+        var jwt = new JwtSecurityToken(
+            header: new JwtHeader(new SigningCredentials(_signingKey, SecurityAlgorithms.RsaSha256)),
+            payload: new JwtPayload(claims)
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(jwt);
     }
 }

@@ -86,7 +86,7 @@ namespace HwProj.CoursesService.API.Services
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
 
-            var result = userId == string.Empty ? courseDto : await _courseFilterService.ApplyFilter(courseDto, userId);
+            var result = string.IsNullOrEmpty(userId) ? courseDto : await _courseFilterService.ApplyFilter(courseDto, userId);
             return result;
         }
 

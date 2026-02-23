@@ -16,6 +16,7 @@ namespace HwProj.SolutionsService.API.Services
         Task<Solution[]> GetTaskSolutionsFromGroupAsync(long taskId, long groupId);
 
         Task<long> PostOrUpdateAsync(long taskId, Solution solution);
+        Task<long> PostOrUpdateAsyncForLti(long taskId, Solution solution);
         Task PostEmptySolutionWithRateAsync(long task, Solution solution);
 
         Task RateSolutionAsync(long solutionId, string lecturerId, int newRating, string lecturerComment);
