@@ -72,24 +72,12 @@ namespace HwProj.SolutionsService.Client
 
         public async Task<long> PostSolution(long taskId, PostSolutionModel model)
         {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Post,
-                _solutionServiceUri + $"api/Solutions/{taskId}")
-            {
-                Content = new StringContent(
-                    JsonConvert.SerializeObject(model),
-                    Encoding.UTF8,
-                    "application/json")
-            };
+            return await PostSolutionInternal(taskId, model);
+        }
 
-            httpRequest.TryAddUserId(_httpContextAccessor);
-            var response = await _httpClient.SendAsync(httpRequest);
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.DeserializeAsync<long>();
-            }
-
-            throw new ForbiddenException();
+        public async Task<long> PostSolutionForLti(long taskId, PostSolutionModel model)
+        {
+            return await PostSolutionInternal(taskId, model, true);
         }
 
         public async Task PostEmptySolutionWithRate(long taskId, SolutionViewModel model)
@@ -112,10 +100,22 @@ namespace HwProj.SolutionsService.Client
 
         public async Task RateSolution(long solutionId, RateSolutionModel rateSolutionModel)
         {
+            await RateSolutionInternal(solutionId, rateSolutionModel);
+        }
+
+        public async Task RateSolutionForLti(long solutionId, RateSolutionModel rateSolutionModel)
+        {
+            await RateSolutionInternal(solutionId, rateSolutionModel, true);
+        }
+
+        private async Task RateSolutionInternal(
+            long solutionId, RateSolutionModel rateSolutionModel, bool isLtiRequest = false)
+        {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _solutionServiceUri +
-                $"api/Solutions/rateSolution/{solutionId}")
+                $"api/Solutions/" +
+                $"{(isLtiRequest ? "rateSolutionForLti" : "rateSolution")}/{solutionId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(rateSolutionModel),
@@ -296,6 +296,30 @@ namespace HwProj.SolutionsService.Client
             {
                 return false;
             }
+        }
+
+        private async Task<long> PostSolutionInternal(
+            long taskId, PostSolutionModel model, bool isLtiRequest = false)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _solutionServiceUri + $"api/Solutions/" +
+                $"{(isLtiRequest ? "postSolutionForLti/" : "")}{taskId}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.DeserializeAsync<long>();
+            }
+
+            throw new ForbiddenException();
         }
     }
 }

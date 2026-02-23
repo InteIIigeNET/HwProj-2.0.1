@@ -21,4 +21,8 @@ public interface ILtiTokenService
         string userId,
         string nonce,
         string resourceLinkId);
+
+    public string GenerateAccessTokenForLti(
+        string clientId,
+        string scope);
 }

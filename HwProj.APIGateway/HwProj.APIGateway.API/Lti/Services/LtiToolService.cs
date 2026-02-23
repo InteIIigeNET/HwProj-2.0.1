@@ -33,7 +33,12 @@ public class LtiToolService(IOptions<List<LtiToolConfig>> options) : ILtiToolSer
         return Task.FromResult(cfg == null ? null : MapToDto(cfg));
     }
 
-    // Вынес создание DTO в отдельный метод, чтобы не дублировать код
+    public Task<LtiToolDto?> GetByClientIdAsync(string clientId)
+    {
+        var cfg = _tools.FirstOrDefault(t => t.ClientId == clientId);
+        return Task.FromResult(cfg == null ? null : MapToDto(cfg));
+    }
+
     private static LtiToolDto MapToDto(LtiToolConfig t)
     {
         return new LtiToolDto(

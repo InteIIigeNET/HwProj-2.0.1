@@ -1,0 +1,99 @@
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using HwProj.APIGateway.API.Lti.Services;
+using HwProj.CoursesService.Client;
+using HwProj.Models.SolutionsService;
+using HwProj.SolutionsService.Client;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using LtiAdvantage.AssignmentGradeServices;
+
+namespace HwProj.APIGateway.API.Lti.Controllers;
+
+[Route("api/lti")]
+[ApiController]
+[Authorize(AuthenticationSchemes = "LtiScheme")]
+public class LtiAssignmentsGradesControllers(
+    ICoursesServiceClient coursesServiceClient,
+    ISolutionsServiceClient solutionsClient,
+    ILtiToolService toolService)
+    : ControllerBase
+{
+    [HttpPost("lineItem/{taskId}")]
+    [Consumes("application/vnd.ims.lti-ags.v1.score+json")]
+    public async Task<IActionResult> UpdateTaskScore(long taskId, [FromBody] Score score)
+    {
+        var scopeClaim = User.FindFirst("scope")?.Value;
+        if (string.IsNullOrEmpty(scopeClaim) || !scopeClaim.Contains("https://purl.imsglobal.org/spec/lti-ags/scope/score"))
+        {
+            return Forbid();
+        }
+
+        var toolClientId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                           ?? User.FindFirst("sub")?.Value;
+
+        if (string.IsNullOrEmpty(toolClientId))
+        {
+            return Unauthorized("Unknown tool client id.");
+        }
+
+        var tool = await toolService.GetByClientIdAsync(toolClientId);
+        if (tool == null)
+        {
+            return BadRequest("Tool not found.");
+        }
+
+        var course = await coursesServiceClient.GetCourseByTaskForLti(taskId, score.UserId);
+        if (course == null)
+        {
+            return BadRequest("The task does not belong to any course.");
+        }
+
+        if (course.LtiToolId != tool.Id)
+        {
+            return BadRequest("This tool does not apply to this course.");
+        }
+
+        if (score.ScoreGiven < 0 || score.ScoreGiven > score.ScoreMaximum)
+        {
+            return BadRequest("ScoreGiven must be between 0 and ScoreMaximum.");
+        }
+
+        try
+        {
+            await this.SetTaskGrade(taskId, score);
+            return Ok(new { message = "Score updated successfully" });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "Internal Server Error");
+        }
+    }
+
+    private async Task SetTaskGrade(long taskId, Score score)
+    {
+        var postSolutionModel = new PostSolutionModel
+        {
+            StudentId = score.UserId,
+            LecturerComment = score.Comment,
+            Rating =  (int)Math.Round(score.ScoreGiven)
+        };
+
+
+        var solutionId = await solutionsClient.PostSolutionForLti(taskId, postSolutionModel);
+
+        var rate = new RateSolutionModel
+        {
+            Rating = (int)Math.Round(score.ScoreGiven),
+            LecturerComment = score.Comment
+        };
+
+        await solutionsClient.RateSolutionForLti(solutionId, rate);
+    }
+}

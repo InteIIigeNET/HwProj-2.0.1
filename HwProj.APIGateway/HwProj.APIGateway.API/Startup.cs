@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
 using HwProj.APIGateway.API.Filters;
@@ -70,6 +71,27 @@ public class Startup
                     IssuerSigningKey =
                         new SymmetricSecurityKey(Encoding.ASCII.GetBytes(appSettings["SecurityKey"])),
                     ValidateIssuerSigningKey = true
+                };
+            })
+            .AddJwtBearer("LtiScheme", options =>
+            {
+                var ltiConfig = Configuration.GetSection("LtiPlatform").Get<LtiPlatformConfig>();
+                if (ltiConfig == null) return;
+
+                var rsa = RSA.Create();
+
+                rsa.ImportFromPem(ltiConfig.SigningKey.PrivateKeyPem);
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = ltiConfig.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = ltiConfig.Issuer,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+
+                    IssuerSigningKeys = [new RsaSecurityKey(rsa)]
                 };
             });
 

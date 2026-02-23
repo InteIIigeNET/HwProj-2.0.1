@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using HwProj.APIGateway.API.Lti.Models;
 using HwProj.APIGateway.API.LTI.Services;
 using LtiAdvantage.DeepLinking;
 using LtiAdvantage.Lti;
+using LtiAdvantage.AssignmentGradeServices;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -79,13 +82,45 @@ public class LtiTokenService(IOptions<LtiPlatformConfig> options) : ILtiTokenSer
 
             LaunchPresentation = new LaunchPresentationClaimValueType
             {
-                DocumentTarget = DocumentTarget.Window, 
+                DocumentTarget = DocumentTarget.Window,
                 ReturnUrl = _options.ResourceLinkReturnUrl,
+            },
+
+            AssignmentGradeServices = new AssignmentGradeServicesClaimValueType
+            {
+                Scope = ["https://purl.imsglobal.org/spec/lti-ags/scope/score"],
+                LineItemUrl = _options.AssignmentsGradesEndpoint + "/" + resourceLinkId,
             }
         };
 
         return this.CreateJwt(clientId, request);
     }
+
+    public string GenerateAccessTokenForLti(string clientId, string scope)
+    {
+        var now = DateTime.UtcNow;
+
+        var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, clientId),
+            
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+
+            new Claim("scope", scope)
+        };
+
+        var jwt = new JwtSecurityToken(
+            issuer: _options.Issuer,
+            audience: _options.Issuer,
+            claims: claims,
+            notBefore: now,
+            expires: now.AddHours(1),
+            signingCredentials: GetSigningCredentials()
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(jwt);
+    }
+
 
     private SigningCredentials GetSigningCredentials()
     {

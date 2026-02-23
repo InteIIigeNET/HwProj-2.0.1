@@ -189,32 +189,36 @@ public class LtiAuthController(
     public IActionResult CloseLtiSession()
     {
         const string htmlContent = @"
-        <!DOCTYPE html>
-        <html lang='ru'>
-        <head>
-            <meta charset='UTF-8'>
-            <title>Сессия завершена</title>
-            <style>
-                body { font-family: 'Segoe UI', sans-serif; text-align: center; padding-top: 50px; background-color: #f5f5f5; }
-                .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: inline-block; }
-                button { padding: 10px 20px; background-color: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
-                button:hover { background-color: #115293; }
-            </style>
-            <script>
-                window.onload = function() {
-                    window.close();
-                };
-            </script>
-        </head>
-        <body>
-            <div class='container'>
-                <h3>Работа с инструментом завершена</h3>
-                <p>Вкладка должна закрыться автоматически.</p>
-                <p>Если этого не произошло, нажмите кнопку ниже:</p>
-                <button onclick='window.close()'>Закрыть вкладку</button>
-            </div>
-        </body>
-        </html>";
+    <!DOCTYPE html>
+    <html lang='ru'>
+    <head>
+        <meta charset='UTF-8'>
+        <title>Сессия завершена</title>
+        <style>
+            body { font-family: 'Segoe UI', sans-serif; text-align: center; padding-top: 50px; background-color: #f5f5f5; }
+            .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: inline-block; }
+            button { padding: 10px 20px; background-color: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+            button:hover { background-color: #115293; }
+        </style>
+        <script>
+            window.onload = function() {
+                if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage('lti_success_refresh', '*');
+                }
+
+                window.close();
+            };
+        </script>
+    </head>
+    <body>
+        <div class='container'>
+            <h3>Работа с инструментом завершена</h3>
+            <p>Вкладка должна закрыться автоматически, а страница задачи обновиться.</p>
+            <p>Если этого не произошло, нажмите кнопку ниже:</p>
+            <button onclick='window.close()'>Закрыть вкладку</button>
+        </div>
+    </body>
+    </html>";
 
         return Content(htmlContent, "text/html");
     }
