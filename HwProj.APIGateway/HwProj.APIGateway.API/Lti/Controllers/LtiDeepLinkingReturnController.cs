@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using System.Threading.Tasks;
+using HwProj.APIGateway.API.Lti.Models;
 using HwProj.APIGateway.API.Lti.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace HwProj.APIGateway.API.Lti.Controllers;
@@ -14,6 +16,7 @@ namespace HwProj.APIGateway.API.Lti.Controllers;
 [Route("api/lti")]
 [ApiController]
 public class LtiDeepLinkingReturnController(
+    IOptions<LtiPlatformConfig> ltiPlatformOptions,
     ILtiToolService toolService,
     ILtiKeyService ltiKeyService
     ) : ControllerBase
@@ -36,14 +39,12 @@ public class LtiDeepLinkingReturnController(
         }
 
         var unverifiedToken = handler.ReadJwtToken(tokenString);
-        var issuer = unverifiedToken.Issuer;
+        var clientId = unverifiedToken.Subject;
 
-        // 2. Ищем инструмент в БД по Issuer
-        // (Предполагается, что у toolService есть метод GetByIssuerAsync или аналогичный)
-        var tool = await toolService.GetByIssuerAsync(issuer);
+        var tool = await toolService.GetByClientIdAsync(clientId);
         if (tool == null)
         {
-            return Unauthorized($"Unknown tool issuer: {issuer}");
+            return Unauthorized($"Unknown tool clientId: {clientId}");
         }
 
         var signingKeys = await ltiKeyService.GetKeysAsync(tool.JwksEndpoint);
@@ -53,10 +54,10 @@ public class LtiDeepLinkingReturnController(
             handler.ValidateToken(tokenString, new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = issuer,
+                ValidIssuer = unverifiedToken.Issuer,
 
                 ValidateAudience = true,
-                ValidAudience = tool.ClientId,
+                ValidAudience = ltiPlatformOptions.Value.Issuer,
 
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.FromMinutes(5),

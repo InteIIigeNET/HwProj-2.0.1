@@ -50,11 +50,13 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("{courseId}")]
         public async Task<IActionResult> Get(long courseId)
         {
-            var userId = Request.GetUserIdFromHeader();
-            var course = await _coursesService.GetAsync(courseId, userId);
-            if (course == null) return NotFound();
+            return await GetInternal(courseId);
+        }
 
-            return Ok(course);
+        [HttpGet("getForLti/{courseId}")]
+        public async Task<IActionResult> GetForLti(long courseId)
+        {
+            return await GetInternal(courseId);
         }
 
         [HttpGet("getForMentor/{courseId}/{mentorId}")]
@@ -261,6 +263,15 @@ namespace HwProj.CoursesService.API.Controllers
             var mentorIds = await _coursesService.GetCourseLecturers(courseId);
             var mentorsToAssignedStudents = await _courseFilterService.GetAssignedStudentsIds(courseId, mentorIds);
             return Ok(mentorsToAssignedStudents);
+        }
+
+        private async Task<IActionResult> GetInternal(long courseId)
+        {
+            var userId = Request.GetUserIdFromHeader();
+            var course = await _coursesService.GetAsync(courseId, userId);
+            if (course == null) return NotFound();
+
+            return Ok(course);
         }
 
         private async Task<IActionResult> GetByTaskInternal(

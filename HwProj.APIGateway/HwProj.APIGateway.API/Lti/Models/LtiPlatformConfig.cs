@@ -7,6 +7,7 @@ public class LtiPlatformConfig
     public string DeepLinkReturnUrl { get; set; }
     public string ResourceLinkReturnUrl { get; set; }
     public string AssignmentsGradesEndpoint { get; set; }
+    public string AccessTokenUrl { get; set; }
     public string JwksEndpoint { get; set; }
     public LtiSigningKeyConfig SigningKey { get; set; }
 }
