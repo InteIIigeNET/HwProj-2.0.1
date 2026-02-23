@@ -1,11 +1,13 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
+using HwProj.APIGateway.API.Lti.Models;
 using HwProj.APIGateway.API.Lti.Services;
 using HwProj.APIGateway.API.LTI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace HwProj.APIGateway.API.Lti.Controllers;
@@ -13,6 +15,7 @@ namespace HwProj.APIGateway.API.Lti.Controllers;
 [Route("api/lti")]
 [ApiController]
 public class LtiAccessTokenController(
+    IOptions<LtiPlatformConfig> options,
     ILtiToolService toolService,
     ILtiKeyService ltiKeyService,
     ILtiTokenService tokenService
@@ -46,24 +49,24 @@ public class LtiAccessTokenController(
 
         var unverifiedToken = handler.ReadJwtToken(clientAssertion);
 
-        var issuer = unverifiedToken.Issuer;
+        var clientId = unverifiedToken.Subject;
 
-        var tool = await toolService.GetByIssuerAsync(issuer);
+        var tool = await toolService.GetByClientIdAsync(clientId);
         if (tool == null)
         {
-            return Unauthorized(new { error = "invalid_client", error_description = $"Unknown issuer: {issuer}" });
+            return Unauthorized(new { error = "invalid_client", error_description = $"Unknown clientId: {clientId}" });
         }
 
         var signingKeys = await ltiKeyService.GetKeysAsync(tool.JwksEndpoint);
 
         try
         {
-            var tokenEndpointUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}";
+            var tokenEndpointUrl = options.Value.AccessTokenUrl;
 
             handler.ValidateToken(clientAssertion, new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = issuer,
+                ValidIssuer = unverifiedToken.Issuer,
 
                 ValidateAudience = true,
                 ValidAudience = tokenEndpointUrl,

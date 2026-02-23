@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using HwProj.APIGateway.API.Lti.Models;
 using HwProj.APIGateway.API.Lti.Services;
 using HwProj.APIGateway.API.LTI.Services;
+using HwProj.CoursesService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,7 @@ namespace HwProj.APIGateway.API.Lti.Controllers;
 [Route("api/lti")]
 [ApiController]
 public class LtiAuthController(
+    ICoursesServiceClient coursesServiceClient,
     IOptions<LtiPlatformConfig> ltiPlatformOptions,
     ILtiToolService toolService,
     ILtiTokenService tokenService,
@@ -46,12 +48,12 @@ public class LtiAuthController(
             return BadRequest("Invalid or expired lti_message_hint");
         }
 
-        if (payload == null)
+        if (payload?.ToolId == null || payload.CourseId == null)
         {
             return BadRequest("Invalid or expired lti_message_hint");
         }
 
-        var tool = await toolService.GetByIdAsync(long.Parse(payload.ToolId!));
+        var tool = await toolService.GetByIdAsync(long.Parse(payload.ToolId));
         if (tool == null)
         {
             return BadRequest("Tool not found");
@@ -59,7 +61,18 @@ public class LtiAuthController(
 
         if (tool.ClientId != clientId)
         {
-            return BadRequest($"Invalid client_id. Expected: {tool.ClientId}, Got: {clientId}");
+            return BadRequest($"Invalid clientId. Expected: {tool.ClientId}, Got: {clientId}");
+        }
+
+        var course = await coursesServiceClient.GetCourseByIdForLti(long.Parse(payload.CourseId));
+        if (course == null)
+        {
+            return NotFound("Course not found");
+        }
+
+        if (course.LtiToolId != tool.Id)
+        {
+            return BadRequest("The data is incorrect: the id of the instrument linked to the exchange rate does not match");
         }
 
         string idToken;
@@ -68,8 +81,8 @@ public class LtiAuthController(
             case "DeepLinking":
                 idToken = tokenService.CreateDeepLinkingToken(
                     clientId: clientId,
-                    toolId: payload.ToolId!,
-                    courseId: payload.CourseId!,
+                    toolId: payload.ToolId,
+                    courseId: payload.CourseId,
                     targetLinkUri: tool.DeepLink,
                     userId:  payload.UserId,
                     nonce: nonce
@@ -78,8 +91,8 @@ public class LtiAuthController(
             case "ResourceLink":
                 idToken = tokenService.CreateResourceLinkToken(
                     clientId: clientId,
-                    toolId: payload.ToolId!,
-                    courseId: payload.CourseId!,
+                    toolId: payload.ToolId,
+                    courseId: payload.CourseId,
                     targetLinkUri: tool.LaunchUrl,
                     userId: payload.UserId,
                     nonce: nonce,
@@ -131,6 +144,17 @@ public class LtiAuthController(
         if (tool == null)
         {
             return NotFound("Tool not found");
+        }
+
+        var course = await coursesServiceClient.GetCourseByIdForLti(long.Parse(courseId));
+        if (course == null)
+        {
+            return NotFound("Course not found");
+        }
+
+        if (course.LtiToolId != long.Parse(toolId))
+        {
+            return BadRequest("The data is incorrect: the id of the instrument linked to the exchange rate does not match");
         }
 
         if (isDeepLink)
