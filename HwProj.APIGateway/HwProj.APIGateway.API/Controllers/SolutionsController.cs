@@ -38,10 +38,16 @@ public class SolutionsController : AggregationController
     }
 
     [HttpGet("{solutionId}")]
+    [Authorize]
     [ProducesResponseType(typeof(Solution), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetSolutionById(long solutionId)
     {
         var result = await _solutionsClient.GetSolutionById(solutionId);
+        if (result.StudentId != UserId && !User.IsInRole(Roles.LecturerRole))
+        {
+            return Forbid();
+        }
+
         return result == null
             ? NotFound()
             : Ok(result);
@@ -429,6 +435,7 @@ public class SolutionsController : AggregationController
     }
 
     [HttpGet("actuality/{solutionId}")]
+    [Authorize]
     [ProducesResponseType(typeof(SolutionActualityDto), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetSolutionActuality(long solutionId)
     {

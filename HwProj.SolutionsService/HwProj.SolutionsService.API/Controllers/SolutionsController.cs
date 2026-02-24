@@ -1,28 +1,23 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService;
-using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Domains;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using HwProj.SolutionsService.API.Services;
-using HwProj.Utils.Auth;
 using HwProj.Utils.Authorization;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.SolutionsService.API.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
     [ApiController]
     public class SolutionsController : Controller
     {
