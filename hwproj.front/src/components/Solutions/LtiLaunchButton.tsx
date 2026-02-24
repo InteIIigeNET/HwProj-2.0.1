@@ -1,6 +1,8 @@
 import React, { FC, useState } from "react";
 import { LoadingButton } from "@mui/lab";
 import ApiSingleton from "../../api/ApiSingleton";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle} from "@mui/material";
+import DialogContentText from "@material-ui/core/DialogContentText";
 
 interface LtiLaunchButtonProps {
     courseId: number;
@@ -11,6 +13,7 @@ interface LtiLaunchButtonProps {
 
 export const LtiLaunchButton: FC<LtiLaunchButtonProps> = ({ courseId, toolId, taskId, ltiLaunchUrl }) => {
     const [isLoading, setIsLoading] = useState(false);
+    const [openDialog, setOpenDialog] = useState(false);
 
     const submitLtiForm = (formData: any) => {
         const windowName = `lti_launch_task_${taskId}`;
@@ -36,6 +39,7 @@ export const LtiLaunchButton: FC<LtiLaunchButtonProps> = ({ courseId, toolId, ta
     };
 
     const handleLaunch = async () => {
+        setOpenDialog(false);
         setIsLoading(true);
         try {
             const response = await ApiSingleton.ltiAuthApi.ltiAuthStartLti(
@@ -62,15 +66,43 @@ export const LtiLaunchButton: FC<LtiLaunchButtonProps> = ({ courseId, toolId, ta
     };
 
     return (
-        <LoadingButton
-            fullWidth
-            size="large"
-            variant="contained"
-            color="primary"
-            onClick={handleLaunch}
-            loading={isLoading}
-        >
-            Решить задачу
-        </LoadingButton>
+        <>
+            <LoadingButton
+                fullWidth
+                size="large"
+                variant="contained"
+                color="primary"
+                onClick={() => setOpenDialog(true)}
+                loading={isLoading}
+            >
+                Решить задачу
+            </LoadingButton>
+
+            <Dialog
+                open={openDialog}
+                onClose={() => setOpenDialog(false)}
+                aria-labelledby="lti-warning-title"
+                aria-describedby="lti-warning-desc"
+            >
+                <DialogTitle id="lti-warning-title">
+                    Внимание
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="lti-warning-desc">
+                        Вы переходите к решению задачи во внешней системе.
+                        <br /><br />
+                        Обратите внимание: <strong>баллы за решение могут появиться в HwProj не сразу</strong>, а с небольшой задержкой после завершения работы.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenDialog(false)} color="primary">
+                        Отмена
+                    </Button>
+                    <Button onClick={handleLaunch} color="primary" variant="contained" autoFocus>
+                        Понятно, перейти
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </>
     );
 };
