@@ -9,7 +9,7 @@ namespace HwProj.CoursesService.API.Repositories
     {
         Task<Course?> GetWithCourseMates(long id);
         Task<Course?> GetWithHomeworksAsync(long id);
-        Task<Course?> GetWithCourseMatesAndHomeworksAsync(long id);
+        Task<Course?> GetWithCourseMatesAndHomeworksAsync(long id, bool withCriteria = false);
         IQueryable<Course> GetAllWithCourseMatesAndHomeworks();
     }
 }

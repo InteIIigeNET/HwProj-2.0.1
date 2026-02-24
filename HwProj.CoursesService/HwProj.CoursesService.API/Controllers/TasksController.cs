@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
@@ -10,6 +7,9 @@ using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
 using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Controllers
 {
@@ -32,47 +32,44 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("get/{taskId}")]
-        public async Task<IActionResult> GetTask(long taskId)
+        public async Task<IActionResult> GetTask(long taskId, [FromQuery] bool withCriteria)
         {
-            var taskFromDb = await _tasksService.GetTaskAsync(taskId);
-            if (taskFromDb == null) return NotFound();
+            var task = await _tasksService.GetTaskAsync(taskId, withCriteria);
+            if (task == null) return NotFound();
 
-            if (taskFromDb.PublicationDate > DateTime.UtcNow)
+            if (task.PublicationDate > DateTime.UtcNow)
             {
                 var userId = Request.GetUserIdFromHeader();
-                var homework = taskFromDb.Homework;
+                var homework = await _homeworksService.GetHomeworkAsync(task.HomeworkId);
                 var lecturers = await _coursesService.GetCourseLecturers(homework.CourseId);
                 if (!lecturers.Contains(userId)) return BadRequest();
             }
-
-            var task = taskFromDb.ToHomeworkTaskViewModel();
-            return Ok(task);
+            return Ok(task.ToHomeworkTaskViewModel());
         }
 
         [HttpGet("getForEditing/{taskId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> GetForEditingTask(long taskId)
         {
-            var taskFromDb = await _tasksService.GetForEditingTaskAsync(taskId);
+            var task = await _tasksService.GetForEditingTaskAsync(taskId);
 
-            if (taskFromDb == null)
+            if (task == null)
             {
                 return NotFound();
             }
 
-            var task = taskFromDb.ToHomeworkTaskForEditingViewModel();
-            return Ok(task);
+            return Ok(task.ToHomeworkTaskForEditingViewModel());
         }
 
         [HttpPost("add/{homeworkId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> AddTask(long homeworkId, [FromBody] CreateTaskViewModel taskViewModel)
+        public async Task<IActionResult> AddTask(long homeworkId, [FromBody] PostTaskViewModel taskViewModel)
         {
             var homework = await _homeworksService.GetHomeworkAsync(homeworkId);
             var validationResult = Validator.ValidateTask(taskViewModel, homework);
             if (validationResult.Any()) return BadRequest(validationResult);
 
-            var task = await _tasksService.AddTaskAsync(homeworkId, taskViewModel.ToHomeworkTask());
+            var task = await _tasksService.AddTaskAsync(homeworkId, taskViewModel);
 
             return Ok(task);
         }
@@ -86,7 +83,7 @@ namespace HwProj.CoursesService.API.Controllers
 
         [HttpPut("update/{taskId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> UpdateTask(long taskId, [FromBody] CreateTaskViewModel taskViewModel)
+        public async Task<IActionResult> UpdateTask(long taskId, [FromBody] PostTaskViewModel taskViewModel)
         {
             var previousState = await _tasksService.GetForEditingTaskAsync(taskId);
             var validationResult = Validator.ValidateTask(taskViewModel,
@@ -95,7 +92,7 @@ namespace HwProj.CoursesService.API.Controllers
             if (validationResult.Any()) return BadRequest(validationResult);
 
             var updatedTask =
-                await _tasksService.UpdateTaskAsync(taskId, taskViewModel.ToHomeworkTask(),
+                await _tasksService.UpdateTaskAsync(taskId, taskViewModel,
                     taskViewModel.ActionOptions ?? ActionOptions.Default);
             return Ok(updatedTask.ToHomeworkTaskViewModel());
         }

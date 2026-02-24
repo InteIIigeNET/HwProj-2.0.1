@@ -39,6 +39,17 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<CoursePreview[]>();
         }
 
+        public async Task<CourseDTO?> GetCourseView(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/view/{courseId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return response.IsSuccessStatusCode ? await response.DeserializeAsync<CourseDTO>() : null;
+        }
+
         public async Task<CourseDTO?> GetCourseByTask(long taskId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -78,7 +89,7 @@ namespace HwProj.CoursesService.Client
             };
         }
 
-        public async Task<Result<CourseDTO>> GetAllCourseData(long courseId)
+        public async Task<Result<CourseDTO>> GetCourseDataRaw(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
@@ -305,11 +316,11 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<HomeworkTaskViewModel> GetTask(long taskId)
+        public async Task<HomeworkTaskViewModel> GetTask(long taskId, bool withCriteria = false)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
-                _coursesServiceUri + $"api/Tasks/get/{taskId}");
+                _coursesServiceUri + $"api/Tasks/get/{taskId}?withCriteria={withCriteria}");
 
             httpRequest.TryAddUserId(_httpContextAccessor);
 
@@ -329,7 +340,7 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<HomeworkTaskForEditingViewModel>();
         }
 
-        public async Task<Result<HomeworkTaskViewModel>> AddTask(long homeworkId, CreateTaskViewModel taskViewModel)
+        public async Task<Result<HomeworkTaskViewModel>> AddTask(long homeworkId, PostTaskViewModel taskViewModel)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -366,7 +377,7 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
 
-        public async Task<Result<HomeworkTaskViewModel>> UpdateTask(long taskId, CreateTaskViewModel taskViewModel)
+        public async Task<Result<HomeworkTaskViewModel>> UpdateTask(long taskId, PostTaskViewModel taskViewModel)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Put,
