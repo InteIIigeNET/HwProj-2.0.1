@@ -8,7 +8,7 @@ namespace HwProj.CoursesService.API.Services
     {
         Task<Homework> AddHomeworkAsync(long courseId, CreateHomeworkViewModel homeworkViewModel);
 
-        Task<Homework> GetHomeworkAsync(long homeworkId);
+        Task<Homework> GetHomeworkAsync(long homeworkId, bool withCriteria = false);
 
         Task<Homework> GetForEditingHomeworkAsync(long homeworkId);
 

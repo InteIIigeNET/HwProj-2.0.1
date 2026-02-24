@@ -1,21 +1,16 @@
 import * as React from 'react';
 import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton'
-import DeleteIcon from '@material-ui/icons/Delete'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import EditIcon from '@material-ui/icons/Edit'
-import {HomeworkTaskViewModel} from "../../api";
-import {Link as RouterLink} from 'react-router-dom'
-import ApiSingleton from "../../api/ApiSingleton";
-import {Accordion, AccordionDetails, AccordionSummary, Button, Grid, Tooltip} from '@material-ui/core';
-import {FC, useState} from "react";
+import {HomeworkTaskViewModel} from "@/api";
+import {Accordion, AccordionDetails, AccordionSummary, Grid, Tooltip} from '@material-ui/core';
+import {FC} from "react";
 import {makeStyles} from '@material-ui/core/styles';
-import DeletionConfirmation from "../DeletionConfirmation";
 import {Chip, Stack} from "@mui/material";
 import Utils from "../../services/Utils";
 import {getTip} from "../Common/HomeworkTags";
 import StarIcon from '@mui/icons-material/Star';
 import {MarkdownPreview} from "../Common/MarkdownEditor";
+import TaskCriteria from "@/components/Tasks/TaskCriteria";
 
 interface ITaskProp {
     task: HomeworkTaskViewModel,
@@ -45,21 +40,6 @@ const Task: FC<ITaskProp> = (props) => {
 
     const publicationDateIsSet = !props.task.publicationDateNotSet
     const deadlineDateIsSet = !props.task.deadlineDateNotSet
-
-    const [isOpenDialogDeleteTask, setIsOpenDialogDeleteTask] = useState<boolean>(false)
-
-    const openDialogDeleteTask = () => {
-        setIsOpenDialogDeleteTask(true)
-    }
-
-    const closeDialogDeleteTask = () => {
-        setIsOpenDialogDeleteTask(false)
-    }
-
-    const deleteTask = async () => {
-        await ApiSingleton.tasksApi.tasksDeleteTask(props.task.id!)
-        props.onDeleteClick()
-    }
 
     const {task} = props
 
@@ -116,7 +96,7 @@ const Task: FC<ITaskProp> = (props) => {
                             }
                             {task.hasDeadline && deadlineDateIsSet &&
                                 <Grid item>
-                                    <Tooltip 
+                                    <Tooltip
                                         arrow
                                         title={task.isDeadlineStrict ? "Нельзя публиковать решения после дедлайна" : "Дедлайн"}
                                     >
@@ -139,16 +119,6 @@ const Task: FC<ITaskProp> = (props) => {
                                     <Chip variant="outlined" label="без дедлайна"/>
                                 </Grid>
                             }
-                            {props.forMentor && !props.isReadingMode &&
-                                <Grid item>
-                                    <IconButton aria-label="Delete" onClick={openDialogDeleteTask}>
-                                        <DeleteIcon fontSize="small"/>
-                                    </IconButton>
-                                    <RouterLink to={'/task/' + task.id!.toString() + '/edit'}>
-                                        <EditIcon fontSize="small"/>
-                                    </RouterLink>
-                                </Grid>
-                            }
                         </Grid>
                     </div>
                 </AccordionSummary>
@@ -157,31 +127,10 @@ const Task: FC<ITaskProp> = (props) => {
                         <Typography variant="body1">
                             <MarkdownPreview value={task.description!}/>
                         </Typography>
-                        {props.showForCourse && props.forStudent &&
-                            <div style={{marginTop: '15px'}}>
-                                <Button
-                                    style={{width: '150px'}}
-                                    size="small"
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={() => window.location.assign("/task/" + task.id!.toString())}
-                                >
-                                    Решения
-                                </Button>
-                            </div>
-                        }
+                        <TaskCriteria task={task}/>
                     </Grid>
                 </AccordionDetails>
             </Accordion>
-            <DeletionConfirmation
-                onCancel={closeDialogDeleteTask}
-                onSubmit={deleteTask}
-                isOpen={isOpenDialogDeleteTask}
-                dialogTitle={'Удаление задачи'}
-                dialogContentText={`Вы точно хотите удалить задачу "${task.title}"?`}
-                confirmationWord={''}
-                confirmationText={''}
-            />
         </div>
     );
 }

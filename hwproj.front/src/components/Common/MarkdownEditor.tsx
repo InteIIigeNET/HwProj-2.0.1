@@ -59,6 +59,18 @@ const MarkdownPreview: FC<MarkdownPreviewProps> = (props) => <MDEditor.Markdown
         color: props.textColor ?? "inherit",
         paddingBottom: '15px'
     }}
+    components={{
+        a: ({ node, ...props }) => (
+            <a
+                {...props}
+                style={{
+                    wordBreak: 'break-all',
+                    display: 'inline-block',
+                    maxWidth: '100%'
+                }}
+            />
+        ),
+    }}
     wrapperElement={{
         "data-color-mode": "light"
     }}

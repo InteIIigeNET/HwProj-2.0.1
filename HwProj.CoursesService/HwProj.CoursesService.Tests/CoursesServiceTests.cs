@@ -56,33 +56,33 @@ namespace HwProj.CoursesService.Tests
         }
 
         private static CreateHomeworkViewModel GenerateCreateHomeworkViewModel(DateTime publicationDate,
-            bool hasDeadline, DateTime? deadlineDate, bool isStrict, List<CreateTaskViewModel>? tasks = null)
+            bool hasDeadline, DateTime? deadlineDate, bool isStrict, List<PostTaskViewModel>? tasks = null)
             => new Fixture().Build<CreateHomeworkViewModel>()
                     .With(hvc => hvc.HasDeadline, hasDeadline)
                     .With(hvc => hvc.PublicationDate, publicationDate)
                     .With(hvc => hvc.DeadlineDate, deadlineDate)
                     .With(hvc => hvc.IsDeadlineStrict, isStrict)
-                    .With(hvm => hvm.Tasks, tasks ?? new List<CreateTaskViewModel>())
+                    .With(hvm => hvm.Tasks, tasks ?? new List<PostTaskViewModel>())
                     .Create();
 
         private static CreateHomeworkViewModel GenerateDefaultHomeworkViewModel()
             => GenerateCreateHomeworkViewModel(utcNow, false, null, false);
         
-        private static CreateTaskViewModel GenerateCreateTaskViewModel(DateTime? publicationDate,
+        private static PostTaskViewModel GenerateCreateTaskViewModel(DateTime? publicationDate,
             bool? hasDeadline, DateTime? deadlineDate, bool? isStrict)
-            => new Fixture().Build<CreateTaskViewModel>()
+            => new Fixture().Build<PostTaskViewModel>()
                 .With(hvc => hvc.HasDeadline, hasDeadline)
                 .With(hvc => hvc.PublicationDate, publicationDate)
                 .With(hvc => hvc.DeadlineDate, deadlineDate)
                 .With(hvc => hvc.IsDeadlineStrict, isStrict)
                 .Create();
 
-        private static CreateTaskViewModel GenerateDefaultTaskViewModel()
+        private static PostTaskViewModel GenerateDefaultTaskViewModel()
             => GenerateCreateTaskViewModel(null, null, null, null);
 
-        private static CreateTaskViewModel GenerateCreateTaskViewModelWithNullProperties()
+        private static PostTaskViewModel GenerateCreateTaskViewModelWithNullProperties()
         {
-            return new Fixture().Build<CreateTaskViewModel>()
+            return new Fixture().Build<PostTaskViewModel>()
                 .Without(t => t.PublicationDate)
                 .Without(t => t.DeadlineDate)
                 .Without(t => t.IsDeadlineStrict)
@@ -145,7 +145,7 @@ namespace HwProj.CoursesService.Tests
         }
         
         private async Task<(Result<HomeworkTaskViewModel> editResult, HomeworkTaskForEditingViewModel tasksFromDb)>
-            AddTaskToHomeworkAndUpdate(CreateTaskViewModel firstTaskState, CreateTaskViewModel secondTaskState)
+            AddTaskToHomeworkAndUpdate(PostTaskViewModel firstTaskState, PostTaskViewModel secondTaskState)
         {
             var homework = GenerateDefaultHomeworkViewModel();
             var homeworkResult = await client.AddHomeworkToCourse(homework, courseId);
@@ -174,7 +174,7 @@ namespace HwProj.CoursesService.Tests
                 .With(hvc => hvc.PublicationDate, expectedPublicationDate)
                 .With(hvc => hvc.DeadlineDate, expectedDeadlineDate)
                 .With(hvc => hvc.IsDeadlineStrict, expectedIsDeadlineStrict)
-                .With(hvc => hvc.Tasks, new List<CreateTaskViewModel> { GenerateCreateTaskViewModelWithNullProperties() })
+                .With(hvc => hvc.Tasks, new List<PostTaskViewModel> { GenerateCreateTaskViewModelWithNullProperties() })
                 .Create();
 
             var homeworkResult = await client.AddHomeworkToCourse(homework, courseId);
@@ -192,7 +192,7 @@ namespace HwProj.CoursesService.Tests
         }
 
         [TestCaseSource(nameof(InvalidCreateHomeworkData))]
-        public async Task AddHomeworkWithInvalidPropertiesShouldReturnFailedResult((DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<CreateTaskViewModel> tasks) data)
+        public async Task AddHomeworkWithInvalidPropertiesShouldReturnFailedResult((DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<PostTaskViewModel> tasks) data)
         {
             var homework = GenerateCreateHomeworkViewModel(data.publication, data.hasDeadline, data.deadline,
                 data.isStrict, data.tasks);
@@ -206,7 +206,7 @@ namespace HwProj.CoursesService.Tests
         }
 
         [TestCaseSource(nameof(ValidCreateHomeworkData))]
-        public async Task AddHomeworkWithValidPropertiesShouldReturnSucceededResult((DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<CreateTaskViewModel>? tasks) data)
+        public async Task AddHomeworkWithValidPropertiesShouldReturnSucceededResult((DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<PostTaskViewModel>? tasks) data)
         {
             var homework = GenerateCreateHomeworkViewModel(data.publication, data.hasDeadline, data.deadline, data.isStrict, data.tasks);
             var homeworkResult = await client.AddHomeworkToCourse(homework, courseId);
@@ -380,32 +380,32 @@ namespace HwProj.CoursesService.Tests
         
         // TODO: тесты для GetForEditingTask/Homework
 
-        public static IEnumerable<(DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<CreateTaskViewModel>? tasks)> ValidCreateHomeworkData()
+        public static IEnumerable<(DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<PostTaskViewModel>? tasks)> ValidCreateHomeworkData()
         {
             yield return (utcNow.AddHours(1), true, utcNow.AddHours(2), true, null);
             yield return (utcNow, false, null, false, null);
             yield return (utcNow, false, null, false,
-                new List<CreateTaskViewModel> {GenerateCreateTaskViewModel(utcNow.AddHours(1), null, null, null)});
+                new List<PostTaskViewModel> {GenerateCreateTaskViewModel(utcNow.AddHours(1), null, null, null)});
             yield return (utcNow, false, null, false, 
-                new List<CreateTaskViewModel> {GenerateCreateTaskViewModel(null, null, null, null)});
+                new List<PostTaskViewModel> {GenerateCreateTaskViewModel(null, null, null, null)});
             yield return (utcNow, false, null, false,
-                new List<CreateTaskViewModel> {GenerateCreateTaskViewModel(utcNow, true, utcNow, false)});
+                new List<PostTaskViewModel> {GenerateCreateTaskViewModel(utcNow, true, utcNow, false)});
             yield return (utcNow, false, null, false,
-                new List<CreateTaskViewModel> {GenerateCreateTaskViewModel(utcNow, null, null, false)});
+                new List<PostTaskViewModel> {GenerateCreateTaskViewModel(utcNow, null, null, false)});
         }
 
-        public static IEnumerable<(DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<CreateTaskViewModel>? tasks)> InvalidCreateHomeworkData()
+        public static IEnumerable<(DateTime publication, bool hasDeadline, DateTime? deadline, bool isStrict, List<PostTaskViewModel>? tasks)> InvalidCreateHomeworkData()
         {
             yield return (utcNow, false, utcNow, false, null);
             yield return (utcNow.AddHours(1), false, utcNow, false, null);
             yield return (utcNow, true, null, false, null);
             yield return (utcNow, false, null, true, null);
             yield return (utcNow, false, null, false,
-                new List<CreateTaskViewModel> {GenerateCreateTaskViewModel(utcNow.AddHours(-1), null, null, null)});
+                new List<PostTaskViewModel> {GenerateCreateTaskViewModel(utcNow.AddHours(-1), null, null, null)});
             yield return (utcNow, false, null, false,
-                new List<CreateTaskViewModel> {GenerateCreateTaskViewModel(utcNow, true, null, true)});
+                new List<PostTaskViewModel> {GenerateCreateTaskViewModel(utcNow, true, null, true)});
             yield return (utcNow, false, null, false,
-                new List<CreateTaskViewModel> {GenerateCreateTaskViewModel(utcNow, null, null, true)});
+                new List<PostTaskViewModel> {GenerateCreateTaskViewModel(utcNow, null, null, true)});
         }
 
         public static IEnumerable<(CreateHomeworkViewModel, DateTime? publication, bool? hasDeadline, DateTime? deadline, bool? isStrict)> InvalidCreateTaskData()
@@ -439,7 +439,7 @@ namespace HwProj.CoursesService.Tests
         { 
             var publishedHomework = GenerateCreateHomeworkViewModel(utcNow.AddHours(-1), false, null, false);
             var delayedHomework = GenerateCreateHomeworkViewModel(utcNow.AddHours(1), false, null, false,
-                new List<CreateTaskViewModel> { GenerateCreateTaskViewModel(utcNow.AddHours(1), null, null, null)});
+                new List<PostTaskViewModel> { GenerateCreateTaskViewModel(utcNow.AddHours(1), null, null, null)});
 
             yield return (publishedHomework, publishedHomework.PublicationDate.AddHours(1), true, utcNow, true);
             yield return (delayedHomework, delayedHomework.Tasks[0].PublicationDate?.AddHours(1) ?? utcNow, true,
@@ -450,7 +450,7 @@ namespace HwProj.CoursesService.Tests
         {
             var publishedHomework = GenerateCreateHomeworkViewModel(utcNow.AddHours(-1), false, null, false);
             var delayedHomework = GenerateCreateHomeworkViewModel(utcNow.AddHours(1), false, null, false,
-                new List<CreateTaskViewModel> { GenerateCreateTaskViewModel(utcNow.AddHours(1), null, null, null)});
+                new List<PostTaskViewModel> { GenerateCreateTaskViewModel(utcNow.AddHours(1), null, null, null)});
 
             yield return (publishedHomework, publishedHomework.PublicationDate, true, publishedHomework.PublicationDate, true);
             yield return (delayedHomework, delayedHomework.PublicationDate, true, utcNow.AddHours(10), true);

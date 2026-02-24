@@ -5,6 +5,7 @@ COPY ["Directory.Build.props", "Directory.Build.props"]
 
 COPY ["HwProj.CoursesService/HwProj.CoursesService.API/", "HwProj.CoursesService/HwProj.CoursesService.API/"]
 COPY ["HwProj.Common/HwProj.Utils/", "HwProj.Common/HwProj.Utils/"]
+COPY ["HwProj.Common/HwProj.Exceptions/", "HwProj.Common/HwProj.Exceptions/"]
 COPY ["HwProj.EventBus/HwProj.EventBus.Client/", "HwProj.EventBus/HwProj.EventBus.Client/"]
 COPY ["HwProj.Common/HwProj.Models/", "HwProj.Common/HwProj.Models/"]
 COPY ["HwProj.Common/HwProj.Repositories/", "HwProj.Common/HwProj.Repositories/"]

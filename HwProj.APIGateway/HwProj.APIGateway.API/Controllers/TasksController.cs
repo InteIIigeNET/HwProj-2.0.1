@@ -16,9 +16,9 @@ public class TasksController(ICoursesServiceClient coursesClient) : ControllerBa
     [HttpGet("get/{taskId}")]
     [Authorize]
     [ProducesResponseType(typeof(HomeworkTaskViewModel), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetTask(long taskId)
+    public async Task<IActionResult> GetTask(long taskId, [FromQuery] bool? withCriteria)
     {
-        var result = await coursesClient.GetTask(taskId);
+        var result = await coursesClient.GetTask(taskId, withCriteria ?? false);
         return result == null
             ? NotFound()
             : Ok(result);
@@ -38,7 +38,7 @@ public class TasksController(ICoursesServiceClient coursesClient) : ControllerBa
     [HttpPost("add/{homeworkId}")]
     [Authorize(Roles = Roles.LecturerRole)]
     [ProducesResponseType(typeof(Result<HomeworkTaskViewModel>), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> AddTask(long homeworkId, CreateTaskViewModel taskViewModel)
+    public async Task<IActionResult> AddTask(long homeworkId, PostTaskViewModel taskViewModel)
     {
         var result = await coursesClient.AddTask(homeworkId, taskViewModel);
         return result.Succeeded
@@ -57,7 +57,7 @@ public class TasksController(ICoursesServiceClient coursesClient) : ControllerBa
     [HttpPut("update/{taskId}")]
     [Authorize(Roles = Roles.LecturerRole)]
     [ProducesResponseType(typeof(Result<HomeworkTaskViewModel>), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> UpdateTask(long taskId, CreateTaskViewModel taskViewModel)
+    public async Task<IActionResult> UpdateTask(long taskId, PostTaskViewModel taskViewModel)
     {
         var result = await coursesClient.UpdateTask(taskId, taskViewModel);
         return Ok(result);
