@@ -362,3 +362,4 @@ StyleCop.Cache
 swagger-codegen
 hwproj.front/static_dist/
 hwproj.front/dist/
+.DS_Store
