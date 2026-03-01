@@ -663,7 +663,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         const suggestedRating = calculateSuggestedRating(homework)
 
         items.forEach(item => {
-            if (!item.url) return
+            if (!item.ltiLaunchData) return
             const targetRating = item.scoreMaximum > 0 ? item.scoreMaximum : suggestedRating
 
             props.onTaskUpdate({
@@ -676,7 +676,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     suggestedMaxRating: targetRating,
                     tags: homework.tags,
                     isDeferred: homework.isDeferred,
-                    ltiLaunchUrl: item.url,
+                    ltiLaunchData: item.ltiLaunchData,
                 }
             })
             currentCounter--
@@ -938,7 +938,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                                 sx={{flexGrow: 1, minWidth: 0, fontSize: "0.9375rem", lineHeight: 1.35}}
                                                 color={t.isDeferred ? "textSecondary" : "textPrimary"}>
                                                 {t.title}{getTip(t)}
-                                                {t.ltiLaunchUrl &&
+                                                {t.ltiLaunchData &&
                                                     <Tooltip title="Задание из внешнего инструмента" arrow>
                                                         <Chip
                                                             label="LTI"

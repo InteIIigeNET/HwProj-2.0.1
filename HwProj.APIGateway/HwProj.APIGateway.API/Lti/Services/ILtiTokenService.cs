@@ -18,6 +18,7 @@ public interface ILtiTokenService
         string toolId,
         string courseId,
         string targetLinkUri,
+        string? ltiCustomParams,
         string userId,
         string nonce,
         string resourceLinkId);

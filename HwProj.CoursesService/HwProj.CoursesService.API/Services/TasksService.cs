@@ -54,9 +54,10 @@ namespace HwProj.CoursesService.API.Services
 
             var taskId = await _tasksRepository.AddAsync(task);
 
-            if (!string.IsNullOrEmpty(taskViewModel.LtiLaunchUrl))
+            var ltiLaunchData = taskViewModel.LtiLaunchData.ToLtiLaunchData();
+            if (ltiLaunchData != null && !string.IsNullOrEmpty(ltiLaunchData.LtiLaunchUrl))
             {
-                await _tasksRepository.AddLtiUrlAsync(taskId, taskViewModel.LtiLaunchUrl);
+                await _tasksRepository.AddLtiUrlAsync(taskId, ltiLaunchData);
             }
 
             var deadlineDate = task.DeadlineDate ?? homework.DeadlineDate;
@@ -67,11 +68,6 @@ namespace HwProj.CoursesService.API.Services
                     studentIds));
 
             return await GetTaskAsync(taskId, true);
-        }
-
-        public async Task<string?> GetTaskLtiUrlAsync(long taskId)
-        {
-            return await _tasksRepository.GetLtiUrlAsync(taskId);
         }
 
         public async Task DeleteTaskAsync(long taskId)
@@ -106,17 +102,23 @@ namespace HwProj.CoursesService.API.Services
                 IsBonusExplicit = update.IsBonusExplicit,
             }, update.Criteria);
 
-            if (!string.IsNullOrEmpty(taskViewModel.LtiLaunchUrl))
+            var ltiLaunchData = taskViewModel.LtiLaunchData.ToLtiLaunchData();
+            if (ltiLaunchData != null && !string.IsNullOrEmpty(ltiLaunchData.LtiLaunchUrl))
             {
-                await _tasksRepository.AddLtiUrlAsync(taskId, taskViewModel.LtiLaunchUrl);
+                await _tasksRepository.AddLtiUrlAsync(taskId, ltiLaunchData);
             }
 
             return await GetTaskAsync(taskId, true);
         }
 
-        public async Task<Dictionary<long, string>> GetLtiUrlsForTasksAsync(long[] taskIds)
+        public async Task<LtiLaunchData?> GetTaskLtiDataAsync(long taskId)
         {
-            return await _tasksRepository.GetLtiUrlsForTasksAsync(taskIds);
+            return await _tasksRepository.GetLtiDataAsync(taskId);
+        }
+
+        public async Task<Dictionary<long, LtiLaunchData>> GetLtiDataForTasksAsync(long[] taskIds)
+        {
+            return await _tasksRepository.GetLtiDataForTasksAsync(taskIds);
         }
     }
 }

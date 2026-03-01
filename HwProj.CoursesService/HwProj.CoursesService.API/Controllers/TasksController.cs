@@ -45,7 +45,8 @@ namespace HwProj.CoursesService.API.Controllers
                 if (!lecturers.Contains(userId)) return BadRequest();
             }
             var taskViewModel = task.ToHomeworkTaskViewModel();
-            taskViewModel.LtiLaunchUrl = await _tasksService.GetTaskLtiUrlAsync(taskId);
+            var ltiLaunchData = await _tasksService.GetTaskLtiDataAsync(taskId);
+            taskViewModel.LtiLaunchData = ltiLaunchData.ToLtiLaunchData();
             return Ok(taskViewModel);
         }
 

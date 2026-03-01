@@ -279,6 +279,8 @@ namespace HwProj.CoursesService.API.Migrations
                 {
                     b.Property<long>("TaskId");
 
+                    b.Property<string>("CustomParams");
+
                     b.Property<string>("LtiLaunchUrl")
                         .IsRequired();
 

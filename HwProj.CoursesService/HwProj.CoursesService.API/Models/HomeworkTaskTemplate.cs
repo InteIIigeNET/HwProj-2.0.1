@@ -18,6 +18,6 @@ namespace HwProj.CoursesService.API.Models
 
         public bool IsBonusExplicit { get; set; }
 
-        public string? LtiLaunchUrl { get; set; }
+        public LtiLaunchData? LtiLaunchData { get; set; }
     }
 }

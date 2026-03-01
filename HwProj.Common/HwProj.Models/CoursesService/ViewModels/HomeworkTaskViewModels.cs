@@ -40,7 +40,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public List<CriterionViewModel>? Criteria { get; set; } = new List<CriterionViewModel>();
 
         [JsonProperty]
-        public string? LtiLaunchUrl { get; set; }
+        public LtiLaunchData? LtiLaunchData { get; set; }
     }
 
     public class HomeworkTaskForEditingViewModel
@@ -74,6 +74,12 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public List<CriterionViewModel> Criteria { get; set; }
 
-        public string? LtiLaunchUrl { get; set; }
+        public LtiLaunchData? LtiLaunchData { get; set; }
+    }
+
+    public class LtiLaunchData
+    {
+        public string LtiLaunchUrl { get; set; }
+        public string? CustomParams { get; set; }
     }
 }

@@ -89,13 +89,13 @@ namespace HwProj.CoursesService.API.Controllers
             if (viewModel.Tasks != null && viewModel.Tasks.Any())
             {
                 var taskIds = viewModel.Tasks.Select(t => t.Id).ToArray();
-                var ltiUrls = await _tasksService.GetLtiUrlsForTasksAsync(taskIds);
+                var ltilaunchMultipleData = await _tasksService.GetLtiDataForTasksAsync(taskIds);
 
                 foreach (var task in viewModel.Tasks)
                 {
-                    if (ltiUrls.TryGetValue(task.Id, out var url))
+                    if (ltilaunchMultipleData.TryGetValue(task.Id, out var ltiLaunchData))
                     {
-                        task.LtiLaunchUrl = url;
+                        task.LtiLaunchData = ltiLaunchData.ToLtiLaunchData();
                     }
                 }
             }

@@ -12,8 +12,8 @@ namespace HwProj.CoursesService.API.Repositories
         Task<HomeworkTask> GetWithHomeworkAsync(long id);
         Task UpdateAsync(long id, Expression<Func<HomeworkTask, HomeworkTask>> updateFunc, List<Criterion> criteria);
         Task<HomeworkTask> GetWithHomeworkAndCriteriaAsync(long id);
-        Task AddLtiUrlAsync(long taskId, string ltiUrl);
-        Task<string?> GetLtiUrlAsync(long taskId);
-        Task<Dictionary<long, string>> GetLtiUrlsForTasksAsync(IEnumerable<long> taskIds);
+        Task AddLtiUrlAsync(long taskId, LtiLaunchData ltiLaunchData);
+        Task<LtiLaunchData?> GetLtiDataAsync(long taskId);
+        Task<Dictionary<long, LtiLaunchData>> GetLtiDataForTasksAsync(IEnumerable<long> taskIds);
     }
 }

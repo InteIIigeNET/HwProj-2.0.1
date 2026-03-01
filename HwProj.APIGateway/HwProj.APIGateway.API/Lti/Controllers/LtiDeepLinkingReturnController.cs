@@ -39,7 +39,7 @@ public class LtiDeepLinkingReturnController(
         }
 
         var unverifiedToken = handler.ReadJwtToken(tokenString);
-        var clientId = unverifiedToken.Subject;
+        var clientId = unverifiedToken.Issuer;
 
         var tool = await toolService.GetByClientIdAsync(clientId);
         if (tool == null)

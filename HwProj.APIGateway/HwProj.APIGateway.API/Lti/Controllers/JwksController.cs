@@ -36,19 +36,20 @@ public class JwksController(IOptions<LtiPlatformConfig> options) : ControllerBas
 
         var publicParams = rsa.ExportParameters(false);
 
-        var securityKey = new RsaSecurityKey(publicParams)
-        {
-            KeyId = keyConfig.KeyId
-        };
-
-        var jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(securityKey);
-
-        jwk.Use = "sig";
-        jwk.Alg = "RS256";
-
         var jwks = new
         {
-            keys = new[] { jwk }
+            keys = new[]
+            {
+                new
+                {
+                    kty = "RSA",
+                    e = Base64UrlEncoder.Encode(publicParams.Exponent),
+                    n = Base64UrlEncoder.Encode(publicParams.Modulus),
+                    kid = keyConfig.KeyId,
+                    alg = "RS256",
+                    use = "sig"
+                }
+            }
         };
 
         return Ok(jwks);

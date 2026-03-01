@@ -402,7 +402,7 @@ const CourseHomeworkEditor: FC<{
                         title: t.title!,
                         maxRating: t.maxRating!,
                         criteria: t.criteria || [],
-                        ltiLaunchUrl: t.ltiLaunchUrl,
+                        ltiLaunchData: t.ltiLaunchData,
                     }
                     return task
                 }) : []

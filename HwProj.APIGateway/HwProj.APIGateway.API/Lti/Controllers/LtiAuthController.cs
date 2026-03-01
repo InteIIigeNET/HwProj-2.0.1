@@ -83,7 +83,7 @@ public class LtiAuthController(
                     clientId: clientId,
                     toolId: payload.ToolId,
                     courseId: payload.CourseId,
-                    targetLinkUri: tool.DeepLink,
+                    targetLinkUri: redirectUri,
                     userId:  payload.UserId,
                     nonce: nonce
                 );
@@ -93,7 +93,8 @@ public class LtiAuthController(
                     clientId: clientId,
                     toolId: payload.ToolId,
                     courseId: payload.CourseId,
-                    targetLinkUri: tool.LaunchUrl,
+                    targetLinkUri: redirectUri,
+                    ltiCustomParams: payload.Custom,
                     userId: payload.UserId,
                     nonce: nonce,
                     resourceLinkId: payload.ResourceLinkId!);
@@ -124,6 +125,7 @@ public class LtiAuthController(
         [FromQuery] string? courseId,
         [FromQuery] string? toolId,
         [FromQuery] string? ltiLaunchUrl,
+        [FromQuery] string? ltiCustomParams,
         [FromQuery] bool isDeepLink = false)
     {
         var userId = User.FindFirstValue("_id");
@@ -181,7 +183,8 @@ public class LtiAuthController(
                 UserId = userId,
                 CourseId = courseId,
                 ToolId = toolId,
-                ResourceLinkId = resourceLinkId
+                ResourceLinkId = resourceLinkId,
+                Custom =  ltiCustomParams
             };
         }
         else
@@ -254,5 +257,6 @@ public class LtiAuthController(
         public string? ResourceLinkId { get; set; }
         public string? CourseId { get; set; }
         public string? ToolId { get; set; }
+        public string? Custom { get; set; }
     }
 }

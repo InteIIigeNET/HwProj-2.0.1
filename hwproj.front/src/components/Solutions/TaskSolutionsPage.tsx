@@ -348,12 +348,12 @@ const TaskSolutionsPage: FC = () => {
                         }
                         label={<Typography variant={"body2"}>Только нерешенные</Typography>}
                     />
-                    {task.ltiLaunchUrl
+                    {task.ltiLaunchData
                         ? <LtiLaunchButton
                             courseId={courseId}
                             toolId={ltiToolId}
                             taskId={task.id || 0}
-                            ltiLaunchUrl={task.ltiLaunchUrl}
+                            ltiLaunchData={task.ltiLaunchData}
                         />
                         : task.canSendSolution && <Button
                             variant="contained"
