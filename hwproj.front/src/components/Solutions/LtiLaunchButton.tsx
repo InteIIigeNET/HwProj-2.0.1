@@ -3,15 +3,16 @@ import { LoadingButton } from "@mui/lab";
 import ApiSingleton from "../../api/ApiSingleton";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle} from "@mui/material";
 import DialogContentText from "@material-ui/core/DialogContentText";
+import {LtiLaunchData} from "@/api";
 
 interface LtiLaunchButtonProps {
     courseId: number;
     toolId: number;
     taskId: number;
-    ltiLaunchUrl: string;
+    ltiLaunchData: LtiLaunchData;
 }
 
-export const LtiLaunchButton: FC<LtiLaunchButtonProps> = ({ courseId, toolId, taskId, ltiLaunchUrl }) => {
+export const LtiLaunchButton: FC<LtiLaunchButtonProps> = ({ courseId, toolId, taskId, ltiLaunchData }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
 
@@ -43,14 +44,14 @@ export const LtiLaunchButton: FC<LtiLaunchButtonProps> = ({ courseId, toolId, ta
         setIsLoading(true);
         try {
             const response = await ApiSingleton.ltiAuthApi.ltiAuthStartLti(
-                String(taskId),   // resourceLinkId
+                String(taskId),
                 String(courseId),
                 String(toolId),
-                ltiLaunchUrl,
+                ltiLaunchData.ltiLaunchUrl,
+                ltiLaunchData.customParams,
                 false
             );
 
-            // Обработка ответа (как в вашем коде)
             let dto = response;
             if (response && typeof (response as any).json === 'function') {
                 dto = await (response as any).json();

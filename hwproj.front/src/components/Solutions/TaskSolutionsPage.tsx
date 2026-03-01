@@ -238,12 +238,12 @@ const TaskSolutionsPage: FC = () => {
                             </Stack>
                         </Grid>
                         <Grid item>
-                            {task.ltiLaunchUrl ? (
+                            {task.ltiLaunchData ? (
                                 <LtiLaunchButton
                                     courseId={courseId}
                                     toolId={ltiToolId}
                                     taskId={task.id || 0}
-                                    ltiLaunchUrl={task.ltiLaunchUrl}
+                                    ltiLaunchData={task.ltiLaunchData}
                                 />
                             ) : (
                                 task.canSendSolution && (
@@ -251,7 +251,6 @@ const TaskSolutionsPage: FC = () => {
                                         fullWidth
                                         size="large"
                                         variant="contained"
-                                        // Негативный цвет, если решение уже есть
                                         color={lastSolution ? "secondary" : "primary"}
                                         onClick={(e) => {
                                             e.persist()

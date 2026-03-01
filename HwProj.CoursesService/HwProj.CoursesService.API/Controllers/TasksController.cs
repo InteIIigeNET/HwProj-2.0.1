@@ -48,7 +48,9 @@ namespace HwProj.CoursesService.API.Controllers
             var task = taskFromDb.ToHomeworkTaskViewModel();
 
 
-            task.LtiLaunchUrl = await _tasksService.GetTaskLtiUrlAsync(taskId);
+            var ltiLaunchData = await _tasksService.GetTaskLtiDataAsync(taskId);
+            task.LtiLaunchData = ltiLaunchData.ToLtiLaunchData();
+
             return Ok(task);
         }
 
@@ -78,7 +80,7 @@ namespace HwProj.CoursesService.API.Controllers
             var task = await _tasksService.AddTaskAsync(
                 homeworkId, 
                 taskViewModel.ToHomeworkTask(), 
-                taskViewModel.LtiLaunchUrl
+                taskViewModel.LtiLaunchData.ToLtiLaunchData()
             );
 
             return Ok(task);
@@ -105,7 +107,7 @@ namespace HwProj.CoursesService.API.Controllers
                 taskId, 
                 taskViewModel.ToHomeworkTask(),
                 taskViewModel.ActionOptions ?? ActionOptions.Default,
-                taskViewModel.LtiLaunchUrl
+                taskViewModel.LtiLaunchData.ToLtiLaunchData()
             );
 
             return Ok(updatedTask.ToHomeworkTaskViewModel());

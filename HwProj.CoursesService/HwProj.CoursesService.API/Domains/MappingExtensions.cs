@@ -169,7 +169,12 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = task.IsDeadlineStrict,
                 HasSpecialPublicationDate = task.PublicationDate != null,
                 HasSpecialDeadlineDate = task.DeadlineDate != null,
-                LtiLaunchUrl = task.LtiLaunchUrl
+                LtiLaunchData = task.LtiLaunchData == null ? null :
+                    new LtiLaunchData
+                    {
+                        LtiLaunchUrl =  task.LtiLaunchData.LtiLaunchUrl,
+                        CustomParams =  task.LtiLaunchData.CustomParams
+                    }
             };
 
         public static Course ToCourse(this CourseTemplate courseTemplate)
@@ -204,6 +209,24 @@ namespace HwProj.CoursesService.API.Domains
                 HomeworkId = homeworkId,
                 PublicationDate = taskTemplate.HasSpecialPublicationDate ? DateToOverride : (DateTime?)null,
                 DeadlineDate = taskTemplate.HasSpecialDeadlineDate ? DateToOverride : (DateTime?)null,
+            };
+
+        public static LtiLaunchData? ToLtiLaunchData(
+            this HwProj.Models.CoursesService.ViewModels.LtiLaunchData? ltiLaunchData)
+            => ltiLaunchData == null ? null :
+                new LtiLaunchData
+            {
+                LtiLaunchUrl = ltiLaunchData.LtiLaunchUrl,
+                CustomParams = ltiLaunchData.CustomParams
+            };
+
+        public static HwProj.Models.CoursesService.ViewModels.LtiLaunchData? ToLtiLaunchData(
+             this LtiLaunchData? ltiLaunchData)
+            => ltiLaunchData == null ? null :
+                new HwProj.Models.CoursesService.ViewModels.LtiLaunchData
+            {
+                LtiLaunchUrl = ltiLaunchData.LtiLaunchUrl,
+                CustomParams = ltiLaunchData.CustomParams
             };
     }
 }

@@ -50,12 +50,13 @@ namespace HwProj.CoursesService.API.Services
 
                 for (var i = 0; i < createdTasks.Count && i < taskModels.Count; i++)
                 {
-                    var url = taskModels[i].LtiLaunchUrl;
-                    
-                    if (!string.IsNullOrEmpty(url))
+                    var ltiLaunchData = taskModels[i].LtiLaunchData.ToLtiLaunchData();
+                    if (ltiLaunchData == null)
                     {
-                        await _tasksRepository.AddLtiUrlAsync(createdTasks[i].Id, url!);
+                        continue;
                     }
+
+                    await _tasksRepository.AddLtiUrlAsync(createdTasks[i].Id, ltiLaunchData);
                 }
             }
 

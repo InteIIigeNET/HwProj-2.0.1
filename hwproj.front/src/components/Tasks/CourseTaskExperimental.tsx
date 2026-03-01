@@ -99,7 +99,7 @@ const CourseTaskEditor: FC<{
             deadlineDateNotSet: metadata?.hasDeadline === true && !metadata.deadlineDate,
             maxRating: maxRating,
             hasErrors: hasErrors,
-            ltiLaunchUrl: props.speculativeTask.ltiLaunchUrl
+            ltiLaunchData: props.speculativeTask.ltiLaunchData
         }
         props.onUpdate({task: update})
     }, [title, description, maxRating, metadata, hasErrors])
@@ -118,7 +118,7 @@ const CourseTaskEditor: FC<{
             description: description,
             maxRating: maxRating,
             actionOptions: editOptions,
-            ltiLaunchUrl: props.speculativeTask.ltiLaunchUrl
+            ltiLaunchData: props.speculativeTask.ltiLaunchData
         }
 
         const updatedTask = isNewTask

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text.Json;
 using HwProj.APIGateway.API.Lti.Models;
 using HwProj.APIGateway.API.LTI.Services;
 using LtiAdvantage.DeepLinking;
@@ -57,6 +58,7 @@ public class LtiTokenService(IOptions<LtiPlatformConfig> options) : ILtiTokenSer
         string toolId,
         string courseId,
         string targetLinkUri,
+        string? ltiCustomParams,
         string userId,
         string nonce,
         string resourceLinkId)
@@ -92,6 +94,21 @@ public class LtiTokenService(IOptions<LtiPlatformConfig> options) : ILtiTokenSer
                 LineItemUrl = _options.AssignmentsGradesEndpoint + "/" + resourceLinkId,
             }
         };
+
+        if (string.IsNullOrEmpty(ltiCustomParams))
+        {
+            request.Custom = new Dictionary<string, string>();
+            return this.CreateJwt(clientId, request);
+        }
+
+        try
+        {
+            request.Custom = JsonSerializer.Deserialize<Dictionary<string, string>>(ltiCustomParams);
+        }
+        catch (JsonException)
+        {
+            request.Custom = new Dictionary<string, string>();
+        }
 
         return this.CreateJwt(clientId, request);
     }

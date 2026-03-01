@@ -41,7 +41,8 @@ namespace HwProj.CoursesService.API.Services
             return await _tasksRepository.GetWithHomeworkAsync(taskId);
         }
 
-        public async Task<HomeworkTask> AddTaskAsync(long homeworkId, HomeworkTask task, string? ltiLaunchUrl = null)
+        public async Task<HomeworkTask> AddTaskAsync(
+            long homeworkId, HomeworkTask task, LtiLaunchData? ltiLaunchData = null)
         {
             task.HomeworkId = homeworkId;
 
@@ -50,9 +51,9 @@ namespace HwProj.CoursesService.API.Services
 
             var taskId = await _tasksRepository.AddAsync(task);
 
-            if (!string.IsNullOrEmpty(ltiLaunchUrl))
+            if (ltiLaunchData != null && !string.IsNullOrEmpty(ltiLaunchData.LtiLaunchUrl))
             {
-                await _tasksRepository.AddLtiUrlAsync(taskId, ltiLaunchUrl!);
+                await _tasksRepository.AddLtiUrlAsync(taskId, ltiLaunchData);
             }
 
             var deadlineDate = task.DeadlineDate ?? homework.DeadlineDate;
@@ -70,7 +71,11 @@ namespace HwProj.CoursesService.API.Services
             await _tasksRepository.DeleteAsync(taskId);
         }
 
-        public async Task<HomeworkTask> UpdateTaskAsync(long taskId, HomeworkTask update, ActionOptions options, string? ltiLaunchUrl = null)
+        public async Task<HomeworkTask> UpdateTaskAsync(
+            long taskId,
+            HomeworkTask update,
+            ActionOptions options,
+            LtiLaunchData? ltiLaunchData = null)
         {
             var task = await _tasksRepository.GetWithHomeworkAsync(taskId);
             if (task == null) throw new InvalidOperationException("Task not found");
@@ -94,9 +99,9 @@ namespace HwProj.CoursesService.API.Services
                 PublicationDate = update.PublicationDate
             });
 
-            if (ltiLaunchUrl != null) 
+            if (ltiLaunchData != null && !string.IsNullOrEmpty(ltiLaunchData.LtiLaunchUrl)) 
             {
-                await _tasksRepository.AddLtiUrlAsync(taskId, ltiLaunchUrl); 
+                await _tasksRepository.AddLtiUrlAsync(taskId, ltiLaunchData); 
             }
 
 
@@ -106,14 +111,14 @@ namespace HwProj.CoursesService.API.Services
             return updatedTask;
         }
 
-        public async Task<string?> GetTaskLtiUrlAsync(long taskId)
+        public async Task<LtiLaunchData?> GetTaskLtiDataAsync(long taskId)
         {
-            return await _tasksRepository.GetLtiUrlAsync(taskId);
+            return await _tasksRepository.GetLtiDataAsync(taskId);
         }
 
-        public async Task<Dictionary<long, string>> GetLtiUrlsForTasksAsync(long[] taskIds)
+        public async Task<Dictionary<long, LtiLaunchData>> GetLtiDataForTasksAsync(long[] taskIds)
         {
-            return await _tasksRepository.GetLtiUrlsForTasksAsync(taskIds);
+            return await _tasksRepository.GetLtiDataForTasksAsync(taskIds);
         }
     }
 }

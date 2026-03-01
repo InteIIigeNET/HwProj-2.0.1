@@ -238,7 +238,7 @@ const CourseHomeworkEditor: FC<{
                     ...t,
                     title: t.title!,
                     maxRating: t.maxRating!,
-                    ltiLaunchUrl: t.ltiLaunchUrl
+                    ltiLaunchData: t.ltiLaunchData
                 }
                 return task
             }) : []

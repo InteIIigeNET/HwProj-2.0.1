@@ -500,7 +500,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
         items.forEach(item => {
 
-            if (!item.url) {
+            if (!item.ltiLaunchData) {
                 return;
             }
 
@@ -526,7 +526,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 tags: homework.tags,
                 isDeferred: homework.isDeferred,
 
-                ltiLaunchUrl: item.url
+                ltiLaunchData: item.ltiLaunchData
             };
 
             props.onTaskUpdate({ task: newTask });
@@ -668,7 +668,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 <Typography className="antiLongWords"
                                             color={t.isDeferred ? "textSecondary" : "textPrimary"}>
                                     {t.title}{getTip(x)}
-                                    {(t.ltiLaunchUrl) && (
+                                    {(t.ltiLaunchData) && (
                                         <Tooltip title="Задание из внешнего инструмента" arrow>
                                             <Chip
                                                 label="LTI"

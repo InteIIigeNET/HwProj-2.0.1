@@ -77,7 +77,7 @@ namespace HwProj.CoursesService.API.Services
             var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArrayAsync();
             var courseDto = course.ToCourseDto();
 
-            await FillLtiUrlsForCourseDtos(new[] { courseDto });
+            await FillLtiDataForCourseDtos(new[] { courseDto });
 
             courseDto.Groups = groups.Select(g =>
                 new GroupViewModel
@@ -167,9 +167,9 @@ namespace HwProj.CoursesService.API.Services
 
             foreach (var pair in taskPairs)
             {
-                if (!string.IsNullOrEmpty(pair.Template.LtiLaunchUrl))
+                if (pair.Template.LtiLaunchData != null)
                 {
-                    await _tasksRepository.AddLtiUrlAsync(pair.NewEntity.Id, pair.Template.LtiLaunchUrl);
+                    await _tasksRepository.AddLtiUrlAsync(pair.NewEntity.Id, pair.Template.LtiLaunchData);
                 }
             }
 
@@ -306,7 +306,7 @@ namespace HwProj.CoursesService.API.Services
             var result = await _courseFilterService.ApplyFiltersToCourses(
                 userId, coursesWithValues.Select(c => c.ToCourseDto()).ToArray());
 
-            await FillLtiUrlsForCourseDtos(result);
+            await FillLtiDataForCourseDtos(result);
 
             if (role == Roles.ExpertRole)
             {
@@ -388,7 +388,7 @@ namespace HwProj.CoursesService.API.Services
             return true;
         }
 
-        private async Task FillLtiUrlsForCourseDtos(IEnumerable<CourseDTO> courses)
+        private async Task FillLtiDataForCourseDtos(IEnumerable<CourseDTO> courses)
         {
             var allTasks = courses.SelectMany(c => c.Homeworks).SelectMany(h => h.Tasks).ToList();
 
@@ -396,13 +396,13 @@ namespace HwProj.CoursesService.API.Services
             {
                 var taskIds = allTasks.Select(t => t.Id).ToArray();
 
-                var ltiUrls = await _tasksRepository.GetLtiUrlsForTasksAsync(taskIds);
+                var ltiUrls = await _tasksRepository.GetLtiDataForTasksAsync(taskIds);
 
                 foreach (var taskDto in allTasks)
                 {
-                    if (ltiUrls.TryGetValue(taskDto.Id, out var url))
+                    if (ltiUrls.TryGetValue(taskDto.Id, out var ltiLaunchData))
                     {
-                        taskDto.LtiLaunchUrl = url;
+                        taskDto.LtiLaunchData = ltiLaunchData.ToLtiLaunchData();
                     }
                 }
             }

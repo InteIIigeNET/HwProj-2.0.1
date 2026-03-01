@@ -37,7 +37,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public bool IsDeferred { get; set; }
 
         [JsonProperty]
-        public string? LtiLaunchUrl { get; set; } 
+        public LtiLaunchData?  LtiLaunchData { get; set; }
     }
 
     public class HomeworkTaskForEditingViewModel
@@ -67,6 +67,12 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public ActionOptions? ActionOptions { get; set; }
 
-        public string? LtiLaunchUrl { get; set; }
+        public LtiLaunchData?  LtiLaunchData { get; set; }
+    }
+
+    public class LtiLaunchData
+    {
+        public string LtiLaunchUrl { get; set; }
+        public string? CustomParams { get; set; }
     }
 }

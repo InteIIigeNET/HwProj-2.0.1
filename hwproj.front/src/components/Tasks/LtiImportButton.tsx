@@ -1,12 +1,13 @@
 import React, { FC, useEffect, useState } from "react";
-import { LoadingButton } from "@mui/lab";
+import Button from "@mui/material/Button";
 import ApiSingleton from "../../api/ApiSingleton";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import {LtiLaunchData} from "@/api";
 
 export interface LtiItemDto {
     title: string;
     text?: string;
-    url: string;
+    ltiLaunchData: LtiLaunchData;
     scoreMaximum: number;
 }
 
@@ -17,8 +18,6 @@ interface LtiImportButtonProps {
 }
 
 export const LtiImportButton: FC<LtiImportButtonProps> = ({ courseId, toolId, onImport }) => {
-    const [isLoading, setIsLoading] = useState(false);
-
     const submitLtiForm = (formData: any) => {
         const windowName = "lti_tab_" + new Date().getTime();
         window.open('about:blank', windowName);
@@ -43,20 +42,22 @@ export const LtiImportButton: FC<LtiImportButtonProps> = ({ courseId, toolId, on
     };
 
     const handleStartLti = async () => {
-        setIsLoading(true);
         try {
             const response = await ApiSingleton.ltiAuthApi.ltiAuthStartLti(
-                undefined, String(courseId), String(toolId), undefined, true
+                undefined,
+                String(courseId), String(toolId), 
+                undefined,
+                undefined,
+                true
             );
             let dto = response;
+            console.log(dto);
             if (response && typeof (response as any).json === 'function') {
                 dto = await (response as any).json();
             }
             submitLtiForm(dto);
-            setTimeout(() => setIsLoading(false), 30000);
         } catch (e) {
             console.error(e);
-            setIsLoading(false);
         }
     };
 
@@ -67,22 +68,34 @@ export const LtiImportButton: FC<LtiImportButtonProps> = ({ courseId, toolId, on
 
                 const rawItems = Array.isArray(payload) ? payload : [payload];
 
-                const items = rawItems.map((item: any) => {
+                const items: LtiItemDto[] = rawItems.map((item: any) => {
+                    let parsedItem = item;
                     if (typeof item === 'string') {
                         try {
-                            return JSON.parse(item);
+                            parsedItem = JSON.parse(item);
                         } catch (e) {
                             console.error("Ошибка парсинга JSON от LTI:", item);
                             return null;
                         }
                     }
-                    return item;
-                }).filter(item => item !== null);
+
+                    const mappedItem: LtiItemDto = {
+                        title: parsedItem.title || "Задача из внешнего инструмента",
+                        text: parsedItem.text || "",
+                        ltiLaunchData: {
+                            ltiLaunchUrl: parsedItem.url,
+                            customParams: parsedItem.custom ? JSON.stringify(parsedItem.custom) : undefined
+                        },
+
+                        scoreMaximum: parsedItem.lineItem?.scoreMaximum || 10
+                    };
+
+                    return mappedItem;
+                }).filter((item): item is LtiItemDto => item !== null);
 
                 if (items.length > 0) {
                     onImport(items);
                 }
-                setIsLoading(false);
             }
         };
         window.addEventListener("message", handleLtiMessage);
@@ -90,12 +103,12 @@ export const LtiImportButton: FC<LtiImportButtonProps> = ({ courseId, toolId, on
     }, [onImport]);
 
     return (
-        <LoadingButton
+        <Button
             fullWidth variant="text" color="primary"
-            onClick={handleStartLti} loading={isLoading}
+            onClick={handleStartLti}
             startIcon={<CloudDownloadIcon />}
         >
             Импорт из внешнего инструмента
-        </LoadingButton>
+        </Button>
     );
 };
