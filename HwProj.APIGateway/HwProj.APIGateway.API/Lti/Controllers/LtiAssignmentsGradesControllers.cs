@@ -21,8 +21,8 @@ public class LtiAssignmentsGradesControllers(
     ILtiToolService toolService)
     : ControllerBase
 {
-    [HttpPost("lineItem/{taskId}")]
-    [Consumes("application/vnd.ims.lti-ags.v1.score+json")]
+    [HttpPost("lineItem/{taskId}/scores")]
+    [Consumes("application/json", "application/vnd.ims.lis.v1.score+json")]
     public async Task<IActionResult> UpdateTaskScore(long taskId, [FromBody] Score score)
     {
         var scopeClaim = User.FindFirst("scope")?.Value;

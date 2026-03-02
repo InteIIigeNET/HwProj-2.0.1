@@ -25,10 +25,10 @@ export default class FileInfoConverter {
         return fileInfoDtos.map(fileInfoDto => this.fromFileInfoDTO(fileInfoDto));
     }
 
-    public static getHomeworkFilesInfo(filesInfo: FileInfoDTO[], homeworkId: number): IFileInfo[] {
+    public static getCourseUnitFilesInfo(filesInfo: FileInfoDTO[], courseUnitType: CourseUnitType, courseUnitId: number): IFileInfo[] {
         return FileInfoConverter.fromFileInfoDTOArray(
-            filesInfo.filter(filesInfo => filesInfo.courseUnitType === CourseUnitType.Homework
-                && filesInfo.courseUnitId === homeworkId)
+            filesInfo.filter(filesInfo => filesInfo.courseUnitType === courseUnitType
+                && filesInfo.courseUnitId === courseUnitId)
         )
     }
 }

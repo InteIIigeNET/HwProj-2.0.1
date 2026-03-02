@@ -11,6 +11,7 @@ using HwProj.ContentService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.CoursesService.API.Domains;
+using HwProj.Exceptions;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.Roles;
 using HwProj.NotificationService.Events.CoursesService;
@@ -67,9 +68,9 @@ namespace HwProj.CoursesService.API.Services
             return await GetAsync(task.Homework.CourseId, userId);
         }
 
-        public async Task<CourseDTO?> GetAsync(long id, string userId = "")
+        public async Task<CourseDTO?> GetAsync(long id, string userId = "", bool asView = false)
         {
-            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(id);
+            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(id, withCriteria: asView);
             if (course == null) return null;
 
             CourseDomain.FillTasksInCourses(course);
@@ -96,15 +97,35 @@ namespace HwProj.CoursesService.API.Services
             return course?.ToCourseDto();
         }
 
-        public async Task<long> AddAsync(CreateCourseViewModel courseViewModel,
-            CourseDTO? baseCourse,
-            string mentorId)
+        public async Task<long> AddAsync(CreateCourseViewModel courseViewModel, string mentorId)
         {
             var courseTemplate = courseViewModel.ToCourseTemplate();
+            Course? baseCourse = null;
 
-            courseTemplate.Homeworks =
-                baseCourse?.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList() ??
-                new List<HomeworkTemplate>();
+            if (courseViewModel.BaseCourseId != null)
+            {
+                baseCourse = await _coursesRepository.GetWithHomeworksAsync(courseViewModel.BaseCourseId.Value);
+                if (baseCourse == null) throw new InvalidOperationException("Базовый курс не найден");
+                if (!baseCourse.MentorIds.Contains(mentorId))
+                    throw new ForbiddenException(
+                        $"Пользователь с id{mentorId} не является ментором указанного базового курса");
+            }
+
+            courseTemplate.Homeworks ??= new List<HomeworkTemplate>();
+            if (baseCourse != null)
+            {
+                foreach (var homework in baseCourse.Homeworks)
+                {
+                    var homeworkTemplate = homework.ToHomeworkTemplate();
+                    for (var i = 0; i < homeworkTemplate.Tasks.Count; i++)
+                    {
+                        homeworkTemplate.Tasks[i].LtiLaunchData =
+                            await _tasksRepository.GetLtiDataAsync(homework.Tasks[i].Id);
+                    }
+
+                    courseTemplate.Homeworks.Add(homeworkTemplate);
+                }
+            }
 
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 

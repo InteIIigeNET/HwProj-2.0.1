@@ -24,7 +24,7 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public List<string> Tags { get; set; } = new List<string>();
 
-        public List<CreateTaskViewModel> Tasks { get; set; } = new List<CreateTaskViewModel>();
+        public List<PostTaskViewModel> Tasks { get; set; } = new List<PostTaskViewModel>();
 
         public ActionOptions? ActionOptions { get; set; }
     }

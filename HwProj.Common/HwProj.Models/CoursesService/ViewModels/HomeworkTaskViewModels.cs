@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
 
 namespace HwProj.Models.CoursesService.ViewModels
 {
@@ -36,6 +37,8 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public bool IsDeferred { get; set; }
 
+        public List<CriterionViewModel>? Criteria { get; set; } = new List<CriterionViewModel>();
+
         [JsonProperty]
         public LtiLaunchData?  LtiLaunchData { get; set; }
     }
@@ -47,7 +50,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public HomeworkViewModel Homework { get; set; }
     }
 
-    public class CreateTaskViewModel
+    public class PostTaskViewModel
     {
         [Required]
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
@@ -65,7 +68,11 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         [Required] public int MaxRating { get; set; }
 
+        public bool IsBonusExplicit { get; set; }
+
         public ActionOptions? ActionOptions { get; set; }
+
+        public List<CriterionViewModel> Criteria { get; set; }
 
         public LtiLaunchData?  LtiLaunchData { get; set; }
     }

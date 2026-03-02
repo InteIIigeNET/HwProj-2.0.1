@@ -20,7 +20,7 @@ using Microsoft.EntityFrameworkCore;
 namespace HwProj.SolutionsService.API.Controllers
 {
     [Route("api/[controller]")]
-    // [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
+    [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
     [ApiController]
     public class SolutionsController : Controller
     {

@@ -5,17 +5,18 @@ using System;
 using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore.Internal;
+using CriterionType = HwProj.Models.CoursesService.ViewModels.CriterionType;
 
 namespace HwProj.CoursesService.API.Domains
 {
     public static class MappingExtensions
     {
         private static readonly DateTime DateToOverride = DateTime.MaxValue;
-        private static readonly StringSplitOptions splitOptions = StringSplitOptions.RemoveEmptyEntries;
+        private const StringSplitOptions SplitOptions = StringSplitOptions.RemoveEmptyEntries;
 
         public static HomeworkViewModel ToHomeworkViewModel(this Homework homework)
         {
-            var tags = homework.Tags?.Split(';', splitOptions) ?? Array.Empty<string>();
+            var tags = homework.Tags?.Split(';', SplitOptions) ?? Array.Empty<string>();
             return new HomeworkViewModel()
             {
                 Id = homework.Id,
@@ -37,7 +38,10 @@ namespace HwProj.CoursesService.API.Domains
 
         public static HomeworkTaskViewModel ToHomeworkTaskViewModel(this HomeworkTask task)
         {
-            var tags = task.Homework.Tags?.Split(';', splitOptions) ?? Array.Empty<string>();
+            var tags = task.Homework.Tags?.Split(';', SplitOptions) ?? Array.Empty<string>();
+            if (task.IsBonusExplicit && !tags.Contains(HomeworkTags.BonusTask)) 
+                tags = tags.Union(new[] { HomeworkTags.BonusTask }).ToArray();
+
             var evaluatedPublicationDate = task.PublicationDate ?? task.Homework.PublicationDate;
             return new HomeworkTaskViewModel()
             {
@@ -55,6 +59,14 @@ namespace HwProj.CoursesService.API.Domains
                 IsGroupWork = tags.Contains(HomeworkTags.GroupWork),
                 HomeworkId = task.HomeworkId,
                 Tags = tags,
+                Criteria = task.Criteria.Select(c => new CriterionViewModel
+                    {
+                        Id = c.Id,
+                        Type = (CriterionType)c.Type,
+                        Name = c.Name,
+                        MaxPoints = c.MaxPoints
+                    })
+                    .ToList(),
             };
         }
 
@@ -74,7 +86,7 @@ namespace HwProj.CoursesService.API.Domains
                     ? new StudentCharacteristicsDto()
                     {
                         Description = characteristics.Description,
-                        Tags = characteristics.Tags.Split(';', splitOptions),
+                        Tags = characteristics.Tags.Split(';', SplitOptions),
                     }
                     : null
             };
@@ -86,7 +98,7 @@ namespace HwProj.CoursesService.API.Domains
                 Name = course.Name,
                 GroupName = course.GroupName,
                 IsCompleted = course.IsCompleted,
-                MentorIds = course.MentorIds.Split('/', splitOptions),
+                MentorIds = course.MentorIds.Split('/', SplitOptions),
                 IsOpen = course.IsOpen,
                 InviteCode = course.InviteCode,
                 CourseMates = course.CourseMates.Select(cm => cm.ToCourseMateViewModel()).ToArray(),
@@ -101,32 +113,42 @@ namespace HwProj.CoursesService.API.Domains
                 Name = course.Name,
                 GroupName = course.GroupName,
                 IsCompleted = course.IsCompleted,
-                MentorIds = course.MentorIds.Split('/', splitOptions),
+                MentorIds = course.MentorIds.Split('/', SplitOptions),
             };
 
-        public static HomeworkTask ToHomeworkTask(this CreateTaskViewModel createTaskViewModel)
+        public static Criterion ToCriterion(this CriterionViewModel criterion) => new Criterion
+        {
+            Id = criterion.Id,
+            Type = (Models.CriterionType)criterion.Type,
+            Name = criterion.Name,
+            MaxPoints = criterion.MaxPoints
+        };
+
+        public static HomeworkTask ToHomeworkTask(this PostTaskViewModel postTaskViewModel)
             => new HomeworkTask()
             {
-                Title = createTaskViewModel.Title,
-                Description = createTaskViewModel.Description,
-                MaxRating = createTaskViewModel.MaxRating,
-                HasDeadline = createTaskViewModel.HasDeadline,
-                DeadlineDate = createTaskViewModel.DeadlineDate,
-                IsDeadlineStrict = createTaskViewModel.IsDeadlineStrict,
-                PublicationDate = createTaskViewModel.PublicationDate,
+                Title = postTaskViewModel.Title,
+                Description = postTaskViewModel.Description,
+                MaxRating = postTaskViewModel.MaxRating,
+                HasDeadline = postTaskViewModel.HasDeadline,
+                DeadlineDate = postTaskViewModel.DeadlineDate,
+                IsDeadlineStrict = postTaskViewModel.IsDeadlineStrict,
+                PublicationDate = postTaskViewModel.PublicationDate,
+                IsBonusExplicit = postTaskViewModel.IsBonusExplicit,
+                Criteria = postTaskViewModel.Criteria.Select(x => x.ToCriterion()).ToList(),
             };
 
-        public static Homework ToHomework(this CreateHomeworkViewModel createHomeworkViewModel)
+        public static Homework ToHomework(this CreateHomeworkViewModel homework)
             => new Homework()
             {
-                Title = createHomeworkViewModel.Title,
-                Description = createHomeworkViewModel.Description,
-                HasDeadline = createHomeworkViewModel.HasDeadline,
-                DeadlineDate = createHomeworkViewModel.DeadlineDate,
-                IsDeadlineStrict = createHomeworkViewModel.IsDeadlineStrict,
-                PublicationDate = createHomeworkViewModel.PublicationDate,
-                Tasks = createHomeworkViewModel.Tasks.Select(t => t.ToHomeworkTask()).ToList(),
-                Tags = createHomeworkViewModel.Tags.Join(";"),
+                Title = homework.Title,
+                Description = homework.Description,
+                HasDeadline = homework.HasDeadline,
+                DeadlineDate = homework.DeadlineDate,
+                IsDeadlineStrict = homework.IsDeadlineStrict,
+                PublicationDate = homework.PublicationDate,
+                Tasks = homework.Tasks.Select(t => t.ToHomeworkTask()).ToList(),
+                Tags = homework.Tags.Join(";"),
             };
 
         public static CourseTemplate ToCourseTemplate(this CreateCourseViewModel createCourseViewModel)
@@ -138,7 +160,7 @@ namespace HwProj.CoursesService.API.Domains
                 LtiToolId = createCourseViewModel.LtiToolId,
             };
 
-        public static CourseTemplate ToCourseTemplate(this CourseDTO course)
+        public static CourseTemplate ToCourseTemplate(this Course course)
             => new CourseTemplate()
             {
                 Name = course.Name,
@@ -148,18 +170,18 @@ namespace HwProj.CoursesService.API.Domains
                 LtiToolId = course.LtiToolId,
             };
 
-        public static HomeworkTemplate ToHomeworkTemplate(this HomeworkViewModel homework)
+        public static HomeworkTemplate ToHomeworkTemplate(this Homework homework)
             => new HomeworkTemplate()
             {
                 Title = homework.Title,
                 Description = homework.Description,
                 HasDeadline = homework.HasDeadline,
                 IsDeadlineStrict = homework.IsDeadlineStrict,
-                Tags = homework.Tags.Join(";"),
+                Tags = homework.Tags,
                 Tasks = homework.Tasks.Select(t => t.ToHomeworkTaskTemplate()).ToList(),
             };
 
-        public static HomeworkTaskTemplate ToHomeworkTaskTemplate(this HomeworkTaskViewModel task)
+        public static HomeworkTaskTemplate ToHomeworkTaskTemplate(this HomeworkTask task)
             => new HomeworkTaskTemplate()
             {
                 Title = task.Title,
@@ -169,12 +191,7 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = task.IsDeadlineStrict,
                 HasSpecialPublicationDate = task.PublicationDate != null,
                 HasSpecialDeadlineDate = task.DeadlineDate != null,
-                LtiLaunchData = task.LtiLaunchData == null ? null :
-                    new LtiLaunchData
-                    {
-                        LtiLaunchUrl =  task.LtiLaunchData.LtiLaunchUrl,
-                        CustomParams =  task.LtiLaunchData.CustomParams
-                    }
+                IsBonusExplicit = task.IsBonusExplicit,
             };
 
         public static Course ToCourse(this CourseTemplate courseTemplate)
@@ -209,6 +226,7 @@ namespace HwProj.CoursesService.API.Domains
                 HomeworkId = homeworkId,
                 PublicationDate = taskTemplate.HasSpecialPublicationDate ? DateToOverride : (DateTime?)null,
                 DeadlineDate = taskTemplate.HasSpecialDeadlineDate ? DateToOverride : (DateTime?)null,
+                IsBonusExplicit = taskTemplate.IsBonusExplicit,
             };
 
         public static LtiLaunchData? ToLtiLaunchData(

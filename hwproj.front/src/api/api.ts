@@ -651,10 +651,10 @@ export interface CreateHomeworkViewModel {
     tags?: Array<string>;
     /**
      *
-     * @type {Array<CreateTaskViewModel>}
+     * @type {Array<PostTaskViewModel>}
      * @memberof CreateHomeworkViewModel
      */
-    tasks?: Array<CreateTaskViewModel>;
+    tasks?: Array<PostTaskViewModel>;
     /**
      *
      * @type {ActionOptions}
@@ -665,63 +665,41 @@ export interface CreateHomeworkViewModel {
 /**
  *
  * @export
- * @interface CreateTaskViewModel
+ * @enum {string}
  */
-export interface CreateTaskViewModel {
-    /**
-     *
-     * @type {string}
-     * @memberof CreateTaskViewModel
-     */
-    title: string;
-    /**
-     *
-     * @type {string}
-     * @memberof CreateTaskViewModel
-     */
-    description?: string;
-    /**
-     *
-     * @type {boolean}
-     * @memberof CreateTaskViewModel
-     */
-    hasDeadline?: boolean;
-    /**
-     *
-     * @type {Date}
-     * @memberof CreateTaskViewModel
-     */
-    deadlineDate?: Date;
-    /**
-     *
-     * @type {boolean}
-     * @memberof CreateTaskViewModel
-     */
-    isDeadlineStrict?: boolean;
-    /**
-     *
-     * @type {Date}
-     * @memberof CreateTaskViewModel
-     */
-    publicationDate?: Date;
+export enum CriterionType {
+    NUMBER_0 = <any> 0
+}
+/**
+ *
+ * @export
+ * @interface CriterionViewModel
+ */
+export interface CriterionViewModel {
     /**
      *
      * @type {number}
-     * @memberof CreateTaskViewModel
+     * @memberof CriterionViewModel
      */
-    maxRating: number;
+    id?: number;
     /**
      *
-     * @type {ActionOptions}
-     * @memberof CreateTaskViewModel
+     * @type {CriterionType}
+     * @memberof CriterionViewModel
      */
-    actionOptions?: ActionOptions;
+    type?: CriterionType;
     /**
      *
-     * @type {LtiLaunchData}
-     * @memberof CreateTaskViewModel
+     * @type {string}
+     * @memberof CriterionViewModel
      */
-    ltiLaunchData?: LtiLaunchData;
+    name: string;
+    /**
+     *
+     * @type {number}
+     * @memberof CriterionViewModel
+     */
+    maxPoints?: number;
 }
 /**
  *
@@ -1259,6 +1237,12 @@ export interface HomeworkTaskViewModel {
      * @memberof HomeworkTaskViewModel
      */
     isDeferred?: boolean;
+    /**
+     *
+     * @type {Array<CriterionViewModel>}
+     * @memberof HomeworkTaskViewModel
+     */
+    criteria?: Array<CriterionViewModel>;
     /**
      *
      * @type {LtiLaunchData}
@@ -1893,6 +1877,88 @@ export interface PostSolutionModel {
      * @memberof PostSolutionModel
      */
     groupMateIds?: Array<string>;
+}
+/**
+ *
+ * @export
+ * @interface PostTaskViewModel
+ */
+export interface PostTaskViewModel {
+    /**
+     *
+     * @type {string}
+     * @memberof PostTaskViewModel
+     */
+    title: string;
+    /**
+     *
+     * @type {string}
+     * @memberof PostTaskViewModel
+     */
+    description?: string;
+    /**
+     *
+     * @type {boolean}
+     * @memberof PostTaskViewModel
+     */
+    hasDeadline?: boolean;
+    /**
+     *
+     * @type {Date}
+     * @memberof PostTaskViewModel
+     */
+    deadlineDate?: Date;
+    /**
+     *
+     * @type {boolean}
+     * @memberof PostTaskViewModel
+     */
+    isDeadlineStrict?: boolean;
+    /**
+     *
+     * @type {Date}
+     * @memberof PostTaskViewModel
+     */
+    publicationDate?: Date;
+    /**
+     *
+     * @type {number}
+     * @memberof PostTaskViewModel
+     */
+    maxRating: number;
+    /**
+     *
+     * @type {boolean}
+     * @memberof PostTaskViewModel
+     */
+    isBonusExplicit?: boolean;
+    /**
+     *
+     * @type {ActionOptions}
+     * @memberof PostTaskViewModel
+     */
+    actionOptions?: ActionOptions;
+    /**
+     *
+     * @type {Array<CriterionViewModel>}
+     * @memberof PostTaskViewModel
+     */
+    criteria?: Array<CriterionViewModel>;
+    /**
+     *
+     * @type {LtiLaunchData}
+     * @memberof PostTaskViewModel
+     */
+    ltiLaunchData?: LtiLaunchData;
+}
+/**
+ *
+ * @export
+ * @interface ProblemDetails
+ */
+export interface ProblemDetails {
+    [key: string]: any;
+
 }
 /**
  *
@@ -6894,10 +6960,12 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
         /**
          *
          * @param {number} courseId
+         * @param {boolean} [uploadedOnly]
+         * @param {string} [courseUnitType]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        filesGetFilesInfo(courseId: number, options: any = {}): FetchArgs {
+        filesGetFilesInfo(courseId: number, uploadedOnly?: boolean, courseUnitType?: string, options: any = {}): FetchArgs {
             // verify required parameter 'courseId' is not null or undefined
             if (courseId === null || courseId === undefined) {
                 throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling filesGetFilesInfo.');
@@ -6915,6 +6983,14 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
                     ? configuration.apiKey("Authorization")
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (uploadedOnly !== undefined) {
+                localVarQueryParameter['uploadedOnly'] = uploadedOnly;
+            }
+
+            if (courseUnitType !== undefined) {
+                localVarQueryParameter['courseUnitType'] = courseUnitType;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -6956,42 +7032,6 @@ export const FilesApiFetchParamCreator = function (configuration?: Configuration
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
             const needsSerialization = (<any>"ScopeDTO" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         *
-         * @param {number} courseId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        filesGetUploadedFilesInfo(courseId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'courseId' is not null or undefined
-            if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling filesGetUploadedFilesInfo.');
-            }
-            const localVarPath = `/api/Files/info/course/{courseId}/uploaded`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Bearer required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
-                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
             return {
                 url: url.format(localVarUrlObj),
@@ -7091,11 +7131,13 @@ export const FilesApiFp = function(configuration?: Configuration) {
         /**
          *
          * @param {number} courseId
+         * @param {boolean} [uploadedOnly]
+         * @param {string} [courseUnitType]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        filesGetFilesInfo(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<FileInfoDTO>> {
-            const localVarFetchArgs = FilesApiFetchParamCreator(configuration).filesGetFilesInfo(courseId, options);
+        filesGetFilesInfo(courseId: number, uploadedOnly?: boolean, courseUnitType?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<FileInfoDTO>> {
+            const localVarFetchArgs = FilesApiFetchParamCreator(configuration).filesGetFilesInfo(courseId, uploadedOnly, courseUnitType, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -7114,24 +7156,6 @@ export const FilesApiFp = function(configuration?: Configuration) {
          */
         filesGetStatuses(body?: ScopeDTO, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<FileInfoDTO>> {
             const localVarFetchArgs = FilesApiFetchParamCreator(configuration).filesGetStatuses(body, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         *
-         * @param {number} courseId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        filesGetUploadedFilesInfo(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<FileInfoDTO>> {
-            const localVarFetchArgs = FilesApiFetchParamCreator(configuration).filesGetUploadedFilesInfo(courseId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -7185,11 +7209,13 @@ export const FilesApiFactory = function (configuration?: Configuration, fetch?: 
         /**
          *
          * @param {number} courseId
+         * @param {boolean} [uploadedOnly]
+         * @param {string} [courseUnitType]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        filesGetFilesInfo(courseId: number, options?: any) {
-            return FilesApiFp(configuration).filesGetFilesInfo(courseId, options)(fetch, basePath);
+        filesGetFilesInfo(courseId: number, uploadedOnly?: boolean, courseUnitType?: string, options?: any) {
+            return FilesApiFp(configuration).filesGetFilesInfo(courseId, uploadedOnly, courseUnitType, options)(fetch, basePath);
         },
         /**
          *
@@ -7199,15 +7225,6 @@ export const FilesApiFactory = function (configuration?: Configuration, fetch?: 
          */
         filesGetStatuses(body?: ScopeDTO, options?: any) {
             return FilesApiFp(configuration).filesGetStatuses(body, options)(fetch, basePath);
-        },
-        /**
-         *
-         * @param {number} courseId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        filesGetUploadedFilesInfo(courseId: number, options?: any) {
-            return FilesApiFp(configuration).filesGetUploadedFilesInfo(courseId, options)(fetch, basePath);
         },
         /**
          *
@@ -7246,12 +7263,14 @@ export class FilesApi extends BaseAPI {
     /**
      *
      * @param {number} courseId
+     * @param {boolean} [uploadedOnly]
+     * @param {string} [courseUnitType]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public filesGetFilesInfo(courseId: number, options?: any) {
-        return FilesApiFp(this.configuration).filesGetFilesInfo(courseId, options)(this.fetch, this.basePath);
+    public filesGetFilesInfo(courseId: number, uploadedOnly?: boolean, courseUnitType?: string, options?: any) {
+        return FilesApiFp(this.configuration).filesGetFilesInfo(courseId, uploadedOnly, courseUnitType, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -7263,17 +7282,6 @@ export class FilesApi extends BaseAPI {
      */
     public filesGetStatuses(body?: ScopeDTO, options?: any) {
         return FilesApiFp(this.configuration).filesGetStatuses(body, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     *
-     * @param {number} courseId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof FilesApi
-     */
-    public filesGetUploadedFilesInfo(courseId: number, options?: any) {
-        return FilesApiFp(this.configuration).filesGetUploadedFilesInfo(courseId, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -10996,11 +11004,11 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
         /**
          *
          * @param {number} homeworkId
-         * @param {CreateTaskViewModel} [body]
+         * @param {PostTaskViewModel} [body]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tasksAddTask(homeworkId: number, body?: CreateTaskViewModel, options: any = {}): FetchArgs {
+        tasksAddTask(homeworkId: number, body?: PostTaskViewModel, options: any = {}): FetchArgs {
             // verify required parameter 'homeworkId' is not null or undefined
             if (homeworkId === null || homeworkId === undefined) {
                 throw new RequiredError('homeworkId','Required parameter homeworkId was null or undefined when calling tasksAddTask.');
@@ -11026,7 +11034,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            const needsSerialization = (<any>"PostTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
 
             return {
@@ -11175,10 +11183,11 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
         /**
          *
          * @param {number} taskId
+         * @param {boolean} [withCriteria]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tasksGetTask(taskId: number, options: any = {}): FetchArgs {
+        tasksGetTask(taskId: number, withCriteria?: boolean, options: any = {}): FetchArgs {
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
                 throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling tasksGetTask.');
@@ -11198,6 +11207,10 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
+            if (withCriteria !== undefined) {
+                localVarQueryParameter['withCriteria'] = withCriteria;
+            }
+
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
@@ -11211,11 +11224,11 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
         /**
          *
          * @param {number} taskId
-         * @param {CreateTaskViewModel} [body]
+         * @param {PostTaskViewModel} [body]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tasksUpdateTask(taskId: number, body?: CreateTaskViewModel, options: any = {}): FetchArgs {
+        tasksUpdateTask(taskId: number, body?: PostTaskViewModel, options: any = {}): FetchArgs {
             // verify required parameter 'taskId' is not null or undefined
             if (taskId === null || taskId === undefined) {
                 throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling tasksUpdateTask.');
@@ -11241,7 +11254,7 @@ export const TasksApiFetchParamCreator = function (configuration?: Configuration
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             localVarUrlObj.search = null;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"CreateTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            const needsSerialization = (<any>"PostTaskViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
             localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
 
             return {
@@ -11297,11 +11310,11 @@ export const TasksApiFp = function(configuration?: Configuration) {
         /**
          *
          * @param {number} homeworkId
-         * @param {CreateTaskViewModel} [body]
+         * @param {PostTaskViewModel} [body]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tasksAddTask(homeworkId: number, body?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModelResult> {
+        tasksAddTask(homeworkId: number, body?: PostTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModelResult> {
             const localVarFetchArgs = TasksApiFetchParamCreator(configuration).tasksAddTask(homeworkId, body, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -11387,11 +11400,12 @@ export const TasksApiFp = function(configuration?: Configuration) {
         /**
          *
          * @param {number} taskId
+         * @param {boolean} [withCriteria]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tasksGetTask(taskId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModel> {
-            const localVarFetchArgs = TasksApiFetchParamCreator(configuration).tasksGetTask(taskId, options);
+        tasksGetTask(taskId: number, withCriteria?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModel> {
+            const localVarFetchArgs = TasksApiFetchParamCreator(configuration).tasksGetTask(taskId, withCriteria, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -11405,11 +11419,11 @@ export const TasksApiFp = function(configuration?: Configuration) {
         /**
          *
          * @param {number} taskId
-         * @param {CreateTaskViewModel} [body]
+         * @param {PostTaskViewModel} [body]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tasksUpdateTask(taskId: number, body?: CreateTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModelResult> {
+        tasksUpdateTask(taskId: number, body?: PostTaskViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<HomeworkTaskViewModelResult> {
             const localVarFetchArgs = TasksApiFetchParamCreator(configuration).tasksUpdateTask(taskId, body, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
@@ -11451,11 +11465,11 @@ export const TasksApiFactory = function (configuration?: Configuration, fetch?: 
         /**
          *
          * @param {number} homeworkId
-         * @param {CreateTaskViewModel} [body]
+         * @param {PostTaskViewModel} [body]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tasksAddTask(homeworkId: number, body?: CreateTaskViewModel, options?: any) {
+        tasksAddTask(homeworkId: number, body?: PostTaskViewModel, options?: any) {
             return TasksApiFp(configuration).tasksAddTask(homeworkId, body, options)(fetch, basePath);
         },
         /**
@@ -11496,20 +11510,21 @@ export const TasksApiFactory = function (configuration?: Configuration, fetch?: 
         /**
          *
          * @param {number} taskId
+         * @param {boolean} [withCriteria]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tasksGetTask(taskId: number, options?: any) {
-            return TasksApiFp(configuration).tasksGetTask(taskId, options)(fetch, basePath);
+        tasksGetTask(taskId: number, withCriteria?: boolean, options?: any) {
+            return TasksApiFp(configuration).tasksGetTask(taskId, withCriteria, options)(fetch, basePath);
         },
         /**
          *
          * @param {number} taskId
-         * @param {CreateTaskViewModel} [body]
+         * @param {PostTaskViewModel} [body]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        tasksUpdateTask(taskId: number, body?: CreateTaskViewModel, options?: any) {
+        tasksUpdateTask(taskId: number, body?: PostTaskViewModel, options?: any) {
             return TasksApiFp(configuration).tasksUpdateTask(taskId, body, options)(fetch, basePath);
         },
     };
@@ -11547,12 +11562,12 @@ export class TasksApi extends BaseAPI {
     /**
      *
      * @param {number} homeworkId
-     * @param {CreateTaskViewModel} [body]
+     * @param {PostTaskViewModel} [body]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TasksApi
      */
-    public tasksAddTask(homeworkId: number, body?: CreateTaskViewModel, options?: any) {
+    public tasksAddTask(homeworkId: number, body?: PostTaskViewModel, options?: any) {
         return TasksApiFp(this.configuration).tasksAddTask(homeworkId, body, options)(this.fetch, this.basePath);
     }
 
@@ -11602,23 +11617,24 @@ export class TasksApi extends BaseAPI {
     /**
      *
      * @param {number} taskId
+     * @param {boolean} [withCriteria]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TasksApi
      */
-    public tasksGetTask(taskId: number, options?: any) {
-        return TasksApiFp(this.configuration).tasksGetTask(taskId, options)(this.fetch, this.basePath);
+    public tasksGetTask(taskId: number, withCriteria?: boolean, options?: any) {
+        return TasksApiFp(this.configuration).tasksGetTask(taskId, withCriteria, options)(this.fetch, this.basePath);
     }
 
     /**
      *
      * @param {number} taskId
-     * @param {CreateTaskViewModel} [body]
+     * @param {PostTaskViewModel} [body]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TasksApi
      */
-    public tasksUpdateTask(taskId: number, body?: CreateTaskViewModel, options?: any) {
+    public tasksUpdateTask(taskId: number, body?: PostTaskViewModel, options?: any) {
         return TasksApiFp(this.configuration).tasksUpdateTask(taskId, body, options)(this.fetch, this.basePath);
     }
 

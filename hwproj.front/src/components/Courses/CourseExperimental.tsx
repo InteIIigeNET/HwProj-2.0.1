@@ -35,7 +35,8 @@ import ErrorIcon from '@mui/icons-material/Error';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import SwitchAccessShortcutIcon from '@mui/icons-material/SwitchAccessShortcut';
 import Lodash from "lodash";
-import { LtiImportButton, LtiItemDto } from "../Tasks/LtiImportButton";
+import {CourseUnitType} from "@/components/Files/CourseUnitType";
+import {LtiImportButton, LtiItemDto} from "@/components/Tasks/LtiImportButton";
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -47,7 +48,7 @@ interface ICourseExperimentalProps {
     isStudentAccepted: boolean
     userId: string
     selectedHomeworkId: number | undefined
-    onHomeworkUpdate: (update: { homework: HomeworkViewModel, fileInfos: FileInfoDTO[] | undefined } & {
+    onHomeworkUpdate: (update: { homework: HomeworkViewModel } & {
         isDeleted?: boolean
     }) => void
     onTaskUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => void,
@@ -56,7 +57,11 @@ interface ICourseExperimentalProps {
             isLoading: boolean;
         };
     };
-    onStartProcessing: (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => void;
+    onStartProcessing: (homeworkId: number,
+                        courseUnitType: CourseUnitType,
+                        previouslyExistingFilesCount: number,
+                        waitingNewFilesCount: number,
+                        deletingFilesIds: number[]) => void;
 }
 
 interface ICourseExperimentalState {
@@ -146,7 +151,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const clickedItemStyle = {
         backgroundColor: "ghostwhite",
-        borderRadius: "10px",
+        borderRadius: 9,
         cursor: "pointer",
         border: "1px solid lightgrey"
     }
@@ -358,8 +363,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 description: "",
                 tasks: [],
                 tags: []
-            },
-            fileInfos: []
+            }
         })
         setState((prevState) => ({
             ...prevState,
@@ -370,11 +374,67 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         }))
     }
 
+    const calculateSuggestedRating = (homework: HomeworkViewModel) => {
+        const tags = homework.tags!;
+        const isTest = tags.includes(TestTag);
+        const isBonus = tags.includes(BonusTag);
+
+        const ratingCandidate = Lodash(homeworks
+            .map(h => h.tasks![0])
+            .filter(x => {
+                if (x === undefined) return false;
+                const xIsTest = isTestWork(x);
+                const xIsBonus = isBonusWork(x);
+                return x.id! > 0 && ((isTest && xIsTest) || (isBonus && xIsBonus) || (!isTest && !isBonus && !xIsTest && !xIsBonus));
+            }))
+            .map(x => x.maxRating!)
+            .groupBy(x => [x])
+            .entries()
+            .sortBy(x => x[1].length).last()?.[1][0];
+
+        return ratingCandidate || 10;
+    };
+
+    const handleLtiImport = (items: LtiItemDto[], homework: HomeworkViewModel) => {
+        let currentCounter = newTaskCounter;
+        const suggestedRating = calculateSuggestedRating(homework);
+
+        items.forEach(item => {
+            if (!item.ltiLaunchData) {
+                return;
+            }
+
+            const defaultRating = calculateSuggestedRating(homework);
+            const taskId = currentCounter;
+            const description = item.text && item.text.trim().length > 0
+                ? item.text
+                : "";
+            const targetRating = (item.scoreMaximum && item.scoreMaximum > 0)
+                ? item.scoreMaximum
+                : defaultRating;
+
+            const newTask = {
+                id: taskId,
+                homeworkId: homework.id,
+                title: item.title || "External Task",
+                description: description,
+                maxRating: targetRating,
+                suggestedMaxRating: targetRating,
+                tags: homework.tags,
+                isDeferred: homework.isDeferred,
+                ltiLaunchData: item.ltiLaunchData,
+                criteria: []
+            };
+
+            props.onTaskUpdate({ task: newTask });
+            currentCounter--;
+        });
+
+        setNewTaskCounter(currentCounter);
+    };
+
     const addNewTask = (homework: HomeworkViewModel) => {
         const id = newTaskCounter
-        const tags = homework.tags!
-        const isTest = tags.includes(TestTag)
-        const isBonus = tags.includes(BonusTag)
 
         const ratingCandidate = calculateSuggestedRating(homework);
 
@@ -401,7 +461,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     const renderHomework = (homework: HomeworkViewModel & { isModified?: boolean }) => {
-        const filesInfo = id ? FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, id) : []
+        const filesInfo = id ? FileInfoConverter.getCourseUnitFilesInfo(courseFilesInfo, CourseUnitType.Homework, id) : []
         const homeworkEditMode = homework && (homework.id! < 0 || homework.isModified === true)
         return homework && <Stack direction={"column"} spacing={2}>
             <Card style={{backgroundColor: "ghostwhite"}} raised={homeworkEditMode}>
@@ -426,8 +486,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         }))
                     }}
                     isProcessing={props.processingFiles[homework.id!]?.isLoading || false}
-                    onStartProcessing={(homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) =>
-                        props.onStartProcessing(homeworkId, previouslyExistingFilesCount, waitingNewFilesCount, deletingFilesIds)}
+                    onStartProcessing={props.onStartProcessing}
                 />
             </Card>
         </Stack>
@@ -472,71 +531,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Card>
     }
 
-    const calculateSuggestedRating = (homework: HomeworkViewModel) => {
-        const tags = homework.tags!;
-        const isTest = tags.includes(TestTag);
-        const isBonus = tags.includes(BonusTag);
-
-        const ratingCandidate = Lodash(homeworks
-            .map(h => h.tasks![0])
-            .filter(x => {
-                if (x === undefined) return false;
-                const xIsTest = isTestWork(x);
-                const xIsBonus = isBonusWork(x);
-                return x.id! > 0 && ((isTest && xIsTest) || (isBonus && xIsBonus) || (!isTest && !isBonus && !xIsTest && !xIsBonus));
-            }))
-            .map(x => x.maxRating!)
-            .groupBy(x => [x])
-            .entries()
-            .sortBy(x => x[1].length).last()?.[1][0];
-
-        return ratingCandidate || 10;
-    };
-
-    const handleLtiImport = (items: LtiItemDto[], homework: HomeworkViewModel) => {
-        let currentCounter = newTaskCounter;
-
-        const suggestedRating = calculateSuggestedRating(homework);
-
-        items.forEach(item => {
-
-            if (!item.ltiLaunchData) {
-                return;
-            }
-
-            const defaultRating = calculateSuggestedRating(homework);
-            const taskId = currentCounter;
-            const description = item.text && item.text.trim().length > 0
-                ? item.text
-                : "";
-            const targetRating = (item.scoreMaximum && item.scoreMaximum > 0)
-                ? item.scoreMaximum
-                : defaultRating;
-
-            const newTask = {
-                id: taskId,
-                homeworkId: homework.id,
-                title: item.title || "External Task",
-
-                description: description,
-
-                maxRating: targetRating,
-                suggestedMaxRating: targetRating,
-
-                tags: homework.tags,
-                isDeferred: homework.isDeferred,
-
-                ltiLaunchData: item.ltiLaunchData
-            };
-
-            props.onTaskUpdate({ task: newTask });
-
-            currentCounter--;
-        });
-
-        setNewTaskCounter(currentCounter);
-    };
-
     const renderGif = () =>
         <DotLottieReact
             src="https://lottie.host/5f96ad46-7c60-4d6f-9333-bbca189be66d/iNWo5peHOK.lottie"
@@ -565,11 +559,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                           },
                           '&::-webkit-scrollbar-track': {
                               backgroundColor: "ghostwhite",
-                              borderRadius: "10px"
+                              borderRadius: 9
                           },
                           '&::-webkit-scrollbar-thumb': {
                               backgroundColor: "lightgrey",
-                              borderRadius: 10
+                              borderRadius: 9
                           }
                       }}>
                 {props.isMentor && filterAdded && <Stack direction={"column"} alignItems={"center"}>
@@ -596,126 +590,124 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     + Добавить задание
                 </Button>}
                 {isMentor && homeworks.length === 0 && renderLecturerWelcomeScreen()}
-                {homeworks.map((x: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
-                    return <div key={x.id} style={selectedItemHomework?.id === x.id ? {
-                        border: "1px solid #3f51b5",
-                        borderRadius: 9,
-                    } : undefined}>
-                        <Paper
-                            key={x.id}
-                            elevation={0}
-                            component={Stack}
-                            justifyContent="center"
-                            alignContent={"center"}
-                            sx={{":hover": hoveredItemStyle}}
-                            style={{...getStyle(true, x.id!), marginBottom: 2, minHeight: 50}}
-                            onClick={() => {
-                                setState(prevState => ({
-                                    ...prevState,
-                                    selectedItem: {
-                                        data: x,
-                                        isHomework: true,
-                                        id: x.id,
-                                        homeworkFilesInfo: FileInfoConverter.getHomeworkFilesInfo(courseFilesInfo, x.id!)
+                <Stack direction={"column"} spacing={0.5}>
+                    {homeworks.map((x: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
+                        return <div key={x.id} style={selectedItemHomework?.id === x.id ? {
+                            border: "1px solid #3f51b5",
+                            borderRadius: 9,
+                        } : undefined}>
+                            <Stack direction={"column"} spacing={0.5}>
+                                <Paper
+                                    key={x.id}
+                                    elevation={0}
+                                    component={Stack}
+                                    justifyContent="center"
+                                    alignContent={"center"}
+                                    sx={{":hover": hoveredItemStyle}}
+                                    style={{...getStyle(true, x.id!), minHeight: 50}}
+                                    onClick={() => {
+                                        setState(prevState => ({
+                                            ...prevState,
+                                            selectedItem: {
+                                                data: x,
+                                                isHomework: true,
+                                                id: x.id,
+                                                homeworkFilesInfo: FileInfoConverter.getCourseUnitFilesInfo(courseFilesInfo, CourseUnitType.Homework, x.id!)
+                                            }
+                                        }))
+                                    }}>
+                                    <Typography variant="h6" style={{fontSize: 18}} align={"center"}
+                                                color={x.isDeferred
+                                                    ? "textSecondary"
+                                                    : x.tags!.includes(TestTag) ? "primary" : "textPrimary"}>
+                                        {isMentor && renderHomeworkStatus(x)}
+                                        {x.title}{getTip(x)}
+                                    </Typography>
+                                    {x.isDeferred && !x.publicationDateNotSet &&
+                                        <Typography style={{fontSize: "14px"}} align={"center"}>
+                                            {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}
+                                        </Typography>}
+                                    {x.tasks?.length === 0 &&
+                                        <TimelineItem style={{minHeight: 30}}>
+                                            <TimelineOppositeContent></TimelineOppositeContent>
+                                            <TimelineSeparator><TimelineConnector/></TimelineSeparator>
+                                            <TimelineContent></TimelineContent>
+                                        </TimelineItem>}
+                                </Paper>
+                                {x.tasks!.map(t => <TimelineItem
+                                    key={t.id}
+                                    onClick={() => {
+                                        setState(prevState => ({
+                                            ...prevState,
+                                            selectedItem: {
+                                                data: t,
+                                                isHomework: false,
+                                                id: t.id,
+                                                homeworkFilesInfo: []
+                                            }
+                                        }))
+                                    }}
+                                    style={getStyle(false, t.id!)}
+                                    sx={{":hover": hoveredItemStyle}}>
+                                    {!t.deadlineDateNotSet &&
+                                        <TimelineOppositeContent color="textSecondary">
+                                            {t.deadlineDate ? renderDate(t.deadlineDate) : ""}
+                                            <br/>
+                                            {t.deadlineDate ? renderTime(t.deadlineDate) : ""}
+                                        </TimelineOppositeContent>
                                     }
-                                }))
-                            }}>
-                            <Typography variant="h6" style={{fontSize: 18}} align={"center"}
-                                        color={x.isDeferred
-                                            ? "textSecondary"
-                                            : x.tags!.includes(TestTag) ? "primary" : "textPrimary"}>
-                                {isMentor && renderHomeworkStatus(x)}
-                                {x.title}{getTip(x)}
-                            </Typography>
-                            {x.isDeferred && !x.publicationDateNotSet &&
-                                <Typography style={{fontSize: "14px"}} align={"center"}>
-                                    {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}
-                                </Typography>}
-                            {x.tasks?.length === 0 &&
-                                <TimelineItem style={{minHeight: 30, marginBottom: -5}}>
-                                    <TimelineOppositeContent></TimelineOppositeContent>
-                                    <TimelineSeparator><TimelineConnector/></TimelineSeparator>
-                                    <TimelineContent></TimelineContent>
-                                </TimelineItem>}
-                        </Paper>
-                        {x.tasks!.map(t => <TimelineItem
-                            key={t.id}
-                            onClick={() => {
-                                setState(prevState => ({
-                                    ...prevState,
-                                    selectedItem: {
-                                        data: t,
-                                        isHomework: false,
-                                        id: t.id,
-                                        homeworkFilesInfo: []
-                                    }
-                                }))
-                            }}
-                            style={{...getStyle(false, t.id!), marginBottom: 2}}
-                            sx={{":hover": hoveredItemStyle}}>
-                            {!t.deadlineDateNotSet &&
-                                <TimelineOppositeContent color="textSecondary">
-                                    {t.deadlineDate ? renderDate(t.deadlineDate) : ""}
-                                    <br/>
-                                    {t.deadlineDate ? renderTime(t.deadlineDate) : ""}
-                                </TimelineOppositeContent>
-                            }
-                            <TimelineSeparator>
-                                {renderTaskStatus(t)}
-                                <TimelineConnector/>
-                            </TimelineSeparator>
-                            <TimelineContent alignItems={"center"}>
-                                <Typography className="antiLongWords"
-                                            color={t.isDeferred ? "textSecondary" : "textPrimary"}>
-                                    {t.title}{getTip(x)}
-                                    {(t.ltiLaunchData) && (
-                                        <Tooltip title="Задание из внешнего инструмента" arrow>
-                                            <Chip
-                                                label="LTI"
-                                                size="small"
-                                                variant="outlined"
-                                                color="info"
-                                                style={{
-                                                    marginLeft: 8,
-                                                    height: 20,
-                                                    fontSize: '0.65rem',
-                                                    verticalAlign: 'middle',
-                                                    cursor: 'help'
-                                                }}
-                                            />
-                                        </Tooltip>
-                                    )}
-                                </Typography>
-                            </TimelineContent>
-                        </TimelineItem>)}
-                        {isMentor && (
-                            <Stack direction="column" spacing={0} style={{ margin: "5px 0 15px 0", padding: "0 4px" }}>
-                                {x.id! < 0 && (
-                                    <Button fullWidth
-                                       onClick={() => {
-                                           console.log(props.ltiToolId)
-                                           addNewTask(x)
-                                       }}
-                                       style={{borderRadius: 8}}
-                                       variant={"text"}
-                                       size={"small"}>
-                                    + Добавить задачу
-                                    </Button>)
-                                }
-
-                                {x.id! < 0 && props.ltiToolId && (
-                                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
-                                        <LtiImportButton
-                                            courseId={props.courseId}
-                                            toolId={props.ltiToolId}
-                                            onImport={(items) => handleLtiImport(items, x)}
-                                        />
-                                    </div>
-                                )}
+                                    <TimelineSeparator>
+                                        {renderTaskStatus(t)}
+                                        <TimelineConnector/>
+                                    </TimelineSeparator>
+                                    <TimelineContent alignItems={"center"}>
+                                        <Typography className="antiLongWords"
+                                                    color={t.isDeferred ? "textSecondary" : "textPrimary"}>
+                                            {t.title}{getTip(t)}
+                                            {(t.ltiLaunchData) && (
+                                                <Tooltip title="Задание из внешнего инструмента" arrow>
+                                                    <Chip
+                                                        label="LTI"
+                                                        size="small"
+                                                        variant="outlined"
+                                                        color="info"
+                                                        style={{
+                                                            marginLeft: 8,
+                                                            height: 20,
+                                                            fontSize: '0.65rem',
+                                                            verticalAlign: 'middle',
+                                                            cursor: 'help'
+                                                        }}
+                                                    />
+                                                </Tooltip>
+                                            )}
+                                        </Typography>
+                                    </TimelineContent>
+                                </TimelineItem>)}
                             </Stack>
-                        )}
-                    </div>;
-                })}
+                            {x.id! < 0 &&
+                                <Stack direction="column" spacing={0} style={{ margin: "5px 0 15px 0", padding: "0 4px" }}>
+                                    <Button fullWidth
+                                            onClick={() => addNewTask(x)}
+                                            style={{borderRadius: 8, marginTop: 5}}
+                                            variant={"text"}
+                                            size={"small"}>
+                                        + Добавить задачу
+                                    </Button>
+
+                                    {props.ltiToolId && (
+                                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+                                            <LtiImportButton
+                                                courseId={props.courseId}
+                                                toolId={props.ltiToolId}
+                                                onImport={(items) => handleLtiImport(items, x)}
+                                            />
+                                        </div>
+                                    )}
+                                </Stack>}
+                        </div>;
+                    })}
+                </Stack>
             </Timeline>
         </Grid>
         <Grid item xs={12} sm={12} md={8} lg={8} order={{xs: 1, sm: 1, md: 2, lg: 2}}>

@@ -95,6 +95,27 @@ namespace HwProj.CoursesService.API.Migrations
                     b.ToTable("CourseMates");
                 });
 
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.Criterion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("MaxPoints");
+
+                    b.Property<string>("Name");
+
+                    b.Property<long>("TaskId");
+
+                    b.Property<int>("Type");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("Criteria");
+                });
+
             modelBuilder.Entity("HwProj.CoursesService.API.Models.Group", b =>
                 {
                     b.Property<long>("Id")
@@ -171,6 +192,8 @@ namespace HwProj.CoursesService.API.Migrations
 
                     b.Property<long>("HomeworkId");
 
+                    b.Property<bool>("IsBonusExplicit");
+
                     b.Property<bool?>("IsDeadlineStrict");
 
                     b.Property<int>("MaxRating");
@@ -197,7 +220,7 @@ namespace HwProj.CoursesService.API.Migrations
 
                     b.HasKey("TaskId");
 
-                    b.ToTable("TaskLtiUrls");
+                    b.ToTable("TaskLtiData");
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.StudentCharacteristics", b =>
@@ -285,6 +308,14 @@ namespace HwProj.CoursesService.API.Migrations
                     b.HasOne("HwProj.CoursesService.API.Models.Course")
                         .WithMany("CourseMates")
                         .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.Criterion", b =>
+                {
+                    b.HasOne("HwProj.CoursesService.API.Models.HomeworkTask", "Task")
+                        .WithMany("Criteria")
+                        .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

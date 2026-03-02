@@ -111,6 +111,8 @@ public class Startup
         services.AddSingleton<ILtiKeyService, LtiKeyService>(); 
 
         services.AddScoped<CourseMentorOnlyAttribute>();
+        services.AddScoped<FilesPrivacyFilter>();
+        services.AddScoped<FilesCountLimiter>();
     }
 
     public void Configure(IApplicationBuilder app, IHostEnvironment env)

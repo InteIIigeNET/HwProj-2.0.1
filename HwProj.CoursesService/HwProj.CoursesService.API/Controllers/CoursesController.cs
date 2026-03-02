@@ -25,16 +25,13 @@ namespace HwProj.CoursesService.API.Controllers
         private readonly ICoursesService _coursesService;
         private readonly ICourseFilterService _courseFilterService;
         private readonly IHomeworksRepository _homeworksRepository;
-        private readonly IMapper _mapper;
 
         public CoursesController(ICoursesService coursesService,
             IHomeworksRepository homeworksRepository,
-            IMapper mapper,
             ICourseFilterService courseFilterService)
         {
             _coursesService = coursesService;
             _homeworksRepository = homeworksRepository;
-            _mapper = mapper;
             _courseFilterService = courseFilterService;
         }
 
@@ -46,6 +43,17 @@ namespace HwProj.CoursesService.API.Controllers
             return courses;
         }
 
+        [CourseDataFilter]
+        [HttpGet("view/{courseId}")]
+        public async Task<IActionResult> GetView(long courseId)
+        {
+            var userId = Request.GetUserIdFromHeader();
+            var course = await _coursesService.GetAsync(courseId, userId, true);
+            if (course == null) return NotFound();
+
+            return Ok(course);
+        }
+        
         [CourseDataFilter]
         [HttpGet("{courseId}")]
         public async Task<IActionResult> Get(long courseId)
@@ -96,18 +104,8 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel)
         {
             var mentorId = Request.GetUserIdFromHeader();
-            CourseDTO? baseCourse = null;
+            var courseId = await _coursesService.AddAsync(courseViewModel, mentorId);
 
-            if (courseViewModel.BaseCourseId != null)
-            {
-                baseCourse = await _coursesService.GetForEditingAsync((long)courseViewModel.BaseCourseId);
-                if (baseCourse == null) return NotFound();
-
-                if (!baseCourse.MentorIds.Contains(mentorId)) return Forbid();
-            }
-
-            var courseId = await _coursesService.AddAsync(courseViewModel, baseCourse, mentorId);
-            
             return Ok(courseId);
         }
 

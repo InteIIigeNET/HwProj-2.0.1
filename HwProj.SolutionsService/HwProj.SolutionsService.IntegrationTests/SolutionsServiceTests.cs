@@ -61,7 +61,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             fixture.Customizations.Add(new RandomDateTimeSequenceGenerator(DateTime.UtcNow, DateTime.UtcNow.AddYears(addYears)));
 
             var result = fixture.Build<CreateHomeworkViewModel>()
-                .With(hvm => hvm.Tasks, new List<CreateTaskViewModel>())
+                .With(hvm => hvm.Tasks, new List<PostTaskViewModel>())
                 .With(hvm => hvm.PublicationDate, DateTime.UtcNow)
                 .Without(hvm => hvm.DeadlineDate)
                 .Without(hvm => hvm.PublicationDate)
@@ -74,9 +74,9 @@ namespace HwProj.SolutionsService.IntegrationTests
             return result.Create();
         }
 
-        private CreateTaskViewModel GenerateCreateTaskViewModelWithoutDeadLine()
+        private PostTaskViewModel GenerateCreateTaskViewModelWithoutDeadLine()
         {
-            return new Fixture().Build<CreateTaskViewModel>()
+            return new Fixture().Build<PostTaskViewModel>()
                 .With(t => t.HasDeadline, false)
                 .Without(t => t.IsDeadlineStrict)
                 .Without(t => t.PublicationDate)
@@ -84,9 +84,9 @@ namespace HwProj.SolutionsService.IntegrationTests
                 .Create();
         }
 
-        private CreateTaskViewModel GenerateCreateTaskViewModelWithStrictDeadLine()
+        private PostTaskViewModel GenerateCreateTaskViewModelWithStrictDeadLine()
         {
-            return new Fixture().Build<CreateTaskViewModel>()
+            return new Fixture().Build<PostTaskViewModel>()
                 .With(t => t.HasDeadline, true)
                 .With(t => t.IsDeadlineStrict, true)
                 .With(t => t.PublicationDate, DateTime.UtcNow)

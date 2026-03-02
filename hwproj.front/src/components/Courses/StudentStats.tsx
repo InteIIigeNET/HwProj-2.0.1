@@ -108,7 +108,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         .filter(h => !h.tags!.includes(BonusTag))
         .flatMap(homework => homework.tasks)
         .reduce((sum, task) => {
-            return sum + (task!.maxRating || 0);
+            return sum + (task!.tags!.includes(BonusTag) ? 0 : (task!.maxRating || 0));
         }, 0)
 
     const testGroups = Lodash(homeworks.filter(h => h.tags!.includes(TestTag)))
@@ -122,11 +122,12 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const testsMaxSum = testGroups
         .map(h => h[0])
         .flatMap(homework => homework.tasks)
-        .reduce((sum, task) => sum + (task!.maxRating || 0), 0)
+        .reduce((sum, task) => 
+            sum + (task!.tags!.includes(BonusTag) ? 0 : (task!.maxRating || 0)), 0)
 
     const hasHomeworks = homeworksMaxSum > 0
     const hasTests = testsMaxSum > 0
-    const showBestSolutions = isMentor
+    const showBestSolutions = isMentor && (hasHomeworks || hasTests)
 
     const bestTaskSolutions = new Map<number, string>()
     if (props.solutions && isMentor) {
