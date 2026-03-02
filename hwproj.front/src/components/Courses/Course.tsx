@@ -34,11 +34,12 @@ import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
+import CourseGroups from "./CourseGroups";
 
-type TabValue = "homeworks" | "stats" | "applications"
+type TabValue = "homeworks" | "stats" | "applications" | "groups"
 
 function isAcceptableTabValue(str: string): str is TabValue {
-    return str === "homeworks" || str === "stats" || str === "applications";
+    return str === "homeworks" || str === "stats" || str === "applications" || str === "groups";
 }
 
 interface ICourseState {
@@ -302,12 +303,13 @@ const Course: React.FC = () => {
                         style={{marginBottom: 10}}
                         variant="scrollable"
                         scrollButtons={"auto"}
-                        value={tabValue === "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
+                        value={tabValue === "homeworks" ? 0 : tabValue === "stats" ? 1 : tabValue === "applications" ? 2 : 3}
                         indicatorColor="primary"
                         onChange={(event, value) => {
                             if (value === 0 && !isExpert) navigate(`/courses/${courseId}/homeworks`)
                             if (value === 1) navigate(`/courses/${courseId}/stats`)
                             if (value === 2 && !isExpert) navigate(`/courses/${courseId}/applications`)
+                            if (value === 3) navigate(`/courses/${courseId}/groups`)
                         }}
                     >
                         {!isExpert &&
@@ -322,6 +324,12 @@ const Course: React.FC = () => {
                         {showApplicationsTab && !isExpert && <Tab label={
                             <Stack direction="row" spacing={1}>
                                 <div>Заявки</div>
+                                <Chip size={"small"} color={"default"}
+                                      label={newStudents.length}/>
+                            </Stack>}/>}
+                        {isCourseMentor && <Tab label={
+                            <Stack direction="row" spacing={1}>
+                                <div>Группы</div>
                                 <Chip size={"small"} color={"default"}
                                       label={newStudents.length}/>
                             </Stack>}/>}
@@ -389,6 +397,9 @@ const Course: React.FC = () => {
                             students={courseState.newStudents}
                             courseId={courseId!}
                         />
+                    }
+                    {tabValue === "groups" && isCourseMentor &&
+                        <CourseGroups />
                     }
                 </Grid>
             </div>
