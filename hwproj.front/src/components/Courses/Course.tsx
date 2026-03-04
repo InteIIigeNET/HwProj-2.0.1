@@ -399,7 +399,10 @@ const Course: React.FC = () => {
                         />
                     }
                     {tabValue === "groups" && isCourseMentor &&
-                        <CourseGroups />
+                        <CourseGroups
+                            courseId={+courseId!}
+                            students={acceptedStudents}
+                        />
                     }
                 </Grid>
             </div>
