@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,6 +35,19 @@ namespace HwProj.CoursesService.API.Controllers
                 StudentsIds = t.GroupMates.Select(s => s.StudentId).ToArray()
             }).ToArray();
 
+            return result;
+        }
+
+        [HttpGet("{courseId}/getAllWithNames")]
+        public async Task<GroupWithNameDTO[]> GetAllWithNames(long courseId)
+        {
+            var groups = await _groupsService.GetAllAsync(courseId);
+            var result = groups.Select(t => new GroupWithNameDTO
+            {
+                Id = t.Id,
+                Name = t.Name,
+                StudentsIds = t.GroupMates.Select(s => s.StudentId).ToArray()
+            }).ToArray();
             return result;
         }
 

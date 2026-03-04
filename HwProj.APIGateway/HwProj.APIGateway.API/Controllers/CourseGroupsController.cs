@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.ViewModels;
+using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.Roles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,16 @@ public class CourseGroupsController : AggregationController
     public async Task<IActionResult> GetAllCourseGroups(long courseId)
     {
         var result = await _coursesClient.GetAllCourseGroups(courseId);
+        return result == null
+            ? NotFound()
+            : Ok(result);
+    }
+
+    [HttpGet("{courseId}/getAllWithNames")]
+    [ProducesResponseType(typeof(GroupWithNameDTO[]), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetAllCourseGroupsWithNames(long courseId)
+    {
+        var result = await _coursesClient.GetAllCourseGroupsWithNames(courseId);
         return result == null
             ? NotFound()
             : Ok(result);

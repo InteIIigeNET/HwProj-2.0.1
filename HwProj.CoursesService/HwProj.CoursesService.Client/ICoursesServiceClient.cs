@@ -37,6 +37,7 @@ namespace HwProj.CoursesService.Client
         Task<Result> DeleteTask(long taskId);
         Task<Result<HomeworkTaskViewModel>> UpdateTask(long taskId, PostTaskViewModel taskViewModel);
         Task<GroupViewModel[]> GetAllCourseGroups(long courseId);
+        Task<GroupWithNameDTO[]> GetAllCourseGroupsWithNames(long courseId);
         Task<long> CreateCourseGroup(CreateGroupViewModel model, long courseId);
         Task DeleteCourseGroup(long courseId, long groupId);
         Task UpdateCourseGroup(UpdateGroupViewModel model, long courseId, long groupId);
