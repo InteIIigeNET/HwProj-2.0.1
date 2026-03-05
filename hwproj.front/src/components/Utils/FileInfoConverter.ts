@@ -31,11 +31,4 @@ export default class FileInfoConverter {
                 && filesInfo.courseUnitId === courseUnitId)
         )
     }
-
-    public static getSolutionFilesInfo(filesInfo: FileInfoDTO[], solutionId: number): IFileInfo[] {
-        return FileInfoConverter.fromFileInfoDTOArray(
-            filesInfo.filter(filesInfo => filesInfo.courseUnitType === CourseUnitType.Solution
-                && filesInfo.courseUnitId === solutionId)
-        )
-    }
 }
