@@ -56,16 +56,6 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
     const filesInfo = lastSolution?.id ? FileInfoConverter.getCourseUnitFilesInfo(props.courseFilesInfo, CourseUnitType.Solution, lastSolution.id) : []
     const {filesState, setFilesState, handleFilesChange} = FilesHandler(filesInfo);
 
-    const maxFilesCount = 5;
-
-    const filesInfo = lastSolution?.id ? FileInfoConverter.getCourseUnitFilesInfo(props.courseFilesInfo, CourseUnitType.Solution, lastSolution.id) : []
-    const {filesState, setFilesState, handleFilesChange} = FilesHandler(filesInfo);
-
-    const maxFilesCount = 5;
-
-    const filesInfo = lastSolution?.id ? FileInfoConverter.getCourseUnitFilesInfo(props.courseFilesInfo, CourseUnitType.Solution, lastSolution.id) : []
-    const {filesState, setFilesState, handleFilesChange} = FilesHandler(filesInfo);
-
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         setDisableSend(true)

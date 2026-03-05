@@ -59,20 +59,6 @@ public class FileRecordRepository : IFileRecordRepository
             .Select(fc => fc.ToScope())
             .ToListAsync();
 
-    public async Task<List<Scope>?> GetScopesAsync(long fileRecordId)
-        => await _contentContext.FileToCourseUnits
-            .AsNoTracking()
-            .Where(fr => fr.FileRecordId == fileRecordId)
-            .Select(fc => fc.ToScope())
-            .ToListAsync();
-
-    public async Task<List<Scope>?> GetScopesAsync(long fileRecordId)
-        => await _contentContext.FileToCourseUnits
-            .AsNoTracking()
-            .Where(fr => fr.FileRecordId == fileRecordId)
-            .Select(fc => fc.ToScope())
-            .ToListAsync();
-
     public async Task<List<FileRecord>> GetByScopeAsync(Scope scope)
         => await _contentContext.FileToCourseUnits
             .AsNoTracking()
