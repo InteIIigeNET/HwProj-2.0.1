@@ -328,11 +328,8 @@ const Course: React.FC = () => {
                                       label={newStudents.length}/>
                             </Stack>}/>}
                         {isCourseMentor && <Tab label={
-                            <Stack direction="row" spacing={1}>
-                                <div>Группы</div>
-                                <Chip size={"small"} color={"default"}
-                                      label={newStudents.length}/>
-                            </Stack>}/>}
+                            <div>Группы</div>}/>
+                        }
                     </Tabs>
                     {tabValue === "homeworks" && <CourseExperimental
                         courseId={+courseId!}

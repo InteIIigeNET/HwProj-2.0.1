@@ -1,7 +1,8 @@
 import {FC, useEffect, useState} from "react";
 import {
-    Card,
-    CardContent,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
     Grid,
     Button,
     Typography,
@@ -15,6 +16,7 @@ import {
     Autocomplete,
     Stack
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {AccountDataDto, CourseGroupsApi, GroupViewModel, Configuration, Group} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 
@@ -103,7 +105,7 @@ const CourseGroups: FC<ICourseGroupsProps> = (props) => {
     const namedGroups = groups.filter(g => g.name && g.name.trim().length > 0);
 
     return (
-        <Grid container direction={"column"} spacing={2}>
+        <Grid container direction={"column"} spacing={2} sx={{ paddingBottom: 18 }}>
             <Grid item>
                 <Stack direction={"row"} justifyContent={"space-between"} alignItems={"center"}>
                     <Typography variant="h6">
@@ -131,27 +133,29 @@ const CourseGroups: FC<ICourseGroupsProps> = (props) => {
             {!isLoading && namedGroups.length === 0 && !isError &&
                 <Grid item>
                     <Alert severity="info">
-                        Пока нет ни одной именованной группы.
+                        На курсе пока нет групп.
                     </Alert>
                 </Grid>
             }
 
-            <Grid item container spacing={2}>
+            <Grid item container spacing={2} direction={"column"}>
                 {namedGroups.map(group => {
                     const name = group.name!;
                     const studentsIds = group.studentsIds || [];
 
                     return (
-                        <Grid item xs={12} md={6} lg={4} key={group.id}>
-                            <Card>
-                                <CardContent>
-                                    <Typography variant="subtitle1" gutterBottom>
+                        <Grid item xs={12} key={group.id}>
+                            <Accordion>
+                                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                    <Typography variant="h6">
                                         {name}
                                     </Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
                                     {studentsIds.length > 0 ? (
-                                        <Stack direction={"column"} spacing={0.5}>
+                                        <Stack direction={"column"} spacing={0.5} width={"100%"} sx={{ paddingLeft: 2 }}>
                                             {studentsIds.map(id => (
-                                                <Typography key={id} variant="body2">
+                                                <Typography key={id} variant="body1">
                                                     {getStudentName(id)}
                                                 </Typography>
                                             ))}
@@ -161,8 +165,8 @@ const CourseGroups: FC<ICourseGroupsProps> = (props) => {
                                             В группе пока нет участников.
                                         </Typography>
                                     )}
-                                </CardContent>
-                            </Card>
+                                </AccordionDetails>
+                            </Accordion>
                         </Grid>
                     );
                 })}
