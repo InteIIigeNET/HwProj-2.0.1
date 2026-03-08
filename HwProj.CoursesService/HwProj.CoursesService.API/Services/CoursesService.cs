@@ -11,6 +11,7 @@ using HwProj.ContentService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.CoursesService.API.Domains;
+using HwProj.Exceptions;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.Roles;
 using HwProj.NotificationService.Events.CoursesService;
@@ -93,11 +94,19 @@ namespace HwProj.CoursesService.API.Services
             return course?.ToCourseDto();
         }
 
-        public async Task<long> AddAsync(CreateCourseViewModel courseViewModel,
-            CourseDTO? baseCourse,
-            string mentorId)
+        public async Task<long> AddAsync(CreateCourseViewModel courseViewModel, string mentorId)
         {
             var courseTemplate = courseViewModel.ToCourseTemplate();
+            Course? baseCourse = null;
+
+            if (courseViewModel.BaseCourseId != null)
+            {
+                baseCourse = await _coursesRepository.GetWithHomeworksAsync(courseViewModel.BaseCourseId.Value);
+                if (baseCourse == null) throw new InvalidOperationException("Базовый курс не найден");
+                if (!baseCourse.MentorIds.Contains(mentorId))
+                    throw new ForbiddenException(
+                        $"Пользователь с id{mentorId} не является ментором указанного базового курса");
+            }
 
             courseTemplate.Homeworks =
                 baseCourse?.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList() ??

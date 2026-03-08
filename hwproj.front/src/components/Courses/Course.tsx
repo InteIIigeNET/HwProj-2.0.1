@@ -1,44 +1,49 @@
 import * as React from "react";
-import {useSearchParams} from "react-router-dom";
 import {FileInfoDTO,ScopeDTO,} from "@/api";
+import {FC, useEffect, useState} from "react";
+import {useNavigate, useParams, useSearchParams} from "react-router-dom";
+import {AccountDataDto, CourseViewModel, HomeworkViewModel, HomeworkTaskViewModel, StatisticsCourseMatesModel} from "@/api";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Button, Tab, Tabs, IconButton} from "@material-ui/core";
+import {Button, IconButton, Tab, Tabs} from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
-import {FC, useEffect, useState} from "react";
 import {
     Alert,
-    AlertTitle, Box,
+    AlertTitle,
+    Box,
     Chip,
     Dialog,
     DialogContent,
-    DialogTitle, Grid, ListItemIcon, ListItemText,
+    DialogTitle,
+    Grid,
+    ListItemIcon,
+    ListItemText,
     Menu,
     MenuItem,
     Stack,
     Typography
 } from "@mui/material";
 import {CourseExperimental} from "./CourseExperimental";
-import {useParams, useNavigate} from 'react-router-dom';
 import MentorsList from "../Common/MentorsList";
 import LecturerStatistics from "./Statistics/LecturerStatistics";
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import NameBuilder from "../Utils/NameBuilder";
 import {QRCodeSVG} from 'qrcode.react';
-import ErrorsHandler from "components/Utils/ErrorsHandler";
-import {useSnackbar} from 'notistack';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
-import {CourseUnitType} from "../Files/CourseUnitType";
 import {FileStatus} from "../Files/FileStatus";
 import {useAppDispatch, useAppSelector} from "@/store/hooks";
 import {setCourse, setMentors, setAcceptedStudents, setNewStudents} from "@/store/slices/courseSlice";
-import {setHomeworks} from "@/store/slices/homeworkSlice";
+import {setHomeworks, updateOrInsertHomework, deleteHomework, updateTask, deleteTask} from "@/store/slices/homeworkSlice";
 import {setStudentSolutions} from "@/store/slices/solutionSlice";
 import {setCourseFiles, updateCourseFiles, setProcessingLoading} from "@/store/slices/courseFileSlice";
 import {setAuth} from "@/store/slices/authSlice";
+import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
+import {CourseUnitType} from "@/components/Files/CourseUnitType";
+import {enqueueSnackbar} from "notistack";
+import ErrorsHandler from "@/components/Utils/ErrorsHandler";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -54,7 +59,6 @@ const Course: React.FC = () => {
     const {courseId, tab} = useParams()
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
-    const {enqueueSnackbar} = useSnackbar()
 
     const dispatch = useAppDispatch();
     const course = useAppSelector(state => state.course.course);
@@ -92,7 +96,7 @@ const Course: React.FC = () => {
     };
 
     // Запускает получение информации о файлах элемента курса с интервалом в 1 секунду и 5 попытками
-    const getFilesByInterval = (homeworkId: number, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => {
+    const getFilesByInterval = (homeworkId: number, courseUnitType: CourseUnitType, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => {
         // Очищаем предыдущие таймеры
         stopProcessing(homeworkId);
 
@@ -102,7 +106,7 @@ const Course: React.FC = () => {
 
         const scopeDto: ScopeDTO = {
             courseId: +courseId!,
-            courseUnitType: CourseUnitType.Homework,
+            courseUnitType: courseUnitType,
             courseUnitId: homeworkId
         }
 
@@ -192,6 +196,11 @@ const Course: React.FC = () => {
     const isCourseMentor = mentors.some(t => t.userId === userId)
     const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
 
+    const {
+        courseFilesState,
+        updateCourseUnitFiles,
+    } = FilesUploadWaiter(+courseId!, CourseUnitType.Homework, !isCourseMentor);
+
     const isAcceptedStudent = acceptedStudents!.some(cm => cm.userId === userId)
 
     const showStatsTab = isCourseMentor || isAcceptedStudent
@@ -229,14 +238,13 @@ const Course: React.FC = () => {
         dispatch(setAcceptedStudents(course.acceptedStudents!));
         dispatch(setNewStudents(course.newStudents!));
         dispatch(setHomeworks(course.homeworks!));
+        await getCourseFilesInfo();
     }
 
     const getCourseFilesInfo = async () => {
         let courseFilesInfo = [] as FileInfoDTO[]
         try {
-            courseFilesInfo = isCourseMentor
-                ? await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!)
-                : await ApiSingleton.filesApi.filesGetUploadedFilesInfo(+courseId!);
+            courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!, !isCourseMentor);
         } catch (e) {
             const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
             enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 1990});
@@ -247,10 +255,6 @@ const Course: React.FC = () => {
     useEffect(() => {
         setCurrentState()
     }, [courseId])
-
-    useEffect(() => {
-        getCourseFilesInfo()
-    }, [isCourseMentor])
 
     useEffect(() => {
         ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
@@ -266,6 +270,15 @@ const Course: React.FC = () => {
 
     const {tabValue} = pageState
     const searchedHomeworkId = searchParams.get("homeworkId")
+
+    const handleHomeworkUpdate = (update: { homework: HomeworkViewModel } & { isDeleted?: boolean }) => {
+        if (update.isDeleted) dispatch(deleteHomework(update.homework.id!))
+        else dispatch(updateOrInsertHomework(update.homework))
+    }
+    const handleTaskUpdate = (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => {
+        if (update.isDeleted) dispatch(deleteTask({homeworkId: update.task.homeworkId!, taskId: update.task.id!}))
+        else dispatch(updateTask(update.task))
+    }
 
     const unratedSolutionsCount = studentSolutions
         .flatMap(x => x.homeworks)
@@ -428,7 +441,18 @@ const Course: React.FC = () => {
                             </Stack>}/>}
                     </Tabs>
                     {tabValue === "homeworks" && <CourseExperimental
+                        courseId={+courseId!}
+                        homeworks={courseHomeworks}
+                        courseFilesInfo={courseFiles}
+                        isMentor={isCourseMentor}
+                        studentSolutions={studentSolutions}
+                        isStudentAccepted={isAcceptedStudent}
+                        selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
+                        userId={userId!}
+                        processingFiles={processingFilesState}
                         onStartProcessing={getFilesByInterval}
+                        onHomeworkUpdate={handleHomeworkUpdate}
+                        onTaskUpdate={handleTaskUpdate}
                     />
                     }
                     {tabValue === "stats" &&

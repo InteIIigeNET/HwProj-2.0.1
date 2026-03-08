@@ -91,6 +91,7 @@ namespace HwProj.CoursesService.API.Services
                 HasDeadline = update.HasDeadline,
                 IsDeadlineStrict = update.IsDeadlineStrict,
                 PublicationDate = update.PublicationDate,
+                IsBonusExplicit = update.IsBonusExplicit,
             }, update.Criteria);
 
             return await GetTaskAsync(taskId, true);
