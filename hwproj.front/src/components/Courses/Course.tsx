@@ -458,7 +458,13 @@ const Course: React.FC = () => {
                     {tabValue === "stats" &&
                         <Grid container style={{marginBottom: "15px"}}>
                             <Grid item xs={12}>
-                                <StudentStats />
+                                <StudentStats
+                                    course={course!}
+                                    homeworks={courseHomeworks}
+                                    isMentor={isCourseMentor}
+                                    userId={userId!}
+                                    solutions={studentSolutions}
+                                />
                             </Grid>
                         </Grid>}
                     {tabValue === "applications" && showApplicationsTab &&
