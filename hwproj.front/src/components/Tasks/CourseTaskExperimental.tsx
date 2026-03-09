@@ -25,7 +25,7 @@ import {LoadingButton} from "@mui/lab";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import DeletionConfirmation from "../DeletionConfirmation";
 import ActionOptionsUI from "../Common/ActionOptions";
-import {useAppSelector} from "@/store/hooks";
+import {useCourseState} from "@/store/hooks";
 import {Stack} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Collapse from "@mui/material/Collapse";
@@ -498,8 +498,8 @@ const CourseTaskExperimental: FC<{
     onUpdate: (x: { task: TaskEditData, isDeleted?: boolean }) => void
     toEditHomework: () => void,
 }> = (props) => {
-    const mentors = useAppSelector(state => state.course.mentors);
-    const userId = useAppSelector(state => state.auth.userId);
+    const mentors = useCourseState(state => state.course.mentors);
+    const userId = useCourseState(state => state.user.userId);
     const isMentor = mentors.some(m => m.userId === userId);
 
     const {task, homework} = props

@@ -2,13 +2,13 @@ import * as React from 'react';
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC} from "react";
 import {Card, CardContent, CardActions, Grid, Button, Typography, Alert, AlertTitle} from '@mui/material';
-import {useAppSelector, useAppDispatch} from "@/store/hooks";
+import {useCourseState, useCourseDispatch} from "@/store/hooks";
 import {fetchCourseData} from '@/store/slices/courseSlice';
 
 const NewCourseStudents: FC = () => {
-    const course = useAppSelector(state => state.course.course);
-    const students = useAppSelector(state => state.course.newStudents);
-    const dispatch = useAppDispatch();
+    const course = useCourseState(state => state.course.currentCourse);
+    const students = useCourseState(state => state.course.newStudents);
+    const dispatch = useCourseDispatch();
 
     const acceptStudent = async (studentId: string) => {
         await ApiSingleton.coursesApi.coursesAcceptStudent(course?.id!, studentId)

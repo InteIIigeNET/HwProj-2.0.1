@@ -20,7 +20,7 @@ export const fetchCourseData = createAsyncThunk(
 interface CourseState {
   isFound: boolean;
   isLoading: boolean;
-  course: CourseViewModel | null;
+  currentCourse: CourseViewModel | null;
   mentors: AccountDataDto[];
   acceptedStudents: AccountDataDto[];
   newStudents: AccountDataDto[];
@@ -29,7 +29,7 @@ interface CourseState {
 const initialState: CourseState = {
     isFound: false,
     isLoading: false,
-    course: null,
+    currentCourse: null,
     mentors: [],
     acceptedStudents: [],
     newStudents: [],
@@ -40,7 +40,7 @@ const courseSlice = createSlice({
   initialState,
   reducers: {
     setCourse(state, action: PayloadAction<CourseViewModel>) {
-      state.course = action.payload;
+      state.currentCourse = action.payload;
       state.isFound = true;
       state.isLoading = false;
     },
@@ -62,7 +62,7 @@ const courseSlice = createSlice({
     },
 
     resetCourse(state) {
-      state.course = null;
+      state.currentCourse = null;
       state.isFound = false;
       state.isLoading = false;
       state.mentors = [];

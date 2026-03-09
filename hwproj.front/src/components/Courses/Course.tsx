@@ -34,12 +34,12 @@ import QrCode2Icon from '@mui/icons-material/QrCode2';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {FileStatus} from "../Files/FileStatus";
-import {useAppDispatch, useAppSelector} from "@/store/hooks";
+import {useCourseDispatch, useCourseState} from "@/store/hooks";
 import {setCourse, setMentors, setAcceptedStudents, setNewStudents} from "@/store/slices/courseSlice";
 import {setHomeworks, updateOrInsertHomework, deleteHomework, updateTask, deleteTask} from "@/store/slices/homeworkSlice";
 import {setStudentSolutions} from "@/store/slices/solutionSlice";
 import {setCourseFiles, updateCourseFiles, setProcessingLoading} from "@/store/slices/courseFileSlice";
-import {setAuth} from "@/store/slices/authSlice";
+import {setUser, UserRole} from "@/store/slices/userSlice";
 import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
 import {enqueueSnackbar} from "notistack";
@@ -60,16 +60,16 @@ const Course: React.FC = () => {
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
 
-    const dispatch = useAppDispatch();
-    const course = useAppSelector(state => state.course.course);
-    const isFound = useAppSelector(state => state.course.isFound);
-    const mentors = useAppSelector(state => state.course.mentors);
-    const acceptedStudents = useAppSelector(state => state.course.acceptedStudents);
-    const newStudents = useAppSelector(state => state.course.newStudents);
-    const courseHomeworks = useAppSelector(state => state.homeworks.homeworks);
-    const studentSolutions = useAppSelector(state => state.solutions.studentSolutions);
-    const courseFiles = useAppSelector(state => state.courseFiles.courseFiles);
-    const processingFilesState = useAppSelector(state => state.courseFiles.processingFilesState);
+    const dispatch = useCourseDispatch();
+    const course = useCourseState(state => state.course.currentCourse);
+    const isFound = useCourseState(state => state.course.isFound);
+    const mentors = useCourseState(state => state.course.mentors);
+    const acceptedStudents = useCourseState(state => state.course.acceptedStudents);
+    const newStudents = useCourseState(state => state.course.newStudents);
+    const courseHomeworks = useCourseState(state => state.homeworks.items);
+    const studentSolutions = useCourseState(state => state.solutions.studentSolutions);
+    const courseFiles = useCourseState(state => state.courseFiles.items);
+    const processingFilesState = useCourseState(state => state.courseFiles.processingFilesState);
     const [showQrCode, setShowQrCode] = useState(false);
 
     const intervalsRef = React.useRef<Record<number, { interval: NodeJS.Timeout, timeout: NodeJS.Timeout }>>({});
@@ -184,14 +184,13 @@ const Course: React.FC = () => {
 
     useEffect(() => {
         const userId = ApiSingleton.authService.getUserId();
-        const isLecturer = ApiSingleton.authService.isLecturer();
-        const isExpert = ApiSingleton.authService.isExpert();
-        dispatch(setAuth({ userId, isLecturer, isExpert }))
+        const role = ApiSingleton.authService.getRole() as UserRole;
+        dispatch(setUser({ userId, role }))
     }, [])
 
-    const userId = useAppSelector(state => state.auth.userId);
-    const isLecturer = useAppSelector(state => state.auth.isLecturer);
-    const isExpert = useAppSelector(state => state.auth.isExpert);
+    const userId = useCourseState(state => state.user.userId);
+    const isLecturer = useCourseState(state => state.user.isLecturer);
+    const isExpert = useCourseState(state => state.user.isExpert);
     const isMentor = isLecturer || isExpert
     const isCourseMentor = mentors.some(t => t.userId === userId)
     const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
@@ -384,10 +383,11 @@ const Course: React.FC = () => {
                             <Grid item>
                                 <Grid container alignItems="center" justifyContent="flex-end">
                                     <Grid item>
-                                        <MentorsList />
+                                        <MentorsList mentors={mentors} />
                                     </Grid>
                                     {lecturerStatsState &&
                                         <LecturerStatistics
+                                            courseId={course?.id!}
                                             onClose={() => setLecturerStatsState(false)}
                                         />
                                     }

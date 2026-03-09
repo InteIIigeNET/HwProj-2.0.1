@@ -35,7 +35,7 @@ import {BonusTag, DefaultTags, isBonusWork, isTestWork, TestTag} from "@/compone
 import Lodash from "lodash";
 import {CourseUnitType} from "../Files/CourseUnitType"
 import ProcessFilesUtils from "../Utils/ProcessFilesUtils";
-import {useAppSelector} from "@/store/hooks";
+import {useCourseState} from "@/store/hooks";
 import {FilesHandler} from "@/components/Files/FilesHandler";
 
 export interface HomeworkAndFilesInfo {
@@ -66,7 +66,7 @@ const CourseHomeworkEditor: FC<{
 }> = (props) => {
     const homework = props.homeworkAndFilesInfo.homework
     const isNewHomework = homework.id! < 0
-    const homeworks = useAppSelector(state => state.homeworks.homeworks);
+    const homeworks = useCourseState(state => state.homeworks.items);
 
     const [homeworkData, setHomeworkData] = useState<{
         loadedHomework: HomeworkViewModel,
@@ -394,11 +394,11 @@ const CourseHomeworkExperimental: FC<{
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
 }> = (props) => {
-    const mentors = useAppSelector(state => state.course.mentors);
-    const userId = useAppSelector(state => state.auth.userId);
+    const mentors = useCourseState(state => state.course.mentors);
+    const userId = useCourseState(state => state.user.userId);
     const isMentor = mentors.some(m => m.userId === userId);
-    const processingFilesState = useAppSelector(state => state.courseFiles.processingFilesState);
-    const homeworks = useAppSelector(state => state.homeworks.homeworks);
+    const processingFilesState = useCourseState(state => state.courseFiles.processingFilesState);
+    const homeworks = useCourseState(state => state.homeworks.items);
 
     const {homework, filesInfo} = props.homeworkAndFilesInfo
     const deferredTasks = homework.tasks!.filter(t => t.isDeferred!)

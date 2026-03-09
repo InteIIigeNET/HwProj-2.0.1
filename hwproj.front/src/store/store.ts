@@ -3,7 +3,7 @@ import courseReducer from './slices/courseSlice';
 import homeworkReducer from './slices/homeworkSlice';
 import solutionsReducer from './slices/solutionSlice';
 import courseFilesReducer from './slices/courseFileSlice';
-import authReducer from './slices/authSlice';
+import userReducer from './slices/userSlice';
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +11,7 @@ export const store = configureStore({
     homeworks: homeworkReducer,
     solutions: solutionsReducer,
     courseFiles: courseFilesReducer,
-    auth: authReducer,
+    user: userReducer,
   },
 });
 

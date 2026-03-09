@@ -9,7 +9,7 @@ import ThemeProvider from "@material-ui/styles/ThemeProvider";
 import {createTheme} from "@material-ui/core/styles";
 import {SnackbarProvider} from "notistack";
 import { Provider } from "react-redux";
-import { store } from "./store";
+import { store } from "./store/store";
 
 const theme = createTheme({
     typography: {

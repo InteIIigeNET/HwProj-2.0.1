@@ -7,12 +7,12 @@ interface ProcessingState {
 }
 
 interface CourseFilesState {
-    courseFiles: FileInfoDTO[];
+    items: FileInfoDTO[];
     processingFilesState: Record<number, ProcessingState>;
 }
 
 const initialState: CourseFilesState = {
-    courseFiles: [],
+    items: [],
     processingFilesState: {},
 }
 
@@ -21,7 +21,7 @@ const courseFilesSlice = createSlice({
     initialState,
     reducers: {
         setCourseFiles(state, action: PayloadAction<FileInfoDTO[]>) {
-            state.courseFiles = action.payload;
+            state.items = action.payload;
         },
 
         updateCourseFiles(state, action: PayloadAction<{
@@ -30,8 +30,8 @@ const courseFilesSlice = createSlice({
             unitId: number;
         }>) {
             const { files, unitType, unitId } = action.payload;
-            state.courseFiles = [
-                ...state.courseFiles.filter(f => !(f.courseUnitType === unitType && f.courseUnitId === unitId)),
+            state.items = [
+                ...state.items.filter(f => !(f.courseUnitType === unitType && f.courseUnitId === unitId)),
                 ...files
             ];
         },
@@ -42,7 +42,7 @@ const courseFilesSlice = createSlice({
         },
 
         clearCourseFiles(state) {
-            state.courseFiles = [];
+            state.items = [];
             state.processingFilesState = {};
         },
     },
