@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HwProj.CoursesService.API.Migrations
 {
     [DbContext(typeof(CourseContext))]
-    [Migration("20240911013242_CreateCourseFilterTables")]
-    partial class CreateCourseFilterTables
+    [Migration("20260301070634_AddCustomParamsToLti")]
+    partial class AddCustomParamsToLti
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -53,6 +53,8 @@ namespace HwProj.CoursesService.API.Migrations
                     b.Property<bool>("IsCompleted");
 
                     b.Property<bool>("IsOpen");
+
+                    b.Property<long?>("LtiToolId");
 
                     b.Property<string>("MentorIds");
 
@@ -186,6 +188,33 @@ namespace HwProj.CoursesService.API.Migrations
                     b.ToTable("Tasks");
                 });
 
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.HomeworkTaskLtiUrl", b =>
+                {
+                    b.Property<long>("TaskId");
+
+                    b.Property<string>("CustomParams");
+
+                    b.Property<string>("LtiLaunchUrl")
+                        .IsRequired();
+
+                    b.HasKey("TaskId");
+
+                    b.ToTable("TaskLtiUrls");
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.StudentCharacteristics", b =>
+                {
+                    b.Property<long>("CourseMateId");
+
+                    b.Property<string>("Description");
+
+                    b.Property<string>("Tags");
+
+                    b.HasKey("CourseMateId");
+
+                    b.ToTable("StudentCharacteristics");
+                });
+
             modelBuilder.Entity("HwProj.CoursesService.API.Models.TaskModel", b =>
                 {
                     b.Property<long>("Id")
@@ -201,6 +230,33 @@ namespace HwProj.CoursesService.API.Migrations
                     b.HasIndex("GroupId");
 
                     b.ToTable("TasksModels");
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.TaskQuestion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Answer")
+                        .HasMaxLength(1000);
+
+                    b.Property<bool>("IsPrivate");
+
+                    b.Property<string>("LecturerId");
+
+                    b.Property<string>("StudentId");
+
+                    b.Property<long>("TaskId");
+
+                    b.Property<string>("Text")
+                        .HasMaxLength(1000);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("Questions");
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.UserToCourseFilter", b =>
@@ -255,6 +311,22 @@ namespace HwProj.CoursesService.API.Migrations
                     b.HasOne("HwProj.CoursesService.API.Models.Homework", "Homework")
                         .WithMany("Tasks")
                         .HasForeignKey("HomeworkId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.HomeworkTaskLtiUrl", b =>
+                {
+                    b.HasOne("HwProj.CoursesService.API.Models.HomeworkTask")
+                        .WithOne()
+                        .HasForeignKey("HwProj.CoursesService.API.Models.HomeworkTaskLtiUrl", "TaskId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.StudentCharacteristics", b =>
+                {
+                    b.HasOne("HwProj.CoursesService.API.Models.CourseMate")
+                        .WithOne("Characteristics")
+                        .HasForeignKey("HwProj.CoursesService.API.Models.StudentCharacteristics", "CourseMateId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

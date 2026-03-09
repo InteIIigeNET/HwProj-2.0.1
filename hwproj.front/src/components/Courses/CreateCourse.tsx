@@ -56,6 +56,8 @@ export const CreateCourse: FC = () => {
         selectedGroups: [],
         fetchingGroups: false,
         courseIsLoading: false,
+        ltiTools: [],
+        ltiToolId: undefined,
     })
 
     const {activeStep, completedSteps, baseCourses, selectedBaseCourse} = state
@@ -134,6 +136,7 @@ export const CreateCourse: FC = () => {
             isOpen: true,
             baseCourseId: selectedBaseCourse?.id,
             fetchStudents: state.isGroupFromList ? state.fetchStudents : false,
+            ltiToolId: state.ltiToolId,
         }
         try {
             setCourseIsLoading(true)
@@ -151,15 +154,26 @@ export const CreateCourse: FC = () => {
     useEffect(() => {
         const loadData = async () => {
             try {
-                const userCourses = await ApiSingleton.coursesApi.coursesGetAllUserCourses();
+                const [
+                    userCourses,
+                    programResponse,
+                    ltiToolsResponse,
+                ] = await Promise.all([
+                    ApiSingleton.coursesApi.coursesGetAllUserCourses(),
+                    ApiSingleton.coursesApi.coursesGetProgramNames(),
+                    ApiSingleton.ltiToolsApi.ltiToolsGetAll(),
+                ]);
                 if (!userCourses.length) skipCurrentStep();
                 setBaseCourses(userCourses);
 
-                const programResponse = await ApiSingleton.coursesApi.coursesGetProgramNames();
                 const programNames = programResponse
                     .map(model => model.programName)
                     .filter((name): name is string => name !== undefined);
-                setState(prev => ({...prev, programNames}));
+                setState(prev => ({
+                    ...prev,
+                    programNames,
+                    ltiTools: ltiToolsResponse
+                }));
             } catch (e) {
                 console.error("Error loading data:", e);
                 setBaseCourses([]);

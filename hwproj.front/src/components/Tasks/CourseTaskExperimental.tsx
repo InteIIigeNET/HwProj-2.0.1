@@ -170,6 +170,7 @@ const CourseTaskEditor: FC<{
             tags: isBonusExplicit ? [...homework.tags!, BonusTag] : homework.tags!,
             hasErrors: hasErrors,
             criteria: criteria,
+            ltiLaunchData: props.speculativeTask.ltiLaunchData
         }
         props.onUpdate({task: update});
     }, [title, description, maxRating, metadata, isBonusExplicit, hasErrors, criteria]);
@@ -190,6 +191,7 @@ const CourseTaskEditor: FC<{
             maxRating: maxRating,
             actionOptions: editOptions,
             criteria: criteria,
+            ltiLaunchData: props.speculativeTask.ltiLaunchData
         };
 
         const updatedTask = isNewTask
@@ -288,6 +290,7 @@ const CourseTaskEditor: FC<{
                         }}
                     />
                 </Grid>
+
                 {metadata && homeworkPublicationDateIsSet &&
                     <Grid item xs={12} style={{marginBottom: "15px"}}>
                         <TaskPublicationAndDeadlineDates

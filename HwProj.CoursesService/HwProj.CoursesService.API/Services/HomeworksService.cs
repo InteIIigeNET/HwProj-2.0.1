@@ -16,13 +16,15 @@ namespace HwProj.CoursesService.API.Services
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly IEventBus _eventBus;
         private readonly ICoursesRepository _coursesRepository;
+        private readonly ITasksRepository _tasksRepository;
 
         public HomeworksService(IHomeworksRepository homeworksRepository, IEventBus eventBus,
-            ICoursesRepository coursesRepository)
+            ICoursesRepository coursesRepository, ITasksRepository tasksRepository)
         {
             _homeworksRepository = homeworksRepository;
             _eventBus = eventBus;
             _coursesRepository = coursesRepository;
+            _tasksRepository = tasksRepository;
         }
 
         public async Task<Homework> AddHomeworkAsync(long courseId, CreateHomeworkViewModel homeworkViewModel)
@@ -39,7 +41,25 @@ namespace HwProj.CoursesService.API.Services
                     homework.DeadlineDate));
             }
 
-            await _homeworksRepository.AddAsync(homework);
+            await _homeworksRepository.AddAsync(homework); 
+
+            if (homeworkViewModel.Tasks != null && homework.Tasks != null)
+            {
+                var createdTasks = homework.Tasks.ToList();
+                var taskModels = homeworkViewModel.Tasks;
+
+                for (var i = 0; i < createdTasks.Count && i < taskModels.Count; i++)
+                {
+                    var ltiLaunchData = taskModels[i].LtiLaunchData.ToLtiLaunchData();
+                    if (ltiLaunchData == null)
+                    {
+                        continue;
+                    }
+
+                    await _tasksRepository.AddLtiUrlAsync(createdTasks[i].Id, ltiLaunchData);
+                }
+            }
+
             return await GetHomeworkAsync(homework.Id, withCriteria: true);
         }
 

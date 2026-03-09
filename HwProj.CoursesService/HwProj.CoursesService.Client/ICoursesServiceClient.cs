@@ -10,10 +10,12 @@ namespace HwProj.CoursesService.Client
         Task<CoursePreview[]> GetAllCourses();
         Task<CourseDTO?> GetCourseView(long courseId);
         Task<CourseDTO?> GetCourseById(long courseId);
+        Task<CourseDTO?> GetCourseByIdForLti(long courseId);
         Task<Result<CourseDTO>> GetCourseByIdForMentor(long courseId, string mentorId);
         /// Получить полную информацию о курсе без учетов фильтров для преподавателей
         Task<Result<CourseDTO>> GetCourseDataRaw(long courseId);
         Task<CourseDTO?> GetCourseByTask(long taskId);
+        Task<CourseDTO?> GetCourseByTaskForLti(long taskId, string userId);
         Task<Result> DeleteCourse(long courseId);
         Task<Result<long>> CreateCourse(CreateCourseViewModel model);
         Task<Result> UpdateCourse(UpdateCourseViewModel model, long courseId);

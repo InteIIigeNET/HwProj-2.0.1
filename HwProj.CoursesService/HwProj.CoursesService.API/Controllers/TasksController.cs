@@ -44,7 +44,12 @@ namespace HwProj.CoursesService.API.Controllers
                 var lecturers = await _coursesService.GetCourseLecturers(homework.CourseId);
                 if (!lecturers.Contains(userId)) return BadRequest();
             }
-            return Ok(task.ToHomeworkTaskViewModel());
+
+            var ltiLaunchData = await _tasksService.GetTaskLtiDataAsync(taskId);
+            var taskViewModel = task.ToHomeworkTaskViewModel();
+            taskViewModel.LtiLaunchData = ltiLaunchData.ToLtiLaunchData();
+
+            return Ok(taskViewModel);
         }
 
         [HttpGet("getForEditing/{taskId}")]
@@ -69,12 +74,15 @@ namespace HwProj.CoursesService.API.Controllers
             var validationResult = Validator.ValidateTask(taskViewModel, homework);
             if (validationResult.Any()) return BadRequest(validationResult);
 
-            var task = await _tasksService.AddTaskAsync(homeworkId, taskViewModel);
+            var task = await _tasksService.AddTaskAsync(
+                homeworkId,
+                taskViewModel,
+                taskViewModel.LtiLaunchData.ToLtiLaunchData());
 
             return Ok(task);
         }
 
-        [HttpDelete("delete/{taskId}")] //bug with rights
+        [HttpDelete("delete/{taskId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task DeleteTask(long taskId)
         {
@@ -92,8 +100,11 @@ namespace HwProj.CoursesService.API.Controllers
             if (validationResult.Any()) return BadRequest(validationResult);
 
             var updatedTask =
-                await _tasksService.UpdateTaskAsync(taskId, taskViewModel,
-                    taskViewModel.ActionOptions ?? ActionOptions.Default);
+                await _tasksService.UpdateTaskAsync(taskId,
+                    taskViewModel,
+                    taskViewModel.ActionOptions ?? ActionOptions.Default,
+                    taskViewModel.LtiLaunchData.ToLtiLaunchData());
+
             return Ok(updatedTask.ToHomeworkTaskViewModel());
         }
 

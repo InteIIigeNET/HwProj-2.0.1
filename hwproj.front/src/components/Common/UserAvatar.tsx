@@ -2,7 +2,7 @@ import {AccountDataDto} from "@/api";
 import {FC} from "react";
 import AvatarUtils from "@/components/Utils/AvatarUtils";
 import {Avatar} from "@mui/material";
-import {Avatar as Avatarka, generateParams, getThemeNames} from 'avatarka-react';
+import {Avatar as Avatarka, generateParams, getThemeNames} from "avatarka-react";
 
 const themes = getThemeNames().filter(x => x !== "geometric")
 

@@ -103,6 +103,7 @@ namespace HwProj.CoursesService.API.Domains
                 InviteCode = course.InviteCode,
                 CourseMates = course.CourseMates.Select(cm => cm.ToCourseMateViewModel()).ToArray(),
                 Homeworks = course.Homeworks.Select(h => h.ToHomeworkViewModel()).ToArray(),
+                LtiToolId =  course.LtiToolId,
             };
 
         public static CoursePreview ToCoursePreview(this Course course)
@@ -156,6 +157,7 @@ namespace HwProj.CoursesService.API.Domains
                 Name = createCourseViewModel.Name,
                 GroupName = string.Join(", ", createCourseViewModel.GroupNames),
                 IsOpen = createCourseViewModel.IsOpen,
+                LtiToolId = createCourseViewModel.LtiToolId,
             };
 
         public static CourseTemplate ToCourseTemplate(this Course course)
@@ -165,6 +167,7 @@ namespace HwProj.CoursesService.API.Domains
                 GroupName = course.GroupName,
                 IsOpen = course.IsOpen,
                 Homeworks = course.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList(),
+                LtiToolId = course.LtiToolId,
             };
 
         public static HomeworkTemplate ToHomeworkTemplate(this Homework homework)
@@ -188,7 +191,7 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = task.IsDeadlineStrict,
                 HasSpecialPublicationDate = task.PublicationDate != null,
                 HasSpecialDeadlineDate = task.DeadlineDate != null,
-                IsBonusExplicit = task.IsBonusExplicit
+                IsBonusExplicit = task.IsBonusExplicit,
             };
 
         public static Course ToCourse(this CourseTemplate courseTemplate)
@@ -197,6 +200,7 @@ namespace HwProj.CoursesService.API.Domains
                 Name = courseTemplate.Name,
                 GroupName = courseTemplate.GroupName,
                 IsOpen = courseTemplate.IsOpen,
+                LtiToolId = courseTemplate.LtiToolId,
             };
 
         public static Homework ToHomework(this HomeworkTemplate homeworkTemplate, long courseId)
@@ -223,6 +227,24 @@ namespace HwProj.CoursesService.API.Domains
                 PublicationDate = taskTemplate.HasSpecialPublicationDate ? DateToOverride : (DateTime?)null,
                 DeadlineDate = taskTemplate.HasSpecialDeadlineDate ? DateToOverride : (DateTime?)null,
                 IsBonusExplicit = taskTemplate.IsBonusExplicit,
+            };
+
+        public static LtiLaunchData? ToLtiLaunchData(
+            this HwProj.Models.CoursesService.ViewModels.LtiLaunchData? ltiLaunchData)
+            => ltiLaunchData == null ? null :
+                new LtiLaunchData
+            {
+                LtiLaunchUrl = ltiLaunchData.LtiLaunchUrl,
+                CustomParams = ltiLaunchData.CustomParams
+            };
+
+        public static HwProj.Models.CoursesService.ViewModels.LtiLaunchData? ToLtiLaunchData(
+             this LtiLaunchData? ltiLaunchData)
+            => ltiLaunchData == null ? null :
+                new HwProj.Models.CoursesService.ViewModels.LtiLaunchData
+            {
+                LtiLaunchUrl = ltiLaunchData.LtiLaunchUrl,
+                CustomParams = ltiLaunchData.CustomParams
             };
     }
 }

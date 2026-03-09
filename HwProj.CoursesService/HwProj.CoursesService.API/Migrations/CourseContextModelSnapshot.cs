@@ -52,6 +52,8 @@ namespace HwProj.CoursesService.API.Migrations
 
                     b.Property<bool>("IsOpen");
 
+                    b.Property<long?>("LtiToolId");
+
                     b.Property<string>("MentorIds");
 
                     b.Property<string>("Name");
@@ -207,6 +209,20 @@ namespace HwProj.CoursesService.API.Migrations
                     b.ToTable("Tasks");
                 });
 
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.HomeworkTaskLtiUrl", b =>
+                {
+                    b.Property<long>("TaskId");
+
+                    b.Property<string>("CustomParams");
+
+                    b.Property<string>("LtiLaunchUrl")
+                        .IsRequired();
+
+                    b.HasKey("TaskId");
+
+                    b.ToTable("TaskLtiData");
+                });
+
             modelBuilder.Entity("HwProj.CoursesService.API.Models.StudentCharacteristics", b =>
                 {
                     b.Property<long>("CourseMateId");
@@ -324,6 +340,14 @@ namespace HwProj.CoursesService.API.Migrations
                     b.HasOne("HwProj.CoursesService.API.Models.Homework", "Homework")
                         .WithMany("Tasks")
                         .HasForeignKey("HomeworkId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.HomeworkTaskLtiUrl", b =>
+                {
+                    b.HasOne("HwProj.CoursesService.API.Models.HomeworkTask")
+                        .WithOne()
+                        .HasForeignKey("HwProj.CoursesService.API.Models.HomeworkTaskLtiUrl", "TaskId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
