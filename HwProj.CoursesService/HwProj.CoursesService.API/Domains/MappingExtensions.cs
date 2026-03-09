@@ -32,6 +32,7 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeferred = DateTime.UtcNow < homework.PublicationDate,
                 Tasks = homework.Tasks.Select(t => t.ToHomeworkTaskViewModel()).ToList(),
                 Tags = tags.ToList(),
+                GroupId = homework.GroupId,
             };
         }
 
@@ -147,6 +148,7 @@ namespace HwProj.CoursesService.API.Domains
                 PublicationDate = homework.PublicationDate,
                 Tasks = homework.Tasks.Select(t => t.ToHomeworkTask()).ToList(),
                 Tags = string.Join(";", homework.Tags),
+                GroupId = homework.GroupId,
             };
 
         public static CourseTemplate ToCourseTemplate(this CreateCourseViewModel createCourseViewModel)

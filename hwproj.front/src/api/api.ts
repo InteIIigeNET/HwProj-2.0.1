@@ -1365,6 +1365,12 @@ export interface HomeworkViewModel {
      * @memberof HomeworkViewModel
      */
     tasks?: Array<HomeworkTaskViewModel>;
+    /**
+     *
+     * @type {number}
+     * @memberof HomeworkViewModel
+     */
+    groupId?: number;
 }
 /**
  *

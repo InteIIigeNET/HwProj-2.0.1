@@ -27,6 +27,8 @@ namespace HwProj.Models.CoursesService.ViewModels
         public List<PostTaskViewModel> Tasks { get; set; } = new List<PostTaskViewModel>();
 
         public ActionOptions? ActionOptions { get; set; }
+
+        public long? GroupId { get; set; }
     }
 
     public class HomeworkViewModel
@@ -58,5 +60,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public List<string> Tags { get; set; } = new List<string>();
 
         public List<HomeworkTaskViewModel> Tasks { get; set; } = new List<HomeworkTaskViewModel>();
+
+        public long? GroupId { get; set; }
     }
 }

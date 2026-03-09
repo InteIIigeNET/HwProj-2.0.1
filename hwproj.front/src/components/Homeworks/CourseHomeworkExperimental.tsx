@@ -10,7 +10,8 @@
     Stack,
     TextField,
     Tooltip,
-    Typography
+    Typography,
+    Autocomplete
 } from "@mui/material";
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
 import FilesPreviewList from "components/Files/FilesPreviewList";
@@ -18,7 +19,7 @@ import {IFileInfo} from "components/Files/IFileInfo";
 import {FC, useEffect, useState} from "react"
 import Utils from "services/Utils";
 import {
-    HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, PostTaskViewModel
+    HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, PostTaskViewModel, Group
 } from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import Tags from "../Common/Tags";
@@ -114,6 +115,9 @@ const CourseHomeworkEditor: FC<{
     const [title, setTitle] = useState<string>(loadedHomework.title!)
     const [tags, setTags] = useState<string[]>(loadedHomework.tags!)
     const [description, setDescription] = useState<string>(loadedHomework.description!)
+    const [selectedGroupId, setSelectedGroupId] = useState(loadedHomework.groupId)
+    const [groups, setGroups] = useState<Group[]>([])
+    const [groupsLoading, setGroupsLoading] = useState(false)
 
     const [hasErrors, setHasErrors] = useState<boolean>(false)
 
@@ -123,6 +127,21 @@ const CourseHomeworkEditor: FC<{
 
     const [deadlineSuggestion, setDeadlineSuggestion] = useState<Date | undefined>(undefined)
     const [tagSuggestion, setTagSuggestion] = useState<string | undefined>(undefined)
+
+    const loadGroups = async () => {
+        setGroupsLoading(true)
+        try {
+            const courseGroups = await ApiSingleton.courseGroupsApi.courseGroupsGetAllCourseGroupsWithNames(courseId)
+            setGroups(courseGroups)
+        } catch (error) {
+            console.error('Failed to load groups:', error)
+        } finally {
+            setGroupsLoading(false)
+        }
+    }
+    useEffect(() => {
+        loadGroups()
+    }, [courseId])
 
     useEffect(() => {
         if (!isNewHomework || !metadata.publicationDate) return
@@ -164,13 +183,14 @@ const CourseHomeworkEditor: FC<{
             title: title,
             description: description,
             tags: tags,
+            groupId: selectedGroupId,
             hasErrors: hasErrors,
             deadlineDateNotSet: metadata.hasDeadline && !metadata.deadlineDate,
             isModified: true,
         }
 
         props.onUpdate({homework: update})
-    }, [title, description, tags, metadata, hasErrors, filesState.selectedFilesInfo])
+    }, [title, description, tags, metadata, hasErrors, filesState.selectedFilesInfo, selectedGroupId])
 
     useEffect(() => {
         setHasErrors(!title || metadata.hasErrors)
@@ -228,6 +248,7 @@ const CourseHomeworkEditor: FC<{
             deadlineDate: metadata.deadlineDate,
             isDeadlineStrict: metadata.isDeadlineStrict,
             publicationDate: metadata.publicationDate,
+            groupId: selectedGroupId,
             actionOptions: editOptions,
             tasks: isNewHomework ? homework.tasks!.map(t => {
                 const task: PostTaskViewModel = {
@@ -287,6 +308,37 @@ const CourseHomeworkEditor: FC<{
                 </Grid>
             </Grid>
             <Grid container>
+                <Grid item xs={12} style={{marginBottom: "15px", marginTop: 1}}>
+                    {!isNewHomework && isPublished ? (
+                        <TextField
+                            label="Группа"
+                            value={groups.find(g => g.id === loadedHomework.groupId)?.name || "Все студенты"}
+                            variant="outlined"
+                            fullWidth
+                            disabled
+                        />
+                    ) : (
+                        <Autocomplete
+                            options={[{ id: undefined, name: "Все студенты" }, ...groups]}
+                            getOptionLabel={(option) => option.name || ""}
+                            value={selectedGroupId !== undefined
+                                ? groups.find(g => g.id === selectedGroupId) || null
+                                : { id: undefined, name: "Все студенты" }}
+                            onChange={(event, newValue) => {
+                                setSelectedGroupId(newValue?.id)
+                            }}
+                            loading={groupsLoading}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Группа (не обязательно)"
+                                    placeholder="Выберите группу"
+                                    variant="outlined"
+                                />
+                            )}
+                        />
+                    )}
+                </Grid>
                 {tags.includes(TestTag) &&
                     <Grid item>
                         <Alert severity="info" variant={"outlined"}>
