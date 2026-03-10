@@ -96,7 +96,7 @@ export const useHomeworkEditing = () => {
     const startEditingHomework = useCallback((hw: HomeworkViewModel) => {
         const copy: HomeworkViewModel = {
             ...hw,
-            tasks: hw.tasks ? [...hw.tasks] : [],
+            tasks: [],
         };
         dispatch(addDraftHomework(copy));
         dispatch(setSelectedItem({ isHomework: true, id: hw.id }));
@@ -180,12 +180,20 @@ export const useTaskEditing = () => {
 
     const cancelEditingTask = useCallback((taskId: number, homeworkId: number) => {
         dispatch(removeDraftTask({ homeworkId, taskId }));
-    }, [dispatch]);
+        const draftHw = draftHomeworks.find(dh => dh.id === homeworkId);
+        if (draftHw && (draftHw.tasks || []).filter(t => t.id !== taskId).length === 0) {
+            dispatch(removeDraftHomework(homeworkId));
+        }
+    }, [dispatch, draftHomeworks]);
 
     const commitTask = useCallback((draftId: number, homeworkId: number, savedTask: HomeworkTaskViewModel) => {
         dispatch(updateTask(savedTask));
         dispatch(removeDraftTask({ homeworkId, taskId: draftId }));
-    }, [dispatch]);
+        const draftHw = draftHomeworks.find(dh => dh.id === homeworkId);
+        if (draftHw && (draftHw.tasks || []).filter(t => t.id !== draftId).length === 0) {
+            dispatch(removeDraftHomework(homeworkId));
+        }
+    }, [dispatch, draftHomeworks]);
 
     const commitTaskDeletion = useCallback((taskId: number, homeworkId: number) => {
         dispatch(deleteTask({ homeworkId, taskId }));

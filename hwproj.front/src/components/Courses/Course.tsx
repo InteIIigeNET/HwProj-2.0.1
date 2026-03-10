@@ -61,7 +61,6 @@ const Course: React.FC = () => {
     const courseHomeworks = useCourseState(state => state.homeworks.items);
     const studentSolutions = useCourseState(state => state.solutions.studentSolutions);
     const courseFiles = useCourseState(state => state.courseFiles.items);
-    const processingFilesState = useCourseState(state => state.courseFiles.processingFilesState);
     const [showQrCode, setShowQrCode] = useState(false);
 
     const intervalsRef = React.useRef<Record<number, { interval: NodeJS.Timeout, timeout: NodeJS.Timeout }>>({});
@@ -386,7 +385,6 @@ const Course: React.FC = () => {
                         isStudentAccepted={isAcceptedStudent}
                         selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
                         userId={userId!}
-                        processingFiles={processingFilesState}
                         onStartProcessing={getFilesByInterval}
                     />
                     }

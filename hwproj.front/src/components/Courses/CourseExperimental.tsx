@@ -47,11 +47,6 @@ interface ICourseExperimentalProps {
     isStudentAccepted: boolean
     userId: string
     selectedHomeworkId: number | undefined
-    processingFiles: {
-        [homeworkId: number]: {
-            isLoading: boolean;
-        };
-    };
     onStartProcessing: (homeworkId: number,
                         courseUnitType: CourseUnitType,
                         previouslyExistingFilesCount: number,
@@ -181,7 +176,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         }) => t.hasErrors))
         if (hasErrors)
             return <div style={{fontSize: 16}}><ErrorIcon fontSize="small" color={"error"}/><br/></div>
-        if (draftHomeworks.some(d => d.id === homework.id && d.id! > 0))
+        if (draftHomeworks.some(d => d.id === homework.id))
             return <div style={{fontSize: 16}}><EditIcon fontSize="small" color={"primary"}/><br/></div>
         return showWarningsForEntity(homework, true) && <div style={{fontSize: 16}}>⚠️<br/></div>
     }
@@ -205,7 +200,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             )
         }
         if (task.hasErrors) return <ErrorIcon fontSize="small" color={"error"}/>
-        if (task.id! > 0 && draftHomeworks.some(d => d.tasks?.some(t => t.id === task.id)))
+        if (draftHomeworks.some(d => d.tasks?.some(t => t.id === task.id)))
             return <EditIcon fontSize="small" color={"primary"}/>
         return showWarningsForEntity(task, false) ? (
             <Typography color={task.isDeferred ? "textSecondary" : "textPrimary"}>
@@ -354,7 +349,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const renderHomework = (homework: HomeworkViewModel) => {
         const filesInfo = id ? FileInfoConverter.getCourseUnitFilesInfo(courseFilesInfo, CourseUnitType.Homework, id) : []
-        const homeworkEditMode = homework && (homework.id! < 0 || draftHomeworks.some(d => d.id === homework.id && d.id! > 0))
+        const homeworkEditMode = homework && draftHomeworks.some(d => d.id === homework.id)
         return homework && <Stack direction={"column"} spacing={2}>
             <Card style={{backgroundColor: "ghostwhite", overflow: homeworkEditMode ? 'visible' : 'hidden'}} raised={homeworkEditMode}>
                 {isMentor && getGroupingAlert(homework)}
@@ -372,7 +367,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     const renderTask = (task: HomeworkTaskViewModel, homework: HomeworkViewModel) => {
-        const taskEditMode = task && (task.id! < 0 || draftHomeworks.some(d => d.tasks?.some(t => t.id === task.id) && task.id! > 0))
+        const taskEditMode = task && draftHomeworks.some(d => d.tasks?.some(t => t.id === task.id))
         return task && <Card style={{backgroundColor: "ghostwhite", overflow: taskEditMode ? 'visible' : 'hidden'}} raised={taskEditMode}>
             {isMentor && getDatesAlert(task, false)}
             <CourseTaskExperimental

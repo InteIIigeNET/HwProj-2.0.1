@@ -32,7 +32,8 @@ const courseEditingSlice = createSlice({
         updateDraftHomework: (state, action: PayloadAction<HomeworkViewModel>) => {
             const id = state.draftHomeworks.findIndex(dh => dh.id === action.payload.id);
             if (id !== -1) {
-                state.draftHomeworks[id] = action.payload;
+                const existingTasks = state.draftHomeworks[id].tasks;
+                state.draftHomeworks[id] = {...action.payload, tasks: existingTasks};
             }
         },
 
