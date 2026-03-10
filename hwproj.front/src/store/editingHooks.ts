@@ -29,9 +29,25 @@ export const useMergedHomeworks = () => {
         const newDrafts = draftHomeworks.filter(dh => dh.id! < 0);
         const result: HomeworkViewModel[] = [];
 
+        const mergeTasks = (committed: HomeworkTaskViewModel[] = [], draft: HomeworkTaskViewModel[] = []) => {
+            const byId = new Map<number, HomeworkTaskViewModel>();
+            for (const task of committed) byId.set(task.id!, task);
+            for (const task of draft) byId.set(task.id!, task);
+            return Array.from(byId.values());
+        };
+
         for (const committed of committedHomeworks) {
             const draft = draftHomeworks.find(dh => dh.id === committed.id);
-            result.push(draft || committed);
+            if (!draft) {
+                result.push(committed);
+                continue;
+            }
+            
+            result.push({
+                ...committed,
+                ...draft,
+                tasks: mergeTasks(committed.tasks, draft.tasks),
+            });
         }
 
         result.push(...newDrafts);
@@ -124,7 +140,7 @@ export const useTaskEditing = () => {
         if (!existingDraft) {
             const copy: HomeworkViewModel = {
                 ...homework,
-                tasks: homework.tasks ? [...homework.tasks] : [],
+                tasks: [],
             };
             dispatch(addDraftHomework(copy));
         }
