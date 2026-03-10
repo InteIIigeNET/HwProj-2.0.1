@@ -139,7 +139,7 @@ export const useTaskEditing = () => {
     const cancelTaskEdit = useCallback((task: HomeworkTaskViewModel, homework: HomeworkViewModel, isNewTask: boolean) => {
         dispatch(removeDraftTask({ homeworkId: task.homeworkId!, taskId: task.id! }));
         const draftHw = draftHomeworks.find(dh => dh.id === task.homeworkId);
-        if (draftHw && (draftHw.tasks || []).filter(t => t.id !== task.id).length === 0) {
+        if (draftHw && (draftHw.tasks || []).filter(t => t.id !== task.id).length === 0 && !isNewTask) {
             dispatch(removeDraftHomework(task.homeworkId!));
         }
         if (isNewTask) {

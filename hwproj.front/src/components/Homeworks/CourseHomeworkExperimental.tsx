@@ -169,9 +169,14 @@ const CourseHomeworkEditor: FC<{
                 publicationDate: publicationDate,
                 actionOptions: editOptions,
                 tasks: isNewHomework ? (homework.tasks || []).map(t => ({
-                    ...t,
                     title: t.title!,
-                    maxRating: t.maxRating!
+                    description: t.description,
+                    hasDeadline: t.hasDeadline,
+                    deadlineDate: t.deadlineDate,
+                    isDeadlineStrict: t.isDeadlineStrict,
+                    publicationDate: t.publicationDate,
+                    maxRating: t.maxRating!,
+                    criteria: t.criteria || []
                 } as PostTaskViewModel)) : []
             }
 
