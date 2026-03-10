@@ -77,17 +77,9 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const draftHomeworks = useCourseState(state => state.editing.draftHomeworks)
     const {
         addNewHomework: addNewHomeworkToStore,
-        startEditingHomework,
-        updateDraftHomework,
-        commitHomework,
-        commitHomeworkDeletion,
     } = useHomeworkEditing()
     const {
         addNewTask: addNewTaskToStore,
-        startEditingTask,
-        updateDraftTask,
-        commitTask,
-        commitTaskDeletion,
     } = useTaskEditing()
 
     const homeworks = mergedHomeworks.slice().reverse().filter(x => {
@@ -364,7 +356,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         const filesInfo = id ? FileInfoConverter.getCourseUnitFilesInfo(courseFilesInfo, CourseUnitType.Homework, id) : []
         const homeworkEditMode = homework && (homework.id! < 0 || draftHomeworks.some(d => d.id === homework.id && d.id! > 0))
         return homework && <Stack direction={"column"} spacing={2}>
-            <Card style={{backgroundColor: "ghostwhite"}} raised={homeworkEditMode}>
+            <Card style={{backgroundColor: "ghostwhite", overflow: homeworkEditMode ? 'visible' : 'hidden'}} raised={homeworkEditMode}>
                 {isMentor && getGroupingAlert(homework)}
                 {isMentor && getDatesAlert(homework, true)}
                 <CourseHomeworkExperimental
@@ -373,23 +365,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     initialEditMode={initialEditMode || homeworkEditMode}
                     onMount={onSelectedItemMount}
                     onAddTask={addNewTask}
-                    onUpdate={update => {
-                        if (update.isDeleted) {
-                            commitHomeworkDeletion(homework.id!)
-                            select({isHomework: true, id: undefined})
-                        } else if ((update as { isSaved?: boolean }).isSaved) {
-                            commitHomework(homework.id!, update.homework)
-                            select({isHomework: true, id: update.homework.id!})
-                        } else {
-                            if (update.homework.id! > 0) {
-                                const hasHomeworkDraft = draftHomeworks.some(d => d.id === update.homework.id)
-                                if (!hasHomeworkDraft) startEditingHomework(update.homework)
-                            }
-                            updateDraftHomework(update.homework)
-                            select({isHomework: true, id: update.homework.id!})
-                        }
-                    }}
-                    isProcessing={props.processingFiles[homework.id!]?.isLoading || false}
                     onStartProcessing={props.onStartProcessing}
                 />
             </Card>
@@ -398,7 +373,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const renderTask = (task: HomeworkTaskViewModel, homework: HomeworkViewModel) => {
         const taskEditMode = task && (task.id! < 0 || draftHomeworks.some(d => d.tasks?.some(t => t.id === task.id) && task.id! > 0))
-        return task && <Card style={{backgroundColor: "ghostwhite"}} raised={taskEditMode}>
+        return task && <Card style={{backgroundColor: "ghostwhite", overflow: taskEditMode ? 'visible' : 'hidden'}} raised={taskEditMode}>
             {isMentor && getDatesAlert(task, false)}
             <CourseTaskExperimental
                 key={task.id}
@@ -406,23 +381,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 homework={homework!}
                 initialEditMode={initialEditMode || taskEditMode}
                 onMount={onSelectedItemMount}
-                onUpdate={update => {
-                    if (update.isDeleted) {
-                        commitTaskDeletion(task.id!, task.homeworkId!)
-                        select({isHomework: true, id: homework!.id})
-                    } else if ((update as { isSaved?: boolean }).isSaved) {
-                        commitTask(task.id!, task.homeworkId!, update.task)
-                    } else {
-                        if (update.task.id! > 0) {
-                            const hasTaskDraft = draftHomeworks
-                                .find(d => d.id === update.task.homeworkId)
-                                ?.tasks
-                                ?.some(t => t.id === update.task.id) === true
-                            if (!hasTaskDraft) startEditingTask(update.task, homework)
-                        }
-                        updateDraftTask(update.task)
-                    }
-                }}
                 toEditHomework={() => toEditHomework(homework!)}/>
             {!props.isMentor && props.isStudentAccepted && < CardActions>
                 <Link
