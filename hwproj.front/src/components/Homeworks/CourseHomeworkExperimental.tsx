@@ -29,6 +29,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import {LoadingButton} from "@mui/lab";
 import DeletionConfirmation from "../DeletionConfirmation";
+import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ActionOptionsUI from "components/Common/ActionOptions";
 import {BonusTag, DefaultTags, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
@@ -37,9 +38,10 @@ import {CourseUnitType} from "../Files/CourseUnitType"
 import ProcessFilesUtils from "../Utils/ProcessFilesUtils";
 import {useCourseState} from "@/store/hooks";
 import {FilesHandler} from "@/components/Files/FilesHandler";
+import {useEditingSelection, useHomeworkEditing} from "@/store/editingHooks";
 
 export interface HomeworkAndFilesInfo {
-    homework: HomeworkViewModel & { isModified?: boolean },
+    homework: HomeworkViewModel,
     filesInfo: IFileInfo[]
 }
 
@@ -53,11 +55,7 @@ interface IEditHomeworkState {
 
 const CourseHomeworkEditor: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
-    getAllHomeworks: () => HomeworkViewModel[],
-    onUpdate: (update: { homework: HomeworkViewModel } & {
-        isDeleted?: boolean,
-        isSaved?: boolean
-    }) => void
+    onDone: () => void,
     onStartProcessing: (homeworkId: number,
                         courseUnitType: CourseUnitType,
                         previouslyExistingFilesCount: number,
@@ -67,11 +65,14 @@ const CourseHomeworkEditor: FC<{
     const homework = props.homeworkAndFilesInfo.homework
     const isNewHomework = homework.id! < 0
     const homeworks = useCourseState(state => state.homeworks.items);
+    const draftHomeworks = useCourseState(state => state.editing.draftHomeworks)
+    const {startEditingHomework, updateDraftHomework, cancelEditingHomework, commitHomework, commitHomeworkDeletion} = useHomeworkEditing()
+    const {select} = useEditingSelection()
 
     const [homeworkData, setHomeworkData] = useState<{
         loadedHomework: HomeworkViewModel,
         isLoaded: boolean
-    }>({loadedHomework: homework, isLoaded: isNewHomework || homework.isModified == true})
+    }>({loadedHomework: homework, isLoaded: isNewHomework || draftHomeworks.some(d => d.id === homework.id)})
 
     useEffect(() => {
         if (homeworkData.isLoaded) return
@@ -167,10 +168,12 @@ const CourseHomeworkEditor: FC<{
             tags: tags,
             hasErrors: hasErrors,
             deadlineDateNotSet: metadata.hasDeadline && !metadata.deadlineDate,
-            isModified: true,
         }
 
-        props.onUpdate({homework: update})
+        if (homework.id! > 0 && !draftHomeworks.some(d => d.id === homework.id)) {
+            startEditingHomework(update)
+        }
+        updateDraftHomework(update)
     }, [title, description, tags, metadata, hasErrors, filesState.selectedFilesInfo])
 
     useEffect(() => {
@@ -201,7 +204,19 @@ const CourseHomeworkEditor: FC<{
             newFiles: []
         })
 
-        props.onUpdate({homework: loadedHomework, isDeleted: true})
+        commitHomeworkDeletion(homeworkId)
+        select({isHomework: true, id: undefined})
+    }
+
+    const cancelEditing = () => {
+        if (isNewHomework) {
+            commitHomeworkDeletion(homework.id!)
+            select({isHomework: true, id: undefined})
+        } else {
+            cancelEditingHomework(homework.id!)
+            select({isHomework: true, id: homework.id})
+        }
+        props.onDone()
     }
 
     const getDeleteMessage = (homeworkName: string, filesInfo: IFileInfo[]) => {
@@ -249,11 +264,10 @@ const CourseHomeworkEditor: FC<{
             courseId, CourseUnitType.Homework, updatedHomeworkId,
             props.onStartProcessing,
             () => {
-                if (isNewHomework) props.onUpdate({
-                    homework: update,
-                    isDeleted: true
-                }) // remove fake homework
-                props.onUpdate({homework: updatedHomework.value!, isSaved: true});
+                if (isNewHomework) commitHomeworkDeletion(homework.id!)  // remove fake homework
+                commitHomework(homework.id!, updatedHomework.value!)
+                select({isHomework: true, id: updatedHomeworkId})
+                props.onDone()
             },
         );
     }
@@ -261,7 +275,16 @@ const CourseHomeworkEditor: FC<{
     const isDisabled = hasErrors || !isLoaded || taskHasErrors
 
     return (
-        <CardContent>
+        <CardContent style={{position: 'relative'}}>
+            <IconButton
+                onClick={cancelEditing}
+                disabled={handleSubmitLoading}
+                size="small"
+                color="error"
+                style={{position: 'absolute', top: -16, right: -16, zIndex: 1, backgroundColor: 'white', boxShadow: '0 0 4px rgba(0,0,0,0.2)'}}
+            >
+                <CloseIcon fontSize="small"/>
+            </IconButton>
             <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
                   alignItems={"center"} alignContent={"center"} style={{marginTop: -24}}>
                 <Grid item>
@@ -383,11 +406,7 @@ const CourseHomeworkExperimental: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
     initialEditMode: boolean,
     onMount: () => void,
-    onUpdate: (x: { homework: HomeworkViewModel } & {
-        isDeleted?: boolean
-    }) => void
     onAddTask: (homework: HomeworkViewModel) => void,
-    isProcessing: boolean;
     onStartProcessing: (homeworkId: number,
                         courseUnitType: CourseUnitType,
                         previouslyExistingFilesCount: number,
@@ -398,7 +417,6 @@ const CourseHomeworkExperimental: FC<{
     const userId = useCourseState(state => state.user.userId);
     const isMentor = mentors.some(m => m.userId === userId);
     const processingFilesState = useCourseState(state => state.courseFiles.processingFilesState);
-    const homeworks = useCourseState(state => state.homeworks.items);
 
     const {homework, filesInfo} = props.homeworkAndFilesInfo
     const deferredTasks = homework.tasks!.filter(t => t.isDeferred!)
@@ -413,11 +431,7 @@ const CourseHomeworkExperimental: FC<{
 
     if (editMode) return <CourseHomeworkEditor
         homeworkAndFilesInfo={{homework, filesInfo}}
-        getAllHomeworks={() => homeworks}
-        onUpdate={update => {
-            if (update.isSaved) setEditMode(false)
-            props.onUpdate(update)
-        }}
+        onDone={() => setEditMode(false)}
         onStartProcessing={props.onStartProcessing}
     />
 
@@ -468,7 +482,7 @@ const CourseHomeworkExperimental: FC<{
         </Typography>
         {filesInfo.length > 0 && (
             <div>
-                {props.isProcessing &&
+                {processingFilesState[homework.id!]?.isLoading &&
                     <div style={{display: 'flex', alignItems: 'center', color: '#1976d2', fontWeight: '500'}}>
                         <CircularProgress size="20px"/>
                         &nbsp;&nbsp;Обрабатываем файлы...
