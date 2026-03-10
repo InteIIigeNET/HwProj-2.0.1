@@ -466,13 +466,13 @@ const CourseHomeworkExperimental: FC<{
         <Typography component="div" style={{color: "#454545"}} gutterBottom variant="body1">
             <MarkdownPreview value={homework.description!}/>
         </Typography>
-        {processingFilesState[homework.id!]?.isLoading ? (
-            <div style={{display: 'flex', alignItems: 'center', color: '#1976d2', fontWeight: '500'}}>
-                <CircularProgress size="20px"/>
-                &nbsp;&nbsp;Обрабатываем файлы...
-            </div>
-        ) : filesInfo.length > 0 && (
+        {filesInfo.length > 0 && (
             <div>
+                {props.isProcessing &&
+                    <div style={{display: 'flex', alignItems: 'center', color: '#1976d2', fontWeight: '500'}}>
+                        <CircularProgress size="20px"/>
+                        &nbsp;&nbsp;Обрабатываем файлы...
+                    </div>}
                 <FilesPreviewList
                     showOkStatus={isMentor}
                     filesInfo={filesInfo}
