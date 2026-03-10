@@ -1,5 +1,4 @@
 import * as React from "react";
-import {ScopeDTO} from "@/api";
 import {FC, useEffect, useState} from "react";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
 import StudentStats from "./StudentStats";
@@ -32,11 +31,7 @@ import {QRCodeSVG} from 'qrcode.react';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
-import {FileStatus} from "../Files/FileStatus";
-import {useCourseState} from "@/store/hooks";
-import {useCourseLoader, useCourseFiles} from "@/store/courseHooks";
-import {CourseUnitType} from "@/components/Files/CourseUnitType";
-import {enqueueSnackbar} from "notistack";
+import {useCourseLoader, useCourseFiles, useIsCourseMentor, useCoursePageData} from "@/store/courseHooks";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -53,109 +48,23 @@ const Course: React.FC = () => {
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
 
-    const course = useCourseState(state => state.course.currentCourse);
-    const isFound = useCourseState(state => state.course.isFound);
-    const mentors = useCourseState(state => state.course.mentors);
-    const acceptedStudents = useCourseState(state => state.course.acceptedStudents);
-    const newStudents = useCourseState(state => state.course.newStudents);
-    const courseHomeworks = useCourseState(state => state.homeworks.items);
-    const studentSolutions = useCourseState(state => state.solutions.studentSolutions);
+    const {
+        course,
+        isFound,
+        mentors,
+        newStudents,
+        courseHomeworks,
+        studentSolutions,
+        userId,
+        isLecturer,
+        isExpert,
+        isLecturerOrExpertOnSite,
+        isSignedInCourse,
+        isAcceptedStudent,
+    } = useCoursePageData();
+    const isCourseMentor = useIsCourseMentor();
+    const {initUser, loadCourse, loadStudentSolutions, resetEditing} = useCourseLoader(+courseId!);
     const [showQrCode, setShowQrCode] = useState(false);
-
-    const intervalsRef = React.useRef<Record<number, { interval: NodeJS.Timeout, timeout: NodeJS.Timeout }>>({});
-
-    const stopProcessing = (homeworkId: number) => {
-        if (intervalsRef.current[homeworkId]) {
-            const {interval, timeout} = intervalsRef.current[homeworkId];
-            clearInterval(interval);
-            clearTimeout(timeout);
-            delete intervalsRef.current[homeworkId];
-        }
-    };
-
-    // Запускает получение информации о файлах элемента курса с интервалом в 1 секунду и 5 попытками
-    const getFilesByInterval = (homeworkId: number, courseUnitType: CourseUnitType, previouslyExistingFilesCount: number, waitingNewFilesCount: number, deletingFilesIds: number[]) => {
-        // Очищаем предыдущие таймеры
-        stopProcessing(homeworkId);
-
-        let attempt = 0;
-        const maxAttempts = 10;
-        let delay = 1000; // Начальная задержка 1 сек
-
-        const scopeDto: ScopeDTO = {
-            courseId: +courseId!,
-            courseUnitType: courseUnitType,
-            courseUnitId: homeworkId
-        }
-
-        const fetchFiles = async () => {
-            if (attempt >= maxAttempts) {
-                stopProcessing(homeworkId);
-                enqueueSnackbar("Превышено допустимое количество попыток получения информации о файлах", {
-                    variant: "warning",
-                    autoHideDuration: 2000
-                });
-                return;
-            }
-
-            attempt++;
-            try {
-                const files = await ApiSingleton.filesApi.filesGetStatuses(scopeDto);
-                console.log(`Попытка ${attempt}:`, files);
-
-                // Первый вариант для явного отображения всех файлов
-                if (waitingNewFilesCount === 0
-                    && files.filter(f => f.status === FileStatus.ReadyToUse).length === previouslyExistingFilesCount - deletingFilesIds.length) {
-                    updateFiles(files, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
-                    setFileLoading(homeworkId, false)
-                }
-
-                // Второй вариант для явного отображения всех файлов
-                if (waitingNewFilesCount > 0
-                    && files.filter(f => !deletingFilesIds.some(dfi => dfi === f.id)).length === previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount) {
-                    updateFiles(files, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
-                    setFileLoading(homeworkId, false)
-                }
-
-                // Условие прекращения отправки запросов на получения записей файлов
-                if (files.length === previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount
-                    && files.every(f => f.status !== FileStatus.Uploading && f.status !== FileStatus.Deleting)) {
-                    stopProcessing(homeworkId);
-                    setFileLoading(homeworkId, false)
-                }
-
-            } catch (error) {
-                console.error(`Ошибка (попытка ${attempt}):`, error);
-            }
-        }
-
-        // Создаем интервал с задержкой
-        const interval = setInterval(fetchFiles, delay);
-
-        // Создаем таймаут для автоматической остановки
-        const timeout = setTimeout(() => {
-            stopProcessing(homeworkId);
-            setFileLoading(homeworkId, false)
-        }, 10000);
-
-        // Сохраняем интервал и таймаут в ref
-        intervalsRef.current[homeworkId] = {interval, timeout};
-
-        // Сигнализируем о начале загрузки через состояние
-        setFileLoading(homeworkId, true)
-    }
-
-    // Останавливаем все активные интевалы при размонтировании
-    useEffect(() => {
-        return () => {
-            Object.values(intervalsRef.current).forEach(({interval, timeout}) => {
-                clearInterval(interval);
-                clearTimeout(timeout);
-            });
-            intervalsRef.current = {};
-        };
-    }, []);
-
     const [pageState, setPageState] = useState<IPageState>({
         tabValue: "homeworks"
     })
@@ -163,17 +72,7 @@ const Course: React.FC = () => {
     useEffect(() => {
         initUser();
     }, [])
-
-    const userId = useCourseState(state => state.user.userId);
-    const isLecturer = useCourseState(state => state.user.isLecturer);
-    const isExpert = useCourseState(state => state.user.isExpert);
-    const isMentor = isLecturer || isExpert
-    const isCourseMentor = mentors.some(t => t.userId === userId)
-    const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
-
-    const isAcceptedStudent = acceptedStudents!.some(cm => cm.userId === userId)
-    const {initUser, loadCourse, loadStudentSolutions, resetEditing} = useCourseLoader(+courseId!);
-    const {loadCourseFiles, updateFiles, setFileLoading} = useCourseFiles(+courseId!, isCourseMentor);
+    const {loadCourseFiles} = useCourseFiles(+courseId!, isCourseMentor);
 
     const showStatsTab = isCourseMentor || isAcceptedStudent
     const showApplicationsTab = isCourseMentor
@@ -303,7 +202,7 @@ const Course: React.FC = () => {
                                     ? "Вы можете отправлять решения и получать уведомления об их проверке."
                                     : isCourseMentor && !isExpert
                                         ? "Вы продолжите получать уведомления о новых заявках на вступление и решениях."
-                                        : !isMentor ? "Вы можете записаться на курс и отправлять решения." : ""}
+                                        : !isLecturerOrExpertOnSite ? "Вы можете записаться на курс и отправлять решения." : ""}
                             </Alert>
                         </Grid>}
                         <Grid item container xs={12} alignItems="center"
@@ -331,7 +230,7 @@ const Course: React.FC = () => {
                             </Grid>
                         </Grid>
                         <Grid item style={{width: 187}}>
-                            {!isSignedInCourse && !isMentor && !isAcceptedStudent && (
+                            {!isSignedInCourse && !isLecturerOrExpertOnSite && !isAcceptedStudent && (
                                 <Button
                                     fullWidth
                                     variant="contained"
@@ -379,7 +278,6 @@ const Course: React.FC = () => {
                     {tabValue === "homeworks" && <CourseExperimental
                         courseId={+courseId!}
                         selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
-                        onStartProcessing={getFilesByInterval}
                     />
                     }
                     {tabValue === "stats" &&
