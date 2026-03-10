@@ -2,23 +2,23 @@ import * as React from 'react';
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC} from "react";
 import {Card, CardContent, CardActions, Grid, Button, Typography, Alert, AlertTitle} from '@mui/material';
-import {useCourseState, useCourseDispatch} from "@/store/hooks";
-import {fetchCourseData} from '@/store/slices/courseSlice';
+import {useCourseState} from "@/store/hooks";
+import {useRefreshCourse} from "@/store/courseHooks";
 
 const NewCourseStudents: FC = () => {
     const course = useCourseState(state => state.course.currentCourse);
     const students = useCourseState(state => state.course.newStudents);
-    const dispatch = useCourseDispatch();
+    const refreshCourse = useRefreshCourse();
 
     const acceptStudent = async (studentId: string) => {
-        await ApiSingleton.coursesApi.coursesAcceptStudent(course?.id!, studentId)
-        dispatch(fetchCourseData(course?.id!));
-    }
+        await ApiSingleton.coursesApi.coursesAcceptStudent(course?.id!, studentId);
+        refreshCourse(course?.id!);
+    };
 
     const rejectStudent = async (studentId: string) => {
-        await ApiSingleton.coursesApi.coursesRejectStudent(course?.id!, studentId)
-        dispatch(fetchCourseData(course?.id!));
-    }
+        await ApiSingleton.coursesApi.coursesRejectStudent(course?.id!, studentId);
+        refreshCourse(course?.id!);
+    };
 
     const studentsLength = students.length
 
