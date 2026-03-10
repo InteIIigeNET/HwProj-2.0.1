@@ -1,8 +1,7 @@
 import * as React from "react";
-import {FileInfoDTO,ScopeDTO,} from "@/api";
+import {ScopeDTO} from "@/api";
 import {FC, useEffect, useState} from "react";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, HomeworkViewModel, HomeworkTaskViewModel, StatisticsCourseMatesModel} from "@/api";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
@@ -34,16 +33,10 @@ import QrCode2Icon from '@mui/icons-material/QrCode2';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {FileStatus} from "../Files/FileStatus";
-import {useCourseDispatch, useCourseState} from "@/store/hooks";
-import {setCourse, setMentors, setAcceptedStudents, setNewStudents} from "@/store/slices/courseSlice";
-import {setHomeworks, updateOrInsertHomework, deleteHomework, updateTask, deleteTask} from "@/store/slices/homeworkSlice";
-import {setStudentSolutions} from "@/store/slices/solutionSlice";
-import {setCourseFiles, updateCourseFiles, setProcessingLoading} from "@/store/slices/courseFileSlice";
-import {setUser, UserRole} from "@/store/slices/userSlice";
-import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
+import {useCourseState} from "@/store/hooks";
+import {useCourseLoader, useCourseFiles} from "@/store/courseHooks";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
 import {enqueueSnackbar} from "notistack";
-import ErrorsHandler from "@/components/Utils/ErrorsHandler";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -60,7 +53,6 @@ const Course: React.FC = () => {
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
 
-    const dispatch = useCourseDispatch();
     const course = useCourseState(state => state.course.currentCourse);
     const isFound = useCourseState(state => state.course.isFound);
     const mentors = useCourseState(state => state.course.mentors);
@@ -73,18 +65,6 @@ const Course: React.FC = () => {
     const [showQrCode, setShowQrCode] = useState(false);
 
     const intervalsRef = React.useRef<Record<number, { interval: NodeJS.Timeout, timeout: NodeJS.Timeout }>>({});
-
-    const handleUpdateCourseFiles = (files: FileInfoDTO[], unitType: CourseUnitType, unitId: number) => {
-        dispatch(updateCourseFiles({ files, unitType, unitId }));
-    };
-
-    const setCommonLoading = (homeworkId: number) => {
-        dispatch(setProcessingLoading({ homeworkId, isLoading: true }));
-    }
-
-    const unsetCommonLoading = (homeworkId: number) => {
-        dispatch(setProcessingLoading({ homeworkId, isLoading: false }));
-    }
 
     const stopProcessing = (homeworkId: number) => {
         if (intervalsRef.current[homeworkId]) {
@@ -128,22 +108,22 @@ const Course: React.FC = () => {
                 // Первый вариант для явного отображения всех файлов
                 if (waitingNewFilesCount === 0
                     && files.filter(f => f.status === FileStatus.ReadyToUse).length === previouslyExistingFilesCount - deletingFilesIds.length) {
-                    handleUpdateCourseFiles(files, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
-                    unsetCommonLoading(homeworkId)
+                    updateFiles(files, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
+                    setFileLoading(homeworkId, false)
                 }
 
                 // Второй вариант для явного отображения всех файлов
                 if (waitingNewFilesCount > 0
                     && files.filter(f => !deletingFilesIds.some(dfi => dfi === f.id)).length === previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount) {
-                    handleUpdateCourseFiles(files, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
-                    unsetCommonLoading(homeworkId)
+                    updateFiles(files, scopeDto.courseUnitType as CourseUnitType, scopeDto.courseUnitId!)
+                    setFileLoading(homeworkId, false)
                 }
 
                 // Условие прекращения отправки запросов на получения записей файлов
                 if (files.length === previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount
                     && files.every(f => f.status !== FileStatus.Uploading && f.status !== FileStatus.Deleting)) {
                     stopProcessing(homeworkId);
-                    unsetCommonLoading(homeworkId)
+                    setFileLoading(homeworkId, false)
                 }
 
             } catch (error) {
@@ -157,14 +137,14 @@ const Course: React.FC = () => {
         // Создаем таймаут для автоматической остановки
         const timeout = setTimeout(() => {
             stopProcessing(homeworkId);
-            unsetCommonLoading(homeworkId)
+            setFileLoading(homeworkId, false)
         }, 10000);
 
         // Сохраняем интервал и таймаут в ref
         intervalsRef.current[homeworkId] = {interval, timeout};
 
         // Сигнализируем о начале загрузки через состояние
-        setCommonLoading(homeworkId)
+        setFileLoading(homeworkId, true)
     }
 
     // Останавливаем все активные интевалы при размонтировании
@@ -183,9 +163,7 @@ const Course: React.FC = () => {
     })
 
     useEffect(() => {
-        const userId = ApiSingleton.authService.getUserId();
-        const role = ApiSingleton.authService.getRole() as UserRole;
-        dispatch(setUser({ userId, role }))
+        initUser();
     }, [])
 
     const userId = useCourseState(state => state.user.userId);
@@ -195,12 +173,9 @@ const Course: React.FC = () => {
     const isCourseMentor = mentors.some(t => t.userId === userId)
     const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
 
-    const {
-        courseFilesState,
-        updateCourseUnitFiles,
-    } = FilesUploadWaiter(+courseId!, CourseUnitType.Homework, !isCourseMentor);
-
     const isAcceptedStudent = acceptedStudents!.some(cm => cm.userId === userId)
+    const {initUser, loadCourse, loadStudentSolutions, resetEditing} = useCourseLoader(+courseId!);
+    const {loadCourseFiles, updateFiles, setFileLoading} = useCourseFiles(+courseId!, isCourseMentor);
 
     const showStatsTab = isCourseMentor || isAcceptedStudent
     const showApplicationsTab = isCourseMentor
@@ -218,46 +193,18 @@ const Course: React.FC = () => {
     }
 
     const setCurrentState = async () => {
-        const course = await ApiSingleton.coursesApi.coursesGetCourseData(+courseId!)
-
-        // У пользователя изменилась роль (иначе он не может стать лектором в курсе),
-        // однако он все ещё использует токен с прежней ролью
-        const shouldRefreshToken =
-            !isMentor &&
-            course &&
-            course.mentors!.some(t => t.userId === userId)
-        if (shouldRefreshToken) {
-            const newToken = await ApiSingleton.accountApi.accountRefreshToken()
-            newToken.value && ApiSingleton.authService.refreshToken(newToken.value.accessToken!)
-            return
-        }
-
-        dispatch(setCourse(course));
-        dispatch(setMentors(course.mentors!));
-        dispatch(setAcceptedStudents(course.acceptedStudents!));
-        dispatch(setNewStudents(course.newStudents!));
-        dispatch(setHomeworks(course.homeworks!));
-        await getCourseFilesInfo();
-    }
-
-    const getCourseFilesInfo = async () => {
-        let courseFilesInfo = [] as FileInfoDTO[]
-        try {
-            courseFilesInfo = await ApiSingleton.filesApi.filesGetFilesInfo(+courseId!, !isCourseMentor);
-        } catch (e) {
-            const responseErrors = await ErrorsHandler.getErrorMessages(e as Response)
-            enqueueSnackbar(responseErrors[0], {variant: "warning", autoHideDuration: 1990});
-        }
-        dispatch(setCourseFiles(courseFilesInfo));
+        const loadedCourse = await loadCourse();
+        if (loadedCourse == null) return;
+        await loadCourseFiles();
     }
 
     useEffect(() => {
+        resetEditing()
         setCurrentState()
     }, [courseId])
 
     useEffect(() => {
-        ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
-            .then(res => dispatch(setStudentSolutions(res)))
+        loadStudentSolutions()
     }, [courseId])
 
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
@@ -269,15 +216,6 @@ const Course: React.FC = () => {
 
     const {tabValue} = pageState
     const searchedHomeworkId = searchParams.get("homeworkId")
-
-    const handleHomeworkUpdate = (update: { homework: HomeworkViewModel } & { isDeleted?: boolean }) => {
-        if (update.isDeleted) dispatch(deleteHomework(update.homework.id!))
-        else dispatch(updateOrInsertHomework(update.homework))
-    }
-    const handleTaskUpdate = (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => {
-        if (update.isDeleted) dispatch(deleteTask({homeworkId: update.task.homeworkId!, taskId: update.task.id!}))
-        else dispatch(updateTask(update.task))
-    }
 
     const unratedSolutionsCount = studentSolutions
         .flatMap(x => x.homeworks)
@@ -442,7 +380,6 @@ const Course: React.FC = () => {
                     </Tabs>
                     {tabValue === "homeworks" && <CourseExperimental
                         courseId={+courseId!}
-                        homeworks={courseHomeworks}
                         courseFilesInfo={courseFiles}
                         isMentor={isCourseMentor}
                         studentSolutions={studentSolutions}
@@ -451,8 +388,6 @@ const Course: React.FC = () => {
                         userId={userId!}
                         processingFiles={processingFilesState}
                         onStartProcessing={getFilesByInterval}
-                        onHomeworkUpdate={handleHomeworkUpdate}
-                        onTaskUpdate={handleTaskUpdate}
                     />
                     }
                     {tabValue === "stats" &&
