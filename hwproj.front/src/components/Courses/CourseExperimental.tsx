@@ -1,8 +1,7 @@
 import * as React from "react";
 import {
-    FileInfoDTO,
     HomeworkTaskViewModel,
-    HomeworkViewModel, Solution, StatisticsCourseMatesModel,
+    HomeworkViewModel, Solution,
 } from "@/api";
 import {
     AlertTitle,

@@ -3,12 +3,10 @@ import {HomeworkViewModel, HomeworkTaskViewModel} from '@/api';
 
 interface HomeworkState {
     items: HomeworkViewModel[];
-    isLoading: boolean
 }
 
 const initialState: HomeworkState = {
     items: [],
-    isLoading: false,
 }
 
 const homeworkSlice = createSlice({
@@ -17,7 +15,6 @@ const homeworkSlice = createSlice({
     reducers: {
         setHomeworks(state, action: PayloadAction<HomeworkViewModel[]>) {
             state.items = action.payload;
-            state.isLoading = false;
         },
         
         deleteHomework(state, action: PayloadAction<number>) {
@@ -53,15 +50,6 @@ const homeworkSlice = createSlice({
                 homework.tasks = homework.tasks.filter(t => t.id !== action.payload.taskId);
             }
         },
-
-        setHomeworkLoading(state, action: PayloadAction<boolean>) {
-            state.isLoading = action.payload;
-        },
-
-        resetHomeworks(state) {
-            state.items = [];
-            state.isLoading = false;
-        },
     },
 });
 
@@ -71,8 +59,6 @@ export const {
     deleteHomework,
     updateTask,
     deleteTask,
-    setHomeworkLoading,
-    resetHomeworks,
 } = homeworkSlice.actions;
 
 export default homeworkSlice.reducer;

@@ -60,7 +60,6 @@ const Course: React.FC = () => {
     const newStudents = useCourseState(state => state.course.newStudents);
     const courseHomeworks = useCourseState(state => state.homeworks.items);
     const studentSolutions = useCourseState(state => state.solutions.studentSolutions);
-    const courseFiles = useCourseState(state => state.courseFiles.items);
     const [showQrCode, setShowQrCode] = useState(false);
 
     const intervalsRef = React.useRef<Record<number, { interval: NodeJS.Timeout, timeout: NodeJS.Timeout }>>({});

@@ -264,7 +264,6 @@ const CourseHomeworkEditor: FC<{
             courseId, CourseUnitType.Homework, updatedHomeworkId,
             props.onStartProcessing,
             () => {
-                if (isNewHomework) commitHomeworkDeletion(homework.id!)  // remove fake homework
                 commitHomework(homework.id!, updatedHomework.value!)
                 select({isHomework: true, id: updatedHomeworkId})
                 props.onDone()

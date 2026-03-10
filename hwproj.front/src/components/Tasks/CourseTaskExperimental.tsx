@@ -204,9 +204,6 @@ const CourseTaskEditor: FC<{
             ? await ApiSingleton.tasksApi.tasksAddTask(homework.id!, update)
             : await ApiSingleton.tasksApi.tasksUpdateTask(+id!, update)
 
-        if (isNewTask) {
-            commitTaskDeletion(props.task.id!, props.task.homeworkId!)
-        }
         commitTask(props.task.id!, props.task.homeworkId!, updatedTask.value!)
         select({isHomework: false, id: updatedTask.value!.id})
         props.onDone()
