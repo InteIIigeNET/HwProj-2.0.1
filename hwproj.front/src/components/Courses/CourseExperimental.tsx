@@ -40,12 +40,7 @@ import {useEditingSelection, useHomeworkEditing, useMergedHomeworks, useTaskEdit
 import {useCourseState} from "@/store/hooks";
 
 interface ICourseExperimentalProps {
-    courseFilesInfo: FileInfoDTO[]
-    studentSolutions: StatisticsCourseMatesModel[]
     courseId: number
-    isMentor: boolean
-    isStudentAccepted: boolean
-    userId: string
     selectedHomeworkId: number | undefined
     onStartProcessing: (homeworkId: number,
                         courseUnitType: CourseUnitType,
@@ -83,7 +78,14 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return true
     })
 
-    const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId, courseFilesInfo} = props
+    const {selectedHomeworkId} = props
+    const mentors = useCourseState(state => state.course.mentors);
+    const acceptedStudents = useCourseState(state => state.course.acceptedStudents);
+    const userId = useCourseState(state => state.user.userId);
+    const studentSolutions = useCourseState(state => state.solutions.studentSolutions);
+    const courseFilesInfo = useCourseState(state => state.courseFiles.items);
+    const isMentor = mentors.some(m => m.userId === userId);
+    const isStudentAccepted = acceptedStudents.some(s => s.userId === userId);
 
     const {id, isHomework} = selectedItem
 
@@ -377,7 +379,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 initialEditMode={initialEditMode || taskEditMode}
                 onMount={onSelectedItemMount}
                 toEditHomework={() => toEditHomework(homework!)}/>
-            {!props.isMentor && props.isStudentAccepted && < CardActions>
+            {!isMentor && isStudentAccepted && < CardActions>
                 <Link
                     style={{color: '#212529'}}
                     to={"/task/" + task.id!.toString()}>
@@ -428,7 +430,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                               borderRadius: 9
                           }
                       }}>
-                {props.isMentor && filterAdded && <Stack direction={"column"} alignItems={"center"}>
+                {isMentor && filterAdded && <Stack direction={"column"} alignItems={"center"}>
                     <Button
                         fullWidth
                         onClick={() => {
@@ -446,7 +448,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             : ""}
                     </Typography>
                 </Stack>}
-                {props.isMentor && !filterAdded && (homeworks[0]?.id || 1) > 0 && <Button
+                {isMentor && !filterAdded && (homeworks[0]?.id || 1) > 0 && <Button
                     onClick={addNewHomework}
                     style={{borderRadius: 8, marginBottom: 10}} variant={"text"} size={"small"}>
                     + Добавить задание

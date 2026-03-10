@@ -379,12 +379,7 @@ const Course: React.FC = () => {
                     </Tabs>
                     {tabValue === "homeworks" && <CourseExperimental
                         courseId={+courseId!}
-                        courseFilesInfo={courseFiles}
-                        isMentor={isCourseMentor}
-                        studentSolutions={studentSolutions}
-                        isStudentAccepted={isAcceptedStudent}
                         selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
-                        userId={userId!}
                         onStartProcessing={getFilesByInterval}
                     />
                     }
