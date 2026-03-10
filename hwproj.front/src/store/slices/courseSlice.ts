@@ -1,21 +1,5 @@
-import {createSlice, PayloadAction, createAsyncThunk} from '@reduxjs/toolkit';
-import {AccountDataDto, CourseViewModel} from '@/api'
-import ApiSingleton from '@/api/ApiSingleton';
-import {setHomeworks} from './homeworkSlice';
-
-export const fetchCourseData = createAsyncThunk(
-  'course/fetchCourseData',
-  async (courseId: number, {dispatch}) => {
-    const course = await ApiSingleton.coursesApi.coursesGetCourseData(courseId);
-    dispatch(setCourse(course));
-    dispatch(setMentors(course.mentors ?? []));
-    dispatch(setAcceptedStudents(course.acceptedStudents ?? []));
-    dispatch(setNewStudents(course.newStudents ?? []));
-    dispatch(setHomeworks(course.homeworks ?? []));
-
-    return course;
-  }
-);
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {AccountDataDto, CourseViewModel} from '@/api';
 
 interface CourseState {
   isFound: boolean;
