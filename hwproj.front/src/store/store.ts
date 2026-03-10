@@ -4,6 +4,7 @@ import homeworkReducer from './slices/homeworkSlice';
 import solutionsReducer from './slices/solutionSlice';
 import courseFilesReducer from './slices/courseFileSlice';
 import userReducer from './slices/userSlice';
+import courseEditingReducer from './slices/courseEditingSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     solutions: solutionsReducer,
     courseFiles: courseFilesReducer,
     user: userReducer,
+    editing: courseEditingReducer,
   },
 });
 
