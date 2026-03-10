@@ -26,6 +26,7 @@ import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlin
 import DeletionConfirmation from "../DeletionConfirmation";
 import ActionOptionsUI from "../Common/ActionOptions";
 import {useCourseState} from "@/store/hooks";
+import {useTaskEditing, useEditingSelection} from "@/store/editingHooks";
 import {Stack} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Collapse from "@mui/material/Collapse";
@@ -50,19 +51,23 @@ type TaskEditData = HomeworkTaskViewModel & {
 };
 
 const CourseTaskEditor: FC<{
-    speculativeTask: TaskEditData,
-    speculativeHomework: HomeworkViewModel,
-    onUpdate: (update: { task: TaskEditData, isDeleted?: boolean, isSaved?: boolean }) => void,
+    task: TaskEditData,
+    homework: HomeworkViewModel,
+    onDone: () => void,
     toEditHomework: () => void,
 }> = (props) => {
+    const draftHomeworks = useCourseState(state => state.editing.draftHomeworks)
+    const {startEditingTask, updateDraftTask, cancelEditingTask, commitTask, commitTaskDeletion} = useTaskEditing()
+    const {select} = useEditingSelection()
+
     const [taskData, setTaskData] = useState<{
         task: HomeworkTaskViewModel,
         homework: HomeworkViewModel,
         isLoaded: boolean
     }>({
-        task: props.speculativeTask,
-        homework: props.speculativeHomework,
-        isLoaded: props.speculativeTask.id! < 0 || props.speculativeTask.isModified === true
+        task: props.task,
+        homework: props.homework,
+        isLoaded: props.task.id! < 0 || draftHomeworks.some(d => d.tasks?.some(t => t.id === props.task.id))
     })
 
     const [criteria, setCriteria] = useState<CriterionViewModel[]>(taskData.task.criteria || [])
@@ -147,9 +152,9 @@ const CourseTaskEditor: FC<{
         criteria.length > 0 ? criteriaTotalPoints : task.maxRating!
     )
     const [description, setDescription] = useState<string>(task.description || "")
-    const [isBonusExplicit, setIsBonusExplicit] = useState<boolean>(props.speculativeTask.tags!.includes(BonusTag) && !props.speculativeHomework.tags!.includes(BonusTag))
+    const [isBonusExplicit, setIsBonusExplicit] = useState<boolean>(props.task.tags!.includes(BonusTag) && !props.homework.tags!.includes(BonusTag))
 
-    const [hasErrors, setHasErrors] = useState<boolean>(props.speculativeTask.hasErrors || false)
+    const [hasErrors, setHasErrors] = useState<boolean>(props.task.hasErrors || false)
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false)
 
     const [handleSubmitLoading, setHandleSubmitLoading] = useState(false);
@@ -159,7 +164,7 @@ const CourseTaskEditor: FC<{
 
     useEffect(() => {
         const update = {
-            ...props.speculativeTask,
+            ...props.task,
             ...metadata!,
             title: title!,
             description: description,
@@ -170,7 +175,11 @@ const CourseTaskEditor: FC<{
             hasErrors: hasErrors,
             criteria: criteria,
         }
-        props.onUpdate({task: update});
+
+        if (props.task.id! > 0 && !draftHomeworks.some(d => d.tasks?.some(t => t.id === props.task.id))) {
+            startEditingTask(update, homework)
+        }
+        updateDraftTask(update)
     }, [title, description, maxRating, metadata, isBonusExplicit, hasErrors, criteria]);
 
     useEffect(() => {
@@ -195,17 +204,29 @@ const CourseTaskEditor: FC<{
             ? await ApiSingleton.tasksApi.tasksAddTask(homework.id!, update)
             : await ApiSingleton.tasksApi.tasksUpdateTask(+id!, update)
 
-        if (isNewTask)
-            props.onUpdate({
-                task: props.speculativeTask,
-                isDeleted: true,
-            })
-        props.onUpdate({task: updatedTask.value!, isSaved: true})
+        if (isNewTask) {
+            commitTaskDeletion(props.task.id!, props.task.homeworkId!)
+        }
+        commitTask(props.task.id!, props.task.homeworkId!, updatedTask.value!)
+        select({isHomework: false, id: updatedTask.value!.id})
+        props.onDone()
     }
 
     const deleteTask = async () => {
         if (!isNewTask) await ApiSingleton.tasksApi.tasksDeleteTask(id!)
-        props.onUpdate({task, isDeleted: true})
+        commitTaskDeletion(props.task.id!, props.task.homeworkId!)
+        select({isHomework: true, id: homework.id})
+    }
+
+    const handleCancel = () => {
+        if (isNewTask) {
+            commitTaskDeletion(props.task.id!, props.task.homeworkId!)
+            select({isHomework: true, id: homework.id})
+        } else {
+            cancelEditingTask(props.task.id!, props.task.homeworkId!)
+            select({isHomework: false, id: props.task.id})
+        }
+        props.onDone()
     }
 
     const isDisabled = hasErrors || !isLoaded
@@ -214,10 +235,19 @@ const CourseTaskEditor: FC<{
     const homeworkPublicationDateIsSet = !homework.publicationDateNotSet
 
     const maxRatingLabel =
-        criteria.length > 0 ? "Критерии" : props.speculativeTask.suggestedMaxRating === maxRating ? "Вычислено" : undefined
+        criteria.length > 0 ? "Критерии" : props.task.suggestedMaxRating === maxRating ? "Вычислено" : undefined
 
     return (
-        <CardContent>
+        <CardContent style={{position: 'relative'}}>
+            <IconButton
+                onClick={handleCancel}
+                disabled={handleSubmitLoading}
+                size="small"
+                color="error"
+                style={{position: 'absolute', top: -16, right: -16, zIndex: 1, backgroundColor: 'white', boxShadow: '0 0 4px rgba(0,0,0,0.2)'}}
+            >
+                <CloseIcon fontSize="small"/>
+            </IconButton>
             <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
                   alignItems={"flex-start"} alignContent={"start"}>
                 <Grid item xs={8}>
@@ -495,7 +525,6 @@ const CourseTaskExperimental: FC<{
     homework: HomeworkViewModel,
     initialEditMode: boolean,
     onMount: () => void,
-    onUpdate: (x: { task: TaskEditData, isDeleted?: boolean }) => void
     toEditHomework: () => void,
 }> = (props) => {
     const mentors = useCourseState(state => state.course.mentors);
@@ -514,19 +543,9 @@ const CourseTaskExperimental: FC<{
     if (editMode) {
         return <CourseTaskEditor
             key={task.id}
-            speculativeTask={task}
-            speculativeHomework={homework}
-            onUpdate={update => {
-                const updateFix = {
-                    ...update,
-                    task: {
-                        ...update.task,
-                        isModified: !update.isSaved,
-                    }
-                }
-                props.onUpdate(updateFix)
-                if (update.isSaved) setEditMode(false)
-            }}
+            task={task}
+            homework={homework}
+            onDone={() => setEditMode(false)}
             toEditHomework={props.toEditHomework}
         />
     }
