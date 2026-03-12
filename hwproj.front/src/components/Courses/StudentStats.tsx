@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef} from "react";
-import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
+import {HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import {useNavigate, useParams} from 'react-router-dom';
 import {LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
@@ -11,9 +11,10 @@ import {BonusTag, DefaultTags, TestTag} from "../Common/HomeworkTags";
 import Lodash from "lodash"
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
+import {CurrentCourseMeta} from "@/store/slices/courseSlice";
 
 interface IStudentStatsProps {
-    course: CourseViewModel;
+    course: CurrentCourseMeta;
     homeworks: HomeworkViewModel[];
     isMentor: boolean;
     userId: string;

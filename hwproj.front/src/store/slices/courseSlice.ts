@@ -1,10 +1,23 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {AccountDataDto, CourseViewModel} from '@/api';
 
+export type CurrentCourseMeta = Pick<
+  CourseViewModel,
+  'id' | 'name' | 'groupName' | 'isCompleted'
+>;
+
+export const toCurrentCourseMeta = (
+  course: CourseViewModel
+): CurrentCourseMeta => ({
+  id: course.id,
+  name: course.name,
+  groupName: course.groupName,
+  isCompleted: course.isCompleted,
+});
+
 interface CourseState {
   isFound: boolean;
-  isLoading: boolean;
-  currentCourse: CourseViewModel | null;
+  currentCourseMeta: CurrentCourseMeta | null;
   mentors: AccountDataDto[];
   acceptedStudents: AccountDataDto[];
   newStudents: AccountDataDto[];
@@ -12,8 +25,7 @@ interface CourseState {
 
 const initialState: CourseState = {
     isFound: false,
-    isLoading: false,
-    currentCourse: null,
+    currentCourseMeta: null,
     mentors: [],
     acceptedStudents: [],
     newStudents: [],
@@ -23,10 +35,9 @@ const courseSlice = createSlice({
   name: 'course',
   initialState,
   reducers: {
-    setCourse(state, action: PayloadAction<CourseViewModel>) {
-      state.currentCourse = action.payload;
+    setCourse(state, action: PayloadAction<CurrentCourseMeta>) {
+      state.currentCourseMeta = action.payload;
       state.isFound = true;
-      state.isLoading = false;
     },
 
     setMentors(state, action: PayloadAction<AccountDataDto[]>) {
@@ -40,19 +51,6 @@ const courseSlice = createSlice({
     setNewStudents(state, action: PayloadAction<AccountDataDto[]>) {
         state.newStudents = action.payload
     },
-
-    setLoading(state, action: PayloadAction<boolean>) {
-      state.isLoading = action.payload;
-    },
-
-    resetCourse(state) {
-      state.currentCourse = null;
-      state.isFound = false;
-      state.isLoading = false;
-      state.mentors = [];
-      state.acceptedStudents = [];
-      state.newStudents = [];
-    },
   },
 });
 
@@ -60,9 +58,7 @@ export const {
   setCourse, 
   setMentors, 
   setAcceptedStudents, 
-  setNewStudents, 
-  setLoading, 
-  resetCourse
+  setNewStudents,
 } = courseSlice.actions;
 
 export default courseSlice.reducer;

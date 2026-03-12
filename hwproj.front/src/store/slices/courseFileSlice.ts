@@ -40,18 +40,9 @@ const courseFilesSlice = createSlice({
             const { homeworkId, isLoading } = action.payload;
             state.processingFilesState[homeworkId] = { isLoading };
         },
-
-        clearCourseFiles(state) {
-            state.items = [];
-            state.processingFilesState = {};
-        },
     },
 })
 
-export const { setCourseFiles, 
-    updateCourseFiles, 
-    setProcessingLoading, 
-    clearCourseFiles 
-} = courseFilesSlice.actions;
+export const {setCourseFiles, updateCourseFiles, setProcessingLoading} = courseFilesSlice.actions;
 
 export default courseFilesSlice.reducer;

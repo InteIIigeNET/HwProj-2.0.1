@@ -1,13 +1,19 @@
 import {useCallback, useEffect, useRef} from 'react';
-import {useCourseDispatch, useCourseState} from './hooks';
-import {setCourse, setMentors, setAcceptedStudents, setNewStudents} from './slices/courseSlice';
-import {setHomeworks} from './slices/homeworkSlice';
-import {setStudentSolutions} from './slices/solutionSlice';
-import {setCourseFiles, updateCourseFiles, setProcessingLoading} from './slices/courseFileSlice';
-import {setUser, UserRole} from './slices/userSlice';
-import {resetEditingState} from './slices/courseEditingSlice';
+import {useCourseDispatch, useCourseState} from '../hooks';
+import {
+    setCourse,
+    setMentors,
+    setAcceptedStudents,
+    setNewStudents,
+    toCurrentCourseMeta
+} from '../slices/courseSlice';
+import {setHomeworks} from '../slices/homeworkSlice';
+import {setStudentSolutions} from '../slices/solutionSlice';
+import {setCourseFiles, updateCourseFiles, setProcessingLoading} from '../slices/courseFileSlice';
+import {setUser, UserRole} from '../slices/userSlice';
+import {resetEditingState} from '../slices/courseEditingSlice';
 import ApiSingleton from '@/api/ApiSingleton';
-import {FileInfoDTO, ScopeDTO} from '@/api';
+import {FileInfoDTO, ScopeDTO, StatisticsCourseHomeworksModel, StatisticsCourseMatesModel, StatisticsCourseTasksModel} from '@/api';
 import {CourseUnitType} from '@/components/Files/CourseUnitType';
 import {FileStatus} from '@/components/Files/FileStatus';
 import {enqueueSnackbar} from 'notistack';
@@ -27,21 +33,17 @@ export const useIsCourseMentor = () => {
     return mentors.some(m => m.userId === userId);
 };
 
-export const useIsSignedInCourse = () => {
-    const newStudents = useCourseState(state => state.course.newStudents);
-    const userId = useCourseState(state => state.user.userId);
-    return newStudents?.some(cm => cm.userId === userId) ?? false;
-};
-
-
-export const useIsAcceptedStudent = () => {
-    const acceptedStudents = useCourseState(state => state.course.acceptedStudents);
-    const userId = useCourseState(state => state.user.userId);
-    return acceptedStudents?.some(cm => cm.userId === userId) ?? false;
+export const useUnratedSolutionsCount = () => {
+    const studentSolutions = useCourseState(state => state.solutions.studentSolutions);
+    return studentSolutions
+        .flatMap((x: StatisticsCourseMatesModel) => x.homeworks ?? [])
+        .flatMap((x: StatisticsCourseHomeworksModel) => x.tasks ?? [])
+        .filter((t: StatisticsCourseTasksModel) => t.solution?.slice(-1)[0]?.state === 0)
+        .length;
 };
 
 export const useCoursePageData = () => {
-    const course = useCourseState(state => state.course.currentCourse);
+    const course = useCourseState(state => state.course.currentCourseMeta);
     const isFound = useCourseState(state => state.course.isFound);
     const mentors = useCourseState(state => state.course.mentors);
     const acceptedStudents = useCourseState(state => state.course.acceptedStudents);
@@ -90,7 +92,7 @@ export const useCourseLoader = (courseId: number) => {
             return null;
         }
 
-        dispatch(setCourse(course));
+        dispatch(setCourse(toCurrentCourseMeta(course)));
         dispatch(setMentors(course.mentors!));
         dispatch(setAcceptedStudents(course.acceptedStudents!));
         dispatch(setNewStudents(course.newStudents!));
@@ -114,7 +116,7 @@ export const useRefreshCourse = () => {
     const dispatch = useCourseDispatch();
     return useCallback(async (courseId: number) => {
         const course = await ApiSingleton.coursesApi.coursesGetCourseData(courseId);
-        dispatch(setCourse(course));
+        dispatch(setCourse(toCurrentCourseMeta(course)));
         dispatch(setMentors(course.mentors ?? []));
         dispatch(setAcceptedStudents(course.acceptedStudents ?? []));
         dispatch(setNewStudents(course.newStudents ?? []));
@@ -122,10 +124,10 @@ export const useRefreshCourse = () => {
     }, [dispatch]);
 };
 
-export const useCourseFiles = (courseId: number, isCourseMentor: boolean) => {
+export const useCourseFiles = (courseId: number, defaultIsCourseMentor?: boolean) => {
     const dispatch = useCourseDispatch();
 
-    const loadCourseFiles = useCallback(async () => {
+    const loadCourseFiles = useCallback(async (isCourseMentor = defaultIsCourseMentor ?? false) => {
         let files = [] as FileInfoDTO[];
         try {
             files = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, !isCourseMentor);
@@ -134,7 +136,7 @@ export const useCourseFiles = (courseId: number, isCourseMentor: boolean) => {
             enqueueSnackbar(errors[0], {variant: 'warning', autoHideDuration: 1990});
         }
         dispatch(setCourseFiles(files));
-    }, [dispatch, courseId, isCourseMentor]);
+    }, [dispatch, courseId, defaultIsCourseMentor]);
 
     const updateFiles = useCallback((files: FileInfoDTO[], unitType: CourseUnitType, unitId: number) => {
         dispatch(updateCourseFiles({files, unitType, unitId}));

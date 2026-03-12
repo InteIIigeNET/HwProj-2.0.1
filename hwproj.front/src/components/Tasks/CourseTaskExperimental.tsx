@@ -9,15 +9,12 @@ import {
     TextField,
     Typography,
     Button,
-    Box,
-    Link,
     Checkbox,
     FormControlLabel
 } from "@mui/material";
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
-import {FC, useEffect, useState, useMemo} from "react"
+import {FC, useCallback, useState} from "react"
 import {ActionOptions, CriterionViewModel, HomeworkTaskViewModel, HomeworkViewModel} from "@/api";
-import ApiSingleton from "../../api/ApiSingleton";
 import * as React from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -25,18 +22,16 @@ import {LoadingButton} from "@mui/lab";
 import TaskPublicationAndDeadlineDates from "../Common/TaskPublicationAndDeadlineDates";
 import DeletionConfirmation from "../DeletionConfirmation";
 import ActionOptionsUI from "../Common/ActionOptions";
-import {useDraftTask, useTaskEditing} from "@/store/taskEditorHooks";
-import {useIsCourseMentor} from "@/store/courseHooks";
+import {useDraftTask, useTaskEditorState} from "@/store/storeHooks/taskEditorHooks";
+import {useCourseActions} from "@/store/courseActions";
+import {useIsCourseMentor} from "@/store/storeHooks/courseHooks";
 import {Stack} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import Collapse from "@mui/material/Collapse";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TaskCriteria from "./TaskCriteria";
+import TaskCriteriaEditor from "./TaskCriteriaEditor";
 import {BonusTag} from "@/components/Common/HomeworkTags";
 
 type TaskEditData = HomeworkTaskViewModel & {
-    isModified?: boolean;
     hasErrors?: boolean;
     suggestedMaxRating?: number;
 };
@@ -47,46 +42,45 @@ const CourseTaskEditor: FC<{
     onDone?: () => void,
     toEditHomework: () => void,
 }> = (props) => {
-    const draft = useDraftTask(props.task.id!, props.task.homeworkId!)
     const {
-        startEditingTask,
-        updateDraftTask,
+        patchTaskDraft,
         addCriterion,
         updateCriterion: updateCriterionInStore,
         removeCriterion: removeCriterionInStore,
-        submitTaskEdit,
-        deleteTaskEdit,
+        saveTask,
+        deleteTask: deleteTaskAction,
         cancelTaskEdit,
-    } = useTaskEditing()
+    } = useCourseActions()
 
     const [isCriteriaOpen, setIsCriteriaOpen] = useState(false)
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
     const [handleSubmitLoading, setHandleSubmitLoading] = useState(false)
     const [editOptions, setEditOptions] = useState<ActionOptions>({sendNotification: false})
 
-    useEffect(() => {
-        if (draft || props.task.id! < 0) return
-        ApiSingleton.tasksApi
-            .tasksGetForEditingTask(props.task.id!)
-            .then(r => startEditingTask(r.task!, r.homework!))
-            .catch(() => {})
-    }, [props.task.id, draft, startEditingTask])
-
-    const task = draft ?? props.task
+    const task = props.task
     const homework = props.homework
-    const {id} = task
-    const isNewTask = task.id! < 0
-    const criteria = task.criteria || []
-    const criteriaTotalPoints = useMemo(
-        () => criteria.reduce((sum, c) => sum + (c.maxPoints || 0), 0),
-        [criteria]
-    )
-    const autoMaxFromCriteria = criteria.length > 0
-    const maxRating = autoMaxFromCriteria ? criteriaTotalPoints : (task.maxRating ?? 0)
-    const isBonusExplicit = (task.tags || []).includes(BonusTag) && !(homework.tags || []).includes(BonusTag)
-    const publicationDate = task.publicationDate ?? homework.publicationDate
-    const taskHasErrors = !!(task as TaskEditData).hasErrors
-    const hasErrors = !task.title || maxRating <= 0 || taskHasErrors || !!(task as HomeworkTaskViewModel & { hasErrors?: boolean }).hasErrors
+    const {
+        criteria,
+        autoMaxFromCriteria,
+        maxRating,
+        isBonusExplicit,
+        publicationDate,
+        hasErrors,
+        isNewTask,
+        isNewHomework,
+        homeworkPublicationDateIsSet,
+        taskPublicationDate,
+        taskDeadlineDate,
+        isPublicationDateDisabled,
+        maxRatingLabel,
+    } = useTaskEditorState(task, homework)
+
+    const patchTask = useCallback((patch: Partial<TaskEditData>) => {
+        patchTaskDraft({
+            ...task,
+            ...patch,
+        } as TaskEditData)
+    }, [patchTaskDraft, task])
 
     const addDefaultCriterion = () => {
         addCriterion(task, { id: 0, type: 0, name: `Критерий №${criteria.length + 1}`, maxPoints: 1 })
@@ -101,47 +95,74 @@ const CourseTaskEditor: FC<{
         removeCriterionInStore(task, index)
     }
 
+    const handleTitleChange = (title: string) => {
+        patchTask({title})
+    }
+
+    const handleToggleBonus = () => {
+        patchTask({
+            tags: isBonusExplicit
+                ? (task.tags || []).filter(t => t !== BonusTag)
+                : [...(homework.tags || []), BonusTag]
+        })
+    }
+
+    const handleMaxRatingChange = (value: string) => {
+        if (autoMaxFromCriteria) return
+
+        const raw = +value || 0
+        const clamped = raw < 1 ? 1 : raw > 100 ? 100 : Math.round(raw)
+        const ratingErrors = clamped < 1 || clamped > 100
+
+        patchTask({
+            maxRating: clamped,
+            hasErrors: ratingErrors || !!(task as TaskEditData).hasErrors,
+        })
+    }
+
+    const handleDescriptionChange = (description: string) => {
+        patchTask({description})
+    }
+
+    const handleDatesChange = (state: {
+        hasDeadline?: boolean;
+        isDeadlineStrict?: boolean;
+        publicationDate?: Date;
+        deadlineDate?: Date;
+        hasErrors: boolean;
+    }) => {
+        patchTaskDraft({
+            ...task,
+            hasDeadline: state.hasDeadline,
+            isDeadlineStrict: state.isDeadlineStrict,
+            publicationDate: state.publicationDate?.toISOString(),
+            deadlineDate: state.deadlineDate?.toISOString(),
+            deadlineDateNotSet: state.hasDeadline && !state.deadlineDate,
+            hasErrors: state.hasErrors,
+        } as unknown as HomeworkTaskViewModel)
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setHandleSubmitLoading(true)
         try {
-            const update = {
-                title: task.title!,
-                description: task.description || '',
-                isBonusExplicit,
-                maxRating,
-                actionOptions: editOptions,
-                criteria,
-                hasDeadline: task.hasDeadline,
-                isDeadlineStrict: task.isDeadlineStrict,
-                publicationDate: task.publicationDate,
-                deadlineDate: task.deadlineDate,
-            }
-            await submitTaskEdit(task, homework, isNewTask, update)
+            await saveTask(task.id!, homework.id!, editOptions)
             props.onDone?.()
         } finally {
             setHandleSubmitLoading(false)
         }
     }
 
-    const deleteTask = async () => {
-        await deleteTaskEdit(task, homework, isNewTask)
+    const handleDeleteTask = async () => {
+        await deleteTaskAction(task.id!, homework.id!)
     }
 
     const handleCancel = () => {
-        cancelTaskEdit(task, homework, isNewTask)
+        cancelTaskEdit(task.id!, homework.id!)
         props.onDone?.()
     }
 
     const isDisabled = hasErrors
-    const isNewHomework = task.homeworkId! < 0
-    const homeworkPublicationDateIsSet = !homework.publicationDateNotSet
-    const taskPublicationDate = task.publicationDateNotSet ? undefined : (task.publicationDate ? new Date(task.publicationDate) : undefined)
-    const taskDeadlineDate = task.deadlineDateNotSet ? undefined : (task.deadlineDate ? new Date(task.deadlineDate) : undefined)
-    const isPublished = task.isDeferred || !homework.isDeferred
-    const maxRatingLabel = criteria.length > 0 ? "Критерии" : (props.task as TaskEditData).suggestedMaxRating === maxRating ? "Вычислено" : undefined
-
-    if (!draft) return null
 
     return (
         <CardContent style={{position: 'relative'}}>
@@ -154,7 +175,7 @@ const CourseTaskEditor: FC<{
             >
                 <CloseIcon fontSize="small"/>
             </IconButton>
-            <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
+            <Grid item container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
                   alignItems={"flex-start"} alignContent={"start"}>
                 <Grid item xs={8}>
                     <Stack direction={"row"} spacing={1} alignItems={"flex-end"}>
@@ -166,7 +187,7 @@ const CourseTaskEditor: FC<{
                             variant="standard"
                             margin="normal"
                             value={task.title || ''}
-                            onChange={(e) => updateDraftTask({ ...task, title: e.target.value })}
+                            onChange={(e) => handleTitleChange(e.target.value)}
                         />
                         {!(homework.tags || []).includes(BonusTag) && <FormControlLabel
                             style={{height: 32}}
@@ -177,10 +198,7 @@ const CourseTaskEditor: FC<{
                                     size={"small"}
                                     color="primary"
                                     checked={isBonusExplicit}
-                                    onChange={() => updateDraftTask({
-                                        ...task,
-                                        tags: isBonusExplicit ? (task.tags || []).filter(t => t !== BonusTag) : [...(homework.tags || []), BonusTag]
-                                    })}
+                                    onChange={handleToggleBonus}
                                 />
                             }
                         />}
@@ -201,18 +219,7 @@ const CourseTaskEditor: FC<{
                         value={maxRating}
                         inputProps={{min: 1, max: 100}}
                         InputProps={{readOnly: autoMaxFromCriteria}}
-                        onChange={(e) => {
-                            if (!autoMaxFromCriteria) {
-                                const raw = +e.target.value || 0;
-                                const clamped = raw < 1 ? 1 : raw > 100 ? 100 : Math.round(raw);
-                                const ratingErrors = clamped < 1 || clamped > 100;
-                                updateDraftTask({
-                                    ...task,
-                                    maxRating: clamped,
-                                    hasErrors: ratingErrors || !!(task as TaskEditData).hasErrors,
-                                } as TaskEditData);
-                            }
-                        }}
+                        onChange={(e) => handleMaxRatingChange(e.target.value)}
                     />
                 </Grid>
             </Grid>
@@ -223,7 +230,7 @@ const CourseTaskEditor: FC<{
                         height={240}
                         maxHeight={400}
                         value={task.description || ''}
-                        onChange={(value) => updateDraftTask({ ...task, description: value })}
+                        onChange={handleDescriptionChange}
                     />
                 </Grid>
                 {homeworkPublicationDateIsSet &&
@@ -234,16 +241,8 @@ const CourseTaskEditor: FC<{
                             isDeadlineStrict={task.isDeadlineStrict ?? false}
                             publicationDate={taskPublicationDate}
                             deadlineDate={taskDeadlineDate}
-                            disabledPublicationDate={isPublished}
-                            onChange={(state) => updateDraftTask({
-                                ...task,
-                                hasDeadline: state.hasDeadline,
-                                isDeadlineStrict: state.isDeadlineStrict,
-                                publicationDate: state.publicationDate,
-                                deadlineDate: state.deadlineDate,
-                                deadlineDateNotSet: state.hasDeadline && !state.deadlineDate,
-                                hasErrors: state.hasErrors,
-                            } as unknown as HomeworkTaskViewModel)}
+                            disabledPublicationDate={isPublicationDateDisabled}
+                            onChange={handleDatesChange}
                         />
                     </Grid>
                 }
@@ -266,131 +265,14 @@ const CourseTaskEditor: FC<{
                         </Alert>
                     </Grid>
                 }
-                <Grid item xs={12} sx={{mt: 1, mb: 2}}>
-                    {criteria.length === 0 && (
-                        <Grid container direction={"row"} alignItems="baseline">
-                            <Grid item>
-                                <Typography variant="body2" color="text.secondary">
-                                    Критерии оценивания не указаны.&nbsp;
-                                </Typography>
-                            </Grid>
-                            <Grid item>
-                                <Link style={{cursor: "pointer"}} variant="body2" color="primary"
-                                      onClick={addDefaultCriterion}>
-                                    Добавить критерий оценивания
-                                </Link>
-                            </Grid>
-                        </Grid>
-                    )}
-                    {criteria.length > 0 && (
-                        <>
-                            <Box sx={{mb: 1}}>
-                                <Stack direction={"row"} alignItems={"center"} spacing={1}>
-                                    <IconButton
-                                        size="small"
-                                        onClick={() => setIsCriteriaOpen(prev => !prev)}
-                                    >
-                                        {isCriteriaOpen ? (
-                                            <ExpandLessIcon fontSize="small"/>
-                                        ) : (
-                                            <ExpandMoreIcon fontSize="small"/>
-                                        )}
-                                    </IconButton>
-
-                                    <Chip size={"small"} label={criteria.length} color={"default"}/>
-
-                                    <Typography variant="subtitle1">
-                                        Критерии оценивания
-                                    </Typography>
-                                </Stack>
-                            </Box>
-
-                            <Collapse in={isCriteriaOpen} timeout="auto" unmountOnExit>
-                                <Stack spacing={0.5}>
-                                    {criteria.map((c, index) => (
-                                        <Grid
-                                            key={index}
-                                            container
-                                            spacing={1}
-                                            alignItems="center"
-                                            sx={{py: 0.5}}
-                                        >
-                                            <Grid item xs>
-                                                <TextField
-                                                    fullWidth
-                                                    size="small"
-                                                    variant={"standard"}
-                                                    label="Название критерия"
-                                                    value={c.name}
-                                                    inputProps={{maxLength: 50}}
-                                                    onChange={(e) => {
-                                                        const raw = e.target.value;
-                                                        const limited = raw.slice(0, 50);
-                                                        updateCriterion(index, {name: limited});
-                                                    }}
-                                                />
-                                            </Grid>
-
-                                            <Grid item>
-                                                <TextField
-                                                    label="Баллы"
-                                                    type="number"
-                                                    size="small"
-                                                    sx={{width: 100}}
-                                                    value={c.maxPoints}
-                                                    inputProps={{min: 1}}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === "-") e.preventDefault();
-                                                    }}
-                                                    onChange={(e) =>
-                                                        updateCriterion(index, {
-                                                            maxPoints: Math.max(+e.target.value, 1),
-                                                        })
-                                                    }
-                                                    onBlur={(e) =>
-                                                        updateCriterion(index, {
-                                                            maxPoints: Math.max(+e.target.value, 1),
-                                                        })
-                                                    }
-                                                />
-                                            </Grid>
-                                            <Grid item>
-                                                <IconButton
-                                                    onClick={() => removeCriterion(index)}
-                                                    color={"error"}
-                                                    size="small"
-                                                >
-                                                    <CloseIcon fontSize="small"/>
-                                                </IconButton>
-                                            </Grid>
-                                        </Grid>
-                                    ))}
-                                    <Button
-                                        size="small"
-                                        onClick={addDefaultCriterion}
-                                        sx={{
-                                            textTransform: "none",
-                                            fontSize: "15px",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "6px",
-                                            color: "#1976d2",
-                                            paddingLeft: "0px",
-                                            paddingRight: "0px",
-                                            minWidth: "auto",
-                                            "&:hover": {
-                                                backgroundColor: "transparent",
-                                                textDecoration: "none"
-                                            }
-                                        }}
-                                    >
-                                        + Добавить критерий оценивания
-                                    </Button>
-                                </Stack>
-                            </Collapse>
-                        </>
-                    )}
-                </Grid>
+                <TaskCriteriaEditor
+                    criteria={criteria}
+                    isOpen={isCriteriaOpen}
+                    onToggleOpen={() => setIsCriteriaOpen(prev => !prev)}
+                    onAddCriterion={addDefaultCriterion}
+                    onUpdateCriterion={updateCriterion}
+                    onRemoveCriterion={removeCriterion}
+                />
             </Grid>
             <CardActions>
                 {!isNewHomework && publicationDate && new Date() >= new Date(publicationDate) && <ActionOptionsUI
@@ -417,7 +299,7 @@ const CourseTaskEditor: FC<{
             </CardActions>
             <DeletionConfirmation
                 onCancel={() => setShowDeleteConfirmation(false)}
-                onSubmit={deleteTask}
+                onSubmit={handleDeleteTask}
                 isOpen={showDeleteConfirmation}
                 dialogTitle={'Удаление задачи'}
                 dialogContentText={`Вы точно хотите удалить задачу '${task.title || ""}'?`}
@@ -434,25 +316,24 @@ const CourseTaskExperimental: FC<{
     toEditHomework: () => void,
 }> = (props) => {
     const isCourseMentor = useIsCourseMentor();
-    const draft = useDraftTask(props.task.id!, props.task.homeworkId!);
-    const {loadTaskForEditing, startEditingTask} = useTaskEditing();
+    const draftTask = useDraftTask(props.task.id!, props.task.homeworkId!);
+    const {startTaskEdit} = useCourseActions();
 
     const {task, homework} = props
     const [showEditMode, setShowEditMode] = useState(false)
 
-    if (draft) {
+    if (draftTask) {
         return <CourseTaskEditor
             key={task.id}
-            task={task}
+            task={draftTask}
             homework={homework}
             toEditHomework={props.toEditHomework}
         />
     }
 
-    const openEditor = () => {
+    const handleOpenEditor = () => {
         if (task.id! < 0) return
-        loadTaskForEditing(task.id!)
-            .then(r => startEditingTask(r.task!, r.homework!))
+        startTaskEdit(task.id!)
             .catch(() => {})
     }
 
@@ -461,9 +342,9 @@ const CourseTaskExperimental: FC<{
             onMouseEnter={() => setShowEditMode(isCourseMentor)}
             onMouseLeave={() => setShowEditMode(false)}
         >
-            <Grid xs={12} container direction={"row"} alignItems={"center"} alignContent={"center"}
+            <Grid item xs={12} container direction={"row"} alignItems={"center"} alignContent={"center"}
                   justifyContent={"space-between"}>
-                <Grid container spacing={1} xs={11} alignItems={"center"}>
+                <Grid item container spacing={1} xs={11} alignItems={"center"}>
                     <Grid item style={{marginRight: 1}}>
                         <Typography variant="h6" component="div">
                             {task.title}
@@ -483,7 +364,7 @@ const CourseTaskExperimental: FC<{
                         <IconButton
                             onClick={() => {
                                 setShowEditMode(false);
-                                openEditor();
+                                handleOpenEditor();
                             }}
                         >
                             <EditIcon color={"primary"} style={{fontSize: 17}}/>

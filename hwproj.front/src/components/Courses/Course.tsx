@@ -1,5 +1,5 @@
 import * as React from "react";
-import {FC, useEffect, useState} from "react";
+import {FC, useCallback, useEffect, useState} from "react";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
@@ -31,7 +31,7 @@ import {QRCodeSVG} from 'qrcode.react';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
-import {useCourseLoader, useCourseFiles, useIsCourseMentor, useCoursePageData} from "@/store/courseHooks";
+import {useCourseLoader, useCourseFiles, useIsCourseMentor, useCoursePageData, useUnratedSolutionsCount} from "@/store/storeHooks/courseHooks";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -63,62 +63,67 @@ const Course: React.FC = () => {
         isAcceptedStudent,
     } = useCoursePageData();
     const isCourseMentor = useIsCourseMentor();
+    const unratedSolutionsCount = useUnratedSolutionsCount();
     const {initUser, loadCourse, loadStudentSolutions, resetEditing} = useCourseLoader(+courseId!);
     const [showQrCode, setShowQrCode] = useState(false);
+    const [shouldLoadFilesAfterCourseReload, setShouldLoadFilesAfterCourseReload] = useState(false);
     const [pageState, setPageState] = useState<IPageState>({
         tabValue: "homeworks"
     })
 
-    useEffect(() => {
-        initUser();
-    }, [])
-    const {loadCourseFiles} = useCourseFiles(+courseId!, isCourseMentor);
+    const {loadCourseFiles} = useCourseFiles(+courseId!);
 
     const showStatsTab = isCourseMentor || isAcceptedStudent
     const showApplicationsTab = isCourseMentor
 
-    const changeTab = (newTab: string) => {
-        if (isAcceptableTabValue(newTab) && newTab !== pageState.tabValue) {
-            if (newTab === "stats" && !showStatsTab) return;
-            if (newTab === "applications" && !showApplicationsTab) return;
+    const changeTab = useCallback((newTab: string) => {
+        if (!isAcceptableTabValue(newTab)) return;
+        if (newTab === "stats" && !showStatsTab) return;
+        if (newTab === "applications" && !showApplicationsTab) return;
 
-            setPageState(prevState => ({
+        setPageState(prevState => prevState.tabValue === newTab
+            ? prevState
+            : {
                 ...prevState,
                 tabValue: newTab
-            }));
-        }
-    }
+            });
+    }, [showApplicationsTab, showStatsTab])
 
-    const setCurrentState = async () => {
+    const reloadCoursePage = useCallback(async () => {
+        initUser();
+        resetEditing();
+        setShouldLoadFilesAfterCourseReload(false);
         const loadedCourse = await loadCourse();
         if (loadedCourse == null) return;
-        await loadCourseFiles();
-    }
+        setShouldLoadFilesAfterCourseReload(true);
+    }, [initUser, loadCourse, resetEditing])
 
     useEffect(() => {
-        resetEditing()
-        setCurrentState()
-    }, [courseId])
+        reloadCoursePage()
+    }, [courseId, reloadCoursePage])
+
+    useEffect(() => {
+        if (!shouldLoadFilesAfterCourseReload || userId == null || !isFound) return;
+
+        loadCourseFiles(isCourseMentor);
+        setShouldLoadFilesAfterCourseReload(false);
+    }, [shouldLoadFilesAfterCourseReload, userId, isFound, isCourseMentor, loadCourseFiles])
 
     useEffect(() => {
         loadStudentSolutions()
-    }, [courseId])
+    }, [loadStudentSolutions])
 
-    useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
+    useEffect(() => {
+        changeTab(tab || "homeworks")
+    }, [changeTab, tab])
 
     const joinCourse = async () => {
-        await ApiSingleton.coursesApi.coursesSignInCourse(+courseId!)
-            .then(() => setCurrentState());
+        await ApiSingleton.coursesApi.coursesSignInCourse(+courseId!);
+        await reloadCoursePage();
     }
 
     const {tabValue} = pageState
     const searchedHomeworkId = searchParams.get("homeworkId")
-
-    const unratedSolutionsCount = studentSolutions
-        .flatMap(x => x.homeworks)
-        .flatMap(x => x!.tasks)
-        .filter(t => t!.solution!.slice(-1)[0]?.state === 0) //last solution
-        .length
 
     const [lecturerStatsState, setLecturerStatsState] = useState(false);
 

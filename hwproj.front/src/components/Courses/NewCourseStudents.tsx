@@ -3,10 +3,10 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {FC} from "react";
 import {Card, CardContent, CardActions, Grid, Button, Typography, Alert, AlertTitle} from '@mui/material';
 import {useCourseState} from "@/store/hooks";
-import {useRefreshCourse} from "@/store/courseHooks";
+import {useRefreshCourse} from "@/store/storeHooks/courseHooks";
 
 const NewCourseStudents: FC = () => {
-    const course = useCourseState(state => state.course.currentCourse);
+    const course = useCourseState(state => state.course.currentCourseMeta);
     const students = useCourseState(state => state.course.newStudents);
     const refreshCourse = useRefreshCourse();
 

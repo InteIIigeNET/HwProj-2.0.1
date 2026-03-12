@@ -15,10 +15,10 @@ import {
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
 import FilesPreviewList from "components/Files/FilesPreviewList";
 import {IFileInfo} from "components/Files/IFileInfo";
-import {FC, useEffect, useMemo, useState} from "react"
+import {FC, useState} from "react"
 import Utils from "services/Utils";
 import {
-    HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, PostTaskViewModel
+    HomeworkViewModel, ActionOptions, HomeworkTaskViewModel
 } from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import Tags from "../Common/Tags";
@@ -32,15 +32,17 @@ import DeletionConfirmation from "../DeletionConfirmation";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ActionOptionsUI from "components/Common/ActionOptions";
-import {BonusTag, DefaultTags, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
-import Lodash from "lodash";
+import {DefaultTags, TestTag} from "@/components/Common/HomeworkTags";
 import {CourseUnitType} from "../Files/CourseUnitType"
-import ProcessFilesUtils from "../Utils/ProcessFilesUtils";
 import {useCourseState} from "@/store/hooks";
-import {useIsCourseMentor} from "@/store/courseHooks";
+import {useIsCourseMentor} from "@/store/storeHooks/courseHooks";
 import {FilesHandler} from "@/components/Files/FilesHandler";
-import {useEditingSelection} from "@/store/courseEditingHooks";
-import {useDraftHomework, useHomeworkEditing, getHomeworkDeleteMessage} from "@/store/homeworkEditorHooks";
+import {
+    useDraftHomework,
+    getHomeworkDeleteMessage,
+    useHomeworkEditorState
+} from "@/store/storeHooks/homeworkEditorHooks";
+import {useCourseActions} from "@/store/courseActions";
 
 export interface HomeworkAndFilesInfo {
     homework: HomeworkViewModel,
@@ -56,102 +58,51 @@ const CourseHomeworkEditor: FC<{
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
 }> = (props) => {
-    const homework = props.homeworkAndFilesInfo.homework
-    const isNewHomework = homework.id! < 0
-    const homeworks = useCourseState(state => state.homeworks.items)
-    const draft = useDraftHomework(homework.id!)
+    const loadedHomework = props.homeworkAndFilesInfo.homework
     const {
-        startEditingHomework,
-        updateDraftHomework,
-        commitHomework,
-        commitHomeworkDeletion,
+        patchHomeworkDraft,
+        saveHomework,
+        deleteHomework,
         cancelHomeworkEdit,
-        loadHomeworkForEditing,
-        submitHomeworkApi,
-        deleteHomeworkApi,
-    } = useHomeworkEditing()
-    const {select} = useEditingSelection()
+    } = useCourseActions()
 
     const [handleSubmitLoading, setHandleSubmitLoading] = useState(false)
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
     const [editOptions, setEditOptions] = useState<ActionOptions>({sendNotification: false})
 
-    const {filesState, setFilesState, handleFilesChange} = FilesHandler(props.homeworkAndFilesInfo.filesInfo)
+    const {filesState, setFilesState} = FilesHandler(props.homeworkAndFilesInfo.filesInfo)
     const initialFilesInfo = props.homeworkAndFilesInfo.filesInfo.filter(x => x.id !== undefined)
 
-    useEffect(() => {
-        if (draft || homework.id! < 0) return
-        loadHomeworkForEditing(homework.id!)
-            .then(loaded => startEditingHomework(loaded))
-            .catch(() => {})
-    }, [homework.id, draft, startEditingHomework, loadHomeworkForEditing])
-
-    const loadedHomework = draft ?? homework
     const homeworkId = loadedHomework.id!
     const courseId = loadedHomework.courseId!
-    const publicationDate = loadedHomework.publicationDateNotSet || !loadedHomework.publicationDate
-        ? undefined
-        : new Date(loadedHomework.publicationDate!)
-    const deadlineDate = loadedHomework.deadlineDateNotSet || !loadedHomework.deadlineDate
-        ? undefined
-        : new Date(loadedHomework.deadlineDate!)
-    const isPublished = !loadedHomework.isDeferred
-    const changedTaskPublicationDates = (loadedHomework.tasks || [])
-        .filter(t => t.publicationDate != null)
-        .map(t => new Date(t.publicationDate!))
-    const taskHasErrors = (homework.tasks || []).some((x: HomeworkTaskViewModel & { hasErrors?: boolean }) => x.hasErrors === true)
-    const hasErrors = !loadedHomework.title || !!(loadedHomework as HomeworkViewModel & { hasErrors?: boolean }).hasErrors
+    const {
+        isNewHomework,
+        publicationDate,
+        deadlineDate,
+        isPublished,
+        changedTaskPublicationDates,
+        taskHasErrors,
+        hasErrors,
+        deadlineSuggestion,
+        tagSuggestion,
+    } = useHomeworkEditorState(loadedHomework)
 
-    const deadlineSuggestion = useMemo(() => {
-        if (!isNewHomework || !publicationDate) return undefined
-        const isTest = (loadedHomework.tags || []).includes(TestTag)
-        const isBonus = (loadedHomework.tags || []).includes(BonusTag)
-        type DateCandidate = { deadlineDate: Date; daysDiff: number }
-        const mapped: DateCandidate[] = homeworks
-            .filter(x => {
-                const xIsTest = isTestWork(x)
-                const xIsBonus = isBonusWork(x)
-                return x.id! > 0 && x.hasDeadline && (isTest && xIsTest || isBonus && xIsBonus || !isTest && !isBonus && !xIsTest && !xIsBonus)
-            })
-            .map(x => ({
-                deadlineDate: new Date(x.deadlineDate!),
-                daysDiff: Math.floor((new Date(x.deadlineDate!).getTime() - new Date(x.publicationDate!).getTime()) / (1000 * 3600 * 24))
-            }))
-        const dateCandidate = Lodash(mapped)
-            .groupBy((x: DateCandidate) => [x.daysDiff, x.deadlineDate.getHours(), x.deadlineDate.getMinutes()])
-            .entries()
-            .sortBy((x: [string, DateCandidate[]]) => x[1].length)
-            .last()?.[1][0]
-        if (!dateCandidate) return undefined
-        const out = new Date(publicationDate)
-        out.setDate(out.getDate() + dateCandidate.daysDiff)
-        out.setHours(dateCandidate.deadlineDate.getHours(), dateCandidate.deadlineDate.getMinutes(), 0, 0)
-        return out
-    }, [isNewHomework, publicationDate, loadedHomework.tags, homeworks])
+    const homeworkSaveFileOptions = {
+        initialFilesInfo,
+        selectedFilesInfo: filesState.selectedFilesInfo,
+        onStartProcessing: props.onStartProcessing,
+        onDone: props.onDone,
+    }
 
-    const tagSuggestion = useMemo(() => {
-        const title = (loadedHomework.title || '').toLowerCase()
-        const tags = loadedHomework.tags || []
-        if (tags.includes(TestTag)) return undefined
-        return (title.includes("контрольн") || title.includes("проверочн") || title.includes("переписывание") || title.includes("тест")) ? TestTag : undefined
-    }, [loadedHomework.title, loadedHomework.tags])
+    const homeworkDeleteFileOptions = { 
+        initialFilesInfo }
 
-    const deleteHomework = async () => {
-        await deleteHomeworkApi(homeworkId, isNewHomework)
-        const deletingFileIds = initialFilesInfo.filter(fileInfo => fileInfo.id).map(fileInfo => fileInfo.id!)
-        await ProcessFilesUtils.processFilesWithErrorsHadling({
-            courseId: courseId!,
-            courseUnitType: CourseUnitType.Homework,
-            courseUnitId: homeworkId,
-            deletingFileIds: deletingFileIds,
-            newFiles: []
-        })
-        commitHomeworkDeletion(homeworkId)
-        select({isHomework: true, id: undefined})
+    const handleDeleteHomework = async () => {
+        await deleteHomework(homeworkId, homeworkDeleteFileOptions)
     }
 
     const cancelEditing = () => {
-        cancelHomeworkEdit(homework.id!, isNewHomework)
+        cancelHomeworkEdit(loadedHomework.id!)
         props.onDone?.()
     }
 
@@ -159,47 +110,13 @@ const CourseHomeworkEditor: FC<{
         e.preventDefault()
         setHandleSubmitLoading(true)
         try {
-            const update = {
-                title: loadedHomework.title!,
-                description: loadedHomework.description,
-                tags: loadedHomework.tags || [],
-                hasDeadline: loadedHomework.hasDeadline,
-                deadlineDate: deadlineDate,
-                isDeadlineStrict: loadedHomework.isDeadlineStrict,
-                publicationDate: publicationDate,
-                actionOptions: editOptions,
-                tasks: isNewHomework ? (homework.tasks || []).map(t => ({
-                    title: t.title!,
-                    description: t.description,
-                    hasDeadline: t.hasDeadline,
-                    deadlineDate: t.deadlineDate,
-                    isDeadlineStrict: t.isDeadlineStrict,
-                    publicationDate: t.publicationDate,
-                    maxRating: t.maxRating!,
-                    criteria: t.criteria || []
-                } as PostTaskViewModel)) : []
-            }
-
-            const updatedHomework = await submitHomeworkApi(courseId!, homeworkId, isNewHomework, update)
-
-            const updatedHomeworkId = updatedHomework.value!.id!
-            await handleFilesChange(
-                courseId, CourseUnitType.Homework, updatedHomeworkId,
-                props.onStartProcessing,
-                () => {
-                    commitHomework(homework.id!, updatedHomework.value!)
-                    select({isHomework: true, id: updatedHomeworkId})
-                    props.onDone?.()
-                },
-            )
+            await saveHomework(homeworkId, editOptions, homeworkSaveFileOptions)
         } finally {
             setHandleSubmitLoading(false)
         }
     }
 
     const isDisabled = hasErrors || taskHasErrors
-
-    if (!draft) return null
 
     return (
         <CardContent style={{position: 'relative'}}>
@@ -212,7 +129,7 @@ const CourseHomeworkEditor: FC<{
             >
                 <CloseIcon fontSize="small"/>
             </IconButton>
-            <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
+            <Grid item container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
                   alignItems={"center"} alignContent={"center"} style={{marginTop: -24}}>
                 <Grid item>
                     <TextField
@@ -224,13 +141,13 @@ const CourseHomeworkEditor: FC<{
                         margin="normal"
                         error={!loadedHomework.title}
                         value={loadedHomework.title || ''}
-                        onChange={(e) => updateDraftHomework({ ...draft!, title: e.target.value })}
+                        onChange={(e) => patchHomeworkDraft({ ...loadedHomework, title: e.target.value })}
                     />
                 </Grid>
                 <Grid item xs={6} style={{marginTop: 6}}>
                     <Tags
                         tags={loadedHomework.tags || []}
-                        onTagsChange={(tags) => updateDraftHomework({ ...draft!, tags })}
+                        onTagsChange={(tags) => patchHomeworkDraft({ ...loadedHomework, tags })}
                         isElementSmall={false}
                         suggestion={tagSuggestion}
                         requestTags={() => ApiSingleton.coursesApi.coursesGetAllTagsForCourse(courseId)}/>
@@ -250,7 +167,7 @@ const CourseHomeworkEditor: FC<{
                         height={240}
                         maxHeight={400}
                         value={loadedHomework.description || ''}
-                        onChange={(value) => updateDraftHomework({ ...draft!, description: value })}
+                        onChange={(value) => patchHomeworkDraft({ ...loadedHomework, description: value })}
                     />
                 </Grid>
                 <Grid item xs={12} style={{marginBottom: "15px"}}>
@@ -275,14 +192,34 @@ const CourseHomeworkEditor: FC<{
                             disabledPublicationDate={!isNewHomework && isPublished}
                             onChange={(state) => {
                                 const conflictsWithTasks = changedTaskPublicationDates.some(d => publicationDate && d < publicationDate)
-                                updateDraftHomework({
-                                    ...draft!,
-                                    publicationDate: state.publicationDate,
+                                const currentPublicationDate = loadedHomework.publicationDate instanceof Date
+                                    ? loadedHomework.publicationDate.toISOString()
+                                    : loadedHomework.publicationDate
+                                const currentDeadlineDate = loadedHomework.deadlineDate instanceof Date
+                                    ? loadedHomework.deadlineDate.toISOString()
+                                    : loadedHomework.deadlineDate
+                                const nextPublicationDate = state.publicationDate?.toISOString()
+                                const nextDeadlineDate = state.deadlineDate?.toISOString()
+                                const nextDeadlineDateNotSet = state.hasDeadline && !state.deadlineDate
+                                const nextHasErrors = state.hasErrors || conflictsWithTasks
+                                if (
+                                    currentPublicationDate === nextPublicationDate
+                                    && currentDeadlineDate === nextDeadlineDate
+                                    && (loadedHomework.hasDeadline ?? false) === state.hasDeadline
+                                    && (loadedHomework.isDeadlineStrict ?? false) === state.isDeadlineStrict
+                                    && (loadedHomework.deadlineDateNotSet ?? false) === nextDeadlineDateNotSet
+                                    && (!!(loadedHomework as HomeworkViewModel & { hasErrors?: boolean }).hasErrors) === nextHasErrors
+                                ) {
+                                    return
+                                }
+                                patchHomeworkDraft({
+                                    ...loadedHomework,
+                                    publicationDate: nextPublicationDate,
                                     hasDeadline: state.hasDeadline,
-                                    deadlineDate: state.deadlineDate,
+                                    deadlineDate: nextDeadlineDate,
                                     isDeadlineStrict: state.isDeadlineStrict,
-                                    deadlineDateNotSet: state.hasDeadline && !state.deadlineDate,
-                                    hasErrors: state.hasErrors || conflictsWithTasks,
+                                    deadlineDateNotSet: nextDeadlineDateNotSet,
+                                    hasErrors: nextHasErrors,
                                 } as unknown as HomeworkViewModel)
                             }}
                         />
@@ -317,7 +254,7 @@ const CourseHomeworkEditor: FC<{
             </CardActions>
             <DeletionConfirmation
                 onCancel={() => setShowDeleteConfirmation(false)}
-                onSubmit={deleteHomework}
+                onSubmit={handleDeleteHomework}
                 isOpen={showDeleteConfirmation}
                 dialogTitle={'Удаление задания'}
                 dialogContentText={getHomeworkDeleteMessage(loadedHomework.title || '', initialFilesInfo)}
@@ -339,30 +276,29 @@ const CourseHomeworkExperimental: FC<{
 }> = (props) => {
     const isCourseMentor = useIsCourseMentor();
     const processingFilesState = useCourseState(state => state.courseFiles.processingFilesState);
-    const draft = useDraftHomework(props.homeworkAndFilesInfo.homework.id!);
-    const {loadHomeworkForEditing, startEditingHomework} = useHomeworkEditing();
+    const draftHomework = useDraftHomework(props.homeworkAndFilesInfo.homework.id!);
+    const {startHomeworkEdit} = useCourseActions();
 
     const {homework, filesInfo} = props.homeworkAndFilesInfo
     const deferredTasks = homework.tasks!.filter(t => t.isDeferred!)
     const tasksCount = homework.tasks!.length
     const [showEditMode, setShowEditMode] = useState(false)
 
-    if (draft) return <CourseHomeworkEditor
-        homeworkAndFilesInfo={{homework, filesInfo}}
+    if (draftHomework) return <CourseHomeworkEditor
+        homeworkAndFilesInfo={{homework: draftHomework, filesInfo}}
         onStartProcessing={props.onStartProcessing}
     />
 
     const openEditor = () => {
         if (homework.id! < 0) return
-        loadHomeworkForEditing(homework.id!)
-            .then(loaded => startEditingHomework(loaded))
+        startHomeworkEdit(homework.id!)
             .catch(() => {})
     }
 
     return <CardContent
         onMouseEnter={() => setShowEditMode(isCourseMentor)}
         onMouseLeave={() => setShowEditMode(false)}>
-        <Grid xs={12} container direction={"row"} alignItems={"start"} alignContent={"center"}
+        <Grid item xs={12} container direction={"row"} alignItems={"start"} alignContent={"center"}
               justifyContent={"space-between"}>
             <Grid item container spacing={1} xs={10}>
                 <Grid item>
