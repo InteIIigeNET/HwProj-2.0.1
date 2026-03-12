@@ -240,9 +240,15 @@ export const useTaskEditing = () => {
     }, [commitTaskRemoval, dispatch]);
 
     const discardTaskDraft = useCallback((task: HomeworkTaskViewModel, homework: HomeworkViewModel, isNewTask: boolean) => {
+        const draftHomework = draftHomeworks.find(dh => dh.id === task.homeworkId)
+        const remainingTasks = (draftHomework?.tasks || []).filter(t => t.id !== task.id);
         discardTaskDraftByIds(task.id!, task.homeworkId!);
         if (isNewTask) {
-            dispatch(setSelectedItem({ isHomework: true, id: homework.id }));
+            if (homework.id! < 0 && remainingTasks.length > 0) {
+                dispatch(setSelectedItem({ isHomework: false, id: remainingTasks[0].id }));
+            } else {
+                dispatch(setSelectedItem({ isHomework: true, id: homework.id }));
+            }
         } else {
             dispatch(setSelectedItem({ isHomework: false, id: task.id }));
         }
