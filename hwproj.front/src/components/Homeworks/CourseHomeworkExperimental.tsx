@@ -37,11 +37,7 @@ import {CourseUnitType} from "../Files/CourseUnitType"
 import {useCourseState} from "@/store/hooks";
 import {useIsCourseMentor} from "@/store/storeHooks/courseHooks";
 import {FilesHandler} from "@/components/Files/FilesHandler";
-import {
-    useDraftHomework,
-    getHomeworkDeleteMessage,
-    useHomeworkEditorState
-} from "@/store/storeHooks/homeworkEditorHooks";
+import {useDraftHomework, getHomeworkDeleteMessage, useHomeworkEditorState} from "@/store/storeHooks/homeworkEditorHooks";
 import {useCourseActions} from "@/store/courseActions";
 
 export interface HomeworkAndFilesInfo {

@@ -1,5 +1,5 @@
-import { useCallback, useMemo } from 'react';
-import { useCourseDispatch, useCourseState } from '../hooks';
+import {useCallback, useMemo} from 'react';
+import {useCourseDispatch, useCourseState} from '../hooks';
 import {
     addDraftHomework,
     updateDraftHomework as updateDraftHomeworkAction,
@@ -7,8 +7,8 @@ import {
     decrementDraftId,
     setSelectedItem,
 } from '../slices/courseEditingSlice';
-import { updateOrInsertHomework, deleteHomework } from '../slices/homeworkSlice';
-import { HomeworkViewModel, CreateHomeworkViewModel, ActionOptions, PostTaskViewModel } from '@/api';
+import {updateOrInsertHomework, deleteHomework} from '../slices/homeworkSlice';
+import {HomeworkViewModel, CreateHomeworkViewModel, ActionOptions, PostTaskViewModel} from '@/api';
 import ApiSingleton from '@/api/ApiSingleton';
 import {BonusTag, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
 import Lodash from "lodash";

@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo } from 'react';
-import { useCourseDispatch, useCourseState } from '../hooks';
-import { setSelectedItem, SelectedItem } from '../slices/courseEditingSlice';
-import { HomeworkViewModel, HomeworkTaskViewModel} from '@/api';
+import {useCallback, useEffect, useMemo} from 'react';
+import {useCourseDispatch, useCourseState} from '../hooks';
+import {setSelectedItem, SelectedItem} from '../slices/courseEditingSlice';
+import {HomeworkViewModel, HomeworkTaskViewModel} from '@/api';
 import {TestTag} from "@/components/Common/HomeworkTags";
 
 export const useMergedHomeworks = () => {
