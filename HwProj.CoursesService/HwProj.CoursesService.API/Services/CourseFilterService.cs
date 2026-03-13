@@ -90,6 +90,32 @@ namespace HwProj.CoursesService.API.Services
                 : courseDto;
             if (isMentor || !isCourseStudent) return course;
 
+            // Применение глобального фильтра для вычитания групповых домашних заданий
+            if (!isMentor)
+            {
+                var groupFilter = await _courseFilterRepository.GetAsync("", courseDto.Id);
+                if (groupFilter != null)
+                {
+                    // Если домашнее задание у пользователя в персональном фильтре, то не вычитаем его
+                    var userHomeworkIds = userFilter?.Filter.HomeworkIds ?? new List<long>();
+                    var homeworksToRemove = groupFilter.Filter.HomeworkIds.Except(userHomeworkIds).ToList();
+                    
+                    if (homeworksToRemove.Any())
+                    {
+                        var filterToRemove = new CourseFilter
+                        {
+                            Filter = new Filter
+                            {
+                                HomeworkIds = homeworksToRemove,
+                                StudentIds = new List<string>(),
+                                MentorIds = new List<string>()
+                            }
+                        };
+                        course = ApplyFilterSubtractive(course, filterToRemove);
+                    }
+                }
+            }
+
             var mentorIds = course.MentorIds
                 .Where(u =>
                     // Фильтрация не настроена вообще
