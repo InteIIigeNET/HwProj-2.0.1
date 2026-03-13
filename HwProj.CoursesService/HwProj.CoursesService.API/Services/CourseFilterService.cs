@@ -1,11 +1,13 @@
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
+using System;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -167,6 +169,54 @@ namespace HwProj.CoursesService.API.Services
                 Homeworks =
                     filter.HomeworkIds.Any()
                         ? courseDto.Homeworks.Where(hw => filter.HomeworkIds.Contains(hw.Id)).ToArray()
+                        : courseDto.Homeworks
+            };
+        }
+
+        private CourseDTO ApplyFilterSubtractive(CourseDTO courseDto, CourseFilter? courseFilter)
+        {
+            var filter = courseFilter?.Filter;
+
+            if (filter == null)
+            {
+                return courseDto;
+            }
+
+            return new CourseDTO
+            {
+                Id = courseDto.Id,
+                Name = courseDto.Name,
+                GroupName = courseDto.GroupName,
+                IsCompleted = courseDto.IsCompleted,
+                IsOpen = courseDto.IsOpen,
+                InviteCode = courseDto.InviteCode,
+                Groups =
+                    (filter.StudentIds.Any()
+                        ? courseDto.Groups.Select(gs =>
+                            {
+                                var filteredStudentsIds = gs.StudentsIds.Except(filter.StudentIds).ToArray();
+                                return filteredStudentsIds.Any()
+                                    ? new GroupViewModel
+                                    {
+                                        Id = gs.Id,
+                                        StudentsIds = filteredStudentsIds
+                                    }
+                                    : null;
+                            })
+                            .Where(t => t != null)
+                            .ToArray()
+                        : courseDto.Groups)!,
+                MentorIds = filter.MentorIds.Any()
+                    ? courseDto.MentorIds.Except(filter.MentorIds).ToArray()
+                    : courseDto.MentorIds,
+                CourseMates =
+                    filter.StudentIds.Any()
+                        ? courseDto.CourseMates
+                            .Where(mate => !mate.IsAccepted || !filter.StudentIds.Contains(mate.StudentId)).ToArray()
+                        : courseDto.CourseMates,
+                Homeworks =
+                    filter.HomeworkIds.Any()
+                        ? courseDto.Homeworks.Where(hw => !filter.HomeworkIds.Contains(hw.Id)).ToArray()
                         : courseDto.Homeworks
             };
         }
