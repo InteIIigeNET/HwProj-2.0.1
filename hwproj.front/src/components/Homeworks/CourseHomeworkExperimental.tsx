@@ -29,7 +29,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import {LoadingButton} from "@mui/lab";
 import DeletionConfirmation from "../DeletionConfirmation";
-import CloseIcon from "@mui/icons-material/Close";
+import UndoIcon from '@mui/icons-material/Undo';
 import DeleteIcon from "@mui/icons-material/Delete";
 import ActionOptionsUI from "components/Common/ActionOptions";
 import {DefaultTags, TestTag} from "@/components/Common/HomeworkTags";
@@ -123,7 +123,7 @@ const CourseHomeworkEditor: FC<{
                 color="error"
                 style={{position: 'absolute', top: -16, right: -16, zIndex: 1, backgroundColor: 'white', boxShadow: '0 0 4px rgba(0,0,0,0.2)'}}
             >
-                <CloseIcon fontSize="small"/>
+                <UndoIcon fontSize="small"/>
             </IconButton>
             <Grid item container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
                   alignItems={"center"} alignContent={"center"} style={{marginTop: -24}}>

@@ -26,7 +26,7 @@ import {useDraftTask, useTaskEditorState} from "@/store/storeHooks/taskEditorHoo
 import {useCourseActions} from "@/store/courseActions";
 import {useIsCourseMentor} from "@/store/storeHooks/courseHooks";
 import {Stack} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import UndoIcon from "@mui/icons-material/Undo";
 import TaskCriteria from "./TaskCriteria";
 import TaskCriteriaEditor from "./TaskCriteriaEditor";
 import {BonusTag} from "@/components/Common/HomeworkTags";
@@ -173,7 +173,7 @@ const CourseTaskEditor: FC<{
                 color="error"
                 style={{position: 'absolute', top: -16, right: -16, zIndex: 1, backgroundColor: 'white', boxShadow: '0 0 4px rgba(0,0,0,0.2)'}}
             >
-                <CloseIcon fontSize="small"/>
+                <UndoIcon fontSize="small"/>
             </IconButton>
             <Grid item container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
                   alignItems={"flex-start"} alignContent={"start"}>
