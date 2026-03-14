@@ -60,32 +60,21 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
 
     const deadlineDateNotSet = state.hasDeadline && !state.deadlineDate
     const deadlineSoonerThanHomework = isDeadlineSoonerThanPublication(state.publicationDate, state.deadlineDate)
-    const autoCalculatedDeadlineTime = props.autoCalculatedDeadline?.getTime() ?? null
 
     useEffect(() => {
         const validationResult = deadlineDateNotSet || deadlineSoonerThanHomework
+
         props.onChange({...state, hasErrors: validationResult})
     }, [state])
 
     useEffect(() => {
-        setState(prevState => {
-            const nextDeadlineDate = prevState.hasDeadline
-                ? props.autoCalculatedDeadline || prevState.deadlineDate || getInitialDeadlineDate(prevState.publicationDate)
-                : undefined
-
-            const prevDeadlineTime = prevState.deadlineDate?.getTime() ?? null
-            const nextDeadlineTime = nextDeadlineDate?.getTime() ?? null
-
-            if (prevDeadlineTime === nextDeadlineTime) {
-                return prevState
-            }
-
-            return {
-                ...prevState,
-                deadlineDate: nextDeadlineDate,
-            }
-        })
-    }, [autoCalculatedDeadlineTime])
+        setState(prevState => ({
+            ...prevState,
+            deadlineDate: state.hasDeadline
+                ? props.autoCalculatedDeadline || state.deadlineDate || getInitialDeadlineDate(prevState.publicationDate)
+                : undefined,
+        }))
+    }, [props.autoCalculatedDeadline])
 
     return <div>
         <Grid container direction="column" style={{marginTop: "10px"}}>
