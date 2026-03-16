@@ -5,18 +5,18 @@ namespace HwProj.Models.SolutionsService
     public class StudentSolutionsTableDto
     {
         public string StudentId { get; set; }
-        public List<Homework> Homeworks { get; set; }
-        
-        public class Homework
-        {
-            public long Id { get; set; }
-            public List<Task> Tasks { get; set; } = new List<Task>();
-        }
-    
-        public class Task
-        {
-            public long Id { get; set; }
-            public List<SolutionDto> Solutions { get; set; } = new List<SolutionDto>();
-        }
+        public List<StudentSolutionsTableHomeworkDto> Homeworks { get; set; }
+    }
+
+    public class StudentSolutionsTableHomeworkDto
+    {
+        public long Id { get; set; }
+        public List<StudentSolutionsTableTaskDto> Tasks { get; set; } = new List<StudentSolutionsTableTaskDto>();
+    }
+
+    public class StudentSolutionsTableTaskDto
+    {
+        public long Id { get; set; }
+        public List<SolutionDto> Solutions { get; set; } = new List<SolutionDto>();
     }
 }
