@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService;
-using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Domains;
@@ -43,12 +42,6 @@ namespace HwProj.SolutionsService.API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
-        public async Task<Solution[]> GetAllSolutions()
-        {
-            return await _solutionsService.GetAllSolutionsAsync();
-        }
-
         [HttpGet("{solutionId}")]
         public async Task<IActionResult> GetSolution(long solutionId)
         {
@@ -59,15 +52,17 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("taskSolutions/{taskId}/{studentId}")]
-        public async Task<Solution[]> GetTaskSolutionsFromStudent(long taskId, string studentId)
+        public async Task<SolutionDto[]> GetTaskSolutionsFromStudent(long taskId, string studentId)
         {
-            return await _solutionsService.GetTaskSolutionsFromStudentAsync(taskId, studentId);
+            var solutions = await _solutionsService.GetTaskSolutionsFromStudentAsync(taskId, studentId);
+            return _mapper.Map<SolutionDto[]>(solutions);
         }
 
         [HttpPost("taskSolutions/{studentId}")]
-        public async Task<Solution?[]> GetLastTaskSolutions([FromBody] long[] taskIds, string studentId)
+        public async Task<SolutionDto?[]> GetLastTaskSolutions([FromBody] long[] taskIds, string studentId)
         {
-            return await _solutionsService.GetLastTaskSolutions(taskIds, studentId);
+            var solutions = await _solutionsService.GetLastTaskSolutions(taskIds, studentId);
+            return _mapper.Map<SolutionDto[]>(solutions);
         }
 
         [HttpPost("{taskId}")]
@@ -139,9 +134,10 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("{groupId}/taskSolutions/{taskId}")]
-        public async Task<Solution[]> GetTaskSolutionsFromGroup(long groupId, long taskId)
+        public async Task<SolutionDto[]> GetTaskSolutionsFromGroup(long groupId, long taskId)
         {
-            return await _solutionsService.GetTaskSolutionsFromGroupAsync(taskId, groupId);
+            var solutions = await _solutionsService.GetTaskSolutionsFromGroupAsync(taskId, groupId);
+            return _mapper.Map<SolutionDto[]>(solutions);
         }
 
         [HttpGet("getLecturersStat/{courseId}")]
@@ -197,7 +193,7 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("getCourseStat/{courseId}")]
-        [ProducesResponseType(typeof(StatisticsCourseMatesDto[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(StudentSolutionsTableDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseStat(long courseId)
         {
             var course = await _coursesClient.GetCourseById(courseId);
@@ -215,15 +211,29 @@ namespace HwProj.SolutionsService.API.Controllers
                 : course.CourseMates.Where(t => t.StudentId == userId);
             var courseGroups = course.Groups;
 
-            var solutionsStatsContext = new StatisticsAggregateModel
+            var context = new StudentsSolutionsTableContext()
             {
                 CourseMates = courseMates,
                 Homeworks = course.Homeworks.Where(t => t.Tasks.Any()).ToList(),
                 Solutions = solutions,
                 Groups = courseGroups
             };
+            var table = SolutionsDomain.GetCourseSolutionsTable(context);
 
-            var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext);
+            var result = table.Select(x => new StudentSolutionsTableDto
+            {
+                StudentId = x.StudentId,
+                Homeworks = x.Homeworks.Select(h => new StudentSolutionsTableHomeworkDto
+                {
+                    Id = h.Id,
+                    Tasks = h.Tasks.Select(t => new StudentSolutionsTableTaskDto
+                    {
+                        Id = t.Id,
+                        Solutions = _mapper.Map<List<SolutionDto>>(t.Solutions)
+                    }).ToList()
+                }).ToList()
+            }).ToList();
+
             return Ok(result);
         }
 
@@ -279,7 +289,7 @@ namespace HwProj.SolutionsService.API.Controllers
         }
 
         [HttpGet("getTaskStats/{courseId}/{taskId}")]
-        [ProducesResponseType(typeof(StudentSolutions[]), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(StudentSolutionsDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetTaskStats(long courseId, long taskId)
         {
             var groups = await _coursesClient.GetAllCourseGroups(courseId);
@@ -288,7 +298,13 @@ namespace HwProj.SolutionsService.API.Controllers
             var solutionsGroups = solutions.Select(s => s.GroupId).Distinct();
             var taskGroups = groups.Where(g => solutionsGroups.Contains(g.Id));
 
-            var result = SolutionsStatsDomain.GetCourseTaskStatistics(solutions, taskGroups);
+            var studentsSolutions = SolutionsDomain.GetStudentsSolutions(solutions, taskGroups);
+            var result = studentsSolutions.Select(x => new StudentSolutionsDto
+            {
+                StudentId = x.StudentId,
+                Solutions = _mapper.Map<SolutionDto[]>(x.Solutions)
+            }).ToArray();
+
             return Ok(result);
         }
 

@@ -1,5 +1,5 @@
-﻿using HwProj.Repositories;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using HwProj.Repositories.Net8;
 
 namespace HwProj.CoursesService.API.Models
 {

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
-using HwProj.Repositories;
+using HwProj.Repositories.Net8;
 
 namespace HwProj.CoursesService.API.Repositories
 {
