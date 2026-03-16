@@ -7,7 +7,6 @@ using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.APIGateway.API.Models.Solutions;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
-using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using HwProj.Models.AuthService.DTO;
 using HwProj.Models.SolutionsService;
-using HwProj.Models.StatisticsService;
 
 namespace HwProj.APIGateway.API.Models.Statistics;
 
