@@ -223,10 +223,10 @@ namespace HwProj.SolutionsService.API.Controllers
             var result = table.Select(x => new StudentSolutionsTableDto
             {
                 StudentId = x.StudentId,
-                Homeworks = x.Homeworks.Select(h => new StudentSolutionsTableHomeworkDto
+                Homeworks = x.Homeworks.Select(h => new StudentSolutionsTableDto.Homework()
                 {
                     Id = h.Id,
-                    Tasks = h.Tasks.Select(t => new StudentSolutionsTableTaskDto
+                    Tasks = h.Tasks.Select(t => new StudentSolutionsTableDto.Task()
                     {
                         Id = t.Id,
                         Solutions = _mapper.Map<List<SolutionDto>>(t.Solutions)
