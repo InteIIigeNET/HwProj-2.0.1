@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
-using HwProj.Repositories;
+using HwProj.Repositories.Net8;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Repositories

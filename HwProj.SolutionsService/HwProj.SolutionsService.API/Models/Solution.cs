@@ -1,7 +1,8 @@
-﻿using HwProj.Repositories;
-using System;
+﻿using System;
+using HwProj.Models.SolutionsService;
+using HwProj.Repositories;
 
-namespace HwProj.Models.SolutionsService
+namespace HwProj.SolutionsService.API.Models
 {
     public class Solution : IEntity<long>
     {

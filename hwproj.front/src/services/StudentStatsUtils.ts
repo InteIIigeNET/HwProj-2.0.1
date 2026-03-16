@@ -1,4 +1,4 @@
-﻿import {Solution, SolutionState} from "../api";
+﻿import {SolutionDto, SolutionState} from "@/api";
 import {colorBetween} from "./JsUtils";
 import Utils from "./Utils";
 
@@ -17,12 +17,12 @@ export default class StudentStatsUtils {
             : "#ffffff"
     }
 
-    static calculateLastRatedSolution(solutions: Solution[]){
+    static calculateLastRatedSolution(solutions: SolutionDto[]){
         const ratedSolutions = solutions!.filter(x => x.state !== SolutionState.NUMBER_0)
         return ratedSolutions.slice(-1)[0]
     }
 
-    static calculateLastRatedSolutionInfo(solutions: Solution[], taskMaxRating: number) {
+    static calculateLastRatedSolutionInfo(solutions: SolutionDto[], taskMaxRating: number) {
         const ratedSolutions = solutions!.filter(x => x.state !== SolutionState.NUMBER_0)
         const ratedSolutionsCount = ratedSolutions.length
         const isFirstUnratedTry = ratedSolutionsCount === 0

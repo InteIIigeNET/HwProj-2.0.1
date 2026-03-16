@@ -1,8 +1,8 @@
 ﻿namespace HwProj.Models.SolutionsService
 {
-    public class StudentSolutions
+    public class StudentSolutionsDto
     {
         public string StudentId { get; set; }
-        public Solution[] Solutions { get; set; }
+        public SolutionDto[] Solutions { get; set; }
     }
 }

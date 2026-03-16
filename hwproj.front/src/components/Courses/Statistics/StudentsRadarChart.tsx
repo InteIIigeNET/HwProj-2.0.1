@@ -29,7 +29,7 @@ export const StudentsRadarChart: FC<{
             data: metrics
                 .map(m => x.homeworks!.find(t => t.id === m.id))
                 .map(x => x!.tasks!
-                    .flatMap(y => StudentStatsUtils.calculateLastRatedSolution(y.solution!)?.rating || 0)
+                    .flatMap(y => StudentStatsUtils.calculateLastRatedSolution(y.solutions!)?.rating || 0)
                     .reduce((a, b) => a + b))
         }))
 
