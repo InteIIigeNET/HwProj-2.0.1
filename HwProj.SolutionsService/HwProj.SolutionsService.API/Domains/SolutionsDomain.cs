@@ -20,11 +20,11 @@ namespace HwProj.SolutionsService.API.Domains
                     return new StudentSolutionsTable
                     {
                         StudentId = m.StudentId,
-                        Homeworks = new List<StudentSolutionsTable.StudentSolutionsTableHomework>(model.Homeworks.Select(h =>
-                            new StudentSolutionsTable.StudentSolutionsTableHomework
+                        Homeworks = new List<StudentSolutionsTable.Homework>(model.Homeworks.Select(h =>
+                            new StudentSolutionsTable.Homework
                             {
                                 Id = h.Id,
-                                Tasks = new List<StudentSolutionsTable.StudentSolutionsTableTask>(h.Tasks.Select(t =>
+                                Tasks = new List<StudentSolutionsTable.Task>(h.Tasks.Select(t =>
                                 {
                                     var solutions =
                                         model.Solutions
@@ -34,7 +34,7 @@ namespace HwProj.SolutionsService.API.Domains
                                                  studentGroupIds.Contains(s.GroupId.GetValueOrDefault())
                                                 ))
                                             .OrderBy(s => s.PublicationDate);
-                                    return new StudentSolutionsTable.StudentSolutionsTableTask
+                                    return new StudentSolutionsTable.Task
                                     {
                                         Id = t.Id,
                                         Solutions = solutions.ToList()
@@ -87,14 +87,14 @@ namespace HwProj.SolutionsService.API.Domains
     public class StudentSolutionsTable
     {
         public string StudentId { get; set; }
-        public List<StudentSolutionsTableHomework> Homeworks { get; set; }
+        public List<Homework> Homeworks { get; set; }
 
-        public class StudentSolutionsTableHomework
+        public class Homework
         {
             public long Id { get; set; }
-            public List<StudentSolutionsTableTask> Tasks { get; set; } = new List<StudentSolutionsTableTask>();
+            public List<Task> Tasks { get; set; } = new List<Task>();
         }
-        public class StudentSolutionsTableTask
+        public class Task
         {
             public long Id { get; set; }
             public List<Solution> Solutions { get; set; } = new List<Solution>();
