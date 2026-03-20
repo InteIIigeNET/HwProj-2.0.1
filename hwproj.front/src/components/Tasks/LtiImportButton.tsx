@@ -51,10 +51,10 @@ export const LtiImportButton: FC<LtiImportButtonProps> = ({ courseId, toolId, on
                 true
             );
             let dto = response;
-            console.log(dto);
             if (response && typeof (response as any).json === 'function') {
                 dto = await (response as any).json();
             }
+
             submitLtiForm(dto);
         } catch (e) {
             console.error(e);
