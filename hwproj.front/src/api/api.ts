@@ -498,10 +498,10 @@ export interface CourseViewModel {
     groups?: Array<GroupViewModel>;
     /**
      *
-     * @type {number}
+     * @type {string}
      * @memberof CourseViewModel
      */
-    ltiToolId?: number;
+    ltiToolName?: string;
     /**
      *
      * @type {Array<AccountDataDto>}
@@ -571,10 +571,10 @@ export interface CreateCourseViewModel {
     baseCourseId?: number;
     /**
      *
-     * @type {number}
+     * @type {string}
      * @memberof CreateCourseViewModel
      */
-    ltiToolId?: number;
+    ltiToolName?: string;
 }
 /**
  *
@@ -1607,12 +1607,6 @@ export interface LtiTokenBody {
 export interface LtiToolDto {
     /**
      *
-     * @type {number}
-     * @memberof LtiToolDto
-     */
-    id?: number;
-    /**
-     *
      * @type {string}
      * @memberof LtiToolDto
      */
@@ -2623,6 +2617,25 @@ export interface SolutionViewModel {
 /**
  *
  * @export
+ * @interface StringStringValuesKeyValuePair
+ */
+export interface StringStringValuesKeyValuePair {
+    /**
+     *
+     * @type {string}
+     * @memberof StringStringValuesKeyValuePair
+     */
+    key?: string;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof StringStringValuesKeyValuePair
+     */
+    value?: Array<string>;
+}
+/**
+ *
+ * @export
  * @interface StatisticsCourseMatesModel
  */
 export interface StatisticsCourseMatesModel {
@@ -3137,10 +3150,10 @@ export interface UpdateCourseViewModel {
     isCompleted?: boolean;
     /**
      *
-     * @type {number}
+     * @type {string}
      * @memberof UpdateCourseViewModel
      */
-    ltiToolId?: number;
+    ltiToolName?: string;
 }
 /**
  *
@@ -3300,10 +3313,10 @@ export interface UserTaskSolutionsPageData {
     courseId?: number;
     /**
      *
-     * @type {number}
+     * @type {string}
      * @memberof UserTaskSolutionsPageData
      */
-    ltiToolId?: number;
+    ltiToolName?: string;
     /**
      *
      * @type {Array<AccountDataDto>}
@@ -7950,7 +7963,7 @@ export const LtiAssignmentsGradesControllersApiFetchParamCreator = function (con
             if (taskId === null || taskId === undefined) {
                 throw new RequiredError('taskId','Required parameter taskId was null or undefined when calling ltiAssignmentsGradesControllersUpdateTaskScore.');
             }
-            const localVarPath = `/api/lti/lineItem/{taskId}`
+            const localVarPath = `/api/lti/lineItem/{taskId}/scores`
                 .replace(`{${"taskId"}}`, encodeURIComponent(String(taskId)));
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
@@ -7965,7 +7978,7 @@ export const LtiAssignmentsGradesControllersApiFetchParamCreator = function (con
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/vnd.ims.lti-ags.v1.score+json';
+            localVarHeaderParameter['Content-Type'] = 'application/json';
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
@@ -8144,14 +8157,14 @@ export const LtiAuthApiFetchParamCreator = function (configuration?: Configurati
          *
          * @param {string} [resourceLinkId]
          * @param {string} [courseId]
-         * @param {string} [toolId]
+         * @param {string} [toolName]
          * @param {string} [ltiLaunchUrl]
          * @param {string} [ltiCustomParams]
          * @param {boolean} [isDeepLink]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, ltiLaunchUrl?: string, ltiCustomParams?: string, isDeepLink?: boolean, options: any = {}): FetchArgs {
+        ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolName?: string, ltiLaunchUrl?: string, ltiCustomParams?: string, isDeepLink?: boolean, options: any = {}): FetchArgs {
             const localVarPath = `/api/lti/start`;
             const localVarUrlObj = url.parse(localVarPath, true);
             const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
@@ -8174,8 +8187,8 @@ export const LtiAuthApiFetchParamCreator = function (configuration?: Configurati
                 localVarQueryParameter['courseId'] = courseId;
             }
 
-            if (toolId !== undefined) {
-                localVarQueryParameter['toolId'] = toolId;
+            if (toolName !== undefined) {
+                localVarQueryParameter['toolName'] = toolName;
             }
 
             if (ltiLaunchUrl !== undefined) {
@@ -8252,15 +8265,15 @@ export const LtiAuthApiFp = function(configuration?: Configuration) {
          *
          * @param {string} [resourceLinkId]
          * @param {string} [courseId]
-         * @param {string} [toolId]
+         * @param {string} [toolName]
          * @param {string} [ltiLaunchUrl]
          * @param {string} [ltiCustomParams]
          * @param {boolean} [isDeepLink]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, ltiLaunchUrl?: string, ltiCustomParams?: string, isDeepLink?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = LtiAuthApiFetchParamCreator(configuration).ltiAuthStartLti(resourceLinkId, courseId, toolId, ltiLaunchUrl, ltiCustomParams, isDeepLink, options);
+        ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolName?: string, ltiLaunchUrl?: string, ltiCustomParams?: string, isDeepLink?: boolean, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = LtiAuthApiFetchParamCreator(configuration).ltiAuthStartLti(resourceLinkId, courseId, toolName, ltiLaunchUrl, ltiCustomParams, isDeepLink, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -8305,15 +8318,15 @@ export const LtiAuthApiFactory = function (configuration?: Configuration, fetch?
          *
          * @param {string} [resourceLinkId]
          * @param {string} [courseId]
-         * @param {string} [toolId]
+         * @param {string} [toolName]
          * @param {string} [ltiLaunchUrl]
          * @param {string} [ltiCustomParams]
          * @param {boolean} [isDeepLink]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, ltiLaunchUrl?: string, ltiCustomParams?: string, isDeepLink?: boolean, options?: any) {
-            return LtiAuthApiFp(configuration).ltiAuthStartLti(resourceLinkId, courseId, toolId, ltiLaunchUrl, ltiCustomParams, isDeepLink, options)(fetch, basePath);
+        ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolName?: string, ltiLaunchUrl?: string, ltiCustomParams?: string, isDeepLink?: boolean, options?: any) {
+            return LtiAuthApiFp(configuration).ltiAuthStartLti(resourceLinkId, courseId, toolName, ltiLaunchUrl, ltiCustomParams, isDeepLink, options)(fetch, basePath);
         },
     };
 };
@@ -8354,7 +8367,7 @@ export class LtiAuthApi extends BaseAPI {
      *
      * @param {string} [resourceLinkId]
      * @param {string} [courseId]
-     * @param {string} [toolId]
+     * @param {string} [toolName]
      * @param {string} [ltiLaunchUrl]
      * @param {string} [ltiCustomParams]
      * @param {boolean} [isDeepLink]
@@ -8362,8 +8375,8 @@ export class LtiAuthApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof LtiAuthApi
      */
-    public ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolId?: string, ltiLaunchUrl?: string, ltiCustomParams?: string, isDeepLink?: boolean, options?: any) {
-        return LtiAuthApiFp(this.configuration).ltiAuthStartLti(resourceLinkId, courseId, toolId, ltiLaunchUrl, ltiCustomParams, isDeepLink, options)(this.fetch, this.basePath);
+    public ltiAuthStartLti(resourceLinkId?: string, courseId?: string, toolName?: string, ltiLaunchUrl?: string, ltiCustomParams?: string, isDeepLink?: boolean, options?: any) {
+        return LtiAuthApiFp(this.configuration).ltiAuthStartLti(resourceLinkId, courseId, toolName, ltiLaunchUrl, ltiCustomParams, isDeepLink, options)(this.fetch, this.basePath);
     }
 
 }
@@ -8375,11 +8388,12 @@ export const LtiToolsApiFetchParamCreator = function (configuration?: Configurat
     return {
         /**
          *
-         * @param {number} id
+         * @param {string} id
+         * @param {string} [name]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ltiToolsGet(id: number, options: any = {}): FetchArgs {
+        ltiToolsGet(id: string, name?: string, options: any = {}): FetchArgs {
             // verify required parameter 'id' is not null or undefined
             if (id === null || id === undefined) {
                 throw new RequiredError('id','Required parameter id was null or undefined when calling ltiToolsGet.');
@@ -8397,6 +8411,10 @@ export const LtiToolsApiFetchParamCreator = function (configuration?: Configurat
                     ? configuration.apiKey("Authorization")
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            if (name !== undefined) {
+                localVarQueryParameter['name'] = name;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -8450,12 +8468,13 @@ export const LtiToolsApiFp = function(configuration?: Configuration) {
     return {
         /**
          *
-         * @param {number} id
+         * @param {string} id
+         * @param {string} [name]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ltiToolsGet(id: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<LtiToolDto> {
-            const localVarFetchArgs = LtiToolsApiFetchParamCreator(configuration).ltiToolsGet(id, options);
+        ltiToolsGet(id: string, name?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<LtiToolDto> {
+            const localVarFetchArgs = LtiToolsApiFetchParamCreator(configuration).ltiToolsGet(id, name, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -8494,12 +8513,13 @@ export const LtiToolsApiFactory = function (configuration?: Configuration, fetch
     return {
         /**
          *
-         * @param {number} id
+         * @param {string} id
+         * @param {string} [name]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ltiToolsGet(id: number, options?: any) {
-            return LtiToolsApiFp(configuration).ltiToolsGet(id, options)(fetch, basePath);
+        ltiToolsGet(id: string, name?: string, options?: any) {
+            return LtiToolsApiFp(configuration).ltiToolsGet(id, name, options)(fetch, basePath);
         },
         /**
          *
@@ -8521,13 +8541,14 @@ export const LtiToolsApiFactory = function (configuration?: Configuration, fetch
 export class LtiToolsApi extends BaseAPI {
     /**
      *
-     * @param {number} id
+     * @param {string} id
+     * @param {string} [name]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof LtiToolsApi
      */
-    public ltiToolsGet(id: number, options?: any) {
-        return LtiToolsApiFp(this.configuration).ltiToolsGet(id, options)(this.fetch, this.basePath);
+    public ltiToolsGet(id: string, name?: string, options?: any) {
+        return LtiToolsApiFp(this.configuration).ltiToolsGet(id, name, options)(this.fetch, this.basePath);
     }
 
     /**

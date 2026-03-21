@@ -54,10 +54,9 @@ namespace HwProj.CoursesService.API.Services
 
             var taskId = await _tasksRepository.AddAsync(task);
 
-            var ltiLaunchData = taskViewModel.LtiLaunchData.ToLtiLaunchData();
-            if (ltiLaunchData != null && !string.IsNullOrEmpty(ltiLaunchData.LtiLaunchUrl))
+            if (taskViewModel.LtiLaunchData != null && !string.IsNullOrEmpty(taskViewModel.LtiLaunchData.LtiLaunchUrl))
             {
-                await _tasksRepository.AddLtiUrlAsync(taskId, ltiLaunchData);
+                await _tasksRepository.AddOrUpdateLtiLaunchDataAsync(taskId, taskViewModel.LtiLaunchData.ToLtiLaunchData()!);
             }
 
             var deadlineDate = task.DeadlineDate ?? homework.DeadlineDate;
@@ -102,13 +101,18 @@ namespace HwProj.CoursesService.API.Services
                 IsBonusExplicit = update.IsBonusExplicit,
             }, update.Criteria);
 
-            var ltiLaunchData = taskViewModel.LtiLaunchData.ToLtiLaunchData();
-            if (ltiLaunchData != null && !string.IsNullOrEmpty(ltiLaunchData.LtiLaunchUrl))
+            if (taskViewModel.LtiLaunchData != null && !string.IsNullOrEmpty(taskViewModel.LtiLaunchData.LtiLaunchUrl))
             {
-                await _tasksRepository.AddLtiUrlAsync(taskId, ltiLaunchData);
+                await _tasksRepository.AddOrUpdateLtiLaunchDataAsync(taskId, taskViewModel.LtiLaunchData.ToLtiLaunchData()!);
             }
 
             return await GetTaskAsync(taskId, true);
+        }
+
+        public async Task FillTaskViewModelWithLtiLaunchDataAsync(HomeworkTaskViewModel taskViewModel, long taskId)
+        {
+            var ltiLaunchData = await this.GetTaskLtiDataAsync(taskId);
+            taskViewModel.LtiLaunchData = ltiLaunchData.ToLtiLaunchData();
         }
 
         public async Task<LtiLaunchData?> GetTaskLtiDataAsync(long taskId)

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HwProj.CoursesService.API.Models
 {
-    public class HomeworkTaskLtiUrl
+    public class HomeworkTaskLtiLaunchData
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -12,6 +12,7 @@ namespace HwProj.CoursesService.API.Models
         [Required]
         public string LtiLaunchUrl { get; set; }
 
+        /// JSON
         public string? CustomParams { get; set; }
     }
 }

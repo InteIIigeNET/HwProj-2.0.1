@@ -1,4 +1,4 @@
-namespace HwProj.APIGateway.API.Lti.Models;
+namespace HwProj.APIGateway.API.Lti.Configuration;
 
 public class LtiPlatformConfig
 {

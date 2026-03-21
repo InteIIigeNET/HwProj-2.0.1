@@ -80,7 +80,7 @@ export const CreateCourse: FC = () => {
         fetchingGroups: false,
         courseIsLoading: false,
         ltiTools: [],
-        ltiToolId: undefined,
+        ltiToolName: undefined,
     })
 
     const {activeStep, completedSteps, baseCourses, selectedBaseCourse} = state
@@ -185,7 +185,7 @@ export const CreateCourse: FC = () => {
             isOpen: true,
             baseCourseId: selectedBaseCourse?.id,
             fetchStudents: state.isGroupFromList ? state.fetchStudents : false,
-            ltiToolId: state.ltiToolId,
+            ltiToolName: state.ltiToolName,
         }
         try {
             setCourseIsLoading(true)

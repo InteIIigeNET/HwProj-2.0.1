@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
 using HwProj.APIGateway.API.Filters;
-using HwProj.APIGateway.API.Lti.Models;
+using HwProj.APIGateway.API.Lti.Configuration;
 using HwProj.APIGateway.API.Lti.Services;
 using HwProj.APIGateway.API.LTI.Services;
 using HwProj.AuthService.Client;
@@ -95,6 +95,7 @@ public class Startup
                 };
             });
 
+        services.AddMemoryCache();
         services.AddHttpClient();
         services.AddHttpContextAccessor();
 

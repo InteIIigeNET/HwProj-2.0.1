@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using System.Threading.Tasks;
-using HwProj.APIGateway.API.Lti.Models;
+using HwProj.APIGateway.API.Lti.Configuration;
 using HwProj.APIGateway.API.Lti.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -39,9 +39,9 @@ public class LtiDeepLinkingReturnController(
         }
 
         var unverifiedToken = handler.ReadJwtToken(tokenString);
-        var clientId = unverifiedToken.Issuer;
+        var clientId = unverifiedToken.Subject;
 
-        var tool = await toolService.GetByClientIdAsync(clientId);
+        var tool = toolService.GetByClientId(clientId);
         if (tool == null)
         {
             return Unauthorized($"Unknown tool clientId: {clientId}");
@@ -98,6 +98,7 @@ public class LtiDeepLinkingReturnController(
 
         var responsePayloadJson = JsonSerializer.Serialize(resultList);
 
+        // language=html
         var htmlResponse = $@"
         <!DOCTYPE html>
         <html>

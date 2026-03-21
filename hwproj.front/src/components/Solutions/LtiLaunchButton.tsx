@@ -7,12 +7,12 @@ import {LtiLaunchData} from "@/api";
 
 interface LtiLaunchButtonProps {
     courseId: number;
-    toolId: number;
+    toolName: string;
     taskId: number;
     ltiLaunchData: LtiLaunchData;
 }
 
-export const LtiLaunchButton: FC<LtiLaunchButtonProps> = ({ courseId, toolId, taskId, ltiLaunchData }) => {
+export const LtiLaunchButton: FC<LtiLaunchButtonProps> = ({ courseId, toolName, taskId, ltiLaunchData }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
 
@@ -46,7 +46,7 @@ export const LtiLaunchButton: FC<LtiLaunchButtonProps> = ({ courseId, toolId, ta
             const response = await ApiSingleton.ltiAuthApi.ltiAuthStartLti(
                 String(taskId),
                 String(courseId),
-                String(toolId),
+                toolName,
                 ltiLaunchData.ltiLaunchUrl,
                 ltiLaunchData.customParams,
                 false

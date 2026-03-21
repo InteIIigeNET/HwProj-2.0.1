@@ -13,11 +13,11 @@ export interface LtiItemDto {
 
 interface LtiImportButtonProps {
     courseId: number;
-    toolId: number;
+    toolName: string;
     onImport: (items: LtiItemDto[]) => void;
 }
 
-export const LtiImportButton: FC<LtiImportButtonProps> = ({ courseId, toolId, onImport }) => {
+export const LtiImportButton: FC<LtiImportButtonProps> = ({ courseId, toolName, onImport }) => {
     const submitLtiForm = (formData: any) => {
         const windowName = "lti_tab_" + new Date().getTime();
         window.open('about:blank', windowName);
@@ -45,7 +45,7 @@ export const LtiImportButton: FC<LtiImportButtonProps> = ({ courseId, toolId, on
         try {
             const response = await ApiSingleton.ltiAuthApi.ltiAuthStartLti(
                 undefined,
-                String(courseId), String(toolId), 
+                String(courseId), toolName, 
                 undefined,
                 undefined,
                 true

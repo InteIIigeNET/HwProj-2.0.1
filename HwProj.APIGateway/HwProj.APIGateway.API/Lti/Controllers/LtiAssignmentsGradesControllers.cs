@@ -39,7 +39,7 @@ public class LtiAssignmentsGradesControllers(
             return Unauthorized("Unknown tool client id.");
         }
 
-        var tool = await toolService.GetByClientIdAsync(toolClientId);
+        var tool = toolService.GetByClientId(toolClientId);
         if (tool == null)
         {
             return BadRequest("Tool not found.");
@@ -51,7 +51,7 @@ public class LtiAssignmentsGradesControllers(
             return BadRequest("The task does not belong to any course.");
         }
 
-        if (course.LtiToolId != tool.Id)
+        if (course.LtiToolName != tool.Name)
         {
             return BadRequest("This tool does not apply to this course.");
         }
@@ -70,7 +70,7 @@ public class LtiAssignmentsGradesControllers(
         {
             return NotFound(ex.Message);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return StatusCode(500, "Internal Server Error");
         }

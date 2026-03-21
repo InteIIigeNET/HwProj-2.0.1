@@ -1,7 +1,7 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
-using HwProj.APIGateway.API.Lti.Models;
+using HwProj.APIGateway.API.Lti.Configuration;
 using HwProj.APIGateway.API.Lti.Services;
 using HwProj.APIGateway.API.LTI.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -51,7 +51,7 @@ public class LtiAccessTokenController(
 
         var clientId = unverifiedToken.Subject;
 
-        var tool = await toolService.GetByClientIdAsync(clientId);
+        var tool = toolService.GetByClientId(clientId);
         if (tool == null)
         {
             return Unauthorized(new { error = "invalid_client", error_description = $"Unknown clientId: {clientId}" });

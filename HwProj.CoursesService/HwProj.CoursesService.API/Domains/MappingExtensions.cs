@@ -104,7 +104,7 @@ namespace HwProj.CoursesService.API.Domains
                 InviteCode = course.InviteCode,
                 CourseMates = course.CourseMates.Select(cm => cm.ToCourseMateViewModel()).ToArray(),
                 Homeworks = course.Homeworks.Select(h => h.ToHomeworkViewModel()).ToArray(),
-                LtiToolId =  course.LtiToolId,
+                LtiToolName =  course.LtiToolName,
             };
 
         public static CoursePreview ToCoursePreview(this Course course)
@@ -160,7 +160,7 @@ namespace HwProj.CoursesService.API.Domains
                 Name = createCourseViewModel.Name,
                 GroupName = string.Join(", ", createCourseViewModel.GroupNames),
                 IsOpen = createCourseViewModel.IsOpen,
-                LtiToolId = createCourseViewModel.LtiToolId,
+                LtiToolName = createCourseViewModel.LtiToolName,
             };
 
         public static CourseTemplate ToCourseTemplate(this Course course)
@@ -170,7 +170,7 @@ namespace HwProj.CoursesService.API.Domains
                 GroupName = course.GroupName,
                 IsOpen = course.IsOpen,
                 Homeworks = course.Homeworks.Select(h => h.ToHomeworkTemplate()).ToList(),
-                LtiToolId = course.LtiToolId,
+                LtiToolName = course.LtiToolName,
             };
 
         public static HomeworkTemplate ToHomeworkTemplate(this Homework homework)
@@ -195,12 +195,6 @@ namespace HwProj.CoursesService.API.Domains
                 HasSpecialPublicationDate = task.PublicationDate != null,
                 HasSpecialDeadlineDate = task.DeadlineDate != null,
                 IsBonusExplicit = task.IsBonusExplicit,
-                LtiLaunchData = task.LtiLaunchData == null ? null :
-                    new LtiLaunchData
-                    {
-                        LtiLaunchUrl =  task.LtiLaunchData.LtiLaunchUrl,
-                        CustomParams =  task.LtiLaunchData.CustomParams
-                    }
             };
 
         public static Course ToCourse(this CourseTemplate courseTemplate)
@@ -209,7 +203,7 @@ namespace HwProj.CoursesService.API.Domains
                 Name = courseTemplate.Name,
                 GroupName = courseTemplate.GroupName,
                 IsOpen = courseTemplate.IsOpen,
-                LtiToolId = courseTemplate.LtiToolId,
+                LtiToolName = courseTemplate.LtiToolName,
             };
 
         public static Homework ToHomework(this HomeworkTemplate homeworkTemplate, long courseId)

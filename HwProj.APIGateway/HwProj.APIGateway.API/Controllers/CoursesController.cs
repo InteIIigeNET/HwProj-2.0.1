@@ -311,7 +311,7 @@ public class CoursesController : AggregationController
             Groups = course.Groups,
             IsCompleted = course.IsCompleted,
             IsOpen = course.IsOpen,
-            LtiToolId =  course.LtiToolId,
+            LtiToolName =  course.LtiToolName,
         };
     }
 }

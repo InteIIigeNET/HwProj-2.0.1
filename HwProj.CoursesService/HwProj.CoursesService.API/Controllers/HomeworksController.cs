@@ -32,7 +32,7 @@ namespace HwProj.CoursesService.API.Controllers
             var newHomework = await _homeworksService.AddHomeworkAsync(courseId, homeworkViewModel);
             var responseViewModel = newHomework.ToHomeworkViewModel();
 
-            await FillLtiUrls(responseViewModel);
+            await FillLtiLaunchDataForTasks(responseViewModel);
 
             return Ok(responseViewModel);
         }
@@ -43,7 +43,7 @@ namespace HwProj.CoursesService.API.Controllers
             var homeworkFromDb = await _homeworksService.GetHomeworkAsync(homeworkId);
             var homeworkViewModel = homeworkFromDb.ToHomeworkViewModel();
 
-            await FillLtiUrls(homeworkViewModel);
+            await FillLtiLaunchDataForTasks(homeworkViewModel);
 
             return homeworkViewModel;
         }
@@ -55,7 +55,7 @@ namespace HwProj.CoursesService.API.Controllers
             var homeworkFromDb = await _homeworksService.GetForEditingHomeworkAsync(homeworkId);
             var homeworkViewModel = homeworkFromDb.ToHomeworkViewModel();
 
-            await FillLtiUrls(homeworkViewModel);
+            await FillLtiLaunchDataForTasks(homeworkViewModel);
 
             return homeworkViewModel;
         }
@@ -79,12 +79,12 @@ namespace HwProj.CoursesService.API.Controllers
             var updatedHomework = await _homeworksService.UpdateHomeworkAsync(homeworkId, homeworkViewModel);
             var responseViewModel = updatedHomework.ToHomeworkViewModel();
 
-            await FillLtiUrls(responseViewModel);
+            await FillLtiLaunchDataForTasks(responseViewModel);
 
             return Ok(responseViewModel);
         }
 
-        private async Task FillLtiUrls(HomeworkViewModel viewModel)
+        private async Task FillLtiLaunchDataForTasks(HomeworkViewModel viewModel)
         {
             if (viewModel.Tasks != null && viewModel.Tasks.Any())
             {

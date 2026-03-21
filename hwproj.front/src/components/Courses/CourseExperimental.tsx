@@ -193,7 +193,7 @@ interface ICourseExperimentalProps {
     courseFilesInfo: FileInfoDTO[]
     studentSolutions: StatisticsCourseMatesModel[]
     courseId: number
-    ltiToolId: number | undefined
+    ltiToolName: string | undefined
     isMentor: boolean
     isStudentAccepted: boolean
     userId: string
@@ -666,19 +666,18 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             if (!item.ltiLaunchData) return
             const targetRating = item.scoreMaximum > 0 ? item.scoreMaximum : suggestedRating
 
-            props.onTaskUpdate({
-                task: {
-                    id: currentCounter,
-                    homeworkId: homework.id,
-                    title: item.title || "External Task",
-                    description: item.text?.trim() || "",
-                    maxRating: targetRating,
-                    suggestedMaxRating: targetRating,
-                    tags: homework.tags,
-                    isDeferred: homework.isDeferred,
-                    ltiLaunchData: item.ltiLaunchData,
-                }
-            })
+            const task = {
+                id: currentCounter,
+                homeworkId: homework.id,
+                title: item.title || "External Task",
+                description: item.text?.trim() || "",
+                maxRating: targetRating,
+                suggestedMaxRating: targetRating,
+                tags: homework.tags,
+                isDeferred: homework.isDeferred,
+                ltiLaunchData: item.ltiLaunchData,
+            }
+            props.onTaskUpdate({task})
             currentCounter--
         })
 
@@ -979,10 +978,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                                 sx={{textTransform: "none", borderRadius: "10px"}}>
                                             Добавить задачу
                                         </Button>
-                                        {props.ltiToolId &&
+                                        {props.ltiToolName &&
                                             <LtiImportButton
                                                 courseId={props.courseId}
-                                                toolId={props.ltiToolId}
+                                                toolName={props.ltiToolName}
                                                 onImport={(items) => handleLtiImport(items, x)}
                                             />}
                                     </Stack>}

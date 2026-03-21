@@ -173,14 +173,14 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                 options={state.ltiTools}
                 getOptionLabel={(option) => option.name ?? ""}
                 value={
-                    state.ltiToolId == null
+                    state.ltiToolName == null
                         ? null
-                        : state.ltiTools.find(tool => tool.id === state.ltiToolId) ?? null
+                        : state.ltiTools.find(tool => tool.name === state.ltiToolName) ?? null
                 }
                 onChange={(_, newValue) => {
                     setState(prev => ({
                         ...prev,
-                        ltiToolId: newValue?.id ?? undefined,
+                        ltiToolName: newValue?.name ?? undefined,
                     }));
                 }}
                 renderInput={(params) => (

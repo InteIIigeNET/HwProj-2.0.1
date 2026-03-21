@@ -3,7 +3,8 @@ using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
-using HwProj.APIGateway.API.Lti.Models;
+using HwProj.APIGateway.API.Lti.Configuration;
+using HwProj.APIGateway.API.Lti.DTOs;
 using HwProj.APIGateway.API.Lti.Services;
 using HwProj.APIGateway.API.LTI.Services;
 using HwProj.CoursesService.Client;
@@ -48,12 +49,12 @@ public class LtiAuthController(
             return BadRequest("Invalid or expired lti_message_hint");
         }
 
-        if (payload?.ToolId == null || payload.CourseId == null)
+        if (payload?.ToolName == null || payload.CourseId == null)
         {
             return BadRequest("Invalid or expired lti_message_hint");
         }
 
-        var tool = await toolService.GetByIdAsync(long.Parse(payload.ToolId));
+        var tool = toolService.GetByName(payload.ToolName);
         if (tool == null)
         {
             return BadRequest("Tool not found");
@@ -70,7 +71,7 @@ public class LtiAuthController(
             return NotFound("Course not found");
         }
 
-        if (course.LtiToolId != tool.Id)
+        if (course.LtiToolName != tool.Name)
         {
             return BadRequest("The data is incorrect: the id of the instrument linked to the exchange rate does not match");
         }
@@ -81,7 +82,6 @@ public class LtiAuthController(
             case "DeepLinking":
                 idToken = tokenService.CreateDeepLinkingToken(
                     clientId: clientId,
-                    toolId: payload.ToolId,
                     courseId: payload.CourseId,
                     targetLinkUri: redirectUri,
                     userId:  payload.UserId,
@@ -91,7 +91,6 @@ public class LtiAuthController(
             case "ResourceLink":
                 idToken = tokenService.CreateResourceLinkToken(
                     clientId: clientId,
-                    toolId: payload.ToolId,
                     courseId: payload.CourseId,
                     targetLinkUri: redirectUri,
                     ltiCustomParams: payload.Custom,
@@ -123,7 +122,7 @@ public class LtiAuthController(
     public async Task<IActionResult> StartLti(
         [FromQuery] string? resourceLinkId,
         [FromQuery] string? courseId,
-        [FromQuery] string? toolId,
+        [FromQuery] string? toolName,
         [FromQuery] string? ltiLaunchUrl,
         [FromQuery] string? ltiCustomParams,
         [FromQuery] bool isDeepLink = false)
@@ -137,12 +136,12 @@ public class LtiAuthController(
         string targetUrl;
         LtiHintPayload payload;
 
-        if (courseId == null || toolId == null)
+        if (courseId == null || toolName == null)
         {
             return BadRequest("For Deep Linking, courseId and toolId are required.");
         }
 
-        var tool = await toolService.GetByIdAsync(long.Parse(toolId));
+        var tool = toolService.GetByName(toolName);
         if (tool == null)
         {
             return NotFound("Tool not found");
@@ -154,7 +153,7 @@ public class LtiAuthController(
             return NotFound("Course not found");
         }
 
-        if (course.LtiToolId != long.Parse(toolId))
+        if (course.LtiToolName != toolName)
         {
             return BadRequest("The data is incorrect: the id of the instrument linked to the exchange rate does not match");
         }
@@ -170,7 +169,7 @@ public class LtiAuthController(
                 Type = "DeepLinking",
                 UserId = userId,
                 CourseId = courseId,
-                ToolId = toolId
+                ToolName = toolName
             };
         }
         else if (!string.IsNullOrEmpty(resourceLinkId) && !string.IsNullOrEmpty(ltiLaunchUrl))
@@ -182,7 +181,7 @@ public class LtiAuthController(
                 Type = "ResourceLink",
                 UserId = userId,
                 CourseId = courseId,
-                ToolId = toolId,
+                ToolName = toolName,
                 ResourceLinkId = resourceLinkId,
                 Custom =  ltiCustomParams
             };
@@ -195,19 +194,17 @@ public class LtiAuthController(
         var json = JsonSerializer.Serialize(payload);
         var messageHint = this.protector.Protect(json);
 
-        var dto = new AuthorizePostFormDto()
-        {
-            ActionUrl = tool.InitiateLoginUri,
-            Method = "POST",
-            Fields = new Dictionary<string, string>
+        var dto = new AuthorizePostFormDto(
+            tool.InitiateLoginUri,
+            "POST",
+            new Dictionary<string, string>
             {
                 ["iss"] = ltiPlatformOptions.Value.Issuer,
                 ["login_hint"] = userId,
                 ["target_link_uri"] = targetUrl,
                 ["lti_message_hint"] = messageHint,
                 ["client_id"] = tool.ClientId,
-            }
-        };
+            });
 
         return Ok(dto);
     }
@@ -256,7 +253,7 @@ public class LtiAuthController(
         public string UserId { get; set; }
         public string? ResourceLinkId { get; set; }
         public string? CourseId { get; set; }
-        public string? ToolId { get; set; }
+        public string? ToolName { get; set; }
         public string? Custom { get; set; }
     }
 }
