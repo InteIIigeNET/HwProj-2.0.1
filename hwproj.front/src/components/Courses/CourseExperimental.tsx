@@ -43,7 +43,7 @@ interface ICourseExperimentalProps {
     courseFilesInfo: FileInfoDTO[]
     studentSolutions: StatisticsCourseMatesModel[]
     courseId: number
-    ltiToolId: number | undefined
+    ltiToolName: string | undefined
     isMentor: boolean
     isStudentAccepted: boolean
     userId: string
@@ -695,11 +695,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         + Добавить задачу
                                     </Button>
 
-                                    {props.ltiToolId && (
+                                    {props.ltiToolName && (
                                         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
                                             <LtiImportButton
                                                 courseId={props.courseId}
-                                                toolId={props.ltiToolId}
+                                                toolName={props.ltiToolName}
                                                 onImport={(items) => handleLtiImport(items, x)}
                                             />
                                         </div>

@@ -118,7 +118,6 @@ const Course: React.FC = () => {
 
     const setCurrentState = async () => {
         const course = await ApiSingleton.coursesApi.coursesGetCourseData(+courseId!)
-        console.log(course)
 
         // У пользователя изменилась роль (иначе он не может стать лектором в курсе),
         // однако он все ещё использует токен с прежней ролью
@@ -329,7 +328,7 @@ const Course: React.FC = () => {
                     </Tabs>
                     {tabValue === "homeworks" && <CourseExperimental
                         courseId={+courseId!}
-                        ltiToolId={course.ltiToolId}
+                        ltiToolName={course.ltiToolName}
                         homeworks={courseHomeworks}
                         courseFilesInfo={courseFilesState.courseFiles}
                         isMentor={isCourseMentor}

@@ -9,7 +9,8 @@ namespace HwProj.CoursesService.API.Repositories
 {
     public interface ITasksRepository : ICrudRepository<HomeworkTask, long>
     {
-        Task AddLtiUrlAsync(long taskId, LtiLaunchData ltiLaunchData);
+        Task AddOrUpdateLtiLaunchDataAsync(long taskId, LtiLaunchData ltiLaunchData);
+        Task AddRangeLtiLaunchDataAsync(IEnumerable<HomeworkTaskLtiLaunchData> ltiLaunchData);
         Task<LtiLaunchData?> GetLtiDataAsync(long taskId);
         Task<Dictionary<long, LtiLaunchData>> GetLtiDataForTasksAsync(IEnumerable<long> taskIds);
         Task<HomeworkTask> GetWithHomeworkAsync(long id);

@@ -18,7 +18,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public bool FetchStudents { get; set; }
         [Required] public bool IsOpen { get; set; }
         public long? BaseCourseId { get; set; }
-        public long? LtiToolId { get; set; }
+        public string? LtiToolName { get; set; }
     }
 
     public class UpdateCourseViewModel
@@ -32,7 +32,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         [Required] public bool IsOpen { get; set; }
 
         public bool IsCompleted { get; set; }
-        public long? LtiToolId { get; set; }
+        public string? LtiToolName { get; set; }
     }
 
     public class CourseDTO : CoursePreview
@@ -44,7 +44,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public GroupViewModel[] Groups { get; set; } = Array.Empty<GroupViewModel>();
         public IEnumerable<CourseMateViewModel> AcceptedStudents => CourseMates.Where(t => t.IsAccepted);
         public IEnumerable<CourseMateViewModel> NewStudents => CourseMates.Where(t => !t.IsAccepted);
-        public long? LtiToolId { get; set; }
+        public string? LtiToolName { get; set; }
     }
 
     public class CourseViewModel
@@ -54,7 +54,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public string GroupName { get; set; }
         public bool IsOpen { get; set; }
         public bool IsCompleted { get; set; }
-        public long? LtiToolId { get; set; }
+        public string? LtiToolName { get; set; }
 
         public AccountDataDto[] Mentors { get; set; }
         public AccountDataDto[] AcceptedStudents { get; set; }

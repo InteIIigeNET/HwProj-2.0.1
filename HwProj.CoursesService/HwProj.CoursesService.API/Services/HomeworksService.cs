@@ -56,7 +56,7 @@ namespace HwProj.CoursesService.API.Services
                         continue;
                     }
 
-                    await _tasksRepository.AddLtiUrlAsync(createdTasks[i].Id, ltiLaunchData);
+                    await _tasksRepository.AddOrUpdateLtiLaunchDataAsync(createdTasks[i].Id, ltiLaunchData);
                 }
             }
 

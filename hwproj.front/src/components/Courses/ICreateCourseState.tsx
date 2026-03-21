@@ -35,7 +35,7 @@ export interface ICreateCourseState {
     courseIsLoading: boolean;
 
     ltiTools: LtiToolDto[];
-    ltiToolId: number | undefined;
+    ltiToolName: string | undefined;
 }
 
 export interface IStepComponentProps {

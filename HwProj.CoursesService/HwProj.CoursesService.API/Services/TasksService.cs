@@ -46,8 +46,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<HomeworkTask> AddTaskAsync(
                 long homeworkId,
-                PostTaskViewModel taskViewModel,
-                LtiLaunchData? ltiLaunchData = null)
+                PostTaskViewModel taskViewModel)
         {
             var task = taskViewModel.ToHomeworkTask();
             task.HomeworkId = homeworkId;
@@ -57,9 +56,9 @@ namespace HwProj.CoursesService.API.Services
 
             var taskId = await _tasksRepository.AddAsync(task);
 
-            if (ltiLaunchData != null && !string.IsNullOrEmpty(ltiLaunchData.LtiLaunchUrl))
+            if (taskViewModel.LtiLaunchData != null && !string.IsNullOrEmpty(taskViewModel.LtiLaunchData.LtiLaunchUrl))
             {
-                await _tasksRepository.AddLtiUrlAsync(taskId, ltiLaunchData);
+                await _tasksRepository.AddOrUpdateLtiLaunchDataAsync(taskId, taskViewModel.LtiLaunchData.ToLtiLaunchData()!);
             }
 
             var deadlineDate = task.DeadlineDate ?? homework.DeadlineDate;
@@ -80,8 +79,7 @@ namespace HwProj.CoursesService.API.Services
         public async Task<HomeworkTask> UpdateTaskAsync(
             long taskId,
             PostTaskViewModel taskViewModel,
-            ActionOptions options,
-            LtiLaunchData? ltiLaunchData = null)
+            ActionOptions options)
         {
             var update = taskViewModel.ToHomeworkTask();
             var task = await _tasksRepository.GetWithHomeworkAsync(taskId);
@@ -107,12 +105,18 @@ namespace HwProj.CoursesService.API.Services
                 IsBonusExplicit = update.IsBonusExplicit,
             }, update.Criteria);
 
-            if (ltiLaunchData != null && !string.IsNullOrEmpty(ltiLaunchData.LtiLaunchUrl)) 
+            if (taskViewModel.LtiLaunchData != null && !string.IsNullOrEmpty(taskViewModel.LtiLaunchData.LtiLaunchUrl)) 
             {
-                await _tasksRepository.AddLtiUrlAsync(taskId, ltiLaunchData); 
+                await _tasksRepository.AddOrUpdateLtiLaunchDataAsync(taskId, taskViewModel.LtiLaunchData.ToLtiLaunchData()!); 
             }
 
             return await GetTaskAsync(taskId, true);
+        }
+
+        public async Task FillTaskViewModelWithLtiLaunchDataAsync(HomeworkTaskViewModel taskViewModel, long taskId)
+        {
+            var ltiLaunchData = await this.GetTaskLtiDataAsync(taskId);
+            taskViewModel.LtiLaunchData = ltiLaunchData.ToLtiLaunchData();
         }
 
         public async Task<LtiLaunchData?> GetTaskLtiDataAsync(long taskId)

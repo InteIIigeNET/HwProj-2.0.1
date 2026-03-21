@@ -45,9 +45,8 @@ namespace HwProj.CoursesService.API.Controllers
                 if (!lecturers.Contains(userId)) return BadRequest();
             }
 
-            var ltiLaunchData = await _tasksService.GetTaskLtiDataAsync(taskId);
             var taskViewModel = task.ToHomeworkTaskViewModel();
-            taskViewModel.LtiLaunchData = ltiLaunchData.ToLtiLaunchData();
+            await _tasksService.FillTaskViewModelWithLtiLaunchDataAsync(taskViewModel, taskId);
 
             return Ok(taskViewModel);
         }
@@ -76,8 +75,7 @@ namespace HwProj.CoursesService.API.Controllers
 
             var task = await _tasksService.AddTaskAsync(
                 homeworkId,
-                taskViewModel,
-                taskViewModel.LtiLaunchData.ToLtiLaunchData());
+                taskViewModel);
 
             return Ok(task);
         }
@@ -102,8 +100,7 @@ namespace HwProj.CoursesService.API.Controllers
             var updatedTask =
                 await _tasksService.UpdateTaskAsync(taskId,
                     taskViewModel,
-                    taskViewModel.ActionOptions ?? ActionOptions.Default,
-                    taskViewModel.LtiLaunchData.ToLtiLaunchData());
+                    taskViewModel.ActionOptions ?? ActionOptions.Default);
 
             return Ok(updatedTask.ToHomeworkTaskViewModel());
         }

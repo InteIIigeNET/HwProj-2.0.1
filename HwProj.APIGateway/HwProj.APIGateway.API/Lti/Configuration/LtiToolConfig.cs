@@ -1,8 +1,7 @@
-namespace HwProj.APIGateway.API.Lti.Models
+namespace HwProj.APIGateway.API.Lti.Configuration
 {
     public class LtiToolConfig
     {
-        public long Id { get; set; }
         public string Name { get; set; }
         public string Issuer { get; set; } 
         public string ClientId { get; set; }

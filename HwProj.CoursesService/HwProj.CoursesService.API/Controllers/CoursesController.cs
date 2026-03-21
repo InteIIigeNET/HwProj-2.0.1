@@ -127,7 +127,7 @@ namespace HwProj.CoursesService.API.Controllers
                 GroupName = courseViewModel.GroupName,
                 IsCompleted = courseViewModel.IsCompleted,
                 IsOpen = courseViewModel.IsOpen,
-                LtiToolId = courseViewModel.LtiToolId
+                LtiToolName = courseViewModel.LtiToolName
             });
 
             return Ok();

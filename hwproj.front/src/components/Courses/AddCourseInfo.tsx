@@ -115,17 +115,14 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
 
             <Grid item xs={12}>
                 <Autocomplete
-                    // Список доступных инструментов из стейта
-                    options={state.ltiTools || []} // Добавил || [], чтобы не падало, если ltiTools undefined
+                    options={state.ltiTools || []}
 
-                    // Как отображать объект в списке (берем имя)
                     getOptionLabel={(option) => option.name || "Без названия"}
 
-                    // Текущее значение. Ищем объект в массиве по ID.
                     value={
-                        state.ltiToolId
-                            ? state.ltiTools?.find(t => t.id === state.ltiToolId) || null
-                            : null
+                        state.ltiToolName
+                            ? state.ltiTools?.find(t => t.name === state.ltiToolName) || undefined
+                            : undefined
                     }
 
                     // Обработчик изменения
@@ -133,7 +130,7 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                         setState(prev => ({
                             ...prev,
                             // Если выбрали (newValue не null), берем ID. Иначе undefined.
-                            ltiToolId: newValue ? newValue.id : undefined
+                            ltiToolName: newValue ? newValue.name : undefined
                         }));
                     }}
 

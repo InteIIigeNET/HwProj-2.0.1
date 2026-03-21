@@ -139,7 +139,7 @@ public class SolutionsController : AggregationController
         return Ok(new UserTaskSolutionsPageData
         {
             CourseId = course.Id,
-            LtiToolId = course.LtiToolId,
+            LtiToolName = course.LtiToolName,
             CourseMates = accounts,
             TaskSolutions = taskSolutions
         });

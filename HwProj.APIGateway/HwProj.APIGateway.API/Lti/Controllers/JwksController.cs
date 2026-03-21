@@ -1,5 +1,5 @@
 using System.Security.Cryptography;
-using HwProj.APIGateway.API.Lti.Models;
+using HwProj.APIGateway.API.Lti.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;

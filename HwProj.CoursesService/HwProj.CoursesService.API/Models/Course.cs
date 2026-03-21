@@ -16,6 +16,6 @@ namespace HwProj.CoursesService.API.Models
         public List<CourseMate> CourseMates { get; set; } = new List<CourseMate>();
         public List<Homework> Homeworks { get; set; } = new List<Homework>();
         public List<Assignment> Assignments { get; set; } = new List<Assignment>();
-        public long? LtiToolId { get; set; }
+        public string? LtiToolName { get; set; }
     }
 }

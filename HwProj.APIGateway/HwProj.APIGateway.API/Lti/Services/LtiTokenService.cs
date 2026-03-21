@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text.Json;
-using HwProj.APIGateway.API.Lti.Models;
+using HwProj.APIGateway.API.Lti.Configuration;
 using HwProj.APIGateway.API.LTI.Services;
 using LtiAdvantage.DeepLinking;
 using LtiAdvantage.Lti;
@@ -20,7 +20,6 @@ public class LtiTokenService(IOptions<LtiPlatformConfig> options) : ILtiTokenSer
 
     public string CreateDeepLinkingToken(
         string clientId,
-        string toolId,
         string courseId,
         string targetLinkUri,
         string userId,
@@ -28,7 +27,7 @@ public class LtiTokenService(IOptions<LtiPlatformConfig> options) : ILtiTokenSer
     {
         var request = new LtiDeepLinkingRequest
         {
-            DeploymentId = toolId,
+            DeploymentId = clientId,
             Nonce = nonce,
             UserId = userId,
             TargetLinkUri = targetLinkUri, 
@@ -55,7 +54,6 @@ public class LtiTokenService(IOptions<LtiPlatformConfig> options) : ILtiTokenSer
 
     public string CreateResourceLinkToken(
         string clientId,
-        string toolId,
         string courseId,
         string targetLinkUri,
         string? ltiCustomParams,
@@ -65,7 +63,7 @@ public class LtiTokenService(IOptions<LtiPlatformConfig> options) : ILtiTokenSer
     {
         var request = new LtiResourceLinkRequest
         {
-            DeploymentId = toolId,
+            DeploymentId = clientId,
             Nonce = nonce,
             UserId = userId,
             TargetLinkUri = targetLinkUri,

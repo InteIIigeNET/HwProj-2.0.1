@@ -11,6 +11,6 @@ namespace HwProj.CoursesService.API.Models
         public bool IsOpen { get; set; }
 
         public List<HomeworkTemplate> Homeworks { get; set; } = new List<HomeworkTemplate>();
-        public long? LtiToolId { get; set; }
+        public string? LtiToolName { get; set; }
     }
 }

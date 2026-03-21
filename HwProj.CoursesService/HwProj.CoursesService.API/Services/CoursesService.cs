@@ -78,7 +78,7 @@ namespace HwProj.CoursesService.API.Services
             var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArrayAsync();
             var courseDto = course.ToCourseDto();
 
-            await FillLtiDataForCourseDtos(new[] { courseDto });
+            await FillNecessaryLtiDataForCourseDtos(courseDto);
 
             courseDto.Groups = groups.Select(g =>
                 new GroupViewModel
@@ -112,15 +112,24 @@ namespace HwProj.CoursesService.API.Services
             }
 
             courseTemplate.Homeworks ??= new List<HomeworkTemplate>();
-            if (baseCourse != null)
+            if (baseCourse?.LtiToolName != null)
             {
+                var allTaskIds = baseCourse.Homeworks
+                    .SelectMany(h => h.Tasks.Select(t => t.Id));
+
+                var ltiDataDict = await _tasksRepository.GetLtiDataForTasksAsync(allTaskIds);
+
                 foreach (var homework in baseCourse.Homeworks)
                 {
                     var homeworkTemplate = homework.ToHomeworkTemplate();
+
+                    // Здесь опираемся на порядок
                     for (var i = 0; i < homeworkTemplate.Tasks.Count; i++)
                     {
-                        homeworkTemplate.Tasks[i].LtiLaunchData =
-                            await _tasksRepository.GetLtiDataAsync(homework.Tasks[i].Id);
+                        if (ltiDataDict.TryGetValue(homework.Tasks[i].Id, out var ltiData))
+                        {
+                            homeworkTemplate.Tasks[i].LtiLaunchData = ltiData;
+                        }
                     }
 
                     courseTemplate.Homeworks.Add(homeworkTemplate);
@@ -169,7 +178,7 @@ namespace HwProj.CoursesService.API.Services
             course.MentorIds = mentorId;
             course.InviteCode = Guid.NewGuid().ToString();
             var courseId = await _coursesRepository.AddAsync(course);
-            course.LtiToolId = courseTemplate.LtiToolId; 
+            course.LtiToolName = courseTemplate.LtiToolName;
 
             var homeworks = courseTemplate.Homeworks.Select(hwTemplate => hwTemplate.ToHomework(courseId));
             var homeworkIds = await _homeworksRepository.AddRangeAsync(homeworks);
@@ -186,12 +195,24 @@ namespace HwProj.CoursesService.API.Services
             var tasksToSave = taskPairs.Select(x => x.NewEntity);
             await _tasksRepository.AddRangeAsync(tasksToSave);
 
+            var ltiDataToSave = new List<HomeworkTaskLtiLaunchData>();
+
             foreach (var pair in taskPairs)
             {
                 if (pair.Template.LtiLaunchData != null)
                 {
-                    await _tasksRepository.AddLtiUrlAsync(pair.NewEntity.Id, pair.Template.LtiLaunchData);
+                    ltiDataToSave.Add(new HomeworkTaskLtiLaunchData
+                    {
+                        TaskId = pair.NewEntity.Id,
+                        LtiLaunchUrl = pair.Template.LtiLaunchData.LtiLaunchUrl,
+                        CustomParams = pair.Template.LtiLaunchData.CustomParams
+                    });
                 }
+            }
+
+            if (ltiDataToSave.Any())
+            {
+                await _tasksRepository.AddRangeLtiLaunchDataAsync(ltiDataToSave);
             }
 
             if (studentIds.Any())
@@ -236,7 +257,7 @@ namespace HwProj.CoursesService.API.Services
                 GroupName = updated.GroupName,
                 IsCompleted = updated.IsCompleted,
                 IsOpen = updated.IsOpen,
-                LtiToolId = updated.LtiToolId,
+                LtiToolName = updated.LtiToolName,
             });
         }
 
@@ -327,7 +348,7 @@ namespace HwProj.CoursesService.API.Services
             var result = await _courseFilterService.ApplyFiltersToCourses(
                 userId, coursesWithValues.Select(c => c.ToCourseDto()).ToArray());
 
-            await FillLtiDataForCourseDtos(result);
+            await FillNecessaryLtiDataForCourseDtos(result);
 
             if (role == Roles.ExpertRole)
             {
@@ -409,9 +430,15 @@ namespace HwProj.CoursesService.API.Services
             return true;
         }
 
-        private async Task FillLtiDataForCourseDtos(IEnumerable<CourseDTO> courses)
+        private async Task FillNecessaryLtiDataForCourseDtos(params CourseDTO[] courses)
         {
-            var allTasks = courses.SelectMany(c => c.Homeworks).SelectMany(h => h.Tasks).ToList();
+            var ltiCourses = courses.Where(c => c.LtiToolName != null).ToArray();
+            if (!ltiCourses.Any())
+            {
+                return;
+            }
+
+            var allTasks = ltiCourses.SelectMany(c => c.Homeworks).SelectMany(h => h.Tasks).ToList();
 
             if (allTasks.Any())
             {

@@ -310,7 +310,7 @@ public class CoursesController : AggregationController
             Homeworks = course.Homeworks,
             IsCompleted = course.IsCompleted,
             IsOpen = course.IsOpen,
-            LtiToolId =  course.LtiToolId,
+            LtiToolName =  course.LtiToolName,
         };
     }
 }
