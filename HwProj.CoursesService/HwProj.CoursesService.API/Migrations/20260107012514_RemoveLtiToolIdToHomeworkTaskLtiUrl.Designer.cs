@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HwProj.CoursesService.API.Migrations
 {
     [DbContext(typeof(CourseContext))]
-    [Migration("20241110212839_TaskQuestions")]
-    partial class TaskQuestions
+    [Migration("20260107012514_RemoveLtiToolIdToHomeworkTaskLtiUrl")]
+    partial class RemoveLtiToolIdToHomeworkTaskLtiUrl
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -53,6 +53,8 @@ namespace HwProj.CoursesService.API.Migrations
                     b.Property<bool>("IsCompleted");
 
                     b.Property<bool>("IsOpen");
+
+                    b.Property<long?>("LtiToolId");
 
                     b.Property<string>("MentorIds");
 
@@ -186,6 +188,31 @@ namespace HwProj.CoursesService.API.Migrations
                     b.ToTable("Tasks");
                 });
 
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.HomeworkTaskLtiUrl", b =>
+                {
+                    b.Property<long>("TaskId");
+
+                    b.Property<string>("LtiLaunchUrl")
+                        .IsRequired();
+
+                    b.HasKey("TaskId");
+
+                    b.ToTable("TaskLtiUrls");
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.StudentCharacteristics", b =>
+                {
+                    b.Property<long>("CourseMateId");
+
+                    b.Property<string>("Description");
+
+                    b.Property<string>("Tags");
+
+                    b.HasKey("CourseMateId");
+
+                    b.ToTable("StudentCharacteristics");
+                });
+
             modelBuilder.Entity("HwProj.CoursesService.API.Models.TaskModel", b =>
                 {
                     b.Property<long>("Id")
@@ -282,6 +309,22 @@ namespace HwProj.CoursesService.API.Migrations
                     b.HasOne("HwProj.CoursesService.API.Models.Homework", "Homework")
                         .WithMany("Tasks")
                         .HasForeignKey("HomeworkId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.HomeworkTaskLtiUrl", b =>
+                {
+                    b.HasOne("HwProj.CoursesService.API.Models.HomeworkTask")
+                        .WithOne()
+                        .HasForeignKey("HwProj.CoursesService.API.Models.HomeworkTaskLtiUrl", "TaskId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.StudentCharacteristics", b =>
+                {
+                    b.HasOne("HwProj.CoursesService.API.Models.CourseMate")
+                        .WithOne("Characteristics")
+                        .HasForeignKey("HwProj.CoursesService.API.Models.StudentCharacteristics", "CourseMateId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

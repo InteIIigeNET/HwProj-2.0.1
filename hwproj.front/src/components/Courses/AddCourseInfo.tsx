@@ -3,6 +3,7 @@ import {
     Grid,
     TextField,
     Button, Typography,
+    MenuItem,
 } from "@material-ui/core";
 import {LoadingButton} from "@mui/lab";
 import {IStepComponentProps} from "./ICreateCourseState";
@@ -108,6 +109,47 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                             />
                         ))
                     }
+                    fullWidth
+                />
+            </Grid>
+
+            <Grid item xs={12}>
+                <Autocomplete
+                    options={state.ltiTools || []}
+
+                    getOptionLabel={(option) => option.name || "Без названия"}
+
+                    value={
+                        state.ltiToolName
+                            ? state.ltiTools?.find(t => t.name === state.ltiToolName) || undefined
+                            : undefined
+                    }
+
+                    // Обработчик изменения
+                    onChange={(_, newValue) => {
+                        setState(prev => ({
+                            ...prev,
+                            // Если выбрали (newValue не null), берем ID. Иначе undefined.
+                            ltiToolName: newValue ? newValue.name : undefined
+                        }));
+                    }}
+
+                    // Рендер инпута
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Внешний LTI Инструмент"
+                            placeholder="Выберите инструмент (например, Miminet)"
+                            required={false}
+                            variant="outlined"
+                            fullWidth
+                            // Подсказка для пользователя
+                            helperText="Позволяет импортировать задачи из внешних систем"
+                        />
+                    )}
+
+                    // Позволяет очистить выбор (крестик)
+                    clearOnEscape
                     fullWidth
                 />
             </Grid>

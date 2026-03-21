@@ -32,6 +32,7 @@ public class TaskSolutionStatisticsPageData
 public class UserTaskSolutionsPageData
 {
     public long CourseId { get; set; }
+    public string? LtiToolName { get; set; }
     public AccountDataDto[] CourseMates { get; set; }
     public HomeworksGroupUserTaskSolutions[] TaskSolutions { get; set; }
 }

@@ -10,8 +10,10 @@ namespace HwProj.SolutionsService.Client
         Task<Solution> GetSolutionById(long solutionId);
         Task<Solution[]> GetUserSolutions(long taskId, string studentId);
         Task<long> PostSolution(long taskId, PostSolutionModel model);
+        Task<long> PostSolutionForLti(long taskId, PostSolutionModel model);
         Task PostEmptySolutionWithRate(long taskId, SolutionViewModel solution);
         Task RateSolution(long solutionId, RateSolutionModel rateSolutionModel);
+        Task RateSolutionForLti(long solutionId, RateSolutionModel rateSolutionModel);
         Task MarkSolution(long solutionId);
         Task DeleteSolution(long solutionId);
         Task<long> PostGroupSolution(SolutionViewModel model, long taskId, long groupId);

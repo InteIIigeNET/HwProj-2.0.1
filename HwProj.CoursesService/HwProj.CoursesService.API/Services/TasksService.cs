@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
@@ -5,9 +8,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.NotificationService.Events.CoursesService;
-using System;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -43,7 +44,9 @@ namespace HwProj.CoursesService.API.Services
             return await _tasksRepository.GetWithHomeworkAndCriteriaAsync(taskId);
         }
 
-        public async Task<HomeworkTask> AddTaskAsync(long homeworkId, PostTaskViewModel taskViewModel)
+        public async Task<HomeworkTask> AddTaskAsync(
+                long homeworkId,
+                PostTaskViewModel taskViewModel)
         {
             var task = taskViewModel.ToHomeworkTask();
             task.HomeworkId = homeworkId;
@@ -52,8 +55,14 @@ namespace HwProj.CoursesService.API.Services
             var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(homework.CourseId);
 
             var taskId = await _tasksRepository.AddAsync(task);
+
+            if (taskViewModel.LtiLaunchData != null && !string.IsNullOrEmpty(taskViewModel.LtiLaunchData.LtiLaunchUrl))
+            {
+                await _tasksRepository.AddOrUpdateLtiLaunchDataAsync(taskId, taskViewModel.LtiLaunchData.ToLtiLaunchData()!);
+            }
+
             var deadlineDate = task.DeadlineDate ?? homework.DeadlineDate;
-            var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
+            var studentIds = course!.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
             if (task.PublicationDate <= DateTime.UtcNow)
                 _eventBus.Publish(new NewHomeworkTaskEvent(task.Title, taskId, deadlineDate, course.Name, course.Id,
@@ -67,7 +76,9 @@ namespace HwProj.CoursesService.API.Services
             await _tasksRepository.DeleteAsync(taskId);
         }
 
-        public async Task<HomeworkTask> UpdateTaskAsync(long taskId, PostTaskViewModel taskViewModel,
+        public async Task<HomeworkTask> UpdateTaskAsync(
+            long taskId,
+            PostTaskViewModel taskViewModel,
             ActionOptions options)
         {
             var update = taskViewModel.ToHomeworkTask();
@@ -94,7 +105,28 @@ namespace HwProj.CoursesService.API.Services
                 IsBonusExplicit = update.IsBonusExplicit,
             }, update.Criteria);
 
+            if (taskViewModel.LtiLaunchData != null && !string.IsNullOrEmpty(taskViewModel.LtiLaunchData.LtiLaunchUrl)) 
+            {
+                await _tasksRepository.AddOrUpdateLtiLaunchDataAsync(taskId, taskViewModel.LtiLaunchData.ToLtiLaunchData()!); 
+            }
+
             return await GetTaskAsync(taskId, true);
+        }
+
+        public async Task FillTaskViewModelWithLtiLaunchDataAsync(HomeworkTaskViewModel taskViewModel, long taskId)
+        {
+            var ltiLaunchData = await this.GetTaskLtiDataAsync(taskId);
+            taskViewModel.LtiLaunchData = ltiLaunchData.ToLtiLaunchData();
+        }
+
+        public async Task<LtiLaunchData?> GetTaskLtiDataAsync(long taskId)
+        {
+            return await _tasksRepository.GetLtiDataAsync(taskId);
+        }
+
+        public async Task<Dictionary<long, LtiLaunchData>> GetLtiDataForTasksAsync(long[] taskIds)
+        {
+            return await _tasksRepository.GetLtiDataForTasksAsync(taskIds);
         }
     }
 }

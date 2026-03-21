@@ -233,7 +233,8 @@ const CourseHomeworkEditor: FC<{
                 const task: PostTaskViewModel = {
                     ...t,
                     title: t.title!,
-                    maxRating: t.maxRating!
+                    maxRating: t.maxRating!,
+                    ltiLaunchData: t.ltiLaunchData
                 }
                 return task
             }) : []
