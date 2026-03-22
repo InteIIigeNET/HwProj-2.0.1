@@ -5,7 +5,7 @@ import {
     HomeworkViewModel,
     StatisticsCourseMatesModel,
     StatisticsCourseMeasureSolutionModel,
-    StatisticsCourseTasksModel
+    StudentSolutionsTableTaskDto
 } from "../../../api/";
 import StudentStatsTooltip, { ITaskChartView } from './StudentStatsTooltip';
 import Utils from "../../../services/Utils";
@@ -112,17 +112,17 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
         const tasks = cm.homeworks!
             .filter(hw => hw.tasks && hw.tasks.length > 0)
             .flatMap(hw => hw.tasks!)
-            .filter(t => t.solution && StudentStatsUtils.calculateLastRatedSolution(t.solution) != undefined)
+            .filter(t => t.solutions && StudentStatsUtils.calculateLastRatedSolution(t.solutions) != undefined)
 
         tasks.sort((x, y) => {
-            const xLastSolutionDate = x.solution!.slice(-1)[0].publicationDate!;
-            const yLastSolutionDate = y.solution!.slice(-1)[0].publicationDate!;
+            const xLastSolutionDate = x.solutions!.slice(-1)[0].publicationDate!;
+            const yLastSolutionDate = y.solutions!.slice(-1)[0].publicationDate!;
             return compareDates(xLastSolutionDate, yLastSolutionDate);
         })
 
-        const tasksGroupedByLastSolution = new Map<number, StatisticsCourseTasksModel[]>()
+        const tasksGroupedByLastSolution = new Map<number, StudentSolutionsTableTaskDto[]>()
         tasks.forEach(task => {
-            const lastSolution = task.solution!.filter(s => s.state != SolutionState.NUMBER_0).slice(-1)[0];
+            const lastSolution = task.solutions!.filter(s => s.state != SolutionState.NUMBER_0).slice(-1)[0];
             const publicationDate = new Date(lastSolution.publicationDate!);
             publicationDate.setHours(0, 0, 0, 0);
             const publicationDateTime = publicationDate.getTime();
@@ -148,10 +148,10 @@ const StudentProgressChart: React.FC<IStudentProgressChartProps> = (props) => {
             let totalStudentRating = 0;
 
             const points : IChartPoint[] = taskGroups.map(tasks => {
-                const date = new Date(tasks[0].solution!.slice(-1)[0].publicationDate!);
+                const date = new Date(tasks[0].solutions!.slice(-1)[0].publicationDate!);
                 date.setHours(0, 0, 0, 0);
                 const tasksChartView : ITaskChartView[] = tasks.map(task => {
-                    const lastSolution = task.solution!.filter(s => s.state != SolutionState.NUMBER_0).slice(-1)[0];
+                    const lastSolution = task.solutions!.filter(s => s.state != SolutionState.NUMBER_0).slice(-1)[0];
                     totalStudentRating += lastSolution.rating ? lastSolution.rating : 0;
                     const taskView = courseTasks.find(t => t.id === task.id)!;
 

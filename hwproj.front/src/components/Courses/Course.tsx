@@ -165,7 +165,7 @@ const Course: React.FC = () => {
     const unratedSolutionsCount = (studentSolutions || [])
         .flatMap(x => x.homeworks)
         .flatMap(x => x!.tasks)
-        .filter(t => t!.solution!.slice(-1)[0]?.state === 0) //last solution
+        .filter(t => t!.solutions!.slice(-1)[0]?.state === 0) //last solution
         .length
 
     const [lecturerStatsState, setLecturerStatsState] = useState(false);

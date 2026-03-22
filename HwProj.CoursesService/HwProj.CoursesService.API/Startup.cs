@@ -1,4 +1,6 @@
-﻿using HwProj.AuthService.Client;
+﻿using System.Text.Json.Serialization;
+using HwProj.AuthService.Client;
+using HwProj.Common.Net8;
 using HwProj.ContentService.Client;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
@@ -6,12 +8,11 @@ using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.CoursesService.API.Services;
 using HwProj.EventBus.Client;
-using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace HwProj.CoursesService.API
 {
@@ -50,13 +51,32 @@ namespace HwProj.CoursesService.API
             services.AddHttpClient();
             services.AddAuthServiceClient();
             services.AddContentServiceClient();
+            services.AddHttpContextAccessor();
 
-            services.ConfigureHwProjServices("Courses API");
+            services
+                .AddCors()
+                .AddControllers()
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+            services.AddAutoMapper(x => x.AddProfile<AutomapperProfile>());
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, CourseContext context)
+        public void Configure(IApplicationBuilder app, IHostEnvironment env, CourseContext context)
         {
-            app.ConfigureHwProj(env, "Courses API", context);
+            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+            else app.UseHsts();
+
+            app.UseRouting();
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(_ => true)
+                .AllowCredentials());
+
+            app.UseEndpoints(x => x.MapControllers());
+
+            app.UseDatabase(env, context);
         }
     }
 }

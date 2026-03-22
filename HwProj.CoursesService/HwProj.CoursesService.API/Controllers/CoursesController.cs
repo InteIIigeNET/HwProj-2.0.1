@@ -1,14 +1,13 @@
 using System;
 using System.Threading.Tasks;
-using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
-using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Net;
+using HwProj.Common.Net8;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
