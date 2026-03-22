@@ -1,10 +1,9 @@
 import * as React from "react";
 import {Tab, Tabs} from "@material-ui/core";
 import {CoursesList} from "./CoursesList";
-import {CoursePreviewView} from "../../api/";
+import {CoursePreviewView} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import {appBarStateManager} from "../AppBar";
-import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface ICoursesState {
     isLoaded: boolean;
@@ -79,13 +78,19 @@ export default class Courses extends React.Component<Props, ICoursesState> {
     async componentDidMount() {
         appBarStateManager.setContextAction(null)
         try {
-            const courses = await ApiSingleton.coursesApi.coursesGetAllUserCourses()
-            const allCourses = await ApiSingleton.coursesApi.coursesGetAllCourses();
-            this.setState({
-                isLoaded: true,
-                myCourses: courses.reverse(),
-                allCourses: allCourses.reverse(),
-            })
+            ApiSingleton.coursesApi.coursesGetAllUserCourses().then(courses => {
+                this.setState(prevState => ({
+                    ...prevState,
+                    isLoaded: true,
+                    myCourses: courses.reverse()
+                }));
+                ApiSingleton.coursesApi.coursesGetAllCourses().then(allCourses => {
+                    this.setState(prevState => ({
+                        ...prevState,
+                        allCourses: allCourses.reverse(),
+                    }));
+                });
+            });
         } catch (error) {
             this.setState({
                 isLoaded: true
