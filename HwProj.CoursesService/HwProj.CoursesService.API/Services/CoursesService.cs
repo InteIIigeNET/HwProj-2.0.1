@@ -16,7 +16,6 @@ using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.Roles;
 using HwProj.NotificationService.Events.CoursesService;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -137,7 +136,7 @@ namespace HwProj.CoursesService.API.Services
                         HomeworksMapping = homeworksMapping
                     });
 
-                    if (!result.Succeeded) throw new TransactionAbortedException(result.Errors.Join("\n"));
+                    if (!result.Succeeded) throw new TransactionAbortedException(string.Join("\n", result.Errors));
                 }
             }
 

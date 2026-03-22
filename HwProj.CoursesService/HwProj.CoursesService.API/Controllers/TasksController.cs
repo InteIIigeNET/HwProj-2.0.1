@@ -5,11 +5,11 @@ using HwProj.CoursesService.API.Services;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Roles;
-using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using HwProj.Common.Net8;
 
 namespace HwProj.CoursesService.API.Controllers
 {

@@ -65,9 +65,9 @@ services:
 
   hwproj.coursesservice.api:
     environment:
-      - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=CourseWorksServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;
+      - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=CourseWorksServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;TrustServerCertificate=true;
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_HTTP_PORTS=80
+      - ASPNETCORE_URLS=http://+:80
       - EventBus:EventBusHostName=rabbitmq
       - Services:Auth=http://hwproj.authservice.api
       - Services:Content=http://hwproj.contentservice.api

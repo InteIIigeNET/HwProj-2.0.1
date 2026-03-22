@@ -5,7 +5,7 @@ import {
     GetSolutionModel,
     HomeworksGroupSolutionStats,
     HomeworkTaskViewModel,
-    Solution,
+    SolutionDto,
     SolutionState,
     StudentDataDto,
     TaskSolutionsStats
@@ -59,7 +59,7 @@ interface IStudentSolutionsPageState {
             student: StudentDataDto,
             solutions: GetSolutionModel[]
             lastSolution: GetSolutionModel,
-            lastRatedSolution: Solution,
+            lastRatedSolution: SolutionDto,
             color: string,
             ratedSolutionsCount: number,
             solutionsDescription: string

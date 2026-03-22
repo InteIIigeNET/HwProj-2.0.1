@@ -1,16 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using HwProj.Models.CoursesService.ViewModels;
-using HwProj.Models.SolutionsService;
-using HwProj.Models.StatisticsService;
 using HwProj.SolutionsService.API.Models;
 
 namespace HwProj.SolutionsService.API.Domains
 {
-    public static class SolutionsStatsDomain
+    public static class SolutionsDomain
     {
         //TODO: rewrite
-        public static StatisticsCourseMatesDto[] GetCourseStatistics(StatisticsAggregateModel model) =>
+        public static StudentSolutionsTable[] GetCourseSolutionsTable(StudentsSolutionsTableContext model) =>
             model.CourseMates
                 .Select(m =>
                 {
@@ -19,14 +17,14 @@ namespace HwProj.SolutionsService.API.Domains
                         .Select(g => g.Id)
                         .ToArray();
 
-                    return new StatisticsCourseMatesDto
+                    return new StudentSolutionsTable
                     {
                         StudentId = m.StudentId,
-                        Homeworks = new List<StatisticsCourseHomeworksModel>(model.Homeworks.Select(h =>
-                            new StatisticsCourseHomeworksModel
+                        Homeworks = new List<StudentSolutionsTable.Homework>(model.Homeworks.Select(h =>
+                            new StudentSolutionsTable.Homework
                             {
                                 Id = h.Id,
-                                Tasks = new List<StatisticsCourseTasksModel>(h.Tasks.Select(t =>
+                                Tasks = new List<StudentSolutionsTable.Task>(h.Tasks.Select(t =>
                                 {
                                     var solutions =
                                         model.Solutions
@@ -36,17 +34,17 @@ namespace HwProj.SolutionsService.API.Domains
                                                  studentGroupIds.Contains(s.GroupId.GetValueOrDefault())
                                                 ))
                                             .OrderBy(s => s.PublicationDate);
-                                    return new StatisticsCourseTasksModel
+                                    return new StudentSolutionsTable.Task
                                     {
                                         Id = t.Id,
-                                        Solution = solutions.ToList()
+                                        Solutions = solutions.ToList()
                                     };
                                 }))
                             }))
                     };
                 }).ToArray();
 
-        public static StudentSolutions[] GetCourseTaskStatistics(List<Solution> solutions,
+        public static StudentSolutions[] GetStudentsSolutions(List<Solution> solutions,
             IEnumerable<GroupViewModel> groups)
         {
             return solutions
@@ -76,5 +74,36 @@ namespace HwProj.SolutionsService.API.Domains
                 })
                 .ToArray();
         }
+    }
+
+    public class StudentsSolutionsTableContext
+    {
+        public IEnumerable<CourseMateViewModel> CourseMates { get; set; }
+        public List<HomeworkViewModel> Homeworks { get; set; }
+        public List<Solution> Solutions { get; set; }
+        public GroupViewModel[] Groups { get; set; }
+    }
+
+    public class StudentSolutionsTable
+    {
+        public string StudentId { get; set; }
+        public List<Homework> Homeworks { get; set; }
+
+        public class Homework
+        {
+            public long Id { get; set; }
+            public List<Task> Tasks { get; set; } = new List<Task>();
+        }
+        public class Task
+        {
+            public long Id { get; set; }
+            public List<Solution> Solutions { get; set; } = new List<Solution>();
+        }
+    }
+
+    public class StudentSolutions
+    {
+        public string StudentId { get; set; }
+        public Solution[] Solutions { get; set; }
     }
 }

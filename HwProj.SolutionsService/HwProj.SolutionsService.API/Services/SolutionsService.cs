@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -212,7 +211,7 @@ namespace HwProj.SolutionsService.API.Services
                 return (await getSolutionsQuery.ToListAsync())
                     .GroupBy(t => t.TaskId)
                     .Select(t =>
-                        (t.Key, TaskSolutions: SolutionsStatsDomain.GetCourseTaskStatistics(t.ToList(), groups)))
+                        (t.Key, TaskSolutions: SolutionsDomain.GetStudentsSolutions(t.ToList(), groups)))
                     .SelectMany(grouped => grouped.TaskSolutions.Select(studentSolutions =>
                     {
                         var lastSolution = studentSolutions.Solutions.Last();

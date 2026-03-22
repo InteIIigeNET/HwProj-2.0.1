@@ -1,5 +1,4 @@
-﻿using HwProj.Models.SolutionsService;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.SolutionsService.API.Models
 {

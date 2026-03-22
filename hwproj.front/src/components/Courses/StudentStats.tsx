@@ -136,7 +136,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
             .map(t => props.solutions!
                 .map(s => s.homeworks!
                     .flatMap(h1 => h1.tasks!)
-                    .find(t1 => t1.id === t.id)?.solution || [])
+                    .find(t1 => t1.id === t.id)?.solutions || [])
                 .map(s => StudentStatsUtils.calculateLastRatedSolution(s))
                 .filter(x => x != undefined && x.rating! > 0))
             .filter(x => x.length > 0)
@@ -256,7 +256,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     solutions
                                         .find(s => s.id === cm.id)?.homeworks!
                                         .find(h => h.id === homework.id)?.tasks!
-                                        .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0) || 0
+                                        .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solutions || [])?.rating || 0) || 0
                                 )
                                 .reduce((sum, rating) => sum + rating, 0)
 
@@ -267,7 +267,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                             solutions
                                                 .find(s => s.id === cm.id)?.homeworks!
                                                 .find(h => h.id === homework.id)?.tasks!
-                                                .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solution || [])?.rating || 0)
+                                                .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solutions || [])?.rating || 0)
                                             || []
                                         )
                                     return testRatings[0]!
@@ -360,7 +360,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                 key={`${cm.id}-${homework.id}-${task.id}`}
                                                 solutions={cm.homeworks
                                                     ?.find(h => h.id === homework.id)?.tasks
-                                                    ?.find(t => t.id === task.id)?.solution || []}
+                                                    ?.find(t => t.id === task.id)?.solutions || []}
                                                 userId={props.userId}
                                                 forMentor={props.isMentor}
                                                 studentId={String(cm.id)}

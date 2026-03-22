@@ -3,7 +3,7 @@ import {Link, useParams} from 'react-router-dom';
 import {Grid, Box, Typography, Paper} from "@mui/material";
 import {
     CourseViewModel, HomeworkTaskViewModel,
-    HomeworkViewModel, StatisticsCourseHomeworksModel,
+    HomeworkViewModel, StudentSolutionsTableHomeworkDto,
     StatisticsCourseMatesModel,
     StatisticsCourseMeasureSolutionModel
 } from "@/api";
@@ -43,10 +43,10 @@ const StudentStatsChart: React.FC = () => {
         averageStudent: []
     })
     const [sectorSizes, setSectorSizes] = useState<number[]>([]);
-    const tasksSolutionLength = (hw: StatisticsCourseHomeworksModel[], tasksWithDeadline: HomeworkTaskViewModel[]) =>
+    const tasksSolutionLength = (hw: StudentSolutionsTableHomeworkDto[], tasksWithDeadline: HomeworkTaskViewModel[]) =>
         hw.flatMap(h => h.tasks!
             .filter(task => tasksWithDeadline.find(t => t.id === task.id))
-            .map(t => t.solution!.length))
+            .map(t => t.solutions!.length))
     const handleStudentSelection = (studentIds: string[]) => {
         const newSectorSizes = sectorSizes.map((_, i) => {
             const taskSectorSizes = studentIds.map(id => {
