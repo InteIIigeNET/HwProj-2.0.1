@@ -29,11 +29,6 @@ namespace HwProj.CoursesService.API.Models
             modelBuilder.Entity<Assignment>().HasIndex(a => a.CourseId);
             modelBuilder.Entity<UserToCourseFilter>().HasKey(u => new { u.CourseId, u.UserId });
             modelBuilder.Entity<TaskQuestion>().HasIndex(t => t.TaskId);
-            modelBuilder.Entity<HomeworkTaskLtiLaunchData>()
-                .HasOne<HomeworkTask>()
-                .WithOne()
-                .HasForeignKey<HomeworkTaskLtiLaunchData>(u => u.TaskId)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

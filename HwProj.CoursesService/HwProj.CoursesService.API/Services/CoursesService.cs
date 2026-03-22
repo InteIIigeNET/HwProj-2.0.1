@@ -203,7 +203,7 @@ namespace HwProj.CoursesService.API.Services
                 {
                     ltiDataToSave.Add(new HomeworkTaskLtiLaunchData
                     {
-                        TaskId = pair.NewEntity.Id,
+                        HomeworkTaskId = pair.NewEntity.Id,
                         LtiLaunchUrl = pair.Template.LtiLaunchData.LtiLaunchUrl,
                         CustomParams = pair.Template.LtiLaunchData.CustomParams
                     });

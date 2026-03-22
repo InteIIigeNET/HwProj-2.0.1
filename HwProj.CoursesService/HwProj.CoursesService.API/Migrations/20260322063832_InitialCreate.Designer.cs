@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HwProj.CoursesService.API.Migrations
 {
     [DbContext(typeof(CourseContext))]
-    [Migration("20260320150939_RenameAndChangeTypeLtiToolId")]
-    partial class RenameAndChangeTypeLtiToolId
+    [Migration("20260322063832_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -213,14 +213,14 @@ namespace HwProj.CoursesService.API.Migrations
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.HomeworkTaskLtiLaunchData", b =>
                 {
-                    b.Property<long>("TaskId");
+                    b.Property<long>("HomeworkTaskId");
 
                     b.Property<string>("CustomParams");
 
                     b.Property<string>("LtiLaunchUrl")
                         .IsRequired();
 
-                    b.HasKey("TaskId");
+                    b.HasKey("HomeworkTaskId");
 
                     b.ToTable("TaskLtiData");
                 });
@@ -347,9 +347,9 @@ namespace HwProj.CoursesService.API.Migrations
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.HomeworkTaskLtiLaunchData", b =>
                 {
-                    b.HasOne("HwProj.CoursesService.API.Models.HomeworkTask")
-                        .WithOne()
-                        .HasForeignKey("HwProj.CoursesService.API.Models.HomeworkTaskLtiLaunchData", "TaskId")
+                    b.HasOne("HwProj.CoursesService.API.Models.HomeworkTask", "HomeworkTask")
+                        .WithMany()
+                        .HasForeignKey("HomeworkTaskId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

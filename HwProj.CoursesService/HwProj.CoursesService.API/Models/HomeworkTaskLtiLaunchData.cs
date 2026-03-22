@@ -7,12 +7,15 @@ namespace HwProj.CoursesService.API.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long TaskId { get; set; }
+        public long HomeworkTaskId { get; set; }
 
         [Required]
         public string LtiLaunchUrl { get; set; }
 
         /// JSON
         public string? CustomParams { get; set; }
+
+        [ForeignKey(nameof(HomeworkTaskId))]
+        public HomeworkTask HomeworkTask { get; set; }
     }
 }

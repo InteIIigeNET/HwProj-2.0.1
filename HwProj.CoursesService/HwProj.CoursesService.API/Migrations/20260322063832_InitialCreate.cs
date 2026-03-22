@@ -32,7 +32,8 @@ namespace HwProj.CoursesService.API.Migrations
                     IsOpen = table.Column<bool>(nullable: false),
                     InviteCode = table.Column<string>(nullable: true),
                     IsCompleted = table.Column<bool>(nullable: false),
-                    MentorIds = table.Column<string>(nullable: true)
+                    MentorIds = table.Column<string>(nullable: true),
+                    LtiToolName = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -231,6 +232,7 @@ namespace HwProj.CoursesService.API.Migrations
                     DeadlineDate = table.Column<DateTime>(nullable: true),
                     IsDeadlineStrict = table.Column<bool>(nullable: true),
                     PublicationDate = table.Column<DateTime>(nullable: true),
+                    IsBonusExplicit = table.Column<bool>(nullable: false),
                     HomeworkId = table.Column<long>(nullable: false)
                 },
                 constraints: table =>
@@ -245,19 +247,41 @@ namespace HwProj.CoursesService.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TaskLtiUrls",
+                name: "Criteria",
                 columns: table => new
                 {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     TaskId = table.Column<long>(nullable: false),
-                    LtiLaunchUrl = table.Column<string>(nullable: false),
-                    ToolId = table.Column<int>(nullable: false)
+                    Type = table.Column<int>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    MaxPoints = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TaskLtiUrls", x => x.TaskId);
+                    table.PrimaryKey("PK_Criteria", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TaskLtiUrls_Tasks_TaskId",
+                        name: "FK_Criteria_Tasks_TaskId",
                         column: x => x.TaskId,
+                        principalTable: "Tasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TaskLtiData",
+                columns: table => new
+                {
+                    HomeworkTaskId = table.Column<long>(nullable: false),
+                    LtiLaunchUrl = table.Column<string>(nullable: false),
+                    CustomParams = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TaskLtiData", x => x.HomeworkTaskId);
+                    table.ForeignKey(
+                        name: "FK_TaskLtiData_Tasks_HomeworkTaskId",
+                        column: x => x.HomeworkTaskId,
                         principalTable: "Tasks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -272,6 +296,11 @@ namespace HwProj.CoursesService.API.Migrations
                 name: "IX_CourseMates_CourseId",
                 table: "CourseMates",
                 column: "CourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Criteria_TaskId",
+                table: "Criteria",
+                column: "TaskId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Homeworks_CourseId",
@@ -305,6 +334,9 @@ namespace HwProj.CoursesService.API.Migrations
                 name: "Assignments");
 
             migrationBuilder.DropTable(
+                name: "Criteria");
+
+            migrationBuilder.DropTable(
                 name: "GroupMates");
 
             migrationBuilder.DropTable(
@@ -314,7 +346,7 @@ namespace HwProj.CoursesService.API.Migrations
                 name: "StudentCharacteristics");
 
             migrationBuilder.DropTable(
-                name: "TaskLtiUrls");
+                name: "TaskLtiData");
 
             migrationBuilder.DropTable(
                 name: "TasksModels");

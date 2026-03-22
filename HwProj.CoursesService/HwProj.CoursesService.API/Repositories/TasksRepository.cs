@@ -68,7 +68,7 @@ namespace HwProj.CoursesService.API.Repositories
             {
                 var ltiRecord = new HomeworkTaskLtiLaunchData
                 {
-                    TaskId = taskId,
+                    HomeworkTaskId = taskId,
                     LtiLaunchUrl = ltiLaunchData.LtiLaunchUrl,
                     CustomParams = ltiLaunchData.CustomParams
                 };
@@ -105,8 +105,8 @@ namespace HwProj.CoursesService.API.Repositories
         public async Task<Dictionary<long, LtiLaunchData>> GetLtiDataForTasksAsync(IEnumerable<long> taskIds)
         {
             return await Context.Set<HomeworkTaskLtiLaunchData>()
-                .Where(t => taskIds.Contains(t.TaskId))
-                .ToDictionaryAsync(t => t.TaskId, t => new LtiLaunchData
+                .Where(t => taskIds.Contains(t.HomeworkTaskId))
+                .ToDictionaryAsync(t => t.HomeworkTaskId, t => new LtiLaunchData
                 {
                     LtiLaunchUrl = t.LtiLaunchUrl,
                     CustomParams = t.CustomParams
