@@ -76,7 +76,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task DeleteHomeworkAsync(long homeworkId)
         {
-            await _homeworksRepository.DeleteAsync(homeworkId);
+            await _homeworksRepository.DeleteAsync(homeworkId); //TODO: удалить из фильтров
         }
 
         public async Task<Homework> UpdateHomeworkAsync(long homeworkId, CreateHomeworkViewModel homeworkViewModel)
