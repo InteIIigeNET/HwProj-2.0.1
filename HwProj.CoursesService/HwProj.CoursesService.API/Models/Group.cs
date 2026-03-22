@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using HwProj.Repositories;
+using HwProj.Repositories.Net8;
 
 namespace HwProj.CoursesService.API.Models
 {

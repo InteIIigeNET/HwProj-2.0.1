@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
+using HwProj.SolutionsService.API.Models;
 
 namespace HwProj.SolutionsService.API.Services
 {

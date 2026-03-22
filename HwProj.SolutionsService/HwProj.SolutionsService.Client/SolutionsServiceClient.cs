@@ -26,7 +26,7 @@ namespace HwProj.SolutionsService.Client
             _solutionServiceUri = new Uri(configuration.GetSection("Services")["Solutions"]);
         }
 
-        public async Task<Solution[]> GetAllSolutions()
+        public async Task<SolutionDto[]> GetAllSolutions()
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
@@ -34,10 +34,10 @@ namespace HwProj.SolutionsService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Solution[]>();
+            return await response.DeserializeAsync<SolutionDto[]>();
         }
 
-        public async Task<Solution[]> GetAllTaskSolutions(long taskId)
+        public async Task<SolutionDto[]> GetAllTaskSolutions(long taskId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
@@ -45,10 +45,10 @@ namespace HwProj.SolutionsService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Solution[]>();
+            return await response.DeserializeAsync<SolutionDto[]>();
         }
 
-        public async Task<Solution> GetSolutionById(long solutionId)
+        public async Task<SolutionDto> GetSolutionById(long solutionId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
@@ -56,10 +56,10 @@ namespace HwProj.SolutionsService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Solution>();
+            return await response.DeserializeAsync<SolutionDto>();
         }
 
-        public async Task<Solution[]> GetUserSolutions(long taskId, string studentId)
+        public async Task<SolutionDto[]> GetUserSolutions(long taskId, string studentId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
@@ -67,7 +67,7 @@ namespace HwProj.SolutionsService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Solution[]>();
+            return await response.DeserializeAsync<SolutionDto[]>();
         }
 
         public async Task<long> PostSolution(long taskId, PostSolutionModel model)
@@ -168,7 +168,7 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<long>();
         }
 
-        public async Task<Solution[]> GetTaskSolutions(long groupId, long taskId)
+        public async Task<SolutionDto[]> GetTaskSolutions(long groupId, long taskId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
@@ -176,7 +176,7 @@ namespace HwProj.SolutionsService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Solution[]>();
+            return await response.DeserializeAsync<SolutionDto[]>();
         }
 
         public async Task<StatisticsLecturerDTO[]> GetLecturersStatistics(long courseId)
@@ -190,7 +190,7 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<StatisticsLecturerDTO[]>();
         }
 
-        public async Task<StatisticsCourseMatesDto[]> GetCourseStatistics(long courseId, string userId)
+        public async Task<StudentSolutionsTableDto[]> GetCourseStatistics(long courseId, string userId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
@@ -198,7 +198,7 @@ namespace HwProj.SolutionsService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<StatisticsCourseMatesDto[]>();
+            return await response.DeserializeAsync<StudentSolutionsTableDto[]>();
         }
 
         public async Task<StatisticsCourseStudentsBenchmarkDTO> GetBenchmarkStatistics(long courseId)
@@ -212,7 +212,7 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<StatisticsCourseStudentsBenchmarkDTO>();
         }
 
-        public async Task<StudentSolutions[]> GetTaskSolutionStatistics(long courseId, long taskId)
+        public async Task<StudentSolutionsDto[]> GetTaskSolutionStatistics(long courseId, long taskId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
@@ -220,10 +220,10 @@ namespace HwProj.SolutionsService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<StudentSolutions[]>();
+            return await response.DeserializeAsync<StudentSolutionsDto[]>();
         }
 
-        public async Task<Solution?[]> GetLastTaskSolutions(long[] taskIds, string userId)
+        public async Task<SolutionDto?[]> GetLastTaskSolutions(long[] taskIds, string userId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -237,7 +237,7 @@ namespace HwProj.SolutionsService.Client
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<Solution?[]>();
+            return await response.DeserializeAsync<SolutionDto?[]>();
         }
 
         public async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(GetTasksSolutionsModel model)

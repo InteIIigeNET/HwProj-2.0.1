@@ -192,7 +192,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
         ([deadlines, prev], task, i) => {
             const courseTask = tasks.find(t => t.id === task.id)!;
             const deadlineDate = courseTask.deadlineDate!;
-            const dates = [...task.solution!.map(s => s.publicationDate!), deadlineDate];
+            const dates = [...task.solutions!.map(s => s.publicationDate!), deadlineDate];
             const deadlineOrder = dates.sort((x, y) => new Date(x).getTime() - new Date(y).getTime())
                 .findIndex(d => new Date(d).getTime() == new Date(deadlineDate).getTime());
             
@@ -206,7 +206,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
         const deadlineTick = taskDeadlines.get(task.id!)!;
         const deadlineDate = tasks.find(t => t.id === task.id)!.deadlineDate!;
         acc.set(deadlineTick, new Date(deadlineDate).getTime());
-        task.solution!.forEach((solution, index) => {
+        task.solutions!.forEach((solution, index) => {
             const tick = leftBorder + index + 1;
             const actualTick = tick >= deadlineTick ? tick + 1 : tick;
             acc.set(actualTick, new Date(solution.publicationDate!).getTime())
@@ -224,7 +224,7 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
             const courseTask = tasks.find(t => t.id === task.id)!;
             const deadlineDate = courseTask.deadlineDate!;
             const maxRating = courseTask.maxRating!;
-            const taskSolutions = task.solution!;
+            const taskSolutions = task.solutions!;
             
             const attempts = taskSolutions.reduce((currentAcc : IStudentAttempt[], solution, index) => {
                 const tick = leftBorder + index + 1;
@@ -252,10 +252,10 @@ const StudentPunctualityChart : React.FC<IStudentPunctualityChartProps> = (props
         const sectorItems = [...attempts, deadlineFill]
             .sort((a, b) => a.xAxisPosition - b.xAxisPosition);
 
-        const diff = props.sectorSizes[i]-task.solution!.length
+        const diff = props.sectorSizes[i]-task.solutions!.length
         const trailingFill : IStudentAttempt[] = new Array(Math.max(diff, 0)).fill(0)
             .reduce<IStudentAttempt[]>((acc, _, i) => {
-                const x = leftBorder + task.solution!.length + 2 + i
+                const x = leftBorder + task.solutions!.length + 2 + i
                 return [...acc, {xAxisPosition: x, yAxisPosition: null}]
             }, [])
 

@@ -2,7 +2,7 @@ import * as React from "react";
 import {
     FileInfoDTO,
     HomeworkTaskViewModel,
-    HomeworkViewModel, Solution, StatisticsCourseMatesModel,
+    HomeworkViewModel, SolutionDto, StatisticsCourseMatesModel,
 } from "@/api";
 import {
     AlertTitle,
@@ -165,14 +165,14 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const getStyle = (itemIsHomework: boolean, itemId: number) =>
         itemIsHomework === isHomework && itemId === id ? clickedItemStyle : {borderRadius: 9}
 
-    const taskSolutionsMap = new Map<number, Solution[]>()
+    const taskSolutionsMap = new Map<number, SolutionDto[]>()
 
     if (!isMentor && isStudentAccepted) {
         studentSolutions
             .filter(t => t.id === userId)
             .flatMap(t => t.homeworks!)
             .flatMap(t => t.tasks!)
-            .forEach(x => taskSolutionsMap.set(x.id!, x.solution!))
+            .forEach(x => taskSolutionsMap.set(x.id!, x.solutions!))
     }
 
     const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {

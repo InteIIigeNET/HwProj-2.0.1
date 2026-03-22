@@ -7,7 +7,6 @@ COPY ["HwProj.ContentService/HwProj.ContentService.API/", "HwProj.ContentService
 COPY ["HwProj.Common/HwProj.Utils/", "HwProj.Common/HwProj.Utils/"]
 COPY ["HwProj.EventBus/HwProj.EventBus.Client/", "HwProj.EventBus/HwProj.EventBus.Client/"]
 COPY ["HwProj.Common/HwProj.Models/", "HwProj.Common/HwProj.Models/"]
-COPY ["HwProj.Common/HwProj.Repositories/", "HwProj.Common/HwProj.Repositories/"]
 
 WORKDIR "/src/HwProj.ContentService/HwProj.ContentService.API"
 RUN dotnet publish "HwProj.ContentService.API.csproj" -c Release -o /app/publish

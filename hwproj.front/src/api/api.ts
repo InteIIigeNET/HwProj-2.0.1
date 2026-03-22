@@ -1929,91 +1929,6 @@ export interface ScopeDTO {
 /**
  *
  * @export
- * @interface Solution
- */
-export interface Solution {
-    /**
-     *
-     * @type {number}
-     * @memberof Solution
-     */
-    id?: number;
-    /**
-     *
-     * @type {string}
-     * @memberof Solution
-     */
-    githubUrl?: string;
-    /**
-     *
-     * @type {string}
-     * @memberof Solution
-     */
-    comment?: string;
-    /**
-     *
-     * @type {SolutionState}
-     * @memberof Solution
-     */
-    state?: SolutionState;
-    /**
-     *
-     * @type {number}
-     * @memberof Solution
-     */
-    rating?: number;
-    /**
-     *
-     * @type {string}
-     * @memberof Solution
-     */
-    studentId?: string;
-    /**
-     *
-     * @type {string}
-     * @memberof Solution
-     */
-    lecturerId?: string;
-    /**
-     *
-     * @type {number}
-     * @memberof Solution
-     */
-    groupId?: number;
-    /**
-     *
-     * @type {number}
-     * @memberof Solution
-     */
-    taskId?: number;
-    /**
-     *
-     * @type {Date}
-     * @memberof Solution
-     */
-    publicationDate?: Date;
-    /**
-     *
-     * @type {boolean}
-     * @memberof Solution
-     */
-    isModified?: boolean;
-    /**
-     *
-     * @type {Date}
-     * @memberof Solution
-     */
-    ratingDate?: Date;
-    /**
-     *
-     * @type {string}
-     * @memberof Solution
-     */
-    lecturerComment?: string;
-}
-/**
- *
- * @export
  * @interface SolutionActualityDto
  */
 export interface SolutionActualityDto {
@@ -2054,6 +1969,91 @@ export interface SolutionActualityPart {
      * @memberof SolutionActualityPart
      */
     additionalData?: string;
+}
+/**
+ *
+ * @export
+ * @interface SolutionDto
+ */
+export interface SolutionDto {
+    /**
+     *
+     * @type {number}
+     * @memberof SolutionDto
+     */
+    id?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof SolutionDto
+     */
+    githubUrl?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof SolutionDto
+     */
+    comment?: string;
+    /**
+     *
+     * @type {SolutionState}
+     * @memberof SolutionDto
+     */
+    state?: SolutionState;
+    /**
+     *
+     * @type {number}
+     * @memberof SolutionDto
+     */
+    rating?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof SolutionDto
+     */
+    studentId?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof SolutionDto
+     */
+    lecturerId?: string;
+    /**
+     *
+     * @type {number}
+     * @memberof SolutionDto
+     */
+    groupId?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof SolutionDto
+     */
+    taskId?: number;
+    /**
+     *
+     * @type {Date}
+     * @memberof SolutionDto
+     */
+    publicationDate?: Date;
+    /**
+     *
+     * @type {boolean}
+     * @memberof SolutionDto
+     */
+    isModified?: boolean;
+    /**
+     *
+     * @type {Date}
+     * @memberof SolutionDto
+     */
+    ratingDate?: Date;
+    /**
+     *
+     * @type {string}
+     * @memberof SolutionDto
+     */
+    lecturerComment?: string;
 }
 /**
  *
@@ -2208,25 +2208,6 @@ export interface SolutionViewModel {
 /**
  *
  * @export
- * @interface StatisticsCourseHomeworksModel
- */
-export interface StatisticsCourseHomeworksModel {
-    /**
-     *
-     * @type {number}
-     * @memberof StatisticsCourseHomeworksModel
-     */
-    id?: number;
-    /**
-     *
-     * @type {Array<StatisticsCourseTasksModel>}
-     * @memberof StatisticsCourseHomeworksModel
-     */
-    tasks?: Array<StatisticsCourseTasksModel>;
-}
-/**
- *
- * @export
  * @interface StatisticsCourseMatesModel
  */
 export interface StatisticsCourseMatesModel {
@@ -2256,10 +2237,10 @@ export interface StatisticsCourseMatesModel {
     reviewers?: Array<AccountDataDto>;
     /**
      *
-     * @type {Array<StatisticsCourseHomeworksModel>}
+     * @type {Array<StudentSolutionsTableHomeworkDto>}
      * @memberof StatisticsCourseMatesModel
      */
-    homeworks?: Array<StatisticsCourseHomeworksModel>;
+    homeworks?: Array<StudentSolutionsTableHomeworkDto>;
 }
 /**
  *
@@ -2285,25 +2266,6 @@ export interface StatisticsCourseMeasureSolutionModel {
      * @memberof StatisticsCourseMeasureSolutionModel
      */
     publicationDate?: Date;
-}
-/**
- *
- * @export
- * @interface StatisticsCourseTasksModel
- */
-export interface StatisticsCourseTasksModel {
-    /**
-     *
-     * @type {number}
-     * @memberof StatisticsCourseTasksModel
-     */
-    id?: number;
-    /**
-     *
-     * @type {Array<Solution>}
-     * @memberof StatisticsCourseTasksModel
-     */
-    solution?: Array<Solution>;
 }
 /**
  *
@@ -2431,6 +2393,44 @@ export enum StudentIdType {
     NUMBER_0 = <any> 0,
     NUMBER_1 = <any> 1,
     NUMBER_2 = <any> 2
+}
+/**
+ *
+ * @export
+ * @interface StudentSolutionsTableHomeworkDto
+ */
+export interface StudentSolutionsTableHomeworkDto {
+    /**
+     *
+     * @type {number}
+     * @memberof StudentSolutionsTableHomeworkDto
+     */
+    id?: number;
+    /**
+     *
+     * @type {Array<StudentSolutionsTableTaskDto>}
+     * @memberof StudentSolutionsTableHomeworkDto
+     */
+    tasks?: Array<StudentSolutionsTableTaskDto>;
+}
+/**
+ *
+ * @export
+ * @interface StudentSolutionsTableTaskDto
+ */
+export interface StudentSolutionsTableTaskDto {
+    /**
+     *
+     * @type {number}
+     * @memberof StudentSolutionsTableTaskDto
+     */
+    id?: number;
+    /**
+     *
+     * @type {Array<SolutionDto>}
+     * @memberof StudentSolutionsTableTaskDto
+     */
+    solutions?: Array<SolutionDto>;
 }
 /**
  *
@@ -8336,7 +8336,7 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        solutionsGetSolutionById(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Solution> {
+        solutionsGetSolutionById(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<SolutionDto> {
             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).solutionsGetSolutionById(solutionId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {

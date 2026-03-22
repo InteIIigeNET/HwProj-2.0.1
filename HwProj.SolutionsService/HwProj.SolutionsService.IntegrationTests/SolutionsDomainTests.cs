@@ -12,7 +12,7 @@ using NUnit.Framework;
 namespace HwProj.SolutionsService.IntegrationTests
 {
     [TestFixture]
-    public class SolutionsStatsDomainTests
+    public class SolutionsDomainTests
     {
         private IEnumerable<string> GenerateUserIds(int amount)
         {
@@ -101,7 +101,7 @@ namespace HwProj.SolutionsService.IntegrationTests
 
             var solutions = MakeTestSolutions(courseMates, groups);
 
-            var solutionsStatsContext = new StatisticsAggregateModel
+            var solutionsStatsContext = new StudentsSolutionsTableContext()
             {
                 CourseMates = courseMates,
                 Homeworks = new List<HomeworkViewModel>(new[] { homework }),
@@ -109,16 +109,16 @@ namespace HwProj.SolutionsService.IntegrationTests
                 Groups = groups
             };
 
-            var result = SolutionsStatsDomain.GetCourseStatistics(solutionsStatsContext);
+            var result = SolutionsDomain.GetCourseSolutionsTable(solutionsStatsContext);
             var firstStudentSolutions = result
                 .First(t => t.StudentId == courseMates[0].StudentId).Homeworks
-                .SelectMany(s => s.Tasks).SelectMany(t => t.Solution).ToArray();
+                .SelectMany(s => s.Tasks).SelectMany(t => t.Solutions).ToArray();
             var secondStudentSolutions = result
                 .First(t => t.StudentId == courseMates[1].StudentId).Homeworks
-                .SelectMany(s => s.Tasks).SelectMany(t => t.Solution).ToArray();
+                .SelectMany(s => s.Tasks).SelectMany(t => t.Solutions).ToArray();
             var thirdStudentSolutions = result
                 .First(t => t.StudentId == courseMates[2].StudentId).Homeworks
-                .SelectMany(s => s.Tasks).SelectMany(t => t.Solution).ToArray();
+                .SelectMany(s => s.Tasks).SelectMany(t => t.Solutions).ToArray();
 
             firstStudentSolutions.Should().HaveCount(2);
             firstStudentSolutions[0].Id.Should().Be(1);
@@ -146,7 +146,7 @@ namespace HwProj.SolutionsService.IntegrationTests
             solutions[2].StudentId = courseMates[1].StudentId;
             solutions[2].GroupId = group2.Id;
 
-            var result = SolutionsStatsDomain.GetCourseTaskStatistics(solutions, groups);
+            var result = SolutionsDomain.GetStudentsSolutions(solutions, groups);
             var firstStudentSolutions = result.First(t => t.StudentId == courseMates[0].StudentId)
                 .Solutions.ToArray();
             var secondStudentSolutions = result.First(t => t.StudentId == courseMates[1].StudentId)

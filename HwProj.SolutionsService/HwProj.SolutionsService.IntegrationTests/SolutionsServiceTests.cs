@@ -392,8 +392,8 @@ namespace HwProj.SolutionsService.IntegrationTests
             statisticsFromLecture.Should().HaveCount(1);
             statisticsFromLecture[0].Homeworks.Should().HaveCount(1);
             statisticsFromLecture[0].Homeworks[0].Tasks.Should().HaveCount(1);
-            statisticsFromLecture[0].Homeworks[0].Tasks[0].Solution.Should().HaveCount(1);
-            statisticsFromLecture[0].Homeworks[0].Tasks[0].Solution[0].Rating.Should().Be(2);
+            statisticsFromLecture[0].Homeworks[0].Tasks[0].Solutions.Should().HaveCount(1);
+            statisticsFromLecture[0].Homeworks[0].Tasks[0].Solutions[0].Rating.Should().Be(2);
         }
 
         [Test]

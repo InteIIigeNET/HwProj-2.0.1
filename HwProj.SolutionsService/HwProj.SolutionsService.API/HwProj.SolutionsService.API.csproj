@@ -15,6 +15,7 @@
     <None Remove="bin\**" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Utils\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>

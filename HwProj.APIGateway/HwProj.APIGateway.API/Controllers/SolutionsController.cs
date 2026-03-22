@@ -7,7 +7,6 @@ using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.APIGateway.API.Models.Solutions;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
-using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
@@ -38,7 +37,7 @@ public class SolutionsController : AggregationController
     }
 
     [HttpGet("{solutionId}")]
-    [ProducesResponseType(typeof(Solution), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(SolutionDto), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetSolutionById(long solutionId)
     {
         var result = await _solutionsClient.GetSolutionById(solutionId);
@@ -78,7 +77,7 @@ public class SolutionsController : AggregationController
 
         var mentorIds = studentSolutions.Values
             .SelectMany(t => t.Tasks)
-            .SelectMany(t => t.Solution)
+            .SelectMany(t => t.Solutions)
             .Select(t => t.LecturerId ?? "")
             .Where(x => x != "")
             .Distinct()
@@ -88,7 +87,7 @@ public class SolutionsController : AggregationController
 
         var solutionsGroupsIds = studentSolutions.Values
             .SelectMany(t => t.Tasks)
-            .First(x => x.Id == taskId).Solution
+            .First(x => x.Id == taskId).Solutions
             .Select(s => s.GroupId)
             .Distinct()
             .ToList();
@@ -120,7 +119,7 @@ public class SolutionsController : AggregationController
                                         Title = task.Title,
                                         Tags = task.Tags,
                                         TaskId = task.Id.ToString(),
-                                        Solutions = t.Solution.Select(s => new GetSolutionModel(s,
+                                        Solutions = t.Solutions.Select(s => new GetSolutionModel(s,
                                             s.TaskId == taskId && s.GroupId is { } groupId
                                                 ? solutionsGroups[groupId].StudentsIds
                                                     .Select(x => accountsCache[x])

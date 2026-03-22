@@ -6,7 +6,7 @@ namespace HwProj.Models.SolutionsService
 {
     public class GetSolutionModel
     {
-        public GetSolutionModel(Solution model, AccountDataDto[]? groupMates, AccountDataDto? lecturer)
+        public GetSolutionModel(SolutionDto model, AccountDataDto[]? groupMates, AccountDataDto? lecturer)
         {
             Id = model.Id;
             GithubUrl = model.GithubUrl;

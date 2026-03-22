@@ -2,7 +2,7 @@ import * as React from "react";
 import {FC} from "react";
 import TableCell from "@material-ui/core/TableCell";
 import {useNavigate} from "react-router-dom";
-import {Solution} from "api";
+import {SolutionDto} from "api";
 import {Chip, Stack, Tooltip} from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import Utils from "../../services/Utils";
@@ -16,7 +16,7 @@ interface ITaskStudentCellProps {
     userId: string;
     taskMaxRating: number;
     isBestSolution: boolean;
-    solutions?: Solution[];
+    solutions?: SolutionDto[];
 }
 
 const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }> = (props) => {

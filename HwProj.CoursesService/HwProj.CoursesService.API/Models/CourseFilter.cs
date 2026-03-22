@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using HwProj.CoursesService.API.Services;
-using HwProj.Repositories;
+using HwProj.Repositories.Net8;
 using Newtonsoft.Json;
 
 namespace HwProj.CoursesService.API.Models
