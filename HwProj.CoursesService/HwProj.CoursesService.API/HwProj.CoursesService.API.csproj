@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <LangVersion>$(CSharpLanguageVersion)</LangVersion>
-    <Nullable>$(NullableReferenceTypes)</Nullable>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="15.0.1" />
