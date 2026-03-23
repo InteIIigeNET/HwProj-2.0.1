@@ -76,7 +76,34 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task DeleteHomeworkAsync(long homeworkId)
         {
-            await _homeworksRepository.DeleteAsync(homeworkId); //TODO: удалить из фильтров
+            var homework = await _homeworksRepository.GetAsync(homeworkId);
+            if (homework == null) return;
+
+            var course = await _coursesRepository.GetWithCourseMates(homework.CourseId);
+            if (course == null) return;
+
+            var courseUserIds = course.CourseMates.Select(cm => cm.StudentId).ToList();
+            courseUserIds.Add(course.MentorIds);
+            courseUserIds.Add("");
+
+            // Удаляем homeworkId из фильтров всех участников курса
+            foreach (var userId in courseUserIds.Distinct())
+            {
+                var userFilter = await _courseFilterRepository.GetAsync(userId, homework.CourseId);
+
+                if (userFilter != null && userFilter.Filter.HomeworkIds.Contains(homeworkId))
+                {
+                    userFilter.Filter.HomeworkIds.Remove(homeworkId);
+
+                    await _courseFilterRepository.UpdateAsync(userFilter.Id, f =>
+                        new CourseFilter
+                        {
+                            FilterJson = new CourseFilter { Filter = userFilter.Filter }.FilterJson
+                        });
+                }
+            }
+
+            await _homeworksRepository.DeleteAsync(homeworkId);
         }
 
         public async Task<Homework> UpdateHomeworkAsync(long homeworkId, CreateHomeworkViewModel homeworkViewModel)

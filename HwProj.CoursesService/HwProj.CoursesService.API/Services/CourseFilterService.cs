@@ -88,11 +88,10 @@ namespace HwProj.CoursesService.API.Services
                 (await _courseFilterRepository.GetAsync(findFiltersFor, courseDto.Id))
                 .ToDictionary(x => x.UserId, x => x.CourseFilter);
 
-            // Применение глобального фильтра для вычитания групповых домашних заданий
             if (isCourseStudent)
             {
                 var studentCourse = courseDto;
-                var groupFilter = await _courseFilterRepository.GetAsync("", courseDto.Id);
+                var groupFilter = await _courseFilterRepository.GetAsync("", courseDto.Id); // Глобальный фильтр для вычитания групповых домашних заданий
                 if (groupFilter != null)
                 {
                     studentCourse = ApplyFilterSubtractive(courseDto, groupFilter);
