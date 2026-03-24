@@ -1,4 +1,4 @@
-import {FC, useEffect, useState} from "react";
+import {FC, useState} from "react";
 import {
     Accordion,
     AccordionSummary,
@@ -17,12 +17,14 @@ import {
     Stack
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import {AccountDataDto, CourseGroupsApi, GroupViewModel, Configuration, Group} from "@/api";
+import {AccountDataDto, Group} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 
 interface ICourseGroupsProps {
     courseId: number;
     students: AccountDataDto[];
+    groups: Group[];
+    onGroupsUpdate: () => Promise<void>;
 }
 
 interface ICreateGroupFormState {
@@ -31,10 +33,8 @@ interface ICreateGroupFormState {
 }
 
 const CourseGroups: FC<ICourseGroupsProps> = (props) => {
-    const {courseId, students} = props;
+    const {courseId, students, groups} = props;
 
-    const [groups, setGroups] = useState<Group[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isError, setIsError] = useState<boolean>(false);
 
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
@@ -43,23 +43,6 @@ const CourseGroups: FC<ICourseGroupsProps> = (props) => {
         memberIds: []
     });
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
-    const loadGroups = async () => {
-        setIsLoading(true);
-        setIsError(false);
-        try {
-            const result = await ApiSingleton.courseGroupsApi.courseGroupsGetAllCourseGroupsWithNames(courseId);
-            setGroups(result);
-        } catch {
-            setIsError(true);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        loadGroups();
-    }, [courseId]);
 
     const handleOpenDialog = () => {
         setFormState({
@@ -87,7 +70,9 @@ const CourseGroups: FC<ICourseGroupsProps> = (props) => {
                 courseId: courseId
             });
             setIsDialogOpen(false);
-            await loadGroups();
+            await props.onGroupsUpdate();
+        } catch {
+            setIsError(true);
         } finally {
             setIsSubmitting(false);
         }
@@ -101,8 +86,6 @@ const CourseGroups: FC<ICourseGroupsProps> = (props) => {
         const nameParts = [student.surname, student.name, student.middleName].filter(Boolean);
         return `${nameParts.join(" ") || student.email}`;
     };
-
-    const namedGroups = groups.filter(g => g.name && g.name.trim().length > 0);
 
     return (
         <Grid container direction={"column"} spacing={2} sx={{ paddingBottom: 18 }}>
@@ -130,7 +113,7 @@ const CourseGroups: FC<ICourseGroupsProps> = (props) => {
                 </Grid>
             }
 
-            {!isLoading && namedGroups.length === 0 && !isError &&
+            {!isSubmitting && groups.length === 0 && !isError &&
                 <Grid item>
                     <Alert severity="info">
                         На курсе пока нет групп.
@@ -139,7 +122,7 @@ const CourseGroups: FC<ICourseGroupsProps> = (props) => {
             }
 
             <Grid item container spacing={2} direction={"column"}>
-                {namedGroups.map(group => {
+                {groups.map(group => {
                     const name = group.name!;
                     const studentsIds = group.studentsIds || [];
 
