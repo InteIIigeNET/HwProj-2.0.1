@@ -14,15 +14,18 @@ import {
     DialogActions,
     TextField,
     Autocomplete,
-    Stack
+    Stack,
+    Tooltip,
+    Box
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import CheckIcon from "@mui/icons-material/Check";
 import {AccountDataDto, Group} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 
 interface ICourseGroupsProps {
     courseId: number;
-    students: AccountDataDto[];
+    courseStudents: AccountDataDto[];
     groups: Group[];
     onGroupsUpdate: () => Promise<void>;
 }
@@ -33,7 +36,7 @@ interface ICreateGroupFormState {
 }
 
 const CourseGroups: FC<ICourseGroupsProps> = (props) => {
-    const {courseId, students, groups} = props;
+    const {courseId, courseStudents, groups} = props;
 
     const [isError, setIsError] = useState<boolean>(false);
 
@@ -79,12 +82,22 @@ const CourseGroups: FC<ICourseGroupsProps> = (props) => {
     };
 
     const getStudentName = (userId: string) => {
-        const student = students.find(s => s.userId === userId);
+        const student = courseStudents.find(s => s.userId === userId);
         if (!student) {
             return userId;
         }
         const nameParts = [student.surname, student.name, student.middleName].filter(Boolean);
         return `${nameParts.join(" ") || student.email}`;
+    };
+
+    const isStudentInGroup = (userId: string): boolean => {
+        return groups.some(group => group.studentsIds?.includes(userId));
+    };
+
+    const getSortedStudents = (): AccountDataDto[] => {
+        const studentsInGroups = courseStudents.filter(s => isStudentInGroup(s.userId!));
+        const studentsNotInGroups = courseStudents.filter(s => !isStudentInGroup(s.userId!));
+        return [...studentsNotInGroups, ...studentsInGroups];
     };
 
     return (
@@ -184,11 +197,33 @@ const CourseGroups: FC<ICourseGroupsProps> = (props) => {
                         <Grid item xs={12}>
                             <Autocomplete
                                 multiple
-                                options={students}
-                                value={students.filter(s => formState.memberIds.includes(s.userId!))}
+                                options={getSortedStudents()}
+                                value={courseStudents.filter(s => formState.memberIds.includes(s.userId!))}
                                 getOptionLabel={(option) =>
                                     `${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()
                                 }
+                                renderOption={(props, option) => {
+                                    return (
+                                        <Box component="li" {...props}>
+                                            <Stack direction="row" spacing={1} alignItems="center" width="100%">
+                                                <Typography variant="body2" sx={{ flex: 1 }}>
+                                                    {`${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()}
+                                                </Typography>
+                                                {isStudentInGroup(option.userId!) && (
+                                                    <Tooltip title="Студент уже в группе">
+                                                        <CheckIcon
+                                                            sx={{
+                                                                fontSize: "1.2rem",
+                                                                color: "success.main",
+                                                                flexShrink: 0
+                                                            }}
+                                                        />
+                                                    </Tooltip>
+                                                )}
+                                            </Stack>
+                                        </Box>
+                                    );
+                                }}
                                 filterSelectedOptions
                                 onChange={(e, values) => {
                                     e.persist();
