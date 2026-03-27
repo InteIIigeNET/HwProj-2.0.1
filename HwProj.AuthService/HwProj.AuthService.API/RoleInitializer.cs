@@ -38,6 +38,7 @@ namespace HwProj.AuthService.API
                 var admin = new User {
                     Email = email,
                     Name = "Admin",
+                    Surname = "Adminov",
                     UserName = "Admin"
                 };
 
