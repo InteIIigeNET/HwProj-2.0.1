@@ -6,7 +6,7 @@ using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
-using System;
+using System.Collections.Generic;
 using HwProj.CoursesService.API.Domains;
 
 namespace HwProj.CoursesService.API.Services
@@ -161,10 +161,7 @@ namespace HwProj.CoursesService.API.Services
                         .ToArray(),
 
                     ApplyFilterType.Union => courseDto.Homeworks
-                        .Union((await Task.WhenAll(
-                            filter.HomeworkIds.Select(id => _homeworksService.GetHomeworkAsync(id))))
-                        .Where(hw => hw != null)
-                        .Select(hw => hw.ToHomeworkViewModel()))
+                        .Union(await GetHomeworksSequentially(filter.HomeworkIds))
                         .ToArray(),
 
                     _ => courseDto.Homeworks
@@ -205,6 +202,18 @@ namespace HwProj.CoursesService.API.Services
                         : courseDto.CourseMates,
                 Homeworks = homeworks
             };
+        }
+
+        private async Task<IEnumerable<HomeworkViewModel>> GetHomeworksSequentially(List<long> homeworkIds)
+        {
+            var result = new List<HomeworkViewModel>();
+            foreach (var id in homeworkIds)
+            {
+                var hw = await _homeworksService.GetHomeworkAsync(id);
+                if (hw != null)
+                    result.Add(hw.ToHomeworkViewModel());
+            }
+            return result;
         }
     }
 }
