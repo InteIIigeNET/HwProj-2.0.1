@@ -1,89 +1,28 @@
-import {FC, useState, useEffect} from "react";
+import {FC, useEffect} from "react";
 import {
     Accordion,
     AccordionSummary,
     AccordionDetails,
     Grid,
-    Button,
     Typography,
     Alert,
-    AlertTitle,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
-    Autocomplete,
     Stack,
-    Tooltip,
-    Box
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import CheckIcon from "@mui/icons-material/Check";
 import {AccountDataDto, Group} from "@/api";
-import ApiSingleton from "../../api/ApiSingleton";
 
 interface ICourseGroupsProps {
-    courseId: number;
     courseStudents: AccountDataDto[];
     groups: Group[];
     onGroupsUpdate: () => void;
 }
 
-interface ICreateGroupFormState {
-    name: string;
-    memberIds: string[];
-}
-
 const CourseGroups: FC<ICourseGroupsProps> = (props) => {
-    const {courseId, courseStudents, groups, onGroupsUpdate} = props;
-
-    const [isError, setIsError] = useState<boolean>(false);
+    const {courseStudents, groups, onGroupsUpdate} = props;
 
     useEffect(() => {
         onGroupsUpdate();
-    }, [courseId]);
-
-    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-    const [formState, setFormState] = useState<ICreateGroupFormState>({
-        name: "",
-        memberIds: []
-    });
-    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
-    const handleOpenDialog = () => {
-        setFormState({
-            name: "",
-            memberIds: []
-        });
-        setIsDialogOpen(true);
-    };
-
-    const handleCloseDialog = () => {
-        if (isSubmitting) return;
-        setIsDialogOpen(false);
-    };
-
-    const handleSubmit = async () => {
-        if (!formState.name.trim() || formState.memberIds.length === 0) {
-            return;
-        }
-
-        setIsSubmitting(true);
-        try {
-            await ApiSingleton.courseGroupsApi.courseGroupsCreateCourseGroup(courseId, {
-                name: formState.name.trim(),
-                groupMatesIds: formState.memberIds,
-                courseId: courseId
-            });
-            setIsDialogOpen(false);
-            await props.onGroupsUpdate();
-        } catch {
-            setIsError(true);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+    }, []);
 
     const getStudentName = (userId: string) => {
         const student = courseStudents.find(s => s.userId === userId);
@@ -94,16 +33,6 @@ const CourseGroups: FC<ICourseGroupsProps> = (props) => {
         return `${nameParts.join(" ") || student.email}`;
     };
 
-    const isStudentInGroup = (userId: string): boolean => {
-        return groups.some(group => group.studentsIds?.includes(userId));
-    };
-
-    const getSortedStudents = (): AccountDataDto[] => {
-        const studentsInGroups = courseStudents.filter(s => isStudentInGroup(s.userId!));
-        const studentsNotInGroups = courseStudents.filter(s => !isStudentInGroup(s.userId!));
-        return [...studentsNotInGroups, ...studentsInGroups];
-    };
-
     return (
         <Grid container direction={"column"} spacing={2} sx={{ paddingBottom: 18 }}>
             <Grid item>
@@ -111,26 +40,10 @@ const CourseGroups: FC<ICourseGroupsProps> = (props) => {
                     <Typography variant="h6">
                         Группы курса
                     </Typography>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleOpenDialog}
-                    >
-                        Создать группу
-                    </Button>
                 </Stack>
             </Grid>
 
-            {isError &&
-                <Grid item>
-                    <Alert severity="error">
-                        <AlertTitle>Не удалось загрузить группы</AlertTitle>
-                        Попробуйте обновить страницу позже.
-                    </Alert>
-                </Grid>
-            }
-
-            {!isSubmitting && groups.length === 0 && !isError &&
+            {groups.length === 0 &&
                 <Grid item>
                     <Alert severity="info">
                         На курсе пока нет групп.
@@ -171,102 +84,6 @@ const CourseGroups: FC<ICourseGroupsProps> = (props) => {
                     );
                 })}
             </Grid>
-
-            <Dialog
-                fullWidth
-                maxWidth="sm"
-                open={isDialogOpen}
-                onClose={handleCloseDialog}
-            >
-                <DialogTitle>
-                    Создать новую группу
-                </DialogTitle>
-                <DialogContent>
-                    <Grid container spacing={2} style={{marginTop: 4}}>
-                        <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                required
-                                label="Название группы"
-                                value={formState.name}
-                                onChange={(e) => {
-                                    e.persist();
-                                    setFormState(prev => ({
-                                        ...prev,
-                                        name: e.target.value
-                                    }));
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Autocomplete
-                                multiple
-                                options={getSortedStudents()}
-                                value={courseStudents.filter(s => formState.memberIds.includes(s.userId!))}
-                                getOptionLabel={(option) =>
-                                    `${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()
-                                }
-                                renderOption={(props, option) => {
-                                    return (
-                                        <Box component="li" {...props}>
-                                            <Stack direction="row" spacing={1} alignItems="center" width="100%">
-                                                <Typography variant="body2" sx={{ flex: 1 }}>
-                                                    {`${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()}
-                                                </Typography>
-                                                {isStudentInGroup(option.userId!) && (
-                                                    <Tooltip title="Студент уже в группе">
-                                                        <CheckIcon
-                                                            sx={{
-                                                                fontSize: "1.2rem",
-                                                                color: "success.main",
-                                                                flexShrink: 0
-                                                            }}
-                                                        />
-                                                    </Tooltip>
-                                                )}
-                                            </Stack>
-                                        </Box>
-                                    );
-                                }}
-                                filterSelectedOptions
-                                onChange={(e, values) => {
-                                    e.persist();
-                                    setFormState(prev => ({
-                                        ...prev,
-                                        memberIds: values
-                                            .map(x => x.userId!)
-                                            .filter(Boolean)
-                                    }));
-                                }}
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Участники группы"
-                                        placeholder="Выберите студентов"
-                                    />
-                                )}
-                            />
-                        </Grid>
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        onClick={handleCloseDialog}
-                        color="inherit"
-                        disabled={isSubmitting}
-                    >
-                        Отменить
-                    </Button>
-                    <Button
-                        onClick={handleSubmit}
-                        color="primary"
-                        variant="contained"
-                        disabled={isSubmitting || !formState.name.trim() || formState.memberIds.length === 0}
-                    >
-                        Создать
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </Grid>
     );
 };

@@ -437,7 +437,6 @@ const Course: React.FC = () => {
                     }
                     {tabValue === "groups" && isCourseMentor &&
                         <CourseGroups
-                            courseId={+courseId!}
                             courseStudents={acceptedStudents}
                             groups={groups}
                             onGroupsUpdate={loadGroups}
