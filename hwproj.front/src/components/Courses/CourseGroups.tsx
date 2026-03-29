@@ -1,4 +1,4 @@
-import {FC, useState} from "react";
+import {FC, useState, useEffect} from "react";
 import {
     Accordion,
     AccordionSummary,
@@ -27,7 +27,7 @@ interface ICourseGroupsProps {
     courseId: number;
     courseStudents: AccountDataDto[];
     groups: Group[];
-    onGroupsUpdate: () => Promise<void>;
+    onGroupsUpdate: () => void;
 }
 
 interface ICreateGroupFormState {
@@ -36,9 +36,13 @@ interface ICreateGroupFormState {
 }
 
 const CourseGroups: FC<ICourseGroupsProps> = (props) => {
-    const {courseId, courseStudents, groups} = props;
+    const {courseId, courseStudents, groups, onGroupsUpdate} = props;
 
     const [isError, setIsError] = useState<boolean>(false);
+
+    useEffect(() => {
+        onGroupsUpdate();
+    }, [courseId]);
 
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
     const [formState, setFormState] = useState<ICreateGroupFormState>({

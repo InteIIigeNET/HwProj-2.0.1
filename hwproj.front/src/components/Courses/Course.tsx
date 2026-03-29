@@ -412,6 +412,7 @@ const Course: React.FC = () => {
                                 courseHomeworks: homeworks
                             }))
                         }}
+                        onGroupsUpdate={loadGroups}
                     />
                     }
                     {tabValue === "stats" &&

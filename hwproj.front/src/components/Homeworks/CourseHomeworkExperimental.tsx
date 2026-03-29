@@ -18,7 +18,7 @@ import {IFileInfo} from "components/Files/IFileInfo";
 import {FC, useEffect, useState} from "react"
 import Utils from "services/Utils";
 import {
-    HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, PostTaskViewModel
+    HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, PostTaskViewModel, AccountDataDto
 } from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import Tags from "../Common/Tags";
@@ -64,6 +64,7 @@ const CourseHomeworkEditor: FC<{
                         previouslyExistingFilesCount: number,
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
+    onGroupsUpdate: () => void;
 }> = (props) => {
     const homework = props.homeworkAndFilesInfo.homework
     const isNewHomework = homework.id! < 0
@@ -116,6 +117,19 @@ const CourseHomeworkEditor: FC<{
     const [tags, setTags] = useState<string[]>(loadedHomework.tags!)
     const [description, setDescription] = useState<string>(loadedHomework.description!)
     const [selectedGroupId, setSelectedGroupId] = useState(loadedHomework.groupId)
+    const [courseStudents, setCourseStudents] = useState<AccountDataDto[]>([])
+
+    useEffect(() => {
+        const loadCourseStudents = async () => {
+            try {
+                const courseData = await ApiSingleton.coursesApi.coursesGetAllCourseData(courseId)
+                setCourseStudents(courseData.course?.acceptedStudents || [])
+            } catch (error) {
+                console.error('Failed to load course students:', error)
+            }
+        }
+        loadCourseStudents()
+    }, [courseId])
 
     const [hasErrors, setHasErrors] = useState<boolean>(false)
 
@@ -293,9 +307,11 @@ const CourseHomeworkEditor: FC<{
             <Grid container>
                 <GroupSelector
                     courseId={courseId}
+                    courseStudents={courseStudents}
                     onGroupIdChange={(groupId?: number) => setSelectedGroupId(groupId)}
                     selectedGroupId={selectedGroupId}
-                    disabled={!isNewHomework}
+                    choiceDisabled={!isNewHomework}
+                    onGroupsUpdate={props.onGroupsUpdate}
                 />
                 {tags.includes(TestTag) &&
                     <Grid item>
@@ -404,6 +420,7 @@ const CourseHomeworkExperimental: FC<{
                         previouslyExistingFilesCount: number,
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
+    onGroupsUpdate: () => void;
 }> = (props) => {
     const {homework, filesInfo} = props.homeworkAndFilesInfo
     const deferredTasks = homework.tasks!.filter(t => t.isDeferred!)
@@ -424,6 +441,7 @@ const CourseHomeworkExperimental: FC<{
             props.onUpdate(update)
         }}
         onStartProcessing={props.onStartProcessing}
+        onGroupsUpdate={props.onGroupsUpdate}
     />
 
     return <CardContent
