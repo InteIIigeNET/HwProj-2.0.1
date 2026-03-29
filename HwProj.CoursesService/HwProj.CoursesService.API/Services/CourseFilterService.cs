@@ -72,7 +72,13 @@ namespace HwProj.CoursesService.API.Services
 
             var filters = (await _courseFilterRepository.GetAsync(userId, courseIds))
                 .ToDictionary(x => x.CourseId, x => x.CourseFilter);
-            return (await Task.WhenAll(courses.Select(course => ApplyFilter(course, userId)))).ToArray();
+
+            var result = new List<CourseDTO>();
+            foreach (var course in courses)
+            {
+                result.Add(await ApplyFilter(course, userId));
+            }
+            return result.ToArray();
         }
 
         public async Task<CourseDTO> ApplyFilter(CourseDTO courseDto, string userId)
