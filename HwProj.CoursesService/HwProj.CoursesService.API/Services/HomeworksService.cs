@@ -115,17 +115,18 @@ namespace HwProj.CoursesService.API.Services
             var homework = await _homeworksRepository.GetAsync(homeworkId);
             var course = await _coursesRepository.GetWithCourseMates(homework.CourseId);
             var studentIds = course!.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
+            var notificationStudentIds = studentIds;
+
+            if (update.GroupId != null)
+            {
+                var groupMates = await _groupMatesRepository.FindAll(gm => gm.GroupId == update.GroupId).ToListAsync();
+                await UpdateGroupFilters(course.Id, homework.Id, groupMates);
+
+                notificationStudentIds = groupMates.Select(gm => gm.StudentId).ToArray();
+            }
 
             if (options.SendNotification && update.PublicationDate <= DateTime.UtcNow)
             {
-                var notificationStudentIds = studentIds;
-
-                if (update.GroupId != null)
-                {
-                    var groupMates = await _groupMatesRepository.FindAll(gm => gm.GroupId == update.GroupId).ToListAsync();
-                    notificationStudentIds = groupMates.Select(gm => gm.StudentId).ToArray();
-                }
-
                 _eventBus.Publish(new UpdateHomeworkEvent(update.Title, course.Id, course.Name, notificationStudentIds));
             }
 
