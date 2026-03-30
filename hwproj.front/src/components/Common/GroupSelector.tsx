@@ -14,7 +14,8 @@ import {
     Tooltip,
     Alert,
     AlertTitle,
-    CircularProgress
+    CircularProgress,
+    Chip
 } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import EditIcon from "@mui/icons-material/Edit";
@@ -27,11 +28,10 @@ interface GroupSelectorProps {
     courseId: number,
     courseStudents: AccountDataDto[],
     onGroupIdChange: (groupId?: number) => void,
-    onCreateNewGroup?: () => void,
+    onGroupsUpdate: () => void,
     selectedGroupId?: number,
     choiceDisabled?: boolean,
-    selectedGroupStudentIds?: string[],
-    onGroupsUpdate: () => void,
+    onCreateNewGroup?: () => void,
 }
 
 const GroupSelector:  FC<GroupSelectorProps> = (props) => {
@@ -270,15 +270,34 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
                                     )
                                 }}
                                 filterSelectedOptions
-                                onChange={(e, values) => {
-                                    setFormState(prev => ({
-                                        ...prev,
-                                        memberIds: values
-                                            .map(x => x.userId!)
-                                            .filter(Boolean)
-                                    }))
+                                onChange={(_, values) => {
+                                    if (selectedGroup) {
+                                        // При редактировании выбранной группы можно только добавлять студентов
+                                        setFormState(prev => ({
+                                            ...prev,
+                                            memberIds: [...formState.memberIds, 
+                                                ...values.map(x => !formState.memberIds.includes(x.userId!) ? x.userId! : "").filter(Boolean)]
+                                        }))
+                                    } else {
+                                        setFormState(prev => ({
+                                            ...prev,
+                                            memberIds: values
+                                                .map(x => x.userId!)
+                                                .filter(Boolean)
+                                        }))
+                                    }
                                 }}
                                 disabled={isSubmitting}
+                                renderTags={(tagValue, getTagProps) =>
+                                    tagValue.map((option, index) => (
+                                        <Chip
+                                            {...getTagProps({ index })}
+                                            label={`${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()}
+                                            onDelete={selectedGroup ? undefined : getTagProps({ index }).onDelete}
+                                            key={option.userId}
+                                        />
+                                    ))
+                                }
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
