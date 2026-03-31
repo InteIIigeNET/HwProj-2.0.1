@@ -93,7 +93,7 @@ namespace HwProj.CoursesService.API.Services
                 (await _courseFilterRepository.GetAsync(findFiltersFor, courseDto.Id))
                 .ToDictionary(x => x.UserId, x => x.CourseFilter);
 
-            if (isCourseStudent)
+            if (!isMentor)
             {
                 var studentCourse = courseDto;
                 var groupFilter = await _courseFilterRepository.GetAsync("", courseDto.Id); // Глобальный фильтр для вычитания групповых домашних заданий
