@@ -206,7 +206,7 @@ namespace HwProj.CoursesService.API.Services
                         ? courseDto.CourseMates
                             .Where(mate => !mate.IsAccepted || filter.StudentIds.Contains(mate.StudentId)).ToArray()
                         : courseDto.CourseMates,
-                Homeworks = homeworks
+                Homeworks = homeworks.OrderBy(hw => hw.PublicationDate).ToArray()
             };
         }
 
