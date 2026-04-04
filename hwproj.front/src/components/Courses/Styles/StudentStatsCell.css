@@ -22,3 +22,18 @@
 .glow-cell {
     animation: golden-glow-strongest-inset 2.5s infinite ease-in-out;
 }
+
+.disabled-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.disabled-cell .red-cross {
+    color: #d32f2f;
+    font-size: 1.5rem;
+    font-weight: bold;
+    line-height: 1;
+}

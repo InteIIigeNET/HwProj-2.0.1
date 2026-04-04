@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef} from "react";
-import {CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
+import {CourseViewModel, Group, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import {useNavigate, useParams} from 'react-router-dom';
 import {LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
@@ -147,6 +147,19 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
             )
             .forEach(x => bestTaskSolutions.set(x.taskId!, x.studentId!))
     }
+
+    const [groups, setGroups] = useState<Group[]>([]);
+    useEffect(() => {
+        const loadGroups = async () => {
+            try {
+                const courseGroups = await ApiSingleton.courseGroupsApi.courseGroupsGetAllCourseGroupsWithNames(+courseId!);
+                setGroups(courseGroups);
+            } catch (error) {
+                console.error('Failed to load groups:', error);
+            }
+        };
+        loadGroups();
+    }, [courseId]);
 
     return (
         <div>
@@ -356,6 +369,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     {homeworks.map((homework, idx) =>
                                         homework.tasks!.map((task, i) => {
                                             const additionalStyles = i === 0 && homeworkStyles(homeworks, idx)
+                                            const isDisabled = homework.groupId ? !groups.find(g => g.id === homework.groupId)?.studentsIds?.includes(cm.id!) : false
                                             return <StudentStatsCell
                                                 key={`${cm.id}-${homework.id}-${task.id}`}
                                                 solutions={cm.homeworks
@@ -367,6 +381,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                 taskId={task.id!}
                                                 taskMaxRating={task.maxRating!}
                                                 isBestSolution={bestTaskSolutions.get(task.id!) === cm.id}
+                                                disabled={isDisabled}
                                                 {...additionalStyles}/>;
                                         })
                                     )}
