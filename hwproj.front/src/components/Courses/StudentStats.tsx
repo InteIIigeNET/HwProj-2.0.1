@@ -104,13 +104,6 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     const notTests = homeworks.filter(h => !h.tags!.includes(TestTag))
 
-    const homeworksMaxSum = notTests
-        .filter(h => !h.tags!.includes(BonusTag))
-        .flatMap(homework => homework.tasks)
-        .reduce((sum, task) => {
-            return sum + (task!.tags!.includes(BonusTag) ? 0 : (task!.maxRating || 0));
-        }, 0)
-
     const testGroups = Lodash(homeworks.filter(h => h.tags!.includes(TestTag)))
         .groupBy((h: HomeworkViewModel) => {
             const key = h.tags!.find(t => !DefaultTags.includes(t))
@@ -125,7 +118,10 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         .reduce((sum, task) => 
             sum + (task!.tags!.includes(BonusTag) ? 0 : (task!.maxRating || 0)), 0)
 
-    const hasHomeworks = homeworksMaxSum > 0
+    const hasHomeworks = !!notTests
+        .filter(h => !h.tags!.includes(BonusTag))
+        .flatMap(homework => homework.tasks)
+        .filter(task => !task!.tags!.includes(BonusTag))
     const hasTests = testsMaxSum > 0
     const showBestSolutions = isMentor && (hasHomeworks || hasTests)
 
@@ -230,7 +226,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                             paddingRight: 5,
                                                             borderLeft: borderStyle,
                                                         }}>
-                                ДЗ ({homeworksMaxSum})
+                                ДЗ
                             </TableCell>}
                             {hasTests && <TableCell padding="checkbox" component="td" align="center"
                                                     style={{
@@ -272,6 +268,13 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solutions || [])?.rating || 0) || 0
                                 )
                                 .reduce((sum, rating) => sum + rating, 0)
+                            const homeworksMaxSum = notTests
+                                    .filter(h => !h.tags!.includes(BonusTag) &&
+                                        (groups.find(g => g.id === h.groupId)?.studentsIds?.includes(cm.id!) || !h.groupId))
+                                    .flatMap(homework => homework.tasks)
+                                    .reduce((sum, task) => {
+                                        return sum + (task!.tags!.includes(BonusTag) ? 0 : (task!.maxRating || 0));
+                                    }, 0)
 
                             const testsSum = testGroups
                                 .map(group => {
