@@ -70,9 +70,6 @@ namespace HwProj.CoursesService.API.Services
         {
             var courseIds = courses.Select(c => c.Id).ToArray();
 
-            var filters = (await _courseFilterRepository.GetAsync(userId, courseIds))
-                .ToDictionary(x => x.CourseId, x => x.CourseFilter);
-
             var result = new List<CourseDTO>();
             foreach (var course in courses)
             {
@@ -167,7 +164,11 @@ namespace HwProj.CoursesService.API.Services
                         .ToArray(),
 
                     ApplyFilterType.Union => courseDto.Homeworks
-                        .Union(await GetHomeworksSequentially(filter.HomeworkIds))
+                        .Concat((await _homeworksService.GetHomeworksAsync(filter.HomeworkIds.ToArray()))
+                            .Where(hw => hw != null)
+                            .Select(hw => hw.ToHomeworkViewModel()))
+                        .GroupBy(hw => hw.Id)
+                        .Select(g => g.First())
                         .ToArray(),
 
                     _ => courseDto.Homeworks
@@ -208,18 +209,6 @@ namespace HwProj.CoursesService.API.Services
                         : courseDto.CourseMates,
                 Homeworks = homeworks.OrderBy(hw => hw.PublicationDate).ToArray()
             };
-        }
-
-        private async Task<IEnumerable<HomeworkViewModel>> GetHomeworksSequentially(List<long> homeworkIds)
-        {
-            var result = new List<HomeworkViewModel>();
-            foreach (var id in homeworkIds)
-            {
-                var hw = await _homeworksService.GetHomeworkAsync(id);
-                if (hw != null)
-                    result.Add(hw.ToHomeworkViewModel());
-            }
-            return result;
         }
     }
 }
