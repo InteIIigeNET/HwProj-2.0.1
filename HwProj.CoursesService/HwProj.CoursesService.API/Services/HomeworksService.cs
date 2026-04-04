@@ -68,6 +68,18 @@ namespace HwProj.CoursesService.API.Services
             return homework;
         }
 
+        public async Task<Homework[]> GetHomeworksAsync(long[] homeworkIds, bool withCriteria = false)
+        {
+            var homeworks = await _homeworksRepository.GetWithTasksAsync(homeworkIds, withCriteria);
+
+            foreach (var homework in homeworks)
+            {
+                CourseDomain.FillTasksInHomework(homework);
+            }
+
+            return homeworks;
+        }
+
         public async Task<Homework> GetForEditingHomeworkAsync(long homeworkId)
         {
             var result = await _homeworksRepository.GetWithTasksAsync(homeworkId);

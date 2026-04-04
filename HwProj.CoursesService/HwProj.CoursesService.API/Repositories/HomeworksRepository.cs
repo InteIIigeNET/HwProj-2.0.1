@@ -27,6 +27,14 @@ namespace HwProj.CoursesService.API.Repositories
                 .ToArrayAsync();
         }
 
+        public async Task<Homework[]> GetWithTasksAsync(long[] homeworkIds, bool withCriteria = false)
+        {
+            var query = Context.Set<Homework>().AsNoTracking().Include(h => h.Tasks);
+            return withCriteria
+                ? await query.ThenInclude(x => x.Criteria).Where(h => homeworkIds.Contains(h.Id)).ToArrayAsync()
+                : await query.Where(h => homeworkIds.Contains(h.Id)).ToArrayAsync();
+        }
+
         public async Task<Homework> GetWithTasksAsync(long id, bool withCriteria = false)
         {
             var query = Context.Set<Homework>().AsNoTracking().Include(h => h.Tasks);
