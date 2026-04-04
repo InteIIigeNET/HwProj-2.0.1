@@ -86,20 +86,14 @@ namespace HwProj.CoursesService.API.Services
 
             group.Name = updated.Name;
 
-            if (updated.GroupMates != null)
+            if (updated.GroupMates != null && updated.GroupMates.Count > 0)
             {
-                foreach (var groupMate in updated.GroupMates)
-                {
-                    await _groupMatesRepository.AddAsync(groupMate);
-                }
+                await _groupMatesRepository.AddRangeAsync(updated.GroupMates).ConfigureAwait(false);
             }
 
-            if (updated.Tasks != null)
+            if (updated.Tasks != null && updated.Tasks.Count > 0)
             {
-                foreach (var task in updated.Tasks)
-                {
-                    await _taskModelsRepository.AddAsync(task);
-                }
+                await _taskModelsRepository.AddRangeAsync(updated.Tasks).ConfigureAwait(false);
             }
         }
 
@@ -132,17 +126,14 @@ namespace HwProj.CoursesService.API.Services
                 .ToArrayAsync()
                 .ConfigureAwait(false);
 
-            var studentGroups = new List<Group>();
-            foreach (var id in studentGroupsIds)
-            {
-                var group = await _groupsRepository.GetAsync(id).ConfigureAwait(false);
-                if (group.CourseId == courseId)
-                {
-                    studentGroups.Add(group);
-                }
-            }
+            var studentGroups = await _groupsRepository
+                .GetGroupsWithGroupMatesAsync(studentGroupsIds)
+                .ConfigureAwait(false);
 
-            return studentGroups.Select(c => _mapper.Map<UserGroupDescription>(c)).ToArray();
+            return studentGroups
+                .Where(g => g.CourseId == courseId)
+                .Select(c => _mapper.Map<UserGroupDescription>(c))
+                .ToArray();
         }
     }
 }
