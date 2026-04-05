@@ -24,27 +24,16 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
     const navigate = useNavigate()
     const {solutions, taskMaxRating, forMentor} = props
 
-    const cellState = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)
+    const cellState = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating, props.disabled)
 
     const {ratedSolutionsCount, solutionsDescription} = cellState;
 
-    const buildTitle = (): string => {
-        if (props.disabled) {
-            return "Задача недоступна для этого студента";
-        }
+     const tooltipTitle = ratedSolutionsCount === 0
+        ? solutionsDescription
+        : solutionsDescription
+        + (props.isBestSolution ? "\n Первое решение с лучшей оценкой" : "")
+        + `\n\n${Utils.pluralizeHelper(["Проверена", "Проверены", "Проверено"], ratedSolutionsCount)} ${ratedSolutionsCount} ${Utils.pluralizeHelper(["попытка", "попытки", "попыток"], ratedSolutionsCount)}`;
 
-        if (ratedSolutionsCount === 0) {
-            return solutionsDescription;
-        }
-
-        const bestSolutionNote = props.isBestSolution
-            ? "\n Первое решение с лучшей оценкой"
-            : "";
-
-        const attemptsInfo = `\n\n${Utils.pluralizeHelper(["Проверена", "Проверены", "Проверено"], ratedSolutionsCount)} ${ratedSolutionsCount} ${Utils.pluralizeHelper(["попытка", "попытки", "попыток"], ratedSolutionsCount)}`;
-
-        return solutionsDescription + bestSolutionNote + attemptsInfo;
-    };
 
     const result = cellState.lastRatedSolution === undefined
         ? ""
@@ -55,6 +44,7 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
 
     const handleCellClick = (e: React.MouseEvent) => {
         if(props.disabled) return;
+
         // Формируем URL
         const url = forMentor
             ? `/task/${props.taskId}/${props.studentId}`
@@ -73,7 +63,7 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
 
     return (
         <Tooltip arrow disableInteractive enterDelay={100}
-                 title={<span style={{whiteSpace: 'pre-line'}}>{buildTitle()}</span>}>
+                 title={<span style={{whiteSpace: 'pre-line'}}>{tooltipTitle}</span>}>
             <TableCell
                 onClick={handleCellClick}
                 className={props.isBestSolution ? "glow-cell" : ""}
@@ -87,11 +77,7 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
                     borderLeft: `1px solid ${props.borderLeftColor || grey[300]}`,
                     cursor: props.disabled ? "default" : "pointer",
                 }}>
-                {props.disabled
-                    ? <div className="disabled-cell">
-                        <span className="red-cross">✕</span>
-                      </div>
-                    : result}
+                {result}
             </TableCell>
         </Tooltip>
     );
