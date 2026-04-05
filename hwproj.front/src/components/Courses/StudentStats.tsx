@@ -337,7 +337,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                   backgroundColor: StudentStatsUtils.getRatingColor(homeworksSum, homeworksMaxSum),
                                                   fontSize: 16
                                               }}
-                                              label={homeworksSum}/>
+                                              label={`${homeworksSum} / ${homeworksMaxSum}`}/>
                                     </TableCell>}
                                     {hasTests && <TableCell
                                         align="center"
