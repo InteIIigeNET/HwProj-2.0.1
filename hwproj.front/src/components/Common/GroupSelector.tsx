@@ -1,4 +1,4 @@
-import {FC, useEffect, useState} from "react";
+import {FC, useEffect, useMemo, useState} from "react";
 import {
     Grid,
     TextField,
@@ -8,16 +8,12 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    Box,
     Stack,
-    Typography,
-    Tooltip,
     Alert,
     AlertTitle,
     CircularProgress,
     Chip
 } from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import ApiSingleton from "../../api/ApiSingleton";
@@ -118,25 +114,10 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
         }
     }
 
-    const isStudentInGroup = (userId: string, currentGroupId?: number): boolean => {
-        return groups.some(group => group.id !== currentGroupId && group.studentsIds?.includes(userId));
-    }
-
-    const getSortedStudents = (): AccountDataDto[] => {
-        if (!props.courseStudents) return [];
-        const currentGroupId = props.selectedGroupId;
-        const studentsInOtherGroups = props.courseStudents.filter(s => 
-            isStudentInGroup(s.userId!, currentGroupId)
-        );
-        const studentsInCurrentGroup = props.courseStudents.filter(s =>
-            formState.memberIds.includes(s.userId!)
-        );
-        const studentsNotInAnyGroup = props.courseStudents.filter(s =>
-            !isStudentInGroup(s.userId!, currentGroupId) && 
-            !studentsInCurrentGroup.includes(s)
-        );
-        return [...studentsNotInAnyGroup, ...studentsInCurrentGroup, ...studentsInOtherGroups];
-    }
+    const studentsWithousGroup = useMemo(() => {
+        const studentsInGroups = groups.flatMap(g => g.studentsIds)
+        return props.courseStudents.filter((cm) => !studentsInGroups.includes(cm.userId))
+    }, [groups, props.courseStudents]);
 
     const selectedGroup = groups.find(g => g.id === props.selectedGroupId);
 
@@ -241,34 +222,11 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
                         <Grid item xs={12}>
                             <Autocomplete
                                 multiple
-                                options={getSortedStudents()}
+                                options={studentsWithousGroup}
                                 value={props.courseStudents?.filter(s => formState.memberIds.includes(s.userId!)) || []}
                                 getOptionLabel={(option) =>
                                     `${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()
                                 }
-                                renderOption={(materialUIProps, option) => {
-                                    const isInOtherGroup = isStudentInGroup(option.userId!, props.choiceDisabled ? props.selectedGroupId : undefined)
-                                    return (
-                                        <Box component="li" {...materialUIProps}>
-                                            <Stack direction="row" spacing={1} alignItems="center" width="100%">
-                                                <Typography variant="body2" sx={{ flex: 1 }}>
-                                                    {`${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()}
-                                                </Typography>
-                                                {isInOtherGroup && (
-                                                    <Tooltip title="Студент уже в группе">
-                                                        <CheckIcon
-                                                            sx={{
-                                                                fontSize: "1.2rem",
-                                                                color: "warning.main",
-                                                                flexShrink: 0
-                                                            }}
-                                                        />
-                                                    </Tooltip>
-                                                )}
-                                            </Stack>
-                                        </Box>
-                                    )
-                                }}
                                 filterSelectedOptions
                                 onChange={(_, values) => {
                                     if (selectedGroup) {
