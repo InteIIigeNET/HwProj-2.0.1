@@ -175,17 +175,10 @@ const Course: React.FC = () => {
     const [groups, setGroups] = useState<Group[]>([]);
     const [groupLoadingError, setGroupLoadingError] = useState(false);
     
-    const studentsInGroups = useMemo(() => {
-        const studentIds = new Set<string>();
-        groups.forEach(g => {
-            g.studentsIds?.forEach(id => studentIds.add(id));
-        });
-        return studentIds;
-    }, [groups]);
-    
     const studentsWithoutGroup = useMemo(() => {
-        return acceptedStudents.filter(s => !studentsInGroups.has(s.userId!));
-    }, [acceptedStudents, studentsInGroups]);
+        const inGroupIds = new Set(groups.flatMap(g => g.studentsIds));
+        return acceptedStudents.filter(s => !inGroupIds.has(s.userId!));
+    }, [groups, acceptedStudents]);
 
     const loadGroups = async () => {
         setGroupLoadingError(false);
