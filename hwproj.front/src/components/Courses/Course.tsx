@@ -417,6 +417,7 @@ const Course: React.FC = () => {
                                     isMentor={isCourseMentor}
                                     course={courseState.course}
                                     solutions={studentSolutions}
+                                    groups={groups}
                                 />
                             </Grid>
                         </Grid>}

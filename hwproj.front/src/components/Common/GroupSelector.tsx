@@ -158,7 +158,7 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
                         renderInput={(params) => (
                             <TextField
                                 {...params}
-                                label="Группа (не обязательно)"
+                                label="Группа (необязательно)"
                                 placeholder="Выберите группу"
                                 variant="outlined"
                             />

@@ -19,6 +19,7 @@ interface IStudentStatsProps {
     isMentor: boolean;
     userId: string;
     solutions: StatisticsCourseMatesModel[] | undefined;
+    groups: Group[];
 }
 
 interface IStudentStatsState {
@@ -144,19 +145,6 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
             .forEach(x => bestTaskSolutions.set(x.taskId!, x.studentId!))
     }
 
-    const [groups, setGroups] = useState<Group[]>([]);
-    useEffect(() => {
-        const loadGroups = async () => {
-            try {
-                const courseGroups = await ApiSingleton.courseGroupsApi.courseGroupsGetAllCourseGroupsWithNames(+courseId!);
-                setGroups(courseGroups);
-            } catch (error) {
-                console.error('Failed to load groups:', error);
-            }
-        };
-        loadGroups();
-    }, [courseId]);
-
     return (
         <div>
             {props.solutions === undefined && <LinearProgress/>}
@@ -270,7 +258,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 .reduce((sum, rating) => sum + rating, 0)
                             const homeworksMaxSum = notTests
                                     .filter(h => !h.tags!.includes(BonusTag) &&
-                                        (groups.find(g => g.id === h.groupId)?.studentsIds?.includes(cm.id!) || !h.groupId))
+                                        (props.groups.find(g => g.id === h.groupId)?.studentsIds?.includes(cm.id!) || !h.groupId))
                                     .flatMap(homework => homework.tasks)
                                     .reduce((sum, task) => {
                                         return sum + (task!.tags!.includes(BonusTag) ? 0 : (task!.maxRating || 0));
@@ -372,7 +360,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     {homeworks.map((homework, idx) =>
                                         homework.tasks!.map((task, i) => {
                                             const additionalStyles = i === 0 && homeworkStyles(homeworks, idx)
-                                            const isDisabled = homework.groupId ? !groups.find(g => g.id === homework.groupId)?.studentsIds?.includes(cm.id!) : false
+                                            const isDisabled = homework.groupId
+                                                ? !props.groups.find(g => g.id === homework.groupId)?.studentsIds?.includes(cm.id!)
+                                                : false
                                             return <StudentStatsCell
                                                 key={`${cm.id}-${homework.id}-${task.id}`}
                                                 solutions={cm.homeworks
