@@ -1,4 +1,4 @@
-import {FC, useEffect, useMemo, useState} from "react";
+import {FC, useMemo, useState} from "react";
 import {
     Grid,
     TextField,
@@ -23,6 +23,7 @@ import { Group, AccountDataDto } from "@/api";
 interface GroupSelectorProps {
     courseId: number,
     courseStudents: AccountDataDto[],
+    groups: Group[],
     onGroupIdChange: (groupId?: number) => void,
     onGroupsUpdate: () => void,
     selectedGroupId?: number,
@@ -31,8 +32,7 @@ interface GroupSelectorProps {
 }
 
 const GroupSelector:  FC<GroupSelectorProps> = (props) => {
-    const [groups, setGroups] = useState<Group[]>([]);
-    const [groupsLoading, setGroupsLoading] = useState(false);
+    const groups = props.groups || [];
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [formState, setFormState] = useState<{
         name: string,
@@ -43,22 +43,6 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isError, setIsError] = useState(false);
-
-    const loadGroups = async () => {
-        setGroupsLoading(true)
-        try {
-            const courseGroups = await ApiSingleton.courseGroupsApi.courseGroupsGetAllCourseGroupsWithNames(props.courseId);
-            setGroups(courseGroups);
-        } catch (error) {
-            console.error('Failed to load groups:', error);
-            setIsError(true);
-        } finally {
-            setGroupsLoading(false);
-        }
-    }
-    useEffect(() => {
-        loadGroups();
-    }, [props.courseId]);
 
     const handleOpenEditDialog = () => {
         const selectedGroup = groups.find(g => g.id === props.selectedGroupId);
@@ -89,7 +73,6 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
                         groupMates: formState.memberIds.map(studentId => ({ studentId })),
                     }
                 );
-                await loadGroups();
                 props.onGroupsUpdate();
             } else {
                 if (!formState.name.trim() || formState.memberIds.length === 0) {
@@ -101,7 +84,6 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
                     groupMatesIds: formState.memberIds,
                     courseId: props.courseId,
                 });
-                await loadGroups();
                 props.onGroupsUpdate();
                 props.onGroupIdChange(groupId);
             }
@@ -154,7 +136,6 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
                         onChange={(_, newGroup) => {
                             props.onGroupIdChange(newGroup?.id)
                         }}
-                        loading={groupsLoading}
                         renderInput={(params) => (
                             <TextField
                                 {...params}

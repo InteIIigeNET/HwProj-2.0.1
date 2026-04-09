@@ -406,6 +406,7 @@ const Course: React.FC = () => {
                             }))
                         }}
                         onGroupsUpdate={loadGroups}
+                        groups={groups}
                     />
                     }
                     {tabValue === "stats" &&

@@ -1,6 +1,7 @@
 import * as React from "react";
 import {
     FileInfoDTO,
+    Group,
     HomeworkTaskViewModel,
     HomeworkViewModel, SolutionDto, StatisticsCourseMatesModel,
 } from "@/api";
@@ -61,6 +62,7 @@ interface ICourseExperimentalProps {
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
     onGroupsUpdate: () => void;
+    groups: Group[];
 }
 
 interface ICourseExperimentalState {
@@ -442,6 +444,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     isProcessing={props.processingFiles[homework.id!]?.isLoading || false}
                     onStartProcessing={props.onStartProcessing}
                     onGroupsUpdate={props.onGroupsUpdate}
+                    groups={props.groups}
                 />
             </Card>
         </Stack>

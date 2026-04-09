@@ -18,7 +18,8 @@ import {IFileInfo} from "components/Files/IFileInfo";
 import {FC, useEffect, useState} from "react"
 import Utils from "services/Utils";
 import {
-    HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, PostTaskViewModel, AccountDataDto
+    HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, PostTaskViewModel, AccountDataDto,
+    Group
 } from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import Tags from "../Common/Tags";
@@ -65,6 +66,7 @@ const CourseHomeworkEditor: FC<{
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
     onGroupsUpdate: () => void;
+    groups: Group[];
 }> = (props) => {
     const homework = props.homeworkAndFilesInfo.homework
     const isNewHomework = homework.id! < 0
@@ -312,6 +314,7 @@ const CourseHomeworkEditor: FC<{
                     selectedGroupId={selectedGroupId}
                     choiceDisabled={!isNewHomework}
                     onGroupsUpdate={props.onGroupsUpdate}
+                    groups={props.groups}
                 />
                 {tags.includes(TestTag) &&
                     <Grid item>
@@ -421,6 +424,7 @@ const CourseHomeworkExperimental: FC<{
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
     onGroupsUpdate: () => void;
+    groups: Group[];
 }> = (props) => {
     const {homework, filesInfo} = props.homeworkAndFilesInfo
     const deferredTasks = homework.tasks!.filter(t => t.isDeferred!)
@@ -442,6 +446,7 @@ const CourseHomeworkExperimental: FC<{
         }}
         onStartProcessing={props.onStartProcessing}
         onGroupsUpdate={props.onGroupsUpdate}
+        groups={props.groups}
     />
 
     return <CardContent
