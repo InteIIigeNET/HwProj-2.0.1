@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
@@ -67,8 +66,7 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task UpdateAsync(long groupId, Group updated)
         {
-            var group = (await _groupsRepository.GetGroupsWithGroupMatesAsync(new[] { groupId }))
-                .FirstOrDefault() ?? throw new InvalidOperationException($"Group with id {groupId} not found");
+            var group = (await _groupsRepository.GetGroupsWithGroupMatesAsync(new[] { groupId })).FirstOrDefault();
 
             foreach (var groupMate in group.GroupMates.ToList())
             {

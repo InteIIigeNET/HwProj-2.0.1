@@ -138,9 +138,7 @@ namespace HwProj.CoursesService.API.Services
             }
 
             if (options.SendNotification && update.PublicationDate <= DateTime.UtcNow)
-            {
                 _eventBus.Publish(new UpdateHomeworkEvent(update.Title, course.Id, course.Name, notificationStudentIds));
-            }
 
             await _homeworksRepository.UpdateAsync(homeworkId, hw => new Homework()
             {
@@ -151,7 +149,7 @@ namespace HwProj.CoursesService.API.Services
                 PublicationDate = update.PublicationDate,
                 IsDeadlineStrict = update.IsDeadlineStrict,
                 Tags = update.Tags,
-                GroupId = update.GroupId
+                GroupId = update.GroupId,
             });
 
             var updatedHomework = await _homeworksRepository.GetWithTasksAsync(homeworkId);
@@ -167,10 +165,9 @@ namespace HwProj.CoursesService.API.Services
             if (globalFilter != null)
             {
                 var filter = globalFilter.Filter;
+
                 if (!filter.HomeworkIds.Contains(homeworkId))
-                {
                     filter.HomeworkIds.Add(homeworkId);
-                }
 
                 await _courseFilterRepository.UpdateAsync(globalFilter.Id, f =>
                     new CourseFilter
@@ -199,9 +196,7 @@ namespace HwProj.CoursesService.API.Services
                 {
                     var filter = studentFilter.Filter;
                     if (!filter.HomeworkIds.Contains(homeworkId))
-                    {
                         filter.HomeworkIds.Add(homeworkId);
-                    }
 
                     await _courseFilterRepository.UpdateAsync(studentFilter.Id, f =>
                         new CourseFilter
