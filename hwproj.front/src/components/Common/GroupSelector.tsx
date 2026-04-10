@@ -17,13 +17,13 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import ApiSingleton from "../../api/ApiSingleton";
-import { Group, AccountDataDto } from "@/api";
+import { NamedGroupViewModel, AccountDataDto } from "@/api";
 
 
 interface GroupSelectorProps {
     courseId: number,
     courseStudents: AccountDataDto[],
-    groups: Group[],
+    groups: NamedGroupViewModel[],
     onGroupIdChange: (groupId?: number) => void,
     onGroupsUpdate: () => void,
     selectedGroupId?: number,

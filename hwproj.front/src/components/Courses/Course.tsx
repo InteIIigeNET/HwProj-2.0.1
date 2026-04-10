@@ -1,7 +1,7 @@
 import * as React from "react";
 import {FC, useEffect, useState, useMemo} from "react";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, Group, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
+import {AccountDataDto, CourseViewModel, NamedGroupViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
@@ -172,7 +172,7 @@ const Course: React.FC = () => {
 
     const [lecturerStatsState, setLecturerStatsState] = useState(false);
 
-    const [groups, setGroups] = useState<Group[]>([]);
+    const [groups, setGroups] = useState<NamedGroupViewModel[]>([]);
     const [groupLoadingError, setGroupLoadingError] = useState(false);
     
     const studentsWithoutGroup = useMemo(() => {

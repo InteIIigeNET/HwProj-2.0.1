@@ -1070,7 +1070,7 @@ export interface GroupViewModel {
  * @export
  * @interface Group
  */
-export interface Group {
+export interface NamedGroupViewModel {
     /**
      *
      * @type {string}
@@ -4323,7 +4323,7 @@ export const CourseGroupsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        courseGroupsGetAllCourseGroupsWithNames(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<Group>> {
+        courseGroupsGetAllCourseGroupsWithNames(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<NamedGroupViewModel>> {
             const localVarFetchArgs = CourseGroupsApiFetchParamCreator(configuration).courseGroupsGetAllCourseGroupsWithNames(courseId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
