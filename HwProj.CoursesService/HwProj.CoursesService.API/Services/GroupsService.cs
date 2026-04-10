@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -73,18 +72,16 @@ namespace HwProj.CoursesService.API.Services
 
             foreach (var groupMate in group.GroupMates.ToList())
             {
-                await _groupMatesRepository.DeleteAsync(groupMate.Id);
+                await _groupMatesRepository.DeleteAsync(groupMate.Id).ConfigureAwait(false);
             }
 
             foreach (var task in group.Tasks.ToList())
             {
-                await _taskModelsRepository.DeleteAsync(task.Id);
+                await _taskModelsRepository.DeleteAsync(task.Id).ConfigureAwait(false);
             }
 
             updated.GroupMates?.ForEach(cm => cm.GroupId = groupId);
             updated.Tasks?.ForEach(cm => cm.GroupId = groupId);
-
-            group.Name = updated.Name;
 
             if (updated.GroupMates != null && updated.GroupMates.Count > 0)
             {
@@ -95,6 +92,11 @@ namespace HwProj.CoursesService.API.Services
             {
                 await _taskModelsRepository.AddRangeAsync(updated.Tasks).ConfigureAwait(false);
             }
+
+            await _groupsRepository.UpdateAsync(groupId, g => new Group
+            {
+                Name = updated.Name
+            }).ConfigureAwait(false);
         }
 
         public async Task<bool> DeleteGroupMateAsync(long groupId, string studentId)
