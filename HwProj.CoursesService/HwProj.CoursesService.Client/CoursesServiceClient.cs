@@ -414,14 +414,14 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<GroupViewModel[]>();
         }
 
-        public async Task<GroupWithNameDTO[]> GetAllCourseGroupsWithNames(long courseId)
+        public async Task<NamedGroupViewModel[]> GetAllCourseGroupsWithNames(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _coursesServiceUri + $"api/CourseGroups/{courseId}/getAllWithNames");
 
             var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<GroupWithNameDTO[]>();
+            return await response.DeserializeAsync<NamedGroupViewModel[]>();
         }
 
         public async Task<long> CreateCourseGroup(CreateGroupViewModel model, long courseId)

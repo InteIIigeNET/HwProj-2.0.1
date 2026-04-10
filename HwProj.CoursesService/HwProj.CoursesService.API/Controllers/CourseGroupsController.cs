@@ -5,7 +5,6 @@ using AutoMapper;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
-using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,10 +38,10 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("{courseId}/getAllWithNames")]
-        public async Task<GroupWithNameDTO[]> GetAllWithNames(long courseId)
+        public async Task<NamedGroupViewModel[]> GetAllWithNames(long courseId)
         {
             var groups = await _groupsService.GetAllAsync(courseId);
-            var result = groups.Select(t => new GroupWithNameDTO
+            var result = groups.Select(t => new NamedGroupViewModel
             {
                 Id = t.Id,
                 Name = t.Name,
