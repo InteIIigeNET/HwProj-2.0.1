@@ -236,11 +236,13 @@ namespace HwProj.CoursesService.API.Services
             }
 
             // Добавление группового домашнего задания в персональные фильтры участников группы
+            var studentIds = groupMates.Select(gm => gm.StudentId).ToArray();
+            var studentFilters = (await _courseFilterRepository.GetAsync(studentIds, courseId))
+                .ToDictionary(x => x.UserId, x => x.CourseFilter);
+
             foreach (var groupMate in groupMates)
             {
-                var studentFilter = await _courseFilterRepository.GetAsync(groupMate.StudentId, courseId);
-
-                if (studentFilter != null)
+                if (studentFilters.TryGetValue(groupMate.StudentId, out var studentFilter))
                 {
                     var filter = studentFilter.Filter;
                     if (!filter.HomeworkIds.Contains(homeworkId))
