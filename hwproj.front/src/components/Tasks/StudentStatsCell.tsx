@@ -28,12 +28,11 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
 
     const {ratedSolutionsCount, solutionsDescription} = cellState;
 
-     const tooltipTitle = ratedSolutionsCount === 0
+    const tooltipTitle = ratedSolutionsCount === 0
         ? solutionsDescription
         : solutionsDescription
         + (props.isBestSolution ? "\n Первое решение с лучшей оценкой" : "")
         + `\n\n${Utils.pluralizeHelper(["Проверена", "Проверены", "Проверено"], ratedSolutionsCount)} ${ratedSolutionsCount} ${Utils.pluralizeHelper(["попытка", "попытки", "попыток"], ratedSolutionsCount)}`;
-
 
     const result = cellState.lastRatedSolution === undefined
         ? ""
