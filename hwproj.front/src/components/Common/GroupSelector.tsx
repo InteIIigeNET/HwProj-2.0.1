@@ -1,4 +1,4 @@
-import {FC, useMemo, useState} from "react";
+import {FC, useEffect, useMemo, useState} from "react";
 import {
     Grid,
     TextField,
@@ -17,7 +17,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import ApiSingleton from "../../api/ApiSingleton";
-import { GroupViewModel, AccountDataDto } from "@/api";
+import {GroupViewModel, AccountDataDto} from "@/api";
 
 
 interface GroupSelectorProps {
@@ -31,8 +31,9 @@ interface GroupSelectorProps {
     onCreateNewGroup?: () => void,
 }
 
-const GroupSelector:  FC<GroupSelectorProps> = (props) => {
-    const groups = props.groups || [];
+const GroupSelector: FC<GroupSelectorProps> = (props) => {
+    const groups = [...(props.groups || []), {id: undefined, name: "Все студенты"}]
+
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [formState, setFormState] = useState<{
         name: string,
@@ -44,11 +45,9 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isError, setIsError] = useState(false);
 
-    const selectedGroup = useMemo(() =>
-        groups.find(g => g.id === props.selectedGroupId),
-    [groups, props.selectedGroupId]);
+    const selectedGroup = groups.find(g => g.id === props.selectedGroupId)
 
-    const studentsWithousGroup = useMemo(() => {
+    const studentsWithoutGroup = useMemo(() => {
         const studentsInGroups = groups.flatMap(g => g.studentsIds)
         return props.courseStudents.filter((cm) => !studentsInGroups.includes(cm.userId))
     }, [groups, props.courseStudents]);
@@ -76,7 +75,7 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
                     selectedGroup.id!,
                     {
                         name: formState.name,
-                        groupMates: formState.memberIds.map(studentId => ({ studentId })),
+                        groupMates: formState.memberIds.map(studentId => ({studentId})),
                     }
                 );
                 props.onGroupsUpdate();
@@ -103,70 +102,85 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
     }
 
     return (
-        <Grid item xs={12} style={{marginBottom: "15px", marginTop: 1}}>
-            {props.choiceDisabled ? (
-                <Stack spacing={1}>
-                    <TextField
-                        label="Группа"
-                        value={selectedGroup?.name || "Все студенты"}
-                        variant="outlined"
-                        fullWidth
-                        disabled
-                    />
-                    {selectedGroup && (
-                        <Button
+        <Grid container xs={12} spacing={1}>
+            <Grid item xs={12}>
+                <Autocomplete
+                    freeSolo
+                    fullWidth
+                    options={[...groups]}
+                    getOptionLabel={(option) => typeof option === 'string' ? option : option?.name || "Все студенты"}
+                    value={groups.find(g => g.id == props.selectedGroupId)}
+                    onChange={(_, newGroup) => {
+                        if (typeof newGroup === 'string') return
+                        props.onGroupIdChange(newGroup?.id)
+                    }}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Группа"
+                            placeholder="Выберите группу"
                             variant="outlined"
-                            startIcon={<EditIcon />}
-                            onClick={handleOpenEditDialog}
-                            fullWidth
-                        >
-                            Изменить состав группы
-                        </Button>
+                        />
                     )}
-                </Stack>
-            ) : (
-                <Stack spacing={1}>
+                />
+            </Grid>
+            {selectedGroup && <Grid item xs={12}>
+                <Stack direction={"column"}>
                     <Autocomplete
-                        options={[{ id: undefined, name: "Все студенты" }, ...groups]}
-                        getOptionLabel={(option) => option.name || ""}
-                        value={props.selectedGroupId !== undefined
-                            ? groups.find(g => g.id === props.selectedGroupId) || null
-                            : { id: undefined, name: "Все студенты" }}
-                        onChange={(_, newGroup) => {
-                            props.onGroupIdChange(newGroup?.id)
+                        multiple
+                        fullWidth
+                        options={studentsWithoutGroup}
+                        value={props.courseStudents?.filter(s => formState.memberIds.includes(s.userId!)) || []}
+                        getOptionLabel={(option) =>
+                            `${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()
+                        }
+                        filterSelectedOptions
+                        onChange={(_, values) => {
+                            if (selectedGroup) {
+                                // При редактировании выбранной группы можно только добавлять студентов
+                                setFormState(prev => ({
+                                    ...prev,
+                                    memberIds: [...formState.memberIds,
+                                        ...values.map(x => !formState.memberIds.includes(x.userId!) ? x.userId! : "").filter(Boolean)]
+                                }))
+                            } else {
+                                setFormState(prev => ({
+                                    ...prev,
+                                    memberIds: values
+                                        .map(x => x.userId!)
+                                        .filter(Boolean)
+                                }))
+                            }
                         }}
+                        disabled={isSubmitting}
+                        renderTags={(tagValue, getTagProps) =>
+                            tagValue.map((option, index) => (
+                                <Chip
+                                    {...getTagProps({index})}
+                                    label={`${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()}
+                                    onDelete={selectedGroup ? undefined : getTagProps({index}).onDelete}
+                                    key={option.userId}
+                                />
+                            ))
+                        }
                         renderInput={(params) => (
                             <TextField
                                 {...params}
-                                label="Группа (необязательно)"
-                                placeholder="Выберите группу"
-                                variant="outlined"
+                                label="Участники группы"
+                                placeholder="Выберите студентов"
                             />
                         )}
                     />
-                    {selectedGroup && (
-                        <Button
-                            variant="outlined"
-                            startIcon={<EditIcon />}
-                            onClick={handleOpenEditDialog}
-                            fullWidth
-                        >
-                            Изменить состав группы
-                        </Button>
-                    )}
-                    {!selectedGroup && (
-                        <Button
-                            variant="outlined"
-                            startIcon={<AddIcon />}
-                            onClick={handleOpenEditDialog}
-                            fullWidth
-                        >
-                            Создать группу
-                        </Button>
-                    )}
+                    <Button
+                        onClick={handleSubmitEdit}
+                        color="primary"
+                        variant="contained"
+                        disabled={isSubmitting || !formState.name.trim() || formState.memberIds.length === 0}
+                    >
+                        {isSubmitting ? <CircularProgress size={24}/> : selectedGroup ? "Сохранить" : "Создать"}
+                    </Button>
                 </Stack>
-            )}
-
+            </Grid>}
             <Dialog
                 fullWidth
                 maxWidth="sm"
@@ -199,52 +213,6 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
                                 disabled={isSubmitting || props.choiceDisabled}
                             />
                         </Grid>
-                        <Grid item xs={12}>
-                            <Autocomplete
-                                multiple
-                                options={studentsWithousGroup}
-                                value={props.courseStudents?.filter(s => formState.memberIds.includes(s.userId!)) || []}
-                                getOptionLabel={(option) =>
-                                    `${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()
-                                }
-                                filterSelectedOptions
-                                onChange={(_, values) => {
-                                    if (selectedGroup) {
-                                        // При редактировании выбранной группы можно только добавлять студентов
-                                        setFormState(prev => ({
-                                            ...prev,
-                                            memberIds: [...formState.memberIds, 
-                                                ...values.map(x => !formState.memberIds.includes(x.userId!) ? x.userId! : "").filter(Boolean)]
-                                        }))
-                                    } else {
-                                        setFormState(prev => ({
-                                            ...prev,
-                                            memberIds: values
-                                                .map(x => x.userId!)
-                                                .filter(Boolean)
-                                        }))
-                                    }
-                                }}
-                                disabled={isSubmitting}
-                                renderTags={(tagValue, getTagProps) =>
-                                    tagValue.map((option, index) => (
-                                        <Chip
-                                            {...getTagProps({ index })}
-                                            label={`${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()}
-                                            onDelete={selectedGroup ? undefined : getTagProps({ index }).onDelete}
-                                            key={option.userId}
-                                        />
-                                    ))
-                                }
-                                renderInput={(params) => (
-                                    <TextField
-                                        {...params}
-                                        label="Участники группы"
-                                        placeholder="Выберите студентов"
-                                    />
-                                )}
-                            />
-                        </Grid>
                     </Grid>
                 </DialogContent>
                 <DialogActions>
@@ -255,18 +223,9 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
                     >
                         Отменить
                     </Button>
-                    <Button
-                        onClick={handleSubmitEdit}
-                        color="primary"
-                        variant="contained"
-                        disabled={isSubmitting || !formState.name.trim() || formState.memberIds.length === 0}
-                    >
-                        {isSubmitting ? <CircularProgress size={24} /> : selectedGroup ? "Сохранить" : "Создать"}
-                    </Button>
                 </DialogActions>
             </Dialog>
-        </Grid>
-    )
+        </Grid>)
 }
 
 export default GroupSelector
