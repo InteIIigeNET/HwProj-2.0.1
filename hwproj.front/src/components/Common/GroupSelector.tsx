@@ -44,8 +44,16 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isError, setIsError] = useState(false);
 
+    const selectedGroup = useMemo(() =>
+        groups.find(g => g.id === props.selectedGroupId),
+    [groups, props.selectedGroupId]);
+
+    const studentsWithousGroup = useMemo(() => {
+        const studentsInGroups = groups.flatMap(g => g.studentsIds)
+        return props.courseStudents.filter((cm) => !studentsInGroups.includes(cm.userId))
+    }, [groups, props.courseStudents]);
+
     const handleOpenEditDialog = () => {
-        const selectedGroup = groups.find(g => g.id === props.selectedGroupId);
         setFormState({
             name: selectedGroup?.name || "",
             memberIds: selectedGroup?.studentsIds || []
@@ -62,8 +70,6 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
     const handleSubmitEdit = async () => {
         setIsSubmitting(true);
         try {
-            const selectedGroup = groups.find(g => g.id === props.selectedGroupId);
-
             if (selectedGroup) {
                 await ApiSingleton.courseGroupsApi.courseGroupsUpdateCourseGroup(
                     props.courseId,
@@ -95,13 +101,6 @@ const GroupSelector:  FC<GroupSelectorProps> = (props) => {
             setIsSubmitting(false);
         }
     }
-
-    const studentsWithousGroup = useMemo(() => {
-        const studentsInGroups = groups.flatMap(g => g.studentsIds)
-        return props.courseStudents.filter((cm) => !studentsInGroups.includes(cm.userId))
-    }, [groups, props.courseStudents]);
-
-    const selectedGroup = groups.find(g => g.id === props.selectedGroupId);
 
     return (
         <Grid item xs={12} style={{marginBottom: "15px", marginTop: 1}}>
