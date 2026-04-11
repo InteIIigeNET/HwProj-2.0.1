@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace HwProj.CoursesService.API.Services
 {
-    public enum ApplyFilterType
+    public enum ApplyFilterOperation
     {
         Intersect,
         Union,
@@ -93,15 +93,15 @@ namespace HwProj.CoursesService.API.Services
                 var groupFilter = await _courseFilterRepository.GetAsync(GlobalFilterUserId, courseDto.Id); // Глобальный фильтр для вычитания групповых домашних заданий
                 if (groupFilter != null)
                 {
-                    studentCourse = ApplyFilterInternal(courseDto, studentCourse, groupFilter, ApplyFilterType.Subtract);
+                    studentCourse = ApplyFilterInternal(courseDto, studentCourse, groupFilter, ApplyFilterOperation.Subtract);
                 }
                 return courseFilters.TryGetValue(userId, out var studentFilter)
-                        ? ApplyFilterInternal(courseDto, studentCourse, studentFilter, ApplyFilterType.Union)
+                        ? ApplyFilterInternal(courseDto, studentCourse, studentFilter, ApplyFilterOperation.Union)
                         : studentCourse;
             }
 
             var course = courseFilters.TryGetValue(userId, out var userFilter)
-                ? ApplyFilterInternal(courseDto, courseDto, userFilter, ApplyFilterType.Intersect)
+                ? ApplyFilterInternal(courseDto, courseDto, userFilter, ApplyFilterOperation.Intersect)
                 : courseDto;
             if (isMentor || !isCourseStudent) return course;
 
@@ -140,7 +140,7 @@ namespace HwProj.CoursesService.API.Services
             return courseFilterId;
         }
 
-        private CourseDTO ApplyFilterInternal(CourseDTO initialCourseDto, CourseDTO editingCourseDto, CourseFilter? courseFilter, ApplyFilterType filterType)
+        private CourseDTO ApplyFilterInternal(CourseDTO initialCourseDto, CourseDTO editingCourseDto, CourseFilter? courseFilter, ApplyFilterOperation filterType)
         {
             var filter = courseFilter?.Filter;
 
@@ -152,15 +152,15 @@ namespace HwProj.CoursesService.API.Services
             var homeworks = filter.HomeworkIds.Any()
                 ? filterType switch
                 {
-                    ApplyFilterType.Intersect => editingCourseDto.Homeworks
+                    ApplyFilterOperation.Intersect => editingCourseDto.Homeworks
                         .Where(hw => filter.HomeworkIds.Contains(hw.Id))
                         .ToArray(),
 
-                    ApplyFilterType.Subtract => editingCourseDto.Homeworks
+                    ApplyFilterOperation.Subtract => editingCourseDto.Homeworks
                         .Where(hw => !filter.HomeworkIds.Contains(hw.Id))
                         .ToArray(),
 
-                    ApplyFilterType.Union => editingCourseDto.Homeworks
+                    ApplyFilterOperation.Union => editingCourseDto.Homeworks
                         .Concat(initialCourseDto.Homeworks
                             .Where(hw => filter.HomeworkIds.Contains(hw.Id)))
                         .ToArray(),
