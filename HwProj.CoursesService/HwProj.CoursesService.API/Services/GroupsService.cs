@@ -62,9 +62,12 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task UpdateAsync(long groupId, Group updated)
         {
-            var group = (await _groupsRepository.GetGroupsWithGroupMatesAsync(new[] { groupId })).FirstOrDefault();
+            var existingGroupMates = await _groupMatesRepository
+                .FindAll(cm => cm.GroupId == groupId)
+                .ToArrayAsync()
+                .ConfigureAwait(false);
 
-            foreach (var groupMate in group.GroupMates.ToList())
+            foreach (var groupMate in existingGroupMates)
             {
                 await _groupMatesRepository.DeleteAsync(groupMate.Id).ConfigureAwait(false);
             }

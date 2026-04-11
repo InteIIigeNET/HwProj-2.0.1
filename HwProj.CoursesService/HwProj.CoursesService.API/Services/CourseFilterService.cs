@@ -80,8 +80,8 @@ namespace HwProj.CoursesService.API.Services
             var isMentor = courseDto.MentorIds.Contains(userId);
             var isCourseStudent = courseDto.AcceptedStudents.Any(t => t.StudentId == userId);
             var findFiltersFor = isMentor || !isCourseStudent
-                ? new[] { userId }
-                : courseDto.MentorIds.Concat(new[] { userId }).ToArray();
+                ? new[] { userId, GlobalFilterUserId }
+                : courseDto.MentorIds.Concat(new[] { userId, GlobalFilterUserId }).ToArray();
 
             var courseFilters =
                 (await _courseFilterRepository.GetAsync(findFiltersFor, courseDto.Id))
@@ -90,8 +90,7 @@ namespace HwProj.CoursesService.API.Services
             if (!isMentor)
             {
                 var studentCourse = courseDto;
-                var groupFilter = await _courseFilterRepository.GetAsync(GlobalFilterUserId, courseDto.Id); // Глобальный фильтр для вычитания групповых домашних заданий
-                if (groupFilter != null)
+                if (courseFilters.TryGetValue(GlobalFilterUserId, out var groupFilter))
                 {
                     studentCourse = ApplyFilterInternal(courseDto, studentCourse, groupFilter, ApplyFilterOperation.Subtract);
                 }
