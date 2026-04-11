@@ -9,6 +9,8 @@
     IconButton,
     Stack,
     TextField,
+    ToggleButton,
+    ToggleButtonGroup,
     Tooltip,
     Typography,
 } from "@mui/material";
@@ -38,6 +40,8 @@ import {CourseUnitType} from "../Files/CourseUnitType"
 import ProcessFilesUtils from "../Utils/ProcessFilesUtils";
 import {FilesHandler} from "@/components/Files/FilesHandler";
 import GroupSelector from "../Common/GroupSelector";
+import GroupIcon from '@mui/icons-material/Group';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 
 export interface HomeworkAndFilesInfo {
     homework: HomeworkViewModel & { isModified?: boolean },
@@ -119,6 +123,7 @@ const CourseHomeworkEditor: FC<{
     const [description, setDescription] = useState<string>(loadedHomework.description!)
     const [selectedGroupId, setSelectedGroupId] = useState(loadedHomework.groupId)
     const [courseStudents, setCourseStudents] = useState<AccountDataDto[]>([])
+    const [page, setPage] = useState<"homework" | "group">("homework")
 
     useEffect(() => {
         const loadCourseStudents = async () => {
@@ -278,8 +283,21 @@ const CourseHomeworkEditor: FC<{
 
     const isDisabled = hasErrors || !isLoaded || taskHasErrors
 
-    return (
-        <CardContent>
+    return <Stack direction={"row"}>
+        <ToggleButtonGroup
+            orientation="vertical"
+            value={page}
+            exclusive
+            onChange={(_, x) => setPage(x)}
+        >
+            <ToggleButton value="homework">
+                <AssignmentIcon color={"primary"}/>
+            </ToggleButton>
+            <ToggleButton value="group">
+                <GroupIcon color={"primary"}/>
+            </ToggleButton>
+        </ToggleButtonGroup>
+        {page === "homework" && <CardContent>
             <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
                   alignItems={"center"} alignContent={"center"} style={{marginTop: -24}}>
                 <Grid item>
@@ -306,15 +324,6 @@ const CourseHomeworkEditor: FC<{
                 </Grid>
             </Grid>
             <Grid container>
-                <GroupSelector
-                    courseId={courseId}
-                    courseStudents={courseStudents}
-                    onGroupIdChange={(groupId?: number) => setSelectedGroupId(groupId)}
-                    selectedGroupId={selectedGroupId}
-                    choiceDisabled={!isNewHomework}
-                    onGroupsUpdate={props.onGroupsUpdate}
-                    groups={props.groups}
-                />
                 {tags.includes(TestTag) &&
                     <Grid item>
                         <Alert severity="info" variant={"outlined"}>
@@ -402,8 +411,19 @@ const CourseHomeworkEditor: FC<{
                 confirmationWord={''}
                 confirmationText={''}
             />
-        </CardContent>
-    )
+        </CardContent>}
+        {page === "group" && <CardContent>
+            <GroupSelector
+                courseId={courseId}
+                courseStudents={courseStudents}
+                onGroupIdChange={(groupId?: number) => setSelectedGroupId(groupId)}
+                selectedGroupId={selectedGroupId}
+                choiceDisabled={!isNewHomework}
+                onGroupsUpdate={props.onGroupsUpdate}
+                groups={props.groups}
+            />
+        </CardContent>}
+    </Stack>
 }
 
 const CourseHomeworkExperimental: FC<{
