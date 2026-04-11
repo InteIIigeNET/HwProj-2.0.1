@@ -27,8 +27,6 @@ namespace HwProj.CoursesService.API.Repositories.Groups
             return Context.Set<Group>()
                 .Where(c => c.CourseId == courseId)
                 .Include(c => c.GroupMates)
-                .AsNoTracking()
-                .Include(c => c.Tasks)
                 .AsNoTracking();
         }
     }

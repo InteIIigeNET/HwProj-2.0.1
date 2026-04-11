@@ -12,17 +12,14 @@ namespace HwProj.CoursesService.API.Services
     {
         private readonly IGroupsRepository _groupsRepository;
         private readonly IGroupMatesRepository _groupMatesRepository;
-        private readonly ITaskModelsRepository _taskModelsRepository;
         private readonly IMapper _mapper;
 
         public GroupsService(IGroupsRepository groupsRepository,
             IGroupMatesRepository groupMatesRepository,
-            ITaskModelsRepository taskModelsRepository,
             IMapper mapper)
         {
             _groupsRepository = groupsRepository;
             _groupMatesRepository = groupMatesRepository;
-            _taskModelsRepository = taskModelsRepository;
             _mapper = mapper;
         }
 
@@ -59,7 +56,6 @@ namespace HwProj.CoursesService.API.Services
         {
             var group = await _groupsRepository.GetAsync(groupId);
             group.GroupMates.RemoveAll(cm => true);
-            group.Tasks.RemoveAll(cm => true);
 
             await _groupsRepository.DeleteAsync(groupId).ConfigureAwait(false);
         }
@@ -73,22 +69,11 @@ namespace HwProj.CoursesService.API.Services
                 await _groupMatesRepository.DeleteAsync(groupMate.Id).ConfigureAwait(false);
             }
 
-            foreach (var task in group.Tasks.ToList())
-            {
-                await _taskModelsRepository.DeleteAsync(task.Id).ConfigureAwait(false);
-            }
-
             updated.GroupMates?.ForEach(cm => cm.GroupId = groupId);
-            updated.Tasks?.ForEach(cm => cm.GroupId = groupId);
 
             if (updated.GroupMates != null && updated.GroupMates.Count > 0)
             {
                 await _groupMatesRepository.AddRangeAsync(updated.GroupMates).ConfigureAwait(false);
-            }
-
-            if (updated.Tasks != null && updated.Tasks.Count > 0)
-            {
-                await _taskModelsRepository.AddRangeAsync(updated.Tasks).ConfigureAwait(false);
             }
 
             await _groupsRepository.UpdateAsync(groupId, g => new Group
