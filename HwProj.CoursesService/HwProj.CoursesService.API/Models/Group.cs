@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using HwProj.Repositories.Net8;
 
@@ -15,6 +16,7 @@ namespace HwProj.CoursesService.API.Models
 
         public List<GroupMate> GroupMates { get; set; } = new List<GroupMate>();
 
+        [Obsolete("Не используется")]
         public List<TaskModel> Tasks { get; set; } = new List<TaskModel>();
     }
 }
