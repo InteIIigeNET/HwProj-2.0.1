@@ -91,9 +91,8 @@ namespace HwProj.CoursesService.API.Services
             {
                 var studentCourse = courseDto;
                 if (courseFilters.TryGetValue(GlobalFilterUserId, out var groupFilter))
-                {
                     studentCourse = ApplyFilterInternal(courseDto, studentCourse, groupFilter, ApplyFilterOperation.Subtract);
-                }
+
                 return courseFilters.TryGetValue(userId, out var studentFilter)
                         ? ApplyFilterInternal(courseDto, studentCourse, studentFilter, ApplyFilterOperation.Union)
                         : studentCourse;
@@ -144,9 +143,7 @@ namespace HwProj.CoursesService.API.Services
             var filter = courseFilter?.Filter;
 
             if (filter == null)
-            {
                 return editingCourseDto;
-            }
 
             var homeworks = filter.HomeworkIds.Any()
                 ? filterType switch

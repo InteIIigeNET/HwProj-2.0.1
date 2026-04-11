@@ -8,8 +8,6 @@ using HwProj.CoursesService.API.Domains;
 using HwProj.Models;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.NotificationService.Events.CoursesService;
-using HwProj.CoursesService.API.Repositories.Groups;
-using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -18,16 +16,16 @@ namespace HwProj.CoursesService.API.Services
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly IEventBus _eventBus;
         private readonly ICoursesRepository _coursesRepository;
-        private readonly IGroupMatesRepository _groupMatesRepository;
+        private readonly IGroupsService _groupsService;
         private readonly ICourseFilterService _courseFilterService;
 
         public HomeworksService(IHomeworksRepository homeworksRepository, IEventBus eventBus, ICoursesRepository coursesRepository,
-            IGroupMatesRepository groupMatesRepository, IGroupsService groupsService, ICourseFilterService courseFilterService)
+            IGroupsService groupsService, ICourseFilterService courseFilterService)
         {
             _homeworksRepository = homeworksRepository;
             _eventBus = eventBus;
             _coursesRepository = coursesRepository;
-            _groupMatesRepository = groupMatesRepository;
+            _groupsService = groupsService;
             _courseFilterService = courseFilterService;
         }
 
@@ -44,7 +42,9 @@ namespace HwProj.CoursesService.API.Services
 
             if(homework.GroupId != null)
             {
-                var groupMates = await _groupMatesRepository.FindAll(gm => gm.GroupId == homework.GroupId).ToArrayAsync();
+                var group = (await _groupsService.GetGroupsAsync(new [] { homework.GroupId.Value })).FirstOrDefault();
+                var groupMates = group?.GroupMates.ToArray() ?? Array.Empty<GroupMate>();
+
                 await _courseFilterService.UpdateGroupFilters(courseId, homework.Id, groupMates);
                 notificationStudentIds = groupMates.Select(gm => gm.StudentId).ToArray();
             }
@@ -103,9 +103,10 @@ namespace HwProj.CoursesService.API.Services
 
             if (update.GroupId != null)
             {
-                var groupMates = await _groupMatesRepository.FindAll(gm => gm.GroupId == update.GroupId).ToArrayAsync();
-                await _courseFilterService.UpdateGroupFilters(course.Id, homework.Id, groupMates);
+                var group = (await _groupsService.GetGroupsAsync(new [] { update.GroupId.Value })).FirstOrDefault();
+                var groupMates = group?.GroupMates.ToArray() ?? Array.Empty<GroupMate>();
 
+                await _courseFilterService.UpdateGroupFilters(course.Id, homework.Id, groupMates);
                 notificationStudentIds = groupMates.Select(gm => gm.StudentId).ToArray();
             }
 
