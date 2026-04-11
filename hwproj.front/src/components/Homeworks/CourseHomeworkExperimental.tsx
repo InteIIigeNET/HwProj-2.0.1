@@ -286,6 +286,7 @@ const CourseHomeworkEditor: FC<{
     return <Stack direction={"row"}>
         <ToggleButtonGroup
             orientation="vertical"
+            style={{paddingTop: 85}}
             value={page}
             exclusive
             onChange={(_, x) => setPage(x)}
@@ -412,7 +413,7 @@ const CourseHomeworkEditor: FC<{
                 confirmationText={''}
             />
         </CardContent>}
-        {page === "group" && <CardContent>
+        {page === "group" && <CardContent style={{minHeight: 500}}>
             <GroupSelector
                 courseId={courseId}
                 courseStudents={courseStudents}
