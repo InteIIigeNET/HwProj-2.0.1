@@ -1,7 +1,6 @@
 import * as React from "react";
 import {
-    FileInfoDTO,
-    NamedGroupViewModel,
+    FileInfoDTO, GroupViewModel,
     HomeworkTaskViewModel,
     HomeworkViewModel, SolutionDto, StatisticsCourseMatesModel,
 } from "@/api";
@@ -62,7 +61,7 @@ interface ICourseExperimentalProps {
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
     onGroupsUpdate: () => void;
-    groups: NamedGroupViewModel[];
+    groups: GroupViewModel[];
 }
 
 interface ICourseExperimentalState {

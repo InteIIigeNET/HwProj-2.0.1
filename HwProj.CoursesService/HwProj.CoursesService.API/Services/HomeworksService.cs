@@ -19,7 +19,8 @@ namespace HwProj.CoursesService.API.Services
         private readonly IGroupsService _groupsService;
         private readonly ICourseFilterService _courseFilterService;
 
-        public HomeworksService(IHomeworksRepository homeworksRepository, IEventBus eventBus, ICoursesRepository coursesRepository,
+        public HomeworksService(IHomeworksRepository homeworksRepository, IEventBus eventBus,
+            ICoursesRepository coursesRepository,
             IGroupsService groupsService, ICourseFilterService courseFilterService)
         {
             _homeworksRepository = homeworksRepository;
@@ -36,22 +37,23 @@ namespace HwProj.CoursesService.API.Services
             homework.CourseId = courseId;
 
             var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(courseId);
-            var notificationStudentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
+            var notifyStudentIds =
+                course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
             await _homeworksRepository.AddAsync(homework);
 
-            if(homework.GroupId != null)
+            if (homework.GroupId is { } groupId)
             {
-                var group = (await _groupsService.GetGroupsAsync(new [] { homework.GroupId.Value })).FirstOrDefault();
+                var group = (await _groupsService.GetGroupsAsync(groupId)).SingleOrDefault();
                 var groupMates = group?.GroupMates.ToArray() ?? Array.Empty<GroupMate>();
 
-                await _courseFilterService.UpdateGroupFilters(courseId, homework.Id, groupMates);
-                notificationStudentIds = groupMates.Select(gm => gm.StudentId).ToArray();
+                await _courseFilterService.UpdateGroupFilters(courseId, homework.Id, groupMates.Select(gm => gm.StudentId));
+                notifyStudentIds = groupMates.Select(gm => gm.StudentId).ToArray();
             }
 
             if (DateTime.UtcNow >= homework.PublicationDate)
             {
-                _eventBus.Publish(new NewHomeworkEvent(homework.Title, course.Name, course.Id, notificationStudentIds,
+                _eventBus.Publish(new NewHomeworkEvent(homework.Title, course.Name, course.Id, notifyStudentIds,
                     homework.DeadlineDate));
             }
 
@@ -65,18 +67,6 @@ namespace HwProj.CoursesService.API.Services
             CourseDomain.FillTasksInHomework(homework);
 
             return homework;
-        }
-
-        public async Task<Homework[]> GetHomeworksAsync(long[] homeworkIds, bool withCriteria = false)
-        {
-            var homeworks = await _homeworksRepository.GetWithTasksAsync(homeworkIds, withCriteria);
-
-            foreach (var homework in homeworks)
-            {
-                CourseDomain.FillTasksInHomework(homework);
-            }
-
-            return homeworks;
         }
 
         public async Task<Homework> GetForEditingHomeworkAsync(long homeworkId)
@@ -99,19 +89,19 @@ namespace HwProj.CoursesService.API.Services
             var homework = await _homeworksRepository.GetAsync(homeworkId);
             var course = await _coursesRepository.GetWithCourseMates(homework.CourseId);
             var studentIds = course!.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
-            var notificationStudentIds = studentIds;
+            var notifyStudentIds = studentIds;
 
-            if (update.GroupId != null)
+            if (update.GroupId is { } groupId)
             {
-                var group = (await _groupsService.GetGroupsAsync(new [] { update.GroupId.Value })).FirstOrDefault();
+                var group = (await _groupsService.GetGroupsAsync(groupId)).FirstOrDefault();
                 var groupMates = group?.GroupMates.ToArray() ?? Array.Empty<GroupMate>();
 
-                await _courseFilterService.UpdateGroupFilters(course.Id, homework.Id, groupMates);
-                notificationStudentIds = groupMates.Select(gm => gm.StudentId).ToArray();
+                await _courseFilterService.UpdateGroupFilters(course.Id, homework.Id, groupMates.Select(gm => gm.StudentId));
+                notifyStudentIds = groupMates.Select(gm => gm.StudentId).ToArray();
             }
 
             if (options.SendNotification && update.PublicationDate <= DateTime.UtcNow)
-                _eventBus.Publish(new UpdateHomeworkEvent(update.Title, course.Id, course.Name, notificationStudentIds));
+                _eventBus.Publish(new UpdateHomeworkEvent(update.Title, course.Id, course.Name, notifyStudentIds));
 
             await _homeworksRepository.UpdateAsync(homeworkId, hw => new Homework()
             {

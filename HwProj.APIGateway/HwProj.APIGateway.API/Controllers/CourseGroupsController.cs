@@ -30,16 +30,6 @@ public class CourseGroupsController : AggregationController
             : Ok(result);
     }
 
-    [HttpGet("{courseId}/getAllWithNames")]
-    [ProducesResponseType(typeof(NamedGroupViewModel[]), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> GetAllCourseGroupsWithNames(long courseId)
-    {
-        var result = await _coursesClient.GetAllCourseGroupsWithNames(courseId);
-        return result == null
-            ? NotFound()
-            : Ok(result);
-    }
-
     [HttpPost("{courseId}/create")]
     [Authorize(Roles = Roles.LecturerRole)]
     [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
@@ -81,14 +71,6 @@ public class CourseGroupsController : AggregationController
     public async Task<IActionResult> AddStudentInGroup(long courseId, long groupId, [FromQuery] string userId)
     {
         await _coursesClient.AddStudentInGroup(courseId, groupId, userId);
-        return Ok();
-    }
-
-    [HttpPost("{courseId}/removeStudentFromGroup/{groupId}")]
-    [Authorize(Roles = Roles.LecturerRole)]
-    public async Task<IActionResult> RemoveStudentFromGroup(long courseId, long groupId, [FromQuery] string userId)
-    {
-        await _coursesClient.RemoveStudentFromGroup(courseId, groupId, userId);
         return Ok();
     }
 

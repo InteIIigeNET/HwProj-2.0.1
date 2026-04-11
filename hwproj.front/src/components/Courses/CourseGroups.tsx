@@ -9,11 +9,11 @@ import {
     Stack,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import {AccountDataDto, NamedGroupViewModel} from "@/api";
+import {AccountDataDto, GroupViewModel} from "@/api";
 
 interface ICourseGroupsProps {
     courseStudents: AccountDataDto[];
-    groups: NamedGroupViewModel[];
+    groups: GroupViewModel[];
     onGroupsUpdate: () => void;
 }
 

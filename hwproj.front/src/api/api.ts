@@ -479,6 +479,12 @@ export interface CourseViewModel {
     isCompleted?: boolean;
     /**
      *
+     * @type {Array<GroupViewModel>}
+     * @memberof CourseViewModel
+     */
+    groups?: Array<GroupViewModel>;
+    /**
+     *
      * @type {Array<AccountDataDto>}
      * @memberof CourseViewModel
      */
@@ -636,6 +642,12 @@ export interface CreateHomeworkViewModel {
      * @memberof CreateHomeworkViewModel
      */
     actionOptions?: ActionOptions;
+    /**
+     *
+     * @type {number}
+     * @memberof CreateHomeworkViewModel
+     */
+    groupId?: number;
 }
 /**
  *
@@ -1060,33 +1072,14 @@ export interface GroupViewModel {
     id?: number;
     /**
      *
-     * @type {Array<string>}
-     * @memberof GroupViewModel
-     */
-    studentsIds?: Array<string>;
-}
-/**
- *
- * @export
- * @interface Group
- */
-export interface NamedGroupViewModel {
-    /**
-     *
      * @type {string}
-     * @memberof Group
+     * @memberof GroupViewModel
      */
     name?: string;
     /**
      *
-     * @type {number}
-     * @memberof Group
-     */
-    id?: number;
-    /**
-     *
      * @type {Array<string>}
-     * @memberof Group
+     * @memberof GroupViewModel
      */
     studentsIds?: Array<string>;
 }
@@ -4000,36 +3993,6 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
                 options: localVarRequestOptions,
             };
         },
-        courseGroupsGetAllCourseGroupsWithNames(courseId: number, options: any = {}): FetchArgs {
-            // verify required parameter 'courseId' is not null or undefined
-            if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling courseGroupsGetAllCourseGroupsWithNames.');
-            }
-            const localVarPath = `/api/CourseGroups/{courseId}/getAllWithNames`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Bearer required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
-                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
         /**
          *
          * @param {number} courseId
@@ -4126,53 +4089,6 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
                     ? configuration.apiKey("Authorization")
                     : configuration.apiKey;
                 localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         *
-         * @param {number} courseId
-         * @param {number} groupId
-         * @param {string} [userId]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        courseGroupsRemoveStudentFromGroup(courseId: number, groupId: number, userId?: string, options: any = {}): FetchArgs {
-            // verify required parameter 'courseId' is not null or undefined
-            if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling courseGroupsRemoveStudentFromGroup.');
-            }
-            // verify required parameter 'groupId' is not null or undefined
-            if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling courseGroupsRemoveStudentFromGroup.');
-            }
-            const localVarPath = `/api/CourseGroups/{courseId}/removeStudentFromGroup/{groupId}`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
-                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Bearer required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
-                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
-            }
-
-            if (userId !== undefined) {
-                localVarQueryParameter['userId'] = userId;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -4323,24 +4239,6 @@ export const CourseGroupsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        courseGroupsGetAllCourseGroupsWithNames(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<NamedGroupViewModel>> {
-            const localVarFetchArgs = CourseGroupsApiFetchParamCreator(configuration).courseGroupsGetAllCourseGroupsWithNames(courseId, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         *
-         * @param {number} courseId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
         courseGroupsGetCourseGroupsById(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<GroupViewModel> {
             const localVarFetchArgs = CourseGroupsApiFetchParamCreator(configuration).courseGroupsGetCourseGroupsById(courseId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
@@ -4383,26 +4281,6 @@ export const CourseGroupsApiFp = function(configuration?: Configuration) {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         *
-         * @param {number} courseId
-         * @param {number} groupId
-         * @param {string} [userId]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        courseGroupsRemoveStudentFromGroup(courseId: number, groupId: number, userId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CourseGroupsApiFetchParamCreator(configuration).courseGroupsRemoveStudentFromGroup(courseId, groupId, userId, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
                     } else {
                         throw response;
                     }
@@ -4484,15 +4362,6 @@ export const CourseGroupsApiFactory = function (configuration?: Configuration, f
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        courseGroupsGetAllCourseGroupsWithNames(courseId: number, options?: any) {
-            return CourseGroupsApiFp(configuration).courseGroupsGetAllCourseGroupsWithNames(courseId, options)(fetch, basePath);
-        },
-        /**
-         *
-         * @param {number} courseId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
         courseGroupsGetCourseGroupsById(courseId: number, options?: any) {
             return CourseGroupsApiFp(configuration).courseGroupsGetCourseGroupsById(courseId, options)(fetch, basePath);
         },
@@ -4513,17 +4382,6 @@ export const CourseGroupsApiFactory = function (configuration?: Configuration, f
          */
         courseGroupsGetGroupTasks(groupId: number, options?: any) {
             return CourseGroupsApiFp(configuration).courseGroupsGetGroupTasks(groupId, options)(fetch, basePath);
-        },
-        /**
-         *
-         * @param {number} courseId
-         * @param {number} groupId
-         * @param {string} [userId]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        courseGroupsRemoveStudentFromGroup(courseId: number, groupId: number, userId?: string, options?: any) {
-            return CourseGroupsApiFp(configuration).courseGroupsRemoveStudentFromGroup(courseId, groupId, userId, options)(fetch, basePath);
         },
         /**
          *
@@ -4601,17 +4459,6 @@ export class CourseGroupsApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof CourseGroupsApi
      */
-    public courseGroupsGetAllCourseGroupsWithNames(courseId: number, options?: any) {
-        return CourseGroupsApiFp(this.configuration).courseGroupsGetAllCourseGroupsWithNames(courseId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     *
-     * @param {number} courseId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CourseGroupsApi
-     */
     public courseGroupsGetCourseGroupsById(courseId: number, options?: any) {
         return CourseGroupsApiFp(this.configuration).courseGroupsGetCourseGroupsById(courseId, options)(this.fetch, this.basePath);
     }
@@ -4636,19 +4483,6 @@ export class CourseGroupsApi extends BaseAPI {
      */
     public courseGroupsGetGroupTasks(groupId: number, options?: any) {
         return CourseGroupsApiFp(this.configuration).courseGroupsGetGroupTasks(groupId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     *
-     * @param {number} courseId
-     * @param {number} groupId
-     * @param {string} [userId]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CourseGroupsApi
-     */
-    public courseGroupsRemoveStudentFromGroup(courseId: number, groupId: number, userId?: string, options?: any) {
-        return CourseGroupsApiFp(this.configuration).courseGroupsRemoveStudentFromGroup(courseId, groupId, userId, options)(this.fetch, this.basePath);
     }
 
     /**

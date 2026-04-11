@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef} from "react";
-import {CourseViewModel, NamedGroupViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
+import {CourseViewModel, GroupViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import {useNavigate, useParams} from 'react-router-dom';
 import {LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
@@ -19,7 +19,7 @@ interface IStudentStatsProps {
     isMentor: boolean;
     userId: string;
     solutions: StatisticsCourseMatesModel[] | undefined;
-    groups: NamedGroupViewModel[];
+    groups: GroupViewModel[];
 }
 
 interface IStudentStatsState {

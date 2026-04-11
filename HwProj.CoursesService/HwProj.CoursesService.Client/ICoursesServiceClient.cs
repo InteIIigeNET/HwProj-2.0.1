@@ -37,13 +37,11 @@ namespace HwProj.CoursesService.Client
         Task<Result> DeleteTask(long taskId);
         Task<Result<HomeworkTaskViewModel>> UpdateTask(long taskId, PostTaskViewModel taskViewModel);
         Task<GroupViewModel[]> GetAllCourseGroups(long courseId);
-        Task<NamedGroupViewModel[]> GetAllCourseGroupsWithNames(long courseId);
         Task<long> CreateCourseGroup(CreateGroupViewModel model, long courseId);
         Task DeleteCourseGroup(long courseId, long groupId);
         Task UpdateCourseGroup(UpdateGroupViewModel model, long courseId, long groupId);
         Task<GroupViewModel> GetCourseGroupsById(long courseId, string userId);
         Task AddStudentInGroup(long courseId, long groupId, string userId);
-        Task RemoveStudentFromGroup(long courseId, long groupId, string userId);
         Task<GroupViewModel[]> GetGroupsById(params long[] groupIds);
         Task<long[]> GetGroupTasks(long groupId);
         Task<Result> AcceptLecturer(long courseId, string lecturerEmail, string lecturerId);

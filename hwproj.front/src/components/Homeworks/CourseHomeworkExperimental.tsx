@@ -18,8 +18,7 @@ import {IFileInfo} from "components/Files/IFileInfo";
 import {FC, useEffect, useState} from "react"
 import Utils from "services/Utils";
 import {
-    HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, PostTaskViewModel, AccountDataDto,
-    NamedGroupViewModel
+    HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, PostTaskViewModel, AccountDataDto, GroupViewModel
 } from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import Tags from "../Common/Tags";
@@ -66,7 +65,7 @@ const CourseHomeworkEditor: FC<{
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
     onGroupsUpdate: () => void;
-    groups: NamedGroupViewModel[];
+    groups: GroupViewModel[];
 }> = (props) => {
     const homework = props.homeworkAndFilesInfo.homework
     const isNewHomework = homework.id! < 0
@@ -424,7 +423,7 @@ const CourseHomeworkExperimental: FC<{
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
     onGroupsUpdate: () => void;
-    groups: NamedGroupViewModel[];
+    groups: GroupViewModel[];
 }> = (props) => {
     const {homework, filesInfo} = props.homeworkAndFilesInfo
     const deferredTasks = homework.tasks!.filter(t => t.isDeferred!)

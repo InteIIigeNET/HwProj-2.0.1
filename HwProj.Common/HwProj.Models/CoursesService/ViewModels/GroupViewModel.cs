@@ -6,12 +6,6 @@ namespace HwProj.Models.CoursesService.ViewModels
     public class GroupViewModel
     {
         public long Id { get; set; }
-        public string[] StudentsIds { get; set; }
-    }
-
-    public class NamedGroupViewModel
-    {
-        public long Id { get; set; }
         public string Name { get; set; }
         public string[] StudentsIds { get; set; }
     }

@@ -308,6 +308,7 @@ public class CoursesController : AggregationController
             AcceptedStudents = acceptedStudents.ToArray(),
             NewStudents = newStudents.ToArray(),
             Homeworks = course.Homeworks,
+            Groups = course.Groups,
             IsCompleted = course.IsCompleted,
             IsOpen = course.IsOpen
         };

@@ -414,16 +414,6 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<GroupViewModel[]>();
         }
 
-        public async Task<NamedGroupViewModel[]> GetAllCourseGroupsWithNames(long courseId)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Get,
-                _coursesServiceUri + $"api/CourseGroups/{courseId}/getAllWithNames");
-
-            var response = await _httpClient.SendAsync(httpRequest);
-            return await response.DeserializeAsync<NamedGroupViewModel[]>();
-        }
-
         public async Task<long> CreateCourseGroup(CreateGroupViewModel model, long courseId)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -485,17 +475,6 @@ namespace HwProj.CoursesService.Client
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
                 _coursesServiceUri + $"api/CourseGroups/{courseId}/addStudentInGroup/{groupId}?userId={userId}");
-
-            httpRequest.TryAddUserId(_httpContextAccessor);
-
-            await _httpClient.SendAsync(httpRequest);
-        }
-
-        public async Task RemoveStudentFromGroup(long courseId, long groupId, string userId)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Post,
-                _coursesServiceUri + $"api/CourseGroups/{courseId}/removeStudentFromGroup/{groupId}?userId={userId}");
 
             httpRequest.TryAddUserId(_httpContextAccessor);
 

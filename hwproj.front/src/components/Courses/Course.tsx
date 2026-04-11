@@ -1,7 +1,7 @@
 import * as React from "react";
 import {FC, useEffect, useState, useMemo} from "react";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, NamedGroupViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
+import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
@@ -35,7 +35,6 @@ import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
 import CourseGroups from "./CourseGroups";
-import { group } from "@uiw/react-md-editor";
 
 type TabValue = "homeworks" | "stats" | "applications" | "groups"
 
@@ -87,6 +86,9 @@ const Course: React.FC = () => {
         acceptedStudents,
         courseHomeworks,
     } = courseState
+
+    const groups = course.groups || []
+    const loadGroups = async () => setCurrentState();
 
     const userId = ApiSingleton.authService.getUserId()
 
@@ -172,27 +174,10 @@ const Course: React.FC = () => {
 
     const [lecturerStatsState, setLecturerStatsState] = useState(false);
 
-    const [groups, setGroups] = useState<NamedGroupViewModel[]>([]);
-    const [groupLoadingError, setGroupLoadingError] = useState(false);
-    
     const studentsWithoutGroup = useMemo(() => {
         const inGroupIds = new Set(groups.flatMap(g => g.studentsIds));
         return acceptedStudents.filter(s => !inGroupIds.has(s.userId!));
     }, [groups, acceptedStudents]);
-
-    const loadGroups = async () => {
-        setGroupLoadingError(false);
-        try {
-            const result = await ApiSingleton.courseGroupsApi.courseGroupsGetAllCourseGroupsWithNames(+courseId!);
-            setGroups(result.filter(g => g.name && g.name.trim().length > 0));
-        } catch {
-            setGroupLoadingError(true);
-        }
-    };
-
-    useEffect(() => {
-        loadGroups();
-    }, [courseId]);
 
     const CourseMenu: FC = () => {
         const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -322,7 +307,7 @@ const Course: React.FC = () => {
                             }
                         </Grid>
                     </Grid>
-                    {isCourseMentor && groups.length > 0 && studentsWithoutGroup.length > 0 && !groupLoadingError &&
+                    {isCourseMentor && groups.length > 0 && studentsWithoutGroup.length > 0 &&
                         <Alert severity="info" style={{marginBottom: 15}}>
                             Студентов, не записанных в группу: {studentsWithoutGroup.length}
                         </Alert>

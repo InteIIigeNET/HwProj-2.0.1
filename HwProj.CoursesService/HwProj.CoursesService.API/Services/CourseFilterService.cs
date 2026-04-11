@@ -16,6 +16,7 @@ namespace HwProj.CoursesService.API.Services
         Union,
         Subtract
     }
+
     public class CourseFilterService : ICourseFilterService
     {
         private const string GlobalFilterUserId = "";
@@ -65,56 +66,56 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<CourseDTO[]> ApplyFiltersToCourses(string userId, CourseDTO[] courses)
         {
-            var courseIds = courses.Select(c => c.Id).ToArray();
-
             var result = new List<CourseDTO>();
             foreach (var course in courses)
             {
                 result.Add(await ApplyFilter(course, userId));
             }
+
             return result.ToArray();
         }
 
-        public async Task<CourseDTO> ApplyFilter(CourseDTO courseDto, string userId)
+        public async Task<CourseDTO> ApplyFilter(CourseDTO course, string userId)
         {
-            var isMentor = courseDto.MentorIds.Contains(userId);
-            var isCourseStudent = courseDto.AcceptedStudents.Any(t => t.StudentId == userId);
+            var isMentor = course.MentorIds.Contains(userId);
+            var isCourseStudent = course.AcceptedStudents.Any(t => t.StudentId == userId);
+
             var findFiltersFor = isMentor || !isCourseStudent
                 ? new[] { userId, GlobalFilterUserId }
-                : courseDto.MentorIds.Concat(new[] { userId, GlobalFilterUserId }).ToArray();
+                : course.MentorIds.Concat(new[] { userId, GlobalFilterUserId }).ToArray();
 
             var courseFilters =
-                (await _courseFilterRepository.GetAsync(findFiltersFor, courseDto.Id))
+                (await _courseFilterRepository.GetAsync(findFiltersFor, course.Id))
                 .ToDictionary(x => x.UserId, x => x.CourseFilter);
 
             if (!isMentor)
             {
-                var studentCourse = courseDto;
+                var studentCourse = course;
                 if (courseFilters.TryGetValue(GlobalFilterUserId, out var groupFilter))
-                    studentCourse = ApplyFilterInternal(courseDto, studentCourse, groupFilter, ApplyFilterOperation.Subtract);
+                    studentCourse = ApplyFilterInternal(course, studentCourse, groupFilter,
+                        ApplyFilterOperation.Subtract);
 
-                return courseFilters.TryGetValue(userId, out var studentFilter)
-                        ? ApplyFilterInternal(courseDto, studentCourse, studentFilter, ApplyFilterOperation.Union)
-                        : studentCourse;
+                studentCourse = courseFilters.TryGetValue(userId, out var studentFilter)
+                    ? ApplyFilterInternal(course, studentCourse, studentFilter, ApplyFilterOperation.Union)
+                    : studentCourse;
+
+                var mentorIds = course.MentorIds
+                    .Where(u =>
+                        // Фильтрация не настроена вообще
+                        !courseFilters.TryGetValue(u, out var courseFilter) ||
+                        // Не отфильтрованы студенты
+                        !courseFilter.Filter.StudentIds.Any() ||
+                        // Фильтр содержит студента
+                        courseFilter.Filter.StudentIds.Contains(userId))
+                    .ToArray();
+
+                studentCourse.MentorIds = mentorIds;
+                return studentCourse;
             }
 
-            var course = courseFilters.TryGetValue(userId, out var userFilter)
-                ? ApplyFilterInternal(courseDto, courseDto, userFilter, ApplyFilterOperation.Intersect)
-                : courseDto;
-            if (isMentor || !isCourseStudent) return course;
-
-            var mentorIds = course.MentorIds
-                .Where(u =>
-                    // Фильтрация не настроена вообще
-                    !courseFilters.TryGetValue(u, out var courseFilter) ||
-                    // Не отфильтрованы студенты
-                    !courseFilter.Filter.StudentIds.Any() ||
-                    // Фильтр содержит студента
-                    courseFilter.Filter.StudentIds.Contains(userId))
-                .ToArray();
-
-            courseDto.MentorIds = mentorIds;
-            return course;
+            return courseFilters.TryGetValue(userId, out var userFilter)
+                ? ApplyFilterInternal(course, course, userFilter, ApplyFilterOperation.Intersect)
+                : course;
         }
 
         public async Task<MentorToAssignedStudentsDTO[]> GetAssignedStudentsIds(long courseId, string[] mentorsIds)
@@ -138,14 +139,15 @@ namespace HwProj.CoursesService.API.Services
             return courseFilterId;
         }
 
-        private CourseDTO ApplyFilterInternal(CourseDTO initialCourseDto, CourseDTO editingCourseDto, CourseFilter? courseFilter, ApplyFilterOperation filterType)
+        private CourseDTO ApplyFilterInternal(CourseDTO initialCourseDto, CourseDTO editingCourseDto,
+            CourseFilter? courseFilter, ApplyFilterOperation filterType)
         {
             var filter = courseFilter?.Filter;
 
             if (filter == null)
                 return editingCourseDto;
 
-            var homeworks = filter.HomeworkIds.Any()
+            var homeworks = filter.HomeworkIds.Count != 0
                 ? filterType switch
                 {
                     ApplyFilterOperation.Intersect => editingCourseDto.Homeworks
@@ -182,6 +184,7 @@ namespace HwProj.CoursesService.API.Services
                                     ? new GroupViewModel
                                     {
                                         Id = gs.Id,
+                                        Name = gs.Name,
                                         StudentsIds = filteredStudentsIds
                                     }
                                     : null;
@@ -201,71 +204,50 @@ namespace HwProj.CoursesService.API.Services
             };
         }
 
-        public async Task UpdateGroupFilters(long courseId, long homeworkId, GroupMate[] groupMates)
+        public async Task UpdateGroupFilters(long courseId, long homeworkId, IEnumerable<string> studentIds)
         {
-            // Добавление группового домашнего задания в глобальный фильтр курса
-            var globalFilter = await _courseFilterRepository.GetAsync(GlobalFilterUserId, courseId);
+            var filterIds = studentIds.Union(new[] { GlobalFilterUserId }).ToArray();
+            var filters = (await _courseFilterRepository.GetAsync(filterIds, courseId))
+                .ToDictionary(x => x.UserId, x => x.CourseFilter);
 
-            if (globalFilter != null)
+            foreach (var filterId in filterIds)
             {
-                var filter = globalFilter.Filter;
+                await AddOrUpdateHomeworkToFilter(filters.GetValueOrDefault(filterId), filterId, courseId, homeworkId);
+            }
+        }
 
-                if (!filter.HomeworkIds.Contains(homeworkId))
-                    filter.HomeworkIds.Add(homeworkId);
-
-                await _courseFilterRepository.UpdateAsync(globalFilter.Id, f =>
-                    new CourseFilter
-                    {
-                        FilterJson = new CourseFilter { Filter = filter }.FilterJson
-                    });
+        private async Task AddOrUpdateHomeworkToFilter(CourseFilter filter, string userId, long courseId,
+            long homeworkId)
+        {
+            if (filter != null)
+            {
+                await UpdateFilterWithHomework(filter, homeworkId);
             }
             else
             {
-                var newFilter = new Filter
-                {
-                    StudentIds = new List<string>(),
-                    HomeworkIds = new List<long> { homeworkId },
-                    MentorIds = new List<string>(),
-                };
-
-                await _courseFilterRepository.AddAsync(new CourseFilter { Filter = newFilter }, GlobalFilterUserId, courseId);
+                await CreateFilterWithHomework(userId, courseId, homeworkId);
             }
+        }
 
-            // Добавление группового домашнего задания в персональные фильтры участников группы
-            var studentIds = groupMates.Select(gm => gm.StudentId).ToArray();
-            var studentFilters = (await _courseFilterRepository.GetAsync(studentIds, courseId))
-                .ToDictionary(x => x.UserId, x => x.CourseFilter);
-
-            foreach (var groupMate in groupMates)
+        private async Task UpdateFilterWithHomework(CourseFilter courseFilter, long homeworkId)
+        {
+            if (!courseFilter.Filter.HomeworkIds.Contains(homeworkId))
             {
-                if (studentFilters.TryGetValue(groupMate.StudentId, out var studentFilter))
-                {
-                    var filter = studentFilter.Filter;
-                    if (!filter.HomeworkIds.Contains(homeworkId))
-                        filter.HomeworkIds.Add(homeworkId);
-
-                    await _courseFilterRepository.UpdateAsync(studentFilter.Id, f =>
-                        new CourseFilter
-                        {
-                            FilterJson = new CourseFilter { Filter = filter }.FilterJson
-                        });
-                }
-                else
-                {
-                    var newFilter = new Filter
-                    {
-                        StudentIds = new List<string>(),
-                        HomeworkIds = new List<long> { homeworkId },
-                        MentorIds = new List<string>()
-                    };
-
-                    await _courseFilterRepository.AddAsync(
-                        new CourseFilter { Filter = newFilter },
-                        groupMate.StudentId,
-                        courseId
-                    );
-                }
+                courseFilter.Filter.HomeworkIds.Add(homeworkId);
+                await UpdateAsync(courseFilter.Id, courseFilter.Filter);
             }
+        }
+
+        private async Task CreateFilterWithHomework(string userId, long courseId, long homeworkId)
+        {
+            var newFilter = new Filter
+            {
+                StudentIds = new List<string>(),
+                HomeworkIds = new List<long> { homeworkId },
+                MentorIds = new List<string>()
+            };
+
+            await AddCourseFilter(newFilter, courseId, userId);
         }
     }
 }
