@@ -292,10 +292,10 @@ const CourseHomeworkEditor: FC<{
             onChange={(_, x) => setPage(x)}
         >
             <ToggleButton value="homework">
-                <AssignmentIcon color={"primary"}/>
+                <AssignmentIcon color={"action"}/>
             </ToggleButton>
             <ToggleButton value="group">
-                <GroupIcon color={"primary"}/>
+                <GroupIcon color={"action"}/>
             </ToggleButton>
         </ToggleButtonGroup>
         {page === "homework" && <CardContent>
