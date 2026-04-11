@@ -19,6 +19,7 @@ namespace HwProj.CoursesService.API.Services
     }
     public class CourseFilterService : ICourseFilterService
     {
+        private const string GlobalFilterUserId = "";
         private readonly ICourseFilterRepository _courseFilterRepository;
         private readonly IHomeworksService _homeworksService;
 
