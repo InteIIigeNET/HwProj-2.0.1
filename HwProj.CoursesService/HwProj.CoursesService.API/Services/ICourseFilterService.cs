@@ -14,5 +14,6 @@ namespace HwProj.CoursesService.API.Services
         Task<CourseDTO[]> ApplyFiltersToCourses(string userId, CourseDTO[] courses);
         Task<CourseDTO> ApplyFilter(CourseDTO courseDto, string userId);
         Task<MentorToAssignedStudentsDTO[]> GetAssignedStudentsIds(long courseId, string[] mentorsIds);
+        Task UpdateGroupFilters(long courseId, long homeworkId, GroupMate[] groupMates);
     }
 }

@@ -10,7 +10,6 @@ using HwProj.Models.CoursesService.ViewModels;
 using HwProj.NotificationService.Events.CoursesService;
 using HwProj.CoursesService.API.Repositories.Groups;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -20,16 +19,16 @@ namespace HwProj.CoursesService.API.Services
         private readonly IEventBus _eventBus;
         private readonly ICoursesRepository _coursesRepository;
         private readonly IGroupMatesRepository _groupMatesRepository;
-        private readonly ICourseFilterRepository _courseFilterRepository;
+        private readonly ICourseFilterService _courseFilterService;
 
         public HomeworksService(IHomeworksRepository homeworksRepository, IEventBus eventBus, ICoursesRepository coursesRepository,
-            IGroupMatesRepository groupMatesRepository, IGroupsService groupsService, ICourseFilterRepository courseFilterRepository)
+            IGroupMatesRepository groupMatesRepository, IGroupsService groupsService, ICourseFilterService courseFilterService)
         {
             _homeworksRepository = homeworksRepository;
             _eventBus = eventBus;
             _coursesRepository = coursesRepository;
             _groupMatesRepository = groupMatesRepository;
-            _courseFilterRepository = courseFilterRepository;
+            _courseFilterService = courseFilterService;
         }
 
         public async Task<Homework> AddHomeworkAsync(long courseId, CreateHomeworkViewModel homeworkViewModel)
@@ -45,8 +44,8 @@ namespace HwProj.CoursesService.API.Services
 
             if(homework.GroupId != null)
             {
-                var groupMates = await _groupMatesRepository.FindAll(gm => gm.GroupId == homework.GroupId).ToListAsync();
-                await UpdateGroupFilters(courseId, homework.Id, groupMates);
+                var groupMates = await _groupMatesRepository.FindAll(gm => gm.GroupId == homework.GroupId).ToArrayAsync();
+                await _courseFilterService.UpdateGroupFilters(courseId, homework.Id, groupMates);
                 notificationStudentIds = groupMates.Select(gm => gm.StudentId).ToArray();
             }
 
@@ -88,33 +87,6 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task DeleteHomeworkAsync(long homeworkId)
         {
-            var homework = await _homeworksRepository.GetAsync(homeworkId);
-            if (homework == null) return;
-
-            var course = await _coursesRepository.GetWithCourseMates(homework.CourseId);
-            if (course == null) return;
-
-            var courseUserIds = course.CourseMates.Select(cm => cm.StudentId).ToList();
-            courseUserIds.Add(course.MentorIds);
-            courseUserIds.Add("");
-
-            // Удаляем homeworkId из фильтров всех участников курса
-            foreach (var userId in courseUserIds.Distinct())
-            {
-                var userFilter = await _courseFilterRepository.GetAsync(userId, homework.CourseId);
-
-                if (userFilter != null && userFilter.Filter.HomeworkIds.Contains(homeworkId))
-                {
-                    userFilter.Filter.HomeworkIds.Remove(homeworkId);
-
-                    await _courseFilterRepository.UpdateAsync(userFilter.Id, f =>
-                        new CourseFilter
-                        {
-                            FilterJson = new CourseFilter { Filter = userFilter.Filter }.FilterJson
-                        });
-                }
-            }
-
             await _homeworksRepository.DeleteAsync(homeworkId);
         }
 
@@ -131,8 +103,8 @@ namespace HwProj.CoursesService.API.Services
 
             if (update.GroupId != null)
             {
-                var groupMates = await _groupMatesRepository.FindAll(gm => gm.GroupId == update.GroupId).ToListAsync();
-                await UpdateGroupFilters(course.Id, homework.Id, groupMates);
+                var groupMates = await _groupMatesRepository.FindAll(gm => gm.GroupId == update.GroupId).ToArrayAsync();
+                await _courseFilterService.UpdateGroupFilters(course.Id, homework.Id, groupMates);
 
                 notificationStudentIds = groupMates.Select(gm => gm.StudentId).ToArray();
             }
@@ -155,71 +127,6 @@ namespace HwProj.CoursesService.API.Services
             var updatedHomework = await _homeworksRepository.GetWithTasksAsync(homeworkId);
             CourseDomain.FillTasksInHomework(updatedHomework);
             return updatedHomework;
-        }
-
-        private async Task UpdateGroupFilters(long courseId, long homeworkId, List<GroupMate> groupMates)
-        {
-            // Добавление группового домашнего задания в глобальный фильтр курса
-            var globalFilter = await _courseFilterRepository.GetAsync("", courseId);
-
-            if (globalFilter != null)
-            {
-                var filter = globalFilter.Filter;
-
-                if (!filter.HomeworkIds.Contains(homeworkId))
-                    filter.HomeworkIds.Add(homeworkId);
-
-                await _courseFilterRepository.UpdateAsync(globalFilter.Id, f =>
-                    new CourseFilter
-                    {
-                        FilterJson = new CourseFilter { Filter = filter }.FilterJson
-                    });
-            }
-            else
-            {
-                var newFilter = new Filter
-                {
-                    StudentIds = new List<string>(),
-                    HomeworkIds = new List<long> { homeworkId },
-                    MentorIds = new List<string>(),
-                };
-
-                await _courseFilterRepository.AddAsync(new CourseFilter { Filter = newFilter }, "", courseId);
-            }
-
-            // Добавление группового домашнего задания в персональные фильтры участников группы
-            foreach (var groupMate in groupMates)
-            {
-                var studentFilter = await _courseFilterRepository.GetAsync(groupMate.StudentId, courseId);
-
-                if (studentFilter != null)
-                {
-                    var filter = studentFilter.Filter;
-                    if (!filter.HomeworkIds.Contains(homeworkId))
-                        filter.HomeworkIds.Add(homeworkId);
-
-                    await _courseFilterRepository.UpdateAsync(studentFilter.Id, f =>
-                        new CourseFilter
-                        {
-                            FilterJson = new CourseFilter { Filter = filter }.FilterJson
-                        });
-                }
-                else
-                {
-                    var newFilter = new Filter
-                    {
-                        StudentIds = new List<string>(),
-                        HomeworkIds = new List<long> { homeworkId },
-                        MentorIds = new List<string>()
-                    };
-
-                    await _courseFilterRepository.AddAsync(
-                        new CourseFilter { Filter = newFilter },
-                        groupMate.StudentId,
-                        courseId
-                    );
-                }
-            }
         }
     }
 }
