@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories.Groups;
@@ -62,12 +63,11 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task UpdateAsync(long groupId, Group updated)
         {
-            var existingGroupMates = await _groupMatesRepository
-                .FindAll(cm => cm.GroupId == groupId)
-                .ToArrayAsync()
-                .ConfigureAwait(false);
+            var groupMates = (await _groupsRepository.GetGroupsWithGroupMatesAsync(new[] { groupId }))
+                .FirstOrDefault()
+                .GroupMates ?? new List<GroupMate>();
 
-            foreach (var groupMate in existingGroupMates)
+            foreach (var groupMate in groupMates)
             {
                 await _groupMatesRepository.DeleteAsync(groupMate.Id).ConfigureAwait(false);
             }
