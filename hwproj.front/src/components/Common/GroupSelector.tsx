@@ -33,19 +33,26 @@ interface GroupSelectorProps {
 
 const GroupSelector: FC<GroupSelectorProps> = (props) => {
     const groups = [...(props.groups || []), {id: undefined, name: "Все студенты"}]
+    const selectedGroup = groups.find(g => g.id === props.selectedGroupId)
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [formState, setFormState] = useState<{
         name: string,
         memberIds: string[]
     }>({
-        name: "",
-        memberIds: []
+        name: selectedGroup?.name || "",
+        memberIds: selectedGroup?.studentsIds || []
     });
+
+    useEffect(() => {
+        setFormState({
+            name: selectedGroup?.name || "",
+            memberIds: selectedGroup?.studentsIds || []
+        })
+    }, [props.selectedGroupId])
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isError, setIsError] = useState(false);
-
-    const selectedGroup = groups.find(g => g.id === props.selectedGroupId)
 
     const studentsWithoutGroup = useMemo(() => {
         const studentsInGroups = groups.flatMap(g => g.studentsIds)
@@ -105,7 +112,8 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
         <Grid container xs={12} spacing={1}>
             <Grid item xs={12}>
                 <Autocomplete
-                    freeSolo
+                    freeSolo={props.selectedGroupId !== undefined}
+                    disableClearable={props.selectedGroupId === undefined}
                     fullWidth
                     options={[...groups]}
                     getOptionLabel={(option) => typeof option === 'string' ? option : option?.name || "Все студенты"}
@@ -113,6 +121,11 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                     onChange={(_, newGroup) => {
                         if (typeof newGroup === 'string') return
                         props.onGroupIdChange(newGroup?.id)
+                    }}
+                    onInputChange={(_, newInputValue, reason) => {
+                        if (reason === 'input' && props.selectedGroupId !== undefined) {
+                            setFormState(prevState => ({...prevState, name: newInputValue}))
+                        }
                     }}
                     renderInput={(params) => (
                         <TextField
@@ -124,8 +137,8 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                     )}
                 />
             </Grid>
-            {selectedGroup && <Grid item xs={12}>
-                <Stack direction={"column"}>
+            {props.selectedGroupId && selectedGroup && <Grid item xs={12}>
+                <Stack direction={"column"} spacing={1}>
                     <Autocomplete
                         multiple
                         fullWidth
@@ -174,7 +187,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                     <Button
                         onClick={handleSubmitEdit}
                         color="primary"
-                        variant="contained"
+                        variant="outlined"
                         disabled={isSubmitting || !formState.name.trim() || formState.memberIds.length === 0}
                     >
                         {isSubmitting ? <CircularProgress size={24}/> : selectedGroup ? "Сохранить" : "Создать"}
