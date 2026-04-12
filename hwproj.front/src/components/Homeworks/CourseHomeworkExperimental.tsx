@@ -1,5 +1,6 @@
 ﻿import {
     Alert,
+    Badge,
     CardActions,
     CardContent,
     Chip,
@@ -295,7 +296,10 @@ const CourseHomeworkEditor: FC<{
                 <AssignmentIcon color={"action"}/>
             </ToggleButton>
             <ToggleButton value="group">
-                <GroupIcon color={"action"}/>
+                <Badge badgeContent={selectedGroupId !== undefined ? 1 : 0} variant="dot" color={"primary"}
+                       showZero={false}>
+                    <GroupIcon color={"action"}/>
+                </Badge>
             </ToggleButton>
         </ToggleButtonGroup>
         {page === "homework" && <CardContent>
