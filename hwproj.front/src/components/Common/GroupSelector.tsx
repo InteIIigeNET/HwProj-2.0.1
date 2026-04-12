@@ -24,7 +24,10 @@ interface GroupSelectorProps {
 }
 
 const GroupSelector: FC<GroupSelectorProps> = (props) => {
-    const groups = [{id: -1, name: ""}, {id: undefined, name: "Все студенты"}, ...(props.groups || []).filter(x => x.name)]
+    const groups = [{id: -1, name: ""}, {
+        id: undefined,
+        name: "Все студенты"
+    }, ...(props.groups || []).filter(x => x.name)]
     const selectedGroup = groups.find(g => g.id == props.selectedGroupId)
     const [formState, setFormState] = useState<{
         name: string,
@@ -90,7 +93,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                     freeSolo={props.selectedGroupId != undefined}
                     disableClearable={props.selectedGroupId == undefined}
                     fullWidth
-                    options={[...groups]}
+                    options={props.selectedGroupId == undefined ? groups : []}
                     renderOption={(props, option) => {
                         if (option.id === -1)
                             return <li {...props} style={{color: "#2979ff"}} key={option.id}>+ Добавить новую
