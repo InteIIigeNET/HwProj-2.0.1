@@ -32,7 +32,7 @@ interface GroupSelectorProps {
 }
 
 const GroupSelector: FC<GroupSelectorProps> = (props) => {
-    const groups = [...(props.groups || []), {id: undefined, name: "Все студенты"}]
+    const groups = [{id: -1, name: "Новая группа"}, {id: undefined, name: "Все студенты"}, ...(props.groups || [])]
     const selectedGroup = groups.find(g => g.id === props.selectedGroupId)
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -76,7 +76,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
     const handleSubmitEdit = async () => {
         setIsSubmitting(true);
         try {
-            if (selectedGroup) {
+            if (selectedGroup && selectedGroup.id! > 0) {
                 await ApiSingleton.courseGroupsApi.courseGroupsUpdateCourseGroup(
                     props.courseId,
                     selectedGroup.id!,
@@ -116,11 +116,19 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                     disableClearable={props.selectedGroupId === undefined}
                     fullWidth
                     options={[...groups]}
+                    renderOption={(props, option) => {
+                        if (option.id === -1)
+                            return <li {...props} style={{color: "#2979ff"}} key={option.id}>+ Добавить новую
+                                группу</li>
+                        if (option.id === undefined)
+                            return <li {...props} key={option.id}><b>{option.name}</b></li>
+                        return <li {...props} key={option.id}>{option.name}</li>
+                    }}
                     getOptionLabel={(option) => typeof option === 'string' ? option : option?.name || "Все студенты"}
-                    value={groups.find(g => g.id == props.selectedGroupId)}
+                    value={formState.name}
                     onChange={(_, newGroup) => {
                         if (typeof newGroup === 'string') return
-                        props.onGroupIdChange(newGroup?.id)
+                        if (props.selectedGroupId !== newGroup?.id) props.onGroupIdChange(newGroup?.id)
                     }}
                     onInputChange={(_, newInputValue, reason) => {
                         if (reason === 'input' && props.selectedGroupId !== undefined) {
