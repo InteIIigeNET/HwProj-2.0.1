@@ -1,7 +1,7 @@
 import * as React from "react";
 import {FC, useEffect, useState, useMemo} from "react";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
+import {AccountDataDto, CourseViewModel, GroupViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
@@ -46,6 +46,7 @@ interface ICourseState {
     isFound: boolean;
     course: CourseViewModel;
     courseHomeworks: HomeworkViewModel[];
+    groups: GroupViewModel[];
     mentors: AccountDataDto[];
     acceptedStudents: AccountDataDto[];
     newStudents: AccountDataDto[];
@@ -67,6 +68,7 @@ const Course: React.FC = () => {
         course: {},
         courseHomeworks: [],
         mentors: [],
+        groups: [],
         acceptedStudents: [],
         newStudents: [],
         studentSolutions: [],
@@ -85,10 +87,16 @@ const Course: React.FC = () => {
         newStudents,
         acceptedStudents,
         courseHomeworks,
+        groups
     } = courseState
 
-    const groups = course.groups || []
-    const loadGroups = async () => setCurrentState();
+    const loadGroups = async () => {
+        const groups = await ApiSingleton.courseGroupsApi.courseGroupsGetAllCourseGroups(course.id!)
+        setCourseState(prevState => ({
+            ...prevState,
+            groups: groups
+        }))
+    };
 
     const userId = ApiSingleton.authService.getUserId()
 
@@ -142,6 +150,7 @@ const Course: React.FC = () => {
             courseHomeworks: course.homeworks!,
             createHomework: false,
             mentors: course.mentors!,
+            groups: course.groups || [],
             acceptedStudents: course.acceptedStudents!,
             newStudents: course.newStudents!,
         }))
