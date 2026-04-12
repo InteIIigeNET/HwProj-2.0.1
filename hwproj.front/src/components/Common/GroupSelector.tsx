@@ -14,8 +14,6 @@ import {
     CircularProgress,
     Chip
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import AddIcon from "@mui/icons-material/Add";
 import ApiSingleton from "../../api/ApiSingleton";
 import {GroupViewModel, AccountDataDto} from "@/api";
 
@@ -124,7 +122,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                             return <li {...props} key={option.id}><b>{option.name}</b></li>
                         return <li {...props} key={option.id}>{option.name}</li>
                     }}
-                    getOptionLabel={(option) => typeof option === 'string' ? option : option?.name || "Все студенты"}
+                    getOptionLabel={(option) => typeof option === 'string' ? option : option?.name!}
                     value={formState.name}
                     onChange={(_, newGroup) => {
                         if (typeof newGroup === 'string') return
