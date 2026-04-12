@@ -296,7 +296,7 @@ const CourseHomeworkEditor: FC<{
                 <AssignmentIcon color={"action"}/>
             </ToggleButton>
             <ToggleButton value="group">
-                <Badge badgeContent={selectedGroupId !== undefined ? 1 : 0} variant="dot" color={"primary"}
+                <Badge badgeContent={selectedGroupId != undefined ? 1 : 0} variant="dot" color={"primary"}
                        showZero={false}>
                     <GroupIcon color={"action"}/>
                 </Badge>
