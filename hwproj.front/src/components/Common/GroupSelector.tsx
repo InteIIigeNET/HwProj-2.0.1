@@ -30,7 +30,7 @@ interface GroupSelectorProps {
 }
 
 const GroupSelector: FC<GroupSelectorProps> = (props) => {
-    const groups = [{id: -1, name: "Новая группа"}, {id: undefined, name: "Все студенты"}, ...(props.groups || [])]
+    const groups = [{id: -1, name: ""}, {id: undefined, name: "Все студенты"}, ...(props.groups || [])]
     const selectedGroup = groups.find(g => g.id === props.selectedGroupId)
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -137,7 +137,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                         <TextField
                             {...params}
                             label="Группа"
-                            placeholder="Выберите группу"
+                            placeholder="Введите название группы"
                             variant="outlined"
                         />
                     )}
@@ -200,50 +200,6 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                     </Button>
                 </Stack>
             </Grid>}
-            <Dialog
-                fullWidth
-                maxWidth="sm"
-                open={isDialogOpen}
-                onClose={handleCloseEditDialog}
-            >
-                <DialogTitle>
-                    {selectedGroup ? "Редактировать группу" : "Создать группу"}
-                </DialogTitle>
-                <DialogContent>
-                    {isError && (
-                        <Alert severity="error" style={{marginBottom: 16}}>
-                            <AlertTitle>Ошибка</AlertTitle>
-                            Не удалось {selectedGroup ? "создать" : "обновить"} группу. Попробуйте позже.
-                        </Alert>
-                    )}
-                    <Grid container spacing={2} style={{marginTop: 4}}>
-                        <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                required
-                                label="Название группы"
-                                value={formState.name}
-                                onChange={(e) => {
-                                    setFormState(prev => ({
-                                        ...prev,
-                                        name: e.target.value
-                                    }))
-                                }}
-                                disabled={isSubmitting || props.choiceDisabled}
-                            />
-                        </Grid>
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        onClick={handleCloseEditDialog}
-                        color="inherit"
-                        disabled={isSubmitting}
-                    >
-                        Отменить
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </Grid>)
 }
 
