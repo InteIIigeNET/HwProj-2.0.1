@@ -24,7 +24,7 @@ interface GroupSelectorProps {
 }
 
 const GroupSelector: FC<GroupSelectorProps> = (props) => {
-    const groups = [{id: -1, name: ""}, {id: undefined, name: "Все студенты"}, ...(props.groups || [])]
+    const groups = [{id: -1, name: ""}, {id: undefined, name: "Все студенты"}, ...(props.groups || []).filter(x => x.name)]
     const selectedGroup = groups.find(g => g.id == props.selectedGroupId)
     const [formState, setFormState] = useState<{
         name: string,
