@@ -4,13 +4,7 @@ import {
     TextField,
     Autocomplete,
     Button,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     Stack,
-    Alert,
-    AlertTitle,
     CircularProgress,
     Chip
 } from "@mui/material";
@@ -32,8 +26,6 @@ interface GroupSelectorProps {
 const GroupSelector: FC<GroupSelectorProps> = (props) => {
     const groups = [{id: -1, name: ""}, {id: undefined, name: "Все студенты"}, ...(props.groups || [])]
     const selectedGroup = groups.find(g => g.id == props.selectedGroupId)
-
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [formState, setFormState] = useState<{
         name: string,
         memberIds: string[]
@@ -56,20 +48,6 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
         const studentsInGroups = groups.flatMap(g => g.studentsIds)
         return props.courseStudents.filter((cm) => !studentsInGroups.includes(cm.userId))
     }, [groups, props.courseStudents]);
-
-    const handleOpenEditDialog = () => {
-        setFormState({
-            name: selectedGroup?.name || "",
-            memberIds: selectedGroup?.studentsIds || []
-        })
-        setIsDialogOpen(true)
-    }
-
-    const handleCloseEditDialog = () => {
-        if (isSubmitting) return;
-        setIsDialogOpen(false);
-        setIsError(false);
-    }
 
     const handleSubmitEdit = async () => {
         setIsSubmitting(true);
@@ -97,7 +75,6 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                 props.onGroupsUpdate();
                 props.onGroupIdChange(groupId);
             }
-            setIsDialogOpen(false);
         } catch (error) {
             console.error('Failed to update group:', error);
             setIsError(true);
