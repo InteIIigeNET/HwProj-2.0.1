@@ -6,7 +6,9 @@ import {
     Button,
     Stack,
     CircularProgress,
-    Chip
+    Chip,
+    Alert,
+    AlertTitle
 } from "@mui/material";
 import ApiSingleton from "../../api/ApiSingleton";
 import {GroupViewModel, AccountDataDto} from "@/api";
@@ -179,6 +181,14 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                         {isSubmitting ? <CircularProgress size={24}/> : selectedGroup ? "Сохранить" : "Создать"}
                     </Button>
                 </Stack>
+            </Grid>}
+            {props.selectedGroupId == undefined && <Grid item xs={12}>
+                <Alert severity="info" variant={"outlined"}>
+                    <AlertTitle>Создайте или выберите группу</AlertTitle>
+                    • Задание будет доступно только студентам из группы
+                    <br/>
+                    • Вы можете изменить состав группы в любое время
+                </Alert>
             </Grid>}
         </Grid>)
 }

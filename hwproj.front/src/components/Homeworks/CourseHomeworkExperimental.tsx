@@ -417,7 +417,7 @@ const CourseHomeworkEditor: FC<{
                 confirmationText={''}
             />
         </CardContent>}
-        {page === "group" && <CardContent style={{minHeight: 500, width: '100%'}}>
+        {page === "group" && <CardContent style={{minHeight: 300, width: '100%'}}>
             <GroupSelector
                 courseId={courseId}
                 courseStudents={courseStudents}
