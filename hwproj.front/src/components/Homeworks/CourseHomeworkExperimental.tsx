@@ -290,7 +290,9 @@ const CourseHomeworkEditor: FC<{
             style={{paddingTop: 85}}
             value={page}
             exclusive
-            onChange={(_, x) => setPage(x)}
+            onChange={(_, x) => {
+                if (x === "homework" || x === "group") setPage(x)
+            }}
         >
             <ToggleButton value="homework">
                 <AssignmentIcon color={"action"}/>
