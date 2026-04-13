@@ -22,13 +22,11 @@ namespace HwProj.CoursesService.API.Services
     {
         private const string GlobalFilterId = "";
         private readonly ICourseFilterRepository _courseFilterRepository;
-        private readonly IGroupsService _groupsService;
 
         public CourseFilterService(
-            ICourseFilterRepository courseFilterRepository, IGroupsService groupsService)
+            ICourseFilterRepository courseFilterRepository)
         {
             _courseFilterRepository = courseFilterRepository;
-            _groupsService = groupsService;
         }
 
         public async Task<Result<long>> CreateOrUpdateCourseFilter(CreateCourseFilterModel courseFilterModel)
@@ -83,8 +81,10 @@ namespace HwProj.CoursesService.API.Services
             var isMentor = course.MentorIds.Contains(userId);
             var isCourseStudent = course.AcceptedStudents.Any(t => t.StudentId == userId);
 
-            // Получаем группы пользователя, чтобы найти фильтры для них
-            var studentGroups = await _groupsService.GetStudentGroupsAsync(course.Id, userId);
+            // Получаем группы пользователя из course
+            var studentGroups = course.Groups
+                .Where(g => g.StudentsIds.Contains(userId))
+                .ToArray();
             var groupIds = studentGroups.Select(g => g.Id.ToString()).ToArray();
 
             var findFiltersFor = isMentor || !isCourseStudent
