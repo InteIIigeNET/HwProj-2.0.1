@@ -576,7 +576,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                     }}>
                                     <Stack direction={"column"} alignItems={"center"}>
                                         {x.groupId && <GroupIcon fontSize={"small"}
-                                                                 color={x.isDeferred ? "disabled" : x.tags!.includes(TestTag) ? "primary" : "action"}/>}
+                                                                 color={x.isDeferred ? "disabled" : x.tags!.includes(TestTag) ? "primary" : "inherit"}/>}
                                         <Typography variant="h6" style={{fontSize: 18}} align={"center"}
                                                     color={x.isDeferred
                                                         ? "textSecondary"
