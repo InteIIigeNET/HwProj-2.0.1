@@ -3,7 +3,7 @@ import {CourseViewModel, GroupViewModel, HomeworkViewModel, StatisticsCourseMate
 import {useNavigate, useParams} from 'react-router-dom';
 import {LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Button, Chip, IconButton, Typography} from "@mui/material";
+import {Alert, Button, Chip, IconButton, Stack, Typography} from "@mui/material";
 import {grey} from "@material-ui/core/colors";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
@@ -12,6 +12,7 @@ import Lodash from "lodash"
 import ApiSingleton from "@/api/ApiSingleton";
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
+import GroupIcon from '@mui/icons-material/Group';
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -116,7 +117,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const testsMaxSum = testGroups
         .map(h => h[0])
         .flatMap(homework => homework.tasks)
-        .reduce((sum, task) => 
+        .reduce((sum, task) =>
             sum + (task!.tags!.includes(BonusTag) ? 0 : (task!.maxRating || 0)), 0)
 
     const hasHomeworks = !!notTests
@@ -257,12 +258,12 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 )
                                 .reduce((sum, rating) => sum + rating, 0)
                             const homeworksMaxSum = notTests
-                                    .filter(h => !h.tags!.includes(BonusTag) &&
-                                        (props.groups.find(g => g.id === h.groupId)?.studentsIds?.includes(cm.id!) || !h.groupId))
-                                    .flatMap(homework => homework.tasks)
-                                    .reduce((sum, task) => {
-                                        return sum + (task!.tags!.includes(BonusTag) ? 0 : (task!.maxRating || 0));
-                                    }, 0)
+                                .filter(h => !h.tags!.includes(BonusTag) &&
+                                    (props.groups.find(g => g.id === h.groupId)?.studentsIds?.includes(cm.id!) || !h.groupId))
+                                .flatMap(homework => homework.tasks)
+                                .reduce((sum, task) => {
+                                    return sum + (task!.tags!.includes(BonusTag) ? 0 : (task!.maxRating || 0));
+                                }, 0)
 
                             const testsSum = testGroups
                                 .map(group => {
@@ -285,6 +286,8 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 .filter(x => x === cm.id)
                                 .toArray().length
 
+                            const studentGroups = props.groups.filter(x => x.studentsIds!.includes(cm.id!))
+
                             return (
                                 <TableRow key={index} hover style={{height: 50}}>
                                     <TableCell
@@ -296,6 +299,21 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         variant={"head"}
                                     >
                                         {cm.surname} {cm.name}
+                                        {studentGroups.length > 0 && <Typography
+                                            gutterBottom
+                                            style={{
+                                                color: "GrayText",
+                                                fontSize: "12px",
+                                                lineHeight: '1.2'
+                                            }}
+                                        >
+                                            <Stack direction="row" spacing={1}>
+                                                <GroupIcon style={{fontSize: "12px"}}/>
+                                                <div>{studentGroups
+                                                    .map(r => r.name)
+                                                    .join(', ')}</div>
+                                            </Stack>
+                                        </Typography>}
                                         <Typography
                                             style={{
                                                 color: "GrayText",

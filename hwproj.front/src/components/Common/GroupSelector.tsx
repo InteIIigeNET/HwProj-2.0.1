@@ -126,7 +126,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                 />
             </Grid>
             {props.selectedGroupId && selectedGroup && <Grid item xs={12}>
-                <Stack direction={"column"} spacing={1}>
+                <Stack direction={"column"}>
                     <Autocomplete
                         multiple
                         fullWidth
@@ -175,10 +175,11 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                     <Button
                         onClick={handleSubmitEdit}
                         color="primary"
-                        variant="outlined"
+                        size="small"
+                        variant="contained"
                         disabled={isSubmitting || !formState.name.trim() || formState.memberIds.length === 0}
                     >
-                        {isSubmitting ? <CircularProgress size={24}/> : selectedGroup ? "Сохранить" : "Создать"}
+                        {isSubmitting ? <CircularProgress size={24}/> : "Сохранить группу"}
                     </Button>
                 </Stack>
             </Grid>}

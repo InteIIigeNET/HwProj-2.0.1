@@ -302,88 +302,90 @@ const CourseHomeworkEditor: FC<{
                 </Badge>
             </ToggleButton>
         </ToggleButtonGroup>
-        {page === "homework" && <CardContent>
-            <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
-                  alignItems={"center"} alignContent={"center"} style={{marginTop: -24}}>
-                <Grid item>
-                    <TextField
-                        required
-                        fullWidth
-                        style={{width: '300px'}} //TODO
-                        label="Название задания"
-                        variant="standard"
-                        margin="normal"
-                        error={!title}
-                        value={title}
-                        onChange={(e) => {
-                            e.persist()
-                            setHasErrors(prevState => prevState || !e.target.value)
-                            setTitle(e.target.value)
-                        }}
-                    />
-                </Grid>
-                <Grid item xs={6} style={{marginTop: 6}}>
-                    <Tags tags={tags} onTagsChange={setTags} isElementSmall={false}
-                          suggestion={tagSuggestion}
-                          requestTags={() => apiSingleton.coursesApi.coursesGetAllTagsForCourse(courseId)}/>
-                </Grid>
-            </Grid>
-            <Grid container>
-                {tags.includes(TestTag) &&
+        {page === "homework" && <div>
+            <CardContent>
+                <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
+                      alignItems={"center"} alignContent={"center"} style={{marginTop: -24}}>
                     <Grid item>
-                        <Alert severity="info" variant={"outlined"}>
-                            Вы можете сгруппировать контрольные работы и переписывания с помощью
-                            дополнительного тега. Например, 'КР 1'
-                        </Alert>
-                    </Grid>}
-                <Grid item xs={12} style={{marginBottom: "5px", marginTop: -2}}>
-                    <MarkdownEditor
-                        label={"Общее описание задания"}
-                        height={240}
-                        maxHeight={400}
-                        value={description}
-                        onChange={(value) => {
-                            setDescription(value)
-                        }}
-                    />
-                </Grid>
-                <Grid item xs={12} style={{marginBottom: "15px"}}>
-                    <Grid container direction="column">
-                        <FilesUploader
-                            initialFilesInfo={filesState.selectedFilesInfo}
-                            isLoading={filesState.isLoadingInfo}
-                            onChange={(filesInfo) => {
-                                setFilesState((prevState) => ({
-                                    ...prevState,
-                                    selectedFilesInfo: filesInfo
-                                }));
-                            }}
-                            courseUnitType={CourseUnitType.Homework}
-                            courseUnitId={homeworkId}/>
-                        <PublicationAndDeadlineDates
-                            hasDeadline={metadata.hasDeadline}
-                            isDeadlineStrict={metadata.isDeadlineStrict}
-                            publicationDate={metadata.publicationDate}
-                            deadlineDate={metadata.deadlineDate}
-                            autoCalculatedDeadline={deadlineSuggestion}
-                            disabledPublicationDate={!isNewHomework && isPublished}
-                            onChange={(state) => {
-                                const conflictsWithTasks = changedTaskPublicationDates.some(d => d < metadata.publicationDate!)
-                                setMetadata({
-                                    hasDeadline: state.hasDeadline,
-                                    isDeadlineStrict: state.isDeadlineStrict,
-                                    publicationDate: state.publicationDate,
-                                    deadlineDate: state.deadlineDate,
-                                    hasErrors: state.hasErrors || conflictsWithTasks,
-                                })
+                        <TextField
+                            required
+                            fullWidth
+                            style={{width: '300px'}} //TODO
+                            label="Название задания"
+                            variant="standard"
+                            margin="normal"
+                            error={!title}
+                            value={title}
+                            onChange={(e) => {
+                                e.persist()
+                                setHasErrors(prevState => prevState || !e.target.value)
+                                setTitle(e.target.value)
                             }}
                         />
                     </Grid>
+                    <Grid item xs={6} style={{marginTop: 6}}>
+                        <Tags tags={tags} onTagsChange={setTags} isElementSmall={false}
+                              suggestion={tagSuggestion}
+                              requestTags={() => apiSingleton.coursesApi.coursesGetAllTagsForCourse(courseId)}/>
+                    </Grid>
                 </Grid>
-                {taskHasErrors && <Grid item xs={12}>
-                    <Alert severity={"error"}>Одна или более вложенных задач содержат ошибки</Alert>
-                </Grid>}
-            </Grid>
+                <Grid container>
+                    {tags.includes(TestTag) &&
+                        <Grid item>
+                            <Alert severity="info" variant={"outlined"}>
+                                Вы можете сгруппировать контрольные работы и переписывания с помощью
+                                дополнительного тега. Например, 'КР 1'
+                            </Alert>
+                        </Grid>}
+                    <Grid item xs={12} style={{marginBottom: "5px", marginTop: -2}}>
+                        <MarkdownEditor
+                            label={"Общее описание задания"}
+                            height={240}
+                            maxHeight={400}
+                            value={description}
+                            onChange={(value) => {
+                                setDescription(value)
+                            }}
+                        />
+                    </Grid>
+                    <Grid item xs={12} style={{marginBottom: "15px"}}>
+                        <Grid container direction="column">
+                            <FilesUploader
+                                initialFilesInfo={filesState.selectedFilesInfo}
+                                isLoading={filesState.isLoadingInfo}
+                                onChange={(filesInfo) => {
+                                    setFilesState((prevState) => ({
+                                        ...prevState,
+                                        selectedFilesInfo: filesInfo
+                                    }));
+                                }}
+                                courseUnitType={CourseUnitType.Homework}
+                                courseUnitId={homeworkId}/>
+                            <PublicationAndDeadlineDates
+                                hasDeadline={metadata.hasDeadline}
+                                isDeadlineStrict={metadata.isDeadlineStrict}
+                                publicationDate={metadata.publicationDate}
+                                deadlineDate={metadata.deadlineDate}
+                                autoCalculatedDeadline={deadlineSuggestion}
+                                disabledPublicationDate={!isNewHomework && isPublished}
+                                onChange={(state) => {
+                                    const conflictsWithTasks = changedTaskPublicationDates.some(d => d < metadata.publicationDate!)
+                                    setMetadata({
+                                        hasDeadline: state.hasDeadline,
+                                        isDeadlineStrict: state.isDeadlineStrict,
+                                        publicationDate: state.publicationDate,
+                                        deadlineDate: state.deadlineDate,
+                                        hasErrors: state.hasErrors || conflictsWithTasks,
+                                    })
+                                }}
+                            />
+                        </Grid>
+                    </Grid>
+                    {taskHasErrors && <Grid item xs={12}>
+                        <Alert severity={"error"}>Одна или более вложенных задач содержат ошибки</Alert>
+                    </Grid>}
+                </Grid>
+            </CardContent>
             <CardActions>
                 {metadata.publicationDate && new Date() >= new Date(metadata.publicationDate) && <ActionOptionsUI
                     disabled={isDisabled || handleSubmitLoading}
@@ -416,18 +418,37 @@ const CourseHomeworkEditor: FC<{
                 confirmationWord={''}
                 confirmationText={''}
             />
-        </CardContent>}
-        {page === "group" && <CardContent style={{minHeight: 300, width: '100%'}}>
-            <GroupSelector
-                courseId={courseId}
-                courseStudents={courseStudents}
-                onGroupIdChange={(groupId?: number) => setSelectedGroupId(groupId)}
-                selectedGroupId={selectedGroupId}
-                choiceDisabled={!isNewHomework}
-                onGroupsUpdate={props.onGroupsUpdate}
-                groups={props.groups}
-            />
-        </CardContent>}
+        </div>}
+        {page === "group" && <div style={{width: '100%'}}>
+            <CardContent>
+                <GroupSelector
+                    courseId={courseId}
+                    courseStudents={courseStudents}
+                    onGroupIdChange={(groupId?: number) => setSelectedGroupId(groupId)}
+                    selectedGroupId={selectedGroupId}
+                    choiceDisabled={!isNewHomework}
+                    onGroupsUpdate={props.onGroupsUpdate}
+                    groups={props.groups}
+                />
+            </CardContent>
+            {!isNewHomework &&
+                <CardActions>
+                    <LoadingButton
+                        fullWidth
+                        onClick={handleSubmit}
+                        color="primary"
+                        variant="text"
+                        type="submit"
+                        disabled={isDisabled}
+                        loadingPosition="end"
+                        size={"large"}
+                        endIcon={<span style={{width: 17}}/>}
+                        loading={handleSubmitLoading}
+                    >
+                        {"Редактировать задание"}
+                    </LoadingButton>
+                </CardActions>}
+        </div>}
     </Stack>
 }
 
@@ -455,6 +476,7 @@ const CourseHomeworkExperimental: FC<{
     const tasksCount = homework.tasks!.length
     const [showEditMode, setShowEditMode] = useState(false)
     const [editMode, setEditMode] = useState(false)
+    const group = props.groups.find(g => g.id === homework.groupId)
 
     useEffect(() => {
         setEditMode(props.initialEditMode)
@@ -514,6 +536,13 @@ const CourseHomeworkExperimental: FC<{
                 </Stack>
             </Grid>}
         </Grid>
+        {group &&
+            <Typography variant="body1" style={{color: "#454545"}} gutterBottom>
+                <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                    <GroupIcon fontSize={"small"}/>
+                    <div>{group.name}</div>
+                </Stack>
+            </Typography>}
         <Divider style={{marginTop: 15, marginBottom: 15}}/>
         <Typography component="div" style={{color: "#454545"}} gutterBottom variant="body1">
             <MarkdownPreview value={homework.description!}/>
