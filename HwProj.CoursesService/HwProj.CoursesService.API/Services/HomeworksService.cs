@@ -96,7 +96,6 @@ namespace HwProj.CoursesService.API.Services
                 var group = (await _groupsService.GetGroupsAsync(groupId)).SingleOrDefault();
                 var groupMates = group?.GroupMates.ToArray() ?? Array.Empty<GroupMate>();
 
-                await _courseFilterService.UpdateGroupFilters(course.Id, homework.Id, group);
                 notifyStudentIds = groupMates.Select(gm => gm.StudentId).ToArray();
             }
 
