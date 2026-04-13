@@ -34,12 +34,11 @@ import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
-import CourseGroups from "./CourseGroups";
 
-type TabValue = "homeworks" | "stats" | "applications" | "groups"
+type TabValue = "homeworks" | "stats" | "applications"
 
 function isAcceptableTabValue(str: string): str is TabValue {
-    return str === "homeworks" || str === "stats" || str === "applications" || str === "groups";
+    return str === "homeworks" || str === "stats" || str === "applications";
 }
 
 interface ICourseState {
@@ -349,13 +348,6 @@ const Course: React.FC = () => {
                                 <Chip size={"small"} color={"default"}
                                       label={newStudents.length}/>
                             </Stack>}/>}
-                        {isCourseMentor && <Tab label={
-                            <Stack direction="row" spacing={1}>
-                                <div>Группы</div>
-                                <Chip size={"small"} color={"default"}
-                                      label={groups.length}/>
-                            </Stack>}/>
-                        }
                     </Tabs>
                     {tabValue === "homeworks" && <CourseExperimental
                         courseId={+courseId!}
@@ -422,13 +414,6 @@ const Course: React.FC = () => {
                             course={courseState.course}
                             students={courseState.newStudents}
                             courseId={courseId!}
-                        />
-                    }
-                    {tabValue === "groups" && isCourseMentor &&
-                        <CourseGroups
-                            courseStudents={acceptedStudents}
-                            groups={groups}
-                            onGroupsUpdate={loadGroups}
                         />
                     }
                 </Grid>
