@@ -21,6 +21,7 @@ import {
     Menu,
     MenuItem,
     Stack,
+    Tooltip,
     Typography
 } from "@mui/material";
 import {CourseExperimental} from "./CourseExperimental";
@@ -316,9 +317,20 @@ const Course: React.FC = () => {
                         </Grid>
                     </Grid>
                     {isCourseMentor && groups.length > 0 && studentsWithoutGroup.length > 0 &&
-                        <Alert severity="info" style={{marginBottom: 15}}>
-                            Студентов, не записанных в группу: {studentsWithoutGroup.length}
-                        </Alert>
+                        <Tooltip
+                            title={
+                                <Box sx={{margin: 0, fontSize: '0.875rem'}}>
+                                    {studentsWithoutGroup.map(s => (
+                                        <div key={s.userId}>{`${s.surname ?? ""} ${s.name ?? ""} / ${s.email ?? ""}`.trim()}</div>
+                                    ))}
+                                </Box>
+                            }
+                            arrow
+                        >
+                            <Alert severity="info" style={{marginBottom: 15, cursor: 'pointer'}}>
+                                Студентов, не записанных в группу: {studentsWithoutGroup.length}
+                            </Alert>
+                        </Tooltip>
                     }
                     <Tabs
                         style={{marginBottom: 10}}
