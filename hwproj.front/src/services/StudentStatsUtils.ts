@@ -42,7 +42,7 @@ export default class StudentStatsUtils {
 
         let color: string
         if(disabled)
-            color = "#d1d1d1"
+            color = "#eaeaea"
         else if (lastRatedSolution == undefined)
             color = "#ffffff"
         else
