@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
+using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
@@ -13,14 +14,17 @@ namespace HwProj.CoursesService.API.Services
     {
         private readonly IGroupsRepository _groupsRepository;
         private readonly IGroupMatesRepository _groupMatesRepository;
+        private readonly ICourseFilterRepository _courseFilterRepository;
         private readonly IMapper _mapper;
 
         public GroupsService(IGroupsRepository groupsRepository,
             IGroupMatesRepository groupMatesRepository,
+            ICourseFilterRepository courseFilterRepository,
             IMapper mapper)
         {
             _groupsRepository = groupsRepository;
             _groupMatesRepository = groupMatesRepository;
+            _courseFilterRepository = courseFilterRepository;
             _mapper = mapper;
         }
 
@@ -89,6 +93,17 @@ namespace HwProj.CoursesService.API.Services
             {
                 Name = updated.Name
             });
+
+            // Обновляем участников в фильтре группы
+            var groupFilter = await _courseFilterRepository.GetAsync(groupId.ToString(), group.CourseId);
+            if (groupFilter != null)
+            {
+                groupFilter.Filter.StudentIds = updatedStudentIds.ToList();
+                await _courseFilterRepository.UpdateAsync(groupFilter.Id, f => new CourseFilter
+                {
+                    FilterJson = groupFilter.FilterJson
+                });
+            }
         }
 
         public async Task<UserGroupDescription[]> GetStudentGroupsAsync(long courseId, string studentId)
