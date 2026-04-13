@@ -49,10 +49,10 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isError, setIsError] = useState(false);
 
-    const studentsWithoutGroup = useMemo(() => {
-        const studentsInGroups = groups.flatMap(g => g.studentsIds)
-        return props.courseStudents.filter((cm) => !studentsInGroups.includes(cm.userId))
-    }, [groups, props.courseStudents]);
+    const studentsInGroups = useMemo(() => groups.flatMap(g => g.studentsIds),
+        [groups, props.groups]);
+    const studentsWithoutGroup = useMemo(() => props.courseStudents.filter((cm) => !studentsInGroups.includes(cm.userId)),
+        [groups, props.courseStudents]);
 
     const handleSubmitEdit = async () => {
         setIsSubmitting(true);
@@ -92,6 +92,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                     disableClearable={props.selectedGroupId == undefined}
                     fullWidth
                     options={props.selectedGroupId == undefined ? groups : []}
+                    disabled={props.choiceDisabled}
                     renderOption={(props, option) => {
                         if (option.id === -1)
                             return <li {...props} style={{color: "#2979ff"}} key={option.id}>+ Добавить новую
@@ -126,28 +127,20 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                     <Autocomplete
                         multiple
                         fullWidth
-                        options={studentsWithoutGroup}
+                        options={props.courseStudents}
                         value={props.courseStudents?.filter(s => formState.memberIds.includes(s.userId!)) || []}
                         getOptionLabel={(option) =>
                             `${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()
                         }
                         filterSelectedOptions
-                        onChange={(_, values) => {
-                            if (selectedGroup) {
-                                // При редактировании выбранной группы можно только добавлять студентов
-                                setFormState(prev => ({
-                                    ...prev,
-                                    memberIds: [...formState.memberIds,
-                                        ...values.map(x => !formState.memberIds.includes(x.userId!) ? x.userId! : "").filter(Boolean)]
-                                }))
-                            } else {
-                                setFormState(prev => ({
-                                    ...prev,
-                                    memberIds: values
-                                        .map(x => x.userId!)
-                                        .filter(Boolean)
-                                }))
-                            }
+                        onChange={(_, value) => {
+                            if (value.map(x => x.userId!).filter(Boolean).length === 0) return;
+                            setFormState(prev => ({
+                                ...prev,
+                                memberIds: value
+                                    .map(x => x.userId!)
+                                    .filter(Boolean)
+                            }))
                         }}
                         disabled={isSubmitting}
                         renderTags={(tagValue, getTagProps) =>
@@ -155,7 +148,6 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                                 <Chip
                                     {...getTagProps({index})}
                                     label={`${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()}
-                                    onDelete={selectedGroup ? undefined : getTagProps({index}).onDelete}
                                     key={option.userId}
                                 />
                             ))
