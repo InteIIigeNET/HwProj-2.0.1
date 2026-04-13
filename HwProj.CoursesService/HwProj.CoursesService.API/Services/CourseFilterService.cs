@@ -215,33 +215,23 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task UpdateGroupFilters(long courseId, long homeworkId, Group group)
         {
-            var groupMates = (group?.GroupMates.ToArray() ?? Array.Empty<GroupMate>()).Select(gm => gm.StudentId).ToList();
+            var filterIds = group != null
+                ? new[] { GlobalFilterId, group.Id.ToString() }
+                : new[] { GlobalFilterId };
 
-            var existingFilters = (await _courseFilterRepository.GetAsync(new[] { GlobalFilterId, group.Id.ToString() }, courseId))
-                .ToDictionary(x => x.Id, x => x.CourseFilter);
+            var filters = await _courseFilterRepository.GetAsync(filterIds, courseId);
 
-            await UpdateOrCreateFilter(GlobalFilterId, courseId, homeworkId, new List<string>(), existingFilters);
-            await UpdateOrCreateFilter(group.Id.ToString(), courseId, homeworkId, groupMates, existingFilters);
-        }
-
-        private async Task UpdateOrCreateFilter(string id, long courseId, long homeworkId, List<string> studentIds,
-            Dictionary<string, CourseFilter> existingFilters)
-        {
-            if (existingFilters.TryGetValue(id, out var courseFilter) && courseFilter.Filter is { } filter)
+            foreach (var filterId in filterIds)
             {
-                filter.StudentIds = studentIds;
-                filter.HomeworkIds.Add(homeworkId);
-                await UpdateAsync(courseFilter.Id, courseFilter.Filter);
-            }
-            else
-            {
-                var newFilter = new Filter
-                {
-                    StudentIds = studentIds,
-                    HomeworkIds = new List<long> { homeworkId },
-                    MentorIds = new List<string>()
-                };
-                await AddCourseFilter(newFilter, courseId, id);
+                var existingCourseFilter = filters.SingleOrDefault(f => f.Id == filterId)?.CourseFilter;
+                var newFilter = existingCourseFilter?.Filter
+                    ?? new Filter { StudentIds = new List<string>(), HomeworkIds = new List<long>(), MentorIds = new List<string>() };
+                newFilter.HomeworkIds.Add(homeworkId);
+
+                if (existingCourseFilter != null)
+                    await UpdateAsync(existingCourseFilter.Id, newFilter);
+                else
+                    await AddCourseFilter(newFilter, courseId, filterId);
             }
         }
     }
