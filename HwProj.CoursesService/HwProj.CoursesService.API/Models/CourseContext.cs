@@ -28,7 +28,7 @@ namespace HwProj.CoursesService.API.Models
         {
             modelBuilder.Entity<GroupMate>().HasAlternateKey(u => new { u.GroupId, u.StudentId });
             modelBuilder.Entity<Assignment>().HasIndex(a => a.CourseId);
-            modelBuilder.Entity<UserToCourseFilter>().HasKey(u => new { u.CourseId, u.UserId });
+            modelBuilder.Entity<UserToCourseFilter>().HasKey(u => new { u.CourseId, u.Id });
             modelBuilder.Entity<TaskQuestion>().HasIndex(t => t.TaskId);
         }
     }
