@@ -10,6 +10,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import {
     Alert,
     AlertTitle,
+    Badge,
     Box,
     Chip,
     Dialog,
@@ -31,6 +32,7 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import NameBuilder from "../Utils/NameBuilder";
 import {QRCodeSVG} from 'qrcode.react';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
+import GroupIcon from '@mui/icons-material/Group';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
@@ -317,20 +319,17 @@ const Course: React.FC = () => {
                         </Grid>
                     </Grid>
                     {isCourseMentor && groups.length > 0 && studentsWithoutGroup.length > 0 &&
-                        <Tooltip
-                            title={
-                                <Box sx={{margin: 0, fontSize: '0.875rem'}}>
-                                    {studentsWithoutGroup.map(s => (
-                                        <div key={s.userId}>{`${s.surname ?? ""} ${s.name ?? ""} / ${s.email ?? ""}`.trim()}</div>
-                                    ))}
-                                </Box>
-                            }
-                            arrow
-                        >
-                            <Alert severity="info" style={{marginBottom: 15, cursor: 'pointer'}}>
-                                Студентов, не записанных в группу: {studentsWithoutGroup.length}
-                            </Alert>
-                        </Tooltip>
+                        <Grid item>
+                            <Tooltip
+                                title={studentsWithoutGroup.length + " студентов не записано в группы"}
+                                arrow
+                                placement="right-end"
+                            >
+                                <Badge badgeContent={studentsWithoutGroup.length} variant="standard" color={"primary"}>
+                                    <GroupIcon color="action" fontSize={"medium"}/>
+                                </Badge>
+                            </Tooltip>
+                        </Grid>
                     }
                     <Tabs
                         style={{marginBottom: 10}}
