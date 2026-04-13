@@ -33,14 +33,14 @@ namespace HwProj.CoursesService.API.Services
             var filter = CourseFilterUtils.CreateFilter(courseFilterModel);
 
             var existingCourseFilter =
-                await _courseFilterRepository.GetAsync(courseFilterModel.UserId, courseFilterModel.CourseId);
+                await _courseFilterRepository.GetAsync(courseFilterModel.Id, courseFilterModel.CourseId);
             if (existingCourseFilter != null)
             {
                 await UpdateAsync(existingCourseFilter.Id, filter);
                 return Result<long>.Success(existingCourseFilter.Id);
             }
 
-            var filterId = await AddCourseFilter(filter, courseFilterModel.CourseId, courseFilterModel.UserId);
+            var filterId = await AddCourseFilter(filter, courseFilterModel.CourseId, courseFilterModel.Id);
             if (filterId == -1)
             {
                 return Result<long>.Failed();
@@ -86,7 +86,7 @@ namespace HwProj.CoursesService.API.Services
 
             var courseFilters =
                 (await _courseFilterRepository.GetAsync(findFiltersFor, course.Id))
-                .ToDictionary(x => x.UserId, x => x.CourseFilter);
+                .ToDictionary(x => x.Id, x => x.CourseFilter);
 
             if (!isMentor)
             {
@@ -126,7 +126,7 @@ namespace HwProj.CoursesService.API.Services
                 .Where(u => u.CourseFilter.Filter.HomeworkIds.Count == 0)
                 .Select(u => new MentorToAssignedStudentsDTO
                 {
-                    MentorId = u.UserId,
+                    MentorId = u.Id,
                     SelectedStudentsIds = u.CourseFilter.Filter.StudentIds
                 })
                 .ToArray();
@@ -208,7 +208,7 @@ namespace HwProj.CoursesService.API.Services
         {
             var filterIds = studentIds.Union(new[] { GlobalFilterUserId }).ToArray();
             var filters = (await _courseFilterRepository.GetAsync(filterIds, courseId))
-                .ToDictionary(x => x.UserId, x => x.CourseFilter);
+                .ToDictionary(x => x.Id, x => x.CourseFilter);
 
             foreach (var filterId in filterIds)
             {
