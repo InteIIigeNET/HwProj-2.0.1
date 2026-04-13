@@ -97,17 +97,16 @@ namespace HwProj.CoursesService.API.Services
 
             if (!isMentor)
             {
-                var studentCourse = course;
-                if (courseFilters.TryGetValue(GlobalFilterId, out var groupFilter))
-                    studentCourse = ApplyFilterInternal(course, studentCourse, groupFilter,
-                        ApplyFilterOperation.Subtract);
+                var globalFilter = courseFilters.GetValueOrDefault(GlobalFilterId);
+                var globalCourse = globalFilter != null
+                    ? ApplyFilterInternal(course, course, globalFilter, ApplyFilterOperation.Subtract)
+                    : course;
 
-                // Применяем фильтры всех групп студента
-                foreach (var group in studentGroups)
-                {
-                    if (courseFilters.TryGetValue(group.Id.ToString(), out var groupCourseFilter))
-                        studentCourse = ApplyFilterInternal(course, studentCourse, groupCourseFilter, ApplyFilterOperation.Union);
-                }
+                var studentCourse = studentGroups
+                    .Select(g => courseFilters.GetValueOrDefault(g.Id.ToString()))
+                    .Where(cf => cf != null)
+                    .Aggregate(globalCourse, (current, groupCourseFilter) =>
+                        ApplyFilterInternal(course, current, groupCourseFilter, ApplyFilterOperation.Union));
 
                 var mentorIds = course.MentorIds
                     .Where(u =>
