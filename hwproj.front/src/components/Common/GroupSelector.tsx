@@ -44,7 +44,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
             name: selectedGroup?.name || "",
             memberIds: selectedGroup?.studentsIds || []
         })
-    }, [props.selectedGroupId])
+    }, [props.selectedGroupId, props.groups])
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isError, setIsError] = useState(false);
@@ -68,10 +68,6 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                 );
                 props.onGroupsUpdate();
             } else {
-                if (!formState.name.trim() || formState.memberIds.length === 0) {
-                    return;
-                }
-
                 const groupId = await ApiSingleton.courseGroupsApi.courseGroupsCreateCourseGroup(props.courseId, {
                     name: formState.name.trim(),
                     groupMatesIds: formState.memberIds,
