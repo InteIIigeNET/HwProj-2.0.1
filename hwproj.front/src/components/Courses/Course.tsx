@@ -37,6 +37,7 @@ import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
+import Utils from "@/services/Utils";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -321,7 +322,7 @@ const Course: React.FC = () => {
                     {isCourseMentor && groups.length > 0 && studentsWithoutGroup.length > 0 &&
                         <Grid item>
                             <Tooltip
-                                title={studentsWithoutGroup.length + " студентов не записано в группы"}
+                                title={studentsWithoutGroup.length + " " + Utils.pluralizeHelper(["студент", "студента", "студентов"], studentsWithoutGroup.length) + " без группы"}
                                 arrow
                                 placement="right-end"
                             >
