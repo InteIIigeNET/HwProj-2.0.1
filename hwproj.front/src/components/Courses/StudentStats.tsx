@@ -120,7 +120,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         .flatMap(h => h.tasks)
         .reduce((sum, task) => sum + (task!.maxRating || 0), 0)
 
-    const testsWithoutGroupsMaxSum = testHomeworks.filter(h => h.groupId === undefined)
+    const testsWithoutGroupsMaxSum = testHomeworks.filter(h => h.groupId == undefined)
         .flatMap(h => h.tasks)
         .reduce((sum, task) => sum + (task!.maxRating || 0), 0)
 
@@ -131,7 +131,6 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         .reduce((sum, task) => {
             return sum + (task!.tags!.includes(BonusTag) ? 0 : (task!.maxRating || 0));
         }, 0)
-        console.log(homeworksWithoutGroupMaxSum)
 
     const hasHomeworks = homeworksWithoutGroupMaxSum > 0 || homeworksWithGroups.length > 0
     const hasTests = testsWithGroupsMaxSum + testsWithoutGroupsMaxSum > 0
@@ -225,7 +224,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                             paddingRight: 5,
                                                             borderLeft: borderStyle,
                                                         }}>
-                                ДЗ {homeworksWithoutGroupMaxSum > 0 && `(${homeworksWithoutGroupMaxSum})`}
+                                ДЗ {homeworksWithGroups.length === 0 && `(${homeworksWithoutGroupMaxSum})`}
                             </TableCell>}
                             {hasTests && <TableCell padding="checkbox" component="td" align="center"
                                                     style={{
@@ -234,7 +233,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                         paddingRight: 5,
                                                         borderLeft: borderStyle,
                                                     }}>
-                                КР {testsWithoutGroupsMaxSum > 0 && `(${testsWithoutGroupsMaxSum})`}
+                                КР {homeworksWithGroups.length === 0 && `(${testsWithoutGroupsMaxSum})`}
                             </TableCell>}
                             {showBestSolutions && <TableCell padding="checkbox" component="td" align="center"
                                                              style={{borderLeft: borderStyle}}>
@@ -267,7 +266,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solutions || [])?.rating || 0) || 0
                                 )
                                 .reduce((sum, rating) => sum + rating, 0)
-                            const userHomeworksMaxSum = notTests
+                            const studentHomeworksMaxSum = notTests
                                 .filter(h => !h.tags!.includes(BonusTag) &&
                                     (props.groups.find(g => g.id === h.groupId)?.studentsIds?.includes(cm.id!)))
                                 .flatMap(homework => homework.tasks)
@@ -292,7 +291,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 .flat()
                                 .reduce((sum, rating) => sum + rating, 0)
 
-                            const userTestsMaxSum = testHomeworks
+                            const studentTestsMaxSum = testHomeworks
                                 .filter(h => h.groupId !== undefined &&
                                     (props.groups.find(g => g.id === h.groupId)?.studentsIds?.includes(cm.id!)))
                                 .flatMap(homework => homework.tasks)
@@ -354,12 +353,12 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         scope="row"
                                         variant={"body"}
                                     >
-                                        {userHomeworksMaxSum > 0 && <Chip size={"small"}
+                                        {studentHomeworksMaxSum > 0 && <Chip size={"small"}
                                               style={{
-                                                  backgroundColor: StudentStatsUtils.getRatingColor(homeworksSum, userHomeworksMaxSum),
+                                                  backgroundColor: StudentStatsUtils.getRatingColor(homeworksSum, studentHomeworksMaxSum),
                                                   fontSize: 16
                                               }}
-                                              label={`${homeworksSum} ${homeworksWithGroups.length > 0 ? `/ ${userHomeworksMaxSum}` : ""}`}/>}
+                                              label={`${homeworksSum} ${homeworksWithGroups.length > 0 ? `/ ${studentHomeworksMaxSum}` : ""}`}/>}
                                     </TableCell>}
                                     {hasTests && <TableCell
                                         align="center"
@@ -372,12 +371,12 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         scope="row"
                                         variant={"body"}
                                     >
-                                        {userTestsMaxSum > 0 && <Chip size={"small"}
+                                        {studentTestsMaxSum > 0 && <Chip size={"small"}
                                               style={{
-                                                  backgroundColor: StudentStatsUtils.getRatingColor(testsSum, userTestsMaxSum),
+                                                  backgroundColor: StudentStatsUtils.getRatingColor(testsSum, studentTestsMaxSum),
                                                   fontSize: 16
                                               }}
-                                              label={`${testsSum} ${testHomeworks.some(h => h.groupId !== undefined) ? `/ ${userTestsMaxSum}` : ""}`}/>}
+                                              label={`${testsSum} ${testHomeworks.some(h => h.groupId !== undefined) ? `/ ${studentTestsMaxSum}` : ""}`}/>}
                                     </TableCell>}
                                     {showBestSolutions && <TableCell
                                         align="center"
