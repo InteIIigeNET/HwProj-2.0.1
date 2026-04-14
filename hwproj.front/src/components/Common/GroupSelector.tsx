@@ -8,7 +8,8 @@ import {
     CircularProgress,
     Chip,
     Alert,
-    AlertTitle
+    AlertTitle,
+    Typography
 } from "@mui/material";
 import ApiSingleton from "../../api/ApiSingleton";
 import {GroupViewModel, AccountDataDto} from "@/api";
@@ -47,12 +48,25 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
     }, [props.selectedGroupId, props.groups])
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isError, setIsError] = useState(false);
 
-    const studentsInGroups = useMemo(() => groups.flatMap(g => g.studentsIds),
-        [groups, props.groups]);
-    const studentsWithoutGroup = useMemo(() => props.courseStudents.filter((cm) => !studentsInGroups.includes(cm.userId)),
-        [groups, props.courseStudents]);
+    const studentToGroups = useMemo(() => {
+        const map = new Map<string, string[]>();
+        (props.groups || []).forEach(g => {
+            g.studentsIds?.forEach(stId => {
+                if (!map.has(stId)) map.set(stId, []);
+                map.get(stId)!.push(g.name!);
+            });
+        });
+        return map;
+    }, [props.groups, props.selectedGroupId]);
+
+    const studentsInMultipleGroups = useMemo(() => {
+        const set = new Set<string>();
+        studentToGroups.forEach((groups, studentId) => {
+            if (groups.length > 1) set.add(studentId);
+        });
+        return set;
+    }, [studentToGroups]);
 
     const handleSubmitEdit = async () => {
         setIsSubmitting(true);
@@ -78,7 +92,6 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
             }
         } catch (error) {
             console.error('Failed to update group:', error);
-            setIsError(true);
         } finally {
             setIsSubmitting(false);
         }
@@ -129,12 +142,15 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                         fullWidth
                         options={props.courseStudents}
                         value={props.courseStudents?.filter(s => formState.memberIds.includes(s.userId!)) || []}
-                        getOptionLabel={(option) =>
-                            `${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()
-                        }
+                        getOptionLabel={(option) => {
+                            const groups = studentToGroups.get(option.userId!);
+                            const groupSuffix = groups && groups.length > 0
+                                ? ' — в группе: ' + groups[0]
+                                : '';
+                            return `${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}${groupSuffix}`.trim();
+                        }}
                         filterSelectedOptions
                         onChange={(_, value) => {
-                            if (value.map(x => x.userId!).filter(Boolean).length === 0) return;
                             setFormState(prev => ({
                                 ...prev,
                                 memberIds: value
@@ -149,6 +165,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                                     {...getTagProps({index})}
                                     label={`${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()}
                                     key={option.userId}
+                                    style={studentsInMultipleGroups.has(option.userId!) ? {color: "#3f51b5"} : undefined}
                                 />
                             ))
                         }
@@ -159,6 +176,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                                 placeholder="Выберите студентов"
                             />
                         )}
+                        noOptionsText={'Больше нет студентов для выбора'}
                     />
                     <Button
                         onClick={handleSubmitEdit}
@@ -169,6 +187,10 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                     >
                         {isSubmitting ? <CircularProgress size={24}/> : "Сохранить группу"}
                     </Button>
+                    {studentsInMultipleGroups.size > 0 && formState.memberIds.some(id => studentsInMultipleGroups.has(id)) &&
+                        <Typography align="center" variant={"caption"} color={"#3f51b5"}>
+                            Синим выделены студенты, состоящие в нескольких группах
+                        </Typography>}
                 </Stack>
             </Grid>}
             {props.selectedGroupId == undefined && <Grid item xs={12}>
