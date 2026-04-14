@@ -125,12 +125,23 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         .reduce((sum, task) => sum + (task!.maxRating || 0), 0)
 
     const homeworksWithGroups = notTests.filter(h => h.groupId)
-    const homeworksWithoutGroupMaxSum = notTests.filter(h => !h.groupId)
-        .filter(h => !h.tags!.includes(BonusTag))
+    const homeworksWithoutGroupMaxSum = notTests
+        .filter(h => !h.groupId)
         .flatMap(homework => homework.tasks)
         .reduce((sum, task) => {
             return sum + (task!.tags!.includes(BonusTag) ? 0 : (task!.maxRating || 0));
         }, 0)
+
+    const getStudentHomeworkMaxSum = (studentId: string, isTests: boolean) => {
+        const works = isTests ? testHomeworks : notTests;
+        return works
+            .filter(h => (isTests || !h.tags!.includes(BonusTag)) &&
+                (h.groupId === undefined || props.groups.find(g => g.id === h.groupId)?.studentsIds?.includes(studentId!)))
+            .flatMap(homework => homework.tasks)
+            .reduce((sum, task) => {
+                return sum + (task!.tags!.includes(BonusTag) ? 0 : (task!.maxRating || 0));
+            }, 0)
+    }
 
     const hasHomeworks = homeworksWithoutGroupMaxSum > 0 || homeworksWithGroups.length > 0
     const hasTests = testsWithGroupsMaxSum + testsWithoutGroupsMaxSum > 0
@@ -266,13 +277,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         .flatMap(t => StudentStatsUtils.calculateLastRatedSolution(t.solutions || [])?.rating || 0) || 0
                                 )
                                 .reduce((sum, rating) => sum + rating, 0)
-                            const studentHomeworksMaxSum = notTests
-                                .filter(h => !h.tags!.includes(BonusTag) &&
-                                    (props.groups.find(g => g.id === h.groupId)?.studentsIds?.includes(cm.id!)))
-                                .flatMap(homework => homework.tasks)
-                                .reduce((sum, task) => {
-                                    return sum + (task!.tags!.includes(BonusTag) ? 0 : (task!.maxRating || 0));
-                                }, 0) + homeworksWithoutGroupMaxSum
+                            const studentHomeworksMaxSum = getStudentHomeworkMaxSum(cm.id!, false)
 
                             const testsSum = testGroups
                                 .map(group => {
@@ -291,11 +296,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 .flat()
                                 .reduce((sum, rating) => sum + rating, 0)
 
-                            const studentTestsMaxSum = testHomeworks
-                                .filter(h => h.groupId !== undefined &&
-                                    (props.groups.find(g => g.id === h.groupId)?.studentsIds?.includes(cm.id!)))
-                                .flatMap(homework => homework.tasks)
-                                .reduce((sum, task) => sum + (task!.maxRating || 0), 0) + testsWithoutGroupsMaxSum
+                            const studentTestsMaxSum = getStudentHomeworkMaxSum(cm.id!, true)
 
                             const bestSolutionsCount = bestTaskSolutions.values()
                                 .filter(x => x === cm.id)
