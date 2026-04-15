@@ -115,11 +115,6 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         .values()
         .value();
 
-    const testsWithGroupsMaxSum = testHomeworks
-        .filter(h => h.groupId !== undefined)
-        .flatMap(h => h.tasks)
-        .reduce((sum, task) => sum + (task!.maxRating || 0), 0)
-
     const homeworksWithGroups = notTests.filter(h => h.groupId)
 
     const getMaxSum = (studentId: string, isTests: boolean = false) => {
@@ -132,11 +127,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                 return sum + (task!.tags!.includes(BonusTag) ? 0 : (task!.maxRating || 0));
             }, 0)
     }
-    const homeworksWithoutGroupMaxSum = getMaxSum("", false);
-    const testsWithoutGroupsMaxSum = getMaxSum("", true);
 
-    const hasHomeworks = homeworksWithoutGroupMaxSum > 0 || homeworksWithGroups.length > 0
-    const hasTests = testsWithGroupsMaxSum + testsWithoutGroupsMaxSum > 0
+    const hasHomeworks = notTests.length > 0
+    const hasTests = testHomeworks.length > 0
     const showBestSolutions = isMentor && (hasHomeworks || hasTests)
 
     const bestTaskSolutions = new Map<number, string>()
@@ -227,7 +220,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                             paddingRight: 5,
                                                             borderLeft: borderStyle,
                                                         }}>
-                                ДЗ {homeworksWithGroups.length === 0 && `(${homeworksWithoutGroupMaxSum})`}
+                                ДЗ {homeworksWithGroups.length === 0 && `(${getMaxSum("", false)})`}
                             </TableCell>}
                             {hasTests && <TableCell padding="checkbox" component="td" align="center"
                                                     style={{
@@ -236,7 +229,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                         paddingRight: 5,
                                                         borderLeft: borderStyle,
                                                     }}>
-                                КР {homeworksWithGroups.length === 0 && `(${testsWithoutGroupsMaxSum})`}
+                                КР {homeworksWithGroups.length === 0 && `(${getMaxSum("", true)})`}
                             </TableCell>}
                             {showBestSolutions && <TableCell padding="checkbox" component="td" align="center"
                                                              style={{borderLeft: borderStyle}}>
