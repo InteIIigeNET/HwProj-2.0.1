@@ -116,6 +116,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         .value();
 
     const homeworksWithGroups = notTests.filter(h => h.groupId)
+    const testsWithGroups = testHomeworks.filter(t => t.groupId != undefined)
 
     const getMaxSum = (studentId: string, isTests: boolean = false) => {
         const works = isTests ? testHomeworks : notTests;
@@ -229,7 +230,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                         paddingRight: 5,
                                                         borderLeft: borderStyle,
                                                     }}>
-                                КР {homeworksWithGroups.length === 0 && `(${getMaxSum("", true)})`}
+                                КР {testsWithGroups.length === 0 && `(${getMaxSum("", true)})`}
                             </TableCell>}
                             {showBestSolutions && <TableCell padding="checkbox" component="td" align="center"
                                                              style={{borderLeft: borderStyle}}>
@@ -362,7 +363,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                   backgroundColor: StudentStatsUtils.getRatingColor(testsSum, studentTestsMaxSum),
                                                   fontSize: 16
                                               }}
-                                              label={`${testsSum} ${testHomeworks.some(h => h.groupId !== undefined) ? `/ ${studentTestsMaxSum}` : ""}`}/>}
+                                              label={`${testsSum} ${testsWithGroups.length > 0 ? `/ ${studentTestsMaxSum}` : ""}`}/>}
                                     </TableCell>}
                                     {showBestSolutions && <TableCell
                                         align="center"

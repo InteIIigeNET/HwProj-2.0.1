@@ -63,7 +63,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
     const studentsInMultipleGroups = useMemo(() => {
         const set = new Set<string>();
         studentToGroups.forEach((groups, studentId) => {
-            if (groups.length > 1) set.add(studentId);
+            if (groups.length > 0) set.add(studentId);
         });
         return set;
     }, [studentToGroups]);
