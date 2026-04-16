@@ -51,19 +51,19 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
 
     const studentToGroups = useMemo(() => {
         const map = new Map<string, string[]>();
-        (props.groups || []).forEach(g => {
+        (props.groups || []).concat(formState).forEach(g => {
             g.studentsIds?.forEach(stId => {
                 if (!map.has(stId)) map.set(stId, []);
                 map.get(stId)!.push(g.name!);
             });
         });
         return map;
-    }, [props.groups, props.selectedGroupId]);
+    }, [props.groups, props.selectedGroupId, formState.memberIds]);
 
     const studentsInMultipleGroups = useMemo(() => {
         const set = new Set<string>();
         studentToGroups.forEach((groups, studentId) => {
-            if (groups.length > 0) set.add(studentId);
+            if (groups.length > 1) set.add(studentId);
         });
         return set;
     }, [studentToGroups]);
