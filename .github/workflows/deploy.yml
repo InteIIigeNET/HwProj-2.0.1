@@ -7,6 +7,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Knock-knock-knock
+        shell: bash
+        env:
+          KNOCK_HOST: ${{ secrets.SSH_HOST }}
+          KNOCK_SEQ: ${{ secrets.KNOCK_SEQ }}
+        run: |
+          echo "::add-mask::$KNOCK_HOST"
+          echo "::add-mask::$KNOCK_SEQ"
+
+          for s in $KNOCK_SEQ; do
+            ping -c 1 -s "$s" "$KNOCK_HOST" >/dev/null 2>&1 || true
+          done
+
+          sleep 1
+
       - name: Run script on remote server
         uses: appleboy/ssh-action@master
         with:
