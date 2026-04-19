@@ -1,6 +1,7 @@
 ﻿import {SolutionDto, SolutionState} from "@/api";
 import {colorBetween} from "./JsUtils";
 import Utils from "./Utils";
+import {grey} from "@material-ui/core/colors";
 
 export default class StudentStatsUtils {
 
@@ -17,12 +18,12 @@ export default class StudentStatsUtils {
             : "#ffffff"
     }
 
-    static calculateLastRatedSolution(solutions: SolutionDto[]){
+    static calculateLastRatedSolution(solutions: SolutionDto[]) {
         const ratedSolutions = solutions!.filter(x => x.state !== SolutionState.NUMBER_0)
         return ratedSolutions.slice(-1)[0]
     }
 
-    static calculateLastRatedSolutionInfo(solutions: SolutionDto[], taskMaxRating: number) {
+    static calculateLastRatedSolutionInfo(solutions: SolutionDto[], taskMaxRating: number, disabled: boolean = false) {
         const ratedSolutions = solutions!.filter(x => x.state !== SolutionState.NUMBER_0)
         const ratedSolutionsCount = ratedSolutions.length
         const isFirstUnratedTry = ratedSolutionsCount === 0
@@ -30,7 +31,9 @@ export default class StudentStatsUtils {
         const lastRatedSolution = ratedSolutions.slice(-1)[0]
 
         let solutionsDescription: string
-        if (lastSolution === undefined)
+        if (disabled)
+            solutionsDescription = "Задача недоступна для этого студента"
+        else if (lastSolution === undefined)
             solutionsDescription = "Решение отсутствует"
         else if (isFirstUnratedTry)
             solutionsDescription = "Решение ожидает проверки"
@@ -38,11 +41,17 @@ export default class StudentStatsUtils {
             solutionsDescription = `${lastSolution.rating}/${taskMaxRating} ${Utils.pluralizeHelper(["балл", "балла", "баллов"], taskMaxRating)}`
         else solutionsDescription = "Последняя оценка — " + `${lastRatedSolution.rating}/${taskMaxRating} ${Utils.pluralizeHelper(["балл", "балла", "баллов"], taskMaxRating)}\nНовое решение ожидает проверки`
 
+        let color: string
+        if (disabled)
+            color = grey[300]
+        else if (lastRatedSolution == undefined)
+            color = "#ffffff"
+        else
+            color = StudentStatsUtils.getCellBackgroundColor(lastRatedSolution.state, lastRatedSolution.rating, taskMaxRating, isFirstUnratedTry)
+
         return {
             lastRatedSolution: lastRatedSolution,
-            color: lastSolution === undefined
-                ? "#ffffff"
-                : StudentStatsUtils.getCellBackgroundColor(lastSolution.state, lastSolution.rating, taskMaxRating, isFirstUnratedTry),
+            color: color,
             ratedSolutionsCount, lastSolution, solutionsDescription
         }
     }

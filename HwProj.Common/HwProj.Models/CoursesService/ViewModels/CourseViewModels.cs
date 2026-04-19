@@ -52,6 +52,7 @@ namespace HwProj.Models.CoursesService.ViewModels
         public bool IsOpen { get; set; }
         public bool IsCompleted { get; set; }
 
+        public GroupViewModel[] Groups { get; set; }
         public AccountDataDto[] Mentors { get; set; }
         public AccountDataDto[] AcceptedStudents { get; set; }
         public AccountDataDto[] NewStudents { get; set; }

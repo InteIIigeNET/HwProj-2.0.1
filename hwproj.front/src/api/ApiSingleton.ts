@@ -8,7 +8,8 @@ import {
     TasksApi,
     StatisticsApi,
     SystemApi,
-    FilesApi
+    FilesApi,
+    CourseGroupsApi
 } from ".";
 import AuthService from "../services/AuthService";
 import CustomFilesApi from "./CustomFilesApi";
@@ -18,6 +19,7 @@ class Api {
     readonly accountApi: AccountApi;
     readonly expertsApi: ExpertsApi;
     readonly coursesApi: CoursesApi;
+    readonly courseGroupsApi: CourseGroupsApi;
     readonly solutionsApi: SolutionsApi;
     readonly notificationsApi: NotificationsApi;
     readonly homeworksApi: HomeworksApi;
@@ -32,6 +34,7 @@ class Api {
         accountApi: AccountApi,
         expertsApi: ExpertsApi,
         coursesApi: CoursesApi,
+        courseGroupsApi: CourseGroupsApi,
         solutionsApi: SolutionsApi,
         notificationsApi: NotificationsApi,
         homeworksApi: HomeworksApi,
@@ -45,6 +48,7 @@ class Api {
         this.accountApi = accountApi;
         this.expertsApi = expertsApi;
         this.coursesApi = coursesApi;
+        this.courseGroupsApi = courseGroupsApi;
         this.solutionsApi = solutionsApi;
         this.notificationsApi = notificationsApi;
         this.homeworksApi = homeworksApi;
@@ -78,6 +82,7 @@ ApiSingleton = new Api(
     new AccountApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
     new ExpertsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
     new CoursesApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
+    new CourseGroupsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
     new SolutionsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
     new NotificationsApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),
     new HomeworksApi({basePath: basePath, apiKey: () => "Bearer " + authService.getToken()!}),

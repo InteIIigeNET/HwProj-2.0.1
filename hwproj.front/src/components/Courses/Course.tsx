@@ -1,7 +1,7 @@
 import * as React from "react";
-import {FC, useEffect, useState} from "react";
+import {FC, useEffect, useState, useMemo} from "react";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
+import {AccountDataDto, CourseViewModel, GroupViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
@@ -10,6 +10,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import {
     Alert,
     AlertTitle,
+    Badge,
     Box,
     Chip,
     Dialog,
@@ -21,6 +22,7 @@ import {
     Menu,
     MenuItem,
     Stack,
+    Tooltip,
     Typography
 } from "@mui/material";
 import {CourseExperimental} from "./CourseExperimental";
@@ -30,10 +32,12 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import NameBuilder from "../Utils/NameBuilder";
 import {QRCodeSVG} from 'qrcode.react';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
+import GroupIcon from '@mui/icons-material/Group';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
+import Utils from "@/services/Utils";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -45,6 +49,7 @@ interface ICourseState {
     isFound: boolean;
     course: CourseViewModel;
     courseHomeworks: HomeworkViewModel[];
+    groups: GroupViewModel[];
     mentors: AccountDataDto[];
     acceptedStudents: AccountDataDto[];
     newStudents: AccountDataDto[];
@@ -66,6 +71,7 @@ const Course: React.FC = () => {
         course: {},
         courseHomeworks: [],
         mentors: [],
+        groups: [],
         acceptedStudents: [],
         newStudents: [],
         studentSolutions: [],
@@ -84,7 +90,16 @@ const Course: React.FC = () => {
         newStudents,
         acceptedStudents,
         courseHomeworks,
+        groups
     } = courseState
+
+    const loadGroups = async () => {
+        const groups = await ApiSingleton.courseGroupsApi.courseGroupsGetAllCourseGroups(course.id!)
+        setCourseState(prevState => ({
+            ...prevState,
+            groups: groups
+        }))
+    };
 
     const userId = ApiSingleton.authService.getUserId()
 
@@ -138,6 +153,7 @@ const Course: React.FC = () => {
             courseHomeworks: course.homeworks!,
             createHomework: false,
             mentors: course.mentors!,
+            groups: course.groups || [],
             acceptedStudents: course.acceptedStudents!,
             newStudents: course.newStudents!,
         }))
@@ -169,6 +185,11 @@ const Course: React.FC = () => {
         .length
 
     const [lecturerStatsState, setLecturerStatsState] = useState(false);
+
+    const studentsWithoutGroup = useMemo(() => {
+        const inGroupIds = new Set(groups.flatMap(g => g.studentsIds));
+        return acceptedStudents.filter(s => !inGroupIds.has(s.userId!));
+    }, [groups, acceptedStudents]);
 
     const CourseMenu: FC = () => {
         const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -298,16 +319,30 @@ const Course: React.FC = () => {
                             }
                         </Grid>
                     </Grid>
+                    {isCourseMentor && groups.length > 0 && studentsWithoutGroup.length > 0 &&
+                        <Grid item>
+                            <Tooltip
+                                title={studentsWithoutGroup.length + " " + Utils.pluralizeHelper(["студент", "студента", "студентов"], studentsWithoutGroup.length) + " без группы"}
+                                arrow
+                                placement="right-end"
+                            >
+                                <Badge badgeContent={studentsWithoutGroup.length} variant="standard" color={"primary"}>
+                                    <GroupIcon color="action" fontSize={"medium"}/>
+                                </Badge>
+                            </Tooltip>
+                        </Grid>
+                    }
                     <Tabs
                         style={{marginBottom: 10}}
                         variant="scrollable"
                         scrollButtons={"auto"}
-                        value={tabValue === "homeworks" ? 0 : tabValue === "stats" ? 1 : 2}
+                        value={tabValue === "homeworks" ? 0 : tabValue === "stats" ? 1 : tabValue === "applications" ? 2 : 3}
                         indicatorColor="primary"
                         onChange={(event, value) => {
                             if (value === 0 && !isExpert) navigate(`/courses/${courseId}/homeworks`)
                             if (value === 1) navigate(`/courses/${courseId}/stats`)
                             if (value === 2 && !isExpert) navigate(`/courses/${courseId}/applications`)
+                            if (value === 3) navigate(`/courses/${courseId}/groups`)
                         }}
                     >
                         {!isExpert &&
@@ -368,6 +403,8 @@ const Course: React.FC = () => {
                                 courseHomeworks: homeworks
                             }))
                         }}
+                        onGroupsUpdate={loadGroups}
+                        groups={groups}
                     />
                     }
                     {tabValue === "stats" &&
@@ -379,6 +416,7 @@ const Course: React.FC = () => {
                                     isMentor={isCourseMentor}
                                     course={courseState.course}
                                     solutions={studentSolutions}
+                                    groups={groups}
                                 />
                             </Grid>
                         </Grid>}

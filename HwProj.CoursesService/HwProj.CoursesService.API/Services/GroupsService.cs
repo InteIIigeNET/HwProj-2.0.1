@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories.Groups;
@@ -12,23 +13,23 @@ namespace HwProj.CoursesService.API.Services
     {
         private readonly IGroupsRepository _groupsRepository;
         private readonly IGroupMatesRepository _groupMatesRepository;
-        private readonly ITaskModelsRepository _taskModelsRepository;
         private readonly IMapper _mapper;
 
         public GroupsService(IGroupsRepository groupsRepository,
             IGroupMatesRepository groupMatesRepository,
-            ITaskModelsRepository taskModelsRepository,
             IMapper mapper)
         {
             _groupsRepository = groupsRepository;
             _groupMatesRepository = groupMatesRepository;
-            _taskModelsRepository = taskModelsRepository;
             _mapper = mapper;
         }
 
         public async Task<Group[]> GetAllAsync(long courseId)
         {
-            return await _groupsRepository.GetGroupsWithGroupMatesByCourse(courseId).ToArrayAsync().ConfigureAwait(false);
+            return await _groupsRepository.GetGroupsWithGroupMatesByCourse(courseId)
+                .AsNoTracking()
+                .ToArrayAsync()
+                .ConfigureAwait(false);
         }
 
         public async Task<Group[]> GetGroupsAsync(params long[] groupIds)
@@ -56,64 +57,48 @@ namespace HwProj.CoursesService.API.Services
         {
             var group = await _groupsRepository.GetAsync(groupId);
             group.GroupMates.RemoveAll(cm => true);
-            group.Tasks.RemoveAll(cm => true);
 
             await _groupsRepository.DeleteAsync(groupId).ConfigureAwait(false);
         }
 
         public async Task UpdateAsync(long groupId, Group updated)
         {
-            var group = await _groupsRepository.GetAsync(groupId);
-            group.GroupMates.RemoveAll(cm => true);
-            group.Tasks.RemoveAll(cm => true);
+            var group = (await _groupsRepository.GetGroupsWithGroupMatesAsync(groupId)).SingleOrDefault();
 
-            updated.GroupMates.ForEach(cm => cm.GroupId = groupId);
-            updated.Tasks.ForEach(cm => cm.GroupId = groupId);
-            var mateTasks = updated.GroupMates.Select(cm => _groupMatesRepository.AddAsync(cm));
-            var idTasks = updated.Tasks.Select(cm => _taskModelsRepository.AddAsync(cm));
+            if (group == null) return;
 
-            group.Name = updated.Name;
+            var updatedGroupMates = updated.GroupMates ?? new List<GroupMate>();
 
-            await Task.WhenAll(mateTasks);
-            await Task.WhenAll(idTasks);
-        }
+            var currentStudentIds = (group.GroupMates?.Select(gm => gm.StudentId) ?? Enumerable.Empty<string>()).ToHashSet();
+            var updatedStudentIds = updatedGroupMates.Select(gm => gm.StudentId).ToHashSet();
 
-        public async Task<bool> DeleteGroupMateAsync(long groupId, string studentId)
-        {
-            var group = await _groupsRepository.GetAsync(groupId).ConfigureAwait(false);
-            if (group == null)
+            var studentsToAdd = updatedStudentIds.Except(currentStudentIds).ToList();
+            var studentsToRemove = currentStudentIds.Except(updatedStudentIds).ToList();
+
+            var groupMatesToAdd = updatedGroupMates.Where(x => studentsToAdd.Contains(x.StudentId)).ToArray();
+            foreach (var groupMate in groupMatesToAdd) 
+                groupMate.GroupId = groupId;
+            await _groupMatesRepository.AddRangeAsync(groupMatesToAdd);
+
+            await _groupMatesRepository
+                .FindAll(x => x.GroupId == groupId && studentsToRemove.Contains(x.StudentId))
+                .DeleteFromQueryAsync();
+
+            await _groupsRepository.UpdateAsync(groupId, g => new Group
             {
-                return false;
-            }
-
-            var getGroupMateTask =
-                await _groupMatesRepository.FindAsync(cm => cm.GroupId == groupId && cm.StudentId == studentId).ConfigureAwait(false);
-
-            if (getGroupMateTask == null)
-            {
-                return false;
-            }
-
-
-            await _groupMatesRepository.DeleteAsync(getGroupMateTask.Id);
-            return true;
+                Name = updated.Name
+            });
         }
 
         public async Task<UserGroupDescription[]> GetStudentGroupsAsync(long courseId, string studentId)
         {
-            var studentGroupsIds = await _groupMatesRepository
-                .FindAll(cm => cm.StudentId == studentId)
-                .Select(cm => cm.GroupId)
-                .ToArrayAsync()
-                .ConfigureAwait(false);
+            var studentGroups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(courseId)
+                .Where(x => x.GroupMates.Any(g => g.StudentId == studentId))
+                .ToListAsync();
 
-            var getStudentGroupsTask = studentGroupsIds
-                .Select(async id => await _groupsRepository.GetAsync(id).ConfigureAwait(false))
-                .Where(cm => cm.Result.CourseId == courseId)
+            return studentGroups
+                .Select(c => _mapper.Map<UserGroupDescription>(c))
                 .ToArray();
-            var studentGroups = await Task.WhenAll(getStudentGroupsTask).ConfigureAwait(false);
-
-            return studentGroups.Select(c => _mapper.Map<UserGroupDescription>(c)).ToArray();
         }
     }
 }

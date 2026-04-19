@@ -4,7 +4,7 @@ namespace HwProj.Models.CoursesService.DTO
 {
     public class CreateCourseFilterDTO
     {
-        public string UserId { get; set; }
+        public string Id { get; set; }
 
         public List<string> StudentIds { get; set; } = new List<string>();
 
