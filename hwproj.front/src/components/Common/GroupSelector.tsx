@@ -193,12 +193,20 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                     </Button>
                 </Stack>
             </Grid>}
-            {props.selectedGroupId == undefined && <Grid item xs={12}>
+            {props.selectedGroupId == undefined && !props.choiceDisabled && <Grid item xs={12}>
                 <Alert severity="info" variant={"outlined"}>
                     <AlertTitle>Создайте или выберите группу</AlertTitle>
                     • Задание будет доступно только студентам из группы
                     <br/>
                     • Вы можете изменить состав группы в любое время
+                </Alert>
+            </Grid>}
+            {props.choiceDisabled && <Grid item xs={12}>
+                <Alert severity="info" variant={"outlined"}>
+                    <AlertTitle>Изменение группы</AlertTitle>
+                    • Вы не можете изменить группу после публикации задания
+                    <br/>
+                    • Но можете изменить состав группы в любое время
                 </Alert>
             </Grid>}
         </Grid>)
