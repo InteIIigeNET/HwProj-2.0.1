@@ -178,6 +178,10 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                         )}
                         noOptionsText={'Больше нет студентов для выбора'}
                     />
+                    {studentsInMultipleGroups.size > 0 && formState.memberIds.some(id => studentsInMultipleGroups.has(id)) &&
+                        <Typography align="center" variant={"caption"} color={"#3f51b5"}>
+                            Синим выделены студенты, состоящие в нескольких группах
+                        </Typography>}
                     <Button
                         onClick={handleSubmitEdit}
                         color="primary"
@@ -187,10 +191,6 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                     >
                         {isSubmitting ? <CircularProgress size={24}/> : "Сохранить группу"}
                     </Button>
-                    {studentsInMultipleGroups.size > 0 && formState.memberIds.some(id => studentsInMultipleGroups.has(id)) &&
-                        <Typography align="center" variant={"caption"} color={"#3f51b5"}>
-                            Синим выделены студенты, состоящие в нескольких группах
-                        </Typography>}
                 </Stack>
             </Grid>}
             {props.selectedGroupId == undefined && <Grid item xs={12}>
