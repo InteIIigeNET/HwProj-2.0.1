@@ -92,18 +92,11 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<UserGroupDescription[]> GetStudentGroupsAsync(long courseId, string studentId)
         {
-            var studentGroupsIds = await _groupMatesRepository
-                .FindAll(cm => cm.StudentId == studentId)
-                .Select(cm => cm.GroupId)
-                .ToArrayAsync()
-                .ConfigureAwait(false);
-
-            var studentGroups = await _groupsRepository
-                .GetGroupsWithGroupMatesAsync(studentGroupsIds)
-                .ConfigureAwait(false);
+            var studentGroups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(courseId)
+                .Where(x => x.GroupMates.Any(g => g.StudentId == studentId))
+                .ToListAsync();
 
             return studentGroups
-                .Where(g => g.CourseId == courseId)
                 .Select(c => _mapper.Map<UserGroupDescription>(c))
                 .ToArray();
         }
