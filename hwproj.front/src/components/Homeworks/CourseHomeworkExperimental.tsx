@@ -433,7 +433,7 @@ const CourseHomeworkEditor: FC<{
                     groups={props.groups}
                 />
             </CardContent>
-            {!isNewHomework &&
+            {!isNewHomework && !isPublished &&
                 <CardActions>
                     <LoadingButton
                         fullWidth
