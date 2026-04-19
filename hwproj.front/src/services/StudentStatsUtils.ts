@@ -41,9 +41,13 @@ export default class StudentStatsUtils {
             solutionsDescription = `${lastSolution.rating}/${taskMaxRating} ${Utils.pluralizeHelper(["балл", "балла", "баллов"], taskMaxRating)}`
         else solutionsDescription = "Последняя оценка — " + `${lastRatedSolution.rating}/${taskMaxRating} ${Utils.pluralizeHelper(["балл", "балла", "баллов"], taskMaxRating)}\nНовое решение ожидает проверки`
 
-        const color = disabled
-            ? grey[300]
-            : StudentStatsUtils.getCellBackgroundColor(lastRatedSolution.state, lastRatedSolution.rating, taskMaxRating, isFirstUnratedTry)
+        let color: string
+        if (disabled)
+            color = grey[300]
+        else if (lastSolution == undefined)
+            color = "#ffffff"
+        else
+            color = StudentStatsUtils.getCellBackgroundColor(lastSolution.state, lastSolution.rating, taskMaxRating, isFirstUnratedTry)
 
         return {
             lastRatedSolution: lastRatedSolution,
