@@ -147,7 +147,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                             const groupSuffix = groups && groups.length > 0
                                 ? ' — в группе: ' + groups[0]
                                 : '';
-                            return `${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}${groupSuffix}`.trim();
+                            return `${option.surname ?? ""} ${option.name ?? ""}  ${option.middleName ?? ""}${groupSuffix}`.trim();
                         }}
                         filterSelectedOptions
                         onChange={(_, value) => {
