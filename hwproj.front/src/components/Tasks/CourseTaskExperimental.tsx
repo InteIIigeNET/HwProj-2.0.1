@@ -258,7 +258,7 @@ const CourseTaskEditor: FC<{
                         size="small"
                         required
                         fullWidth
-                        error={maxRating <= 0 || maxRating > 100}
+                        error={maxRating <= 0}
                         helperText={maxRatingLabel}
                         style={{width: "90px", marginTop: 3}}
                         label="Баллы"
