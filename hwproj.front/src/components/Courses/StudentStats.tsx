@@ -106,14 +106,15 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     const notTests = homeworks.filter(h => !h.tags!.includes(TestTag))
 
-    const testHomeworks = homeworks.filter(h => h.tags!.includes(TestTag))
-    const testGroups = Lodash(testHomeworks)
+    const testGroups = Lodash(homeworks.filter(h => h.tags!.includes(TestTag)))
         .groupBy((h: HomeworkViewModel) => {
             const key = h.tags!.find(t => !DefaultTags.includes(t))
             return key || h.id!.toString();
         })
         .values()
         .value();
+    
+    const testHomeworks = testGroups.map(x => x[0])
 
     const homeworksWithGroups = notTests.filter(h => h.groupId)
     const testsWithGroups = testHomeworks.filter(t => t.groupId != undefined)
