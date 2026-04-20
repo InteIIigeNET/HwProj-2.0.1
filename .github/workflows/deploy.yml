@@ -17,7 +17,7 @@ jobs:
           echo "::add-mask::$KNOCK_SEQ"
 
           for s in $KNOCK_SEQ; do
-            ping -c 1 -s "$s" "$KNOCK_HOST" >/dev/null 2>&1 || true
+            nc -w 1 "$KNOCK_HOST" "$s" &>/dev/null < /dev/null
           done
 
           sleep 1
