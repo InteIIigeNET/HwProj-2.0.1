@@ -163,7 +163,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                             tagValue.map((option, index) => (
                                 <Chip
                                     {...getTagProps({index})}
-                                    label={`${option.surname ?? ""} ${option.name ?? ""} / ${option.email ?? ""}`.trim()}
+                                    label={`${option.surname ?? ""} ${option.name ?? ""}  ${option.middleName ?? ""}`.trim()}
                                     key={option.userId}
                                     style={studentsInMultipleGroups.has(option.userId!) ? {color: "#3f51b5"} : undefined}
                                 />
