@@ -314,7 +314,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                 <GroupIcon style={{fontSize: "12px"}}/>
                                                 <div>{studentGroups
                                                     .filter(g => g.name && g.name.trim().length != 0)
-                                                    .map(r => r.name)
+                                                    .map(r => r.name!.trim())
                                                     .join(', ')}</div>
                                             </Stack>
                                         </Typography>}
