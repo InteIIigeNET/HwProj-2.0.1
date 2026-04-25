@@ -124,7 +124,24 @@ namespace HwProj.CoursesService.API.Services
             return await _tasksRepository.GetLtiDataAsync(taskId);
         }
 
-        public async Task<Dictionary<long, LtiLaunchData>> GetLtiDataForTasksAsync(long[] taskIds)
+        public async Task FillLtiLaunchDataForTasks(HomeworkViewModel viewModel)
+        {
+            if (viewModel.Tasks != null && viewModel.Tasks.Any())
+            {
+                var taskIds = viewModel.Tasks.Select(t => t.Id).ToArray();
+                var ltiLaunchMultipleData = await this.GetLtiDataForTasksAsync(taskIds);
+
+                foreach (var task in viewModel.Tasks)
+                {
+                    if (ltiLaunchMultipleData.TryGetValue(task.Id, out var ltiLaunchData))
+                    {
+                        task.LtiLaunchData = ltiLaunchData.ToLtiLaunchData();
+                    }
+                }
+            }
+        }
+
+        private async Task<Dictionary<long, LtiLaunchData>> GetLtiDataForTasksAsync(long[] taskIds)
         {
             return await _tasksRepository.GetLtiDataForTasksAsync(taskIds);
         }

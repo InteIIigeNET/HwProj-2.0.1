@@ -8,7 +8,7 @@ namespace HwProj.CoursesService.API.Domains
 {
     public static class Validator
     {
-        public static List<string> ValidateTask(PostTaskViewModel task, Homework homework,
+        public static List<string> ValidateTask(PostTaskViewModel task, HomeworkViewModel homework,
             HomeworkTask? previousState = null)
         {
             var errors = new List<string>();
@@ -72,11 +72,11 @@ namespace HwProj.CoursesService.API.Domains
             return errors;
         }
 
-        public static List<string> ValidateHomework(CreateHomeworkViewModel homework, Homework? previousState = null)
+        public static List<string> ValidateHomework(CreateHomeworkViewModel homework, HomeworkViewModel? previousState = null)
         {
             var errors = new List<string>();
 
-            homework.Tasks.ForEach(task => errors.AddRange(ValidateTask(task, homework.ToHomework())));
+            homework.Tasks.ForEach(task => errors.AddRange(ValidateTask(task, homework.ToHomework().ToHomeworkViewModel())));
 
             if (homework.HasDeadline == false && homework.DeadlineDate != null)
             {

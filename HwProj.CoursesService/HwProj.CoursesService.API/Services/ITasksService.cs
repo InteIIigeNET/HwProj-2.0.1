@@ -11,10 +11,10 @@ namespace HwProj.CoursesService.API.Services
         Task<HomeworkTask> GetTaskAsync(long taskId, bool withCriteria = false);
         Task<HomeworkTask> GetForEditingTaskAsync(long taskId);
         Task<LtiLaunchData?> GetTaskLtiDataAsync(long taskId);
-        Task<Dictionary<long, LtiLaunchData>> GetLtiDataForTasksAsync(long[] taskIds);
         Task<HomeworkTask> AddTaskAsync(long homeworkId, PostTaskViewModel taskViewModel);
         Task DeleteTaskAsync(long taskId);
         Task<HomeworkTask> UpdateTaskAsync(long taskId, PostTaskViewModel taskViewModel, ActionOptions options);
         Task FillTaskViewModelWithLtiLaunchDataAsync(HomeworkTaskViewModel taskViewModel, long taskId);
+        Task FillLtiLaunchDataForTasks(HomeworkViewModel viewModel);
     }
 }

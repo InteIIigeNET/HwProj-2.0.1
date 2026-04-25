@@ -17,17 +17,19 @@ namespace HwProj.CoursesService.API.Services
         private readonly IEventBus _eventBus;
         private readonly ICoursesRepository _coursesRepository;
         private readonly ITasksRepository _tasksRepository;
+        private readonly ITasksService _tasksService;
 
         public HomeworksService(IHomeworksRepository homeworksRepository, IEventBus eventBus,
-            ICoursesRepository coursesRepository, ITasksRepository tasksRepository)
+            ICoursesRepository coursesRepository, ITasksRepository tasksRepository, ITasksService tasksService)
         {
             _homeworksRepository = homeworksRepository;
             _eventBus = eventBus;
             _coursesRepository = coursesRepository;
             _tasksRepository = tasksRepository;
+            _tasksService = tasksService;
         }
 
-        public async Task<Homework> AddHomeworkAsync(long courseId, CreateHomeworkViewModel homeworkViewModel)
+        public async Task<HomeworkViewModel> AddHomeworkAsync(long courseId, CreateHomeworkViewModel homeworkViewModel)
         {
             homeworkViewModel.Tags = homeworkViewModel.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
             var homework = homeworkViewModel.ToHomework();
@@ -41,40 +43,46 @@ namespace HwProj.CoursesService.API.Services
                     homework.DeadlineDate));
             }
 
-            await _homeworksRepository.AddAsync(homework); 
+            await _homeworksRepository.AddAsync(homework);
+            var savedHomework = await GetHomeworkAsync(homework.Id, withCriteria: true);
 
-            if (homeworkViewModel.Tasks != null && homework.Tasks != null)
+            if (homeworkViewModel.Tasks == null || homework.Tasks == null) return savedHomework;
+
+            var createdTasks = homework.Tasks.ToList();
+
+            for (var i = 0; i < createdTasks.Count && i < homeworkViewModel.Tasks.Count; i++)
             {
-                var createdTasks = homework.Tasks.ToList();
-                var taskModels = homeworkViewModel.Tasks;
-
-                for (var i = 0; i < createdTasks.Count && i < taskModels.Count; i++)
+                var taskModel = homeworkViewModel.Tasks[i];
+                var ltiLaunchData = taskModel.LtiLaunchData.ToLtiLaunchData();
+                if (ltiLaunchData == null)
                 {
-                    var ltiLaunchData = taskModels[i].LtiLaunchData.ToLtiLaunchData();
-                    if (ltiLaunchData == null)
-                    {
-                        continue;
-                    }
-
-                    await _tasksRepository.AddOrUpdateLtiLaunchDataAsync(createdTasks[i].Id, ltiLaunchData);
+                    continue;
                 }
+
+                await _tasksRepository.AddOrUpdateLtiLaunchDataAsync(createdTasks[i].Id, ltiLaunchData);
+                savedHomework.Tasks[i].LtiLaunchData = taskModel.LtiLaunchData;
             }
 
-            return await GetHomeworkAsync(homework.Id, withCriteria: true);
+            return savedHomework;
         }
 
-        public async Task<Homework> GetHomeworkAsync(long homeworkId, bool withCriteria = false)
+        public async Task<HomeworkViewModel> GetHomeworkAsync(long homeworkId, bool withCriteria = false)
         {
             var homework = await _homeworksRepository.GetWithTasksAsync(homeworkId, withCriteria);
 
             CourseDomain.FillTasksInHomework(homework);
 
-            return homework;
+            var resultViewModelHomework = homework.ToHomeworkViewModel();
+            await _tasksService.FillLtiLaunchDataForTasks(resultViewModelHomework);
+
+            return resultViewModelHomework;
         }
 
-        public async Task<Homework> GetForEditingHomeworkAsync(long homeworkId)
+        public async Task<HomeworkViewModel> GetForEditingHomeworkAsync(long homeworkId)
         {
-            var result = await _homeworksRepository.GetWithTasksAsync(homeworkId);
+            var homework = await _homeworksRepository.GetWithTasksAsync(homeworkId);
+            var result = homework.ToHomeworkViewModel();
+            await _tasksService.FillLtiLaunchDataForTasks(result);
             return result;
         }
 
@@ -83,7 +91,7 @@ namespace HwProj.CoursesService.API.Services
             await _homeworksRepository.DeleteAsync(homeworkId);
         }
 
-        public async Task<Homework> UpdateHomeworkAsync(long homeworkId, CreateHomeworkViewModel homeworkViewModel)
+        public async Task<HomeworkViewModel> UpdateHomeworkAsync(long homeworkId, CreateHomeworkViewModel homeworkViewModel)
         {
             homeworkViewModel.Tags = homeworkViewModel.Tags.Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
             var update = homeworkViewModel.ToHomework();
@@ -109,7 +117,11 @@ namespace HwProj.CoursesService.API.Services
 
             var updatedHomework = await _homeworksRepository.GetWithTasksAsync(homeworkId);
             CourseDomain.FillTasksInHomework(updatedHomework);
-            return updatedHomework;
+
+            var updatedHomeworkViewModel = updatedHomework.ToHomeworkViewModel();
+            await _tasksService.FillLtiLaunchDataForTasks(updatedHomeworkViewModel);
+
+            return updatedHomeworkViewModel;
         }
     }
 }
