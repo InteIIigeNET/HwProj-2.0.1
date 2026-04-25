@@ -8,6 +8,8 @@ namespace HwProj.Models.CoursesService
 
         public long CourseId { get; set; }
 
+        public List<long> GroupIds { get; set; } = new List<long>();
+
         public List<string> StudentIds { get; set; } = new List<string>();
 
         public List<long> HomeworkIds { get; set; } = new List<long>();

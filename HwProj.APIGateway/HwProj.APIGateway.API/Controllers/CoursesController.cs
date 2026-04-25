@@ -275,7 +275,8 @@ public class CoursesController : AggregationController
         var workspace = new WorkspaceViewModel
         {
             Homeworks = mentorCourseView.Value.Homeworks,
-            Students = students.OrderBy(x => x.Surname).ThenBy(x => x.Name).ToArray()
+            Students = students.OrderBy(x => x.Surname).ThenBy(x => x.Name).ToArray(),
+            Groups = mentorCourseView.Value.Groups,
         };
         return Ok(workspace);
     }

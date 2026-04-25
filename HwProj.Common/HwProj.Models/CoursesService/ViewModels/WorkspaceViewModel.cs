@@ -5,6 +5,8 @@ namespace HwProj.Models.CoursesService.ViewModels
 {
     public class WorkspaceViewModel
     {
+        public GroupViewModel[] Groups { get; set; }
+
         public AccountDataDto[] Students { get; set; }
 
         public HomeworkViewModel[] Homeworks { get; set; }

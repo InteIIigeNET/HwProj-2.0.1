@@ -10,6 +10,7 @@ namespace HwProj.CoursesService.API.Services
         {
             return new Filter
             {
+                GroupIds = courseFilterModel.GroupIds,
                 HomeworkIds = courseFilterModel.HomeworkIds,
                 MentorIds = courseFilterModel.MentorIds,
                 StudentIds = courseFilterModel.StudentIds
@@ -18,6 +19,7 @@ namespace HwProj.CoursesService.API.Services
 
         public static Filter FillEmptyFields(this Filter filter)
         {
+            filter.GroupIds ??= new List<long>();
             filter.StudentIds ??= new List<string>();
             filter.HomeworkIds ??= new List<long>();
             filter.MentorIds ??= new List<string>();
