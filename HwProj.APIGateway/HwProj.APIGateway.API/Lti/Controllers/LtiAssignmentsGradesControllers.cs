@@ -63,7 +63,13 @@ public class LtiAssignmentsGradesControllers(
 
         try
         {
-            await this.SetTaskGrade(taskId, score);
+            await solutionsClient.PostAndRateSolutionForLti(
+                taskId: taskId,
+                userId: score.UserId,
+                scoreGiven: score.ScoreGiven,
+                scoreMaximum: score.ScoreMaximum,
+                comment: $"Результат: {score.ScoreGiven}/{score.ScoreMaximum}\n\n" + score.Comment);
+
             return Ok(new { message = "Score updated successfully" });
         }
         catch (KeyNotFoundException ex)
@@ -74,26 +80,5 @@ public class LtiAssignmentsGradesControllers(
         {
             return StatusCode(500, "Internal Server Error");
         }
-    }
-
-    private async Task SetTaskGrade(long taskId, Score score)
-    {
-        var postSolutionModel = new PostSolutionModel
-        {
-            StudentId = score.UserId,
-            LecturerComment = score.Comment,
-            Rating =  (int)Math.Round(score.ScoreGiven)
-        };
-
-
-        var solutionId = await solutionsClient.PostSolutionForLti(taskId, postSolutionModel);
-
-        var rate = new RateSolutionModel
-        {
-            Rating = (int)Math.Round(score.ScoreGiven),
-            LecturerComment = score.Comment
-        };
-
-        await solutionsClient.RateSolutionForLti(solutionId, rate);
     }
 }

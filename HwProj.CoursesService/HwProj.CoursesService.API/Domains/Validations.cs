@@ -76,7 +76,15 @@ namespace HwProj.CoursesService.API.Domains
         {
             var errors = new List<string>();
 
-            homework.Tasks.ForEach(task => errors.AddRange(ValidateTask(task, homework.ToHomework().ToHomeworkViewModel())));
+            var homeworkContext = new HomeworkViewModel()
+            {
+                PublicationDate = homework.PublicationDate,
+                DeadlineDate = homework.DeadlineDate,
+                HasDeadline = homework.HasDeadline,
+                IsDeadlineStrict = homework.IsDeadlineStrict
+            };
+
+            homework.Tasks.ForEach(task => errors.AddRange(ValidateTask(task, homeworkContext)));
 
             if (homework.HasDeadline == false && homework.DeadlineDate != null)
             {
