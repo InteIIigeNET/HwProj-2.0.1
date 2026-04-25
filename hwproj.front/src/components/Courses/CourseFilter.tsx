@@ -1,5 +1,5 @@
 ﻿import React, {FC, useEffect, useState} from 'react';
-import {HomeworkViewModel, AccountDataDto, MentorToAssignedStudentsDTO} from '../../api';
+import {HomeworkViewModel, AccountDataDto, MentorToAssignedStudentsDTO, GroupViewModel } from '../../api';
 import Grid from "@material-ui/core/Grid";
 import {Autocomplete, Chip, Stack, Typography} from "@mui/material";
 import TextField from "@material-ui/core/TextField";
@@ -13,6 +13,7 @@ interface ICourseFilterProps {
     mentorId: string;
     onSelectedHomeworksChange: (homeworks: HomeworkViewModel[]) => void;
     onSelectedStudentsChange: (students: AccountDataDto[]) => void;
+    onSelectedGroupsChange: (groups: GroupViewModel[]) => void;
     onWorkspaceInitialize: (success: boolean, errors?: string[]) => void;
     isStudentsSelectionHidden: boolean;
 }
@@ -20,8 +21,10 @@ interface ICourseFilterProps {
 interface ICourseFilterState {
     courseHomeworks: HomeworkViewModel[];
     courseStudents: AccountDataDto[];
+    courseGroups: GroupViewModel[];
     selectedHomeworks: HomeworkViewModel[];
     selectedStudents: AccountDataDto[];
+    selectedGroups: GroupViewModel[];
     mentors: AccountDataDto[];
     assignedStudents: MentorToAssignedStudentsDTO[]
 }
@@ -31,8 +34,10 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
     const [state, setState] = useState<ICourseFilterState>({
         courseHomeworks: [],
         courseStudents: [],
+        courseGroups: [],
         selectedHomeworks: [],
         selectedStudents: [],
+        selectedGroups: [],
         assignedStudents: [],
         mentors: []
     });
@@ -57,6 +62,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
 
                 props.onSelectedStudentsChange(mentorWorkspace.students ?? [])
                 props.onSelectedHomeworksChange(mentorWorkspace.homeworks ?? [])
+                props.onSelectedGroupsChange(mentorWorkspace.groups ?? [])
 
                 // Для корректного отображения "Все" при инцициализации (получении данных с бэкенда)
                 const allCourseStudentsCount = (course.acceptedStudents?.length ?? 0) + (course.newStudents?.length ?? 0);
@@ -64,13 +70,17 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                     [] : (mentorWorkspace.students) ?? [];
                 const initSelectedHomeworksView = mentorWorkspace.homeworks?.length === course.homeworks?.length ?
                     [] : (mentorWorkspace.homeworks ?? []);
+                const initSelectedGroupsView = (mentorWorkspace.groups?.length === course.groups?.length ?
+                    [] : (mentorWorkspace.groups ?? [])).filter(g => g.name?.trim());
 
                 setState(prevState => ({
                     ...prevState,
                     courseHomeworks: course.homeworks ?? [],
                     courseStudents: course.acceptedStudents ?? [],
-                    selectedStudents: initSelectedStudentsView,
+                    courseGroups: course.groups?.filter(g => g.name?.trim()) ?? [],
+                    selectedStudents: initSelectedStudentsView.filter(s => !initSelectedGroupsView.some(g => g.studentsIds?.includes(s.userId!))),
                     selectedHomeworks: initSelectedHomeworksView,
+                    selectedGroups: initSelectedGroupsView,
                     mentors: course.mentors!,
                     assignedStudents: assignedStudents.filter(x => x.mentorId !== props.mentorId)
                 }))
@@ -98,6 +108,10 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
     useEffect(() => {
         props.onSelectedHomeworksChange(state.selectedHomeworks)
     }, [state.selectedHomeworks]);
+
+    useEffect(() => {
+        props.onSelectedGroupsChange(state.selectedGroups)
+    }, [state.selectedGroups]);
 
     //TODO: memoize?
     const getAssignedMentors = (studentId: string) =>
@@ -163,13 +177,44 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                             </Button>
                         </div>
                     ) : (
+                        <>
                         <Grid container spacing={2} style={{marginTop: '12px'}}>
                             <Grid item xs={12} sm={12}>
                                 <Stack direction={"column"}>
                                     <Autocomplete
                                         multiple
                                         fullWidth
-                                        options={state.courseStudents}
+                                        options={state.courseGroups}
+                                        getOptionLabel={g => g.name!}
+                                        getOptionKey={(option: GroupViewModel) => option.id ?? -1}
+                                        filterSelectedOptions
+                                        isOptionEqualToValue={(option, value) => option.id === value.id}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                variant="outlined"
+                                                label={state.selectedGroups.length === 0 ? "" : `Группы (${state.selectedGroups.length})`}
+                                                placeholder={state.selectedGroups.length === 0 ? "Все группы" : ""}
+                                            />)}
+                                        noOptionsText={'Больше нет групп для выбора'}
+                                        value={state.selectedGroups}
+                                        onChange={(_, values) => {
+                                            setState((prevState) => ({
+                                                ...prevState,
+                                                selectedGroups: values
+                                            }));
+                                        }}
+                                    />
+                                </Stack>
+                            </Grid>
+                        </Grid>
+                        <Grid container spacing={2} style={{marginTop: '12px'}}>
+                            <Grid item xs={12} sm={12}>
+                                <Stack direction={"column"}>
+                                    <Autocomplete
+                                        multiple
+                                        fullWidth
+                                        options={state.courseStudents.filter(s => !state.selectedGroups.some(g => g.studentsIds?.includes(s.userId!)))}
                                         getOptionLabel={(option: AccountDataDto) => {
                                             const assignedMentors = getAssignedMentors(option.userId!)
                                             const suffix = assignedMentors.length > 0 ? " — преподаватель " + assignedMentors[0] + "" : ""
@@ -209,7 +254,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                 </Stack>
                             </Grid>
                         </Grid>
-
+                        </>
                     )}
                 </Grid>
             )}
