@@ -54,7 +54,8 @@ namespace HwProj.CoursesService.API.Controllers
             [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
             var homework = await _homeworksService.GetForEditingHomeworkAsync(homeworkId);
-            var validationResult = Validator.ValidateHomework(homeworkViewModel, homework);
+            var validationResult = Validator.ValidateHomework(homeworkViewModel,
+                homework);
             if (validationResult.Any()) return BadRequest(validationResult);
 
             var updatedHomework = await _homeworksService.UpdateHomeworkAsync(homeworkId, homeworkViewModel);

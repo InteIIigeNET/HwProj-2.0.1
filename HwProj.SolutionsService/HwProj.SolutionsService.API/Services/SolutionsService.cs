@@ -358,7 +358,11 @@ namespace HwProj.SolutionsService.API.Services
                     await _coursesServiceClient.GetCourseByTask(solution.TaskId);
                 var student = await _authServiceClient.GetAccountData(solutionModel.StudentId);
                 var studentModel = _mapper.Map<AccountDataDto>(student);
-                // _eventBus.Publish(new StudentPassTaskEvent(course, solutionModel, studentModel, task));
+
+                if (!isLtiRequest)
+                {
+                    _eventBus.Publish(new StudentPassTaskEvent(course, solutionModel, studentModel, task));
+                }
             }
 
             if (task.Tags.Contains(HomeworkTags.Test))
