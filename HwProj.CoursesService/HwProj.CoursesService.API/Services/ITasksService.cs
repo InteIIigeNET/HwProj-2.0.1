@@ -16,5 +16,6 @@ namespace HwProj.CoursesService.API.Services
         Task<LtiLaunchData?> GetTaskLtiDataAsync(long taskId);
         Task<Dictionary<long, LtiLaunchData>> GetLtiDataForTasksAsync(long[] taskIds);
         Task FillTaskViewModelWithLtiLaunchDataAsync(HomeworkTaskViewModel taskViewModel, long taskId);
+        Task FillLtiLaunchDataForTasks(HomeworkViewModel viewModel);
     }
 }
