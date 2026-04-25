@@ -51,7 +51,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
 
     const studentToGroups = useMemo(() => {
         const map = new Map<string, string[]>();
-        (groups.filter(g => g.name) || []).concat(formState).forEach(g => {
+        (props.groups || []).concat(formState).forEach(g => {
             g.studentsIds?.forEach(stId => {
                 if (!map.has(stId)) map.set(stId, []);
                 map.get(stId)!.push(g.name!);
@@ -145,7 +145,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                         getOptionLabel={(option) => {
                             const groups = studentToGroups.get(option.userId!);
                             const groupSuffix = groups && groups.length > 0
-                                ? ' — в группе: ' + groups[0]
+                                ? ' — в команде'
                                 : '';
                             return `${option.surname ?? ""} ${option.name ?? ""}  ${option.middleName ?? ""}${groupSuffix}`.trim();
                         }}
