@@ -50,7 +50,8 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
         try {
             const workspaceViewModel: EditMentorWorkspaceDTO = {
                 homeworkIds: state.selectedHomeworks.map(homeworkViewModel => homeworkViewModel.id!),
-                studentIds: state.selectedStudents.map(accountData => accountData.userId!),
+                studentIds: state.selectedStudents.map(accountData => accountData.userId!)
+                    .concat(state.selectedGroups.flatMap(g => g.studentsIds ?? [])),
                 groupIds: state.selectedGroups.map(groupViewModel => groupViewModel.id!)
             }
 
