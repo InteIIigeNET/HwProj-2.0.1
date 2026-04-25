@@ -145,7 +145,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                         getOptionLabel={(option) => {
                             const groups = studentToGroups.get(option.userId!);
                             const groupSuffix = groups && groups.length > 0
-                                ? ' — в группе: ' + groups[0]
+                                ? ' — в команде'
                                 : '';
                             return `${option.surname ?? ""} ${option.name ?? ""}  ${option.middleName ?? ""}${groupSuffix}`.trim();
                         }}
