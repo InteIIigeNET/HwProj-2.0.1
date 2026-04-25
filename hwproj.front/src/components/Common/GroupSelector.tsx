@@ -51,7 +51,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
 
     const studentToGroups = useMemo(() => {
         const map = new Map<string, string[]>();
-        (props.groups || []).concat(formState).forEach(g => {
+        (groups.filter(g => g.name) || []).concat(formState).forEach(g => {
             g.studentsIds?.forEach(stId => {
                 if (!map.has(stId)) map.set(stId, []);
                 map.get(stId)!.push(g.name!);
