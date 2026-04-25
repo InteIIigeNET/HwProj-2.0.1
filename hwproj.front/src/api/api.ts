@@ -756,6 +756,12 @@ export interface EditMentorWorkspaceDTO {
      * @memberof EditMentorWorkspaceDTO
      */
     homeworkIds?: Array<number>;
+    /**
+     *
+     * @type {Array<number>}
+     * @memberof EditMentorWorkspaceDTO
+     */
+    groupIds?: Array<number>;
 }
 /**
  *
@@ -2939,6 +2945,12 @@ export interface WorkspaceViewModel {
      * @memberof WorkspaceViewModel
      */
     homeworks?: Array<HomeworkViewModel>;
+    /**
+     *
+     * @type {Array<GroupViewModel>}
+     * @memberof WorkspaceViewModel
+     */
+    groups?: Array<GroupViewModel>;
 }
 /**
  * AccountApi - fetch parameter creator
