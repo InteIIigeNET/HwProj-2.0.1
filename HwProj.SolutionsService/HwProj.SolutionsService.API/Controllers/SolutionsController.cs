@@ -112,7 +112,6 @@ namespace HwProj.SolutionsService.API.Controllers
 
             await _solutionsService.RateSolutionAsync(solutionId, lecturerId!, rateSolutionModel.Rating, rateSolutionModel.LecturerComment);
             return Ok();
-
         }
 
         [HttpPost("rateSolution/{solutionId}")]

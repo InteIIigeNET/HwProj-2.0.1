@@ -1,7 +1,9 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Unicode;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Lti.Configuration;
 using HwProj.APIGateway.API.Lti.Services;
@@ -25,12 +27,12 @@ public class LtiDeepLinkingReturnController(
     [AllowAnonymous]
     public async Task<IActionResult> OnDeepLinkingReturnAsync([FromForm] IFormCollection form)
     {
-        if (!form.ContainsKey("JWT"))
+        if (!form.TryGetValue("JWT", out var jwtValue))
         {
             return BadRequest("Missing JWT parameter");
         }
 
-        string tokenString = form["JWT"]!;
+        var tokenString = jwtValue.ToString();
         var handler = new JwtSecurityTokenHandler();
 
         if (!handler.CanReadToken(tokenString))
@@ -48,23 +50,23 @@ public class LtiDeepLinkingReturnController(
         }
 
         var signingKeys = await ltiKeyService.GetKeysAsync(tool.JwksEndpoint);
+        JwtSecurityToken validatedToken;
 
         try
         {
             handler.ValidateToken(tokenString, new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = unverifiedToken.Issuer,
-
+                ValidIssuer = tool.issuer,
                 ValidateAudience = true,
                 ValidAudience = ltiPlatformOptions.Value.Issuer,
-
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.FromMinutes(5),
-
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKeys = signingKeys
-            }, out var validatedToken);
+            }, out var secToken);
+
+            validatedToken = (JwtSecurityToken)secToken;
         }
         catch (Exception ex)
         {
@@ -72,54 +74,63 @@ public class LtiDeepLinkingReturnController(
         }
         
         const string itemsClaimName = "https://purl.imsglobal.org/spec/lti-dl/claim/content_items";
-        
-        var resultList = new List<object>();
 
-        if (unverifiedToken.Payload.TryGetValue(itemsClaimName, out var itemsObject))
-        {
-            var jsonString = itemsObject.ToString();
-            if (!string.IsNullOrEmpty(jsonString))
-            {
-                using var doc = JsonDocument.Parse(jsonString);
-                if (doc.RootElement.ValueKind == JsonValueKind.Array)
-                {
-                    foreach (var rawItem in doc.RootElement.EnumerateArray())
-                    {
-                        resultList.Add(rawItem.Clone().ToString());
-                    }
-                }
-            }
-        }
+        var itemsClaims = validatedToken.Claims
+            .Where(c => c.Type == itemsClaimName)
+            .Select(c => c.Value)
+            .ToList();
 
-        if (resultList.Count == 0)
+        if (itemsClaims.Count == 0)
         {
             return Content("<script>window.close();</script>", "text/html");
         }
 
-        var responsePayloadJson = JsonSerializer.Serialize(resultList);
+        string safeJsonPayload;
+        var options = new JsonSerializerOptions
+        {
+            Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+        };
 
-        // language=html
+        if (itemsClaims.Count == 1)
+        {
+            var singleParsed = JsonSerializer.Deserialize<JsonElement>(itemsClaims[0]);
+
+            safeJsonPayload = singleParsed.ValueKind ==JsonValueKind.Array ?
+                JsonSerializer.Serialize(singleParsed, options) : JsonSerializer.Serialize(new[] { singleParsed }, options);
+        }
+        else
+        {
+            var elements = itemsClaims
+                .Select(v => JsonSerializer.Deserialize<JsonElement>(v))
+                .ToList();
+            safeJsonPayload = JsonSerializer.Serialize(elements, options);
+        }
+
         var htmlResponse = $@"
         <!DOCTYPE html>
         <html>
         <head><title>Processing LTI Return...</title></head>
-        <body>
-            <p>Задача выбрана. Возвращаемся в HwProj...</p>
+        <body
+            <script type=""application/json"" id=""lti-payload"">
+                {safeJsonPayload}
+            </script>
+
             <script>
-                var payload = {responsePayloadJson};
-                
-                function sendAndClose() {{
+                try {{
+                    var payloadElement = document.getElementById('lti-payload');
+                    var payload = JSON.parse(payloadElement.textContent);
+
                     if (window.opener) {{
                         window.opener.postMessage({{
-                            type: 'LTI_DEEP_LINK_SUCCESS', // Уникальный тип события, который слушает ваш React/Angular
+                            type: 'LTI_DEEP_LINK_SUCCESS',
                             payload: payload
-                        }}, '*'); // В продакшене вместо '*' лучше указать домен HwProj
+                        }}, '*'); // В продакшене заменить '*' на конкретный домен
                     }}
-                    
+                }} catch (e) {{
+                    console.error('Ошибка обработки данных LTI:', e);
+                }} finally {{
                     window.close();
                 }}
-                
-                sendAndClose();
             </script>
         </body>
         </html>";
