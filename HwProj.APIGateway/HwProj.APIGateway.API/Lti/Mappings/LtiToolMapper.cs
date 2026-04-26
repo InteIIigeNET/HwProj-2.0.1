@@ -9,6 +9,7 @@ public static class LtiToolMapper
     {
         return new LtiToolDto(
             t.Name,
+            t.Issuer,
             t.ClientId,
             t.JwksEndpoint,
             t.InitiateLoginUri,
