@@ -12,11 +12,12 @@ import {
     Box,
     Link,
     Checkbox,
-    FormControlLabel
+    FormControlLabel,
+    MenuItem
 } from "@mui/material";
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
 import {FC, useEffect, useState, useMemo} from "react"
-import {ActionOptions, CriterionViewModel, HomeworkTaskViewModel, HomeworkViewModel} from "@/api";
+import {ActionOptions, CriterionType, CriterionViewModel, HomeworkTaskViewModel, HomeworkViewModel} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import * as React from "react";
 import EditIcon from "@mui/icons-material/Edit";
@@ -32,6 +33,7 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TaskCriteria from "./TaskCriteria";
 import {BonusTag} from "@/components/Common/HomeworkTags";
+import Utils from "../../services/Utils";
 
 
 interface IEditTaskMetadataState {
@@ -48,6 +50,9 @@ type TaskEditData = HomeworkTaskViewModel & {
     hasErrors?: boolean;
     suggestedMaxRating?: number;
 };
+
+const CriterionTypeFree = CriterionType.NUMBER_0;
+const CriterionTypeDeadline = CriterionType.NUMBER_1;
 
 const CourseTaskEditor: FC<{
     speculativeTask: TaskEditData,
@@ -77,6 +82,24 @@ const CourseTaskEditor: FC<{
         setIsCriteriaOpen(true);
     };
 
+    const addDeadlineCriterion = () => {
+        const deadline = metadata?.deadlineDate || homework.deadlineDate
+            ? new Date(metadata?.deadlineDate || homework.deadlineDate!)
+            : new Date();
+
+        setCriteria(prev => [
+            ...prev,
+            {
+                id: 0,
+                type: CriterionTypeDeadline,
+                name: `Дедлайн №${prev.length + 1}`,
+                maxPoints: 1,
+                arguments: deadline.toISOString(),
+            }
+        ]);
+        setIsCriteriaOpen(true);
+    };
+
     const updateCriterion = (index: number, patch: Partial<CriterionViewModel>) =>
         setCriteria(prev =>
             prev.map((c, i) => (i === index ? {...c, ...patch} : c))
@@ -95,6 +118,9 @@ const CourseTaskEditor: FC<{
     )
 
     const autoMaxFromCriteria = criteria.length > 0;
+    const criteriaHasErrors = criteria.some(c =>
+        !c.name || (c.maxPoints ?? 0) <= 0 || (c.type === CriterionTypeDeadline && !c.arguments)
+    );
 
     useEffect(() => {
         if (autoMaxFromCriteria) setMaxRating(criteriaTotalPoints);
@@ -175,8 +201,8 @@ const CourseTaskEditor: FC<{
     }, [title, description, maxRating, metadata, isBonusExplicit, hasErrors, criteria]);
 
     useEffect(() => {
-        setHasErrors(!title || maxRating <= 0 || metadata?.hasErrors === true)
-    }, [title, maxRating, metadata?.hasErrors])
+        setHasErrors(!title || maxRating <= 0 || metadata?.hasErrors === true || criteriaHasErrors)
+    }, [title, maxRating, metadata?.hasErrors, criteriaHasErrors])
 
     const handleSubmit = async (e: any) => {
         e.preventDefault()
@@ -343,6 +369,17 @@ const CourseTaskEditor: FC<{
                                     Добавить критерий оценивания
                                 </Link>
                             </Grid>
+                            <Grid item>
+                                <Typography variant="body2" color="text.secondary">
+                                    &nbsp;или&nbsp;
+                                </Typography>
+                            </Grid>
+                            <Grid item>
+                                <Link style={{cursor: "pointer"}} variant="body2" color="primary"
+                                      onClick={addDeadlineCriterion}>
+                                    добавить дедлайн-критерий
+                                </Link>
+                            </Grid>
                         </Grid>
                     )}
                     {criteria.length > 0 && (
@@ -393,6 +430,52 @@ const CourseTaskEditor: FC<{
                                                     }}
                                                 />
                                             </Grid>
+
+                                            <Grid item>
+                                                <TextField
+                                                    select
+                                                    label="Тип"
+                                                    size="small"
+                                                    sx={{width: 135}}
+                                                    value={c.type ?? CriterionTypeFree}
+                                                    onChange={(e) => {
+                                                        const type = Number(e.target.value) as CriterionType;
+                                                        updateCriterion(index, {
+                                                            type,
+                                                            arguments: type === CriterionTypeDeadline
+                                                                ? c.arguments || new Date().toISOString()
+                                                                : undefined,
+                                                        });
+                                                    }}
+                                                >
+                                                    <MenuItem value={CriterionTypeFree}>Обычный</MenuItem>
+                                                    <MenuItem value={CriterionTypeDeadline}>Дедлайн</MenuItem>
+                                                </TextField>
+                                            </Grid>
+
+                                            {c.type === CriterionTypeDeadline && (
+                                                <Grid item>
+                                                    <TextField
+                                                        label="Дата"
+                                                        type="datetime-local"
+                                                        size="small"
+                                                        sx={{width: 205}}
+                                                        required
+                                                        error={!c.arguments}
+                                                        value={c.arguments ? Utils.toISOString(new Date(c.arguments)) : ""}
+                                                        onChange={(e) =>
+                                                            updateCriterion(index, {
+                                                                arguments: e.target.value
+                                                                    ? new Date(e.target.value).toISOString()
+                                                                    : undefined,
+                                                            })
+                                                        }
+                                                        InputLabelProps={{
+                                                            shrink: true,
+                                                        }}
+                                                    />
+                                                </Grid>
+                                            )}
 
                                             <Grid item>
                                                 <TextField
@@ -448,6 +531,27 @@ const CourseTaskEditor: FC<{
                                         }}
                                     >
                                         + Добавить критерий оценивания
+                                    </Button>
+                                    <Button
+                                        size="small"
+                                        onClick={addDeadlineCriterion}
+                                        sx={{
+                                            textTransform: "none",
+                                            fontSize: "15px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "6px",
+                                            color: "#1976d2",
+                                            paddingLeft: "0px",
+                                            paddingRight: "0px",
+                                            minWidth: "auto",
+                                            "&:hover": {
+                                                backgroundColor: "transparent",
+                                                textDecoration: "none"
+                                            }
+                                        }}
+                                    >
+                                        + Добавить дедлайн-критерий
                                     </Button>
                                 </Stack>
                             </Collapse>

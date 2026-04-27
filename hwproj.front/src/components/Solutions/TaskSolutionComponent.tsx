@@ -49,6 +49,8 @@ import {UserAvatar} from "@/components/Common/UserAvatar";
 
 type TaskWithCriteria = HomeworkTaskViewModel & {};
 
+const CriterionTypeDeadline = 1;
+
 type CriterionRating = {
     criterionId: number;
     name: string;
@@ -136,9 +138,23 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     const initialDraft = loadCriteriaDraft();
 
+    const getDeadlineCriterionValue = (criterion: { arguments?: string; maxPoints?: number }) => {
+        if (!props.solution?.publicationDate || !criterion.arguments) return Number.NaN;
+
+        const solutionDate = new Date(props.solution.publicationDate).getTime();
+        const deadlineDate = new Date(criterion.arguments).getTime();
+
+        if (Number.isNaN(solutionDate) || Number.isNaN(deadlineDate)) return Number.NaN;
+
+        return solutionDate <= deadlineDate ? (criterion.maxPoints ?? 0) : 0;
+    };
+
     const [criterionRatings, setCriterionRatings] = useState<CriterionRating[]>(() =>
         (taskWithCriteria.criteria ?? []).map(c => {
             const id = c.id!;
+            const deadlineValue = c.type === CriterionTypeDeadline
+                ? getDeadlineCriterionValue(c)
+                : Number.NaN;
             const draftValue = initialDraft?.criteria
                 ?.find(x => x.criterionId === id)?.value;
 
@@ -146,7 +162,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 criterionId: id,
                 name: c.name ?? "",
                 maxPoints: c.maxPoints ?? 0,
-                value: draftValue || NaN,
+                value: Number.isFinite(deadlineValue) ? deadlineValue : (draftValue ?? NaN),
                 comment: "",
             };
         })
@@ -171,6 +187,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         setCriterionRatings(
             (taskWithCriteria.criteria ?? []).map(c => {
                 const id = c.id ?? 0;
+                const deadlineValue = c.type === CriterionTypeDeadline
+                    ? getDeadlineCriterionValue(c)
+                    : Number.NaN;
                 const draftValue = draft?.criteria
                     ?.find(x => x.criterionId === id)?.value;
 
@@ -178,7 +197,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     criterionId: id,
                     name: c.name ?? "",
                     maxPoints: c.maxPoints ?? 0,
-                    value: draftValue || NaN,
+                    value: Number.isFinite(deadlineValue) ? deadlineValue : (draftValue ?? NaN),
                     comment: "",
                 };
             })
@@ -309,8 +328,13 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         if (!hasCriteria || criterionRatings.length === 0) return baseComment;
 
         const rows: string[] = criterionRatings.map(cr => {
+            const criterion = taskWithCriteria.criteria?.find(c => c.id === cr.criterionId);
             const safeValue = Number.isFinite(cr.value) ? cr.value : 0;
-            return `| ${cr.name} | ${safeValue} / ${cr.maxPoints} |`;
+            const deadlineText = criterion?.type === CriterionTypeDeadline && criterion.arguments
+                ? `, дедлайн ${Utils.renderDateWithoutSeconds(new Date(criterion.arguments))}`
+                : "";
+
+            return `| ${cr.name}${deadlineText} | ${safeValue} / ${cr.maxPoints} |`;
         });
 
         if ((extraScore ?? 0) !== 0) {
@@ -423,9 +447,10 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 return (
                     <Button
                         size="small"
-                        onClick={() =>
-                            setState(prev => ({...prev, clickedForRate: true}))
-                        }
+                        onClick={() => {
+                            setCriteriaModified(true);
+                            setState(prev => ({...prev, points: criteriaSum, clickedForRate: true}));
+                        }}
                         style={{
                             color: "#3f51b5",
                             textTransform: "uppercase",
@@ -590,7 +615,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         columnGap={16}
                         rowGap={0}
                     >
-                        {taskWithCriteria.criteria!.map((c, index) => {
+                        {taskWithCriteria.criteria!.map((c) => {
                             const existingRating = criterionRatings.find(r => r.criterionId === c.id);
 
                             const current =
@@ -611,6 +636,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 typeof c.maxPoints === "number" && c.maxPoints <= 10 && !isThumbCriterion;
 
                             const isFilled = hasExplicitValue && (isThumbCriterion || numericValue !== 0);
+                            const isDeadlineCriterion = c.type === CriterionTypeDeadline;
+                            const deadlineDate = c.arguments ? new Date(c.arguments) : undefined;
+                            const deadlinePassed = isDeadlineCriterion && numericValue === (c.maxPoints ?? 0);
 
                             return (
                                 <React.Fragment key={c.id}>
@@ -634,11 +662,22 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                         <Typography variant="body1">
                                             {c.name}
                                         </Typography>
+                                        {isDeadlineCriterion && deadlineDate && (
+                                            <Typography variant="caption" color="textSecondary" style={{marginLeft: 8}}>
+                                                {Utils.renderDateWithoutSeconds(deadlineDate)}
+                                            </Typography>
+                                        )}
 
                                     </Box>
 
                                     <Box>
-                                        {isThumbCriterion ? (
+                                        {isDeadlineCriterion ? (
+                                            <Chip
+                                                size="small"
+                                                color={deadlinePassed ? "success" : "error"}
+                                                label={`${numericValue} / ${c.maxPoints}`}
+                                            />
+                                        ) : isThumbCriterion ? (
                                             <Stack direction="row" alignItems="center">
                                                 <IconButton
                                                     size="small"
@@ -975,7 +1014,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             setCriterionRatings(prev =>
                                 prev.map(cr => ({
                                     ...cr,
-                                    value: 0,
+                                    value: taskWithCriteria.criteria?.find(c => c.id === cr.criterionId)?.type === CriterionTypeDeadline
+                                        ? getDeadlineCriterionValue(taskWithCriteria.criteria.find(c => c.id === cr.criterionId)!)
+                                        : 0,
                                 }))
                             );
                             setExtraScore(0);
