@@ -4,7 +4,6 @@ using HwProj.Models.CoursesService.ViewModels;
 using System;
 using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.DTO;
-using Microsoft.EntityFrameworkCore.Internal;
 using CriterionType = HwProj.Models.CoursesService.ViewModels.CriterionType;
 
 namespace HwProj.CoursesService.API.Domains
@@ -33,6 +32,7 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeferred = DateTime.UtcNow < homework.PublicationDate,
                 Tasks = homework.Tasks.Select(t => t.ToHomeworkTaskViewModel()).ToList(),
                 Tags = tags.ToList(),
+                GroupId = homework.GroupId,
             };
         }
 
@@ -147,7 +147,8 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = homework.IsDeadlineStrict,
                 PublicationDate = homework.PublicationDate,
                 Tasks = homework.Tasks.Select(t => t.ToHomeworkTask()).ToList(),
-                Tags = homework.Tags.Join(";"),
+                Tags = string.Join(";", homework.Tags),
+                GroupId = homework.GroupId,
             };
 
         public static CourseTemplate ToCourseTemplate(this CreateCourseViewModel createCourseViewModel)

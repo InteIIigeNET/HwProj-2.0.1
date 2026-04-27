@@ -1,5 +1,6 @@
 import {
     Alert,
+    Badge,
     CardActions,
     CardContent,
     Chip,
@@ -9,8 +10,10 @@ import {
     IconButton,
     Stack,
     TextField,
+    ToggleButton,
+    ToggleButtonGroup,
     Tooltip,
-    Typography
+    Typography,
 } from "@mui/material";
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
 import FilesPreviewList from "components/Files/FilesPreviewList";
@@ -18,7 +21,7 @@ import {IFileInfo} from "components/Files/IFileInfo";
 import {FC, useState} from "react"
 import Utils from "services/Utils";
 import {
-    HomeworkViewModel, ActionOptions, HomeworkTaskViewModel
+    HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, GroupViewModel
 } from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import Tags from "../Common/Tags";
@@ -39,6 +42,9 @@ import {useIsCourseMentor} from "@/store/storeHooks/courseHooks";
 import {FilesHandler} from "@/components/Files/FilesHandler";
 import {useDraftHomework, getHomeworkDeleteMessage, useHomeworkEditorState} from "@/store/storeHooks/homeworkEditorHooks";
 import {useCourseActions} from "@/store/courseActions";
+import GroupSelector from "../Common/GroupSelector";
+import GroupIcon from '@mui/icons-material/Group';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 
 export interface HomeworkAndFilesInfo {
     homework: HomeworkViewModel,
@@ -53,6 +59,8 @@ const CourseHomeworkEditor: FC<{
                         previouslyExistingFilesCount: number,
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
+    onGroupsUpdate: () => void;
+    groups: GroupViewModel[];
 }> = (props) => {
     const loadedHomework = props.homeworkAndFilesInfo.homework
     const {
@@ -65,12 +73,17 @@ const CourseHomeworkEditor: FC<{
     const [handleSubmitLoading, setHandleSubmitLoading] = useState(false)
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
     const [editOptions, setEditOptions] = useState<ActionOptions>({sendNotification: false})
+    const [page, setPage] = useState<"homework" | "group">("homework")
+    const [selectedGroupId, setSelectedGroupId] = useState<number | undefined>(loadedHomework.groupId)
+
+    const courseStudents = useCourseState(state => state.course.acceptedStudents) ?? []
 
     const {filesState, setFilesState} = FilesHandler(props.homeworkAndFilesInfo.filesInfo)
     const initialFilesInfo = props.homeworkAndFilesInfo.filesInfo.filter(x => x.id !== undefined)
 
     const homeworkId = loadedHomework.id!
     const courseId = loadedHomework.courseId!
+
     const {
         isNewHomework,
         publicationDate,
@@ -90,8 +103,7 @@ const CourseHomeworkEditor: FC<{
         onDone: props.onDone,
     }
 
-    const homeworkDeleteFileOptions = { 
-        initialFilesInfo }
+    const homeworkDeleteFileOptions = {initialFilesInfo}
 
     const handleDeleteHomework = async () => {
         await deleteHomework(homeworkId, homeworkDeleteFileOptions)
@@ -115,149 +127,208 @@ const CourseHomeworkEditor: FC<{
     const isDisabled = hasErrors || taskHasErrors
 
     return (
-        <CardContent style={{position: 'relative'}}>
-            <IconButton
-                onClick={cancelEditing}
-                disabled={handleSubmitLoading}
-                size="small"
-                color="error"
-                style={{position: 'absolute', top: -16, right: -16, zIndex: 1, backgroundColor: 'white', boxShadow: '0 0 4px rgba(0,0,0,0.2)'}}
+        <Stack direction={"row"}>
+            <ToggleButtonGroup
+                orientation="vertical"
+                style={{paddingTop: 85}}
+                value={page}
+                exclusive
+                onChange={(_, val) => val && setPage(val)}
             >
-                <UndoIcon fontSize="small"/>
-            </IconButton>
-            <Grid item container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
-                  alignItems={"center"} alignContent={"center"} style={{marginTop: -24}}>
-                <Grid item>
-                    <TextField
-                        required
-                        fullWidth
-                        style={{width: '300px'}}
-                        label="Название задания"
-                        variant="standard"
-                        margin="normal"
-                        error={!loadedHomework.title}
-                        value={loadedHomework.title || ''}
-                        onChange={(e) => patchHomeworkDraft({ ...loadedHomework, title: e.target.value })}
-                    />
-                </Grid>
-                <Grid item xs={6} style={{marginTop: 6}}>
-                    <Tags
-                        tags={loadedHomework.tags || []}
-                        onTagsChange={(tags) => patchHomeworkDraft({ ...loadedHomework, tags })}
-                        isElementSmall={false}
-                        suggestion={tagSuggestion}
-                        requestTags={() => ApiSingleton.coursesApi.coursesGetAllTagsForCourse(courseId)}/>
-                </Grid>
-            </Grid>
-            <Grid container>
-                {(loadedHomework.tags || []).includes(TestTag) &&
-                    <Grid item>
-                        <Alert severity="info" variant={"outlined"}>
-                            Вы можете сгруппировать контрольные работы и переписывания с помощью
-                            дополнительного тега. Например, 'КР 1'
-                        </Alert>
-                    </Grid>}
-                <Grid item xs={12} style={{marginBottom: "5px", marginTop: -2}}>
-                    <MarkdownEditor
-                        label={"Общее описание задания"}
-                        height={240}
-                        maxHeight={400}
-                        value={loadedHomework.description || ''}
-                        onChange={(value) => patchHomeworkDraft({ ...loadedHomework, description: value })}
-                    />
-                </Grid>
-                <Grid item xs={12} style={{marginBottom: "15px"}}>
-                    <Grid container direction="column">
-                        <FilesUploader
-                            initialFilesInfo={filesState.selectedFilesInfo}
-                            isLoading={filesState.isLoadingInfo}
-                            onChange={(filesInfo) => {
-                                setFilesState((prevState) => ({
-                                    ...prevState,
-                                    selectedFilesInfo: filesInfo
-                                }));
-                            }}
-                            courseUnitType={CourseUnitType.Homework}
-                            courseUnitId={homeworkId}/>
-                        <PublicationAndDeadlineDates
-                            hasDeadline={loadedHomework.hasDeadline ?? false}
-                            isDeadlineStrict={loadedHomework.isDeadlineStrict ?? false}
-                            publicationDate={publicationDate}
-                            deadlineDate={deadlineDate}
-                            autoCalculatedDeadline={deadlineSuggestion}
-                            disabledPublicationDate={!isNewHomework && isPublished}
-                            onChange={(state) => {
-                                const conflictsWithTasks = changedTaskPublicationDates.some(d => publicationDate && d < publicationDate)
-                                const currentPublicationDate = loadedHomework.publicationDate instanceof Date
-                                    ? loadedHomework.publicationDate.toISOString()
-                                    : loadedHomework.publicationDate
-                                const currentDeadlineDate = loadedHomework.deadlineDate instanceof Date
-                                    ? loadedHomework.deadlineDate.toISOString()
-                                    : loadedHomework.deadlineDate
-                                const nextPublicationDate = state.publicationDate?.toISOString()
-                                const nextDeadlineDate = state.deadlineDate?.toISOString()
-                                const nextDeadlineDateNotSet = state.hasDeadline && !state.deadlineDate
-                                const nextHasErrors = state.hasErrors || conflictsWithTasks
-                                if (
-                                    currentPublicationDate === nextPublicationDate
-                                    && currentDeadlineDate === nextDeadlineDate
-                                    && (loadedHomework.hasDeadline ?? false) === state.hasDeadline
-                                    && (loadedHomework.isDeadlineStrict ?? false) === state.isDeadlineStrict
-                                    && (loadedHomework.deadlineDateNotSet ?? false) === nextDeadlineDateNotSet
-                                    && (!!(loadedHomework as HomeworkViewModel & { hasErrors?: boolean }).hasErrors) === nextHasErrors
-                                ) {
-                                    return
-                                }
-                                patchHomeworkDraft({
-                                    ...loadedHomework,
-                                    publicationDate: nextPublicationDate,
-                                    hasDeadline: state.hasDeadline,
-                                    deadlineDate: nextDeadlineDate,
-                                    isDeadlineStrict: state.isDeadlineStrict,
-                                    deadlineDateNotSet: nextDeadlineDateNotSet,
-                                    hasErrors: nextHasErrors,
-                                } as unknown as HomeworkViewModel)
-                            }}
-                        />
+                <ToggleButton value="homework">
+                    <Tooltip placement="left" arrow title="Задание">
+                        <AssignmentIcon fontSize="small"/>
+                    </Tooltip>
+                </ToggleButton>
+                <ToggleButton value="group">
+                    <Tooltip placement="left" arrow title="Группа">
+                        <Badge color="primary" variant="dot" invisible={!loadedHomework.groupId}>
+                            <GroupIcon fontSize="small"/>
+                        </Badge>
+                    </Tooltip>
+                </ToggleButton>
+            </ToggleButtonGroup>
+
+            {page === "homework" && <div style={{flex: 1}}>
+                <CardContent style={{position: 'relative'}}>
+                    <IconButton
+                        onClick={cancelEditing}
+                        disabled={handleSubmitLoading}
+                        size="small"
+                        color="error"
+                        style={{position: 'absolute', top: -16, right: -16, zIndex: 1, backgroundColor: 'white', boxShadow: '0 0 4px rgba(0,0,0,0.2)'}}
+                    >
+                        <UndoIcon fontSize="small"/>
+                    </IconButton>
+                    <Grid item container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
+                          alignItems={"center"} alignContent={"center"} style={{marginTop: -24}}>
+                        <Grid item>
+                            <TextField
+                                required
+                                fullWidth
+                                style={{width: '300px'}}
+                                label="Название задания"
+                                variant="standard"
+                                margin="normal"
+                                error={!loadedHomework.title}
+                                value={loadedHomework.title || ''}
+                                onChange={(e) => patchHomeworkDraft({ ...loadedHomework, title: e.target.value })}
+                            />
+                        </Grid>
+                        <Grid item xs={6} style={{marginTop: 6}}>
+                            <Tags
+                                tags={loadedHomework.tags || []}
+                                onTagsChange={(tags) => patchHomeworkDraft({ ...loadedHomework, tags })}
+                                isElementSmall={false}
+                                suggestion={tagSuggestion}
+                                requestTags={() => ApiSingleton.coursesApi.coursesGetAllTagsForCourse(courseId)}/>
+                        </Grid>
                     </Grid>
-                </Grid>
-                {taskHasErrors && <Grid item xs={12}>
-                    <Alert severity={"error"}>Одна или более вложенных задач содержат ошибки</Alert>
-                </Grid>}
-            </Grid>
-            <CardActions>
-                {publicationDate && new Date() >= new Date(publicationDate) && <ActionOptionsUI
-                    disabled={isDisabled || handleSubmitLoading}
-                    onChange={value => setEditOptions(value)}/>}
-                <LoadingButton
-                    fullWidth
-                    onClick={handleSubmit}
-                    color="primary"
-                    variant="text"
-                    type="submit"
-                    disabled={isDisabled}
-                    loadingPosition="end"
-                    size={"large"}
-                    endIcon={<span style={{width: 17}}/>}
-                    loading={handleSubmitLoading}
-                >
-                    {isNewHomework && "Добавить задание"}
-                    {!isNewHomework && "Редактировать задание " + (editOptions.sendNotification ? "с уведомлением" : "без уведомления")}
-                </LoadingButton>
-                <IconButton aria-label="delete" color="error" onClick={() => setShowDeleteConfirmation(true)}>
-                    <DeleteIcon/>
-                </IconButton>
-            </CardActions>
-            <DeletionConfirmation
-                onCancel={() => setShowDeleteConfirmation(false)}
-                onSubmit={handleDeleteHomework}
-                isOpen={showDeleteConfirmation}
-                dialogTitle={'Удаление задания'}
-                dialogContentText={getHomeworkDeleteMessage(loadedHomework.title || '', initialFilesInfo)}
-                confirmationWord={''}
-                confirmationText={''}
-            />
-        </CardContent>
+                    <Grid container>
+                        {(loadedHomework.tags || []).includes(TestTag) &&
+                            <Grid item>
+                                <Alert severity="info" variant={"outlined"}>
+                                    Вы можете сгруппировать контрольные работы и переписывания с помощью
+                                    дополнительного тега. Например, 'КР 1'
+                                </Alert>
+                            </Grid>}
+                        <Grid item xs={12} style={{marginBottom: "5px", marginTop: -2}}>
+                            <MarkdownEditor
+                                label={"Общее описание задания"}
+                                height={240}
+                                maxHeight={400}
+                                value={loadedHomework.description || ''}
+                                onChange={(value) => patchHomeworkDraft({ ...loadedHomework, description: value })}
+                            />
+                        </Grid>
+                        <Grid item xs={12} style={{marginBottom: "15px"}}>
+                            <Grid container direction="column">
+                                <FilesUploader
+                                    initialFilesInfo={filesState.selectedFilesInfo}
+                                    isLoading={filesState.isLoadingInfo}
+                                    onChange={(filesInfo) => {
+                                        setFilesState((prevState) => ({
+                                            ...prevState,
+                                            selectedFilesInfo: filesInfo
+                                        }));
+                                    }}
+                                    courseUnitType={CourseUnitType.Homework}
+                                    courseUnitId={homeworkId}/>
+                                <PublicationAndDeadlineDates
+                                    hasDeadline={loadedHomework.hasDeadline ?? false}
+                                    isDeadlineStrict={loadedHomework.isDeadlineStrict ?? false}
+                                    publicationDate={publicationDate}
+                                    deadlineDate={deadlineDate}
+                                    autoCalculatedDeadline={deadlineSuggestion}
+                                    disabledPublicationDate={!isNewHomework && isPublished}
+                                    onChange={(state) => {
+                                        const conflictsWithTasks = changedTaskPublicationDates.some(d => publicationDate && d < publicationDate)
+                                        const currentPublicationDate = loadedHomework.publicationDate instanceof Date
+                                            ? loadedHomework.publicationDate.toISOString()
+                                            : loadedHomework.publicationDate
+                                        const currentDeadlineDate = loadedHomework.deadlineDate instanceof Date
+                                            ? loadedHomework.deadlineDate.toISOString()
+                                            : loadedHomework.deadlineDate
+                                        const nextPublicationDate = state.publicationDate?.toISOString()
+                                        const nextDeadlineDate = state.deadlineDate?.toISOString()
+                                        const nextDeadlineDateNotSet = state.hasDeadline && !state.deadlineDate
+                                        const nextHasErrors = state.hasErrors || conflictsWithTasks
+                                        if (
+                                            currentPublicationDate === nextPublicationDate
+                                            && currentDeadlineDate === nextDeadlineDate
+                                            && (loadedHomework.hasDeadline ?? false) === state.hasDeadline
+                                            && (loadedHomework.isDeadlineStrict ?? false) === state.isDeadlineStrict
+                                            && (loadedHomework.deadlineDateNotSet ?? false) === nextDeadlineDateNotSet
+                                            && (!!(loadedHomework as HomeworkViewModel & { hasErrors?: boolean }).hasErrors) === nextHasErrors
+                                        ) {
+                                            return
+                                        }
+                                        patchHomeworkDraft({
+                                            ...loadedHomework,
+                                            publicationDate: nextPublicationDate,
+                                            hasDeadline: state.hasDeadline,
+                                            deadlineDate: nextDeadlineDate,
+                                            isDeadlineStrict: state.isDeadlineStrict,
+                                            deadlineDateNotSet: nextDeadlineDateNotSet,
+                                            hasErrors: nextHasErrors,
+                                        } as unknown as HomeworkViewModel)
+                                    }}
+                                />
+                            </Grid>
+                        </Grid>
+                        {taskHasErrors && <Grid item xs={12}>
+                            <Alert severity={"error"}>Одна или более вложенных задач содержат ошибки</Alert>
+                        </Grid>}
+                    </Grid>
+                </CardContent>
+                <CardActions>
+                    {publicationDate && new Date() >= new Date(publicationDate) && <ActionOptionsUI
+                        disabled={isDisabled || handleSubmitLoading}
+                        onChange={value => setEditOptions(value)}/>}
+                    <LoadingButton
+                        fullWidth
+                        onClick={handleSubmit}
+                        color="primary"
+                        variant="text"
+                        type="submit"
+                        disabled={isDisabled}
+                        loadingPosition="end"
+                        size={"large"}
+                        endIcon={<span style={{width: 17}}/>}
+                        loading={handleSubmitLoading}
+                    >
+                        {isNewHomework && "Добавить задание"}
+                        {!isNewHomework && "Редактировать задание " + (editOptions.sendNotification ? "с уведомлением" : "без уведомления")}
+                    </LoadingButton>
+                    <IconButton aria-label="delete" color="error" onClick={() => setShowDeleteConfirmation(true)}>
+                        <DeleteIcon/>
+                    </IconButton>
+                </CardActions>
+                <DeletionConfirmation
+                    onCancel={() => setShowDeleteConfirmation(false)}
+                    onSubmit={handleDeleteHomework}
+                    isOpen={showDeleteConfirmation}
+                    dialogTitle={'Удаление задания'}
+                    dialogContentText={getHomeworkDeleteMessage(loadedHomework.title || '', initialFilesInfo)}
+                    confirmationWord={''}
+                    confirmationText={''}
+                />
+            </div>}
+
+            {page === "group" && <div style={{width: '100%'}}>
+                <CardContent>
+                    <GroupSelector
+                        courseId={courseId}
+                        courseStudents={courseStudents}
+                        onGroupIdChange={(groupId?: number) => {
+                            setSelectedGroupId(groupId)
+                            patchHomeworkDraft({ ...loadedHomework, groupId })
+                        }}
+                        selectedGroupId={selectedGroupId}
+                        choiceDisabled={!isNewHomework}
+                        onGroupsUpdate={props.onGroupsUpdate}
+                        groups={props.groups}
+                    />
+                </CardContent>
+                {!isNewHomework && !isPublished &&
+                    <CardActions>
+                        <LoadingButton
+                            fullWidth
+                            onClick={handleSubmit}
+                            color="primary"
+                            variant="text"
+                            type="submit"
+                            disabled={isDisabled}
+                            loadingPosition="end"
+                            size={"large"}
+                            endIcon={<span style={{width: 17}}/>}
+                            loading={handleSubmitLoading}
+                        >
+                            {"Редактировать задание"}
+                        </LoadingButton>
+                    </CardActions>}
+            </div>}
+        </Stack>
     )
 }
 
@@ -269,6 +340,8 @@ const CourseHomeworkExperimental: FC<{
                         previouslyExistingFilesCount: number,
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
+    onGroupsUpdate: () => void;
+    groups: GroupViewModel[];
 }> = (props) => {
     const isCourseMentor = useIsCourseMentor();
     const processingFilesState = useCourseState(state => state.courseFiles.processingFilesState);
@@ -279,10 +352,13 @@ const CourseHomeworkExperimental: FC<{
     const deferredTasks = homework.tasks!.filter(t => t.isDeferred!)
     const tasksCount = homework.tasks!.length
     const [showEditMode, setShowEditMode] = useState(false)
+    const group = props.groups.find(g => g.id === homework.groupId)
 
     if (draftHomework) return <CourseHomeworkEditor
         homeworkAndFilesInfo={{homework: draftHomework, filesInfo}}
         onStartProcessing={props.onStartProcessing}
+        onGroupsUpdate={props.onGroupsUpdate}
+        groups={props.groups}
     />
 
     const openEditor = () => {
@@ -332,6 +408,13 @@ const CourseHomeworkExperimental: FC<{
                 </Stack>
             </Grid>}
         </Grid>
+        {group &&
+            <Typography variant="body1" style={{color: "#454545"}} gutterBottom>
+                <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                    <GroupIcon fontSize={"small"}/>
+                    <div>{group.name}</div>
+                </Stack>
+            </Typography>}
         <Divider style={{marginTop: 15, marginBottom: 15}}/>
         <Typography component="div" style={{color: "#454545"}} gutterBottom variant="body1">
             <MarkdownPreview value={homework.description!}/>

@@ -16,13 +16,18 @@ namespace HwProj.CoursesService.API.Services
         private readonly IHomeworksRepository _homeworksRepository;
         private readonly IEventBus _eventBus;
         private readonly ICoursesRepository _coursesRepository;
+        private readonly IGroupsService _groupsService;
+        private readonly ICourseFilterService _courseFilterService;
 
         public HomeworksService(IHomeworksRepository homeworksRepository, IEventBus eventBus,
-            ICoursesRepository coursesRepository)
+            ICoursesRepository coursesRepository,
+            IGroupsService groupsService, ICourseFilterService courseFilterService)
         {
             _homeworksRepository = homeworksRepository;
             _eventBus = eventBus;
             _coursesRepository = coursesRepository;
+            _groupsService = groupsService;
+            _courseFilterService = courseFilterService;
         }
 
         public async Task<Homework> AddHomeworkAsync(long courseId, CreateHomeworkViewModel homeworkViewModel)
@@ -32,14 +37,26 @@ namespace HwProj.CoursesService.API.Services
             homework.CourseId = courseId;
 
             var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(courseId);
-            var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
+            var notifyStudentIds =
+                course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
+
+            await _homeworksRepository.AddAsync(homework);
+
+            if (homework.GroupId is { } groupId)
+            {
+                var group = (await _groupsService.GetGroupsAsync(groupId)).SingleOrDefault();
+                var groupMates = group?.GroupMates.ToArray() ?? Array.Empty<GroupMate>();
+
+                await _courseFilterService.UpdateGroupFilters(courseId, homework.Id, group);
+                notifyStudentIds = groupMates.Select(gm => gm.StudentId).ToArray();
+            }
+
             if (DateTime.UtcNow >= homework.PublicationDate)
             {
-                _eventBus.Publish(new NewHomeworkEvent(homework.Title, course.Name, course.Id, studentIds,
+                _eventBus.Publish(new NewHomeworkEvent(homework.Title, course.Name, course.Id, notifyStudentIds,
                     homework.DeadlineDate));
             }
 
-            await _homeworksRepository.AddAsync(homework);
             return await GetHomeworkAsync(homework.Id, withCriteria: true);
         }
 
@@ -72,9 +89,18 @@ namespace HwProj.CoursesService.API.Services
             var homework = await _homeworksRepository.GetAsync(homeworkId);
             var course = await _coursesRepository.GetWithCourseMates(homework.CourseId);
             var studentIds = course!.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
+            var notifyStudentIds = studentIds;
+
+            if (update.GroupId is { } groupId)
+            {
+                var group = (await _groupsService.GetGroupsAsync(groupId)).SingleOrDefault();
+                var groupMates = group?.GroupMates.ToArray() ?? Array.Empty<GroupMate>();
+
+                notifyStudentIds = groupMates.Select(gm => gm.StudentId).ToArray();
+            }
 
             if (options.SendNotification && update.PublicationDate <= DateTime.UtcNow)
-                _eventBus.Publish(new UpdateHomeworkEvent(update.Title, course.Id, course.Name, studentIds));
+                _eventBus.Publish(new UpdateHomeworkEvent(update.Title, course.Id, course.Name, notifyStudentIds));
 
             await _homeworksRepository.UpdateAsync(homeworkId, hw => new Homework()
             {
@@ -84,7 +110,8 @@ namespace HwProj.CoursesService.API.Services
                 DeadlineDate = update.DeadlineDate,
                 PublicationDate = update.PublicationDate,
                 IsDeadlineStrict = update.IsDeadlineStrict,
-                Tags = update.Tags
+                Tags = update.Tags,
+                GroupId = update.GroupId,
             });
 
             var updatedHomework = await _homeworksRepository.GetWithTasksAsync(homeworkId);

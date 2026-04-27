@@ -481,17 +481,6 @@ namespace HwProj.CoursesService.Client
             await _httpClient.SendAsync(httpRequest);
         }
 
-        public async Task RemoveStudentFromGroup(long courseId, long groupId, string userId)
-        {
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Post,
-                _coursesServiceUri + $"api/CourseGroups/{courseId}/removeStudentFromGroup/{groupId}?userId={userId}");
-
-            httpRequest.TryAddUserId(_httpContextAccessor);
-
-            await _httpClient.SendAsync(httpRequest);
-        }
-
         public async Task<GroupViewModel[]> GetGroupsById(params long[] groupIds)
         {
             if (groupIds.Length == 0) return Array.Empty<GroupViewModel>();

@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoFixture;
-using HwProj.AuthService.Client;
 using HwProj.Models.AuthService.ViewModels;
 using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +13,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using FluentAssertions;
+using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.Result;
 

@@ -30,6 +30,7 @@ namespace HwProj.CoursesService.API.Controllers
             var result = groups.Select(t => new GroupViewModel
             {
                 Id = t.Id,
+                Name = t.Name,
                 StudentsIds = t.GroupMates.Select(s => s.StudentId).ToArray()
             }).ToArray();
 
@@ -80,15 +81,6 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok();
         }
 
-        [HttpPost("{courseId}/removeStudentFromGroup/{groupId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
-        public async Task<IActionResult> RemoveStudentFromGroup(long groupId, [FromQuery] string userId)
-        {
-            return await _groupsService.DeleteGroupMateAsync(groupId, userId)
-                ? Ok()
-                : NotFound() as IActionResult;
-        }
-
         [HttpGet]
         public async Task<IActionResult> Get([FromBody] long[] groupIds)
         {
@@ -96,6 +88,7 @@ namespace HwProj.CoursesService.API.Controllers
             var result = groups.Select(group => new GroupViewModel
             {
                 Id = group.Id,
+                Name = group.Name,
                 StudentsIds = group.GroupMates.Select(g => g.StudentId).ToArray()
             }).ToArray();
             return Ok(result) as IActionResult;

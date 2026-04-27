@@ -479,6 +479,12 @@ export interface CourseViewModel {
     isCompleted?: boolean;
     /**
      *
+     * @type {Array<GroupViewModel>}
+     * @memberof CourseViewModel
+     */
+    groups?: Array<GroupViewModel>;
+    /**
+     *
      * @type {Array<AccountDataDto>}
      * @memberof CourseViewModel
      */
@@ -636,6 +642,12 @@ export interface CreateHomeworkViewModel {
      * @memberof CreateHomeworkViewModel
      */
     actionOptions?: ActionOptions;
+    /**
+     *
+     * @type {number}
+     * @memberof CreateHomeworkViewModel
+     */
+    groupId?: number;
 }
 /**
  *
@@ -1060,6 +1072,12 @@ export interface GroupViewModel {
     id?: number;
     /**
      *
+     * @type {string}
+     * @memberof GroupViewModel
+     */
+    name?: string;
+    /**
+     *
      * @type {Array<string>}
      * @memberof GroupViewModel
      */
@@ -1340,6 +1358,12 @@ export interface HomeworkViewModel {
      * @memberof HomeworkViewModel
      */
     tasks?: Array<HomeworkTaskViewModel>;
+    /**
+     *
+     * @type {number}
+     * @memberof HomeworkViewModel
+     */
+    groupId?: number;
 }
 /**
  *
@@ -1929,91 +1953,6 @@ export interface ScopeDTO {
 /**
  *
  * @export
- * @interface Solution
- */
-export interface Solution {
-    /**
-     *
-     * @type {number}
-     * @memberof Solution
-     */
-    id?: number;
-    /**
-     *
-     * @type {string}
-     * @memberof Solution
-     */
-    githubUrl?: string;
-    /**
-     *
-     * @type {string}
-     * @memberof Solution
-     */
-    comment?: string;
-    /**
-     *
-     * @type {SolutionState}
-     * @memberof Solution
-     */
-    state?: SolutionState;
-    /**
-     *
-     * @type {number}
-     * @memberof Solution
-     */
-    rating?: number;
-    /**
-     *
-     * @type {string}
-     * @memberof Solution
-     */
-    studentId?: string;
-    /**
-     *
-     * @type {string}
-     * @memberof Solution
-     */
-    lecturerId?: string;
-    /**
-     *
-     * @type {number}
-     * @memberof Solution
-     */
-    groupId?: number;
-    /**
-     *
-     * @type {number}
-     * @memberof Solution
-     */
-    taskId?: number;
-    /**
-     *
-     * @type {Date}
-     * @memberof Solution
-     */
-    publicationDate?: Date;
-    /**
-     *
-     * @type {boolean}
-     * @memberof Solution
-     */
-    isModified?: boolean;
-    /**
-     *
-     * @type {Date}
-     * @memberof Solution
-     */
-    ratingDate?: Date;
-    /**
-     *
-     * @type {string}
-     * @memberof Solution
-     */
-    lecturerComment?: string;
-}
-/**
- *
- * @export
  * @interface SolutionActualityDto
  */
 export interface SolutionActualityDto {
@@ -2054,6 +1993,91 @@ export interface SolutionActualityPart {
      * @memberof SolutionActualityPart
      */
     additionalData?: string;
+}
+/**
+ *
+ * @export
+ * @interface SolutionDto
+ */
+export interface SolutionDto {
+    /**
+     *
+     * @type {number}
+     * @memberof SolutionDto
+     */
+    id?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof SolutionDto
+     */
+    githubUrl?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof SolutionDto
+     */
+    comment?: string;
+    /**
+     *
+     * @type {SolutionState}
+     * @memberof SolutionDto
+     */
+    state?: SolutionState;
+    /**
+     *
+     * @type {number}
+     * @memberof SolutionDto
+     */
+    rating?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof SolutionDto
+     */
+    studentId?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof SolutionDto
+     */
+    lecturerId?: string;
+    /**
+     *
+     * @type {number}
+     * @memberof SolutionDto
+     */
+    groupId?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof SolutionDto
+     */
+    taskId?: number;
+    /**
+     *
+     * @type {Date}
+     * @memberof SolutionDto
+     */
+    publicationDate?: Date;
+    /**
+     *
+     * @type {boolean}
+     * @memberof SolutionDto
+     */
+    isModified?: boolean;
+    /**
+     *
+     * @type {Date}
+     * @memberof SolutionDto
+     */
+    ratingDate?: Date;
+    /**
+     *
+     * @type {string}
+     * @memberof SolutionDto
+     */
+    lecturerComment?: string;
 }
 /**
  *
@@ -2208,25 +2232,6 @@ export interface SolutionViewModel {
 /**
  *
  * @export
- * @interface StatisticsCourseHomeworksModel
- */
-export interface StatisticsCourseHomeworksModel {
-    /**
-     *
-     * @type {number}
-     * @memberof StatisticsCourseHomeworksModel
-     */
-    id?: number;
-    /**
-     *
-     * @type {Array<StatisticsCourseTasksModel>}
-     * @memberof StatisticsCourseHomeworksModel
-     */
-    tasks?: Array<StatisticsCourseTasksModel>;
-}
-/**
- *
- * @export
  * @interface StatisticsCourseMatesModel
  */
 export interface StatisticsCourseMatesModel {
@@ -2256,10 +2261,10 @@ export interface StatisticsCourseMatesModel {
     reviewers?: Array<AccountDataDto>;
     /**
      *
-     * @type {Array<StatisticsCourseHomeworksModel>}
+     * @type {Array<StudentSolutionsTableHomeworkDto>}
      * @memberof StatisticsCourseMatesModel
      */
-    homeworks?: Array<StatisticsCourseHomeworksModel>;
+    homeworks?: Array<StudentSolutionsTableHomeworkDto>;
 }
 /**
  *
@@ -2285,25 +2290,6 @@ export interface StatisticsCourseMeasureSolutionModel {
      * @memberof StatisticsCourseMeasureSolutionModel
      */
     publicationDate?: Date;
-}
-/**
- *
- * @export
- * @interface StatisticsCourseTasksModel
- */
-export interface StatisticsCourseTasksModel {
-    /**
-     *
-     * @type {number}
-     * @memberof StatisticsCourseTasksModel
-     */
-    id?: number;
-    /**
-     *
-     * @type {Array<Solution>}
-     * @memberof StatisticsCourseTasksModel
-     */
-    solution?: Array<Solution>;
 }
 /**
  *
@@ -2431,6 +2417,44 @@ export enum StudentIdType {
     NUMBER_0 = <any> 0,
     NUMBER_1 = <any> 1,
     NUMBER_2 = <any> 2
+}
+/**
+ *
+ * @export
+ * @interface StudentSolutionsTableHomeworkDto
+ */
+export interface StudentSolutionsTableHomeworkDto {
+    /**
+     *
+     * @type {number}
+     * @memberof StudentSolutionsTableHomeworkDto
+     */
+    id?: number;
+    /**
+     *
+     * @type {Array<StudentSolutionsTableTaskDto>}
+     * @memberof StudentSolutionsTableHomeworkDto
+     */
+    tasks?: Array<StudentSolutionsTableTaskDto>;
+}
+/**
+ *
+ * @export
+ * @interface StudentSolutionsTableTaskDto
+ */
+export interface StudentSolutionsTableTaskDto {
+    /**
+     *
+     * @type {number}
+     * @memberof StudentSolutionsTableTaskDto
+     */
+    id?: number;
+    /**
+     *
+     * @type {Array<SolutionDto>}
+     * @memberof StudentSolutionsTableTaskDto
+     */
+    solutions?: Array<SolutionDto>;
 }
 /**
  *
@@ -4081,53 +4105,6 @@ export const CourseGroupsApiFetchParamCreator = function (configuration?: Config
          *
          * @param {number} courseId
          * @param {number} groupId
-         * @param {string} [userId]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        courseGroupsRemoveStudentFromGroup(courseId: number, groupId: number, userId?: string, options: any = {}): FetchArgs {
-            // verify required parameter 'courseId' is not null or undefined
-            if (courseId === null || courseId === undefined) {
-                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling courseGroupsRemoveStudentFromGroup.');
-            }
-            // verify required parameter 'groupId' is not null or undefined
-            if (groupId === null || groupId === undefined) {
-                throw new RequiredError('groupId','Required parameter groupId was null or undefined when calling courseGroupsRemoveStudentFromGroup.');
-            }
-            const localVarPath = `/api/CourseGroups/{courseId}/removeStudentFromGroup/{groupId}`
-                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)))
-                .replace(`{${"groupId"}}`, encodeURIComponent(String(groupId)));
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Bearer required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
-                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
-            }
-
-            if (userId !== undefined) {
-                localVarQueryParameter['userId'] = userId;
-            }
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         *
-         * @param {number} courseId
-         * @param {number} groupId
          * @param {UpdateGroupViewModel} [body]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4314,26 +4291,6 @@ export const CourseGroupsApiFp = function(configuration?: Configuration) {
          *
          * @param {number} courseId
          * @param {number} groupId
-         * @param {string} [userId]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        courseGroupsRemoveStudentFromGroup(courseId: number, groupId: number, userId?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = CourseGroupsApiFetchParamCreator(configuration).courseGroupsRemoveStudentFromGroup(courseId, groupId, userId, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response;
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         *
-         * @param {number} courseId
-         * @param {number} groupId
          * @param {UpdateGroupViewModel} [body]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4425,17 +4382,6 @@ export const CourseGroupsApiFactory = function (configuration?: Configuration, f
          */
         courseGroupsGetGroupTasks(groupId: number, options?: any) {
             return CourseGroupsApiFp(configuration).courseGroupsGetGroupTasks(groupId, options)(fetch, basePath);
-        },
-        /**
-         *
-         * @param {number} courseId
-         * @param {number} groupId
-         * @param {string} [userId]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        courseGroupsRemoveStudentFromGroup(courseId: number, groupId: number, userId?: string, options?: any) {
-            return CourseGroupsApiFp(configuration).courseGroupsRemoveStudentFromGroup(courseId, groupId, userId, options)(fetch, basePath);
         },
         /**
          *
@@ -4537,19 +4483,6 @@ export class CourseGroupsApi extends BaseAPI {
      */
     public courseGroupsGetGroupTasks(groupId: number, options?: any) {
         return CourseGroupsApiFp(this.configuration).courseGroupsGetGroupTasks(groupId, options)(this.fetch, this.basePath);
-    }
-
-    /**
-     *
-     * @param {number} courseId
-     * @param {number} groupId
-     * @param {string} [userId]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof CourseGroupsApi
-     */
-    public courseGroupsRemoveStudentFromGroup(courseId: number, groupId: number, userId?: string, options?: any) {
-        return CourseGroupsApiFp(this.configuration).courseGroupsRemoveStudentFromGroup(courseId, groupId, userId, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -8336,7 +8269,7 @@ export const SolutionsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        solutionsGetSolutionById(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Solution> {
+        solutionsGetSolutionById(solutionId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<SolutionDto> {
             const localVarFetchArgs = SolutionsApiFetchParamCreator(configuration).solutionsGetSolutionById(solutionId, options);
             return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {

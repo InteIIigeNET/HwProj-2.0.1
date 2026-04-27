@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {FC, useEffect, useState} from 'react';
-import {Button, CircularProgress, Grid, TextField, Typography} from "@material-ui/core";
+import {Button, CircularProgress, Grid, Typography} from "@material-ui/core";
 import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import Link from '@material-ui/core/Link'
 import './style.css'
@@ -23,7 +23,7 @@ import {
     CardActions,
     IconButton,
     Chip,
-    Box
+    Box, TextField
 } from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
 import Utils from "../../services/Utils";
@@ -428,11 +428,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         }
                         style={{
                             color: "#3f51b5",
-                            paddingLeft: 0,
-                            paddingRight: 0,
                             textTransform: "uppercase",
                             fontWeight: 500,
-                            marginBottom: 8,
                             fontSize: "0.95rem",
                         }}
                     >
@@ -530,48 +527,46 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             );
 
         return (
-            <Grid container item direction="row" spacing={1} alignItems="center">
-                <Grid item>
-                    {isEditable ? (
-                        <TextField
-                            style={{width: 100}}
-                            required
-                            label="Баллы"
-                            variant="outlined"
-                            margin="normal"
-                            type="number"
-                            fullWidth
-                            InputProps={{
-                                readOnly: hasCriteria || !props.forMentor || !state.clickedForRate,
-                                inputProps: {min: 0, value: points},
-                            }}
-                            size="small"
-                            onChange={(e) => {
-                                if (hasCriteria) return;
+            <Stack direction="row" spacing={1} alignItems={"baseline"}>
+                {isEditable ? (
+                    <TextField
+                        style={{width: 100}}
+                        required
+                        label="Баллы"
+                        variant="standard"
+                        margin="normal"
+                        type="number"
+                        fullWidth
+                        InputProps={{
+                            readOnly: hasCriteria || !props.forMentor || !state.clickedForRate,
+                            inputProps: {min: 0, value: points},
+                        }}
+                        size="small"
+                        onChange={(e) => {
+                            if (hasCriteria) return;
 
-                                e.persist();
-                                setState(prevState => ({
-                                    ...prevState,
-                                    points: +e.target.value,
-                                }));
-                            }}
-                            onClick={() => {
-                                if (isRated) return;
-                                setState(prevState => ({
-                                    ...prevState,
-                                    clickedForRate: props.forMentor,
-                                }));
-                            }}
-                        />
-                    ) : (
-                        <Chip
-                            label={<Typography variant="h6">{points}</Typography>}
-                            size="medium"
-                        />
-                    )}
-                </Grid>
-                <Grid item>{` / ${maxRating}`}</Grid>
-            </Grid>
+                            e.persist();
+                            setState(prevState => ({
+                                ...prevState,
+                                points: +e.target.value,
+                            }));
+                        }}
+                        onClick={() => {
+                            if (isRated) return;
+                            setState(prevState => ({
+                                ...prevState,
+                                clickedForRate: props.forMentor,
+                            }));
+                        }}
+                    />
+                ) : (
+                    <Chip
+                        label={<Typography variant="h6">{points}</Typography>}
+                        size="medium"
+                    />
+                )}
+                <div>{` / ${maxRating}`}</div>
+            </Stack>
         );
     };
 
@@ -847,7 +842,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 color,
             }}
         >
-            <CardContent style={{paddingBottom: 5, marginBottom: 0}}>
+            <CardContent>
                 <Grid container direction={"column"} spacing={1}>
                     {(!hasCriteria || !state.clickedForRate) && <Grid item>
                         {renderRateInput()}

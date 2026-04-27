@@ -8,7 +8,8 @@ public static class ConnectionString
 {
     public static string GetConnectionString(IConfiguration configuration)
     {
-        var option = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+        var option = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
+                     RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
             ? "DefaultConnectionForLinux"
             : "DefaultConnectionForWindows";
         return configuration.GetConnectionString(option) ?? "";

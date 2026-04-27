@@ -1,7 +1,7 @@
 import * as React from "react";
 import {
     HomeworkTaskViewModel,
-    HomeworkViewModel, Solution,
+    HomeworkViewModel, SolutionDto,
 } from "@/api";
 import {
     AlertTitle,
@@ -45,6 +45,7 @@ import {
 import {useCourseActions} from "@/store/courseActions";
 import {useCourseFiles, useCourseFilePolling, useCoursePageData, useIsCourseMentor} from "@/store/storeHooks/courseHooks";
 import {useCourseState} from "@/store/hooks";
+import GroupIcon from '@mui/icons-material/Group';
 
 interface ICourseExperimentalProps {
     courseId: number
@@ -70,7 +71,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const homeworks = useVisibleCourseHomeworks(mergedHomeworks, hideDeferred, showOnlyGroupedTest)
 
     const {selectedHomeworkId} = props
-    const {userId, studentSolutions, isAcceptedStudent} = useCoursePageData();
+    const {userId, studentSolutions, isAcceptedStudent, groups} = useCoursePageData();
     const courseFilesInfo = useCourseState(state => state.courseFiles.items);
     const isCourseMentor = useIsCourseMentor();
     const {updateFiles, setFileLoading} = useCourseFiles(props.courseId, isCourseMentor);
@@ -165,13 +166,13 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         itemIsHomework === isHomework && itemId === id ? clickedItemStyle : {borderRadius: 9}
 
     const taskSolutionsMap = useMemo(() => {
-        const map = new Map<number, Solution[]>()
+        const map = new Map<number, SolutionDto[]>()
         if (isCourseMentor || !isAcceptedStudent) return map
         studentSolutions
             .filter(t => t.id === userId)
             .flatMap(t => t.homeworks!)
             .flatMap(t => t.tasks!)
-            .forEach(x => map.set(x.id!, x.solution!))
+            .forEach(x => map.set(x.id!, x.solutions!))
         return map
     }, [studentSolutions, userId, isCourseMentor, isAcceptedStudent])
 
@@ -347,6 +348,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     homeworkAndFilesInfo={{homework, filesInfo}}
                     onAddTask={handleCreateTask}
                     onStartProcessing={startProcessing}
+                    onGroupsUpdate={() => {}}
+                    groups={groups}
                 />
             </Card>
         </Stack>
@@ -449,13 +452,19 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                     sx={{":hover": hoveredItemStyle}}
                                     style={{...getStyle(true, x.id!), minHeight: 50}}
                                     onClick={() => handleSelectHomework(x.id!)}>
-                                    <Typography variant="h6" style={{fontSize: 18}} align={"center"}
-                                                color={x.isDeferred
-                                                    ? "textSecondary"
-                                                    : x.tags!.includes(TestTag) ? "primary" : "textPrimary"}>
-                                        {isCourseMentor && renderHomeworkStatus(x)}
-                                        {x.title}{getTip(x)}
-                                    </Typography>
+                                    <Stack direction={"column"} alignItems={"center"}>
+                                        {x.groupId && <GroupIcon
+                                            fontSize={"small"}
+                                            color={x.isDeferred ? "disabled" : x.tags!.includes(TestTag) ? "primary" : "inherit"}
+                                        />}
+                                        <Typography variant="h6" style={{fontSize: 18}} align={"center"}
+                                                    color={x.isDeferred
+                                                        ? "textSecondary"
+                                                        : x.tags!.includes(TestTag) ? "primary" : "textPrimary"}>
+                                            {isCourseMentor && renderHomeworkStatus(x)}
+                                            {x.title}{getTip(x)}
+                                        </Typography>
+                                    </Stack>
                                     {x.isDeferred && !x.publicationDateNotSet &&
                                         <Typography style={{fontSize: "14px"}} align={"center"}>
                                             {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}

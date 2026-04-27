@@ -12,8 +12,9 @@ import {setStudentSolutions} from '../slices/solutionSlice';
 import {setCourseFiles, updateCourseFiles, setProcessingLoading} from '../slices/courseFileSlice';
 import {setUser, UserRole} from '../slices/userSlice';
 import {resetEditingState} from '../slices/courseEditingSlice';
+import {setGroups} from '../slices/groupSlice';
 import ApiSingleton from '@/api/ApiSingleton';
-import {FileInfoDTO, ScopeDTO, StatisticsCourseHomeworksModel, StatisticsCourseMatesModel, StatisticsCourseTasksModel} from '@/api';
+import {FileInfoDTO, ScopeDTO, StudentSolutionsTableTaskDto, StatisticsCourseMatesModel, StudentSolutionsTableHomeworkDto} from '@/api';
 import {CourseUnitType} from '@/components/Files/CourseUnitType';
 import {FileStatus} from '@/components/Files/FileStatus';
 import {enqueueSnackbar} from 'notistack';
@@ -37,8 +38,8 @@ export const useUnratedSolutionsCount = () => {
     const studentSolutions = useCourseState(state => state.solutions.studentSolutions);
     return studentSolutions
         .flatMap((x: StatisticsCourseMatesModel) => x.homeworks ?? [])
-        .flatMap((x: StatisticsCourseHomeworksModel) => x.tasks ?? [])
-        .filter((t: StatisticsCourseTasksModel) => t.solution?.slice(-1)[0]?.state === 0)
+        .flatMap((x: StudentSolutionsTableHomeworkDto) => x.tasks ?? [])
+        .filter((t: StudentSolutionsTableTaskDto) => t.solutions?.slice(-1)[0]?.state === 0)
         .length;
 };
 
@@ -48,6 +49,7 @@ export const useCoursePageData = () => {
     const mentors = useCourseState(state => state.course.mentors);
     const acceptedStudents = useCourseState(state => state.course.acceptedStudents);
     const newStudents = useCourseState(state => state.course.newStudents);
+    const groups = useCourseState(state => state.groups.items);
     const courseHomeworks = useCourseState(state => state.homeworks.items);
     const studentSolutions = useCourseState(state => state.solutions.studentSolutions);
     const userId = useCourseState(state => state.user.userId);
@@ -60,6 +62,7 @@ export const useCoursePageData = () => {
         mentors,
         acceptedStudents,
         newStudents,
+        groups,
         courseHomeworks,
         studentSolutions,
         userId,
@@ -96,6 +99,7 @@ export const useCourseLoader = (courseId: number) => {
         dispatch(setMentors(course.mentors!));
         dispatch(setAcceptedStudents(course.acceptedStudents!));
         dispatch(setNewStudents(course.newStudents!));
+        dispatch(setGroups(course.groups ?? []));
         dispatch(setHomeworks(course.homeworks!));
         return course;
     }, [dispatch, courseId, userId, isLecturerOrExpertOnSite]);
@@ -120,6 +124,7 @@ export const useRefreshCourse = () => {
         dispatch(setMentors(course.mentors ?? []));
         dispatch(setAcceptedStudents(course.acceptedStudents ?? []));
         dispatch(setNewStudents(course.newStudents ?? []));
+        dispatch(setGroups(course.groups ?? []));
         dispatch(setHomeworks(course.homeworks ?? []));
     }, [dispatch]);
 };

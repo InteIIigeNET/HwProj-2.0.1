@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using HwProj.Repositories;
+using HwProj.Repositories.Net8;
 
 namespace HwProj.CoursesService.API.Models
 {
@@ -25,5 +25,7 @@ namespace HwProj.CoursesService.API.Models
         public long CourseId { get; set; }
 
         public List<HomeworkTask> Tasks { get; set; }
+
+        public long? GroupId { get; set; }
     }
 }

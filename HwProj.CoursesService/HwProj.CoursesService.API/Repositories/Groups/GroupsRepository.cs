@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
-using HwProj.Repositories;
+using HwProj.Repositories.Net8;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Repositories.Groups
@@ -27,8 +27,6 @@ namespace HwProj.CoursesService.API.Repositories.Groups
             return Context.Set<Group>()
                 .Where(c => c.CourseId == courseId)
                 .Include(c => c.GroupMates)
-                .AsNoTracking()
-                .Include(c => c.Tasks)
                 .AsNoTracking();
         }
     }

@@ -5,6 +5,7 @@ import solutionsReducer from './slices/solutionSlice';
 import courseFilesReducer from './slices/courseFileSlice';
 import userReducer from './slices/userSlice';
 import courseEditingReducer from './slices/courseEditingSlice';
+import groupReducer from './slices/groupSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     courseFiles: courseFilesReducer,
     user: userReducer,
     editing: courseEditingReducer,
+    groups: groupReducer,
   },
 });
 

@@ -6,9 +6,9 @@ using HwProj.Models.CoursesService.ViewModels;
 
 namespace HwProj.CoursesService.API
 {
-    public class ApplicationProfile : Profile
+    public class AutomapperProfile : Profile
     {
-        public ApplicationProfile()
+        public AutomapperProfile()
         {
             CreateMap<Course, CreateCourseViewModel>().ReverseMap();
             CreateMap<Course, UpdateCourseViewModel>().ReverseMap();
@@ -21,6 +21,11 @@ namespace HwProj.CoursesService.API
             
             CreateMap<CreateCourseFilterDTO, CreateCourseFilterModel>();
             CreateMap<Filter, CourseFilterDTO>();
+
+            CreateMap<UpdateGroupViewModel, Group>().ReverseMap();
+            CreateMap<Group, UserGroupDescription>();
+
+            CreateMap<GroupMateViewModel, GroupMate>().ReverseMap();
         }
     }
 }

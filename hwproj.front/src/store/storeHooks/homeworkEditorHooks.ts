@@ -222,6 +222,7 @@ export const useHomeworkEditing = () => {
         title: homework.title!,
         description: homework.description,
         tags: homework.tags || [],
+        groupId: homework.groupId,
         hasDeadline: homework.hasDeadline,
         deadlineDate: homework.deadlineDateNotSet || !homework.deadlineDate ? undefined : new Date(homework.deadlineDate),
         isDeadlineStrict: homework.isDeadlineStrict,

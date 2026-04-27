@@ -16,7 +16,6 @@ using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.Roles;
 using HwProj.NotificationService.Events.CoursesService;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HwProj.CoursesService.API.Services
 {
@@ -75,12 +74,13 @@ namespace HwProj.CoursesService.API.Services
 
             CourseDomain.FillTasksInCourses(course);
 
-            var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToArrayAsync();
+            var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToListAsync();
             var courseDto = course.ToCourseDto();
             courseDto.Groups = groups.Select(g =>
                 new GroupViewModel
                 {
                     Id = g.Id,
+                    Name = g.Name,
                     StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
                 }).ToArray();
 
@@ -137,7 +137,7 @@ namespace HwProj.CoursesService.API.Services
                         HomeworksMapping = homeworksMapping
                     });
 
-                    if (!result.Succeeded) throw new TransactionAbortedException(result.Errors.Join("\n"));
+                    if (!result.Succeeded) throw new TransactionAbortedException(string.Join("\n", result.Errors));
                 }
             }
 

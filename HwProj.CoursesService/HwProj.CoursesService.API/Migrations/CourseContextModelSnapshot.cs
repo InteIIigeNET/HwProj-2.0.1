@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
+#nullable disable
+
 namespace HwProj.CoursesService.API.Migrations
 {
     [DbContext(typeof(CourseContext))]
@@ -15,21 +17,27 @@ namespace HwProj.CoursesService.API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.Assignment", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
 
-                    b.Property<long>("CourseId");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("MentorId");
+                    b.Property<long>("CourseId")
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("StudentId");
+                    b.Property<string>("MentorId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StudentId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -42,19 +50,27 @@ namespace HwProj.CoursesService.API.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("GroupName");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("InviteCode");
+                    b.Property<string>("GroupName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsCompleted");
+                    b.Property<string>("InviteCode")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsOpen");
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("MentorIds");
+                    b.Property<bool>("IsOpen")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("MentorIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -65,9 +81,12 @@ namespace HwProj.CoursesService.API.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("FilterJson");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("FilterJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -78,13 +97,18 @@ namespace HwProj.CoursesService.API.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
 
-                    b.Property<long>("CourseId");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<bool>("IsAccepted");
+                    b.Property<long>("CourseId")
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("StudentId");
+                    b.Property<bool>("IsAccepted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StudentId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -97,15 +121,21 @@ namespace HwProj.CoursesService.API.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
 
-                    b.Property<int>("MaxPoints");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Name");
+                    b.Property<int>("MaxPoints")
+                        .HasColumnType("int");
 
-                    b.Property<long>("TaskId");
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Type");
+                    b.Property<long>("TaskId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -118,11 +148,15 @@ namespace HwProj.CoursesService.API.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
 
-                    b.Property<long>("CourseId");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Name");
+                    b.Property<long>("CourseId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -133,12 +167,16 @@ namespace HwProj.CoursesService.API.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
 
-                    b.Property<long>("GroupId");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("GroupId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("StudentId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -151,23 +189,36 @@ namespace HwProj.CoursesService.API.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
 
-                    b.Property<long>("CourseId");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<DateTime?>("DeadlineDate");
+                    b.Property<long>("CourseId")
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("Description");
+                    b.Property<DateTime?>("DeadlineDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<bool>("HasDeadline");
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsDeadlineStrict");
+                    b.Property<long?>("GroupId")
+                        .HasColumnType("bigint");
 
-                    b.Property<DateTime>("PublicationDate");
+                    b.Property<bool>("HasDeadline")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("Tags");
+                    b.Property<bool>("IsDeadlineStrict")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("Title");
+                    b.Property<DateTime>("PublicationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Tags")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -180,25 +231,36 @@ namespace HwProj.CoursesService.API.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
 
-                    b.Property<DateTime?>("DeadlineDate");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Description");
+                    b.Property<DateTime?>("DeadlineDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<bool?>("HasDeadline");
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("HomeworkId");
+                    b.Property<bool?>("HasDeadline")
+                        .HasColumnType("bit");
 
-                    b.Property<bool>("IsBonusExplicit");
+                    b.Property<long>("HomeworkId")
+                        .HasColumnType("bigint");
 
-                    b.Property<bool?>("IsDeadlineStrict");
+                    b.Property<bool>("IsBonusExplicit")
+                        .HasColumnType("bit");
 
-                    b.Property<int>("MaxRating");
+                    b.Property<bool?>("IsDeadlineStrict")
+                        .HasColumnType("bit");
 
-                    b.Property<DateTime?>("PublicationDate");
+                    b.Property<int>("MaxRating")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Title");
+                    b.Property<DateTime?>("PublicationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -209,11 +271,14 @@ namespace HwProj.CoursesService.API.Migrations
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.StudentCharacteristics", b =>
                 {
-                    b.Property<long>("CourseMateId");
+                    b.Property<long>("CourseMateId")
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Tags");
+                    b.Property<string>("Tags")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CourseMateId");
 
@@ -224,11 +289,15 @@ namespace HwProj.CoursesService.API.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
 
-                    b.Property<long>("GroupId");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("TaskId");
+                    b.Property<long>("GroupId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TaskId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -241,21 +310,29 @@ namespace HwProj.CoursesService.API.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Answer")
-                        .HasMaxLength(1000);
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
-                    b.Property<bool>("IsPrivate");
+                    b.Property<bool>("IsPrivate")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("LecturerId");
+                    b.Property<string>("LecturerId")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StudentId");
+                    b.Property<string>("StudentId")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("TaskId");
+                    b.Property<long>("TaskId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Text")
-                        .HasMaxLength(1000);
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.HasKey("Id");
 
@@ -266,13 +343,16 @@ namespace HwProj.CoursesService.API.Migrations
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.UserToCourseFilter", b =>
                 {
-                    b.Property<long>("CourseId");
+                    b.Property<long>("CourseId")
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("UserId");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<long>("CourseFilterId");
+                    b.Property<long>("CourseFilterId")
+                        .HasColumnType("bigint");
 
-                    b.HasKey("CourseId", "UserId");
+                    b.HasKey("CourseId", "Id");
 
                     b.HasIndex("CourseFilterId");
 
@@ -281,18 +361,20 @@ namespace HwProj.CoursesService.API.Migrations
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.Assignment", b =>
                 {
-                    b.HasOne("HwProj.CoursesService.API.Models.Course")
+                    b.HasOne("HwProj.CoursesService.API.Models.Course", null)
                         .WithMany("Assignments")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.CourseMate", b =>
                 {
-                    b.HasOne("HwProj.CoursesService.API.Models.Course")
+                    b.HasOne("HwProj.CoursesService.API.Models.Course", null)
                         .WithMany("CourseMates")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.Criterion", b =>
@@ -300,23 +382,28 @@ namespace HwProj.CoursesService.API.Migrations
                     b.HasOne("HwProj.CoursesService.API.Models.HomeworkTask", "Task")
                         .WithMany("Criteria")
                         .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.GroupMate", b =>
                 {
-                    b.HasOne("HwProj.CoursesService.API.Models.Group")
+                    b.HasOne("HwProj.CoursesService.API.Models.Group", null)
                         .WithMany("GroupMates")
                         .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.Homework", b =>
                 {
-                    b.HasOne("HwProj.CoursesService.API.Models.Course")
+                    b.HasOne("HwProj.CoursesService.API.Models.Course", null)
                         .WithMany("Homeworks")
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.HomeworkTask", b =>
@@ -324,23 +411,28 @@ namespace HwProj.CoursesService.API.Migrations
                     b.HasOne("HwProj.CoursesService.API.Models.Homework", "Homework")
                         .WithMany("Tasks")
                         .HasForeignKey("HomeworkId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Homework");
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.StudentCharacteristics", b =>
                 {
-                    b.HasOne("HwProj.CoursesService.API.Models.CourseMate")
+                    b.HasOne("HwProj.CoursesService.API.Models.CourseMate", null)
                         .WithOne("Characteristics")
                         .HasForeignKey("HwProj.CoursesService.API.Models.StudentCharacteristics", "CourseMateId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.TaskModel", b =>
                 {
-                    b.HasOne("HwProj.CoursesService.API.Models.Group")
+                    b.HasOne("HwProj.CoursesService.API.Models.Group", null)
                         .WithMany("Tasks")
                         .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.UserToCourseFilter", b =>
@@ -348,7 +440,41 @@ namespace HwProj.CoursesService.API.Migrations
                     b.HasOne("HwProj.CoursesService.API.Models.CourseFilter", "CourseFilter")
                         .WithMany()
                         .HasForeignKey("CourseFilterId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CourseFilter");
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.Course", b =>
+                {
+                    b.Navigation("Assignments");
+
+                    b.Navigation("CourseMates");
+
+                    b.Navigation("Homeworks");
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.CourseMate", b =>
+                {
+                    b.Navigation("Characteristics");
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.Group", b =>
+                {
+                    b.Navigation("GroupMates");
+
+                    b.Navigation("Tasks");
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.Homework", b =>
+                {
+                    b.Navigation("Tasks");
+                });
+
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.HomeworkTask", b =>
+                {
+                    b.Navigation("Criteria");
                 });
 #pragma warning restore 612, 618
         }

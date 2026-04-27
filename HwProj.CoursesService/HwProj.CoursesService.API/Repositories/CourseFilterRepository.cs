@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
-using HwProj.Repositories;
+using HwProj.Repositories.Net8;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Repositories
@@ -18,7 +18,7 @@ namespace HwProj.CoursesService.API.Repositories
             var userToCourseFilter = await Context.Set<UserToCourseFilter>()
                 .Include(ucf => ucf.CourseFilter)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.UserId == userId && u.CourseId == courseId);
+                .FirstOrDefaultAsync(u => u.Id == userId && u.CourseId == courseId);
 
             return userToCourseFilter?.CourseFilter;
         }
@@ -27,7 +27,7 @@ namespace HwProj.CoursesService.API.Repositories
         {
             return await Context.Set<UserToCourseFilter>()
                 .AsNoTracking()
-                .Where(u => userIds.Contains(u.UserId) && u.CourseId == courseId)
+                .Where(u => userIds.Contains(u.Id) && u.CourseId == courseId)
                 .Include(ucf => ucf.CourseFilter)
                 .ToListAsync();
         }
@@ -36,7 +36,7 @@ namespace HwProj.CoursesService.API.Repositories
         {
             return await Context.Set<UserToCourseFilter>()
                 .AsNoTracking()
-                .Where(u => u.UserId == userId && courseIds.Contains(u.CourseId))
+                .Where(u => u.Id == userId && courseIds.Contains(u.CourseId))
                 .Include(ucf => ucf.CourseFilter)
                 .ToListAsync();
         }
@@ -53,7 +53,7 @@ namespace HwProj.CoursesService.API.Repositories
                 {
                     CourseFilterId = filterId,
                     CourseId = courseId,
-                    UserId = userId
+                    Id = userId
                 };
 
                 Context.Set<UserToCourseFilter>().Add(userToCourseFilter);

@@ -8,7 +8,7 @@ namespace HwProj.CoursesService.API.Services
     {
         Task<Group[]> GetAllAsync(long courseId);
         
-        Task<Group[]> GetGroupsAsync(long[] groupIds);
+        Task<Group[]> GetGroupsAsync(params long[] groupIds);
         
         Task<long> AddGroupAsync(Group group);
         
@@ -17,8 +17,6 @@ namespace HwProj.CoursesService.API.Services
         Task UpdateAsync(long groupId, Group updated);
         
         Task AddGroupMateAsync(long groupId, string studentId);
-        
-        Task<bool> DeleteGroupMateAsync(long groupId, string studentId);
         
         Task<UserGroupDescription[]> GetStudentGroupsAsync(long courseId, string studentId);
     }

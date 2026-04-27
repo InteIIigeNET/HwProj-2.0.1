@@ -5,7 +5,7 @@ import Typography from "@material-ui/core/Typography";
 import AddOrEditSolution from "./AddOrEditSolution";
 import Button from "@material-ui/core/Button";
 import TaskSolutions from "./TaskSolutions";
-import {AccountDataDto, HomeworksGroupUserTaskSolutions, HomeworkTaskViewModel, Solution, SolutionState} from "@/api";
+import {AccountDataDto, HomeworksGroupUserTaskSolutions, HomeworkTaskViewModel, SolutionDto, SolutionState} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import {Grid, Tab, Tabs} from "@material-ui/core";
 import {Checkbox, Chip, SelectChangeEvent, Stack, Tooltip} from "@mui/material";
@@ -164,7 +164,7 @@ const TaskSolutionsPage: FC = () => {
         }))
     }
 
-    const renderRatingChip = (solutionsDescription: string, color: string, lastRatedSolution: Solution) => {
+    const renderRatingChip = (solutionsDescription: string, color: string, lastRatedSolution: SolutionDto) => {
         return <Tooltip arrow disableInteractive enterDelay={1000} title={<span
             style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
             <Chip style={{backgroundColor: color}}

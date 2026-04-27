@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HwProj.Common.Net8;
 using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.ViewModels;
-using HwProj.Utils.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
