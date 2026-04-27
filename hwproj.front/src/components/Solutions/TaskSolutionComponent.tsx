@@ -146,7 +146,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
         if (Number.isNaN(solutionDate) || Number.isNaN(deadlineDate)) return Number.NaN;
 
-        return solutionDate <= deadlineDate ? (criterion.maxPoints ?? 0) : 0;
+        return solutionDate <= deadlineDate ? 0 : -(criterion.maxPoints ?? 0);
     };
 
     const [criterionRatings, setCriterionRatings] = useState<CriterionRating[]>(() =>
@@ -638,7 +638,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             const isFilled = hasExplicitValue && (isThumbCriterion || numericValue !== 0);
                             const isDeadlineCriterion = c.type === CriterionTypeDeadline;
                             const deadlineDate = c.arguments ? new Date(c.arguments) : undefined;
-                            const deadlinePassed = isDeadlineCriterion && numericValue === (c.maxPoints ?? 0);
+                            const deadlinePassed = isDeadlineCriterion && numericValue === 0;
 
                             return (
                                 <React.Fragment key={c.id}>
@@ -675,7 +675,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                             <Chip
                                                 size="small"
                                                 color={deadlinePassed ? "success" : "error"}
-                                                label={`${numericValue} / ${c.maxPoints}`}
+                                                label={deadlinePassed ? "0" : `${numericValue}`}
                                             />
                                         ) : isThumbCriterion ? (
                                             <Stack direction="row" alignItems="center">
