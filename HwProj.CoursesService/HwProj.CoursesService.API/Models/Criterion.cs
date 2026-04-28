@@ -18,6 +18,6 @@ namespace HwProj.CoursesService.API.Models
         public CriterionType Type { get; set; }
         public string Name { get; set; }
         public int MaxPoints { get; set; }
-        public string Arguments { get; set; }
+        public string? Arguments { get; set; }
     }
 }

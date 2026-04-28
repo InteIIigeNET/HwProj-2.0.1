@@ -14,7 +14,8 @@ import {
     Checkbox,
     FormControlLabel,
     Menu,
-    MenuItem
+    MenuItem,
+    Tooltip
 } from "@mui/material";
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
 import {FC, useEffect, useState, useMemo} from "react"
@@ -32,6 +33,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Collapse from "@mui/material/Collapse";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import TaskCriteria from "./TaskCriteria";
 import {BonusTag} from "@/components/Common/HomeworkTags";
 import Utils from "../../services/Utils";
@@ -451,18 +453,46 @@ const CourseTaskEditor: FC<{
                                                         <Typography variant="subtitle1" sx={{fontWeight: 700}}>
                                                             Критерий дедлайна
                                                         </Typography>
+                                                        <Tooltip
+                                                            arrow
+                                                            placement="right"
+                                                            title={`После ${c.arguments ? Utils.renderDateWithoutSeconds(new Date(c.arguments)) : "дедлайна"} будет списан ${c.maxPoints || 1} балл`}
+                                                        >
+                                                            <HelpOutlineIcon sx={{fontSize: 18, color: "#667085"}}/>
+                                                        </Tooltip>
                                                     </Stack>
                                                 </Grid>
                                                 <Grid item xs>
-                                                    <TextField
-                                                        fullWidth
-                                                        size="small"
-                                                        variant="standard"
-                                                        label="Название критерия"
-                                                        value={c.name}
-                                                        inputProps={{maxLength: 50}}
-                                                        onChange={(e) => updateCriterion(index, {name: e.target.value.slice(0, 50)})}
-                                                    />
+                                                    <Stack spacing={1}>
+                                                        <TextField
+                                                            fullWidth
+                                                            size="small"
+                                                            variant="standard"
+                                                            label="Название критерия"
+                                                            value={c.name}
+                                                            inputProps={{maxLength: 50}}
+                                                            onChange={(e) => updateCriterion(index, {name: e.target.value.slice(0, 50)})}
+                                                        />
+                                                        <TextField
+                                                            label="Дата и время"
+                                                            type="datetime-local"
+                                                            size="small"
+                                                            required
+                                                            error={!c.arguments}
+                                                            value={c.arguments ? Utils.toISOString(new Date(c.arguments)) : ""}
+                                                            onChange={(e) =>
+                                                                updateCriterion(index, {
+                                                                    arguments: e.target.value
+                                                                        ? new Date(e.target.value).toISOString()
+                                                                        : undefined,
+                                                                })
+                                                            }
+                                                            InputLabelProps={{shrink: true}}
+                                                        />
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            На основе дедлайна
+                                                        </Typography>
+                                                    </Stack>
                                                 </Grid>
                                                 <Grid item>
                                                     <TextField
@@ -492,47 +522,6 @@ const CourseTaskEditor: FC<{
                                                     >
                                                         <CloseIcon fontSize="small"/>
                                                     </IconButton>
-                                                </Grid>
-                                                <Grid item>
-                                                    <TextField
-                                                        label="Дата и время"
-                                                        type="datetime-local"
-                                                        size="small"
-                                                        required
-                                                        error={!c.arguments}
-                                                        value={c.arguments ? Utils.toISOString(new Date(c.arguments)) : ""}
-                                                        onChange={(e) =>
-                                                            updateCriterion(index, {
-                                                                arguments: e.target.value
-                                                                    ? new Date(e.target.value).toISOString()
-                                                                    : undefined,
-                                                            })
-                                                        }
-                                                        InputLabelProps={{shrink: true}}
-                                                    />
-                                                </Grid>
-                                                <Grid item sx={{pt: "20px !important"}}>
-                                                    <Typography variant="body2">
-                                                        На основе дедлайна
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid item>
-                                                    <Box
-                                                        sx={{
-                                                            border: "1px solid #FDBA74",
-                                                            backgroundColor: "#FFF7ED",
-                                                            color: "#667085",
-                                                            p: 1,
-                                                            minWidth: 220,
-                                                        }}
-                                                    >
-                                                        <Typography variant="caption" sx={{display: "block", fontWeight: 700, color: "#475467"}}>
-                                                            Как сработает правило
-                                                        </Typography>
-                                                        <Typography variant="caption">
-                                                            После {c.arguments ? Utils.renderDateWithoutSeconds(new Date(c.arguments)) : "дедлайна"} будет списан {c.maxPoints || 1} балл
-                                                        </Typography>
-                                                    </Box>
                                                 </Grid>
                                             </Grid>
                                         </Box>

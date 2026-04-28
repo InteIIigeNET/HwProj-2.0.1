@@ -14,6 +14,6 @@ namespace HwProj.Models.CoursesService.ViewModels
         public CriterionType Type { get; set; }
         [Required] public string Name { get; set; } = null!;
         [Range(0, int.MaxValue)] public int MaxPoints { get; set; }
-        public string Arguments { get; set; }
+        public string? Arguments { get; set; }
     }
 }
