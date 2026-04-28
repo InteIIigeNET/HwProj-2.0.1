@@ -44,7 +44,7 @@ namespace HwProj.CoursesService.API.Filters
             else if (routeData.Values.TryGetValue("taskId", out var taskId))
             {
                 var task = await _taskService.GetTaskAsync(long.Parse(taskId.ToString()));
-                mentorIds = await _coursesService.GetCourseLecturers(task.Homework.CourseId);
+                mentorIds = await _coursesService.GetCourseLecturers(task.CourseId);
             }
 
             if (mentorIds != null && !mentorIds.Contains(userId.ToString()))

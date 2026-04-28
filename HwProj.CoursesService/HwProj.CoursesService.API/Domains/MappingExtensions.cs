@@ -57,6 +57,7 @@ namespace HwProj.CoursesService.API.Domains
                 DeadlineDateNotSet = task.DeadlineDate == null || task.DeadlineDate == DateToOverride,
                 IsDeferred = DateTime.UtcNow < evaluatedPublicationDate,
                 IsGroupWork = tags.Contains(HomeworkTags.GroupWork),
+                CourseId = task.Homework.CourseId,
                 HomeworkId = task.HomeworkId,
                 Tags = tags,
                 Criteria = task.Criteria.Select(c => new CriterionViewModel

@@ -44,9 +44,7 @@ namespace HwProj.CoursesService.API.Controllers
                 var lecturers = await _coursesService.GetCourseLecturers(homework.CourseId);
                 if (!lecturers.Contains(userId)) return BadRequest();
             }
-            var taskViewModel = task.ToHomeworkTaskViewModel();
-            await _tasksService.FillTaskViewModelWithLtiLaunchDataAsync(taskViewModel, taskId);
-            return Ok(taskViewModel);
+            return Ok(task);
         }
 
         [HttpGet("getForEditing/{taskId}")]
@@ -96,7 +94,7 @@ namespace HwProj.CoursesService.API.Controllers
             var updatedTask =
                 await _tasksService.UpdateTaskAsync(taskId, taskViewModel,
                     taskViewModel.ActionOptions ?? ActionOptions.Default);
-            return Ok(updatedTask.ToHomeworkTaskViewModel());
+            return Ok(updatedTask);
         }
 
         [HttpPost("addQuestion")]
@@ -109,7 +107,7 @@ namespace HwProj.CoursesService.API.Controllers
             if (string.IsNullOrEmpty(question.Text))
                 return BadRequest("Текст вопроса пуст");
 
-            if (!await _coursesService.HasStudent(task.Homework.CourseId, studentId))
+            if (!await _coursesService.HasStudent(task.CourseId, studentId))
                 return Forbid();
 
             await _taskQuestionsService.AddQuestionAsync(new TaskQuestion
@@ -119,6 +117,7 @@ namespace HwProj.CoursesService.API.Controllers
                 Text = question.Text,
                 IsPrivate = question.IsPrivate,
             });
+
             return Ok();
         }
 
@@ -129,7 +128,7 @@ namespace HwProj.CoursesService.API.Controllers
             var task = await _tasksService.GetTaskAsync(taskId);
             if (userId == null || task == null) return NotFound();
 
-            var courseId = task.Homework.CourseId;
+            var courseId = task.CourseId;
             var isLecturer = (await _coursesService.GetCourseLecturers(courseId)).Contains(userId);
             var isStudent = await _coursesService.HasStudent(courseId, userId);
             if (!isLecturer && !isStudent)
@@ -148,6 +147,7 @@ namespace HwProj.CoursesService.API.Controllers
                 IsPrivate = x.IsPrivate,
                 LecturerId = x.LecturerId
             });
+
             return Ok(result);
         }
 
@@ -198,7 +198,7 @@ namespace HwProj.CoursesService.API.Controllers
             var task = await _tasksService.GetTaskAsync(question.TaskId);
             if (task == null) return NotFound();
 
-            var courseId = task.Homework.CourseId;
+            var courseId = task.CourseId;
             var isLecturer = (await _coursesService.GetCourseLecturers(courseId)).Contains(lecturerId);
             if (!isLecturer) return Forbid();
 

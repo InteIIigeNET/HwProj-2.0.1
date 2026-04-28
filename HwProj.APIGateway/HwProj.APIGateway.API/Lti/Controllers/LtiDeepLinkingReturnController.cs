@@ -23,6 +23,8 @@ public class LtiDeepLinkingReturnController(
     ILtiKeyService ltiKeyService
     ) : ControllerBase
 {
+    private static readonly JwtSecurityTokenHandler Handler = new();
+
     [HttpPost("deepLinkReturn")]
     [AllowAnonymous]
     public async Task<IActionResult> OnDeepLinkingReturnAsync([FromForm] IFormCollection form)
@@ -33,14 +35,13 @@ public class LtiDeepLinkingReturnController(
         }
 
         var tokenString = jwtValue.ToString();
-        var handler = new JwtSecurityTokenHandler();
 
-        if (!handler.CanReadToken(tokenString))
+        if (!Handler.CanReadToken(tokenString))
         {
             return BadRequest("Invalid JWT structure");
         }
 
-        var unverifiedToken = handler.ReadJwtToken(tokenString);
+        var unverifiedToken = Handler.ReadJwtToken(tokenString);
         var clientId = unverifiedToken.Subject;
 
         var tool = toolService.GetByClientId(clientId);
@@ -54,7 +55,7 @@ public class LtiDeepLinkingReturnController(
 
         try
         {
-            handler.ValidateToken(tokenString, new TokenValidationParameters
+            Handler.ValidateToken(tokenString, new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidIssuer = tool.issuer,
@@ -85,7 +86,7 @@ public class LtiDeepLinkingReturnController(
             return Content("<script>window.close();</script>", "text/html");
         }
 
-        string safeJsonPayload;
+        string jsonPayload;
         var options = new JsonSerializerOptions
         {
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
@@ -95,7 +96,7 @@ public class LtiDeepLinkingReturnController(
         {
             var singleParsed = JsonSerializer.Deserialize<JsonElement>(itemsClaims[0]);
 
-            safeJsonPayload = singleParsed.ValueKind ==JsonValueKind.Array ?
+            jsonPayload = singleParsed.ValueKind == JsonValueKind.Array ?
                 JsonSerializer.Serialize(singleParsed, options) : JsonSerializer.Serialize(new[] { singleParsed }, options);
         }
         else
@@ -103,22 +104,23 @@ public class LtiDeepLinkingReturnController(
             var elements = itemsClaims
                 .Select(v => JsonSerializer.Deserialize<JsonElement>(v))
                 .ToList();
-            safeJsonPayload = JsonSerializer.Serialize(elements, options);
+            jsonPayload = JsonSerializer.Serialize(elements, options);
         }
 
+        // language=html
         var htmlResponse = $@"
         <!DOCTYPE html>
         <html>
         <head><title>Processing LTI Return...</title></head>
-        <body
+        <body>
             <script type=""application/json"" id=""lti-payload"">
-                {safeJsonPayload}
+                {jsonPayload}
             </script>
 
             <script>
                 try {{
-                    var payloadElement = document.getElementById('lti-payload');
-                    var payload = JSON.parse(payloadElement.textContent);
+                    let payloadElement = document.getElementById('lti-payload');
+                    let payload = JSON.parse(payloadElement.textContent);
 
                     if (window.opener) {{
                         window.opener.postMessage({{

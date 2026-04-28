@@ -28,15 +28,17 @@ namespace HwProj.CoursesService.API.Services
             _coursesRepository = coursesRepository;
         }
 
-        public async Task<HomeworkTask> GetTaskAsync(long taskId, bool withCriteria = false)
+        public async Task<HomeworkTaskViewModel> GetTaskAsync(long taskId, bool withCriteria = false)
         {
             var taskFromDb = withCriteria
                 ? await _tasksRepository.GetWithHomeworkAndCriteriaAsync(taskId)
                 : await _tasksRepository.GetWithHomeworkAsync(taskId);
 
             CourseDomain.FillTask(taskFromDb.Homework, taskFromDb);
+            var taskViewModel = taskFromDb.ToHomeworkTaskViewModel();
+            await this.FillTaskViewModelWithLtiLaunchDataAsync(taskViewModel, taskId);
 
-            return taskFromDb;
+            return taskViewModel;
         }
 
         public async Task<HomeworkTask> GetForEditingTaskAsync(long taskId)
@@ -44,7 +46,9 @@ namespace HwProj.CoursesService.API.Services
             return await _tasksRepository.GetWithHomeworkAndCriteriaAsync(taskId);
         }
 
-        public async Task<HomeworkTask> AddTaskAsync(long homeworkId, PostTaskViewModel taskViewModel)
+        public async Task<HomeworkTaskViewModel> AddTaskAsync(
+                long homeworkId,
+                PostTaskViewModel taskViewModel)
         {
             var task = taskViewModel.ToHomeworkTask();
             task.HomeworkId = homeworkId;
@@ -74,7 +78,9 @@ namespace HwProj.CoursesService.API.Services
             await _tasksRepository.DeleteAsync(taskId);
         }
 
-        public async Task<HomeworkTask> UpdateTaskAsync(long taskId, PostTaskViewModel taskViewModel,
+        public async Task<HomeworkTaskViewModel> UpdateTaskAsync(
+            long taskId,
+            PostTaskViewModel taskViewModel,
             ActionOptions options)
         {
             var update = taskViewModel.ToHomeworkTask();
@@ -115,11 +121,6 @@ namespace HwProj.CoursesService.API.Services
             taskViewModel.LtiLaunchData = ltiLaunchData.ToLtiLaunchData();
         }
 
-        public async Task<LtiLaunchData?> GetTaskLtiDataAsync(long taskId)
-        {
-            return await _tasksRepository.GetLtiDataAsync(taskId);
-        }
-
         public async Task FillLtiLaunchDataForTasks(HomeworkViewModel viewModel)
         {
             if (viewModel.Tasks != null && viewModel.Tasks.Any())
@@ -135,6 +136,11 @@ namespace HwProj.CoursesService.API.Services
                     }
                 }
             }
+        }
+
+        private async Task<LtiLaunchData?> GetTaskLtiDataAsync(long taskId)
+        {
+            return await _tasksRepository.GetLtiDataAsync(taskId);
         }
 
         private async Task<Dictionary<long, LtiLaunchData>> GetLtiDataForTasksAsync(long[] taskIds)
