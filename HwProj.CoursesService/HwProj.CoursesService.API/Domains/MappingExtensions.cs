@@ -136,7 +136,8 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeadlineStrict = postTaskViewModel.IsDeadlineStrict,
                 PublicationDate = postTaskViewModel.PublicationDate,
                 IsBonusExplicit = postTaskViewModel.IsBonusExplicit,
-                Criteria = postTaskViewModel.Criteria.Select(x => x.ToCriterion()).ToList(),
+                Criteria = postTaskViewModel.Criteria?.Select(x => x.ToCriterion()).ToList()
+                           ?? new System.Collections.Generic.List<Criterion>(),
             };
 
         public static Homework ToHomework(this CreateHomeworkViewModel homework)

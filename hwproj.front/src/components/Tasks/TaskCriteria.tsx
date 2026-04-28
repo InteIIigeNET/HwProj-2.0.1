@@ -33,7 +33,7 @@ const TaskCriteria: FC<{ task: HomeworkTaskViewModel }> = ({task}) => {
                                 <Typography variant="body2">{c.name}</Typography>
                                 {c.type === CriterionTypeDeadline && c.arguments && (
                                     <Typography variant="caption" color="text.secondary">
-                                        До {Utils.renderDateWithoutSeconds(new Date(c.arguments))}
+                                        До {Utils.renderDateWithoutSeconds(new Date(c.arguments))} · Штраф
                                     </Typography>
                                 )}
                             </Stack>
@@ -42,7 +42,7 @@ const TaskCriteria: FC<{ task: HomeworkTaskViewModel }> = ({task}) => {
                             style={{fontSize: 14}}
                             size={"small"}
                             color={"default"}
-                            label={c.type === CriterionTypeDeadline ? `-${c.maxPoints}` : c.maxPoints}
+                            label={c.maxPoints}
                         />
                     </Stack>
                 ))}

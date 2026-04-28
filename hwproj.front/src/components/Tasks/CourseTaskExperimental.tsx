@@ -35,6 +35,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TaskCriteria from "./TaskCriteria";
 import {BonusTag} from "@/components/Common/HomeworkTags";
 import Utils from "../../services/Utils";
+import ErrorsHandler from "@/components/Utils/ErrorsHandler";
+import {enqueueSnackbar} from "notistack";
 
 
 interface IEditTaskMetadataState {
@@ -226,26 +228,36 @@ const CourseTaskEditor: FC<{
         e.preventDefault()
         setHandleSubmitLoading(true)
 
-        const update = {
-            ...metadata!,
-            title: title!,
-            description: description,
-            isBonusExplicit: isBonusExplicit,
-            maxRating: maxRating,
-            actionOptions: editOptions,
-            criteria: criteria,
-        };
+        try {
+            const update = {
+                ...metadata!,
+                title: title!,
+                description: description,
+                isBonusExplicit: isBonusExplicit,
+                maxRating: maxRating,
+                actionOptions: editOptions,
+                criteria: criteria,
+            };
 
-        const updatedTask = isNewTask
-            ? await ApiSingleton.tasksApi.tasksAddTask(homework.id!, update)
-            : await ApiSingleton.tasksApi.tasksUpdateTask(+id!, update)
+            const updatedTask = isNewTask
+                ? await ApiSingleton.tasksApi.tasksAddTask(homework.id!, update)
+                : await ApiSingleton.tasksApi.tasksUpdateTask(+id!, update)
 
-        if (isNewTask)
-            props.onUpdate({
-                task: props.speculativeTask,
-                isDeleted: true,
-            })
-        props.onUpdate({task: updatedTask.value!, isSaved: true})
+            if (isNewTask)
+                props.onUpdate({
+                    task: props.speculativeTask,
+                    isDeleted: true,
+                })
+            props.onUpdate({task: updatedTask.value!, isSaved: true})
+        } catch (error) {
+            const errors = await ErrorsHandler.getErrorMessages(error as Response, "errors");
+            enqueueSnackbar(errors[0] || "Не удалось сохранить задачу", {
+                variant: "error",
+                autoHideDuration: 4000,
+            });
+        } finally {
+            setHandleSubmitLoading(false)
+        }
     }
 
     const deleteTask = async () => {
@@ -436,7 +448,7 @@ const CourseTaskEditor: FC<{
                                                                 fontWeight: 600,
                                                             }}
                                                         />
-                                                        <Typography variant="subtitle2">
+                                                        <Typography variant="subtitle1" sx={{fontWeight: 700}}>
                                                             Критерий дедлайна
                                                         </Typography>
                                                     </Stack>
@@ -457,7 +469,7 @@ const CourseTaskEditor: FC<{
                                                         label="Штраф"
                                                         type="number"
                                                         size="small"
-                                                        sx={{width: 115}}
+                                                        sx={{width: 110}}
                                                         value={-(c.maxPoints ?? 1)}
                                                         inputProps={{max: -1}}
                                                         onChange={(e) =>
@@ -481,15 +493,6 @@ const CourseTaskEditor: FC<{
                                                         <CloseIcon fontSize="small"/>
                                                     </IconButton>
                                                 </Grid>
-                                                <Grid item xs={12}>
-                                                    <Typography variant="caption" sx={{fontWeight: 600, color: "#667085"}}>
-                                                        Источник дедлайна
-                                                    </Typography>
-                                                    <Stack direction="row" spacing={1} sx={{mt: 0.5}}>
-                                                        <Chip label="Конкретная дата" color="primary" variant="outlined" size="small"/>
-                                                        <Chip label="Особая дата курса" variant="outlined" size="small"/>
-                                                    </Stack>
-                                                </Grid>
                                                 <Grid item>
                                                     <TextField
                                                         label="Дата и время"
@@ -507,6 +510,11 @@ const CourseTaskEditor: FC<{
                                                         }
                                                         InputLabelProps={{shrink: true}}
                                                     />
+                                                </Grid>
+                                                <Grid item sx={{pt: "20px !important"}}>
+                                                    <Typography variant="body2">
+                                                        На основе дедлайна
+                                                    </Typography>
                                                 </Grid>
                                                 <Grid item>
                                                     <Box
