@@ -4,7 +4,9 @@
     "HwProj.SolutionsService.API": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "OPENSSL_CONF": "",
+        "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT": "1"
       },
       "applicationUrl": "http://localhost:5007"
     },

@@ -5,7 +5,7 @@
 namespace HwProj.CoursesService.API.Migrations
 {
     /// <inheritdoc />
-    public partial class Net8Update : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
