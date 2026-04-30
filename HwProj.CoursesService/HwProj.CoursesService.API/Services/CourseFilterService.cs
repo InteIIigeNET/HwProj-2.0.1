@@ -181,6 +181,22 @@ namespace HwProj.CoursesService.API.Services
                 ? editingCourseDto.Groups.Where(g => filter.GroupIds.Contains(g.Id)).ToArray()
                 : Array.Empty<GroupViewModel>();
 
+            var filteredGroups = editingCourseDto.Groups
+                .Select(gs =>
+                {
+                    var groupStudentsIds = gs.StudentsIds.Intersect(filter.StudentIds).ToArray();
+                    return groupStudentsIds.Any()
+                        ? new GroupViewModel
+                        {
+                            Id = gs.Id,
+                            Name = gs.Name,
+                            StudentsIds = groupStudentsIds
+                        }
+                        : null;
+                })
+                .Where(t => t != null)
+                .ToArray();
+
             return new CourseDTO
             {
                 Id = editingCourseDto.Id,
@@ -189,23 +205,9 @@ namespace HwProj.CoursesService.API.Services
                 IsCompleted = editingCourseDto.IsCompleted,
                 IsOpen = editingCourseDto.IsOpen,
                 InviteCode = editingCourseDto.InviteCode,
-                Groups = groups.Concat(
-                    editingCourseDto.Groups
-                        .Where(gs => gs.Name == StudentsGroupName)
-                        .Select(gs =>
-                        {
-                            var groupStudentsIds = gs.StudentsIds.Intersect(filter.StudentIds).ToArray();
-                            return groupStudentsIds.Any()
-                                ? new GroupViewModel
-                                {
-                                    Id = gs.Id,
-                                    Name = gs.Name,
-                                    StudentsIds = groupStudentsIds
-                                }
-                                : null;
-                        })
-                        .Where(t => t != null))
-                    .ToArray(),
+                Groups = groups.Any()
+                    ? groups.Where(g => g != null).Concat(filteredGroups.Where(g => g.Name == StudentsGroupName)).ToArray()
+                    : filteredGroups,
                 MentorIds = filter.MentorIds.Any()
                     ? editingCourseDto.MentorIds.Intersect(filter.MentorIds).ToArray()
                     : editingCourseDto.MentorIds,
