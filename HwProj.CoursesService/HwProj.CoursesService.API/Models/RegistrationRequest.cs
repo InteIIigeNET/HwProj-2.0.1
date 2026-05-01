@@ -25,6 +25,8 @@ namespace HwProj.CoursesService.API.Models
         // Status of the request to registration
         public RegistrationRequestStatus Status { get; set; }
         
+        public RegistrationRequestSourceType SourceType { get; set; }
+        
         public DateTime CreatedAtUtc { get; set; }
         
         public DateTime UpdatedAtUtc { get; set; }
@@ -35,6 +37,7 @@ namespace HwProj.CoursesService.API.Models
         
         public string? RejectReason { get; set; }
         
+        // Result userId
         public string? ResolvedUserId { get; set; }
 
     }
