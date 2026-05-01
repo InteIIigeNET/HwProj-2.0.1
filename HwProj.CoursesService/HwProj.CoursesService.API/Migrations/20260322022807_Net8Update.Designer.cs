@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HwProj.CoursesService.API.Migrations
 {
     [DbContext(typeof(CourseContext))]
-    [Migration("20260428205128_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260322022807_Net8Update")]
+    partial class Net8Update
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
