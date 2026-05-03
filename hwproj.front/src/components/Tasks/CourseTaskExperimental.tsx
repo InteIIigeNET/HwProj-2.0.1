@@ -137,9 +137,32 @@ const CourseTaskEditor: FC<{
             open={Boolean(addCriterionAnchor)}
             onClose={() => setAddCriterionAnchor(null)}
         >
-            <MenuItem onClick={addDefaultCriterion}>Обычный критерий</MenuItem>
-            <MenuItem onClick={addDeadlineCriterion} sx={{color: "#16a34a", fontWeight: 700}}>
-                Автокритерий: дедлайн
+            <MenuItem onClick={addDefaultCriterion}>
+                Обычный критерий
+            </MenuItem>
+            <MenuItem onClick={addDeadlineCriterion}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                    <Typography variant="inherit">Дедлайн</Typography>
+                    <Box
+                        component="span"
+                        sx={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: 26,
+                            height: 26,
+                            borderRadius: "50%",
+                            backgroundColor: "#E8F8EE",
+                            color: "#2E7D32",
+                            fontSize: 9,
+                            lineHeight: 1,
+                            fontWeight: 500,
+                            textTransform: "lowercase",
+                        }}
+                    >
+                        авто
+                    </Box>
+                </Stack>
             </MenuItem>
         </Menu>
     );
