@@ -18,19 +18,13 @@ const TaskCriteria: FC<{ task: HomeworkTaskViewModel }> = ({task}) => {
                 {task.criteria.map(c => (
                     <Stack key={c.id} direction="row" alignItems={"center"} justifyContent="space-between">
                         <Stack direction="row" spacing={1} alignItems="center">
-                            {c.type === CriterionTypeDeadline && (
-                                <Chip
-                                    label="Авто"
-                                    size="small"
-                                    sx={{
-                                        backgroundColor: "#E8F8EE",
-                                        color: "#159947",
-                                        fontWeight: 600,
-                                    }}
-                                />
-                            )}
                             <Stack spacing={0}>
-                                <Typography variant="body2">{c.name}</Typography>
+                                <Typography variant="body2">
+                                    {c.name}
+                                    {c.type === CriterionTypeDeadline && (
+                                        <sup style={{color: "#159947", fontWeight: 600}}> авто</sup>
+                                    )}
+                                </Typography>
                                 {c.type === CriterionTypeDeadline && c.arguments && (
                                     <Typography variant="caption" color="text.secondary">
                                         До {Utils.renderDateWithoutSeconds(new Date(c.arguments))} · Штраф
@@ -41,8 +35,13 @@ const TaskCriteria: FC<{ task: HomeworkTaskViewModel }> = ({task}) => {
                         <Chip
                             style={{fontSize: 14}}
                             size={"small"}
-                            color={"default"}
-                            label={c.maxPoints}
+                            color={c.type === CriterionTypeDeadline ? "warning" : "default"}
+                            label={c.type === CriterionTypeDeadline ? `Штраф ${c.maxPoints}` : c.maxPoints}
+                            sx={c.type === CriterionTypeDeadline ? {
+                                backgroundColor: "#FFF4D6",
+                                color: "#9A5B00",
+                                fontWeight: 600,
+                            } : undefined}
                         />
                     </Stack>
                 ))}
