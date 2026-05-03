@@ -27,22 +27,43 @@ const TaskCriteria: FC<{ task: HomeworkTaskViewModel }> = ({task}) => {
                                 </Typography>
                                 {c.type === CriterionTypeDeadline && c.arguments && (
                                     <Typography variant="caption" color="text.secondary">
-                                        До {Utils.renderDateWithoutSeconds(new Date(c.arguments))} · Штраф
+                                        До {Utils.renderDateWithoutSeconds(new Date(c.arguments))}
                                     </Typography>
                                 )}
                             </Stack>
                         </Stack>
-                        <Chip
-                            style={{fontSize: 14}}
-                            size={"small"}
-                            color={c.type === CriterionTypeDeadline ? "warning" : "default"}
-                            label={c.type === CriterionTypeDeadline ? `Штраф ${c.maxPoints}` : c.maxPoints}
-                            sx={c.type === CriterionTypeDeadline ? {
-                                backgroundColor: "#FFF4D6",
-                                color: "#9A5B00",
-                                fontWeight: 600,
-                            } : undefined}
-                        />
+                        {c.type === CriterionTypeDeadline ? (
+                            <Stack direction="row" spacing={0.5} alignItems="center">
+                                <Typography
+                                    variant="caption"
+                                    sx={{
+                                        color: "#9A5B00",
+                                        fontWeight: 600,
+                                        fontSize: 11,
+                                    }}
+                                >
+                                    Штраф
+                                </Typography>
+                                <Chip
+                                    style={{fontSize: 14}}
+                                    size={"small"}
+                                    color={"warning"}
+                                    label={c.maxPoints}
+                                    sx={{
+                                        backgroundColor: "#FFF4D6",
+                                        color: "#9A5B00",
+                                        fontWeight: 600,
+                                    }}
+                                />
+                            </Stack>
+                        ) : (
+                            <Chip
+                                style={{fontSize: 14}}
+                                size={"small"}
+                                color={"default"}
+                                label={c.maxPoints}
+                            />
+                        )}
                     </Stack>
                 ))}
             </Stack>
