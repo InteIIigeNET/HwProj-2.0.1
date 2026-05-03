@@ -332,11 +332,20 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         const rows: string[] = criterionRatings.map(cr => {
             const criterion = taskWithCriteria.criteria?.find(c => c.id === cr.criterionId);
             const safeValue = Number.isFinite(cr.value) ? cr.value : 0;
-            const deadlineText = criterion?.type === CriterionTypeDeadline && criterion.arguments
-                ? `, дедлайн ${Utils.renderDateWithoutSeconds(new Date(criterion.arguments))}`
-                : "";
 
-            return `| ${cr.name}${deadlineText} | ${safeValue} / ${cr.maxPoints} |`;
+            if (criterion?.type === CriterionTypeDeadline) {
+                const deadlineDelay = criterion.arguments && solution?.publicationDate
+                    ? getDatesDiff(solution.publicationDate!, new Date(criterion.arguments))
+                    : "";
+                const statusText = safeValue === 0
+                    ? "Сдано вовремя"
+                    : `Просрочено${deadlineDelay ? ` на ${deadlineDelay}` : ""}`;
+                const valueText = safeValue === 0 ? "✅" : `❌ ${safeValue}`;
+
+                return `| ${cr.name}<br/>${statusText} | ${valueText} |`;
+            }
+
+            return `| ${cr.name} | ${safeValue} / ${cr.maxPoints} |`;
         });
 
         if ((extraScore ?? 0) !== 0) {
