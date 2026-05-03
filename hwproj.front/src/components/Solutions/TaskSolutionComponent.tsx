@@ -342,7 +342,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     : `Просрочено${deadlineDelay ? ` на ${deadlineDelay}` : ""}`;
                 const valueText = safeValue === 0 ? "✅" : `❌ ${safeValue}`;
 
-                return `| ${cr.name}<br/>${statusText} | ${valueText} |`;
+                return `| ${cr.name}<br/><span style="display:inline-block;margin-top:4px;">${statusText}</span> | ${valueText} |`;
             }
 
             return `| ${cr.name} | ${safeValue} / ${cr.maxPoints} |`;
