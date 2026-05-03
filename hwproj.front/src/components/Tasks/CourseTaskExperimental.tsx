@@ -138,7 +138,9 @@ const CourseTaskEditor: FC<{
             onClose={() => setAddCriterionAnchor(null)}
         >
             <MenuItem onClick={addDefaultCriterion}>Обычный критерий</MenuItem>
-            <MenuItem onClick={addDeadlineCriterion}>Дедлайн</MenuItem>
+            <MenuItem onClick={addDeadlineCriterion} sx={{color: "#16a34a", fontWeight: 700}}>
+                Автокритерий: дедлайн
+            </MenuItem>
         </Menu>
     );
 
@@ -427,124 +429,102 @@ const CourseTaskEditor: FC<{
                             <Collapse in={isCriteriaOpen} timeout="auto" unmountOnExit>
                                 <Stack spacing={0.5}>
                                     {criteria.map((c, index) => isDeadlineCriterion(c) ? (
-                                        <Grid
+                                        <Box
                                             key={index}
-                                            container
-                                            spacing={1}
-                                            alignItems="center"
                                             sx={{
-                                                py: 0.5,
+                                                border: "1px solid #E2E5EC",
+                                                borderRadius: "8px",
+                                                p: 2,
+                                                backgroundColor: "#fff",
                                             }}
                                         >
-                                            <Grid item>
-                                                <Tooltip
-                                                    arrow
-                                                    placement="top"
-                                                    title="Проверяется автоматически по дедлайну"
-                                                >
-                                                    <Box
-                                                        component="span"
-                                                        sx={{
-                                                            display: "inline-flex",
-                                                            alignItems: "center",
-                                                            justifyContent: "center",
-                                                            width: 32,
-                                                            height: 32,
-                                                            borderRadius: "50%",
-                                                            backgroundColor: "#E8F8EE",
-                                                            color: "#2E7D32",
-                                                            fontSize: 10,
-                                                            lineHeight: 1,
-                                                            textTransform: "lowercase",
-                                                            flexShrink: 0,
-                                                        }}
+                                            <Grid container spacing={1.5} alignItems="flex-start">
+                                                <Grid item xs={12}>
+                                                    <Stack direction="row" spacing={1} alignItems="center">
+                                                        <Chip
+                                                            label="Авто"
+                                                            size="small"
+                                                            sx={{
+                                                                backgroundColor: "#E8F8EE",
+                                                                color: "#159947",
+                                                                fontWeight: 600,
+                                                            }}
+                                                        />
+                                                        <Typography variant="subtitle1" sx={{fontWeight: 700}}>
+                                                            Критерий дедлайна
+                                                        </Typography>
+                                                        <Tooltip
+                                                            arrow
+                                                            placement="right"
+                                                            title={`После ${c.arguments ? Utils.renderDateWithoutSeconds(new Date(c.arguments)) : "дедлайна"} будет списан ${c.maxPoints || 1} балл`}
+                                                        >
+                                                            <HelpOutlineIcon sx={{fontSize: 18, color: "#667085"}}/>
+                                                        </Tooltip>
+                                                    </Stack>
+                                                </Grid>
+                                                <Grid item xs>
+                                                    <Stack spacing={1}>
+                                                        <TextField
+                                                            fullWidth
+                                                            size="small"
+                                                            variant="standard"
+                                                            label="Название критерия"
+                                                            value={c.name}
+                                                            inputProps={{maxLength: 50}}
+                                                            onChange={(e) => updateCriterion(index, {name: e.target.value.slice(0, 50)})}
+                                                        />
+                                                        <TextField
+                                                            label="Дата и время"
+                                                            type="datetime-local"
+                                                            size="small"
+                                                            required
+                                                            error={!c.arguments}
+                                                            value={c.arguments ? Utils.toISOString(new Date(c.arguments)) : ""}
+                                                            onChange={(e) =>
+                                                                updateCriterion(index, {
+                                                                    arguments: e.target.value
+                                                                        ? new Date(e.target.value).toISOString()
+                                                                        : undefined,
+                                                                })
+                                                            }
+                                                            InputLabelProps={{shrink: true}}
+                                                        />
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            На основе дедлайна
+                                                        </Typography>
+                                                    </Stack>
+                                                </Grid>
+                                                <Grid item>
+                                                    <TextField
+                                                        label="Штраф"
+                                                        type="number"
+                                                        size="small"
+                                                        sx={{width: 110}}
+                                                        value={-(c.maxPoints ?? 1)}
+                                                        inputProps={{max: -1}}
+                                                        onChange={(e) =>
+                                                            updateCriterion(index, {
+                                                                maxPoints: Math.max(Math.abs(+e.target.value || 1), 1),
+                                                            })
+                                                        }
+                                                        onBlur={(e) =>
+                                                            updateCriterion(index, {
+                                                                maxPoints: Math.max(Math.abs(+e.target.value || 1), 1),
+                                                            })
+                                                        }
+                                                    />
+                                                </Grid>
+                                                <Grid item>
+                                                    <IconButton
+                                                        onClick={() => removeCriterion(index)}
+                                                        color="error"
+                                                        size="small"
                                                     >
-                                                        авто
-                                                    </Box>
-                                                </Tooltip>
+                                                        <CloseIcon fontSize="small"/>
+                                                    </IconButton>
+                                                </Grid>
                                             </Grid>
-                                            <Grid item xs>
-                                                <TextField
-                                                    fullWidth
-                                                    size="small"
-                                                    variant="standard"
-                                                    label="Название критерия"
-                                                    value={c.name}
-                                                    inputProps={{maxLength: 50}}
-                                                    onChange={(e) => updateCriterion(index, {name: e.target.value.slice(0, 50)})}
-                                                />
-                                            </Grid>
-                                            <Grid item>
-                                                <Chip
-                                                    size="small"
-                                                    label={c.arguments
-                                                        ? `Дедлайн: ${Utils.renderDateWithoutSeconds(new Date(c.arguments))}`
-                                                        : "Дедлайн не указан"}
-                                                    sx={{
-                                                        backgroundColor: "#E8F8EE",
-                                                        color: "#2E7D32",
-                                                        fontWeight: 500,
-                                                    }}
-                                                />
-                                            </Grid>
-                                            <Grid item>
-                                                <TextField
-                                                    label="Дата и время"
-                                                    type="datetime-local"
-                                                    size="small"
-                                                    required
-                                                    error={!c.arguments}
-                                                    sx={{width: 210}}
-                                                    value={c.arguments ? Utils.toISOString(new Date(c.arguments)) : ""}
-                                                    onChange={(e) =>
-                                                        updateCriterion(index, {
-                                                            arguments: e.target.value
-                                                                ? new Date(e.target.value).toISOString()
-                                                                : undefined,
-                                                        })
-                                                    }
-                                                    InputLabelProps={{shrink: true}}
-                                                />
-                                            </Grid>
-                                            <Grid item>
-                                                <TextField
-                                                    label="Штраф"
-                                                    type="number"
-                                                    size="small"
-                                                    sx={{width: 110}}
-                                                    value={-(c.maxPoints ?? 1)}
-                                                    inputProps={{max: -1}}
-                                                    onChange={(e) =>
-                                                        updateCriterion(index, {
-                                                            maxPoints: Math.max(Math.abs(+e.target.value || 1), 1),
-                                                        })
-                                                    }
-                                                    onBlur={(e) =>
-                                                        updateCriterion(index, {
-                                                            maxPoints: Math.max(Math.abs(+e.target.value || 1), 1),
-                                                        })
-                                                    }
-                                                />
-                                            </Grid>
-                                            <Grid item>
-                                                <Tooltip
-                                                    arrow
-                                                    placement="top"
-                                                    title={`После ${c.arguments ? Utils.renderDateWithoutSeconds(new Date(c.arguments)) : "дедлайна"} будет списан ${c.maxPoints || 1} балл`}
-                                                >
-                                                    <HelpOutlineIcon sx={{fontSize: 18, color: "#667085"}}/>
-                                                </Tooltip>
-                                            </Grid>
-                                            <Grid item>
-                                                <IconButton
-                                                    onClick={() => removeCriterion(index)}
-                                                    color="error"
-                                                    size="small"
-                                                >
-                                                    <CloseIcon fontSize="small"/>
-                                                </IconButton>
-                                            </Grid>
-                                        </Grid>
+                                        </Box>
                                     ) : (
                                         <Grid
                                             key={index}
