@@ -298,6 +298,21 @@ const CourseTaskEditor: FC<{
     const maxRatingLabel =
         criteria.length > 0 ? "Критерии" : props.speculativeTask.suggestedMaxRating === maxRating ? "Вычислено" : undefined
 
+    const getEffectiveDeadlineDate = () => {
+        const hasEffectiveDeadline = metadata?.hasDeadline ?? homework.hasDeadline;
+        const deadlineDate = metadata?.deadlineDate || homework.deadlineDate;
+
+        return hasEffectiveDeadline && deadlineDate ? new Date(deadlineDate) : undefined;
+    }
+
+    const isBasedOnEffectiveDeadline = (criterion: CriterionViewModel) => {
+        const effectiveDeadlineDate = getEffectiveDeadlineDate();
+
+        return !!criterion.arguments
+            && !!effectiveDeadlineDate
+            && new Date(criterion.arguments).getTime() === effectiveDeadlineDate.getTime();
+    }
+
     return (
         <CardContent>
             <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
@@ -500,8 +515,10 @@ const CourseTaskEditor: FC<{
                                                             label="Дата и время"
                                                             type="datetime-local"
                                                             size="small"
+                                                            variant="standard"
                                                             required
                                                             error={!c.arguments}
+                                                            sx={{mt: 1}}
                                                             value={c.arguments ? Utils.toISOString(new Date(c.arguments)) : ""}
                                                             onChange={(e) =>
                                                                 updateCriterion(index, {
@@ -512,9 +529,11 @@ const CourseTaskEditor: FC<{
                                                             }
                                                             InputLabelProps={{shrink: true}}
                                                         />
-                                                        <Typography variant="body2" color="text.secondary">
-                                                            На основе дедлайна
-                                                        </Typography>
+                                                        {isBasedOnEffectiveDeadline(c) && (
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                На основе дедлайна
+                                                            </Typography>
+                                                        )}
                                                     </Stack>
                                                 </Grid>
                                                 <Grid item>
