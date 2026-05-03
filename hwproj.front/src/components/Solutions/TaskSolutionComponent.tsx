@@ -214,22 +214,24 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     useEffect(() => {
         if (!hasCriteria || !state.addBonusPoints || !state.clickedForRate || !criteriaModified) return;
 
-        const criteriaTotal = criterionRatings.reduce(
+        const criteriaTotalRaw = criterionRatings.reduce(
             (sum, c) => sum + (Number.isFinite(c.value) ? Number(c.value) : 0),
             0
         );
+        const criteriaTotal = Math.max(0, criteriaTotalRaw);
         const total = criteriaTotal + (Number.isFinite(extraScore) ? extraScore : 0);
 
         setState(prev => ({...prev, points: total}));
     }, [criterionRatings, extraScore, hasCriteria, state.addBonusPoints, state.clickedForRate, criteriaModified]);
 
-    const criteriaSum =
+    const criteriaTotalRaw =
         criterionRatings.reduce(
             (sum, c) => sum + (Number.isFinite(c.value) ? Number(c.value) : 0),
             0
-        ) + (Number.isFinite(extraScore) ? extraScore : 0);
+        );
+    const criteriaSum = Math.max(0, criteriaTotalRaw) + (Number.isFinite(extraScore) ? extraScore : 0);
 
-    const isRateButtonDisabled = hasCriteria && criteriaSum < 0;
+    const isRateButtonDisabled = false;
 
     const [isCtrlPressed, setIsCtrlPressed] = useState(false)
 
@@ -599,12 +601,12 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const renderCriteriaBlock = () => {
         if (!hasCriteria) return null;
 
-        const criteriaTotal = criterionRatings.reduce(
+        const criteriaTotalRaw = criterionRatings.reduce(
             (sum, c) => sum + (Number.isFinite(c.value) ? Number(c.value) : 0),
             0
         );
+        const criteriaTotal = Math.max(0, criteriaTotalRaw);
         const totalWithExtra = criteriaTotal + (Number.isFinite(extraScore) ? extraScore : 0);
-        const isCriteriaSumNegative = totalWithExtra < 0;
 
         return (
             <Grid container item direction="column" spacing={1} style={{marginTop: 0}}>
@@ -638,7 +640,59 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             const isFilled = hasExplicitValue && (isThumbCriterion || numericValue !== 0);
                             const isDeadlineCriterion = c.type === CriterionTypeDeadline;
                             const deadlineDate = c.arguments ? new Date(c.arguments) : undefined;
-                            const deadlinePassed = isDeadlineCriterion && numericValue === 0;
+                            const isSubmittedOnTime = isDeadlineCriterion && numericValue === 0;
+                            const deadlineDelay = isDeadlineCriterion && deadlineDate && solution?.publicationDate
+                                ? getDatesDiff(solution.publicationDate!, deadlineDate)
+                                : "";
+
+                            if (isDeadlineCriterion) {
+                                return (
+                                    <Alert
+                                        key={c.id}
+                                        severity={isSubmittedOnTime ? "success" : "error"}
+                                        icon={isSubmittedOnTime
+                                            ? <CheckIcon fontSize="small" color="success"/>
+                                            : <CloseIcon fontSize="small" color="error"/>}
+                                        sx={{
+                                            gridColumn: "1 / span 2",
+                                            alignItems: "center",
+                                            py: 0.5,
+                                            "& .MuiAlert-message": {
+                                                width: "100%",
+                                            },
+                                            "& .MuiAlert-icon": {
+                                                alignItems: "center",
+                                            },
+                                        }}
+                                    >
+                                        <Stack
+                                            direction="row"
+                                            alignItems="center"
+                                            justifyContent="space-between"
+                                            spacing={2}
+                                            sx={{width: "100%"}}
+                                        >
+                                            <Box>
+                                                <Typography variant="body1">{c.name}</Typography>
+                                                <Typography variant="caption" color="textSecondary">
+                                                    {isSubmittedOnTime
+                                                        ? "Сдано вовремя"
+                                                        : `Просрочено${deadlineDelay ? ` на ${deadlineDelay}` : ""}`}
+                                                </Typography>
+                                            </Box>
+                                            <Chip
+                                                size="small"
+                                                color={isSubmittedOnTime ? "success" : "error"}
+                                                label={isSubmittedOnTime ? "0" : numericValue}
+                                                sx={numericValue === 0 ? {
+                                                    color: isSubmittedOnTime ? undefined : "#d32f2f",
+                                                    fontWeight: 600,
+                                                } : undefined}
+                                            />
+                                        </Stack>
+                                    </Alert>
+                                );
+                            }
 
                             return (
                                 <React.Fragment key={c.id}>
@@ -671,13 +725,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     </Box>
 
                                     <Box>
-                                        {isDeadlineCriterion ? (
-                                            <Chip
-                                                size="small"
-                                                color={deadlinePassed ? "success" : "error"}
-                                                label={deadlinePassed ? "0" : `${numericValue}`}
-                                            />
-                                        ) : isThumbCriterion ? (
+                                        {isThumbCriterion ? (
                                             <Stack direction="row" alignItems="center">
                                                 <IconButton
                                                     size="small"
@@ -822,9 +870,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             variant="standard"
                             margin="dense"
                             placeholder="0"
+                            inputProps={{min: 0}}
                             onChange={e => {
                                 let val = Number(e.target.value || 0);
                                 if (Number.isNaN(val)) val = 0;
+                                val = Math.max(0, val);
 
                                 setCriteriaModified(true);
                                 setExtraScore(val);
@@ -841,7 +891,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             marginBottom: 8,
                             fontSize: "0.95rem",
                             fontWeight: 500,
-                            color: isCriteriaSumNegative ? "#d32f2f" : undefined,
+                            color: totalWithExtra === 0 ? "#d32f2f" : undefined,
                         }}
                     >
                         {`Сумма по критериям: ${totalWithExtra} из ${maxRating}`}
