@@ -478,7 +478,7 @@ const CourseTaskEditor: FC<{
                                                                 fontWeight: 600,
                                                             }}
                                                         />
-                                                        <Typography variant="subtitle1" sx={{fontWeight: 700}}>
+                                                        <Typography variant="subtitle1">
                                                             Критерий дедлайна
                                                         </Typography>
                                                         <Tooltip
@@ -527,24 +527,36 @@ const CourseTaskEditor: FC<{
                                                     </Stack>
                                                 </Grid>
                                                 <Grid item>
-                                                    <TextField
-                                                        label="Штраф"
-                                                        type="number"
-                                                        size="small"
-                                                        sx={{width: 110}}
-                                                        value={-(c.maxPoints ?? 1)}
-                                                        inputProps={{max: -1}}
-                                                        onChange={(e) =>
-                                                            updateCriterion(index, {
-                                                                maxPoints: Math.max(Math.abs(+e.target.value || 1), 1),
-                                                            })
-                                                        }
-                                                        onBlur={(e) =>
-                                                            updateCriterion(index, {
-                                                                maxPoints: Math.max(Math.abs(+e.target.value || 1), 1),
-                                                            })
-                                                        }
-                                                    />
+                                                    <Stack direction="row" spacing={0.75} alignItems="center">
+                                                        <Typography
+                                                            aria-hidden="true"
+                                                            color="text.secondary"
+                                                            sx={{fontSize: 20, lineHeight: 1}}
+                                                        >
+                                                            -
+                                                        </Typography>
+                                                        <TextField
+                                                            label="Штраф"
+                                                            type="number"
+                                                            size="small"
+                                                            sx={{width: 110}}
+                                                            value={c.maxPoints ?? 1}
+                                                            inputProps={{min: 1}}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === "-") e.preventDefault();
+                                                            }}
+                                                            onChange={(e) =>
+                                                                updateCriterion(index, {
+                                                                    maxPoints: Math.max(+e.target.value, 1),
+                                                                })
+                                                            }
+                                                            onBlur={(e) =>
+                                                                updateCriterion(index, {
+                                                                    maxPoints: Math.max(+e.target.value, 1),
+                                                                })
+                                                            }
+                                                        />
+                                                    </Stack>
                                                 </Grid>
                                                 <Grid item>
                                                     <IconButton
