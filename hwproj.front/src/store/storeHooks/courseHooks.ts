@@ -10,7 +10,14 @@ import {
 import {setHomeworks} from '../slices/homeworkSlice';
 import {setStudentSolutions} from '../slices/solutionSlice';
 import {setCourseFiles, updateCourseFiles, setProcessingLoading} from '../slices/courseFileSlice';
-import {setUser, UserRole} from '../slices/userSlice';
+import {
+    selectIsExpert,
+    selectIsLecturer,
+    selectIsLecturerOrExpert,
+    selectUserId,
+    setUser,
+    UserRole,
+} from '../slices/userSlice';
 import {resetEditingState} from '../slices/courseEditingSlice';
 import {setGroups} from '../slices/groupSlice';
 import ApiSingleton from '@/api/ApiSingleton';
@@ -30,7 +37,7 @@ export type StartProcessingFn = (
 
 export const useIsCourseMentor = () => {
     const mentors = useCourseState(state => state.course.mentors);
-    const userId = useCourseState(state => state.user.userId);
+    const userId = useCourseState(selectUserId);
     return mentors.some(m => m.userId === userId);
 };
 
@@ -52,9 +59,9 @@ export const useCoursePageData = () => {
     const groups = useCourseState(state => state.groups.items);
     const courseHomeworks = useCourseState(state => state.homeworks.items);
     const studentSolutions = useCourseState(state => state.solutions.studentSolutions);
-    const userId = useCourseState(state => state.user.userId);
-    const isLecturer = useCourseState(state => state.user.isLecturer);
-    const isExpert = useCourseState(state => state.user.isExpert);
+    const userId = useCourseState(selectUserId);
+    const isLecturer = useCourseState(selectIsLecturer);
+    const isExpert = useCourseState(selectIsExpert);
 
     return {
         course,
@@ -76,13 +83,13 @@ export const useCoursePageData = () => {
 
 export const useCourseLoader = (courseId: number) => {
     const dispatch = useCourseDispatch();
-    const userId = useCourseState(state => state.user.userId);
-    const isLecturerOrExpertOnSite = useCourseState(state => state.user.isLecturer || state.user.isExpert);
+    const userId = useCourseState(selectUserId);
+    const isLecturerOrExpertOnSite = useCourseState(selectIsLecturerOrExpert);
 
     const initUser = useCallback(() => {
         const id = ApiSingleton.authService.getUserId();
-        const role = ApiSingleton.authService.getRole() as UserRole;
-        dispatch(setUser({userId: id, role}));
+        const role = ApiSingleton.authService.getRole() as UserRole | null;
+        dispatch(setUser(id && role ? {userId: id, role} : null));
     }, [dispatch]);
 
     const loadCourse = useCallback(async () => {

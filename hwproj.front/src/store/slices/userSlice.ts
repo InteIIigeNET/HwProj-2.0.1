@@ -1,37 +1,29 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
-export type UserRole = "Lecturer" | "Expert" | "Student" | null;
+export type UserRole = "Lecturer" | "Expert" | "Student";
 
-interface UserState {
-    userId: string | null;
-    isLecturer: boolean;
-    isExpert: boolean;
-}
-
-type SetUserPayload = {
-    userId: string | null;
+export type UserState = {
+    userId: string;
     role: UserRole;
-}
+} | null;
 
-const initialState: UserState = {
-    userId: null,
-    isLecturer: false,
-    isExpert: false,
-};
+const initialState = null as UserState;
 
 const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        setUser: (state, action: PayloadAction<SetUserPayload>) => {
-            const {userId, role} = action.payload;
-            state.userId = userId;
-            state.isLecturer = role === "Lecturer";
-            state.isExpert = role === "Expert";
-        },
+        setUser: (_state, action: PayloadAction<UserState>) => action.payload,
     },
 });
 
 export const {setUser} = userSlice.actions;
+
+export const selectUserId = (state: { user: UserState }) => state.user?.userId ?? null;
+export const selectUserRole = (state: { user: UserState }) => state.user?.role ?? null;
+export const selectIsLecturer = (state: { user: UserState }) => state.user?.role === "Lecturer";
+export const selectIsExpert = (state: { user: UserState }) => state.user?.role === "Expert";
+export const selectIsLecturerOrExpert = (state: { user: UserState }) =>
+    selectIsLecturer(state) || selectIsExpert(state);
  
 export default userSlice.reducer;

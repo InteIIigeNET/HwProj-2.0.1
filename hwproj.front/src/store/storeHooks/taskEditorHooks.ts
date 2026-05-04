@@ -1,14 +1,15 @@
 import {useCallback, useMemo} from 'react';
 import {useCourseDispatch, useCourseState } from '../hooks';
 import {
-    addDraftHomework,
+    ensureHomeworkDraft,
     addDraftTask,
+    createNewDraftTask,
     updateDraftTask as updateDraftTaskAction,
     removeDraftTask,
     removeDraftHomework,
-    decrementDraftId,
     setSelectedItem,
 } from '../slices/courseEditingSlice';
+import {store} from '../store';
 import {updateTask, deleteTask as deleteTaskAction } from '../slices/homeworkSlice';
 import {HomeworkViewModel, HomeworkTaskViewModel, CriterionViewModel, PostTaskViewModel, ActionOptions } from '@/api';
 import ApiSingleton from '@/api/ApiSingleton';
@@ -92,21 +93,17 @@ export const useTaskEditorState = (
 
 export const useTaskEditing = () => {
     const dispatch = useCourseDispatch();
-    const draftIdCounter = useCourseState(state => state.editing.draftIdCounter);
     const draftHomeworks = useCourseState(state => state.editing.draftHomeworks);
     const committedHomeworks = useCourseState(state => state.homeworks.items);
     const mergedHomeworks = useMergedHomeworks();
 
     const ensureHomeworkInDrafts = useCallback((homework: HomeworkViewModel) => {
-        const existingDraft = draftHomeworks.find(dh => dh.id === homework.id);
-        if (!existingDraft) {
-            const copy: HomeworkViewModel = {
-                ...homework,
-                tasks: [],
-            };
-            dispatch(addDraftHomework(copy));
-        }
-    }, [draftHomeworks, dispatch]);
+        const copy: HomeworkViewModel = {
+            ...homework,
+            tasks: [],
+        };
+        dispatch(ensureHomeworkDraft(copy));
+    }, [dispatch]);
 
     const getSuggestedTaskRating = useCallback((homework: HomeworkViewModel) => {
         const tags = homework.tags || [];
@@ -145,11 +142,10 @@ export const useTaskEditing = () => {
 
     const createTaskDraft = useCallback((homework: HomeworkViewModel) => {
         ensureHomeworkInDrafts(homework);
-        const newId = draftIdCounter;
+        const newId = store.getState().editing.draftIdCounter;
         const suggestedMaxRating = getSuggestedTaskRating(homework);
-        const newTask = {
-            id: newId,
-            homeworkId: homework.id,
+        dispatch(createNewDraftTask({
+            homeworkId: homework.id!,
             title: 'Новая задача',
             description: '',
             maxRating: suggestedMaxRating ?? 10,
@@ -158,12 +154,9 @@ export const useTaskEditing = () => {
             deadlineDateNotSet: true,
             deadlineDate: undefined,
             tags: homework.tags || [],
-        } as HomeworkTaskViewModel;
-        dispatch(addDraftTask(newTask));
-        dispatch(decrementDraftId());
-        dispatch(setSelectedItem({ isHomework: false, id: newId }));
+        }));
         return newId;
-    }, [dispatch, draftIdCounter, ensureHomeworkInDrafts, getSuggestedTaskRating]);
+    }, [dispatch, ensureHomeworkInDrafts, getSuggestedTaskRating]);
 
     const setTaskDraftFromLoaded = useCallback((task: HomeworkTaskViewModel, homework: HomeworkViewModel) => {
         ensureHomeworkInDrafts(homework);
@@ -273,7 +266,7 @@ export const useTaskEditing = () => {
     }, [draftHomeworks, committedHomeworks]);
 
     const buildTaskPayload = useCallback((task: HomeworkTaskViewModel, homework: HomeworkViewModel, editOptions: ActionOptions): PostTaskViewModel => {
-        const {criteria, maxRating, isBonusExplicit} = getTaskEditorState(task, homework);
+        const {criteria, maxRating, isBonusExplicit, publicationDate} = getTaskEditorState(task, homework);
 
         return {
             title: task.title!,
@@ -284,7 +277,7 @@ export const useTaskEditing = () => {
             criteria,
             hasDeadline: task.hasDeadline,
             isDeadlineStrict: task.isDeadlineStrict,
-            publicationDate: task.publicationDateNotSet ? undefined : task.publicationDate,
+            publicationDate: task.publicationDateNotSet ? undefined : publicationDate,
             deadlineDate: task.deadlineDateNotSet ? undefined : task.deadlineDate,
         };
     }, []);

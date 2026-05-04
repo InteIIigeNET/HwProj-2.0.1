@@ -22,9 +22,41 @@ const courseEditingSlice = createSlice({
     name: 'editing',
     initialState,
     reducers: {
-        addDraftHomework: (state, action: PayloadAction<HomeworkViewModel>) => {
-            const exists = state.draftHomeworks.some(dh => dh.id === action.payload.id);
-            if (!exists) {
+        createNewHomeworkDraft: (state, action: PayloadAction<number>) => {
+            const courseId = action.payload;
+            const newId = state.draftIdCounter;
+            const defaultPublicationDate = new Date(Date.now());
+            defaultPublicationDate.setHours(0, 0, 0, 0);
+            state.draftHomeworks.push({
+                courseId,
+                id: newId,
+                title: 'Новое задание',
+                description: '',
+                publicationDate: defaultPublicationDate.toISOString() as unknown as Date,
+                publicationDateNotSet: false,
+                hasDeadline: false,
+                deadlineDate: undefined,
+                deadlineDateNotSet: false,
+                isDeadlineStrict: false,
+                isGroupWork: false,
+                tasks: [],
+                tags: [],
+            });
+            state.draftIdCounter -= 1;
+            state.selectedItem = {isHomework: true, id: newId};
+        },
+
+        putHomeworkDraft: (state, action: PayloadAction<HomeworkViewModel>) => {
+            const idx = state.draftHomeworks.findIndex(dh => dh.id === action.payload.id);
+            if (idx === -1) {
+                state.draftHomeworks.push(action.payload);
+            } else {
+                state.draftHomeworks[idx] = action.payload;
+            }
+        },
+
+        ensureHomeworkDraft: (state, action: PayloadAction<HomeworkViewModel>) => {
+            if (!state.draftHomeworks.some(dh => dh.id === action.payload.id)) {
                 state.draftHomeworks.push(action.payload);
             }
         },
@@ -43,12 +75,13 @@ const courseEditingSlice = createSlice({
 
         addDraftTask: (state, action: PayloadAction<HomeworkTaskViewModel>) => {
             const hw = state.draftHomeworks.find(dh => dh.id === action.payload.homeworkId);
-            if (hw) {
-                const exists = hw.tasks?.some(t => t.id === action.payload.id);
-                if (!exists) {
-                    if (!hw.tasks) hw.tasks = [];
-                    hw.tasks.push(action.payload);
-                }
+            if (!hw) return;
+            if (!hw.tasks) hw.tasks = [];
+            const ti = hw.tasks.findIndex(t => t.id === action.payload.id);
+            if (ti !== -1) {
+                hw.tasks[ti] = action.payload;
+            } else {
+                hw.tasks.push(action.payload);
             }
         },
 
@@ -69,8 +102,29 @@ const courseEditingSlice = createSlice({
             }
         },
 
-        decrementDraftId: (state) => {
+        createNewDraftTask: (state, action: PayloadAction<{
+            homeworkId: number;
+            title: string;
+            description: string;
+            maxRating: number;
+            suggestedMaxRating?: number;
+            isDeferred: boolean;
+            deadlineDateNotSet: boolean;
+            deadlineDate?: Date;
+            tags: string[];
+        }>) => {
+            const hw = state.draftHomeworks.find(dh => dh.id === action.payload.homeworkId);
+            if (!hw) return;
+            const newId = state.draftIdCounter;
+            if (!hw.tasks) hw.tasks = [];
+            const {homeworkId, ...rest} = action.payload;
+            hw.tasks.push({
+                ...rest,
+                id: newId,
+                homeworkId,
+            } as HomeworkTaskViewModel);
             state.draftIdCounter -= 1;
+            state.selectedItem = {isHomework: false, id: newId};
         },
 
         setSelectedItem: (state, action: PayloadAction<SelectedItem>) => {
@@ -82,13 +136,15 @@ const courseEditingSlice = createSlice({
 });
 
 export const {
-    addDraftHomework,
+    createNewHomeworkDraft,
+    putHomeworkDraft,
+    ensureHomeworkDraft,
     updateDraftHomework,
     removeDraftHomework,
     addDraftTask,
     updateDraftTask,
     removeDraftTask,
-    decrementDraftId,
+    createNewDraftTask,
     setSelectedItem,
     resetEditingState,
 } = courseEditingSlice.actions;

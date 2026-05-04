@@ -1,12 +1,13 @@
 import {useCallback, useMemo} from 'react';
 import {useCourseDispatch, useCourseState} from '../hooks';
 import {
-    addDraftHomework,
+    createNewHomeworkDraft,
+    putHomeworkDraft,
     updateDraftHomework as updateDraftHomeworkAction,
     removeDraftHomework,
-    decrementDraftId,
     setSelectedItem,
 } from '../slices/courseEditingSlice';
+import {store} from '../store';
 import {updateOrInsertHomework, deleteHomework} from '../slices/homeworkSlice';
 import {HomeworkViewModel, CreateHomeworkViewModel, ActionOptions, PostTaskViewModel} from '@/api';
 import ApiSingleton from '@/api/ApiSingleton';
@@ -133,39 +134,21 @@ export const useHomeworkEditorState = (homework: HomeworkViewModel) => {
 
 export const useHomeworkEditing = () => {
     const dispatch = useCourseDispatch();
-    const draftIdCounter = useCourseState(state => state.editing.draftIdCounter);
     const draftHomeworks = useCourseState(state => state.editing.draftHomeworks);
     const committedHomeworks = useCourseState(state => state.homeworks.items);
 
     const createHomeworkDraft = useCallback((courseId: number) => {
-        const newId = draftIdCounter;
-        const newHomework: HomeworkViewModel = {
-            courseId,
-            id: newId,
-            title: 'Новое задание',
-            description: '',
-            publicationDate: undefined,
-            publicationDateNotSet: false,
-            hasDeadline: false,
-            deadlineDate: undefined,
-            deadlineDateNotSet: false,
-            isDeadlineStrict: false,
-            isGroupWork: false,
-            tasks: [],
-            tags: [],
-        };
-        dispatch(addDraftHomework(newHomework));
-        dispatch(decrementDraftId());
-        dispatch(setSelectedItem({ isHomework: true, id: newId }));
+        const newId = store.getState().editing.draftIdCounter;
+        dispatch(createNewHomeworkDraft(courseId));
         return newId;
-    }, [dispatch, draftIdCounter]);
+    }, [dispatch]);
 
     const setHomeworkDraftFromLoaded = useCallback((hw: HomeworkViewModel) => {
         const copy: HomeworkViewModel = normalizeHomeworkDraft({
             ...hw,
             tasks: [],
         });
-        dispatch(addDraftHomework(copy));
+        dispatch(putHomeworkDraft(copy));
         dispatch(setSelectedItem({ isHomework: true, id: hw.id }));
     }, [dispatch]);
 
@@ -234,7 +217,7 @@ export const useHomeworkEditing = () => {
             hasDeadline: t.hasDeadline,
             deadlineDate: t.deadlineDate,
             isDeadlineStrict: t.isDeadlineStrict,
-            publicationDate: t.publicationDate,
+            publicationDate: t.publicationDate ?? homework.publicationDate,
             maxRating: t.maxRating!,
             criteria: t.criteria || [],
         } as PostTaskViewModel)) : [],
