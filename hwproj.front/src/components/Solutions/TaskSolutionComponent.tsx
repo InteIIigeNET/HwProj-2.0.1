@@ -339,7 +339,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     : "";
                 const statusText = safeValue === 0
                     ? "Сдано вовремя"
-                    : `Просрочено${deadlineDelay ? ` на ${deadlineDelay}` : ""}`;
+                    : `Сдано позже${deadlineDelay ? ` на ${deadlineDelay}` : ""}`;
                 const valueText = safeValue === 0 ? "✅" : `❌ ${safeValue}`;
 
                 return `| ${cr.name}<br/><span style="display:inline-block;margin-top:4px;">${statusText}</span> | ${valueText} |`;
@@ -622,11 +622,12 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 <Grid item>
                     <Box
                         display="grid"
-                        gridTemplateColumns="auto auto"
+                        gridTemplateColumns="minmax(0, 1fr) auto"
                         columnGap={16}
-                        rowGap={0}
+                        rowGap={0.75}
+                        sx={{width: "100%"}}
                     >
-                        {taskWithCriteria.criteria!.map((c) => {
+                        {taskWithCriteria.criteria!.map((c, criteriaIndex) => {
                             const existingRating = criterionRatings.find(r => r.criterionId === c.id);
 
                             const current =
@@ -648,6 +649,10 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
                             const isFilled = hasExplicitValue && (isThumbCriterion || numericValue !== 0);
                             const isDeadlineCriterion = c.type === CriterionTypeDeadline;
+                            const nextCriterion = taskWithCriteria.criteria![criteriaIndex + 1];
+                            const hasRegularCriterionAfter = isDeadlineCriterion &&
+                                nextCriterion !== undefined &&
+                                nextCriterion.type !== CriterionTypeDeadline;
                             const deadlineDate = c.arguments ? new Date(c.arguments) : undefined;
                             const isSubmittedOnTime = isDeadlineCriterion && numericValue === 0;
                             const deadlineDelay = isDeadlineCriterion && deadlineDate && solution?.publicationDate
@@ -665,6 +670,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                         sx={{
                                             gridColumn: "1 / span 2",
                                             alignItems: "center",
+                                            mb: hasRegularCriterionAfter ? 1.5 : 0,
                                             py: 0.5,
                                             "& .MuiAlert-message": {
                                                 width: "100%",
@@ -686,18 +692,16 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                                 <Typography variant="caption" color="textSecondary">
                                                     {isSubmittedOnTime
                                                         ? "Сдано вовремя"
-                                                        : `Просрочено${deadlineDelay ? ` на ${deadlineDelay}` : ""}`}
+                                                        : `Сдано позже${deadlineDelay ? ` на ${deadlineDelay}` : ""}`}
                                                 </Typography>
                                             </Box>
-                                            <Chip
-                                                size="small"
-                                                color={isSubmittedOnTime ? "success" : "error"}
-                                                label={isSubmittedOnTime ? "0" : numericValue}
-                                                sx={numericValue === 0 ? {
-                                                    color: isSubmittedOnTime ? undefined : "#d32f2f",
-                                                    fontWeight: 600,
-                                                } : undefined}
-                                            />
+                                            {!isSubmittedOnTime && (
+                                                <Chip
+                                                    size="small"
+                                                    color="error"
+                                                    label={numericValue}
+                                                />
+                                            )}
                                         </Stack>
                                     </Alert>
                                 );
@@ -733,7 +737,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
                                     </Box>
 
-                                    <Box>
+                                    <Box justifySelf="end">
                                         {isThumbCriterion ? (
                                             <Stack direction="row" alignItems="center">
                                                 <IconButton
@@ -803,7 +807,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                                 }}
                                             />
                                         ) : (
-                                            <Box display="flex" alignItems="center">
+                                            <Box display="flex" alignItems="center" justifyContent="flex-end">
                                                 <TextField
                                                     type="number"
                                                     size="small"
@@ -871,24 +875,26 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 Доп. оценка (опционально)
                             </Typography>
                         </Box>
-                        <TextField
-                            type="number"
-                            size="small"
-                            style={{width: 50}}
-                            value={extraScore}
-                            variant="standard"
-                            margin="dense"
-                            placeholder="0"
-                            inputProps={{min: 0}}
-                            onChange={e => {
-                                let val = Number(e.target.value || 0);
-                                if (Number.isNaN(val)) val = 0;
-                                val = Math.max(0, val);
+                        <Box justifySelf="end">
+                            <TextField
+                                type="number"
+                                size="small"
+                                style={{width: 50}}
+                                value={extraScore}
+                                variant="standard"
+                                margin="dense"
+                                placeholder="0"
+                                inputProps={{min: 0}}
+                                onChange={e => {
+                                    let val = Number(e.target.value || 0);
+                                    if (Number.isNaN(val)) val = 0;
+                                    val = Math.max(0, val);
 
-                                setCriteriaModified(true);
-                                setExtraScore(val);
-                            }}
-                        />
+                                    setCriteriaModified(true);
+                                    setExtraScore(val);
+                                }}
+                            />
+                        </Box>
                     </Box>
                 </Grid>
 
@@ -1200,7 +1206,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         {
             sentAfterDeadline && <Grid item>
                 <Alert variant="standard" severity="warning">
-                    Решение сдано на {sentAfterDeadline} позже дедлайна.
+                    Решение сдано позже дедлайна на {sentAfterDeadline}.
                 </Alert>
             </Grid>
         }
