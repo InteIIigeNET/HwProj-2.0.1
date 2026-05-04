@@ -21,7 +21,6 @@ namespace HwProj.CoursesService.API.Services
     public class CourseFilterService : ICourseFilterService
     {
         private const string GlobalFilterId = "";
-        private const string StudentsGroupName = "";
         private readonly ICourseFilterRepository _courseFilterRepository;
         private readonly IGroupsService _groupsService;
 
@@ -239,7 +238,7 @@ namespace HwProj.CoursesService.API.Services
                 InviteCode = editingCourseDto.InviteCode,
                 Groups = filter.GroupIds.Any()
                     ? groups
-                        .Concat(filteredGroups.Where(g => g.Name == StudentsGroupName))
+                        .Concat(filteredGroups.Where(g => g.Name == String.Empty))
                         .ToArray()
                     : filteredGroups,
                 MentorIds = filter.MentorIds.Any()
