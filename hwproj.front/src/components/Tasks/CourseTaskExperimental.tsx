@@ -143,25 +143,15 @@ const CourseTaskEditor: FC<{
             <MenuItem onClick={addDeadlineCriterion}>
                 <Stack direction="row" spacing={1} alignItems="center">
                     <Typography variant="inherit">Дедлайн</Typography>
-                    <Box
-                        component="span"
+                    <Chip
+                        label="Авто"
+                        size="small"
                         sx={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: 26,
-                            height: 26,
-                            borderRadius: "50%",
                             backgroundColor: "#E8F8EE",
-                            color: "#2E7D32",
-                            fontSize: 9,
-                            lineHeight: 1,
-                            fontWeight: 500,
-                            textTransform: "lowercase",
+                            color: "#159947",
+                            fontWeight: 600,
                         }}
-                    >
-                        авто
-                    </Box>
+                    />
                 </Stack>
             </MenuItem>
         </Menu>
