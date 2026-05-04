@@ -5,16 +5,6 @@ import Utils from "../../services/Utils";
 
 const CriterionTypeDeadline = 1;
 
-const autoCriterionChipSx = {
-    height: 22,
-    backgroundColor: "#E8F8EE",
-    color: "#159947",
-    fontWeight: 600,
-    "& .MuiChip-label": {
-        px: 1,
-    },
-};
-
 const TaskCriteria: FC<{ task: HomeworkTaskViewModel }> = ({task}) => {
     return task.criteria && task.criteria.length > 0 ? (
         <>
@@ -29,18 +19,9 @@ const TaskCriteria: FC<{ task: HomeworkTaskViewModel }> = ({task}) => {
                     <Stack key={c.id} direction="row" alignItems={"center"} justifyContent="space-between">
                         <Stack direction="row" spacing={1} alignItems="center">
                             <Stack spacing={0}>
-                                <Stack direction="row" spacing={0.75} alignItems="center">
-                                    <Typography variant="body2">
-                                        {c.name}
-                                    </Typography>
-                                    {c.type === CriterionTypeDeadline && (
-                                        <Chip
-                                            label="Авто"
-                                            size="small"
-                                            sx={autoCriterionChipSx}
-                                        />
-                                    )}
-                                </Stack>
+                                <Typography variant="body2">
+                                    {c.name}
+                                </Typography>
                                 {c.type === CriterionTypeDeadline && c.arguments && (
                                     <Typography variant="caption" color="text.secondary">
                                         До {Utils.renderDateWithoutSeconds(new Date(c.arguments))}
