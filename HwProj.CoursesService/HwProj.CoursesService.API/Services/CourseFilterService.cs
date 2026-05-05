@@ -149,7 +149,6 @@ namespace HwProj.CoursesService.API.Services
                 : new Dictionary<long, string[]>();
 
             var result = usersCourseFilters
-                .Where(u => u.CourseFilter.Filter.HomeworkIds.Count == 0)
                 .Select(u =>
                 {
                     var directStudents = u.CourseFilter.Filter.StudentIds ?? new List<string>() {};
@@ -207,26 +206,28 @@ namespace HwProj.CoursesService.API.Services
                 : editingCourseDto.Homeworks;
 
             var groups = filter.GroupIds.Any()
-                ? editingCourseDto.Groups.Where(g => filter.GroupIds.Contains(g.Id)).ToArray()
-                : editingCourseDto.Groups;
+                ? editingCourseDto.Groups.Where(g => filter.GroupIds.Contains(g.Id))
+                : Array.Empty<GroupViewModel>();
 
             var filteredStudentIds = filter.StudentIds.Concat(groups.SelectMany(g => g.StudentsIds));
 
-            var filteredGroups = editingCourseDto.Groups
-                .Select(gs =>
-                {
-                    var groupStudentsIds = gs.StudentsIds.Intersect(filteredStudentIds).ToArray();
-                    return groupStudentsIds.Any()
-                        ? new GroupViewModel
+            var filteredGroups = filteredStudentIds.Any()
+                ? editingCourseDto.Groups
+                    .Select(gs =>
+                    {
+                        var groupStudentsIds = gs.StudentsIds.Intersect(filteredStudentIds).ToArray();
+                        return groupStudentsIds.Any()
+                            ? new GroupViewModel
                         {
                             Id = gs.Id,
                             Name = gs.Name,
                             StudentsIds = groupStudentsIds
                         }
                         : null;
-                })
-                .Where(t => t != null)
-                .ToArray();
+                    })
+                    .Where(t => t != null)
+                    .ToArray()
+                : editingCourseDto.Groups;
 
             return new CourseDTO
             {
@@ -237,17 +238,19 @@ namespace HwProj.CoursesService.API.Services
                 IsOpen = editingCourseDto.IsOpen,
                 InviteCode = editingCourseDto.InviteCode,
                 Groups = filter.GroupIds.Any()
-                    ? groups
-                        .Concat(filteredGroups.Where(g => g.Name == String.Empty))
+                    ? editingCourseDto.Groups
+                        .Where(g => filter.GroupIds.Contains(g.Id))
+                        .Concat(filteredGroups.Where(g => g.Name == string.Empty))
                         .ToArray()
                     : filteredGroups,
                 MentorIds = filter.MentorIds.Any()
                     ? editingCourseDto.MentorIds.Intersect(filter.MentorIds).ToArray()
                     : editingCourseDto.MentorIds,
                 CourseMates = editingCourseDto.CourseMates
-                    .Where(mate => !mate.IsAccepted || filteredStudentIds.Contains(mate.StudentId)).ToArray(),
+                    .Where(mate => !mate.IsAccepted || filteredStudentIds.Contains(mate.StudentId))
+                    .ToArray(),
                 Homeworks = homeworks
-                    .Where(hw => hw.GroupId == null || groups.Any(g => g.Id == hw.GroupId))
+                    .Where(hw => hw.GroupId == null || (groups.Any() ? groups.Any(g => g.Id == hw.GroupId) : true))
                     .OrderBy(hw => hw.PublicationDate)
                     .ToArray()
             };

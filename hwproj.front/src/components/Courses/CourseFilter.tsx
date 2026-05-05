@@ -48,6 +48,9 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
     // Состояние для отображения поля выбора студентов
     const [isStudentsSelectionHidden, setIsStudentsSelectionHidden] = useState<boolean>(props.isStudentsSelectionHidden);
 
+    const isAccountDataDto = (obj: any): obj is AccountDataDto => 'userId' in obj;
+    const isGroupViewModel = (obj: any): obj is GroupViewModel => 'id' in obj && 'name' in obj;
+
     useEffect(() => {
         const fetchCourseDataForMentor = async () => {
             try {
@@ -68,14 +71,23 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                 const allCourseStudentsCount = (course.acceptedStudents?.length ?? 0) + (course.newStudents?.length ?? 0);
                 const initSelectedStudentsView = mentorWorkspace.students?.length === allCourseStudentsCount ?
                     [] : (mentorWorkspace.students) ?? [];
-                const initSelectedHomeworksView = mentorWorkspace.homeworks?.length === course.homeworks?.length ?
-                    [] : (mentorWorkspace.homeworks ?? []);
-                const initSelectedGroupsView = (mentorWorkspace.groups?.length === course.groups?.length ?
-                    [] : (mentorWorkspace.groups ?? [])).filter(g => g.name?.trim());
+
+                const courseStudentIds = (mentorWorkspace.students?.length === 0 ? course.acceptedStudents : mentorWorkspace.students)
+                    ?.map(st => st.userId) ?? [];
+                const courseGroups = course.groups?.filter(g => g.studentsIds?.some(sid => courseStudentIds.includes(sid))) || course.groups;
+                const initSelectedGroupsView = (mentorWorkspace.groups?.length === courseGroups?.length ?
+                    [] : (mentorWorkspace.groups ?? []))
+                    .filter(g => g.name?.trim());
+
+                const courseHomeworks = initSelectedGroupsView.length > 0
+                    ? course.homeworks?.filter(h => !h.groupId || initSelectedGroupsView?.some(g => g.id === h.groupId))
+                    : course.homeworks;
+                const initSelectedHomeworksView = mentorWorkspace.homeworks?.length === courseHomeworks?.length ?
+                    [] : (mentorWorkspace.homeworks ?? [])
 
                 setState(prevState => ({
                     ...prevState,
-                    courseHomeworks: course.homeworks ?? [],
+                    courseHomeworks: courseHomeworks ?? [],
                     courseStudents: course.acceptedStudents ?? [],
                     courseGroups: course.groups?.filter(g => g.name?.trim()) ?? [],
                     selectedStudents: initSelectedStudentsView.filter(s => !initSelectedGroupsView.some(g => g.studentsIds?.includes(s.userId!))),
@@ -214,37 +226,114 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                     <Autocomplete
                                         multiple
                                         fullWidth
-                                        options={state.courseStudents.filter(s => !state.selectedGroups.some(g => g.studentsIds?.includes(s.userId!)))}
-                                        getOptionLabel={(option: AccountDataDto) => {
-                                            const assignedMentors = getAssignedMentors(option.userId!)
-                                            const suffix = assignedMentors.length > 0 ? " — преподаватель " + assignedMentors[0] + "" : ""
-                                            return option.surname + ' ' + option.name + suffix;
+                                        options={(() => {
+                                            const availableStudents = state.courseStudents.filter(
+                                                s => !state.selectedGroups.some(g => g.studentsIds?.includes(s.userId!))
+                                            );
+                                            return [...availableStudents, ...state.courseGroups];
+                                        })()}
+                                        getOptionKey={(option) => {
+                                            if (isAccountDataDto(option)) return option.userId ?? '';
+                                            return option.id?.toString() ?? '';
                                         }}
-                                        getOptionKey={(option: AccountDataDto) => option.userId ?? ""}
                                         filterSelectedOptions
-                                        isOptionEqualToValue={(option, value) => option.userId === value.userId}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                variant="outlined"
-                                                label={state.selectedStudents.length === 0 ? "" : `Студенты (${state.selectedStudents.length})`}
-                                                placeholder={state.selectedStudents.length === 0 ? "Все студенты" : ""}
-                                            />)}
-                                        renderTags={(value, getTagProps) =>
-                                            value.map((option, index) =>
-                                                <Chip
-                                                    label={option.surname + ' ' + option.name}
-                                                    {...getTagProps({index})}
-                                                    style={studentsWithMultipleReviewers.has(option.userId!) ? {color: "#3f51b5"} : undefined}
-                                                />)
-                                        }
-                                        noOptionsText={'Больше нет студентов для выбора'}
-                                        value={state.selectedStudents}
+                                        isOptionEqualToValue={(option, value) => {
+                                            if (isAccountDataDto(option) && isAccountDataDto(value)) {
+                                                return option.userId === value.userId;
+                                            }
+                                            if (isGroupViewModel(option) && isGroupViewModel(value)) {
+                                                return option.id === value.id;
+                                            }
+                                            return false;
+                                        }}
+                                        renderInput={(params) => {
+                                            const totalSelectedStudents =
+                                                state.selectedStudents.length +
+                                                state.selectedGroups.reduce((acc, g) => acc + (g.studentsIds?.length ?? 0), 0);
+
+                                            return (
+                                                <TextField
+                                                    {...params}
+                                                    variant="outlined"
+                                                    label={totalSelectedStudents === 0 ? '' : `Студенты (${totalSelectedStudents})`}
+                                                    placeholder={totalSelectedStudents === 0 ? 'Все студенты' : ''}
+                                                />
+                                            );
+                                        }}
+                                        renderTags={(value, getTagProps) => (
+                                            <>
+                                                {value.map((option, index) => {
+                                                    // Исключаем поле key из пропсов, если оно там есть
+                                                    const { key: _key, ...chipProps } = getTagProps({ index });
+
+                                                    if (isAccountDataDto(option)) {
+                                                        return (
+                                                            <Chip
+                                                                key={option.userId}
+                                                                {...chipProps}
+                                                                label={`${option.surname} ${option.name}`}
+                                                                style={studentsWithMultipleReviewers.has(option.userId!) ? {color: "#3f51b5"} : undefined}
+                                                            />
+                                                        );
+                                                    } else {
+                                                        return (
+                                                            <Chip
+                                                                key={option.id}
+                                                                {...chipProps}
+                                                                label={option.name}
+                                                            />
+                                                        );
+                                                    }
+                                                })}
+                                            </>
+                                        )}
+                                        renderOption={(props, option) => {
+                                            const isGroup = isGroupViewModel(option);
+                                            if(isGroup) {
+                                                return (
+                                                    <li {...props} style={{ color: "#3f51b5" }} key={option.id}>
+                                                        {option.name}
+                                                    </li>
+                                                );
+                                            } else {
+                                                const assignedMentors = getAssignedMentors(option.userId!);
+                                                const suffix = assignedMentors.length > 0 ? ` — преподаватель ${assignedMentors[0]}` : '';
+                                                return (
+                                                    <li {...props} key={option.userId}>
+                                                        {option.surname} {option.name}{suffix}
+                                                    </li>
+                                                );
+                                            }
+                                        }}
+                                        noOptionsText="Больше нет студентов для выбора"
+                                        value={[...state.selectedStudents, ...state.selectedGroups]}
                                         onChange={(_, values) => {
-                                            setState((prevState) => ({
-                                                ...prevState,
-                                                selectedStudents: values
-                                            }));
+                                            const newGroups = new Set<GroupViewModel>();
+                                            const groupStudentIds = new Set<string>();
+
+                                            // Сначала собираем все группы и id их студентов
+                                            for (const item of values) {
+                                                if (isGroupViewModel(item) && item.studentsIds) {
+                                                    for (const studentId of item.studentsIds) {
+                                                        groupStudentIds.add(studentId);
+                                                    }
+                                                    newGroups.add(item);
+                                                }
+                                            }
+
+                                            // Добавляем только студентов, не входящих ни в одну из выбранных групп
+                                            const newSelectedStudents: AccountDataDto[] = [];
+                                            for (const item of values) {
+                                                if (isAccountDataDto(item) && item.userId && !groupStudentIds.has(item.userId)) {
+                                                    newSelectedStudents.push(item);
+                                                }
+                                            }
+
+                                            setState((prev) => ({
+                                                ...prev,
+                                                selectedStudents: newSelectedStudents,
+                                                selectedGroups: [...newGroups],
+                                            }))
                                         }}
                                     />
                                     {studentsWithMultipleReviewers.size > 0 &&
