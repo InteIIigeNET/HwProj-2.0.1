@@ -126,7 +126,7 @@ const CourseTaskEditor: FC<{
         [criteria]
     )
 
-    const autoMaxFromCriteria = criteria.length > 0;
+    const hasRegularCriteria = criteria.some(c => !isDeadlineCriterion(c));
     const criteriaHasErrors = criteria.some(c =>
         !c.name || (c.maxPoints ?? 0) <= 0 || (isDeadlineCriterion(c) && !c.arguments)
     );
@@ -158,8 +158,8 @@ const CourseTaskEditor: FC<{
     );
 
     useEffect(() => {
-        if (autoMaxFromCriteria) setMaxRating(criteriaTotalPoints);
-    }, [criteriaTotalPoints, autoMaxFromCriteria]);
+        if (hasRegularCriteria) setMaxRating(criteriaTotalPoints);
+    }, [criteriaTotalPoints, hasRegularCriteria]);
 
     const isNewTask = taskData.task.id! < 0
 
@@ -206,7 +206,7 @@ const CourseTaskEditor: FC<{
     //TODO: suggested max rating
     const [title, setTitle] = useState<string>(task.title!)
     const [maxRating, setMaxRating] = useState<number>(
-        criteria.length > 0 ? criteriaTotalPoints : task.maxRating!
+        hasRegularCriteria ? criteriaTotalPoints : task.maxRating!
     )
     const [description, setDescription] = useState<string>(task.description || "")
     const [isBonusExplicit, setIsBonusExplicit] = useState<boolean>(props.speculativeTask.tags!.includes(BonusTag) && !props.speculativeHomework.tags!.includes(BonusTag))
@@ -286,7 +286,7 @@ const CourseTaskEditor: FC<{
     const homeworkPublicationDateIsSet = !homework.publicationDateNotSet
 
     const maxRatingLabel =
-        criteria.length > 0 ? "Критерии" : props.speculativeTask.suggestedMaxRating === maxRating ? "Вычислено" : undefined
+        hasRegularCriteria ? "Критерии" : props.speculativeTask.suggestedMaxRating === maxRating ? "Вычислено" : undefined
 
     const getEffectiveDeadlineDate = () => {
         const hasEffectiveDeadline = metadata?.hasDeadline ?? homework.hasDeadline;
@@ -352,9 +352,9 @@ const CourseTaskEditor: FC<{
                         margin="normal"
                         type="number"
                         value={maxRating}
-                        InputProps={{readOnly: autoMaxFromCriteria}}
+                        InputProps={{readOnly: hasRegularCriteria}}
                         onChange={(e) => {
-                            if (!autoMaxFromCriteria) {
+                            if (!hasRegularCriteria) {
                                 e.persist();
                                 setMaxRating(+e.target.value);
                             }
