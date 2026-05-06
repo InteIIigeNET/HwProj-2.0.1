@@ -9,9 +9,6 @@ namespace HwProj.CoursesService.API.Models
         [Key] 
         public long Id { get; set; }
         
-        // Type of request to join to the service: by course or by separated page
-        public RegistrationRequestScopeType ScopeType { get; set; }
-        
         public long? CourseId  { get; set; }
         
         public string Name { get; set; }
@@ -24,8 +21,6 @@ namespace HwProj.CoursesService.API.Models
         
         // Status of the request to registration
         public RegistrationRequestStatus Status { get; set; }
-        
-        public RegistrationRequestSourceType SourceType { get; set; }
         
         public DateTime CreatedAtUtc { get; set; }
         
@@ -43,21 +38,9 @@ namespace HwProj.CoursesService.API.Models
     }
 }
 
-public enum RegistrationRequestScopeType
-{
-    Global = 0,
-    Course = 1
-}
-
 public enum RegistrationRequestStatus
 {
     Pending = 0,
     Approved = 1,
-    Rejected = 2
-}
-
-public enum RegistrationRequestSourceType
-{
-    Website = 0,
-    CourseLink = 1
+    Rejected = 2,
 }

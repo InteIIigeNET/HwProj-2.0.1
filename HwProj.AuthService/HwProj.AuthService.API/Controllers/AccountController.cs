@@ -113,6 +113,11 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> FindByEmail(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Ok(null);
+            }
+            
             var roles = await _userManager.GetRolesAsync(user);
             return Ok(user.ToAccountDataDto(roles.First()));
         }

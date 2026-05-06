@@ -29,12 +29,15 @@ namespace HwProj.CoursesService.API.Models
             modelBuilder.Entity<Assignment>().HasIndex(a => a.CourseId);
             modelBuilder.Entity<UserToCourseFilter>().HasKey(u => new { u.CourseId, u.UserId });
             modelBuilder.Entity<TaskQuestion>().HasIndex(t => t.TaskId);
-            modelBuilder.Entity<RegistrationRequest>()
-                .HasIndex(r => new { r.ScopeType, r.Status, r.CreatedAtUtc });
+            
             modelBuilder.Entity<RegistrationRequest>()
                 .HasIndex(r => new { r.CourseId, r.Status });
             modelBuilder.Entity<RegistrationRequest>()
                 .HasIndex(r => r.Email);
+            modelBuilder.Entity<RegistrationRequest>()
+                .HasIndex(r =>  r.Email)
+                .HasFilter($"[{nameof(RegistrationRequest.Status)}] = {(int)RegistrationRequestStatus.Pending}")
+                .IsUnique();
         }
     }
 }

@@ -15,17 +15,10 @@ namespace HwProj.Models.CoursesService.ViewModels
         [Required]
         [RegularExpression(@"^\S+.*", ErrorMessage = "Surname shouldn't start with white spaces.")]
         public string Surname { get; set; }
-        
-        [Required]
+
         [RegularExpression(@"^\S+.*", ErrorMessage = "MiddleName shouldn't start with white spaces.")]
-        public string MiddleName { get; set; }
-        
-        [Required]
-        public string ScopeType { get; set; }
+        public string MiddleName { get; set; } = string.Empty;
         
         public long? CourseId { get; set; }
-        
-        [Required]
-        public string SourceType { get; set; }
     }
 }

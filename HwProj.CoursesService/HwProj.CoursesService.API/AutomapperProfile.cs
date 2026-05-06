@@ -21,6 +21,8 @@ namespace HwProj.CoursesService.API
             
             CreateMap<CreateCourseFilterDTO, CreateCourseFilterModel>();
             CreateMap<Filter, CourseFilterDTO>();
+            
+            CreateMap<RegistrationRequest, RegistrationRequestDto>();
         }
     }
 }
