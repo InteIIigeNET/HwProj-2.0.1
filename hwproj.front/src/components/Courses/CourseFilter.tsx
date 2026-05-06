@@ -67,14 +67,16 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                 props.onSelectedHomeworksChange(mentorWorkspace.homeworks ?? [])
                 props.onSelectedGroupsChange(mentorWorkspace.groups ?? [])
 
-                // Для корректного отображения "Все" при инцициализации (получении данных с бэкенда)
-                const allCourseStudentsCount = (course.acceptedStudents?.length ?? 0) + (course.newStudents?.length ?? 0);
-                const initSelectedStudentsView = mentorWorkspace.students?.length === allCourseStudentsCount ?
-                    [] : (mentorWorkspace.students) ?? [];
-
                 const initSelectedGroupsView = (mentorWorkspace.groups?.length === course.groups?.length ?
                     [] : (mentorWorkspace.groups ?? []))
                     .filter(g => g.name?.trim());
+                const selectedGroupsStudents = initSelectedGroupsView.flatMap(g =>g.studentsIds ?? []);
+
+                const selectedStudentWithoutGroups = mentorWorkspace.students?.filter(st => !selectedGroupsStudents.includes(st.userId!));
+                // Для корректного отображения "Все" при инцициализации (получении данных с бэкенда)
+                const allCourseStudentsCount = (course.acceptedStudents?.length ?? 0) + (course.newStudents?.length ?? 0);
+                const initSelectedStudentsView = selectedStudentWithoutGroups?.length === allCourseStudentsCount ?
+                    [] : (selectedStudentWithoutGroups) ?? [];
 
                 const courseHomeworks = initSelectedGroupsView.length > 0
                     ? course.homeworks?.filter(h => !h.groupId || initSelectedGroupsView?.some(g => g.id === h.groupId))

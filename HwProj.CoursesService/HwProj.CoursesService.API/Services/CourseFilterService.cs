@@ -207,9 +207,13 @@ namespace HwProj.CoursesService.API.Services
 
             var groups = filter.GroupIds.Any()
                 ? editingCourseDto.Groups.Where(g => filter.GroupIds.Contains(g.Id))
-                : Array.Empty<GroupViewModel>();
+                : editingCourseDto.Groups;
 
-            var filteredStudentIds = filter.StudentIds.Concat(groups.SelectMany(g => g.StudentsIds));
+            var filteredStudentIds = filter.GroupIds.Any()
+                ? filter.StudentIds.Concat(groups.SelectMany(g => g.StudentsIds))
+                : filter.StudentIds.Any()
+                    ? filter.StudentIds
+                    : editingCourseDto.AcceptedStudents.Select(st => st.StudentId);
 
             var filteredGroups = filteredStudentIds.Any()
                 ? editingCourseDto.Groups
@@ -238,9 +242,8 @@ namespace HwProj.CoursesService.API.Services
                 IsOpen = editingCourseDto.IsOpen,
                 InviteCode = editingCourseDto.InviteCode,
                 Groups = filter.GroupIds.Any()
-                    ? editingCourseDto.Groups
-                        .Where(g => filter.GroupIds.Contains(g.Id))
-                        .Concat(filteredGroups.Where(g => g.Name == string.Empty))
+                    ? filteredGroups
+                        .Where(g => filter.GroupIds.Contains(g.Id) || g.Name == string.Empty)
                         .ToArray()
                     : filteredGroups,
                 MentorIds = filter.MentorIds.Any()
@@ -250,7 +253,7 @@ namespace HwProj.CoursesService.API.Services
                     .Where(mate => !mate.IsAccepted || filteredStudentIds.Contains(mate.StudentId))
                     .ToArray(),
                 Homeworks = homeworks
-                    .Where(hw => hw.GroupId == null || (groups.Any() ? groups.Any(g => g.Id == hw.GroupId) : true))
+                    .Where(hw => hw.GroupId == null || groups.Any(g => g.Id == hw.GroupId))
                     .OrderBy(hw => hw.PublicationDate)
                     .ToArray()
             };
