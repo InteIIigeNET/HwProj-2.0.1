@@ -72,10 +72,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                 const initSelectedStudentsView = mentorWorkspace.students?.length === allCourseStudentsCount ?
                     [] : (mentorWorkspace.students) ?? [];
 
-                const courseStudentIds = (mentorWorkspace.students?.length === 0 ? course.acceptedStudents : mentorWorkspace.students)
-                    ?.map(st => st.userId) ?? [];
-                const courseGroups = course.groups?.filter(g => g.studentsIds?.some(sid => courseStudentIds.includes(sid))) || course.groups;
-                const initSelectedGroupsView = (mentorWorkspace.groups?.length === courseGroups?.length ?
+                const initSelectedGroupsView = (mentorWorkspace.groups?.length === course.groups?.length ?
                     [] : (mentorWorkspace.groups ?? []))
                     .filter(g => g.name?.trim());
 
@@ -282,7 +279,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                             // Сначала собираем все группы и id их студентов
                                             for (const item of values) {
                                                 if (isGroupViewModel(item) && item.studentsIds) {
-                                                    groupStudentIds.union(new Set(item.studentsIds));
+                                                    item.studentsIds?.forEach(sid => groupStudentIds.add(sid));
                                                     newGroups.add(item);
                                                 }
                                             }
