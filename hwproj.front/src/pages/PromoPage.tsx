@@ -82,6 +82,33 @@ const PromoPage: React.FC = () => {
         </Container>
       </Box>
 
+      <Container maxWidth="md" sx={{ mt: 8, mb: 4 }}>
+        <Typography
+          variant="h4"
+          align="center"
+          gutterBottom
+          sx={{ fontWeight: 600, color: "#3f51b5" }}
+        >
+          Что такое HwProj?
+        </Typography>
+        <Typography
+          variant="body1"
+          paragraph
+          sx={{ mt: 3, textAlign: "center", maxWidth: "700px", mx: "auto" }}
+        >
+          Это платформа для учёбы и преподавания. Мы создали её, чтобы студентам
+          было проще сдавать задания и следить за своим прогрессом, а
+          преподавателям — проверять работы и видеть успехи группы.
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{ textAlign: "center", maxWidth: "700px", mx: "auto" }}
+        >
+          Наш проект это простой и удобный инструмент, который помогает учиться
+          и учить.
+        </Typography>
+      </Container>
+
       {/* Объединённая секция: Аудитория + Как это работает */}
       <Container maxWidth="lg" sx={{ mt: 6, mb: 8 }}>
         <Box sx={{ textAlign: "center", mb: 4 }}>
