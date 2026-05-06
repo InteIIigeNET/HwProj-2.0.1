@@ -189,37 +189,6 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                             </Button>
                         </div>
                     ) : (
-                        <>
-                        <Grid container spacing={2} style={{marginTop: '12px'}}>
-                            <Grid item xs={12} sm={12}>
-                                <Stack direction={"column"}>
-                                    <Autocomplete
-                                        multiple
-                                        fullWidth
-                                        options={state.courseGroups}
-                                        getOptionLabel={g => g.name!}
-                                        getOptionKey={(option: GroupViewModel) => option.id ?? -1}
-                                        filterSelectedOptions
-                                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                variant="outlined"
-                                                label={state.selectedGroups.length === 0 ? "" : `Группы (${state.selectedGroups.length})`}
-                                                placeholder={state.selectedGroups.length === 0 ? "Все группы" : ""}
-                                            />)}
-                                        noOptionsText={'Больше нет групп для выбора'}
-                                        value={state.selectedGroups}
-                                        onChange={(_, values) => {
-                                            setState((prevState) => ({
-                                                ...prevState,
-                                                selectedGroups: values
-                                            }));
-                                        }}
-                                    />
-                                </Stack>
-                            </Grid>
-                        </Grid>
                         <Grid container spacing={2} style={{marginTop: '12px'}}>
                             <Grid item xs={12} sm={12}>
                                 <Stack direction={"column"}>
@@ -249,7 +218,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                         renderInput={(params) => {
                                             const totalSelectedStudents =
                                                 state.selectedStudents.length +
-                                                state.selectedGroups.reduce((acc, g) => acc + (g.studentsIds?.length ?? 0), 0);
+                                                [...new Set(state.selectedGroups.flatMap(g => g.studentsIds))].length;
 
                                             return (
                                                 <TextField
@@ -288,8 +257,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                             </>
                                         )}
                                         renderOption={(props, option) => {
-                                            const isGroup = isGroupViewModel(option);
-                                            if(isGroup) {
+                                            if(isGroupViewModel(option)) {
                                                 return (
                                                     <li {...props} style={{ color: "#3f51b5" }} key={option.id}>
                                                         {option.name}
@@ -314,24 +282,22 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                             // Сначала собираем все группы и id их студентов
                                             for (const item of values) {
                                                 if (isGroupViewModel(item) && item.studentsIds) {
-                                                    for (const studentId of item.studentsIds) {
-                                                        groupStudentIds.add(studentId);
-                                                    }
+                                                    groupStudentIds.union(new Set(item.studentsIds));
                                                     newGroups.add(item);
                                                 }
                                             }
 
                                             // Добавляем только студентов, не входящих ни в одну из выбранных групп
-                                            const newSelectedStudents: AccountDataDto[] = [];
+                                            const newStudents = new Array<AccountDataDto>();
                                             for (const item of values) {
                                                 if (isAccountDataDto(item) && item.userId && !groupStudentIds.has(item.userId)) {
-                                                    newSelectedStudents.push(item);
+                                                    newStudents.push(item);
                                                 }
                                             }
 
                                             setState((prev) => ({
                                                 ...prev,
-                                                selectedStudents: newSelectedStudents,
+                                                selectedStudents: newStudents,
                                                 selectedGroups: [...newGroups],
                                             }))
                                         }}
@@ -343,7 +309,6 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                 </Stack>
                             </Grid>
                         </Grid>
-                        </>
                     )}
                 </Grid>
             )}
