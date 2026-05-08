@@ -76,17 +76,17 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                 // Для корректного отображения "Все" при инцициализации (получении данных с бэкенда)
                 const allCourseStudentsCount = (course.acceptedStudents?.length ?? 0) + (course.newStudents?.length ?? 0);
                 const initSelectedStudentsView = selectedStudentWithoutGroups?.length === allCourseStudentsCount ?
-                    [] : (selectedStudentWithoutGroups) ?? [];
+                    [] : selectedStudentWithoutGroups ?? [];
 
                 const courseHomeworks = initSelectedGroupsView.length > 0
                     ? course.homeworks?.filter(h => !h.groupId || initSelectedGroupsView?.some(g => g.id === h.groupId))
                     : course.homeworks;
                 const initSelectedHomeworksView = mentorWorkspace.homeworks?.length === courseHomeworks?.length ?
-                    [] : (mentorWorkspace.homeworks ?? [])
+                    [] : mentorWorkspace.homeworks ?? [];
 
                 setState(prevState => ({
                     ...prevState,
-                    courseHomeworks: courseHomeworks ?? [],
+                    courseHomeworks: course.homeworks ?? [],
                     courseStudents: course.acceptedStudents ?? [],
                     courseGroups: course.groups?.filter(g => g.name?.trim()) ?? [],
                     selectedStudents: initSelectedStudentsView.filter(s => !initSelectedGroupsView.some(g => g.studentsIds?.includes(s.userId!))),
@@ -156,7 +156,11 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                             <Autocomplete
                                 multiple
                                 fullWidth
-                                options={state.courseHomeworks}
+                                options={state.courseHomeworks.filter(h =>
+                                    !h.groupId
+                                    || !state.selectedGroups
+                                    || state.selectedGroups.some(g => g.id === h.groupId))
+                                }
                                 getOptionLabel={(option: HomeworkViewModel) => option.title ?? "Без названия"}
                                 getOptionKey={(option: HomeworkViewModel) => option.id ?? 0}
                                 filterSelectedOptions
