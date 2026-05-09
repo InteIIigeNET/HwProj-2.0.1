@@ -19,16 +19,84 @@ import {
 } from "@mui/material";
 
 const PromoPage: React.FC = () => {
-  const [userType, setUserType] = useState<"student" | "lecturer">("student");
+  const [userType, setUserType] = useState<"student" | "lecturer" | "expert">(
+    "student",
+  );
+  const [activeStep, setActiveStep] = useState(0);
 
   const handleUserType = (
     event: React.MouseEvent<HTMLElement>,
-    newUserType: "student" | "lecturer" | null,
+    newUserType: "student" | "lecturer" | "expert" | null,
   ) => {
     if (newUserType !== null) {
       setUserType(newUserType);
+      setActiveStep(0); // сброс шага при смене роли
     }
   };
+
+  // Данные для шагов
+  const studentSteps = [
+    {
+      icon: <MenuBook />,
+      label: "Выберите курс",
+      description: "Найдите подходящий курс из каталога и присоединяйтесь.",
+    },
+    {
+      icon: <Assignment />,
+      label: "Выполняйте задания",
+      description:
+        "Решайте задачи, загружайте решения и следите за дедлайнами.",
+    },
+    {
+      icon: <Feedback />,
+      label: "Получайте обратную связь",
+      description: "Узнавайте результаты проверки и улучшайте свои навыки.",
+    },
+  ];
+
+  const lecturerSteps = [
+    {
+      icon: <Create />,
+      label: "Создайте курс",
+      description:
+        "Добавьте материалы, настройте задания и пригласите студентов.",
+    },
+    {
+      icon: <TrendingUp />,
+      label: "Отслеживайте прогресс",
+      description: "Смотрите, как студенты справляются с заданиями и растут.",
+    },
+    {
+      icon: <BarChart />,
+      label: "Анализируйте успеваемость",
+      description: "Используйте статистику для улучшения учебного процесса.",
+    },
+  ];
+
+  const expertSteps = [
+    {
+      icon: <BarChart />,
+      label: "Получите приглашение",
+      description: "123",
+    },
+    {
+      icon: <BarChart />,
+      label: "Получите приглашение",
+      description: "123",
+    },
+    {
+      icon: <BarChart />,
+      label: "Получите приглашение",
+      description: "123",
+    },
+  ];
+
+  const steps =
+    userType === "student"
+      ? studentSteps
+      : userType === "lecturer"
+      ? lecturerSteps
+      : expertSteps;
 
   return (
     <Box>
@@ -59,29 +127,14 @@ const PromoPage: React.FC = () => {
             paragraph
             sx={{ mb: 4, fontSize: { xs: "1rem", md: "1.5rem" } }}
           >
-            Удобное место для учёбы и преподавания.
+            Сервис для учёбы и преподавания, чтобы студентам было проще сдавать
+            задания и следить за своим прогрессом, а преподавателям — проверять
+            работы и видеть успехи группы.
           </Typography>
-          <Button
-            variant="contained"
-            size="large"
-            sx={{
-              bgcolor: "#3f51b5",
-              color: "white",
-              px: 4,
-              py: 1.5,
-              fontSize: "1.1rem",
-              textTransform: "none",
-              borderRadius: "8px",
-              "&:hover": {
-                bgcolor: "#1565c0",
-              },
-            }}
-          >
-            Начать знакомство
-          </Button>
         </Container>
       </Box>
 
+      {/* О проекте */}
       <Container maxWidth="md" sx={{ mt: 8, mb: 4 }}>
         <Typography
           variant="h4"
@@ -96,9 +149,9 @@ const PromoPage: React.FC = () => {
           paragraph
           sx={{ mt: 3, textAlign: "center", maxWidth: "700px", mx: "auto" }}
         >
-          Это платформа для учёбы и преподавания. Мы создали её, чтобы студентам
-          было проще сдавать задания и следить за своим прогрессом, а
-          преподавателям — проверять работы и видеть успехи группы.
+          Это сервис для учёбы и преподавания, чтобы студентам было проще
+          сдавать задания и следить за своим прогрессом, а преподавателям —
+          проверять работы и видеть успехи группы.
         </Typography>
         <Typography
           variant="body1"
@@ -109,180 +162,191 @@ const PromoPage: React.FC = () => {
         </Typography>
       </Container>
 
-      {/* Объединённая секция: Аудитория + Как это работает */}
+      {/* Объединённая секция: Аудитория + Как это работает (табы строго над левой панелью) */}
       <Container maxWidth="lg" sx={{ mt: 6, mb: 8 }}>
-        <Box sx={{ textAlign: "center", mb: 4 }}>
-          <ToggleButtonGroup
-            value={userType}
-            exclusive
-            onChange={handleUserType}
+        {/* Строка с табами, выровненная по левой колонке */}
+        {/*<Box sx={{ mb: 1 }}>*/}
+        <Grid container>
+          <Grid item xs={12} md={5}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                overflow: "hidden",
+              }}
+            >
+              <ToggleButtonGroup
+                value={userType}
+                exclusive
+                onChange={handleUserType}
+                sx={{
+                  // Даём каждой кнопке рамку
+                  "& .MuiToggleButtonGroup-grouped": {
+                    border: "1px solid #e0e0e0",
+                    borderRadius: 0,
+                    // Убираем нижнюю рамку для неактивных (или можно оставить, но тогда активная будет с двойной, если добавим borderBottom)
+                    borderBottom: "1px solid #e0e0e0",
+                    "&.Mui-selected": {
+                      // Активная кнопка получает цветную нижнюю границу вместо обычной
+                      borderBottom: "2px solid #3f51b5",
+                    },
+                  },
+                  // Убираем левую границу у всех, кроме первой, чтобы линии не двоились
+                  "& .MuiToggleButtonGroup-grouped:not(:first-of-type)": {
+                    marginLeft: "-1px", // чтобы границы стыковались вплотную
+                  },
+                  // Скругляем верхние углы крайним кнопкам
+                  "& .MuiToggleButtonGroup-grouped:first-of-type": {
+                    borderTopLeftRadius: 8,
+                  },
+                  "& .MuiToggleButtonGroup-grouped:last-of-type": {
+                    borderTopRightRadius: 8,
+                  },
+                }}
+              >
+                <ToggleButton value="student">Студентам</ToggleButton>
+                <ToggleButton value="lecturer">Преподавателям</ToggleButton>
+                <ToggleButton value="expert">Экспертам</ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+          </Grid>
+        </Grid>
+        {/*</Box>*/}
+
+        {/* Основной блок с левой и правой частью */}
+        <Box
+          sx={{
+            borderRadius: "16px",
+            border: "1px solid #e0e0e0",
+            overflow: "hidden",
+          }}
+        >
+          <Box
             sx={{
-              "& .MuiToggleButton-root": {
-                px: 4,
-                py: 1.5,
-                textTransform: "none",
-                fontSize: "1rem",
-                borderRadius: "8px",
-              },
-              "& .Mui-selected": {
-                bgcolor: "#3f51b5 !important",
-                color: "white !important",
-              },
+              backgroundColor: "#fff",
+              borderRadius: "16px",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+              overflow: "hidden",
+              minHeight: "520px",
             }}
           >
-            <ToggleButton value="student">Студентам</ToggleButton>
-            <ToggleButton value="lecturer">Преподавателям</ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
+            <Grid container sx={{ height: "100%" }}>
+              {/* Левая панель (шаги) */}
+              <Grid
+                item
+                xs={12}
+                md={5}
+                sx={{ p: 4, borderRight: { md: "1px solid #e0e0e0" } }}
+              >
+                <Typography
+                  variant="h5"
+                  align="center"
+                  gutterBottom
+                  sx={{ fontWeight: 600, mt: 2 }}
+                >
+                  Как это работает
+                </Typography>
 
-        <Grid container spacing={3} justifyContent="center">
-          {userType === "student" ? (
-            <>
-              <Grid item xs={12} sm={4}>
-                <Paper
-                  elevation={2}
+                <Box
                   sx={{
-                    p: 4,
-                    textAlign: "center",
-                    borderRadius: "16px",
-                    height: "100%",
+                    mt: 3,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
                   }}
                 >
-                  <MenuBook sx={{ fontSize: 48, color: "#3f51b5", mb: 2 }} />
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    sx={{ fontWeight: 600 }}
-                  >
-                    Выберите курс
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Найдите подходящий курс из каталога и присоединяйтесь.
-                  </Typography>
-                </Paper>
+                  {steps.map((step, index) => (
+                    <Paper
+                      key={index}
+                      elevation={0}
+                      onClick={() => setActiveStep(index)}
+                      sx={{
+                        p: 2.5,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        cursor: "pointer",
+                        borderRadius: "12px",
+                        backgroundColor:
+                          activeStep === index ? "#e3f2fd" : "transparent",
+                        border:
+                          activeStep === index
+                            ? "2px solid #3f51b5"
+                            : "2px solid transparent",
+                        transition: "all 0.2s",
+                        "&:hover": {
+                          backgroundColor: "#f5f5f5",
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          color: "#3f51b5",
+                          display: "flex",
+                          fontSize: 32,
+                        }}
+                      >
+                        {step.icon}
+                      </Box>
+                      <Box>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ fontWeight: 600 }}
+                        >
+                          {step.label}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {step.description}
+                        </Typography>
+                      </Box>
+                    </Paper>
+                  ))}
+                </Box>
               </Grid>
-              <Grid item xs={12} sm={4}>
-                <Paper
-                  elevation={2}
+
+              {/* Правая панель (место для скриншота) */}
+              <Grid
+                item
+                xs={12}
+                md={7}
+                sx={{
+                  backgroundColor: "#fafafa",
+                  p: { xs: 3, md: 4 },
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Box
                   sx={{
-                    p: 4,
-                    textAlign: "center",
-                    borderRadius: "16px",
+                    width: "100%",
                     height: "100%",
+                    minHeight: 400,
+                    backgroundColor: "#e0e0e0",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                    p: 3,
                   }}
                 >
-                  <Assignment sx={{ fontSize: 48, color: "#3f51b5", mb: 2 }} />
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    sx={{ fontWeight: 600 }}
-                  >
-                    Выполняйте задания
+                  <Typography variant="h6" color="text.secondary">
+                    {steps[activeStep].label}
+                    <br />
+                    <Typography
+                      component="span"
+                      variant="body2"
+                      color="text.secondary"
+                    >
+                      (скриншот интерфейса)
+                    </Typography>
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Решайте задачи, загружайте решения и следите за дедлайнами.
-                  </Typography>
-                </Paper>
+                </Box>
               </Grid>
-              <Grid item xs={12} sm={4}>
-                <Paper
-                  elevation={2}
-                  sx={{
-                    p: 4,
-                    textAlign: "center",
-                    borderRadius: "16px",
-                    height: "100%",
-                  }}
-                >
-                  <Feedback sx={{ fontSize: 48, color: "#3f51b5", mb: 2 }} />
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    sx={{ fontWeight: 600 }}
-                  >
-                    Получайте обратную связь
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Узнавайте результаты проверки и улучшайте свои навыки.
-                  </Typography>
-                </Paper>
-              </Grid>
-            </>
-          ) : (
-            <>
-              <Grid item xs={12} sm={4}>
-                <Paper
-                  elevation={2}
-                  sx={{
-                    p: 4,
-                    textAlign: "center",
-                    borderRadius: "16px",
-                    height: "100%",
-                  }}
-                >
-                  <Create sx={{ fontSize: 48, color: "#3f51b5", mb: 2 }} />
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    sx={{ fontWeight: 600 }}
-                  >
-                    Создайте курс
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Добавьте материалы, настройте задания и пригласите
-                    студентов.
-                  </Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Paper
-                  elevation={2}
-                  sx={{
-                    p: 4,
-                    textAlign: "center",
-                    borderRadius: "16px",
-                    height: "100%",
-                  }}
-                >
-                  <TrendingUp sx={{ fontSize: 48, color: "#3f51b5", mb: 2 }} />
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    sx={{ fontWeight: 600 }}
-                  >
-                    Отслеживайте прогресс
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Смотрите, как студенты справляются с заданиями и растут.
-                  </Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Paper
-                  elevation={2}
-                  sx={{
-                    p: 4,
-                    textAlign: "center",
-                    borderRadius: "16px",
-                    height: "100%",
-                  }}
-                >
-                  <BarChart sx={{ fontSize: 48, color: "#3f51b5", mb: 2 }} />
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    sx={{ fontWeight: 600 }}
-                  >
-                    Анализируйте успеваемость
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Используйте статистику для улучшения учебного процесса.
-                  </Typography>
-                </Paper>
-              </Grid>
-            </>
-          )}
-        </Grid>
+            </Grid>
+          </Box>
+        </Box>
       </Container>
     </Box>
   );
