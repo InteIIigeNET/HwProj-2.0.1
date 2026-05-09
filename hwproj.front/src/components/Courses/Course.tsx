@@ -93,8 +93,10 @@ const Course: React.FC = () => {
         groups
     } = courseState
 
-    const loadGroups = async () => {
-        const groups = await ApiSingleton.courseGroupsApi.courseGroupsGetAllCourseGroups(course.id!)
+    const loadGroups = async (targetCourseId: number = course.id!) => {
+        if (!targetCourseId) return;
+
+        const groups = await ApiSingleton.courseGroupsApi.courseGroupsGetAllCourseGroups(targetCourseId)
         setCourseState(prevState => ({
             ...prevState,
             groups: groups
@@ -153,7 +155,6 @@ const Course: React.FC = () => {
             courseHomeworks: course.homeworks!,
             createHomework: false,
             mentors: course.mentors!,
-            groups: course.groups || [],
             acceptedStudents: course.acceptedStudents!,
             newStudents: course.newStudents!,
         }))
@@ -161,7 +162,8 @@ const Course: React.FC = () => {
 
     useEffect(() => {
         setCurrentState()
-    }, [])
+        loadGroups(+courseId!)
+    }, [courseId])
 
     useEffect(() => {
         ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)

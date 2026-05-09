@@ -7,6 +7,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import ErrorsHandler from "../Utils/ErrorsHandler";
 import {DotLottieReact} from '@lottiefiles/dotlottie-react';
 import Button from "@material-ui/core/Button";
+import {getSelectedCourseView} from "./MentorWorkspaceUtils";
 
 interface ICourseFilterProps {
     courseId: number;
@@ -63,35 +64,11 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                 const mentorWorkspace =
                     await ApiSingleton.coursesApi.coursesGetMentorWorkspace(props.courseId, props.mentorId);
 
-                props.onSelectedStudentsChange(mentorWorkspace.students ?? [])
-                props.onSelectedHomeworksChange(mentorWorkspace.homeworks ?? [])
-                props.onSelectedGroupsChange(mentorWorkspace.groups ?? [])
-
-                const initSelectedGroupsView = (mentorWorkspace.groups?.length === course.groups?.length ?
-                    [] : (mentorWorkspace.groups ?? []))
-                    .filter(g => g.name?.trim());
-                const selectedGroupsStudents = initSelectedGroupsView.flatMap(g =>g.studentsIds ?? []);
-
-                const selectedStudentWithoutGroups = mentorWorkspace.students?.filter(st => !selectedGroupsStudents.includes(st.userId!));
-                // Для корректного отображения "Все" при инцициализации (получении данных с бэкенда)
-                const allCourseStudentsCount = (course.acceptedStudents?.length ?? 0) + (course.newStudents?.length ?? 0);
-                const initSelectedStudentsView = selectedStudentWithoutGroups?.length === allCourseStudentsCount ?
-                    [] : selectedStudentWithoutGroups ?? [];
-
-                const courseHomeworks = initSelectedGroupsView.length > 0
-                    ? course.homeworks?.filter(h => !h.groupId || initSelectedGroupsView?.some(g => g.id === h.groupId))
-                    : course.homeworks;
-                const initSelectedHomeworksView = mentorWorkspace.homeworks?.length === courseHomeworks?.length ?
-                    [] : mentorWorkspace.homeworks ?? [];
+                const selectedCourseView = getSelectedCourseView(course, mentorWorkspace);
 
                 setState(prevState => ({
                     ...prevState,
-                    courseHomeworks: course.homeworks ?? [],
-                    courseStudents: course.acceptedStudents ?? [],
-                    courseGroups: course.groups?.filter(g => g.name?.trim()) ?? [],
-                    selectedStudents: initSelectedStudentsView.filter(s => !initSelectedGroupsView.some(g => g.studentsIds?.includes(s.userId!))),
-                    selectedHomeworks: initSelectedHomeworksView,
-                    selectedGroups: initSelectedGroupsView,
+                    ...selectedCourseView,
                     mentors: course.mentors!,
                     assignedStudents: assignedStudents.filter(x => x.mentorId !== props.mentorId)
                 }))
@@ -158,9 +135,9 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                 fullWidth
                                 options={state.courseHomeworks.filter(h =>
                                     !h.groupId
-                                    || !state.selectedGroups
-                                    || state.selectedGroups.some(g => g.id === h.groupId))
-                                }
+                                    || state.selectedGroups.length === 0
+                                    || state.selectedGroups.some(g => g.id === h.groupId)
+                                )}
                                 getOptionLabel={(option: HomeworkViewModel) => option.title ?? "Без названия"}
                                 getOptionKey={(option: HomeworkViewModel) => option.id ?? 0}
                                 filterSelectedOptions
