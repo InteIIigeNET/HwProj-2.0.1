@@ -9,7 +9,7 @@ import {
     HomeworkTaskViewModel,
     SolutionState,
     SolutionActualityDto,
-    SolutionActualityPart, StudentDataDto, FileInfoDTO
+    SolutionActualityPart, StudentDataDto, FileInfoDTO, CriterionViewModel
 } from '@/api'
 import ApiSingleton from "../../api/ApiSingleton";
 import {
@@ -618,6 +618,226 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         );
         const criteriaTotal = Math.max(0, criteriaTotalRaw);
         const totalWithExtra = criteriaTotal + (Number.isFinite(extraScore) ? extraScore : 0);
+        const deadlineCriteria = taskWithCriteria.criteria!.filter(c => c.type === CriterionTypeDeadline);
+        const regularCriteria = taskWithCriteria.criteria!.filter(c => c.type !== CriterionTypeDeadline);
+
+        const renderDeadlineCriterion = (c: CriterionViewModel) => {
+            const existingRating = criterionRatings.find(r => r.criterionId === c.id);
+
+            const current =
+                existingRating || {
+                    criterionId: c.id,
+                    name: c.name,
+                    maxPoints: c.maxPoints,
+                    value: Number.NaN,
+                    comment: "",
+                };
+
+            const numericValue = Number.isFinite(current.value) ? current.value : 0;
+            const deadlineDate = c.arguments ? new Date(c.arguments) : undefined;
+            const isSubmittedOnTime = numericValue === 0;
+            const deadlineDelay = deadlineDate && solution?.publicationDate
+                ? getDatesDiff(solution.publicationDate!, deadlineDate)
+                : "";
+
+            return (
+                <Alert
+                    key={c.id}
+                    severity={isSubmittedOnTime ? "success" : "error"}
+                    icon={isSubmittedOnTime
+                        ? <CheckIcon fontSize="small" color="success"/>
+                        : <CloseIcon fontSize="small" color="error"/>}
+                    sx={{
+                        gridColumn: "1 / span 2",
+                        alignItems: "center",
+                        py: 0.5,
+                        "& .MuiAlert-message": {
+                            width: "100%",
+                        },
+                        "& .MuiAlert-icon": {
+                            alignItems: "center",
+                        },
+                    }}
+                >
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        spacing={2}
+                        sx={{width: "100%"}}
+                    >
+                        <Box>
+                            <Typography variant="body1">{c.name}</Typography>
+                            <Typography variant="caption" color="textSecondary">
+                                {isSubmittedOnTime
+                                    ? "Сдано вовремя"
+                                    : `Сдано позже${deadlineDelay ? ` на ${deadlineDelay}` : ""}`}
+                            </Typography>
+                        </Box>
+                        {!isSubmittedOnTime && (
+                            <Chip
+                                size="small"
+                                color="error"
+                                label={numericValue}
+                            />
+                        )}
+                    </Stack>
+                </Alert>
+            );
+        };
+
+        const renderRegularCriterion = (c: CriterionViewModel) => {
+            const existingRating = criterionRatings.find(r => r.criterionId === c.id);
+
+            const current =
+                existingRating || {
+                    criterionId: c.id,
+                    name: c.name,
+                    maxPoints: c.maxPoints,
+                    value: Number.NaN,
+                    comment: "",
+                };
+
+            const numericValue = Number.isFinite(current.value) ? current.value : 0;
+
+            const hasExplicitValue = Number.isFinite(current.value);
+
+            const isThumbCriterion = c.maxPoints === 1;
+            const hasStars =
+                typeof c.maxPoints === "number" && c.maxPoints <= 10 && !isThumbCriterion;
+
+            const isFilled = hasExplicitValue && (isThumbCriterion || numericValue !== 0);
+
+            return (
+                <React.Fragment key={c.id}>
+                    <Box display="flex" alignItems="center">
+                        <Box
+                            width={24}
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            mr={1}
+                        >
+                            <CheckCircleOutlineIcon
+                                style={{
+                                    fontSize: 18,
+                                    color: isFilled ? "#3f51b5" : "#c0c0c0",
+                                    opacity: isFilled ? 1 : 0.4,
+                                }}
+                            />
+                        </Box>
+
+                        <Typography variant="body1">
+                            {c.name}
+                        </Typography>
+                    </Box>
+
+                    <Box justifySelf="end">
+                        {isThumbCriterion ? (
+                            <Stack direction="row" alignItems="center">
+                                <IconButton
+                                    size="small"
+                                    disabled={!props.forMentor || !state.clickedForRate}
+                                    onClick={() => {
+                                        setCriteriaModified(true);
+                                        setCriterionRatings(prev =>
+                                            prev.map(r =>
+                                                r.criterionId === c.id
+                                                    ? {...r, value: 1}
+                                                    : r
+                                            )
+                                        );
+                                    }}
+                                >
+                                    <ThumbUp
+                                        color={hasExplicitValue && numericValue === 1 ? "success" : "disabled"}
+                                        fontSize="small"
+                                    />
+                                </IconButton>
+
+                                <IconButton
+                                    size="small"
+                                    disabled={!props.forMentor || !state.clickedForRate}
+                                    onClick={() => {
+                                        setCriteriaModified(true);
+                                        setCriterionRatings(prev =>
+                                            prev.map(r =>
+                                                r.criterionId === c.id
+                                                    ? {...r, value: 0}
+                                                    : r
+                                            )
+                                        );
+                                    }}
+                                >
+                                    <ThumbDown
+                                        color={hasExplicitValue && numericValue === 0 ? "error" : "disabled"}
+                                        fontSize="small"
+                                    />
+                                </IconButton>
+
+                            </Stack>
+                        ) : hasStars ? (
+                            <Rating
+                                max={c.maxPoints}
+                                size="medium"
+                                value={Math.max(
+                                    0,
+                                    Math.min(numericValue, c.maxPoints ?? Number.POSITIVE_INFINITY)
+                                )}
+                                onChange={(_, newValue) => {
+                                    let val = Number(newValue || 0);
+                                    if (Number.isNaN(val)) val = 0;
+                                    if (c.maxPoints && val > c.maxPoints) {
+                                        val = c.maxPoints;
+                                    }
+
+                                    setCriteriaModified(true);
+                                    setCriterionRatings(prev =>
+                                        prev.map(r =>
+                                            r.criterionId === c.id
+                                                ? {...r, value: val}
+                                                : r
+                                        )
+                                    );
+                                }}
+                            />
+                        ) : (
+                            <Box display="flex" alignItems="center" justifyContent="flex-end">
+                                <TextField
+                                    type="number"
+                                    size="small"
+                                    style={{width: 50}}
+                                    value={numericValue}
+                                    variant="standard"
+                                    margin="dense"
+                                    inputProps={{max: c.maxPoints}}
+                                    onChange={e => {
+                                        let val = Number(e.target.value);
+                                        if (Number.isNaN(val)) val = 0;
+
+                                        setCriteriaModified(true);
+                                        setCriterionRatings(prev =>
+                                            prev.map(r =>
+                                                r.criterionId === c.id
+                                                    ? {...r, value: val}
+                                                    : r
+                                            )
+                                        );
+                                    }}
+                                />
+
+                                <Typography
+                                    variant="body2"
+                                    style={{marginLeft: 4}}
+                                >
+                                    / {c.maxPoints}
+                                </Typography>
+                            </Box>
+                        )}
+                    </Box>
+                </React.Fragment>
+            );
+        };
 
         return (
             <Grid container item direction="column" spacing={1} style={{marginTop: 0}}>
@@ -629,222 +849,17 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         rowGap={0.75}
                         sx={{width: "100%"}}
                     >
-                        {taskWithCriteria.criteria!.map((c, criteriaIndex) => {
-                            const existingRating = criterionRatings.find(r => r.criterionId === c.id);
-
-                            const current =
-                                existingRating || {
-                                    criterionId: c.id,
-                                    name: c.name,
-                                    maxPoints: c.maxPoints,
-                                    value: Number.NaN,
-                                    comment: "",
-                                };
-
-                            const numericValue = Number.isFinite(current.value) ? current.value : 0;
-
-                            const hasExplicitValue = Number.isFinite(current.value);
-
-                            const isThumbCriterion = c.maxPoints === 1;
-                            const hasStars =
-                                typeof c.maxPoints === "number" && c.maxPoints <= 10 && !isThumbCriterion;
-
-                            const isFilled = hasExplicitValue && (isThumbCriterion || numericValue !== 0);
-                            const isDeadlineCriterion = c.type === CriterionTypeDeadline;
-                            const nextCriterion = taskWithCriteria.criteria![criteriaIndex + 1];
-                            const hasRegularCriterionAfter = isDeadlineCriterion &&
-                                nextCriterion !== undefined &&
-                                nextCriterion.type !== CriterionTypeDeadline;
-                            const deadlineDate = c.arguments ? new Date(c.arguments) : undefined;
-                            const isSubmittedOnTime = isDeadlineCriterion && numericValue === 0;
-                            const deadlineDelay = isDeadlineCriterion && deadlineDate && solution?.publicationDate
-                                ? getDatesDiff(solution.publicationDate!, deadlineDate)
-                                : "";
-
-                            if (isDeadlineCriterion) {
-                                return (
-                                    <Alert
-                                        key={c.id}
-                                        severity={isSubmittedOnTime ? "success" : "error"}
-                                        icon={isSubmittedOnTime
-                                            ? <CheckIcon fontSize="small" color="success"/>
-                                            : <CloseIcon fontSize="small" color="error"/>}
-                                        sx={{
-                                            gridColumn: "1 / span 2",
-                                            alignItems: "center",
-                                            mb: hasRegularCriterionAfter ? 1.5 : 0,
-                                            py: 0.5,
-                                            "& .MuiAlert-message": {
-                                                width: "100%",
-                                            },
-                                            "& .MuiAlert-icon": {
-                                                alignItems: "center",
-                                            },
-                                        }}
-                                    >
-                                        <Stack
-                                            direction="row"
-                                            alignItems="center"
-                                            justifyContent="space-between"
-                                            spacing={2}
-                                            sx={{width: "100%"}}
-                                        >
-                                            <Box>
-                                                <Typography variant="body1">{c.name}</Typography>
-                                                <Typography variant="caption" color="textSecondary">
-                                                    {isSubmittedOnTime
-                                                        ? "Сдано вовремя"
-                                                        : `Сдано позже${deadlineDelay ? ` на ${deadlineDelay}` : ""}`}
-                                                </Typography>
-                                            </Box>
-                                            {!isSubmittedOnTime && (
-                                                <Chip
-                                                    size="small"
-                                                    color="error"
-                                                    label={numericValue}
-                                                />
-                                            )}
-                                        </Stack>
-                                    </Alert>
-                                );
-                            }
-
-                            return (
-                                <React.Fragment key={c.id}>
-                                    <Box display="flex" alignItems="center">
-                                        <Box
-                                            width={24}
-                                            display="flex"
-                                            alignItems="center"
-                                            justifyContent="center"
-                                            mr={1}
-                                        >
-                                            <CheckCircleOutlineIcon
-                                                style={{
-                                                    fontSize: 18,
-                                                    color: isFilled ? "#3f51b5" : "#c0c0c0",
-                                                    opacity: isFilled ? 1 : 0.4,
-                                                }}
-                                            />
-                                        </Box>
-
-                                        <Typography variant="body1">
-                                            {c.name}
-                                        </Typography>
-                                        {isDeadlineCriterion && deadlineDate && (
-                                            <Typography variant="caption" color="textSecondary" style={{marginLeft: 8}}>
-                                                {Utils.renderDateWithoutSeconds(deadlineDate)}
-                                            </Typography>
-                                        )}
-
-                                    </Box>
-
-                                    <Box justifySelf="end">
-                                        {isThumbCriterion ? (
-                                            <Stack direction="row" alignItems="center">
-                                                <IconButton
-                                                    size="small"
-                                                    disabled={!props.forMentor || !state.clickedForRate}
-                                                    onClick={() => {
-                                                        setCriteriaModified(true);
-                                                        setCriterionRatings(prev =>
-                                                            prev.map(r =>
-                                                                r.criterionId === c.id
-                                                                    ? {...r, value: 1}
-                                                                    : r
-                                                            )
-                                                        );
-                                                    }}
-                                                >
-                                                    <ThumbUp
-                                                        color={hasExplicitValue && numericValue === 1 ? "success" : "disabled"}
-                                                        fontSize="small"
-                                                    />
-                                                </IconButton>
-
-                                                <IconButton
-                                                    size="small"
-                                                    disabled={!props.forMentor || !state.clickedForRate}
-                                                    onClick={() => {
-                                                        setCriteriaModified(true);
-                                                        setCriterionRatings(prev =>
-                                                            prev.map(r =>
-                                                                r.criterionId === c.id
-                                                                    ? {...r, value: 0}
-                                                                    : r
-                                                            )
-                                                        );
-                                                    }}
-                                                >
-                                                    <ThumbDown
-                                                        color={hasExplicitValue && numericValue === 0 ? "error" : "disabled"}
-                                                        fontSize="small"
-                                                    />
-                                                </IconButton>
-
-                                            </Stack>
-                                        ) : hasStars ? (
-                                            <Rating
-                                                max={c.maxPoints}
-                                                size="medium"
-                                                value={Math.max(
-                                                    0,
-                                                    Math.min(numericValue, c.maxPoints ?? Number.POSITIVE_INFINITY)
-                                                )}
-                                                onChange={(_, newValue) => {
-                                                    let val = Number(newValue || 0);
-                                                    if (Number.isNaN(val)) val = 0;
-                                                    if (c.maxPoints && val > c.maxPoints) {
-                                                        val = c.maxPoints;
-                                                    }
-
-                                                    setCriteriaModified(true);
-                                                    setCriterionRatings(prev =>
-                                                        prev.map(r =>
-                                                            r.criterionId === c.id
-                                                                ? {...r, value: val}
-                                                                : r
-                                                        )
-                                                    );
-                                                }}
-                                            />
-                                        ) : (
-                                            <Box display="flex" alignItems="center" justifyContent="flex-end">
-                                                <TextField
-                                                    type="number"
-                                                    size="small"
-                                                    style={{width: 50}}
-                                                    value={numericValue}
-                                                    variant="standard"
-                                                    margin="dense"
-                                                    inputProps={{max: c.maxPoints}}
-                                                    onChange={e => {
-                                                        let val = Number(e.target.value);
-                                                        if (Number.isNaN(val)) val = 0;
-
-                                                        setCriteriaModified(true);
-                                                        setCriterionRatings(prev =>
-                                                            prev.map(r =>
-                                                                r.criterionId === c.id
-                                                                    ? {...r, value: val}
-                                                                    : r
-                                                            )
-                                                        );
-                                                    }}
-                                                />
-
-                                                <Typography
-                                                    variant="body2"
-                                                    style={{marginLeft: 4}}
-                                                >
-                                                    / {c.maxPoints}
-                                                </Typography>
-                                            </Box>
-                                        )}
-                                    </Box>
-                                </React.Fragment>
-                            );
-                        })}
+                        {deadlineCriteria.length > 0 && (
+                            <Box
+                                gridColumn="1 / span 2"
+                                display="grid"
+                                rowGap={0.75}
+                                mb={regularCriteria.length > 0 ? 1.5 : 0}
+                            >
+                                {deadlineCriteria.map(renderDeadlineCriterion)}
+                            </Box>
+                        )}
+                        {regularCriteria.map(renderRegularCriterion)}
                         <Box display="flex" alignItems="center">
                             <Box
                                 width={24}
