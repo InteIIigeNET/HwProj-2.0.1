@@ -24,6 +24,13 @@ namespace HwProj.CoursesService.Client
         Task<Result> UpdateStudentCharacteristics(long courseId, string studentId,
             StudentCharacteristicsDto characteristics);
 
+        Task<Result> InitRegistrationRequest(InitRegistrationRequestViewModel model);
+        Task<Result<long>> ConfirmRegistrationRequest(ConfirmRegistrationRequestViewModel model);
+        Task<Result<RegistrationRequestDto[]>> GetCourseRegistrationRequests(long courseId);
+        Task<Result<RegistrationRequestDto[]>> GetGeneralRegistrationRequests();
+        Task<Result<string>> ApproveRegistrationRequest(long requestId);
+        Task<Result> RejectRegistrationRequest(long requestId, ReviewRegistrationRequestViewModel model);
+        
         Task<CourseDTO[]> GetAllUserCourses();
         Task<TaskDeadlineDto[]> GetTaskDeadlines();
         Task<Result<HomeworkViewModel>> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId);

@@ -13,7 +13,8 @@ namespace HwProj.AuthService.API.Services
         Task<AccountDataDto> GetAccountDataAsync(string userId);
         Task<AccountDataDto[]> GetAccountsDataAsync(string[] userIds);
         Task<AccountDataDto> GetAccountDataByEmailAsync(string email);
-        Task<Result<string>> RegisterUserAsync(RegisterDataDTO model);
+        Task<Result<string>> RegisterStudentAsync(RegisterDataDTO model);
+        Task<Result<string>> RegisterLecturerAsync(RegisterDataDTO model);
         Task<Result> EditAccountAsync(string accountId, EditDataDTO model);
         Task<Result<TokenCredentials>> LoginUserAsync(LoginViewModel model);
         Task<Result<TokenCredentials>> RefreshToken(string userId);

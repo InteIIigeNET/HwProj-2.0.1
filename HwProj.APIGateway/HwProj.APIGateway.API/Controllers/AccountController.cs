@@ -89,13 +89,13 @@ namespace HwProj.APIGateway.API.Controllers
             return Ok(aggregatedResult);
         }
 
-        [HttpPost("register")]
-        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-            var result = await AuthServiceClient.Register(model);
-            return Ok(result);
-        }
+        // [HttpPost("register")]
+        // [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        // public async Task<IActionResult> Register(RegisterViewModel model)
+        // {
+        //     var result = await AuthServiceClient.Register(model);
+        //     return Ok(result);
+        // }
 
         [HttpPost("login")]
         [ProducesResponseType(typeof(Result<TokenCredentials>), (int)HttpStatusCode.OK)]

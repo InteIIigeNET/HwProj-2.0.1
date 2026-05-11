@@ -1,30 +1,28 @@
 using System.Net;
 using System.Threading.Tasks;
-using HwProj.Common.Net8;
-using HwProj.CoursesService.API.Services;
+using HwProj.AuthService.Client;
+using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
+using HwProj.Models.Roles;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HwProj.CoursesService.API.Controllers
+namespace HwProj.APIGateway.API.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
-    public class RegistrationRequestsController : Controller
+    [ApiController]
+    public class RegistrationRequestsController(
+        ICoursesServiceClient coursesClient,
+        IAuthServiceClient authServiceClient)
+        : AggregationController(authServiceClient)
     {
-        private readonly IRegistrationRequestsService _service;
-
-        public RegistrationRequestsController(IRegistrationRequestsService service)
-        {
-            _service = service;
-        }
-
         [HttpPost("init")]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Init([FromBody] InitRegistrationRequestViewModel model)
         {
-            var result = await _service.InitRequestAsync(model);
+            var result = await coursesClient.InitRegistrationRequest(model);
             return Ok(result);
         }
         
@@ -32,65 +30,44 @@ namespace HwProj.CoursesService.API.Controllers
         [ProducesResponseType(typeof(Result<long>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Confirm([FromBody] ConfirmRegistrationRequestViewModel model)
         {
-            var result = await _service.ConfirmRequestAsync(model.Token);
+            var result = await coursesClient.ConfirmRegistrationRequest(model);
             return Ok(result);
         }
 
         [HttpGet("course/{courseId}")]
+        [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(Result<RegistrationRequestDto[]>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseRequests(long courseId)
         {
-            var reviewerId = Request.GetUserIdFromHeader();
-            if (string.IsNullOrWhiteSpace(reviewerId))
-            {
-                return Unauthorized();
-            }
-
-            var result = await _service.GetCourseRequestsAsync(courseId, reviewerId);
+            var result = await coursesClient.GetCourseRegistrationRequests(courseId);
             return Ok(result);
         }
 
         [HttpGet("general")]
+        [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(Result<RegistrationRequestDto[]>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetGeneralRequests()
         {
-            var reviewerId = Request.GetUserIdFromHeader();
-            if (string.IsNullOrWhiteSpace(reviewerId))
-            {
-                return Unauthorized();
-            }
-            
-            var result = await _service.GetGeneralRequestsAsync(reviewerId);
+            var result = await coursesClient.GetGeneralRegistrationRequests();
             return Ok(result);
         }
 
         [HttpPost("{requestId}/approve")]
+        [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(Result<string>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Approve(long requestId)
         {
-            var reviewerId = Request.GetUserIdFromHeader();
-            
-            if (string.IsNullOrWhiteSpace(reviewerId))
-            {
-                return Unauthorized();
-            }
-
-            var result = await _service.ApproveAsync(requestId, reviewerId);
+            var result = await coursesClient.ApproveRegistrationRequest(requestId);
             return Ok(result);
         }
-        
+
         [HttpPost("{requestId}/reject")]
+        [Authorize(Roles = Roles.LecturerRole)]
         [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Reject(long requestId, [FromBody] ReviewRegistrationRequestViewModel model)
         {
-            var reviewerId = Request.GetUserIdFromHeader();
-            if (string.IsNullOrWhiteSpace(reviewerId))
-            {
-                return Unauthorized();
-            }
-
-            var result = await _service.RejectAsync(requestId, reviewerId, model?.RejectReason);
+            var result = await coursesClient.RejectRegistrationRequest(requestId, model);
             return Ok(result);
         }
-    }
+    }   
 }

@@ -6,7 +6,13 @@ namespace HwProj.Models.CoursesService.DTO
     {
         public long Id { get; set; }
         
+        public string? Description { get; set; }
+        
+        public string? PreferredLecturerEmail { get; set; }
+        
         public long? CourseId { get; set; }
+        
+        public string RequestedRole { get; set; }
         
         public string Email { get; set; }
         

@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using HwProj.Models.CoursesService;
 using HwProj.Repositories.Net8;
 
 namespace HwProj.CoursesService.API.Models
@@ -9,7 +10,13 @@ namespace HwProj.CoursesService.API.Models
         [Key] 
         public long Id { get; set; }
         
+        public string? Description { get; set; }
+        
+        public string? PreferredLecturerEmail { get; set; }
+        
         public long? CourseId  { get; set; }
+        
+        public RequestedRole RequestedRole { get; set; }
         
         public string Name { get; set; }
 

@@ -7,17 +7,22 @@ using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.Models.AuthService.ViewModels;
+using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.DTO;
 using HwProj.Models.CoursesService.ViewModels;
 using HwProj.Models.Result;
 using HwProj.Models.Roles;
+using HwProj.NotificationService.Events.CoursesService;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services
 {
     public class RegistrationRequestsService : IRegistrationRequestsService
     {
+        private static readonly TimeSpan DraftLifetime = TimeSpan.FromHours(24);
+        
         private readonly IRegistrationRequestsRepository _requestsRepository;
+        private readonly IRegistrationRequestDraftsRepository _draftsRepository;
         private readonly ICoursesRepository _coursesRepository;
         private readonly ICoursesService _coursesService;
         private readonly IAuthServiceClient _authServiceClient;
@@ -26,6 +31,7 @@ namespace HwProj.CoursesService.API.Services
         
         public RegistrationRequestsService(
             IRegistrationRequestsRepository requestsRepository,
+            IRegistrationRequestDraftsRepository draftsRepository,
             ICoursesRepository coursesRepository,
             ICoursesService coursesService,
             IAuthServiceClient authServiceClient,
@@ -33,6 +39,7 @@ namespace HwProj.CoursesService.API.Services
             IEventBus eventBus)
         {
             _requestsRepository = requestsRepository;
+            _draftsRepository = draftsRepository;
             _coursesRepository = coursesRepository;
             _coursesService = coursesService;
             _authServiceClient = authServiceClient;
@@ -40,20 +47,25 @@ namespace HwProj.CoursesService.API.Services
             _eventBus = eventBus;
         }
 
-        public async Task<Result<long>> CreateRequestAsync(CreateRegistrationRequestViewModel model)
+        public async Task<Result> InitRequestAsync(InitRegistrationRequestViewModel model)
         {
             var email = model.Email.Trim();
 
+            if (model.RequestedRole == RequestedRole.Lecturer && model.CourseId != null)
+            {
+                return Result.Failed("Заявка преподавателя не может быть привязана к курсу");
+            }
+            
             var userId = await _authServiceClient.FindByEmailAsync(email).ConfigureAwait(false);
             if (!string.IsNullOrWhiteSpace(userId))
             {
-                return Result<long>.Failed("Пользователь уже зарегистрирован, войдите в аккаунт");
+                return Result.Failed("Пользователь уже зарегистрирован, войдите в аккаунт");
             }
                         
             var existingRequest = await _requestsRepository.GetPendingByEmailAsync(email).ConfigureAwait(false);
             if (existingRequest != null)
             {
-                return Result<long>.Failed("У вас уже есть активная заявка");
+                return Result.Failed("У вас уже есть активная заявка");
             }
             
             if (model.CourseId != null)
@@ -61,25 +73,176 @@ namespace HwProj.CoursesService.API.Services
                 var course = await _coursesRepository.GetAsync(model.CourseId!.Value).ConfigureAwait(false);
                 if (course == null)
                 {
-                    return Result<long>.Failed("Курс не найден");
+                    return Result.Failed("Курс не найден");
                 } 
             }
+
+            var description = string.IsNullOrWhiteSpace(model.Description)
+                ? null
+                : model.Description.Trim();
+            var preferredLecturerEmail = string.IsNullOrWhiteSpace(model.PreferredLecturerEmail)
+                ? null
+                : model.PreferredLecturerEmail.Trim();
+            var now = DateTime.UtcNow;
+            var name = model.Name.Trim();
+            var surname = model.Surname.Trim();
+            var middleName = model.MiddleName.Trim();
             
+            var existingDraft = await _draftsRepository.GetUnconfirmedByEmailAsync(email).ConfigureAwait(false);
+            if (existingDraft != null)
+            {
+                if (existingDraft.ExpiresAtUtc > now)
+                {
+                    return Result.Failed("Подтверждение уже отправлено на эту почту");
+                }
+
+                var newToken = Guid.NewGuid().ToString();
+
+                await _draftsRepository.UpdateAsync(existingDraft.Id, _ => new RegistrationRequestDraft
+                {
+                    Description = description,
+                    PreferredLecturerEmail = preferredLecturerEmail,
+                    Email = email,
+                    Name = name,
+                    Surname = surname,
+                    MiddleName = middleName,
+                    CourseId = model.CourseId,
+                    RequestedRole = model.RequestedRole,
+                    ConfirmationToken = newToken,
+                    CreatedAtUtc = now,
+                    ExpiresAtUtc = now.Add(DraftLifetime),
+                    IsConfirmed = false
+                }).ConfigureAwait(false);
+
+                _eventBus.Publish(new RegistrationRequestConfirmationEvent
+                {
+                    Email = email,
+                    Name = name,
+                    Surname = surname,
+                    Token = newToken
+                });
+
+                return Result.Success();
+            }
+            
+            var token = Guid.NewGuid().ToString();
+            
+            var draft = new RegistrationRequestDraft
+            {
+                Description = description,
+                PreferredLecturerEmail = preferredLecturerEmail,
+                Email = email,
+                Name = name,
+                Surname = surname,
+                MiddleName = middleName,
+                CourseId = model.CourseId,
+                RequestedRole = model.RequestedRole,
+                ConfirmationToken = token,
+                CreatedAtUtc = now,
+                ExpiresAtUtc = now.Add(DraftLifetime),
+                IsConfirmed = false
+            };
+
+            await _draftsRepository.AddAsync(draft).ConfigureAwait(false);
+
+            _eventBus.Publish(new RegistrationRequestConfirmationEvent
+            {
+                Email = draft.Email,
+                Name = draft.Name,
+                Surname = draft.Surname,
+                Token = draft.ConfirmationToken
+            });
+            
+            return Result.Success();
+        }
+
+        public async Task<Result<long>> ConfirmRequestAsync(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return Result<long>.Failed("Некорректный токен подтверждения");
+            }
+
+            var draft = await _draftsRepository.GetByTokenAsync(token.Trim()).ConfigureAwait(false);
+            if (draft == null)
+            {
+                return Result<long>.Failed("Ссылка подтверждения недействительна");
+            }
+
+            if (draft.IsConfirmed)
+            {
+                return Result<long>.Failed("Заявка уже подтверждена");
+            }
+
+            if (draft.ExpiresAtUtc <= DateTime.UtcNow)
+            {
+                return Result<long>.Failed("Срок действия ссылки истёк");
+            }
+
+            if (draft.RequestedRole == RequestedRole.Lecturer && draft.CourseId != null)
+            {
+                return Result<long>.Failed("Заявка преподавателя не может быть привязана к курсу");
+            }
+            
+            var userId = await _authServiceClient.FindByEmailAsync(draft.Email).ConfigureAwait(false);
+            if (!string.IsNullOrWhiteSpace(userId))
+            {
+                return Result<long>.Failed("Пользователь уже зарегистрирован, войдите в аккаунт");
+            }
+            
+            var existingRequest = await _requestsRepository.GetPendingByEmailAsync(draft.Email).ConfigureAwait(false);
+            if (existingRequest != null)
+            {
+                return Result<long>.Failed("У вас уже есть активная заявка");
+            }
+
+            Course course = null;
+            if (draft.CourseId != null)
+            {
+                course = await _coursesRepository.GetAsync(draft.CourseId.Value).ConfigureAwait(false);
+                if (course == null)
+                {
+                    return Result<long>.Failed("Курс не найден");
+                }
+            }
+
             var now = DateTime.UtcNow;
             var request = new RegistrationRequest
             {
-                Email = email,
-                Name = model.Name.Trim(),
-                Surname = model.Surname.Trim(),
-                MiddleName = model.MiddleName.Trim(),
-                CourseId = model.CourseId,
+                Description = draft.Description,
+                PreferredLecturerEmail = draft.PreferredLecturerEmail,
+                Email = draft.Email,
+                Name = draft.Name,
+                Surname = draft.Surname,
+                MiddleName = draft.MiddleName,
+                CourseId = draft.CourseId,
+                RequestedRole = draft.RequestedRole,
                 Status = RegistrationRequestStatus.Pending,
                 CreatedAtUtc = now,
-                UpdatedAtUtc = now
+                UpdatedAtUtc = now,
             };
 
-            var id = await _requestsRepository.AddAsync(request).ConfigureAwait((false));
-            return Result<long>.Success(id);
+            var requestId = await _requestsRepository.AddAsync(request).ConfigureAwait(false);
+
+            await _draftsRepository.UpdateAsync(draft.Id, _ => new RegistrationRequestDraft
+            {
+                IsConfirmed = true
+            }).ConfigureAwait(false);
+
+            _eventBus.Publish(new RegistrationRequestCreatedEvent
+            {
+                RegistrationRequestId = requestId,
+                CourseId = request.CourseId,
+                Email = request.Email,
+                Name = request.Name,
+                Surname = request.Surname,
+                CourseName = course?.Name ?? string.Empty,
+                RequestedRole = request.RequestedRole.ToString(),
+                MentorIds = course?.MentorIds ?? string.Empty
+                
+            });
+
+            return Result<long>.Success(requestId);
         }
 
         public async Task<Result<RegistrationRequestDto[]>> GetCourseRequestsAsync(long courseId, string reviewerId)
@@ -90,7 +253,10 @@ namespace HwProj.CoursesService.API.Services
                 return Result<RegistrationRequestDto[]>.Failed(validationResult.Errors.FirstOrDefault()!);
             }
             
-            var requests = await _requestsRepository.FindAll(r => r.CourseId == courseId)
+            var requests = await _requestsRepository.FindAll(r => 
+                    r.CourseId == courseId  &&
+                    r.Status == RegistrationRequestStatus.Pending
+                )
                 .OrderByDescending(r => r.CreatedAtUtc)
                 .ToArrayAsync()
                 .ConfigureAwait(false);
@@ -118,25 +284,17 @@ namespace HwProj.CoursesService.API.Services
             return Result<RegistrationRequestDto[]>.Success(dtos);
         }
 
-        // public async Task<Result<RegistrationRequestDto?>> GetRequestByEmailAsync(string email)
-        // {
-        //     var normalizedEmail = email.Trim();
-        //     var pendingRequest = await _requestsRepository.GetPendingByEmailAsync(normalizedEmail).ConfigureAwait(false);
-        //     if (pendingRequest == null) 
-        //     {
-        //         return Result<RegistrationRequestDto?>.Success(null);
-        //     }
-        //
-        //     var dto = _mapper.Map<RegistrationRequestDto>(pendingRequest);
-        //     return Result<RegistrationRequestDto?>.Success(dto);
-        // }
-
         public async Task<Result<string>> ApproveAsync(long requestId, string reviewerId)
         {
             var request = await _requestsRepository.GetAsync(requestId).ConfigureAwait(false);
             if (request == null)
             {
                 return Result<string>.Failed("Заявка не найдена");
+            }
+
+            if (request.RequestedRole == RequestedRole.Lecturer && request.CourseId != null)
+            {
+                return Result<string>.Failed("Заявка преподавателя не может быть привязана к курсу");
             }
 
             if (request.Status != RegistrationRequestStatus.Pending)
@@ -164,13 +322,29 @@ namespace HwProj.CoursesService.API.Services
             var userId = await _authServiceClient.FindByEmailAsync(request.Email).ConfigureAwait(false);
             if (string.IsNullOrWhiteSpace(userId))
             {
-                var registerResult = await _authServiceClient.Register(new RegisterViewModel
+                Result<string> registerResult;
+
+                if (request.RequestedRole == RequestedRole.Student)
                 {
-                    Email = request.Email,
-                    Name = request.Name,
-                    Surname = request.Surname,
-                    MiddleName = request.MiddleName
-                });
+                    registerResult = await _authServiceClient.RegisterStudent(new RegisterViewModel
+                    {
+                        Email = request.Email,
+                        Name = request.Name,
+                        Surname = request.Surname,
+                        MiddleName = request.MiddleName
+                    }).ConfigureAwait(false);
+
+                }
+                else
+                {
+                    registerResult = await _authServiceClient.RegisterLecturer(new RegisterViewModel
+                    {
+                        Email = request.Email,
+                        Name = request.Name,
+                        Surname = request.Surname,
+                        MiddleName = request.MiddleName
+                    }).ConfigureAwait(false);
+                }
 
                 if (!registerResult.Succeeded)
                 {
@@ -181,12 +355,11 @@ namespace HwProj.CoursesService.API.Services
                 userId = registerResult.Value;
             }
 
-            if (request.CourseId != null)
+            if (request.CourseId != null && request.RequestedRole == RequestedRole.Student)
             {
                 var addResult = await _coursesService.AddStudentAsync(
                     request.CourseId.Value,
                     userId).ConfigureAwait(false);
-
                 if (!addResult)
                 {
                     return Result<string>.Failed("Ошибка зачисления на курс");
@@ -252,6 +425,14 @@ namespace HwProj.CoursesService.API.Services
                 UpdatedAtUtc = now,
                 RejectReason = string.IsNullOrWhiteSpace(rejectReason) ? null : rejectReason.Trim()
             }).ConfigureAwait(false);
+            
+            _eventBus.Publish(new RegistrationRequestRejectedEvent
+            {
+                Email = request.Email,
+                Name = request.Name,
+                Surname = request.Surname,
+                RejectReason = string.IsNullOrWhiteSpace(rejectReason) ? string.Empty : rejectReason.Trim()
+            });
 
             return Result.Success();
         }
