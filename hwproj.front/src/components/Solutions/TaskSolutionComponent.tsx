@@ -231,7 +231,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         );
     const criteriaSum = Math.max(0, criteriaTotalRaw) + (Number.isFinite(extraScore) ? extraScore : 0);
 
-    const isRateButtonDisabled = false;
+    const hasUnfilledCriteria =
+        hasCriteria && criterionRatings.some(c => !Number.isFinite(c.value));
+    const isRateButtonDisabled = hasUnfilledCriteria;
 
     const [isCtrlPressed, setIsCtrlPressed] = useState(false)
 
