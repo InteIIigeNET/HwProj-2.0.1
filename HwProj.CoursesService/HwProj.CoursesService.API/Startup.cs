@@ -76,17 +76,6 @@ namespace HwProj.CoursesService.API
             app.UseEndpoints(x => x.MapControllers());
 
             app.UseDatabase(env, context);
-            EnsureCriterionArgumentsColumn(context);
-        }
-
-        private static void EnsureCriterionArgumentsColumn(CourseContext context)
-        {
-            context.Database.ExecuteSqlRaw(@"
-IF OBJECT_ID(N'[Criteria]', N'U') IS NOT NULL
-   AND COL_LENGTH(N'[Criteria]', N'Arguments') IS NULL
-BEGIN
-    ALTER TABLE [Criteria] ADD [Arguments] nvarchar(max) NULL;
-END");
         }
     }
 }
