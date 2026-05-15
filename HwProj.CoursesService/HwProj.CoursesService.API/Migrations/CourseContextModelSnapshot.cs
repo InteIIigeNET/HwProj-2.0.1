@@ -128,6 +128,9 @@ namespace HwProj.CoursesService.API.Migrations
                     b.Property<int>("MaxPoints")
                         .HasColumnType("int");
 
+                    b.Property<string>("Arguments")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 

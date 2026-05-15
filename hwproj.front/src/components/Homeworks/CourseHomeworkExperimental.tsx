@@ -43,6 +43,8 @@ import {FilesHandler} from "@/components/Files/FilesHandler";
 import GroupSelector from "../Common/GroupSelector";
 import GroupIcon from '@mui/icons-material/Group';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import ErrorsHandler from "@/components/Utils/ErrorsHandler";
+import {enqueueSnackbar} from "notistack";
 
 export interface HomeworkAndFilesInfo {
     homework: HomeworkViewModel & { isModified?: boolean },
@@ -243,43 +245,54 @@ const CourseHomeworkEditor: FC<{
         e.preventDefault()
         setHandleSubmitLoading(true)
 
-        const update = {
-            homeworkId: homeworkId,
-            title: title!,
-            description: description,
-            tags: tags,
-            hasDeadline: metadata.hasDeadline,
-            deadlineDate: metadata.deadlineDate,
-            isDeadlineStrict: metadata.isDeadlineStrict,
-            publicationDate: metadata.publicationDate,
-            groupId: selectedGroupId,
-            actionOptions: editOptions,
-            tasks: isNewHomework ? homework.tasks!.map(t => {
-                const task: PostTaskViewModel = {
-                    ...t,
-                    title: t.title!,
-                    maxRating: t.maxRating!
-                }
-                return task
-            }) : []
+        try {
+            const update = {
+                homeworkId: homeworkId,
+                title: title!,
+                description: description,
+                tags: tags,
+                hasDeadline: metadata.hasDeadline,
+                deadlineDate: metadata.deadlineDate,
+                isDeadlineStrict: metadata.isDeadlineStrict,
+                publicationDate: metadata.publicationDate,
+                groupId: selectedGroupId,
+                actionOptions: editOptions,
+                tasks: isNewHomework ? homework.tasks!.map(t => {
+                    const task: PostTaskViewModel = {
+                        ...t,
+                        title: t.title!,
+                        maxRating: t.maxRating!,
+                        criteria: t.criteria || []
+                    }
+                    return task
+                }) : []
+            }
+
+            const updatedHomework = isNewHomework
+                ? await ApiSingleton.homeworksApi.homeworksAddHomework(courseId!, update)
+                : await ApiSingleton.homeworksApi.homeworksUpdateHomework(+homeworkId!, update)
+
+            const updatedHomeworkId = updatedHomework.value!.id!
+            await handleFilesChange(
+                courseId, CourseUnitType.Homework, updatedHomeworkId,
+                props.onStartProcessing,
+                () => {
+                    if (isNewHomework) props.onUpdate({
+                        homework: update,
+                        isDeleted: true
+                    }) // remove fake homework
+                    props.onUpdate({homework: updatedHomework.value!, isSaved: true});
+                },
+            );
+        } catch (error) {
+            const errors = await ErrorsHandler.getErrorMessages(error as Response, "errors");
+            enqueueSnackbar(errors[0] || "Не удалось сохранить задание", {
+                variant: "error",
+                autoHideDuration: 4000,
+            });
+        } finally {
+            setHandleSubmitLoading(false)
         }
-
-        const updatedHomework = isNewHomework
-            ? await ApiSingleton.homeworksApi.homeworksAddHomework(courseId!, update)
-            : await ApiSingleton.homeworksApi.homeworksUpdateHomework(+homeworkId!, update)
-
-        const updatedHomeworkId = updatedHomework.value!.id!
-        await handleFilesChange(
-            courseId, CourseUnitType.Homework, updatedHomeworkId,
-            props.onStartProcessing,
-            () => {
-                if (isNewHomework) props.onUpdate({
-                    homework: update,
-                    isDeleted: true
-                }) // remove fake homework
-                props.onUpdate({homework: updatedHomework.value!, isSaved: true});
-            },
-        );
     }
 
     const isDisabled = hasErrors || !isLoaded || taskHasErrors

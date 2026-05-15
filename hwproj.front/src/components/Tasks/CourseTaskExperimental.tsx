@@ -12,11 +12,14 @@ import {
     Box,
     Link,
     Checkbox,
-    FormControlLabel
+    FormControlLabel,
+    Menu,
+    MenuItem,
+    Tooltip
 } from "@mui/material";
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
 import {FC, useEffect, useState, useMemo} from "react"
-import {ActionOptions, CriterionViewModel, HomeworkTaskViewModel, HomeworkViewModel} from "@/api";
+import {ActionOptions, CriterionType, CriterionViewModel, HomeworkTaskViewModel, HomeworkViewModel} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import * as React from "react";
 import EditIcon from "@mui/icons-material/Edit";
@@ -30,8 +33,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import Collapse from "@mui/material/Collapse";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import TaskCriteria from "./TaskCriteria";
 import {BonusTag} from "@/components/Common/HomeworkTags";
+import Utils from "../../services/Utils";
+import ErrorsHandler from "@/components/Utils/ErrorsHandler";
+import {enqueueSnackbar} from "notistack";
 
 
 interface IEditTaskMetadataState {
@@ -48,6 +55,8 @@ type TaskEditData = HomeworkTaskViewModel & {
     hasErrors?: boolean;
     suggestedMaxRating?: number;
 };
+
+const CriterionTypeDeadline = CriterionType.NUMBER_1;
 
 const CourseTaskEditor: FC<{
     speculativeTask: TaskEditData,
@@ -68,6 +77,9 @@ const CourseTaskEditor: FC<{
 
     const [criteria, setCriteria] = useState<CriterionViewModel[]>(taskData.task.criteria || [])
     const [isCriteriaOpen, setIsCriteriaOpen] = useState(false)
+    const [addCriterionAnchor, setAddCriterionAnchor] = useState<null | HTMLElement>(null)
+
+    const isDeadlineCriterion = (criterion: CriterionViewModel) => criterion.type === CriterionTypeDeadline;
 
     const addDefaultCriterion = () => {
         setCriteria(prev => [
@@ -75,6 +87,26 @@ const CourseTaskEditor: FC<{
             {id: 0, type: 0, name: `Критерий №${prev.length + 1}`, maxPoints: 1}
         ]);
         setIsCriteriaOpen(true);
+        setAddCriterionAnchor(null);
+    };
+
+    const addDeadlineCriterion = () => {
+        const deadline = metadata?.deadlineDate || homework.deadlineDate
+            ? new Date(metadata?.deadlineDate || homework.deadlineDate!)
+            : new Date();
+
+        setCriteria(prev => [
+            ...prev,
+            {
+                id: 0,
+                type: CriterionTypeDeadline,
+                name: "Сдано вовремя",
+                maxPoints: 1,
+                arguments: deadline.toISOString(),
+            }
+        ]);
+        setIsCriteriaOpen(true);
+        setAddCriterionAnchor(null);
     };
 
     const updateCriterion = (index: number, patch: Partial<CriterionViewModel>) =>
@@ -88,17 +120,46 @@ const CourseTaskEditor: FC<{
     const criteriaTotalPoints = useMemo(
         () =>
             (criteria).reduce(
-                (sum, c) => sum + (c.maxPoints || 0),
+                (sum, c) => sum + (isDeadlineCriterion(c) ? 0 : (c.maxPoints || 0)),
                 0
             ),
         [criteria]
     )
 
-    const autoMaxFromCriteria = criteria.length > 0;
+    const hasRegularCriteria = criteria.some(c => !isDeadlineCriterion(c));
+    const criteriaHasErrors = criteria.some(c =>
+        !c.name || (c.maxPoints ?? 0) <= 0 || (isDeadlineCriterion(c) && !c.arguments)
+    );
+
+    const renderAddCriterionMenu = () => (
+        <Menu
+            anchorEl={addCriterionAnchor}
+            open={Boolean(addCriterionAnchor)}
+            onClose={() => setAddCriterionAnchor(null)}
+        >
+            <MenuItem onClick={addDefaultCriterion}>
+                Обычный критерий
+            </MenuItem>
+            <MenuItem onClick={addDeadlineCriterion}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                    <Typography variant="inherit">Дедлайн</Typography>
+                    <Chip
+                        label="Авто"
+                        size="small"
+                        sx={{
+                            backgroundColor: "#E8F8EE",
+                            color: "#159947",
+                            fontWeight: 600,
+                        }}
+                    />
+                </Stack>
+            </MenuItem>
+        </Menu>
+    );
 
     useEffect(() => {
-        if (autoMaxFromCriteria) setMaxRating(criteriaTotalPoints);
-    }, [criteriaTotalPoints, autoMaxFromCriteria]);
+        if (hasRegularCriteria) setMaxRating(criteriaTotalPoints);
+    }, [criteriaTotalPoints, hasRegularCriteria]);
 
     const isNewTask = taskData.task.id! < 0
 
@@ -145,7 +206,7 @@ const CourseTaskEditor: FC<{
     //TODO: suggested max rating
     const [title, setTitle] = useState<string>(task.title!)
     const [maxRating, setMaxRating] = useState<number>(
-        criteria.length > 0 ? criteriaTotalPoints : task.maxRating!
+        hasRegularCriteria ? criteriaTotalPoints : task.maxRating!
     )
     const [description, setDescription] = useState<string>(task.description || "")
     const [isBonusExplicit, setIsBonusExplicit] = useState<boolean>(props.speculativeTask.tags!.includes(BonusTag) && !props.speculativeHomework.tags!.includes(BonusTag))
@@ -175,33 +236,43 @@ const CourseTaskEditor: FC<{
     }, [title, description, maxRating, metadata, isBonusExplicit, hasErrors, criteria]);
 
     useEffect(() => {
-        setHasErrors(!title || maxRating <= 0 || metadata?.hasErrors === true)
-    }, [title, maxRating, metadata?.hasErrors])
+        setHasErrors(!title || maxRating <= 0 || metadata?.hasErrors === true || criteriaHasErrors)
+    }, [title, maxRating, metadata?.hasErrors, criteriaHasErrors])
 
     const handleSubmit = async (e: any) => {
         e.preventDefault()
         setHandleSubmitLoading(true)
 
-        const update = {
-            ...metadata!,
-            title: title!,
-            description: description,
-            isBonusExplicit: isBonusExplicit,
-            maxRating: maxRating,
-            actionOptions: editOptions,
-            criteria: criteria,
-        };
+        try {
+            const update = {
+                ...metadata!,
+                title: title!,
+                description: description,
+                isBonusExplicit: isBonusExplicit,
+                maxRating: maxRating,
+                actionOptions: editOptions,
+                criteria: criteria,
+            };
 
-        const updatedTask = isNewTask
-            ? await ApiSingleton.tasksApi.tasksAddTask(homework.id!, update)
-            : await ApiSingleton.tasksApi.tasksUpdateTask(+id!, update)
+            const updatedTask = isNewTask
+                ? await ApiSingleton.tasksApi.tasksAddTask(homework.id!, update)
+                : await ApiSingleton.tasksApi.tasksUpdateTask(+id!, update)
 
-        if (isNewTask)
-            props.onUpdate({
-                task: props.speculativeTask,
-                isDeleted: true,
-            })
-        props.onUpdate({task: updatedTask.value!, isSaved: true})
+            if (isNewTask)
+                props.onUpdate({
+                    task: props.speculativeTask,
+                    isDeleted: true,
+                })
+            props.onUpdate({task: updatedTask.value!, isSaved: true})
+        } catch (error) {
+            const errors = await ErrorsHandler.getErrorMessages(error as Response, "errors");
+            enqueueSnackbar(errors[0] || "Не удалось сохранить задачу", {
+                variant: "error",
+                autoHideDuration: 4000,
+            });
+        } finally {
+            setHandleSubmitLoading(false)
+        }
     }
 
     const deleteTask = async () => {
@@ -215,7 +286,22 @@ const CourseTaskEditor: FC<{
     const homeworkPublicationDateIsSet = !homework.publicationDateNotSet
 
     const maxRatingLabel =
-        criteria.length > 0 ? "Критерии" : props.speculativeTask.suggestedMaxRating === maxRating ? "Вычислено" : undefined
+        hasRegularCriteria ? "Критерии" : props.speculativeTask.suggestedMaxRating === maxRating ? "Вычислено" : undefined
+
+    const getEffectiveDeadlineDate = () => {
+        const hasEffectiveDeadline = metadata?.hasDeadline ?? homework.hasDeadline;
+        const deadlineDate = metadata?.deadlineDate || homework.deadlineDate;
+
+        return hasEffectiveDeadline && deadlineDate ? new Date(deadlineDate) : undefined;
+    }
+
+    const isBasedOnEffectiveDeadline = (criterion: CriterionViewModel) => {
+        const effectiveDeadlineDate = getEffectiveDeadlineDate();
+
+        return !!criterion.arguments
+            && !!effectiveDeadlineDate
+            && new Date(criterion.arguments).getTime() === effectiveDeadlineDate.getTime();
+    }
 
     return (
         <CardContent>
@@ -266,9 +352,9 @@ const CourseTaskEditor: FC<{
                         margin="normal"
                         type="number"
                         value={maxRating}
-                        InputProps={{readOnly: autoMaxFromCriteria}}
+                        InputProps={{readOnly: hasRegularCriteria}}
                         onChange={(e) => {
-                            if (!autoMaxFromCriteria) {
+                            if (!hasRegularCriteria) {
                                 e.persist();
                                 setMaxRating(+e.target.value);
                             }
@@ -339,7 +425,7 @@ const CourseTaskEditor: FC<{
                             </Grid>
                             <Grid item>
                                 <Link style={{cursor: "pointer"}} variant="body2" color="primary"
-                                      onClick={addDefaultCriterion}>
+                                      onClick={(e) => setAddCriterionAnchor(e.currentTarget)}>
                                     Добавить критерий оценивания
                                 </Link>
                             </Grid>
@@ -370,7 +456,120 @@ const CourseTaskEditor: FC<{
 
                             <Collapse in={isCriteriaOpen} timeout="auto" unmountOnExit>
                                 <Stack spacing={0.5}>
-                                    {criteria.map((c, index) => (
+                                    {criteria.map((c, index) => isDeadlineCriterion(c) ? (
+                                        <Box
+                                            key={index}
+                                            sx={{
+                                                border: "1px solid #E2E5EC",
+                                                borderRadius: "8px",
+                                                p: 2,
+                                                backgroundColor: "#fff",
+                                            }}
+                                        >
+                                            <Grid container spacing={1.5} alignItems="flex-start">
+                                                <Grid item xs={12}>
+                                                    <Stack direction="row" spacing={1} alignItems="center">
+                                                        <Chip
+                                                            label="Авто"
+                                                            size="small"
+                                                            sx={{
+                                                                backgroundColor: "#E8F8EE",
+                                                                color: "#159947",
+                                                                fontWeight: 600,
+                                                            }}
+                                                        />
+                                                        <Typography variant="subtitle1">
+                                                            Критерий дедлайна
+                                                        </Typography>
+                                                        <Tooltip
+                                                            arrow
+                                                            placement="right"
+                                                            title={`После ${c.arguments ? Utils.renderDateWithoutSeconds(new Date(c.arguments)) : "дедлайна"} будет списан ${c.maxPoints || 1} балл`}
+                                                        >
+                                                            <HelpOutlineIcon sx={{fontSize: 18, color: "#667085"}}/>
+                                                        </Tooltip>
+                                                    </Stack>
+                                                </Grid>
+                                                <Grid item xs>
+                                                    <Stack spacing={1}>
+                                                        <TextField
+                                                            fullWidth
+                                                            size="small"
+                                                            variant="standard"
+                                                            label="Название критерия"
+                                                            value={c.name}
+                                                            inputProps={{maxLength: 50}}
+                                                            onChange={(e) => updateCriterion(index, {name: e.target.value.slice(0, 50)})}
+                                                        />
+                                                        <TextField
+                                                            label="Дата и время"
+                                                            type="datetime-local"
+                                                            size="small"
+                                                            variant="standard"
+                                                            required
+                                                            error={!c.arguments}
+                                                            sx={{mt: 1}}
+                                                            value={c.arguments ? Utils.toISOString(new Date(c.arguments)) : ""}
+                                                            onChange={(e) =>
+                                                                updateCriterion(index, {
+                                                                    arguments: e.target.value
+                                                                        ? new Date(e.target.value).toISOString()
+                                                                        : undefined,
+                                                                })
+                                                            }
+                                                            InputLabelProps={{shrink: true}}
+                                                        />
+                                                        {isBasedOnEffectiveDeadline(c) && (
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                На основе дедлайна
+                                                            </Typography>
+                                                        )}
+                                                    </Stack>
+                                                </Grid>
+                                                <Grid item>
+                                                    <Stack direction="row" spacing={0.75} alignItems="center">
+                                                        <Typography
+                                                            aria-hidden="true"
+                                                            color="text.secondary"
+                                                            sx={{fontSize: 20, lineHeight: 1}}
+                                                        >
+                                                            -
+                                                        </Typography>
+                                                        <TextField
+                                                            label="Штраф"
+                                                            type="number"
+                                                            size="small"
+                                                            sx={{width: 110}}
+                                                            value={c.maxPoints ?? 1}
+                                                            inputProps={{min: 1}}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === "-") e.preventDefault();
+                                                            }}
+                                                            onChange={(e) =>
+                                                                updateCriterion(index, {
+                                                                    maxPoints: Math.max(+e.target.value, 1),
+                                                                })
+                                                            }
+                                                            onBlur={(e) =>
+                                                                updateCriterion(index, {
+                                                                    maxPoints: Math.max(+e.target.value, 1),
+                                                                })
+                                                            }
+                                                        />
+                                                    </Stack>
+                                                </Grid>
+                                                <Grid item>
+                                                    <IconButton
+                                                        onClick={() => removeCriterion(index)}
+                                                        color="error"
+                                                        size="small"
+                                                    >
+                                                        <CloseIcon fontSize="small"/>
+                                                    </IconButton>
+                                                </Grid>
+                                            </Grid>
+                                        </Box>
+                                    ) : (
                                         <Grid
                                             key={index}
                                             container
@@ -430,7 +629,7 @@ const CourseTaskEditor: FC<{
                                     ))}
                                     <Button
                                         size="small"
-                                        onClick={addDefaultCriterion}
+                                        onClick={(e) => setAddCriterionAnchor(e.currentTarget)}
                                         sx={{
                                             textTransform: "none",
                                             fontSize: "15px",
@@ -453,6 +652,7 @@ const CourseTaskEditor: FC<{
                             </Collapse>
                         </>
                     )}
+                    {renderAddCriterionMenu()}
                 </Grid>
             </Grid>
             <CardActions>

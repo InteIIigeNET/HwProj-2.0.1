@@ -64,7 +64,8 @@ namespace HwProj.CoursesService.API.Domains
                         Id = c.Id,
                         Type = (CriterionType)c.Type,
                         Name = c.Name,
-                        MaxPoints = c.MaxPoints
+                        MaxPoints = c.MaxPoints,
+                        Arguments = c.Arguments
                     })
                     .ToList(),
             };
@@ -120,7 +121,8 @@ namespace HwProj.CoursesService.API.Domains
             Id = criterion.Id,
             Type = (Models.CriterionType)criterion.Type,
             Name = criterion.Name,
-            MaxPoints = criterion.MaxPoints
+            MaxPoints = criterion.MaxPoints,
+            Arguments = criterion.Arguments
         };
 
         public static HomeworkTask ToHomeworkTask(this PostTaskViewModel postTaskViewModel)
