@@ -16,8 +16,6 @@ import {LoadingButton} from "@mui/lab";
 import TextField from "@mui/material/TextField";
 import FilesUploader from '../Files/FilesUploader';
 import {CourseUnitType} from '../Files/CourseUnitType';
-import ErrorsHandler from "@/components/Utils/ErrorsHandler";
-import {enqueueSnackbar} from "notistack";
 import FileInfoConverter from "@/components/Utils/FileInfoConverter";
 import {FilesHandler} from "@/components/Files/FilesHandler";
 
@@ -53,7 +51,7 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
 
     const maxFilesCount = 5;
 
-    const filesInfo = lastSolution?.id ? FileInfoConverter.getCourseUnitFilesInfo(props.courseFilesInfo, CourseUnitType.Solution, lastSolution.id) : []
+    const filesInfo = isEdit ? FileInfoConverter.getCourseUnitFilesInfo(props.courseFilesInfo, CourseUnitType.Solution, lastSolution.id!) : []
     const {filesState, setFilesState, handleFilesChange} = FilesHandler(filesInfo);
 
     const handleSubmit = async (e: any) => {
