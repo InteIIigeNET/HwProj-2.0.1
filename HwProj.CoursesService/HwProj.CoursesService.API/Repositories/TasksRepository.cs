@@ -89,10 +89,11 @@ namespace HwProj.CoursesService.API.Repositories
                        x.TaskId == y.TaskId &&
                        x.Type == y.Type &&
                        x.Name == y.Name &&
-                       x.MaxPoints == y.MaxPoints;
+                       x.MaxPoints == y.MaxPoints &&
+                       x.Arguments == y.Arguments;
             }
 
-            public int GetHashCode(Criterion obj) => HashCode.Combine(obj.Id, obj.TaskId, obj.Name);
+            public int GetHashCode(Criterion obj) => HashCode.Combine(obj.Id, obj.TaskId, obj.Name, obj.Arguments);
         }
     }
 }

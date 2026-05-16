@@ -655,7 +655,8 @@ export interface CreateHomeworkViewModel {
  * @enum {string}
  */
 export enum CriterionType {
-    NUMBER_0 = <any> 0
+    NUMBER_0 = <any> 0,
+    NUMBER_1 = <any> 1
 }
 /**
  *
@@ -687,6 +688,12 @@ export interface CriterionViewModel {
      * @memberof CriterionViewModel
      */
     maxPoints?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof CriterionViewModel
+     */
+    arguments?: string;
 }
 /**
  *

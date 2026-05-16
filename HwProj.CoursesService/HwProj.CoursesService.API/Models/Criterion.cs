@@ -5,7 +5,8 @@ namespace HwProj.CoursesService.API.Models
 {
     public enum CriterionType
     {
-        Free = 0
+        Free = 0,
+        Deadline = 1
     }
 
     public class Criterion : IEntity<long>
@@ -17,5 +18,6 @@ namespace HwProj.CoursesService.API.Models
         public CriterionType Type { get; set; }
         public string Name { get; set; }
         public int MaxPoints { get; set; }
+        public string? Arguments { get; set; }
     }
 }
