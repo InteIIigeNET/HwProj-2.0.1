@@ -116,16 +116,83 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         }
     };
 
+    const parseNumber = (value: string): number | undefined => {
+        const match = value.replace(",", ".").match(/-?\d+(\.\d+)?/);
+        if (!match) return undefined;
+
+        const parsed = Number(match[0]);
+        return Number.isFinite(parsed) ? parsed : undefined;
+    };
+
+    const parseStoredCriteria = (comment?: string) => {
+        const criteria = new Map<string, number>();
+        let extraScore: number | undefined;
+        if (!comment) return {criteria, extraScore, commentWithoutCriteria: ""};
+
+        const lines = comment.split("\n");
+        const tableStart = lines.findIndex(line =>
+            line.trim() === "| Критерий оценивания | Баллы |"
+        );
+        if (tableStart === -1) {
+            return {criteria, extraScore, commentWithoutCriteria: comment};
+        }
+
+        let tableEnd = tableStart + 1;
+        for (; tableEnd < lines.length; tableEnd++) {
+            const line = lines[tableEnd].trim();
+            if (!line.startsWith("|") || !line.endsWith("|")) break;
+        }
+
+        lines.slice(tableStart + 2, tableEnd).forEach(line => {
+            const cells = line
+                .split("|")
+                .slice(1, -1)
+                .map(cell => cell.trim());
+            if (cells.length < 2) return;
+
+            const value = parseNumber(cells[1]);
+            if (value === undefined) return;
+
+            if (cells[0] === "Доп. оценка") {
+                extraScore = value;
+            } else {
+                criteria.set(cells[0], value);
+            }
+        });
+
+        const commentWithoutCriteria = [
+            ...lines.slice(0, tableStart),
+            ...lines.slice(tableEnd),
+        ].join("\n").trim();
+
+        return {criteria, extraScore, commentWithoutCriteria};
+    };
+
+    const getInitialCriterionValue = (
+        criterionId: number,
+        criterionName: string,
+        draft: CriteriaDraft | null,
+        storedCriteria: Map<string, number>
+    ) => {
+        const draftValue = draft?.criteria
+            ?.find(x => x.criterionId === criterionId)?.value;
+        if (typeof draftValue === "number") return draftValue;
+
+        const storedValue = storedCriteria.get(criterionName);
+        return storedValue ?? Number.NaN;
+    };
+
     const getDefaultState = (): ISolutionState => {
         const storageValue = RatingStorage.tryGet(storageKey);
+        const storedCriteria = parseStoredCriteria(props.solution?.lecturerComment);
 
         const clickedForRate = props.forMentor
-            ? (storageValue !== null)
+            ? (storageValue != null)
             : false;
 
         return {
             points: storageValue?.points || props.solution?.rating || 0,
-            lecturerComment: storageValue?.comment || props.solution?.lecturerComment || "",
+            lecturerComment: storageValue?.comment || storedCriteria.commentWithoutCriteria,
             clickedForRate,
             addBonusPoints: hasCriteria,
         };
@@ -137,6 +204,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const [state, setState] = useState<ISolutionState>(getDefaultState);
 
     const initialDraft = loadCriteriaDraft();
+    const initialStoredCriteria = parseStoredCriteria(props.solution?.lecturerComment);
 
     const getDeadlineCriterionValue = (criterion: { arguments?: string; maxPoints?: number }) => {
         if (!props.solution?.publicationDate || !criterion.arguments) return Number.NaN;
@@ -155,21 +223,21 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             const deadlineValue = c.type === CriterionTypeDeadline
                 ? getDeadlineCriterionValue(c)
                 : Number.NaN;
-            const draftValue = initialDraft?.criteria
-                ?.find(x => x.criterionId === id)?.value;
 
             return {
                 criterionId: id,
                 name: c.name ?? "",
                 maxPoints: c.maxPoints ?? 0,
-                value: Number.isFinite(deadlineValue) ? deadlineValue : (draftValue ?? NaN),
+                value: Number.isFinite(deadlineValue)
+                    ? deadlineValue
+                    : getInitialCriterionValue(id, c.name ?? "", initialDraft, initialStoredCriteria.criteria),
                 comment: "",
             };
         })
     );
 
     const [extraScore, setExtraScore] = useState<number>(
-        initialDraft?.extraScore ?? 0
+        initialDraft?.extraScore ?? initialStoredCriteria.extraScore ?? 0
     );
     const [criteriaModified, setCriteriaModified] = useState(false);
     const [showOriginalCommentText, setShowOriginalCommentText] = useState<boolean>(false)
@@ -183,6 +251,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         setState(getDefaultState());
 
         const draft = loadCriteriaDraft();
+        const storedCriteria = parseStoredCriteria(props.solution?.lecturerComment);
 
         setCriterionRatings(
             (taskWithCriteria.criteria ?? []).map(c => {
@@ -190,26 +259,26 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 const deadlineValue = c.type === CriterionTypeDeadline
                     ? getDeadlineCriterionValue(c)
                     : Number.NaN;
-                const draftValue = draft?.criteria
-                    ?.find(x => x.criterionId === id)?.value;
 
                 return {
                     criterionId: id,
                     name: c.name ?? "",
                     maxPoints: c.maxPoints ?? 0,
-                    value: Number.isFinite(deadlineValue) ? deadlineValue : (draftValue ?? NaN),
+                    value: Number.isFinite(deadlineValue)
+                        ? deadlineValue
+                        : getInitialCriterionValue(id, c.name ?? "", draft, storedCriteria.criteria),
                     comment: "",
                 };
             })
         );
 
-        setExtraScore(draft?.extraScore ?? 0);
+        setExtraScore(draft?.extraScore ?? storedCriteria.extraScore ?? 0);
         setCriteriaModified(false);
         getAchievementState();
         setRateInProgressState(false);
         getActuality();
         setShowOriginalCommentText(false);
-    }, [props.student.userId, props.task.id, props.solution?.id, props.solution?.rating]);
+    }, [props.student.userId, props.task.id, props.solution?.id, props.solution?.rating, props.solution?.lecturerComment]);
 
     useEffect(() => {
         if (!hasCriteria || !state.addBonusPoints || !state.clickedForRate || !criteriaModified) return;
@@ -1072,10 +1141,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             <Button
                                 size="small"
                                 onClick={() => {
+                                    const storedCriteria = parseStoredCriteria(props.solution?.lecturerComment);
                                     setState(prevState => ({
                                         ...prevState,
                                         points: props.solution?.rating || 0,
-                                        lecturerComment: props.solution?.lecturerComment || "",
+                                        lecturerComment: storedCriteria.commentWithoutCriteria,
                                         addBonusPoints: hasCriteria,
                                         clickedForRate: false,
                                     }));
@@ -1093,20 +1163,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     size="small"
                     onClick={() => {
                         if (hasCriteria) {
-                            setCriterionRatings(prev =>
-                                prev.map(cr => ({
-                                    ...cr,
-                                    value: taskWithCriteria.criteria?.find(c => c.id === cr.criterionId)?.type === CriterionTypeDeadline
-                                        ? getDeadlineCriterionValue(taskWithCriteria.criteria.find(c => c.id === cr.criterionId)!)
-                                        : 0,
-                                }))
-                            );
-                            setExtraScore(0);
-                            setCriteriaModified(true);
-
                             setState(prev => ({
                                 ...prev,
-                                points: 0,
                                 clickedForRate: true,
                             }));
                         } else {
