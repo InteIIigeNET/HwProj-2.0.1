@@ -179,7 +179,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                             const availableStudents = state.courseStudents.filter(
                                                 s => !state.selectedGroups.some(g => g.studentsIds?.includes(s.userId!))
                                             );
-                                            return [...availableStudents, ...state.courseGroups];
+                                            return [...state.courseGroups, ...availableStudents];
                                         })()}
                                         getOptionKey={(option) => {
                                             if (isAccountDataDto(option)) return option.userId ?? '';
@@ -230,6 +230,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                                                 key={option.id}
                                                                 {...chipProps}
                                                                 label={option.name}
+                                                                color="primary"
                                                             />
                                                         );
                                                     }
