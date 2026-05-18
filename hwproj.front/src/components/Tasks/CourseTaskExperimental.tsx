@@ -633,6 +633,7 @@ const CourseTaskEditor: FC<{
                                         sx={{
                                             textTransform: "none",
                                             fontSize: "15px",
+                                            alignSelf: "center",
                                             display: "flex",
                                             alignItems: "center",
                                             gap: "6px",
@@ -640,6 +641,7 @@ const CourseTaskEditor: FC<{
                                             paddingLeft: "0px",
                                             paddingRight: "0px",
                                             minWidth: "auto",
+                                            width: "fit-content",
                                             "&:hover": {
                                                 backgroundColor: "transparent",
                                                 textDecoration: "none"
