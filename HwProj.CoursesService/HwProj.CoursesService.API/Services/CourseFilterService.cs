@@ -281,5 +281,42 @@ namespace HwProj.CoursesService.API.Services
                     await AddCourseFilter(newFilter, courseId, filterId);
             }
         }
+
+        public async Task AddToFilter(long courseId, string userId, Filter filter)
+        {
+            var existingCourseFilter = await _courseFilterRepository.GetAsync(userId, courseId);
+            if (existingCourseFilter?.Filter is null)
+                return;
+
+            var targetFilter = existingCourseFilter.Filter.FillEmptyFields();
+            filter.FillEmptyFields();
+
+            var hasChanges =
+                AddToFilterList(targetFilter.GroupIds, filter.GroupIds)
+                | AddToFilterList(targetFilter.StudentIds, filter.StudentIds)
+                | AddToFilterList(targetFilter.HomeworkIds, filter.HomeworkIds)
+                | AddToFilterList(targetFilter.MentorIds, filter.MentorIds);
+
+            if (hasChanges)
+                await UpdateAsync(existingCourseFilter.Id, targetFilter);
+        }
+
+        private static bool AddToFilterList<T>(List<T> target, IEnumerable<T> itemsToAdd)
+        {
+            if (!target.Any())
+                return false;
+
+            var hasChanges = false;
+            foreach (var item in itemsToAdd.Distinct())
+            {
+                if (target.Contains(item))
+                    continue;
+
+                target.Add(item);
+                hasChanges = true;
+            }
+
+            return hasChanges;
+        }
     }
 }
