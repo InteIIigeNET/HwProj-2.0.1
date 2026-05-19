@@ -158,7 +158,7 @@ const Course: React.FC = () => {
 
     useEffect(() => {
         setCurrentState()
-    }, [courseId])
+    }, [])
 
     useEffect(() => {
         ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)

@@ -140,13 +140,12 @@ namespace HwProj.CoursesService.API.Services
                 .Distinct()
                 .ToArray();
 
-            var groupToStudents = groupIds.Any()
-                ? (await _groupsService.GetGroupsAsync(groupIds))
-                    .ToDictionary(
-                        g => g.Id,
-                        g => g.GroupMates?.Select(gm => gm.StudentId).ToArray() ?? Array.Empty<string>()
-                    )
-                : new Dictionary<long, string[]>();
+            var groups = await _groupsService.GetGroupsAsync(groupIds);
+            var groupToStudentIds = groups
+                .ToDictionary(
+                    g => g.Id,
+                    g => g.GroupMates?.Select(gm => gm.StudentId).ToArray() ?? Array.Empty<string>()
+                );
 
             var result = usersCourseFilters
                 .Select(u =>
@@ -154,8 +153,8 @@ namespace HwProj.CoursesService.API.Services
                     var directStudents = u.CourseFilter.Filter.StudentIds ?? new List<string>() {};
                     var groupIdsForMentor = u.CourseFilter.Filter.GroupIds ?? Enumerable.Empty<long>();
                     var studentsFromGroups = groupIdsForMentor
-                        .Where(gid => groupToStudents.ContainsKey(gid))
-                        .SelectMany(gid => groupToStudents[gid])
+                        .Where(gid => groupToStudentIds.ContainsKey(gid))
+                        .SelectMany(gid => groupToStudentIds[gid])
                         .Distinct()
                         .ToList();
 
