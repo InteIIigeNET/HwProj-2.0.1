@@ -278,10 +278,16 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                                 }
                                             }
 
+                                            const selectedGroups = [...newGroups];
                                             setState((prev) => ({
                                                 ...prev,
                                                 selectedStudents: newStudents,
-                                                selectedGroups: [...newGroups],
+                                                selectedGroups,
+                                                selectedHomeworks: prev.selectedHomeworks
+                                                    .filter(h =>
+                                                        !h.groupId
+                                                        || selectedGroups.length === 0
+                                                        || selectedGroups.some(g => g.id === h.groupId)),
                                             }))
                                         }}
                                     />
