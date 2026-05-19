@@ -7,7 +7,6 @@ import ApiSingleton from "../../api/ApiSingleton";
 import ErrorsHandler from "../Utils/ErrorsHandler";
 import {DotLottieReact} from '@lottiefiles/dotlottie-react';
 import Button from "@material-ui/core/Button";
-import {getSelectedCourseView} from "./MentorWorkspaceUtils";
 
 interface ICourseFilterProps {
     courseId: number;
@@ -64,11 +63,14 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                 const mentorWorkspace =
                     await ApiSingleton.coursesApi.coursesGetMentorWorkspace(props.courseId, props.mentorId);
 
-                const selectedCourseView = getSelectedCourseView(course, mentorWorkspace);
-
                 setState(prevState => ({
                     ...prevState,
-                    ...selectedCourseView,
+                    courseHomeworks: course.homeworks ?? [],
+                    courseStudents: course.acceptedStudents ?? [],
+                    courseGroups: course.groups?.filter(g => g.name?.trim()) ?? [],
+                    selectedHomeworks: mentorWorkspace.homeworks ?? [],
+                    selectedStudents: mentorWorkspace.students ?? [],
+                    selectedGroups: mentorWorkspace.groups ?? [],
                     mentors: course.mentors!,
                     assignedStudents: assignedStudents.filter(x => x.mentorId !== props.mentorId)
                 }))

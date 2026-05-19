@@ -23,7 +23,6 @@ interface GroupSelectorProps {
     onGroupsUpdate: () => Promise<void>,
     selectedGroupId?: number,
     choiceDisabled?: boolean,
-    onCreateNewGroup?: (group: GroupViewModel) => Promise<void>,
 }
 
 const GroupSelector: FC<GroupSelectorProps> = (props) => {
@@ -86,11 +85,6 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                     name: formState.name.trim(),
                     groupMatesIds: formState.memberIds,
                     courseId: props.courseId,
-                });
-                await props.onCreateNewGroup?.({
-                    id: groupId,
-                    name: formState.name.trim(),
-                    studentsIds: formState.memberIds,
                 });
                 await props.onGroupsUpdate();
                 props.onGroupIdChange(groupId);

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -269,16 +270,64 @@ public class CoursesController : AggregationController
         if (!mentorCourseView.Succeeded)
             return BadRequest(mentorCourseView.Errors[0]);
 
-        var studentIds = mentorCourseView.Value.CourseMates.Select(t => t.StudentId).ToArray();
-        var students = await AuthServiceClient.GetAccountsData(studentIds);
+        var courseResult = await _coursesClient.GetCourseDataRaw(courseId);
+        if (!courseResult.Succeeded)
+            return BadRequest(courseResult.Errors[0]);
 
-        var workspace = new WorkspaceViewModel
-        {
-            Homeworks = mentorCourseView.Value.Homeworks,
-            Students = students.OrderBy(x => x.Surname).ThenBy(x => x.Name).ToArray(),
-            Groups = mentorCourseView.Value.Groups,
-        };
+        var workspace = await CourseToMentorWorkspaceViewModel(courseResult.Value, mentorCourseView.Value);
         return Ok(workspace);
+    }
+
+    private async Task<WorkspaceViewModel> CourseToMentorWorkspaceViewModel(CourseDTO course, CourseDTO mentorCourseView)
+    {
+        var courseGroups = (course.Groups ?? Array.Empty<GroupViewModel>())
+            .Where(g => !string.IsNullOrWhiteSpace(g.Name))
+            .ToArray();
+
+        var filteredGroups = (mentorCourseView.Groups ?? Array.Empty<GroupViewModel>())
+            .Where(g => !string.IsNullOrWhiteSpace(g.Name))
+            .ToArray();
+
+        var selectedGroups = filteredGroups.Length == courseGroups.Length
+            ? Array.Empty<GroupViewModel>()
+            : filteredGroups;
+
+        var selectedGroupsStudentIds = selectedGroups
+            .SelectMany(g => g.StudentsIds ?? Array.Empty<string>())
+            .ToHashSet();
+
+        var selectedStudentIdsWithoutGroups = (mentorCourseView.CourseMates ?? Array.Empty<CourseMateViewModel>())
+            .Select(t => t.StudentId)
+            .Where(studentId => !selectedGroupsStudentIds.Contains(studentId))
+            .ToArray();
+
+        var selectedStudentsData = selectedStudentIdsWithoutGroups.Length == (course.CourseMates?.Length ?? 0)
+            ? Array.Empty<AccountDataDto>()
+            : await AuthServiceClient.GetAccountsData(selectedStudentIdsWithoutGroups);
+
+        var selectedStudents = selectedStudentsData
+            .Where(x => x != null)
+            .OrderBy(x => x.Surname)
+            .ThenBy(x => x.Name)
+            .ToArray();
+
+        var availableHomeworks = selectedGroups.Any()
+            ? (course.Homeworks ?? Array.Empty<HomeworkViewModel>())
+                .Where(h => h.GroupId == null || selectedGroups.Any(g => g.Id == h.GroupId))
+                .ToArray()
+            : course.Homeworks ?? Array.Empty<HomeworkViewModel>();
+
+        var filteredHomeworks = mentorCourseView.Homeworks ?? Array.Empty<HomeworkViewModel>();
+        var selectedHomeworks = filteredHomeworks.Length == availableHomeworks.Length
+            ? Array.Empty<HomeworkViewModel>()
+            : filteredHomeworks;
+
+        return new WorkspaceViewModel
+        {
+            Homeworks = selectedHomeworks,
+            Students = selectedStudents,
+            Groups = selectedGroups,
+        };
     }
 
     private async Task<CourseViewModel> ToCourseViewModel(CourseDTO course)

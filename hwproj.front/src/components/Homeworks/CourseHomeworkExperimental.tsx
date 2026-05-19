@@ -22,7 +22,6 @@ import {FC, useEffect, useState} from "react"
 import Utils from "services/Utils";
 import {
     HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, PostTaskViewModel, AccountDataDto, GroupViewModel,
-    WorkspaceViewModel, CourseViewModel
 } from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import Tags from "../Common/Tags";
@@ -46,7 +45,6 @@ import GroupIcon from '@mui/icons-material/Group';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import ErrorsHandler from "@/components/Utils/ErrorsHandler";
 import {enqueueSnackbar} from "notistack";
-import {getSelectedCourseView} from "../Courses/MentorWorkspaceUtils";
 
 export interface HomeworkAndFilesInfo {
     homework: HomeworkViewModel & { isModified?: boolean },
@@ -129,29 +127,19 @@ const CourseHomeworkEditor: FC<{
     const [description, setDescription] = useState<string>(loadedHomework.description!)
     const [selectedGroupId, setSelectedGroupId] = useState(loadedHomework.groupId)
     const [courseStudents, setCourseStudents] = useState<AccountDataDto[]>([])
-    const [course, setCourse] = useState<CourseViewModel | undefined>(undefined)
-    const [mentorWorkspace, setMentorWorkspace] = useState<WorkspaceViewModel | undefined>(undefined)
     const [page, setPage] = useState<"homework" | "group">("homework")
 
     useEffect(() => {
-        const loadMentorWorkspace = async () => {
+        const loadCourseStudents = async () => {
             try {
-                const [courseData, mentorWorkspace] = await Promise.all([
-                    ApiSingleton.coursesApi.coursesGetAllCourseData(courseId),
-                    isNewHomework
-                        ? ApiSingleton.coursesApi.coursesGetMentorWorkspace(courseId, props.mentorId)
-                            .catch(() => undefined)
-                        : Promise.resolve(undefined)
-                ]);
+                const courseData = await ApiSingleton.coursesApi.coursesGetAllCourseData(courseId);
                 setCourseStudents(courseData.course?.acceptedStudents || [])
-                setCourse(courseData.course)
-                setMentorWorkspace(mentorWorkspace)
             } catch (error) {
                 console.error('Failed to load course data:', error)
             }
         }
-        loadMentorWorkspace()
-    }, [courseId, props.mentorId, isNewHomework])
+        loadCourseStudents()
+    }, [courseId])
 
     const [hasErrors, setHasErrors] = useState<boolean>(false)
 
@@ -242,62 +230,6 @@ const CourseHomeworkEditor: FC<{
         props.onUpdate({homework: loadedHomework, isDeleted: true})
     }
 
-    const updateMentorFilter = async (update: {
-        newGroup?: GroupViewModel,
-        newHomework?: HomeworkViewModel
-    }) => {
-        if (!course || !mentorWorkspace) return;
-
-        const {newGroup, newHomework} = update;
-        const selectedCourseView = getSelectedCourseView(course, mentorWorkspace);
-        let updatedGroups = selectedCourseView.selectedGroups;
-        let updatedHomeworks = selectedCourseView.selectedHomeworks;
-        let hasChanges = false;
-
-        if (newGroup?.id !== undefined &&
-            selectedCourseView.selectedGroups.length > 0 &&
-            !selectedCourseView.selectedGroups.some(g => g.id === newGroup.id)) {
-            updatedGroups = [...selectedCourseView.selectedGroups, newGroup];
-            hasChanges = true;
-        }
-
-        if (newHomework?.id !== undefined &&
-            selectedCourseView.selectedHomeworks.length > 0 &&
-            !selectedCourseView.selectedHomeworks.some(h => h.id === newHomework.id)) {
-            updatedHomeworks = [...selectedCourseView.selectedHomeworks, newHomework];
-            hasChanges = true;
-        }
-
-        setCourse(prev => prev ? ({
-            ...prev,
-            groups: newGroup?.id !== undefined && !prev.groups?.some(g => g.id === newGroup.id)
-                ? [...(prev.groups ?? []), newGroup]
-                : prev.groups,
-            homeworks: newHomework?.id !== undefined && !prev.homeworks?.some(h => h.id === newHomework.id)
-                ? [...(prev.homeworks ?? []), newHomework]
-                : prev.homeworks,
-        }) : prev);
-
-        if (!hasChanges) return;
-
-        await ApiSingleton.coursesApi.coursesEditMentorWorkspace(
-            courseId,
-            props.mentorId,
-            {
-                homeworkIds: updatedHomeworks.map(h => h.id).filter((id): id is number => id !== undefined),
-                studentIds: selectedCourseView.selectedStudents.map(s => s.userId).filter((id): id is string => id !== undefined),
-                groupIds: updatedGroups.map(g => g.id).filter((id): id is number => id !== undefined),
-            }
-        );
-
-        setMentorWorkspace(prev => prev ? ({
-            ...prev,
-            homeworks: updatedHomeworks,
-            students: selectedCourseView.selectedStudents,
-            groups: updatedGroups
-        }) : prev);
-    }
-
     const getDeleteMessage = (homeworkName: string, filesInfo: IFileInfo[]) => {
         let message = `Вы точно хотите удалить задание "${homeworkName}"?`;
         if (filesInfo.length > 0) {
@@ -341,10 +273,6 @@ const CourseHomeworkEditor: FC<{
                 ? await ApiSingleton.homeworksApi.homeworksAddHomework(courseId!, update)
                 : await ApiSingleton.homeworksApi.homeworksUpdateHomework(+homeworkId!, update)
 
-            if (isNewHomework && updatedHomework.value) {
-                await updateMentorFilter({newHomework: updatedHomework.value});
-            }
-            
             const updatedHomeworkId = updatedHomework.value!.id!
             await handleFilesChange(
                 courseId, CourseUnitType.Homework, updatedHomeworkId,
@@ -516,8 +444,7 @@ const CourseHomeworkEditor: FC<{
                     selectedGroupId={selectedGroupId}
                     choiceDisabled={!isNewHomework}
                     onGroupsUpdate={props.onGroupsUpdate}
-                    onCreateNewGroup={(newGroup: GroupViewModel) => updateMentorFilter({newGroup})}
-                    groups={mentorWorkspace?.groups ?? props.groups}
+                    groups={props.groups}
                 />
             </CardContent>
             {!isNewHomework && !isPublished &&
