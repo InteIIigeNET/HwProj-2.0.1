@@ -1,7 +1,7 @@
 import * as React from "react";
 import {FC, useEffect, useState, useMemo} from "react";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, GroupViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
+import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";

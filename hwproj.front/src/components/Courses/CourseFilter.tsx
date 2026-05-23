@@ -63,14 +63,38 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                 const mentorWorkspace =
                     await ApiSingleton.coursesApi.coursesGetMentorWorkspace(props.courseId, props.mentorId);
 
+                const courseGroups = course.groups?.filter(g => g.name?.trim()) ?? [];
+                const selectedGroups = (mentorWorkspace.groups?.length === courseGroups.length
+                        ? []
+                        : mentorWorkspace.groups ?? []
+                    )
+                    .filter(g => g.name?.trim());
+
+                const selectedGroupsStudents = selectedGroups.flatMap(g => g.studentsIds ?? []);
+                const selectedStudentsWithoutGroups = mentorWorkspace.students
+                    ?.filter(st => !selectedGroupsStudents.includes(st.userId!)) ?? [];
+                const allCourseStudentsCount = (course.acceptedStudents?.length ?? 0) + (course.newStudents?.length ?? 0);
+                const selectedStudents = selectedStudentsWithoutGroups.length === allCourseStudentsCount
+                    ? []
+                    : selectedStudentsWithoutGroups;
+
+                const availableHomeworks = course.homeworks
+                    ?.filter(h =>
+                        !h.groupId
+                        || selectedGroups.length === 0
+                        || selectedGroups.some(g => g.id === h.groupId));
+                const selectedHomeworks = mentorWorkspace.homeworks?.length === availableHomeworks?.length
+                    ? []
+                    : mentorWorkspace.homeworks ?? [];
+
                 setState(prevState => ({
                     ...prevState,
                     courseHomeworks: course.homeworks ?? [],
                     courseStudents: course.acceptedStudents ?? [],
-                    courseGroups: course.groups?.filter(g => g.name?.trim()) ?? [],
-                    selectedHomeworks: mentorWorkspace.homeworks ?? [],
-                    selectedStudents: mentorWorkspace.students ?? [],
-                    selectedGroups: mentorWorkspace.groups ?? [],
+                    courseGroups,
+                    selectedHomeworks,
+                    selectedStudents,
+                    selectedGroups,
                     mentors: course.mentors!,
                     assignedStudents: assignedStudents.filter(x => x.mentorId !== props.mentorId)
                 }))
