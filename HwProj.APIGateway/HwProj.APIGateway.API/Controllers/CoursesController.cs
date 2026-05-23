@@ -272,12 +272,13 @@ public class CoursesController : AggregationController
         var studentIds = mentorCourseView.Value.CourseMates.Select(t => t.StudentId).ToArray();
         var students = await AuthServiceClient.GetAccountsData(studentIds);
 
-        return Ok(new WorkspaceViewModel
+        var workspace = new WorkspaceViewModel
         {
             Homeworks = mentorCourseView.Value.Homeworks,
             Students = students.OrderBy(x => x.Surname).ThenBy(x => x.Name).ToArray(),
             Groups = mentorCourseView.Value.Groups,
-        });
+        };
+        return Ok(workspace);
     }
 
     private async Task<CourseViewModel> ToCourseViewModel(CourseDTO course)
