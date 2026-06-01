@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   MenuBook,
   Assignment,
@@ -7,6 +8,7 @@ import {
   TrendingUp,
   BarChart,
   Check,
+  Notifications,
 } from "@mui/icons-material";
 import {
   Box,
@@ -35,7 +37,6 @@ const PromoPage: React.FC = () => {
     }
   };
 
-  // Данные для шагов
   const studentSteps = [
     {
       icon: <MenuBook />,
@@ -44,14 +45,13 @@ const PromoPage: React.FC = () => {
         "Присоединяйтесь к учебным курсам и получайте доступ к материалам.",
     },
     {
-      icon: <Assignment />,
-      label: "Сдавайте задания",
-      description:
-        "Загружайте решения, работайте в команде и следите за дедлайнами.",
+      icon: <Notifications />,
+      label: "Следите за дедлайнами",
+      description: "Контролируйте сроки сдачи по всем курсам.",
     },
     {
       icon: <Feedback />,
-      label: "Получайте обратную связь",
+      label: "Сдавайте задания и получайте обратную связь",
       description: "Оценки и комментарии преподавателей — всё в одном месте.",
     },
     {
@@ -83,28 +83,22 @@ const PromoPage: React.FC = () => {
     {
       icon: <BarChart />,
       label: "Анализируйте успеваемость",
-      description: "Смотрите прогресс студентов, выгружайте ведомости в Excel.",
+      description: "Смотрите прогресс студентов.",
     },
   ];
 
   const expertSteps = [
     {
       icon: <Create />,
-      label: "Примите приглашение",
+      label: "Получите приглашение от преподавателя",
       description:
         "Перейдите по ссылке от преподавателя и сразу приступайте к работе.",
-    },
-    {
-      icon: <Check />,
-      label: "Проверяйте задания",
-      description:
-        "Оценивайте работы закреплённых за вами студентов и оставляйте комментарии.",
     },
     {
       icon: <Feedback />,
       label: "Взаимодействуйте со студентами",
       description:
-        "Помогайте улучшать решения, не выходя за рамки назначенных задач.",
+        "Оценивайте работы закреплённых за Вами студентов и оставляйте комментарии.",
     },
   ];
 
@@ -121,7 +115,7 @@ const PromoPage: React.FC = () => {
       <Box
         sx={{
           bgcolor: "#e3f2fd",
-          py: { xs: 8, md: 10 },
+          py: { xs: 8, md: 8 },
           textAlign: "center",
         }}
       >
@@ -145,14 +139,14 @@ const PromoPage: React.FC = () => {
             sx={{ mb: 4, fontSize: { xs: "1rem", md: "1.5rem" } }}
           >
             Веб-сервис, который помогает автоматизировать учебный процесс и
-            улучшить взаимодействие между студентами, преподавателями и
+            упростить взаимодействие между студентами, преподавателями и
             экспертами из индустрии
           </Typography>
         </Container>
       </Box>
 
       {/* Объединённая секция с фиксированной высотой и прокруткой в левой панели */}
-      <Container maxWidth="lg" sx={{ mt: 6, mb: 8 }}>
+      <Container maxWidth="xl" sx={{ mt: 6, mb: 8 }}>
         {/* Табы, выровненные по левой колонке */}
         <Grid container>
           <Grid item xs={12} md={5}>
@@ -222,7 +216,7 @@ const PromoPage: React.FC = () => {
                 variant="h5"
                 align="center"
                 gutterBottom
-                sx={{ fontWeight: 600, mt: 2 }}
+                sx={{ fontWeight: 500 }}
               >
                 Как это работает
               </Typography>
@@ -241,7 +235,7 @@ const PromoPage: React.FC = () => {
                     elevation={0}
                     onClick={() => setActiveStep(index)}
                     sx={{
-                      p: 1.5, // уменьшено с 2.5
+                      p: 1.2,
                       display: "flex",
                       alignItems: "center",
                       gap: 1.5,
@@ -284,40 +278,50 @@ const PromoPage: React.FC = () => {
               md={7}
               sx={{
                 backgroundColor: "#fafafa",
-                p: { xs: 3, md: 4 },
+                p: { xs: 2, md: 3 },
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
               <Box
+                component="img"
+                src={`/screenshots/${userType}-step${activeStep + 1}.png`}
+                alt={steps[activeStep].label}
                 sx={{
-                  width: "100%",
-                  height: "100%",
-                  backgroundColor: "#e0e0e0",
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  objectFit: "contain",
                   borderRadius: "12px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  textAlign: "center",
-                  p: 3,
+                  boxShadow: 2,
+                  backgroundColor: "#fafafa",
                 }}
-              >
-                <Typography variant="h6" color="text.secondary">
-                  {steps[activeStep].label}
-                  <br />
-                  <Typography
-                    component="span"
-                    variant="body2"
-                    color="text.secondary"
-                  >
-                    (скриншот интерфейса)
-                  </Typography>
-                </Typography>
-              </Box>
+              />
             </Grid>
           </Grid>
         </Box>
+
+        {/* Кнопка регистрации */}
+        <Container maxWidth="md" sx={{ textAlign: "center", mt: 6, mb: 4 }}>
+          <Button
+            variant="contained"
+            size="large"
+            component={Link}
+            to="/register"
+            sx={{
+              bgcolor: "#3f51b5",
+              color: "white",
+              px: 7,
+              py: 2,
+              fontSize: "1.1rem",
+              textTransform: "none",
+              borderRadius: "8px",
+              "&:hover": { bgcolor: "#1565c0" },
+            }}
+          >
+            Присоединиться
+          </Button>
+        </Container>
       </Container>
     </Box>
   );
