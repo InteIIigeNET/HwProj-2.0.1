@@ -219,7 +219,7 @@ namespace HwProj.CoursesService.API.Services
                 RequestedRole = draft.RequestedRole,
                 Status = RegistrationRequestStatus.Pending,
                 CreatedAtUtc = now,
-                UpdatedAtUtc = now,
+                UpdatedAtUtc = now
             };
 
             var requestId = await _requestsRepository.AddAsync(request).ConfigureAwait(false);

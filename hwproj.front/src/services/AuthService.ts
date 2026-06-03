@@ -1,4 +1,4 @@
-import {LoginViewModel, AccountApi, RegisterViewModel} from '../api';
+import {LoginViewModel, InitRegistrationRequestViewModel, ConfirmRegistrationRequestViewModel} from '@/api';
 import ApiSingleton from "../api/ApiSingleton";
 import decode from "jwt-decode";
 
@@ -13,8 +13,6 @@ interface TokenPayload {
 }
 
 export default class AuthService {
-    client = new AccountApi();
-
     constructor() {
         this.login = this.login.bind(this);
         this.getProfile = this.getProfile.bind(this);
@@ -35,11 +33,20 @@ export default class AuthService {
         }
     }
 
-    async register(user: RegisterViewModel) {
-        const result = await ApiSingleton.accountApi.accountRegister(user)
+    async initRegistrationRequest(user: InitRegistrationRequestViewModel) {
+        const result = await ApiSingleton.registrationRequestsApi.registrationRequestsInit(user);
         return {
-            isRegistered: result.succeeded,
-            error: result.errors
+            isConfirmationSent: result.succeeded,
+            error: result.errors,
+        }
+    }
+
+    async confirmRegistrationRequest(user: ConfirmRegistrationRequestViewModel) {
+        const result = await ApiSingleton.registrationRequestsApi.registrationRequestsConfirm(user);
+        return {
+            isConfirmed: result.succeeded,
+            error: result.errors,
+            requestId: result.value,
         }
     }
 

@@ -49,10 +49,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             };
 
             if (_isDevelopmentEnv) Console.WriteLine(recoveryLink);
-            var addNotificationTask = _notificationRepository.AddAsync(notification);
-            var sendEmailTask = _emailService.SendEmailAsync(notification, @event.Email, "HwProj");
-
-            await Task.WhenAll(addNotificationTask, sendEmailTask);
+            await _emailService.SendEmailAsync(notification, @event.Email, "HwProj");
         }
     }
 }

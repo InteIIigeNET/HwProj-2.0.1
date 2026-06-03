@@ -1,7 +1,13 @@
 import * as React from "react";
 import {FC, useEffect, useState} from "react";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
+import {
+    AccountDataDto,
+    CourseViewModel,
+    HomeworkViewModel,
+    RegistrationRequestDto,
+    StatisticsCourseMatesModel
+} from "@/api";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
@@ -30,10 +36,11 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import NameBuilder from "../Utils/NameBuilder";
 import {QRCodeSVG} from 'qrcode.react';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
-import {MoreVert} from "@mui/icons-material";
+import {Api, MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
+import CourseRegistrationRequests from "@/components/RegistrationRequests/CourseRegistrationRequests";
 
 type TabValue = "homeworks" | "stats" | "applications"
 
@@ -50,6 +57,7 @@ interface ICourseState {
     newStudents: AccountDataDto[];
     studentSolutions: StatisticsCourseMatesModel[];
     showQrCode: boolean;
+    courseRegistrationRequests: RegistrationRequestDto[];
 }
 
 interface IPageState {
@@ -69,7 +77,8 @@ const Course: React.FC = () => {
         acceptedStudents: [],
         newStudents: [],
         studentSolutions: [],
-        showQrCode: false
+        showQrCode: false,
+        courseRegistrationRequests: [],
     })
     const [studentSolutions, setStudentSolutions] = useState<StatisticsCourseMatesModel[] | undefined>(undefined)
 
@@ -84,6 +93,7 @@ const Course: React.FC = () => {
         newStudents,
         acceptedStudents,
         courseHomeworks,
+        courseRegistrationRequests
     } = courseState
 
     const userId = ApiSingleton.authService.getUserId()
@@ -93,6 +103,11 @@ const Course: React.FC = () => {
     const isMentor = isLecturer || isExpert
     const isCourseMentor = mentors.some(t => t.userId === userId)
     const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
+
+    const [applicationsTabValue, setApplicationsTabValue] = useState<number>(0)
+
+    const hasRegisteredApplications = newStudents.length > 0
+    const hasRegistrationRequestApplications = courseRegistrationRequests.length > 0
 
     const {
         courseFilesState,
@@ -130,6 +145,11 @@ const Course: React.FC = () => {
             newToken.value && ApiSingleton.authService.refreshToken(newToken.value.accessToken!)
             return
         }
+        
+        const isActualCourseMentor = course.mentors!.some(t => t.userId === userId);
+        const registrationRequests = isActualCourseMentor
+            ? await ApiSingleton.registrationRequestsApi.registrationRequestsGetCourseRequests(+courseId!)
+            : undefined;
 
         setCourseState(prevState => ({
             ...prevState,
@@ -140,12 +160,15 @@ const Course: React.FC = () => {
             mentors: course.mentors!,
             acceptedStudents: course.acceptedStudents!,
             newStudents: course.newStudents!,
+            courseRegistrationRequests: registrationRequests?.succeeded
+                ? registrationRequests.value ?? []
+                : [],
         }))
     }
 
     useEffect(() => {
         setCurrentState()
-    }, [])
+    }, [courseId])
 
     useEffect(() => {
         ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
@@ -153,6 +176,32 @@ const Course: React.FC = () => {
     }, [courseId])
 
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
+
+    useEffect(() => {
+        if (!hasRegisteredApplications && !hasRegistrationRequestApplications)
+        {
+            setApplicationsTabValue(0);
+            return;
+        }
+
+        if (!hasRegisteredApplications && hasRegistrationRequestApplications) {
+            setApplicationsTabValue(0);
+            return;
+        }
+
+        if (hasRegisteredApplications && !hasRegistrationRequestApplications) {
+            setApplicationsTabValue(0);
+            return;
+        }
+
+        if (applicationsTabValue > 1) {
+            setApplicationsTabValue(0);
+        }
+    }, [
+        applicationsTabValue,
+        hasRegisteredApplications,
+        hasRegistrationRequestApplications,
+    ])
 
     const joinCourse = async () => {
         await ApiSingleton.coursesApi.coursesSignInCourse(+courseId!)
@@ -323,7 +372,7 @@ const Course: React.FC = () => {
                             <Stack direction="row" spacing={1}>
                                 <div>Заявки</div>
                                 <Chip size={"small"} color={"default"}
-                                      label={newStudents.length}/>
+                                      label={newStudents.length + courseRegistrationRequests.length}/>
                             </Stack>}/>}
                     </Tabs>
                     {tabValue === "homeworks" && <CourseExperimental
@@ -383,12 +432,86 @@ const Course: React.FC = () => {
                             </Grid>
                         </Grid>}
                     {tabValue === "applications" && showApplicationsTab &&
-                        <NewCourseStudents
-                            onUpdate={() => setCurrentState()}
-                            course={courseState.course}
-                            students={courseState.newStudents}
-                            courseId={courseId!}
-                        />
+                        <Grid container direction="column" spacing={2}>
+                            {!hasRegisteredApplications && !hasRegistrationRequestApplications && (
+                                <Grid item>
+                                    <Alert severity="info">
+                                        <AlertTitle>Нет новых заявок</AlertTitle>
+                                        На данный момент все заявки в курс обработаны.
+                                    </Alert>
+                                </Grid>
+                            )}
+
+                            {(hasRegisteredApplications || hasRegistrationRequestApplications) && (
+                                <>
+                                    <Grid item>
+                                        <Tabs
+                                            style={{marginBottom: 10}}
+                                            variant="scrollable"
+                                            scrollButtons={"auto"}
+                                            value={applicationsTabValue}
+                                            indicatorColor="primary"
+                                            onChange={(_, value) => {
+                                                setApplicationsTabValue(value);
+                                            }}
+                                        >
+                                            {hasRegisteredApplications && (
+                                                <Tab
+                                                    label={
+                                                        <Stack direction="row" spacing={1} alignItems="center">
+                                                            <div>Зарегистрированные</div>
+                                                            <Chip
+                                                                size="small"
+                                                                color="default"
+                                                                label={newStudents.length}
+                                                            />
+                                                        </Stack>
+                                                    }
+                                                />
+                                            )}
+
+                                            {hasRegistrationRequestApplications && (
+                                                <Tab
+                                                    label={
+                                                        <Stack direction="row" spacing={1} alignItems="center">
+                                                            <div>Новые регистрации</div>
+                                                            <Chip
+                                                                size="small"
+                                                                color="default"
+                                                                label={courseRegistrationRequests.length}
+                                                            />
+                                                        </Stack>
+                                                    }
+                                                />
+                                            )}
+                                        </Tabs>
+                                    </Grid>
+
+                                    {applicationsTabValue === 0 && hasRegisteredApplications && (
+                                        <Grid item>
+                                            <NewCourseStudents
+                                                onUpdate={() => setCurrentState()}
+                                                course={courseState.course}
+                                                students={courseState.newStudents}
+                                                courseId={courseId!}
+                                            />
+                                        </Grid>
+                                    )}
+
+                                    {((hasRegisteredApplications && hasRegistrationRequestApplications &&
+                                            applicationsTabValue === 1) ||
+                                        (!hasRegisteredApplications && hasRegistrationRequestApplications &&
+                                            applicationsTabValue === 0)) && (
+                                        <Grid item>
+                                            <CourseRegistrationRequests
+                                                requests={courseRegistrationRequests}
+                                                onUpdate={setCurrentState}
+                                            />
+                                        </Grid>
+                                    )}
+                                </>
+                            )}
+                        </Grid>
                     }
                 </Grid>
             </div>
