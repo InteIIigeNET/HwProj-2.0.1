@@ -10,7 +10,7 @@ export const isTestWork = (tagsOwner: { tags?: string[] }) => tagsOwner.tags?.in
 export const isBonusWork = (tagsOwner: { tags?: string[] }) => tagsOwner.tags?.includes(BonusTag) ?? false
 
 export const TestTip: FC = () => <sup style={{color: "#2979ff"}}> тест</sup>
-const BonusTip: FC = () => <sup style={{color: "green"}}> бонус</sup>
+export const BonusTip: FC = () => <sup style={{color: "green"}}> бонус</sup>
 const TestBonusTip: FC = () => <sup style={{color: "#2979ff"}}> бонус</sup>
 
 export const getTip = (tagsOwner: { tags?: string[] }) => {

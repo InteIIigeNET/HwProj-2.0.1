@@ -1,0 +1,198 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start All",
+      "dependsOn": ["Start Backend", "Start Frontend"],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Backend",
+      "dependsOn": [
+        "Start AuthService.API",
+        "Start CoursesService.API",
+        "Start SolutionsService.API",
+        "Start NotificationsService.API",
+        "Start ContentService.API",
+        "Start APIGateway.API"
+      ],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    },
+    {
+      "label": "Start APIGateway.API",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/HwProj.APIGateway/HwProj.APIGateway.API/HwProj.APIGateway.API.csproj"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": false
+      },
+      "problemMatcher": {
+        "owner": "aspnetcore",
+        "pattern": [{ "regexp": ".+" }],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".+",
+          "endsPattern": "Now listening on:|Application started\\."
+        }
+      }
+    },
+    {
+      "label": "Start AuthService.API",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/HwProj.AuthService/HwProj.AuthService.API/HwProj.AuthService.API.csproj"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": false
+      },
+      "problemMatcher": {
+        "owner": "aspnetcore",
+        "pattern": [{ "regexp": ".+" }],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".+",
+          "endsPattern": "Now listening on:|Application started\\."
+        }
+      }
+    },
+    {
+      "label": "Start CoursesService.API",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/HwProj.CoursesService/HwProj.CoursesService.API/HwProj.CoursesService.API.csproj"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": false
+      },
+      "problemMatcher": {
+        "owner": "aspnetcore",
+        "pattern": [{ "regexp": ".+" }],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".+",
+          "endsPattern": "Now listening on:|Application started\\."
+        }
+      }
+    },
+    {
+      "label": "Start SolutionsService.API",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/HwProj.SolutionsService/HwProj.SolutionsService.API/HwProj.SolutionsService.API.csproj"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": false
+      },
+      "problemMatcher": {
+        "owner": "aspnetcore",
+        "pattern": [{ "regexp": ".+" }],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".+",
+          "endsPattern": "Now listening on:|Application started\\."
+        }
+      }
+    },
+    {
+      "label": "Start NotificationsService.API",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/HwProj.NotificationsService/HwProj.NotificationsService.API/HwProj.NotificationsService.API.csproj"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": false
+      },
+      "problemMatcher": {
+        "owner": "aspnetcore",
+        "pattern": [{ "regexp": ".+" }],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".+",
+          "endsPattern": "Now listening on:|Application started\\."
+        }
+      }
+    },
+    {
+      "label": "Start ContentService.API",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}/HwProj.ContentService/HwProj.ContentService.API/HwProj.ContentService.API.csproj"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": false
+      },
+      "problemMatcher": {
+        "owner": "aspnetcore",
+        "pattern": [{ "regexp": ".+" }],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".+",
+          "endsPattern": "Now listening on:|Application started\\."
+        }
+      }
+    },
+    {
+      "label": "Start Frontend",
+      "type": "process",
+      "command": "npm",
+      "args": ["run", "dev"],
+      "options": {
+        "cwd": "${workspaceFolder}/hwproj.front"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "clear": false
+      },
+      "problemMatcher": {
+        "owner": "vite",
+        "pattern": [{ "regexp": ".+" }],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".+",
+          "endsPattern": "Local:|ready in"
+        }
+      }
+    }
+  ]
+}

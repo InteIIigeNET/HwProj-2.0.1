@@ -74,14 +74,6 @@ public class CourseGroupsController : AggregationController
         return Ok();
     }
 
-    [HttpPost("{courseId}/removeStudentFromGroup/{groupId}")]
-    [Authorize(Roles = Roles.LecturerRole)]
-    public async Task<IActionResult> RemoveStudentFromGroup(long courseId, long groupId, [FromQuery] string userId)
-    {
-        await _coursesClient.RemoveStudentFromGroup(courseId, groupId, userId);
-        return Ok();
-    }
-
     [HttpGet("get/{groupId}")]
     [ProducesResponseType(typeof(GroupViewModel), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetGroup(long groupId)

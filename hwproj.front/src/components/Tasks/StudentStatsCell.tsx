@@ -17,13 +17,14 @@ interface ITaskStudentCellProps {
     taskMaxRating: number;
     isBestSolution: boolean;
     solutions?: SolutionDto[];
+    disabled?: boolean;
 }
 
 const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }> = (props) => {
     const navigate = useNavigate()
     const {solutions, taskMaxRating, forMentor} = props
 
-    const cellState = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating)
+    const cellState = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating, props.disabled)
 
     const {ratedSolutionsCount, solutionsDescription} = cellState;
 
@@ -41,6 +42,8 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
         </Stack>;
 
     const handleCellClick = (e: React.MouseEvent) => {
+        if(props.disabled) return;
+
         // Формируем URL
         const url = forMentor
             ? `/task/${props.taskId}/${props.studentId}`
@@ -71,7 +74,7 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
                 style={{
                     backgroundColor: cellState.color,
                     borderLeft: `1px solid ${props.borderLeftColor || grey[300]}`,
-                    cursor: "pointer",
+                    cursor: props.disabled ? "default" : "pointer",
                 }}>
                 {result}
             </TableCell>

@@ -1,6 +1,6 @@
 import * as React from "react";
 import {
-    FileInfoDTO,
+    FileInfoDTO, GroupViewModel,
     HomeworkTaskViewModel,
     HomeworkViewModel, SolutionDto, StatisticsCourseMatesModel,
 } from "@/api";
@@ -36,6 +36,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import SwitchAccessShortcutIcon from '@mui/icons-material/SwitchAccessShortcut';
 import Lodash from "lodash";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
+import GroupIcon from '@mui/icons-material/Group';
 
 interface ICourseExperimentalProps {
     homeworks: HomeworkViewModel[]
@@ -60,6 +61,8 @@ interface ICourseExperimentalProps {
                         previouslyExistingFilesCount: number,
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
+    onGroupsUpdate: () => void;
+    groups: GroupViewModel[];
 }
 
 interface ICourseExperimentalState {
@@ -440,6 +443,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     }}
                     isProcessing={props.processingFiles[homework.id!]?.isLoading || false}
                     onStartProcessing={props.onStartProcessing}
+                    onGroupsUpdate={props.onGroupsUpdate}
+                    groups={props.groups}
                 />
             </Card>
         </Stack>
@@ -569,13 +574,17 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                             }
                                         }))
                                     }}>
-                                    <Typography variant="h6" style={{fontSize: 18}} align={"center"}
-                                                color={x.isDeferred
-                                                    ? "textSecondary"
-                                                    : x.tags!.includes(TestTag) ? "primary" : "textPrimary"}>
-                                        {isMentor && renderHomeworkStatus(x)}
-                                        {x.title}{getTip(x)}
-                                    </Typography>
+                                    <Stack direction={"column"} alignItems={"center"}>
+                                        {x.groupId && <GroupIcon fontSize={"small"}
+                                                                 color={x.isDeferred ? "disabled" : x.tags!.includes(TestTag) ? "primary" : "inherit"}/>}
+                                        <Typography variant="h6" style={{fontSize: 18}} align={"center"}
+                                                    color={x.isDeferred
+                                                        ? "textSecondary"
+                                                        : x.tags!.includes(TestTag) ? "primary" : "textPrimary"}>
+                                            {isMentor && renderHomeworkStatus(x)}
+                                            {x.title}{getTip(x)}
+                                        </Typography>
+                                    </Stack>
                                     {x.isDeferred && !x.publicationDateNotSet &&
                                         <Typography style={{fontSize: "14px"}} align={"center"}>
                                             {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}

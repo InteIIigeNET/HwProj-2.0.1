@@ -59,8 +59,6 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                         setState(prev => ({
                             ...prev,
                             programName: newValue || '',
-                            selectedGroups: [],
-                            isGroupFromList: false,
                         }));
                     }}
                     options={state.programNames}

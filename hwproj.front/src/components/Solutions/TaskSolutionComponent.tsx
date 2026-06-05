@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {FC, useEffect, useState} from 'react';
-import {Button, CircularProgress, Grid, TextField, Typography} from "@material-ui/core";
+import {Button, CircularProgress, Grid, Typography} from "@material-ui/core";
 import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
 import Link from '@material-ui/core/Link'
 import './style.css'
@@ -9,7 +9,7 @@ import {
     HomeworkTaskViewModel,
     SolutionState,
     SolutionActualityDto,
-    SolutionActualityPart, StudentDataDto, FileInfoDTO
+    SolutionActualityPart, StudentDataDto, FileInfoDTO, CriterionViewModel
 } from '@/api'
 import ApiSingleton from "../../api/ApiSingleton";
 import {
@@ -23,7 +23,7 @@ import {
     CardActions,
     IconButton,
     Chip,
-    Box
+    Box, TextField
 } from "@mui/material";
 import AvatarUtils from "../Utils/AvatarUtils";
 import Utils from "../../services/Utils";
@@ -48,6 +48,8 @@ import {CourseUnitType} from "@/components/Files/CourseUnitType";
 import {UserAvatar} from "@/components/Common/UserAvatar";
 
 type TaskWithCriteria = HomeworkTaskViewModel & {};
+
+const CriterionTypeDeadline = 1;
 
 type CriterionRating = {
     criterionId: number;
@@ -136,9 +138,23 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     const initialDraft = loadCriteriaDraft();
 
+    const getDeadlineCriterionValue = (criterion: { arguments?: string; maxPoints?: number }) => {
+        if (!props.solution?.publicationDate || !criterion.arguments) return Number.NaN;
+
+        const solutionDate = new Date(props.solution.publicationDate).getTime();
+        const deadlineDate = new Date(criterion.arguments).getTime();
+
+        if (Number.isNaN(solutionDate) || Number.isNaN(deadlineDate)) return Number.NaN;
+
+        return solutionDate <= deadlineDate ? 0 : -(criterion.maxPoints ?? 0);
+    };
+
     const [criterionRatings, setCriterionRatings] = useState<CriterionRating[]>(() =>
         (taskWithCriteria.criteria ?? []).map(c => {
             const id = c.id!;
+            const deadlineValue = c.type === CriterionTypeDeadline
+                ? getDeadlineCriterionValue(c)
+                : Number.NaN;
             const draftValue = initialDraft?.criteria
                 ?.find(x => x.criterionId === id)?.value;
 
@@ -146,7 +162,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 criterionId: id,
                 name: c.name ?? "",
                 maxPoints: c.maxPoints ?? 0,
-                value: draftValue || NaN,
+                value: Number.isFinite(deadlineValue) ? deadlineValue : (draftValue ?? NaN),
                 comment: "",
             };
         })
@@ -171,6 +187,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         setCriterionRatings(
             (taskWithCriteria.criteria ?? []).map(c => {
                 const id = c.id ?? 0;
+                const deadlineValue = c.type === CriterionTypeDeadline
+                    ? getDeadlineCriterionValue(c)
+                    : Number.NaN;
                 const draftValue = draft?.criteria
                     ?.find(x => x.criterionId === id)?.value;
 
@@ -178,7 +197,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     criterionId: id,
                     name: c.name ?? "",
                     maxPoints: c.maxPoints ?? 0,
-                    value: draftValue || NaN,
+                    value: Number.isFinite(deadlineValue) ? deadlineValue : (draftValue ?? NaN),
                     comment: "",
                 };
             })
@@ -195,22 +214,26 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     useEffect(() => {
         if (!hasCriteria || !state.addBonusPoints || !state.clickedForRate || !criteriaModified) return;
 
-        const criteriaTotal = criterionRatings.reduce(
+        const criteriaTotalRaw = criterionRatings.reduce(
             (sum, c) => sum + (Number.isFinite(c.value) ? Number(c.value) : 0),
             0
         );
+        const criteriaTotal = Math.max(0, criteriaTotalRaw);
         const total = criteriaTotal + (Number.isFinite(extraScore) ? extraScore : 0);
 
         setState(prev => ({...prev, points: total}));
     }, [criterionRatings, extraScore, hasCriteria, state.addBonusPoints, state.clickedForRate, criteriaModified]);
 
-    const criteriaSum =
+    const criteriaTotalRaw =
         criterionRatings.reduce(
             (sum, c) => sum + (Number.isFinite(c.value) ? Number(c.value) : 0),
             0
-        ) + (Number.isFinite(extraScore) ? extraScore : 0);
+        );
+    const criteriaSum = Math.max(0, criteriaTotalRaw) + (Number.isFinite(extraScore) ? extraScore : 0);
 
-    const isRateButtonDisabled = hasCriteria && criteriaSum < 0;
+    const hasUnfilledCriteria =
+        hasCriteria && criterionRatings.some(c => !Number.isFinite(c.value));
+    const isRateButtonDisabled = hasUnfilledCriteria;
 
     const [isCtrlPressed, setIsCtrlPressed] = useState(false)
 
@@ -309,7 +332,21 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         if (!hasCriteria || criterionRatings.length === 0) return baseComment;
 
         const rows: string[] = criterionRatings.map(cr => {
+            const criterion = taskWithCriteria.criteria?.find(c => c.id === cr.criterionId);
             const safeValue = Number.isFinite(cr.value) ? cr.value : 0;
+
+            if (criterion?.type === CriterionTypeDeadline) {
+                const deadlineDelay = criterion.arguments && solution?.publicationDate
+                    ? getDatesDiff(solution.publicationDate!, new Date(criterion.arguments))
+                    : "";
+                const statusText = safeValue === 0
+                    ? "Сдано вовремя"
+                    : `Сдано позже${deadlineDelay ? ` на ${deadlineDelay}` : ""}`;
+                const valueText = safeValue === 0 ? "✅" : `${safeValue}`;
+
+                return `| ${cr.name} (${statusText.toLowerCase()}) | ${valueText} |`;
+            }
+
             return `| ${cr.name} | ${safeValue} / ${cr.maxPoints} |`;
         });
 
@@ -423,16 +460,14 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 return (
                     <Button
                         size="small"
-                        onClick={() =>
-                            setState(prev => ({...prev, clickedForRate: true}))
-                        }
+                        onClick={() => {
+                            setCriteriaModified(true);
+                            setState(prev => ({...prev, points: criteriaSum, clickedForRate: true}));
+                        }}
                         style={{
                             color: "#3f51b5",
-                            paddingLeft: 0,
-                            paddingRight: 0,
                             textTransform: "uppercase",
                             fontWeight: 500,
-                            marginBottom: 8,
                             fontSize: "0.95rem",
                         }}
                     >
@@ -530,48 +565,46 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             );
 
         return (
-            <Grid container item direction="row" spacing={1} alignItems="center">
-                <Grid item>
-                    {isEditable ? (
-                        <TextField
-                            style={{width: 100}}
-                            required
-                            label="Баллы"
-                            variant="outlined"
-                            margin="normal"
-                            type="number"
-                            fullWidth
-                            InputProps={{
-                                readOnly: hasCriteria || !props.forMentor || !state.clickedForRate,
-                                inputProps: {min: 0, value: points},
-                            }}
-                            size="small"
-                            onChange={(e) => {
-                                if (hasCriteria) return;
+            <Stack direction="row" spacing={1} alignItems={"baseline"}>
+                {isEditable ? (
+                    <TextField
+                        style={{width: 100}}
+                        required
+                        label="Баллы"
+                        variant="standard"
+                        margin="normal"
+                        type="number"
+                        fullWidth
+                        InputProps={{
+                            readOnly: hasCriteria || !props.forMentor || !state.clickedForRate,
+                            inputProps: {min: 0, value: points},
+                        }}
+                        size="small"
+                        onChange={(e) => {
+                            if (hasCriteria) return;
 
-                                e.persist();
-                                setState(prevState => ({
-                                    ...prevState,
-                                    points: +e.target.value,
-                                }));
-                            }}
-                            onClick={() => {
-                                if (isRated) return;
-                                setState(prevState => ({
-                                    ...prevState,
-                                    clickedForRate: props.forMentor,
-                                }));
-                            }}
-                        />
-                    ) : (
-                        <Chip
-                            label={<Typography variant="h6">{points}</Typography>}
-                            size="medium"
-                        />
-                    )}
-                </Grid>
-                <Grid item>{` / ${maxRating}`}</Grid>
-            </Grid>
+                            e.persist();
+                            setState(prevState => ({
+                                ...prevState,
+                                points: +e.target.value,
+                            }));
+                        }}
+                        onClick={() => {
+                            if (isRated) return;
+                            setState(prevState => ({
+                                ...prevState,
+                                clickedForRate: props.forMentor,
+                            }));
+                        }}
+                    />
+                ) : (
+                    <Chip
+                        label={<Typography variant="h6">{points}</Typography>}
+                        size="medium"
+                    />
+                )}
+                <div>{` / ${maxRating}`}</div>
+            </Stack>
         );
     };
 
@@ -579,175 +612,254 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const renderCriteriaBlock = () => {
         if (!hasCriteria) return null;
 
-        const criteriaTotal = criterionRatings.reduce(
+        const criteriaTotalRaw = criterionRatings.reduce(
             (sum, c) => sum + (Number.isFinite(c.value) ? Number(c.value) : 0),
             0
         );
+        const criteriaTotal = Math.max(0, criteriaTotalRaw);
         const totalWithExtra = criteriaTotal + (Number.isFinite(extraScore) ? extraScore : 0);
-        const isCriteriaSumNegative = totalWithExtra < 0;
+        const deadlineCriteria = taskWithCriteria.criteria!.filter(c => c.type === CriterionTypeDeadline);
+        const regularCriteria = taskWithCriteria.criteria!.filter(c => c.type !== CriterionTypeDeadline);
+
+        const renderDeadlineCriterion = (c: CriterionViewModel) => {
+            const existingRating = criterionRatings.find(r => r.criterionId === c.id);
+
+            const current =
+                existingRating || {
+                    criterionId: c.id,
+                    name: c.name,
+                    maxPoints: c.maxPoints,
+                    value: Number.NaN,
+                    comment: "",
+                };
+
+            const numericValue = Number.isFinite(current.value) ? current.value : 0;
+            const deadlineDate = c.arguments ? new Date(c.arguments) : undefined;
+            const isSubmittedOnTime = numericValue === 0;
+            const deadlineDelay = deadlineDate && solution?.publicationDate
+                ? getDatesDiff(solution.publicationDate!, deadlineDate)
+                : "";
+
+            return (
+                <Alert
+                    key={c.id}
+                    severity={isSubmittedOnTime ? "success" : "error"}
+                    icon={isSubmittedOnTime
+                        ? <CheckIcon fontSize="small" color="success"/>
+                        : <CloseIcon fontSize="small" color="error"/>}
+                    sx={{
+                        gridColumn: "1 / span 2",
+                        alignItems: "center",
+                        py: 0.5,
+                        "& .MuiAlert-message": {
+                            width: "100%",
+                        },
+                        "& .MuiAlert-icon": {
+                            alignItems: "center",
+                        },
+                    }}
+                >
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        spacing={2}
+                        sx={{width: "100%"}}
+                    >
+                        <Box>
+                            <Typography variant="body1">{c.name}</Typography>
+                            <Typography variant="caption" color="textSecondary">
+                                {isSubmittedOnTime
+                                    ? "Сдано вовремя"
+                                    : `Сдано позже${deadlineDelay ? ` на ${deadlineDelay}` : ""}`}
+                            </Typography>
+                        </Box>
+                        {!isSubmittedOnTime && (
+                            <Chip
+                                size="small"
+                                color="error"
+                                label={numericValue}
+                            />
+                        )}
+                    </Stack>
+                </Alert>
+            );
+        };
+
+        const renderRegularCriterion = (c: CriterionViewModel) => {
+            const existingRating = criterionRatings.find(r => r.criterionId === c.id);
+
+            const current =
+                existingRating || {
+                    criterionId: c.id,
+                    name: c.name,
+                    maxPoints: c.maxPoints,
+                    value: Number.NaN,
+                    comment: "",
+                };
+
+            const numericValue = Number.isFinite(current.value) ? current.value : 0;
+
+            const hasExplicitValue = Number.isFinite(current.value);
+
+            const isThumbCriterion = c.maxPoints === 1;
+            const hasStars =
+                typeof c.maxPoints === "number" && c.maxPoints <= 10 && !isThumbCriterion;
+
+            const isFilled = hasExplicitValue && (isThumbCriterion || numericValue !== 0);
+
+            return (
+                <React.Fragment key={c.id}>
+                    <Box display="flex" alignItems="center">
+                        <Box
+                            width={24}
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            mr={1}
+                        >
+                            <CheckCircleOutlineIcon
+                                style={{
+                                    fontSize: 18,
+                                    color: isFilled ? "#3f51b5" : "#c0c0c0",
+                                    opacity: isFilled ? 1 : 0.4,
+                                }}
+                            />
+                        </Box>
+
+                        <Typography variant="body1">
+                            {c.name}
+                        </Typography>
+                    </Box>
+
+                    <Box justifySelf="end">
+                        {isThumbCriterion ? (
+                            <Stack direction="row" alignItems="center">
+                                <IconButton
+                                    size="small"
+                                    disabled={!props.forMentor || !state.clickedForRate}
+                                    onClick={() => {
+                                        setCriteriaModified(true);
+                                        setCriterionRatings(prev =>
+                                            prev.map(r =>
+                                                r.criterionId === c.id
+                                                    ? {...r, value: 1}
+                                                    : r
+                                            )
+                                        );
+                                    }}
+                                >
+                                    <ThumbUp
+                                        color={hasExplicitValue && numericValue === 1 ? "success" : "disabled"}
+                                        fontSize="small"
+                                    />
+                                </IconButton>
+
+                                <IconButton
+                                    size="small"
+                                    disabled={!props.forMentor || !state.clickedForRate}
+                                    onClick={() => {
+                                        setCriteriaModified(true);
+                                        setCriterionRatings(prev =>
+                                            prev.map(r =>
+                                                r.criterionId === c.id
+                                                    ? {...r, value: 0}
+                                                    : r
+                                            )
+                                        );
+                                    }}
+                                >
+                                    <ThumbDown
+                                        color={hasExplicitValue && numericValue === 0 ? "error" : "disabled"}
+                                        fontSize="small"
+                                    />
+                                </IconButton>
+
+                            </Stack>
+                        ) : hasStars ? (
+                            <Rating
+                                max={c.maxPoints}
+                                size="medium"
+                                value={Math.max(
+                                    0,
+                                    Math.min(numericValue, c.maxPoints ?? Number.POSITIVE_INFINITY)
+                                )}
+                                onChange={(_, newValue) => {
+                                    let val = Number(newValue || 0);
+                                    if (Number.isNaN(val)) val = 0;
+                                    if (c.maxPoints && val > c.maxPoints) {
+                                        val = c.maxPoints;
+                                    }
+
+                                    setCriteriaModified(true);
+                                    setCriterionRatings(prev =>
+                                        prev.map(r =>
+                                            r.criterionId === c.id
+                                                ? {...r, value: val}
+                                                : r
+                                        )
+                                    );
+                                }}
+                            />
+                        ) : (
+                            <Box display="flex" alignItems="center" justifyContent="flex-end">
+                                <TextField
+                                    type="number"
+                                    size="small"
+                                    style={{width: 50}}
+                                    value={numericValue}
+                                    variant="standard"
+                                    margin="dense"
+                                    inputProps={{max: c.maxPoints}}
+                                    onChange={e => {
+                                        let val = Number(e.target.value);
+                                        if (Number.isNaN(val)) val = 0;
+
+                                        setCriteriaModified(true);
+                                        setCriterionRatings(prev =>
+                                            prev.map(r =>
+                                                r.criterionId === c.id
+                                                    ? {...r, value: val}
+                                                    : r
+                                            )
+                                        );
+                                    }}
+                                />
+
+                                <Typography
+                                    variant="body2"
+                                    style={{marginLeft: 4}}
+                                >
+                                    / {c.maxPoints}
+                                </Typography>
+                            </Box>
+                        )}
+                    </Box>
+                </React.Fragment>
+            );
+        };
 
         return (
             <Grid container item direction="column" spacing={1} style={{marginTop: 0}}>
                 <Grid item>
                     <Box
                         display="grid"
-                        gridTemplateColumns="auto auto"
+                        gridTemplateColumns="minmax(0, 1fr) auto"
                         columnGap={16}
-                        rowGap={0}
+                        rowGap={0.75}
+                        sx={{width: "100%"}}
                     >
-                        {taskWithCriteria.criteria!.map((c, index) => {
-                            const existingRating = criterionRatings.find(r => r.criterionId === c.id);
-
-                            const current =
-                                existingRating || {
-                                    criterionId: c.id,
-                                    name: c.name,
-                                    maxPoints: c.maxPoints,
-                                    value: Number.NaN,
-                                    comment: "",
-                                };
-
-                            const numericValue = Number.isFinite(current.value) ? current.value : 0;
-
-                            const hasExplicitValue = Number.isFinite(current.value);
-
-                            const isThumbCriterion = c.maxPoints === 1;
-                            const hasStars =
-                                typeof c.maxPoints === "number" && c.maxPoints <= 10 && !isThumbCriterion;
-
-                            const isFilled = hasExplicitValue && (isThumbCriterion || numericValue !== 0);
-
-                            return (
-                                <React.Fragment key={c.id}>
-                                    <Box display="flex" alignItems="center">
-                                        <Box
-                                            width={24}
-                                            display="flex"
-                                            alignItems="center"
-                                            justifyContent="center"
-                                            mr={1}
-                                        >
-                                            <CheckCircleOutlineIcon
-                                                style={{
-                                                    fontSize: 18,
-                                                    color: isFilled ? "#3f51b5" : "#c0c0c0",
-                                                    opacity: isFilled ? 1 : 0.4,
-                                                }}
-                                            />
-                                        </Box>
-
-                                        <Typography variant="body1">
-                                            {c.name}
-                                        </Typography>
-
-                                    </Box>
-
-                                    <Box>
-                                        {isThumbCriterion ? (
-                                            <Stack direction="row" alignItems="center">
-                                                <IconButton
-                                                    size="small"
-                                                    disabled={!props.forMentor || !state.clickedForRate}
-                                                    onClick={() => {
-                                                        setCriteriaModified(true);
-                                                        setCriterionRatings(prev =>
-                                                            prev.map(r =>
-                                                                r.criterionId === c.id
-                                                                    ? {...r, value: 1}
-                                                                    : r
-                                                            )
-                                                        );
-                                                    }}
-                                                >
-                                                    <ThumbUp
-                                                        color={hasExplicitValue && numericValue === 1 ? "success" : "disabled"}
-                                                        fontSize="small"
-                                                    />
-                                                </IconButton>
-
-                                                <IconButton
-                                                    size="small"
-                                                    disabled={!props.forMentor || !state.clickedForRate}
-                                                    onClick={() => {
-                                                        setCriteriaModified(true);
-                                                        setCriterionRatings(prev =>
-                                                            prev.map(r =>
-                                                                r.criterionId === c.id
-                                                                    ? {...r, value: 0}
-                                                                    : r
-                                                            )
-                                                        );
-                                                    }}
-                                                >
-                                                    <ThumbDown
-                                                        color={hasExplicitValue && numericValue === 0 ? "error" : "disabled"}
-                                                        fontSize="small"
-                                                    />
-                                                </IconButton>
-
-                                            </Stack>
-                                        ) : hasStars ? (
-                                            <Rating
-                                                max={c.maxPoints}
-                                                size="medium"
-                                                value={Math.max(
-                                                    0,
-                                                    Math.min(numericValue, c.maxPoints ?? Number.POSITIVE_INFINITY)
-                                                )}
-                                                onChange={(_, newValue) => {
-                                                    let val = Number(newValue || 0);
-                                                    if (Number.isNaN(val)) val = 0;
-                                                    if (c.maxPoints && val > c.maxPoints) {
-                                                        val = c.maxPoints;
-                                                    }
-
-                                                    setCriteriaModified(true);
-                                                    setCriterionRatings(prev =>
-                                                        prev.map(r =>
-                                                            r.criterionId === c.id
-                                                                ? {...r, value: val}
-                                                                : r
-                                                        )
-                                                    );
-                                                }}
-                                            />
-                                        ) : (
-                                            <Box display="flex" alignItems="center">
-                                                <TextField
-                                                    type="number"
-                                                    size="small"
-                                                    style={{width: 50}}
-                                                    value={numericValue}
-                                                    variant="standard"
-                                                    margin="dense"
-                                                    inputProps={{max: c.maxPoints}}
-                                                    onChange={e => {
-                                                        let val = Number(e.target.value);
-                                                        if (Number.isNaN(val)) val = 0;
-
-                                                        setCriteriaModified(true);
-                                                        setCriterionRatings(prev =>
-                                                            prev.map(r =>
-                                                                r.criterionId === c.id
-                                                                    ? {...r, value: val}
-                                                                    : r
-                                                            )
-                                                        );
-                                                    }}
-                                                />
-
-                                                <Typography
-                                                    variant="body2"
-                                                    style={{marginLeft: 4}}
-                                                >
-                                                    / {c.maxPoints}
-                                                </Typography>
-                                            </Box>
-                                        )}
-                                    </Box>
-                                </React.Fragment>
-                            );
-                        })}
+                        {deadlineCriteria.length > 0 && (
+                            <Box
+                                gridColumn="1 / span 2"
+                                display="grid"
+                                rowGap={0.75}
+                                mb={regularCriteria.length > 0 ? 1.5 : 0}
+                            >
+                                {deadlineCriteria.map(renderDeadlineCriterion)}
+                            </Box>
+                        )}
+                        {regularCriteria.map(renderRegularCriterion)}
                         <Box display="flex" alignItems="center">
                             <Box
                                 width={24}
@@ -780,22 +892,26 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 Доп. оценка (опционально)
                             </Typography>
                         </Box>
-                        <TextField
-                            type="number"
-                            size="small"
-                            style={{width: 50}}
-                            value={extraScore}
-                            variant="standard"
-                            margin="dense"
-                            placeholder="0"
-                            onChange={e => {
-                                let val = Number(e.target.value || 0);
-                                if (Number.isNaN(val)) val = 0;
+                        <Box justifySelf="end">
+                            <TextField
+                                type="number"
+                                size="small"
+                                style={{width: 50}}
+                                value={extraScore}
+                                variant="standard"
+                                margin="dense"
+                                placeholder="0"
+                                inputProps={{min: 0}}
+                                onChange={e => {
+                                    let val = Number(e.target.value || 0);
+                                    if (Number.isNaN(val)) val = 0;
+                                    val = Math.max(0, val);
 
-                                setCriteriaModified(true);
-                                setExtraScore(val);
-                            }}
-                        />
+                                    setCriteriaModified(true);
+                                    setExtraScore(val);
+                                }}
+                            />
+                        </Box>
                     </Box>
                 </Grid>
 
@@ -807,7 +923,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             marginBottom: 8,
                             fontSize: "0.95rem",
                             fontWeight: 500,
-                            color: isCriteriaSumNegative ? "#d32f2f" : undefined,
+                            color: totalWithExtra === 0 ? "#d32f2f" : undefined,
                         }}
                     >
                         {`Сумма по критериям: ${totalWithExtra} из ${maxRating}`}
@@ -847,7 +963,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 color,
             }}
         >
-            <CardContent style={{paddingBottom: 5, marginBottom: 0}}>
+            <CardContent>
                 <Grid container direction={"column"} spacing={1}>
                     {(!hasCriteria || !state.clickedForRate) && <Grid item>
                         {renderRateInput()}
@@ -980,7 +1096,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             setCriterionRatings(prev =>
                                 prev.map(cr => ({
                                     ...cr,
-                                    value: 0,
+                                    value: taskWithCriteria.criteria?.find(c => c.id === cr.criterionId)?.type === CriterionTypeDeadline
+                                        ? getDeadlineCriterionValue(taskWithCriteria.criteria.find(c => c.id === cr.criterionId)!)
+                                        : 0,
                                 }))
                             );
                             setExtraScore(0);
@@ -1105,7 +1223,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         {
             sentAfterDeadline && <Grid item>
                 <Alert variant="standard" severity="warning">
-                    Решение сдано на {sentAfterDeadline} позже дедлайна.
+                    Решение сдано позже дедлайна на {sentAfterDeadline}.
                 </Alert>
             </Grid>
         }

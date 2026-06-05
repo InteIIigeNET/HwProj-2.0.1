@@ -243,7 +243,7 @@ public class CoursesController : AggregationController
             return BadRequest("Пользователь с такой почтой не является преподавателем или экспертом");
 
         var courseFilterModel = _mapper.Map<CreateCourseFilterDTO>(editMentorWorkspaceDto);
-        courseFilterModel.UserId = mentorId;
+        courseFilterModel.Id = mentorId;
 
         var courseFilterCreationResult =
             await _coursesClient.CreateOrUpdateCourseFilter(courseId, courseFilterModel);
@@ -308,6 +308,7 @@ public class CoursesController : AggregationController
             AcceptedStudents = acceptedStudents.ToArray(),
             NewStudents = newStudents.ToArray(),
             Homeworks = course.Homeworks,
+            Groups = course.Groups,
             IsCompleted = course.IsCompleted,
             IsOpen = course.IsOpen
         };

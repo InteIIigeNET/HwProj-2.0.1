@@ -20,9 +20,15 @@ namespace HwProj.CoursesService.API
             CreateMap<PostTaskViewModel, HomeworkTask>().ReverseMap();
             
             CreateMap<CreateCourseFilterDTO, CreateCourseFilterModel>();
-            CreateMap<Filter, CourseFilterDTO>();
+            CreateMap<Filter, CourseFilterDTO>()
             
             CreateMap<RegistrationRequest, RegistrationRequestDto>();
+            
+            CreateMap<UpdateGroupViewModel, Group>().ReverseMap();
+            CreateMap<Group, UserGroupDescription>();
+            CreateMap<GroupMateViewModel, GroupMate>().ReverseMap();
+            
+            
         }
     }
 }

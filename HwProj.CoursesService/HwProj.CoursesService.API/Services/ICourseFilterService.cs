@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.Models.CoursesService;
@@ -14,5 +15,6 @@ namespace HwProj.CoursesService.API.Services
         Task<CourseDTO[]> ApplyFiltersToCourses(string userId, CourseDTO[] courses);
         Task<CourseDTO> ApplyFilter(CourseDTO courseDto, string userId);
         Task<MentorToAssignedStudentsDTO[]> GetAssignedStudentsIds(long courseId, string[] mentorsIds);
+        Task UpdateGroupFilters(long courseId, long homeworkId, Group group);
     }
 }

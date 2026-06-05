@@ -4,7 +4,8 @@ namespace HwProj.Models.CoursesService.ViewModels
 {
     public enum CriterionType
     {
-        Free = 0
+        Free = 0,
+        Deadline = 1
     }
 
     public class CriterionViewModel
@@ -13,5 +14,6 @@ namespace HwProj.Models.CoursesService.ViewModels
         public CriterionType Type { get; set; }
         [Required] public string Name { get; set; } = null!;
         [Range(0, int.MaxValue)] public int MaxPoints { get; set; }
+        public string? Arguments { get; set; }
     }
 }
