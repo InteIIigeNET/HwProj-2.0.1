@@ -7,7 +7,7 @@ import {Alert, Button, Chip, IconButton, Stack, Typography} from "@mui/material"
 import {grey} from "@material-ui/core/colors";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
-import {BonusTag, DefaultTags, TestTag} from "../Common/HomeworkTags";
+import {BonusTag, BonusTip, DefaultTags, TestTag} from "../Common/HomeworkTags";
 import Lodash from "lodash"
 import ApiSingleton from "@/api/ApiSingleton";
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
@@ -113,7 +113,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         })
         .values()
         .value();
-    
+
     const testHomeworks = testGroups.map(x => x[0])
 
     const homeworksWithGroups = notTests.filter(h => h.groupId)
@@ -151,6 +151,12 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                 ], ["desc", "asc"]).value()[0]
             )
             .forEach(x => bestTaskSolutions.set(x.taskId!, x.studentId!))
+    }
+
+    const renderTitle = (x: { title?: string, tags?: string[] }) => {
+        return <>
+            {x.title}{x.tags?.includes(BonusTag) && <BonusTip/>}
+        </>
     }
 
     return (
@@ -201,7 +207,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     }}
                                     colSpan={homework.tasks!.length}
                                 >
-                                    {homework.title}
+                                    {renderTitle(homework)}
                                 </TableCell>)}
                         </TableRow>
                         <TableRow>
@@ -248,7 +254,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                    ...homeworkStyles(homeworks, idx)
                                                }}
                                                key={task.id}>
-                                        {task.title}
+                                        {renderTitle(task)}
                                     </TableCell>
                                 ))
                             )}
