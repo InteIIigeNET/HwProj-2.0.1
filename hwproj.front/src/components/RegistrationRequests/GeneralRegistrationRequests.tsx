@@ -60,13 +60,27 @@ const GeneralRegistrationRequests: FC = () => {
                 setRequests([]);
                 setError(result.errors ?? ["Не удалось загрузить заявки"]);
             }
-        } catch (e) {
+        } catch {
             setRequests([]);
             setError(["Сервис недоступен"]);
+        } finally {
+            setIsLoading(false);
         }
-
-        setIsLoading(false);
     };
+    
+    const refreshRequests = async () => {
+        try {
+            const result = await ApiSingleton.registrationRequestsApi.registrationRequestsGetGeneralRequests();
+            if (!result.succeeded) {
+                return false;
+            } 
+            
+            setRequests(result.value ?? []);
+            return true;
+        } catch {
+            return false;
+        }
+    }
 
     useEffect(() => {
         if (tabValue === 0 && studentRequests.length === 0 && lecturerRequests.length > 0) {
@@ -94,17 +108,22 @@ const GeneralRegistrationRequests: FC = () => {
 
         try {
             const result = await ApiSingleton.registrationRequestsApi.registrationRequestsApprove(requestId);
-
-            if (result.succeeded) {
-                await loadRequests();
-            } else {
+            if (!result.succeeded) {
                 setError(result.errors ?? ["Не удалось принять заявку"]);
+                return;
             }
-        } catch (e) {
+            
+            const refreshed = await refreshRequests();
+            if (!refreshed) {
+                setError(["Заявка принята, но не удалось обновить список"]);
+            } else {
+                setError([]);
+            }
+        } catch {
             setError(["Сервис недоступен"]);
+        } finally {
+            setProcessingRequestId(undefined);
         }
-
-        setProcessingRequestId(undefined);
     };
 
     const rejectRequest = async (rejectReason?: string) => {
@@ -115,25 +134,32 @@ const GeneralRegistrationRequests: FC = () => {
         setProcessingRequestId(rejectingRequest.id);
         setIsRejectSubmitting(true);
         setRejectError([]);
-
+        
         try {
             const result = await ApiSingleton.registrationRequestsApi.registrationRequestsReject(
                 rejectingRequest.id,
                 {rejectReason}
             );
 
-            if (result.succeeded) {
-                setRejectingRequest(undefined);
-                await loadRequests();
-            } else {
+            if (!result.succeeded) {
                 setRejectError(result.errors ?? ["Не удалось отклонить заявку"]);
+                return;
+            } 
+            
+            setRejectingRequest(undefined);
+
+            const refreshed = await refreshRequests();
+            if (!refreshed) {
+                setError(["Заявка отклонена, но не удалось обновить список"])
+            } else {
+                setError([]);
             }
-        } catch (e) {
+        } catch {
             setRejectError(["Сервис недоступен"]);
+        } finally {
+            setIsRejectSubmitting(false);
+            setProcessingRequestId(undefined);
         }
-        
-        setIsRejectSubmitting(false);
-        setProcessingRequestId(undefined);
     };
 
     const renderRequests = (items: RegistrationRequestDto[], emptyText: string) => {
@@ -167,7 +193,7 @@ const GeneralRegistrationRequests: FC = () => {
         return (
             <div className="container" style={{marginTop: "15px"}}>
                 <Alert severity="error">
-                    <AlertTitle>Страница не доступна</AlertTitle>
+                    <AlertTitle>Страница недоступна</AlertTitle>
                     Доступ только для преподавателей.
                 </Alert>
             </div>

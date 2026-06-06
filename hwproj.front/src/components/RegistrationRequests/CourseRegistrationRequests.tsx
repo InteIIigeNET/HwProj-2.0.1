@@ -42,16 +42,22 @@ const CourseRegistrationRequests: FC<ICourseRegistrationRequestsProps> = (props)
         try {
             const result = await ApiSingleton.registrationRequestsApi.registrationRequestsApprove(requestId);
 
-            if (result.succeeded) {
-                await props.onUpdate();
-            } else {
+            if (!result.succeeded) {
                 setError(result.errors ?? ["Не удалось принять заявку"]);
+                return;
+            }
+
+            try {
+                await props.onUpdate();
+                setError([]);
+            } catch {
+                setError(["Заявка принята, но не удалось обновить список"]);
             }
         } catch {
             setError(["Сервис недоступен"]);
+        } finally {
+            setProcessingRequestId(undefined);
         }
-
-        setProcessingRequestId(undefined);
     };
 
     const rejectRequest = async (rejectReason?: string) => {
@@ -69,18 +75,25 @@ const CourseRegistrationRequests: FC<ICourseRegistrationRequestsProps> = (props)
                 {rejectReason},
             );
 
-            if (result.succeeded) {
-                setRejectingRequest(undefined);
-                await props.onUpdate();
-            } else {
+            if (!result.succeeded) {
                 setRejectError(result.errors ?? ["Не удалось отклонить заявку"]);
+                return;
+            }
+            
+            setRejectingRequest(undefined);
+
+            try {
+                await props.onUpdate();
+                setError([]);
+            } catch {
+                setError(["Заявка отклонена, но не удалось обновить список"]);
             }
         } catch {
             setRejectError(["Сервис недоступен"]);
+        } finally {
+            setIsRejectSubmitting(false);
+            setProcessingRequestId(undefined);
         }
-
-        setIsRejectSubmitting(false);
-        setProcessingRequestId(undefined);
     };
 
     if (props.requests.length === 0) {

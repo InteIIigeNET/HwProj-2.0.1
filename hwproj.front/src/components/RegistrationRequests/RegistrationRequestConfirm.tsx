@@ -50,10 +50,15 @@ const RegistrationRequestConfirm: FC = () => {
             try {
                 const result = await ApiSingleton.authService.confirmRegistrationRequest({token});
 
+                const isConfirmed = result.isConfirmed ?? false;
                 setState({
                     isLoading: false,
-                    isConfirmed: result.isConfirmed ?? false,
-                    error: result.error ?? []
+                    isConfirmed,
+                    error: isConfirmed 
+                        ? []
+                        : result.error && result.error.length > 0
+                            ? result.error
+                            : ["Не удалось подтвердить заявку"],
                 });
             } catch {
                 setState({

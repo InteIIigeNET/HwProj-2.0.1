@@ -22,7 +22,6 @@ interface IRegistrationRequestState {
     requestedRole: RequestedRole;
     description: string;
     preferredLecturerEmail: string;
-    courseId?: number;
 }
 
 interface ICommonState {
@@ -66,8 +65,7 @@ const RegistrationRequestForm: FC = () => {
         email: "",
         requestedRole: RequestedRole.NUMBER_0,
         description: "",
-        preferredLecturerEmail: "",
-        courseId: isCourseBound ? parsedCourseId : undefined,
+        preferredLecturerEmail: ""
     })
 
     const [commonState, setCommonState] = useState<ICommonState>({
@@ -117,7 +115,7 @@ const RegistrationRequestForm: FC = () => {
                     preferredLecturerEmail: isStudentRequest
                         ? requestState.preferredLecturerEmail.trim() || undefined
                         : undefined,
-                    courseId: isCourseBound ? requestState.courseId : undefined,
+                    courseId: isCourseBound ? parsedCourseId : undefined,
                 };
 
             const result = await ApiSingleton.authService.initRegistrationRequest(requestModel);

@@ -32,16 +32,12 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import NameBuilder from "../Utils/NameBuilder";
 import {QRCodeSVG} from 'qrcode.react';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
-import {Api, MoreVert} from "@mui/icons-material";
+import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
 import CourseRegistrationRequests from "@/components/RegistrationRequests/CourseRegistrationRequests";
 import GroupIcon from '@mui/icons-material/Group';
-import {MoreVert} from "@mui/icons-material";
-import {DotLottieReact} from "@lottiefiles/dotlottie-react";
-import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
-import {CourseUnitType} from "@/components/Files/CourseUnitType";
 import Utils from "@/services/Utils";
 
 type TabValue = "homeworks" | "stats" | "applications"
@@ -61,6 +57,7 @@ interface ICourseState {
     studentSolutions: StatisticsCourseMatesModel[];
     showQrCode: boolean;
     courseRegistrationRequests: RegistrationRequestDto[];
+    courseRegistrationRequestsError: string[]
 }
 
 interface IPageState {
@@ -83,6 +80,7 @@ const Course: React.FC = () => {
         studentSolutions: [],
         showQrCode: false,
         courseRegistrationRequests: [],
+        courseRegistrationRequestsError: [],
     })
     const [studentSolutions, setStudentSolutions] = useState<StatisticsCourseMatesModel[] | undefined>(undefined)
 
@@ -98,6 +96,7 @@ const Course: React.FC = () => {
         acceptedStudents,
         courseHomeworks,
         courseRegistrationRequests,
+        courseRegistrationRequestsError,
         groups,
     } = courseState
 
@@ -160,9 +159,26 @@ const Course: React.FC = () => {
         }
         
         const isActualCourseMentor = course.mentors!.some(t => t.userId === userId);
-        const registrationRequests = isActualCourseMentor
-            ? await ApiSingleton.registrationRequestsApi.registrationRequestsGetCourseRequests(+courseId!)
-            : undefined;
+        
+        
+        let loadedCourseRegistrationRequests: RegistrationRequestDto[] = [];
+        let loadedCourseRegistrationRequestsError: string[] = [];
+
+        if (isActualCourseMentor) {
+            try {
+                const registrationRequestsResult =
+                    await ApiSingleton.registrationRequestsApi.registrationRequestsGetCourseRequests(+courseId!);
+
+                if (registrationRequestsResult.succeeded) {
+                    loadedCourseRegistrationRequests = registrationRequestsResult.value ?? [];
+                } else {
+                    loadedCourseRegistrationRequestsError =
+                        registrationRequestsResult.errors ?? ["Не удалось загрузить заявки на регистрацию"];
+                }
+            } catch {
+                loadedCourseRegistrationRequestsError = ["Сервис недоступен"];
+            }
+        }
 
         setCourseState(prevState => ({
             ...prevState,
@@ -174,9 +190,8 @@ const Course: React.FC = () => {
             groups: course.groups || [],
             acceptedStudents: course.acceptedStudents!,
             newStudents: course.newStudents!,
-            courseRegistrationRequests: registrationRequests?.succeeded
-                ? registrationRequests.value ?? []
-                : [],
+            courseRegistrationRequests: loadedCourseRegistrationRequests,
+            courseRegistrationRequestsError: loadedCourseRegistrationRequestsError,
         }))
     }
 
@@ -190,32 +205,6 @@ const Course: React.FC = () => {
     }, [courseId])
 
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
-
-    useEffect(() => {
-        if (!hasRegisteredApplications && !hasRegistrationRequestApplications)
-        {
-            setApplicationsTabValue(0);
-            return;
-        }
-
-        if (!hasRegisteredApplications && hasRegistrationRequestApplications) {
-            setApplicationsTabValue(0);
-            return;
-        }
-
-        if (hasRegisteredApplications && !hasRegistrationRequestApplications) {
-            setApplicationsTabValue(0);
-            return;
-        }
-
-        if (applicationsTabValue > 1) {
-            setApplicationsTabValue(0);
-        }
-    }, [
-        applicationsTabValue,
-        hasRegisteredApplications,
-        hasRegistrationRequestApplications,
-    ])
 
     const joinCourse = async () => {
         await ApiSingleton.coursesApi.coursesSignInCourse(+courseId!)
@@ -469,83 +458,90 @@ const Course: React.FC = () => {
                         </Grid>}
                     {tabValue === "applications" && showApplicationsTab &&
                         <Grid container direction="column" spacing={2}>
-                            {!hasRegisteredApplications && !hasRegistrationRequestApplications && (
+                            {courseRegistrationRequestsError.length > 0 && (
                                 <Grid item>
-                                    <Alert severity="info">
-                                        <AlertTitle>Нет новых заявок</AlertTitle>
-                                        На данный момент все заявки в курс обработаны.
+                                    <Alert severity="error">
+                                        <AlertTitle>Ошибка</AlertTitle>
+                                        {courseRegistrationRequestsError.join(", ")}
                                     </Alert>
                                 </Grid>
                             )}
 
-                            {(hasRegisteredApplications || hasRegistrationRequestApplications) && (
-                                <>
-                                    <Grid item>
-                                        <Tabs
-                                            style={{marginBottom: 10}}
-                                            variant="scrollable"
-                                            scrollButtons={"auto"}
-                                            value={applicationsTabValue}
-                                            indicatorColor="primary"
-                                            onChange={(_, value) => {
-                                                setApplicationsTabValue(value);
-                                            }}
-                                        >
-                                            {hasRegisteredApplications && (
-                                                <Tab
-                                                    label={
-                                                        <Stack direction="row" spacing={1} alignItems="center">
-                                                            <div>Зарегистрированные</div>
-                                                            <Chip
-                                                                size="small"
-                                                                color="default"
-                                                                label={newStudents.length}
-                                                            />
-                                                        </Stack>
-                                                    }
+                            <Grid item>
+                                <Tabs
+                                    style={{marginBottom: 10}}
+                                    variant="scrollable"
+                                    scrollButtons={"auto"}
+                                    value={applicationsTabValue}
+                                    indicatorColor="primary"
+                                    onChange={(_, value) => {
+                                        setApplicationsTabValue(value);
+                                    }}
+                                >
+                                    <Tab
+                                        label={
+                                            <Stack direction="row" spacing={1} alignItems="center">
+                                                <div>Зарегистрированные</div>
+                                                <Chip
+                                                    size="small"
+                                                    color="default"
+                                                    label={newStudents.length}
                                                 />
-                                            )}
-
-                                            {hasRegistrationRequestApplications && (
-                                                <Tab
-                                                    label={
-                                                        <Stack direction="row" spacing={1} alignItems="center">
-                                                            <div>Новые регистрации</div>
-                                                            <Chip
-                                                                size="small"
-                                                                color="default"
-                                                                label={courseRegistrationRequests.length}
-                                                            />
-                                                        </Stack>
-                                                    }
+                                            </Stack>
+                                        }
+                                    />
+                                    <Tab
+                                        label={
+                                            <Stack direction="row" spacing={1} alignItems="center">
+                                                <div>Новые регистрации</div>
+                                                <Chip
+                                                    size="small"
+                                                    color="default"
+                                                    label={courseRegistrationRequests.length}
                                                 />
-                                            )}
-                                        </Tabs>
-                                    </Grid>
-
-                                    {applicationsTabValue === 0 && hasRegisteredApplications && (
-                                        <Grid item>
-                                            <NewCourseStudents
-                                                onUpdate={() => setCurrentState()}
-                                                course={courseState.course}
-                                                students={courseState.newStudents}
-                                                courseId={courseId!}
-                                            />
-                                        </Grid>
+                                            </Stack>
+                                        }
+                                    />
+                                </Tabs>
+                            </Grid>
+                            
+                            {applicationsTabValue === 0 && (
+                                <Grid item>
+                                    {hasRegisteredApplications ? (
+                                        <NewCourseStudents
+                                            onUpdate={() => setCurrentState()}
+                                            course={courseState.course}
+                                            students={courseState.newStudents}
+                                            courseId={courseId!}
+                                        />
+                                    ) : (
+                                        <Alert severity="info">
+                                            <AlertTitle>Нет новых заявок</AlertTitle>
+                                            Нет заявок от зарегистрированных пользователей.
+                                        </Alert>
                                     )}
+                                </Grid>
+                            )}
 
-                                    {((hasRegisteredApplications && hasRegistrationRequestApplications &&
-                                            applicationsTabValue === 1) ||
-                                        (!hasRegisteredApplications && hasRegistrationRequestApplications &&
-                                            applicationsTabValue === 0)) && (
-                                        <Grid item>
-                                            <CourseRegistrationRequests
-                                                requests={courseRegistrationRequests}
-                                                onUpdate={setCurrentState}
-                                            />
-                                        </Grid>
+                            {applicationsTabValue === 1 && (
+                                <Grid item>
+                                    {courseRegistrationRequestsError.length > 0 ? (
+                                        <Alert severity="info">
+                                            <AlertTitle>Список недоступен</AlertTitle>
+                                            Заявки на регистрацию для вступления в курс сейчас не отображаются.
+                                        </Alert>
+                                    ) : hasRegistrationRequestApplications ? (
+                                        <CourseRegistrationRequests
+                                            requests={courseRegistrationRequests}
+                                            onUpdate={setCurrentState}
+                                        />
+                                    ) : (
+                                        <Alert severity="info">
+                                            <AlertTitle>Нет новых заявок</AlertTitle>
+                                            Нет заявок на регистрацию для вступления в курс.
+                                        </Alert>
                                     )}
-                                </>
+                                </Grid>
                             )}
                         </Grid>
                     }
