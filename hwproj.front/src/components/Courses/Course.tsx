@@ -1,7 +1,7 @@
 import * as React from "react";
 import {FC, useEffect, useState, useMemo} from "react";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, GroupViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
+import {AccountDataDto, CourseViewModel, GroupViewModel, HomeworkViewModel, RegistrationRequestDto, StatisticsCourseMatesModel} from "@/api";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
@@ -32,11 +32,12 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import NameBuilder from "../Utils/NameBuilder";
 import {QRCodeSVG} from 'qrcode.react';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
-import GroupIcon from '@mui/icons-material/Group';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
+import CourseRegistrationRequests from "@/components/RegistrationRequests/CourseRegistrationRequests";
+import GroupIcon from '@mui/icons-material/Group';
 import Utils from "@/services/Utils";
 
 type TabValue = "homeworks" | "stats" | "applications"
@@ -55,6 +56,8 @@ interface ICourseState {
     newStudents: AccountDataDto[];
     studentSolutions: StatisticsCourseMatesModel[];
     showQrCode: boolean;
+    courseRegistrationRequests: RegistrationRequestDto[];
+    courseRegistrationRequestsError: string[]
 }
 
 interface IPageState {
@@ -75,7 +78,9 @@ const Course: React.FC = () => {
         acceptedStudents: [],
         newStudents: [],
         studentSolutions: [],
-        showQrCode: false
+        showQrCode: false,
+        courseRegistrationRequests: [],
+        courseRegistrationRequestsError: [],
     })
     const [studentSolutions, setStudentSolutions] = useState<StatisticsCourseMatesModel[] | undefined>(undefined)
 
@@ -90,7 +95,9 @@ const Course: React.FC = () => {
         newStudents,
         acceptedStudents,
         courseHomeworks,
-        groups
+        courseRegistrationRequests,
+        courseRegistrationRequestsError,
+        groups,
     } = courseState
 
     const loadGroups = async () => {
@@ -108,6 +115,11 @@ const Course: React.FC = () => {
     const isMentor = isLecturer || isExpert
     const isCourseMentor = mentors.some(t => t.userId === userId)
     const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
+
+    const [applicationsTabValue, setApplicationsTabValue] = useState<number>(0)
+
+    const hasRegisteredApplications = newStudents.length > 0
+    const hasRegistrationRequestApplications = courseRegistrationRequests.length > 0
 
     const {
         courseFilesState,
@@ -145,6 +157,28 @@ const Course: React.FC = () => {
             newToken.value && ApiSingleton.authService.refreshToken(newToken.value.accessToken!)
             return
         }
+        
+        const isActualCourseMentor = course.mentors!.some(t => t.userId === userId);
+        
+        
+        let loadedCourseRegistrationRequests: RegistrationRequestDto[] = [];
+        let loadedCourseRegistrationRequestsError: string[] = [];
+
+        if (isActualCourseMentor) {
+            try {
+                const registrationRequestsResult =
+                    await ApiSingleton.registrationRequestsApi.registrationRequestsGetCourseRequests(+courseId!);
+
+                if (registrationRequestsResult.succeeded) {
+                    loadedCourseRegistrationRequests = registrationRequestsResult.value ?? [];
+                } else {
+                    loadedCourseRegistrationRequestsError =
+                        registrationRequestsResult.errors ?? ["Не удалось загрузить заявки на регистрацию"];
+                }
+            } catch {
+                loadedCourseRegistrationRequestsError = ["Сервис недоступен"];
+            }
+        }
 
         setCourseState(prevState => ({
             ...prevState,
@@ -156,12 +190,14 @@ const Course: React.FC = () => {
             groups: course.groups || [],
             acceptedStudents: course.acceptedStudents!,
             newStudents: course.newStudents!,
+            courseRegistrationRequests: loadedCourseRegistrationRequests,
+            courseRegistrationRequestsError: loadedCourseRegistrationRequestsError,
         }))
     }
 
     useEffect(() => {
         setCurrentState()
-    }, [])
+    }, [courseId])
 
     useEffect(() => {
         ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
@@ -358,7 +394,7 @@ const Course: React.FC = () => {
                             <Stack direction="row" spacing={1}>
                                 <div>Заявки</div>
                                 <Chip size={"small"} color={"default"}
-                                      label={newStudents.length}/>
+                                      label={newStudents.length + courseRegistrationRequests.length}/>
                             </Stack>}/>}
                     </Tabs>
                     {tabValue === "homeworks" && <CourseExperimental
@@ -421,12 +457,93 @@ const Course: React.FC = () => {
                             </Grid>
                         </Grid>}
                     {tabValue === "applications" && showApplicationsTab &&
-                        <NewCourseStudents
-                            onUpdate={() => setCurrentState()}
-                            course={courseState.course}
-                            students={courseState.newStudents}
-                            courseId={courseId!}
-                        />
+                        <Grid container direction="column" spacing={2}>
+                            {courseRegistrationRequestsError.length > 0 && (
+                                <Grid item>
+                                    <Alert severity="error">
+                                        <AlertTitle>Ошибка</AlertTitle>
+                                        {courseRegistrationRequestsError.join(", ")}
+                                    </Alert>
+                                </Grid>
+                            )}
+
+                            <Grid item>
+                                <Tabs
+                                    style={{marginBottom: 10}}
+                                    variant="scrollable"
+                                    scrollButtons={"auto"}
+                                    value={applicationsTabValue}
+                                    indicatorColor="primary"
+                                    onChange={(_, value) => {
+                                        setApplicationsTabValue(value);
+                                    }}
+                                >
+                                    <Tab
+                                        label={
+                                            <Stack direction="row" spacing={1} alignItems="center">
+                                                <div>Зарегистрированные</div>
+                                                <Chip
+                                                    size="small"
+                                                    color="default"
+                                                    label={newStudents.length}
+                                                />
+                                            </Stack>
+                                        }
+                                    />
+                                    <Tab
+                                        label={
+                                            <Stack direction="row" spacing={1} alignItems="center">
+                                                <div>Новые регистрации</div>
+                                                <Chip
+                                                    size="small"
+                                                    color="default"
+                                                    label={courseRegistrationRequests.length}
+                                                />
+                                            </Stack>
+                                        }
+                                    />
+                                </Tabs>
+                            </Grid>
+                            
+                            {applicationsTabValue === 0 && (
+                                <Grid item>
+                                    {hasRegisteredApplications ? (
+                                        <NewCourseStudents
+                                            onUpdate={() => setCurrentState()}
+                                            course={courseState.course}
+                                            students={courseState.newStudents}
+                                            courseId={courseId!}
+                                        />
+                                    ) : (
+                                        <Alert severity="info">
+                                            <AlertTitle>Нет новых заявок</AlertTitle>
+                                            Нет заявок от зарегистрированных пользователей.
+                                        </Alert>
+                                    )}
+                                </Grid>
+                            )}
+
+                            {applicationsTabValue === 1 && (
+                                <Grid item>
+                                    {courseRegistrationRequestsError.length > 0 ? (
+                                        <Alert severity="info">
+                                            <AlertTitle>Список недоступен</AlertTitle>
+                                            Заявки на регистрацию для вступления в курс сейчас не отображаются.
+                                        </Alert>
+                                    ) : hasRegistrationRequestApplications ? (
+                                        <CourseRegistrationRequests
+                                            requests={courseRegistrationRequests}
+                                            onUpdate={setCurrentState}
+                                        />
+                                    ) : (
+                                        <Alert severity="info">
+                                            <AlertTitle>Нет новых заявок</AlertTitle>
+                                            Нет заявок на регистрацию для вступления в курс.
+                                        </Alert>
+                                    )}
+                                </Grid>
+                            )}
+                        </Grid>
                     }
                 </Grid>
             </div>

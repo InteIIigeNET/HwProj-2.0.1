@@ -4,6 +4,7 @@ using HwProj.CoursesService.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HwProj.CoursesService.API.Migrations
 {
     [DbContext(typeof(CourseContext))]
-    partial class CourseContextModelSnapshot : ModelSnapshot
+    [Migration("20260510094007_RegistrationRequestsFlow")]
+    partial class RegistrationRequestsFlow
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -128,9 +131,6 @@ namespace HwProj.CoursesService.API.Migrations
                     b.Property<int>("MaxPoints")
                         .HasColumnType("int");
 
-                    b.Property<string>("Arguments")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -204,9 +204,6 @@ namespace HwProj.CoursesService.API.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("GroupId")
-                        .HasColumnType("bigint");
 
                     b.Property<bool>("HasDeadline")
                         .HasColumnType("bit");
@@ -470,13 +467,13 @@ namespace HwProj.CoursesService.API.Migrations
                     b.Property<long>("CourseId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Id")
+                    b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<long>("CourseFilterId")
                         .HasColumnType("bigint");
 
-                    b.HasKey("CourseId", "Id");
+                    b.HasKey("CourseId", "UserId");
 
                     b.HasIndex("CourseFilterId");
 

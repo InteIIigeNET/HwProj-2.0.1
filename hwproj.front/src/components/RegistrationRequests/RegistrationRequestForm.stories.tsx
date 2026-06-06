@@ -1,8 +1,8 @@
 import * as React from "react";
 import { storiesOf } from "@storybook/react";
-import Register from "./Register";
+import RegistrationRequestForm from "@/components/RegistrationRequests/RegistrationRequestForm";
 
 storiesOf("Register page", module)
   .add("simple", () =>
-    <Register/>
+    <RegistrationRequestForm/>
     );

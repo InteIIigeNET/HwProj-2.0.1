@@ -206,6 +206,120 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? Result.Success() : Result.Failed(response.ReasonPhrase);
         }
 
+        public async Task<Result> InitRegistrationRequest(InitRegistrationRequestViewModel model)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + "api/RegistrationRequests/init")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+            
+            var response = await _httpClient.SendAsync(httpRequest);
+            return response.StatusCode switch
+            {
+                HttpStatusCode.OK => await response.DeserializeAsync<Result>(),
+                _ => Result.Failed(response.ReasonPhrase),
+            };
+        }
+        
+        public async Task<Result<long>> ConfirmRegistrationRequest(ConfirmRegistrationRequestViewModel model)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + "api/RegistrationRequests/confirm")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+            
+            var response = await _httpClient.SendAsync(httpRequest);
+            return response.StatusCode switch
+            {
+                HttpStatusCode.OK => await response.DeserializeAsync<Result<long>>(),
+                _ => Result<long>.Failed(response.ReasonPhrase),
+            };
+        }
+        
+        public async Task<Result<RegistrationRequestDto[]>> GetCourseRegistrationRequests(long courseId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/RegistrationRequests/course/{courseId}");
+            
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            
+            return response.StatusCode switch
+            {
+                HttpStatusCode.OK => await response.DeserializeAsync<Result<RegistrationRequestDto[]>>(),
+                HttpStatusCode.Unauthorized => Result<RegistrationRequestDto[]>.Failed("Пользователь не авторизован"),
+                _ => Result<RegistrationRequestDto[]>.Failed(response.ReasonPhrase),
+            };
+        }
+
+        public async Task<Result<RegistrationRequestDto[]>> GetGeneralRegistrationRequests()
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + "api/RegistrationRequests/general");
+            
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            
+            return response.StatusCode switch
+            {
+                HttpStatusCode.OK => await response.DeserializeAsync<Result<RegistrationRequestDto[]>>(),
+                HttpStatusCode.Unauthorized => Result<RegistrationRequestDto[]>.Failed("Пользователь не авторизован"),
+                _ => Result<RegistrationRequestDto[]>.Failed(response.ReasonPhrase),
+            };
+        }
+
+        public async Task<Result<string>> ApproveRegistrationRequest(long requestId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/RegistrationRequests/{requestId}/approve");
+            
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            
+            return response.StatusCode switch
+            {
+                HttpStatusCode.OK => await response.DeserializeAsync<Result<string>>(),
+                HttpStatusCode.Unauthorized => Result<string>.Failed("Пользователь не авторизован"),
+                _ => Result<string>.Failed(response.ReasonPhrase),
+            };
+        }
+
+        public async Task<Result> RejectRegistrationRequest(long requestId, ReviewRegistrationRequestViewModel model)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/RegistrationRequests/{requestId}/reject")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+            
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            
+            return response.StatusCode switch
+            {
+                HttpStatusCode.OK => await response.DeserializeAsync<Result>(),
+                HttpStatusCode.Unauthorized => Result.Failed("Пользователь не авторизован"),
+                _ => Result.Failed(response.ReasonPhrase),
+            };
+        }
+
         public async Task<CourseDTO[]> GetAllUserCourses()
         {
             var role = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role).Value;

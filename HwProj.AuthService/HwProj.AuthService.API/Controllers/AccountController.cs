@@ -64,7 +64,25 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
         {
             var newModel = _mapper.Map<RegisterDataDTO>(model);
-            var result = await _accountService.RegisterUserAsync(newModel);
+            var result = await _accountService.RegisterStudentAsync(newModel);
+            return Ok(result);
+        }
+        
+        [HttpPost("registerStudent")]
+        [ProducesResponseType(typeof(Result<string>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> RegisterStudent([FromBody] RegisterViewModel model)
+        {
+            var newModel = _mapper.Map<RegisterDataDTO>(model);
+            var result = await _accountService.RegisterStudentAsync(newModel);
+            return Ok(result);
+        }
+        
+        [HttpPost("registerLecturer")]
+        [ProducesResponseType(typeof(Result<string>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> RegisterLecturer([FromBody] RegisterViewModel model)
+        {
+            var newModel = _mapper.Map<RegisterDataDTO>(model);
+            var result = await _accountService.RegisterLecturerAsync(newModel);
             return Ok(result);
         }
 
@@ -113,6 +131,11 @@ namespace HwProj.AuthService.API.Controllers
         public async Task<IActionResult> FindByEmail(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Ok(null);
+            }
+            
             var roles = await _userManager.GetRolesAsync(user);
             return Ok(user.ToAccountDataDto(roles.First()));
         }

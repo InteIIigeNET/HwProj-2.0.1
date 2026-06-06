@@ -302,6 +302,19 @@ export enum CategoryState {
 /**
  *
  * @export
+ * @interface ConfirmRegistrationRequestViewModel
+ */
+export interface ConfirmRegistrationRequestViewModel {
+    /**
+     *
+     * @type {string}
+     * @memberof ConfirmRegistrationRequestViewModel
+     */
+    token: string;
+}
+/**
+ *
+ * @export
  * @interface CourseAllData
  */
 export interface CourseAllData {
@@ -1438,6 +1451,86 @@ export interface HomeworksGroupUserTaskSolutions {
 /**
  *
  * @export
+ * @interface InitRegistrationRequestViewModel
+ */
+export interface InitRegistrationRequestViewModel {
+    /**
+     *
+     * @type {string}
+     * @memberof InitRegistrationRequestViewModel
+     */
+    email: string;
+    /**
+     *
+     * @type {string}
+     * @memberof InitRegistrationRequestViewModel
+     */
+    name: string;
+    /**
+     *
+     * @type {string}
+     * @memberof InitRegistrationRequestViewModel
+     */
+    surname: string;
+    /**
+     *
+     * @type {string}
+     * @memberof InitRegistrationRequestViewModel
+     */
+    middleName?: string;
+    /**
+     *
+     * @type {number}
+     * @memberof InitRegistrationRequestViewModel
+     */
+    courseId?: number;
+    /**
+     *
+     * @type {RequestedRole}
+     * @memberof InitRegistrationRequestViewModel
+     */
+    requestedRole?: RequestedRole;
+    /**
+     *
+     * @type {string}
+     * @memberof InitRegistrationRequestViewModel
+     */
+    description?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof InitRegistrationRequestViewModel
+     */
+    preferredLecturerEmail?: string;
+}
+/**
+ *
+ * @export
+ * @interface Int64Result
+ */
+export interface Int64Result {
+    /**
+     *
+     * @type {number}
+     * @memberof Int64Result
+     */
+    value?: number;
+    /**
+     *
+     * @type {boolean}
+     * @memberof Int64Result
+     */
+    succeeded?: boolean;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof Int64Result
+     */
+    errors?: Array<string>;
+}
+/**
+ *
+ * @export
  * @interface InviteExpertViewModel
  */
 export interface InviteExpertViewModel {
@@ -1735,6 +1828,15 @@ export interface PostTaskViewModel {
 /**
  *
  * @export
+ * @interface ProblemDetails
+ */
+export interface ProblemDetails {
+    [key: string]: any;
+
+}
+/**
+ *
+ * @export
  * @interface ProgramModel
  */
 export interface ProgramModel {
@@ -1841,33 +1943,130 @@ export interface RegisterExpertViewModel {
 /**
  *
  * @export
- * @interface RegisterViewModel
+ * @interface RegistrationRequestDto
  */
-export interface RegisterViewModel {
+export interface RegistrationRequestDto {
     /**
      *
-     * @type {string}
-     * @memberof RegisterViewModel
+     * @type {number}
+     * @memberof RegistrationRequestDto
      */
-    name: string;
+    id?: number;
     /**
      *
      * @type {string}
-     * @memberof RegisterViewModel
+     * @memberof RegistrationRequestDto
      */
-    surname: string;
+    description?: string;
     /**
      *
      * @type {string}
-     * @memberof RegisterViewModel
+     * @memberof RegistrationRequestDto
+     */
+    preferredLecturerEmail?: string;
+    /**
+     *
+     * @type {number}
+     * @memberof RegistrationRequestDto
+     */
+    courseId?: number;
+    /**
+     *
+     * @type {string}
+     * @memberof RegistrationRequestDto
+     */
+    requestedRole?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof RegistrationRequestDto
+     */
+    email?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof RegistrationRequestDto
+     */
+    name?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof RegistrationRequestDto
+     */
+    surname?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof RegistrationRequestDto
      */
     middleName?: string;
     /**
      *
      * @type {string}
-     * @memberof RegisterViewModel
+     * @memberof RegistrationRequestDto
      */
-    email: string;
+    status?: string;
+    /**
+     *
+     * @type {Date}
+     * @memberof RegistrationRequestDto
+     */
+    createdAtUtc?: Date;
+    /**
+     *
+     * @type {Date}
+     * @memberof RegistrationRequestDto
+     */
+    updatedAtUtc?: Date;
+    /**
+     *
+     * @type {Date}
+     * @memberof RegistrationRequestDto
+     */
+    reviewedAtUtc?: Date;
+    /**
+     *
+     * @type {string}
+     * @memberof RegistrationRequestDto
+     */
+    reviewedByUserId?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof RegistrationRequestDto
+     */
+    rejectReason?: string;
+    /**
+     *
+     * @type {string}
+     * @memberof RegistrationRequestDto
+     */
+    resolvedUserId?: string;
+}
+/**
+ *
+ * @export
+ * @interface RegistrationRequestDtoArrayResult
+ */
+export interface RegistrationRequestDtoArrayResult {
+    /**
+     *
+     * @type {Array<RegistrationRequestDto>}
+     * @memberof RegistrationRequestDtoArrayResult
+     */
+    value?: Array<RegistrationRequestDto>;
+    /**
+     *
+     * @type {boolean}
+     * @memberof RegistrationRequestDtoArrayResult
+     */
+    succeeded?: boolean;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof RegistrationRequestDtoArrayResult
+     */
+    errors?: Array<string>;
 }
 /**
  *
@@ -1881,6 +2080,15 @@ export interface RequestPasswordRecoveryViewModel {
      * @memberof RequestPasswordRecoveryViewModel
      */
     email: string;
+}
+/**
+ *
+ * @export
+ * @enum {string}
+ */
+export enum RequestedRole {
+    NUMBER_0 = <any> 0,
+    NUMBER_1 = <any> 1
 }
 /**
  *
@@ -1931,6 +2139,19 @@ export interface Result {
      * @memberof Result
      */
     errors?: Array<string>;
+}
+/**
+ *
+ * @export
+ * @interface ReviewRegistrationRequestViewModel
+ */
+export interface ReviewRegistrationRequestViewModel {
+    /**
+     *
+     * @type {string}
+     * @memberof ReviewRegistrationRequestViewModel
+     */
+    rejectReason?: string;
 }
 /**
  *
@@ -2322,6 +2543,31 @@ export interface StatisticsLecturersModel {
      * @memberof StatisticsLecturersModel
      */
     numberOfCheckedUniqueSolutions?: number;
+}
+/**
+ *
+ * @export
+ * @interface StringResult
+ */
+export interface StringResult {
+    /**
+     *
+     * @type {string}
+     * @memberof StringResult
+     */
+    value?: string;
+    /**
+     *
+     * @type {boolean}
+     * @memberof StringResult
+     */
+    succeeded?: boolean;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof StringResult
+     */
+    errors?: Array<string>;
 }
 /**
  *
@@ -3249,41 +3495,6 @@ export const AccountApiFetchParamCreator = function (configuration?: Configurati
         },
         /**
          *
-         * @param {RegisterViewModel} [body]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        accountRegister(body?: RegisterViewModel, options: any = {}): FetchArgs {
-            const localVarPath = `/api/Account/register`;
-            const localVarUrlObj = url.parse(localVarPath, true);
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication Bearer required
-            if (configuration && configuration.apiKey) {
-                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
-                    ? configuration.apiKey("Authorization")
-                    : configuration.apiKey;
-                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
-            }
-
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            localVarUrlObj.search = null;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            const needsSerialization = (<any>"RegisterViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         *
          * @param {RequestPasswordRecoveryViewModel} [body]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3522,24 +3733,6 @@ export const AccountApiFp = function(configuration?: Configuration) {
         },
         /**
          *
-         * @param {RegisterViewModel} [body]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        accountRegister(body?: RegisterViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
-            const localVarFetchArgs = AccountApiFetchParamCreator(configuration).accountRegister(body, options);
-            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
-                    if (response.status >= 200 && response.status < 300) {
-                        return response.json();
-                    } else {
-                        throw response;
-                    }
-                });
-            };
-        },
-        /**
-         *
          * @param {RequestPasswordRecoveryViewModel} [body]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3663,15 +3856,6 @@ export const AccountApiFactory = function (configuration?: Configuration, fetch?
         },
         /**
          *
-         * @param {RegisterViewModel} [body]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        accountRegister(body?: RegisterViewModel, options?: any) {
-            return AccountApiFp(configuration).accountRegister(body, options)(fetch, basePath);
-        },
-        /**
-         *
          * @param {RequestPasswordRecoveryViewModel} [body]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3792,17 +3976,6 @@ export class AccountApi extends BaseAPI {
      */
     public accountRefreshToken(options?: any) {
         return AccountApiFp(this.configuration).accountRefreshToken(options)(this.fetch, this.basePath);
-    }
-
-    /**
-     *
-     * @param {RegisterViewModel} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof AccountApi
-     */
-    public accountRegister(body?: RegisterViewModel, options?: any) {
-        return AccountApiFp(this.configuration).accountRegister(body, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -7695,6 +7868,482 @@ export class NotificationsApi extends BaseAPI {
      */
     public notificationsMarkAsSeen(body?: Array<number>, options?: any) {
         return NotificationsApiFp(this.configuration).notificationsMarkAsSeen(body, options)(this.fetch, this.basePath);
+    }
+
+}
+/**
+ * RegistrationRequestsApi - fetch parameter creator
+ * @export
+ */
+export const RegistrationRequestsApiFetchParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         *
+         * @param {number} requestId
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsApprove(requestId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'requestId' is not null or undefined
+            if (requestId === null || requestId === undefined) {
+                throw new RequiredError('requestId','Required parameter requestId was null or undefined when calling registrationRequestsApprove.');
+            }
+            const localVarPath = `/api/RegistrationRequests/{requestId}/approve`
+                .replace(`{${"requestId"}}`, encodeURIComponent(String(requestId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
+         * @param {ConfirmRegistrationRequestViewModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsConfirm(body?: ConfirmRegistrationRequestViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/RegistrationRequests/confirm`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"ConfirmRegistrationRequestViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
+         * @param {number} courseId
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsGetCourseRequests(courseId: number, options: any = {}): FetchArgs {
+            // verify required parameter 'courseId' is not null or undefined
+            if (courseId === null || courseId === undefined) {
+                throw new RequiredError('courseId','Required parameter courseId was null or undefined when calling registrationRequestsGetCourseRequests.');
+            }
+            const localVarPath = `/api/RegistrationRequests/course/{courseId}`
+                .replace(`{${"courseId"}}`, encodeURIComponent(String(courseId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsGetGeneralRequests(options: any = {}): FetchArgs {
+            const localVarPath = `/api/RegistrationRequests/general`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
+         * @param {InitRegistrationRequestViewModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsInit(body?: InitRegistrationRequestViewModel, options: any = {}): FetchArgs {
+            const localVarPath = `/api/RegistrationRequests/init`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"InitRegistrationRequestViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         *
+         * @param {number} requestId
+         * @param {ReviewRegistrationRequestViewModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsReject(requestId: number, body?: ReviewRegistrationRequestViewModel, options: any = {}): FetchArgs {
+            // verify required parameter 'requestId' is not null or undefined
+            if (requestId === null || requestId === undefined) {
+                throw new RequiredError('requestId','Required parameter requestId was null or undefined when calling registrationRequestsReject.');
+            }
+            const localVarPath = `/api/RegistrationRequests/{requestId}/reject`
+                .replace(`{${"requestId"}}`, encodeURIComponent(String(requestId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"ReviewRegistrationRequestViewModel" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(body || {}) : (body || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * RegistrationRequestsApi - functional programming interface
+ * @export
+ */
+export const RegistrationRequestsApiFp = function(configuration?: Configuration) {
+    return {
+        /**
+         *
+         * @param {number} requestId
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsApprove(requestId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<StringResult> {
+            const localVarFetchArgs = RegistrationRequestsApiFetchParamCreator(configuration).registrationRequestsApprove(requestId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
+         * @param {ConfirmRegistrationRequestViewModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsConfirm(body?: ConfirmRegistrationRequestViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Int64Result> {
+            const localVarFetchArgs = RegistrationRequestsApiFetchParamCreator(configuration).registrationRequestsConfirm(body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
+         * @param {number} courseId
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsGetCourseRequests(courseId: number, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<RegistrationRequestDtoArrayResult> {
+            const localVarFetchArgs = RegistrationRequestsApiFetchParamCreator(configuration).registrationRequestsGetCourseRequests(courseId, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsGetGeneralRequests(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<RegistrationRequestDtoArrayResult> {
+            const localVarFetchArgs = RegistrationRequestsApiFetchParamCreator(configuration).registrationRequestsGetGeneralRequests(options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
+         * @param {InitRegistrationRequestViewModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsInit(body?: InitRegistrationRequestViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+            const localVarFetchArgs = RegistrationRequestsApiFetchParamCreator(configuration).registrationRequestsInit(body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         *
+         * @param {number} requestId
+         * @param {ReviewRegistrationRequestViewModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsReject(requestId: number, body?: ReviewRegistrationRequestViewModel, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+            const localVarFetchArgs = RegistrationRequestsApiFetchParamCreator(configuration).registrationRequestsReject(requestId, body, options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+    }
+};
+
+/**
+ * RegistrationRequestsApi - factory interface
+ * @export
+ */
+export const RegistrationRequestsApiFactory = function (configuration?: Configuration, fetch?: FetchAPI, basePath?: string) {
+    return {
+        /**
+         *
+         * @param {number} requestId
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsApprove(requestId: number, options?: any) {
+            return RegistrationRequestsApiFp(configuration).registrationRequestsApprove(requestId, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {ConfirmRegistrationRequestViewModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsConfirm(body?: ConfirmRegistrationRequestViewModel, options?: any) {
+            return RegistrationRequestsApiFp(configuration).registrationRequestsConfirm(body, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {number} courseId
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsGetCourseRequests(courseId: number, options?: any) {
+            return RegistrationRequestsApiFp(configuration).registrationRequestsGetCourseRequests(courseId, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsGetGeneralRequests(options?: any) {
+            return RegistrationRequestsApiFp(configuration).registrationRequestsGetGeneralRequests(options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {InitRegistrationRequestViewModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsInit(body?: InitRegistrationRequestViewModel, options?: any) {
+            return RegistrationRequestsApiFp(configuration).registrationRequestsInit(body, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {number} requestId
+         * @param {ReviewRegistrationRequestViewModel} [body]
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        registrationRequestsReject(requestId: number, body?: ReviewRegistrationRequestViewModel, options?: any) {
+            return RegistrationRequestsApiFp(configuration).registrationRequestsReject(requestId, body, options)(fetch, basePath);
+        },
+    };
+};
+
+/**
+ * RegistrationRequestsApi - object-oriented interface
+ * @export
+ * @class RegistrationRequestsApi
+ * @extends {BaseAPI}
+ */
+export class RegistrationRequestsApi extends BaseAPI {
+    /**
+     *
+     * @param {number} requestId
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof RegistrationRequestsApi
+     */
+    public registrationRequestsApprove(requestId: number, options?: any) {
+        return RegistrationRequestsApiFp(this.configuration).registrationRequestsApprove(requestId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {ConfirmRegistrationRequestViewModel} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof RegistrationRequestsApi
+     */
+    public registrationRequestsConfirm(body?: ConfirmRegistrationRequestViewModel, options?: any) {
+        return RegistrationRequestsApiFp(this.configuration).registrationRequestsConfirm(body, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {number} courseId
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof RegistrationRequestsApi
+     */
+    public registrationRequestsGetCourseRequests(courseId: number, options?: any) {
+        return RegistrationRequestsApiFp(this.configuration).registrationRequestsGetCourseRequests(courseId, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof RegistrationRequestsApi
+     */
+    public registrationRequestsGetGeneralRequests(options?: any) {
+        return RegistrationRequestsApiFp(this.configuration).registrationRequestsGetGeneralRequests(options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {InitRegistrationRequestViewModel} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof RegistrationRequestsApi
+     */
+    public registrationRequestsInit(body?: InitRegistrationRequestViewModel, options?: any) {
+        return RegistrationRequestsApiFp(this.configuration).registrationRequestsInit(body, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {number} requestId
+     * @param {ReviewRegistrationRequestViewModel} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof RegistrationRequestsApi
+     */
+    public registrationRequestsReject(requestId: number, body?: ReviewRegistrationRequestViewModel, options?: any) {
+        return RegistrationRequestsApiFp(this.configuration).registrationRequestsReject(requestId, body, options)(this.fetch, this.basePath);
     }
 
 }

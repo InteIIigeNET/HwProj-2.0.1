@@ -91,17 +91,24 @@ namespace HwProj.AuthService.API.Services
             return await GetAccountDataAsync(user);
         }
 
-        public async Task<Result<string>> RegisterUserAsync(RegisterDataDTO model)
+        public async Task<Result<string>> RegisterStudentAsync(RegisterDataDTO model)
         {
-            model.Email = model.Email.Trim();
-            model.Name = model.Name.Trim();
-            model.Surname = model.Surname.Trim();
-            model.MiddleName = model.MiddleName.Trim();
+            NormalizeRegisterDataDTO(model);
 
             if (await _userManager.FindByEmailAsync(model.Email) != null)
                 return Result<string>.Failed("Пользователь уже зарегистрирован");
 
-            return await RegisterUserAsyncInternal(model);
+            return await RegisterUserAsyncInternal(model, Roles.StudentRole);
+        }
+        
+        public async Task<Result<string>> RegisterLecturerAsync(RegisterDataDTO model)
+        {
+            NormalizeRegisterDataDTO(model);
+
+            if (await _userManager.FindByEmailAsync(model.Email) != null)
+                return Result<string>.Failed("Пользователь уже зарегистрирован");
+
+            return await RegisterUserAsyncInternal(model, Roles.LecturerRole);
         }
 
         public async Task<Result<string>[]> GetOrRegisterStudentsBatchAsync(IEnumerable<RegisterDataDTO> models)
@@ -116,7 +123,7 @@ namespace HwProj.AuthService.API.Services
                     continue;
                 }
 
-                var result = await RegisterUserAsyncInternal(model);
+                var result = await RegisterUserAsyncInternal(model, Roles.StudentRole);
                 results.Add(result);
             }
 
@@ -166,7 +173,7 @@ namespace HwProj.AuthService.API.Services
                 : await GetToken(user);
         }
 
-        private async Task<Result<string>> RegisterUserAsyncInternal(RegisterDataDTO model)
+        private async Task<Result<string>> RegisterUserAsyncInternal(RegisterDataDTO model, string role)
         {
             var user = _mapper.Map<User>(model);
             user.UserName = user.Email;
@@ -176,13 +183,13 @@ namespace HwProj.AuthService.API.Services
                 : _userManager.CreateAsync(user, Guid.NewGuid().ToString());
 
             var result = await createUserTask
-                .Then(() => _userManager.AddToRoleAsync(user, Roles.StudentRole));
+                .Then(() => _userManager.AddToRoleAsync(user, role));
 
             if (result.Succeeded)
             {
                 var newUser = await _userManager.FindByEmailAsync(model.Email);
                 var changePasswordToken = await _aspUserManager.GeneratePasswordResetTokenAsync(user);
-                var registerEvent = new StudentRegisterEvent(newUser.Id, newUser.Email, newUser.Name,
+                var registerEvent = new AuthRegisterEvent(newUser.Id, newUser.Email, newUser.Name,
                     newUser.Surname, newUser.MiddleName)
                 {
                     ChangePasswordToken = changePasswordToken
@@ -376,6 +383,14 @@ namespace HwProj.AuthService.API.Services
         private async Task<Result<TokenCredentials>> GetToken(User user)
         {
             return Result<TokenCredentials>.Success(await _tokenService.GetTokenAsync(user).ConfigureAwait(false));
+        }
+
+        private void NormalizeRegisterDataDTO(RegisterDataDTO model)
+        {
+            model.Email = model.Email.Trim();
+            model.Name = model.Name.Trim();
+            model.Surname = model.Surname.Trim();
+            model.MiddleName = model.MiddleName.Trim();
         }
     }
 }

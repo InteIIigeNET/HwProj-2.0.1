@@ -18,6 +18,8 @@ namespace HwProj.CoursesService.API.Models
         public DbSet<UserToCourseFilter> UserToCourseFilters { get; set; }
         public DbSet<TaskQuestion> Questions { get; set; }
         public DbSet<Criterion> Criteria { get; set; }
+        public DbSet<RegistrationRequest> RegistrationRequests { get; set; }
+        public DbSet<RegistrationRequestDraft> RegistrationRequestDrafts { get; set; }
 
         public CourseContext(DbContextOptions options)
             : base(options)
@@ -30,6 +32,23 @@ namespace HwProj.CoursesService.API.Models
             modelBuilder.Entity<Assignment>().HasIndex(a => a.CourseId);
             modelBuilder.Entity<UserToCourseFilter>().HasKey(u => new { u.CourseId, u.Id });
             modelBuilder.Entity<TaskQuestion>().HasIndex(t => t.TaskId);
+            
+            modelBuilder.Entity<RegistrationRequest>()
+                .HasIndex(r => new { r.CourseId, r.Status });
+            modelBuilder.Entity<RegistrationRequest>()
+                .HasIndex(r => r.Email);
+            modelBuilder.Entity<RegistrationRequest>()
+                .HasIndex(r =>  r.Email)
+                .HasFilter($"[{nameof(RegistrationRequest.Status)}] = {(int)RegistrationRequestStatus.Pending}")
+                .IsUnique();
+            
+            modelBuilder.Entity<RegistrationRequestDraft>()
+                .HasIndex(r => r.Email)
+                .HasFilter($"[{nameof(RegistrationRequestDraft.IsConfirmed)}] = 0")
+                .IsUnique();
+            modelBuilder.Entity<RegistrationRequestDraft>()
+                .HasIndex(r => r.ConfirmationToken)
+                .IsUnique();
         }
     }
 }

@@ -35,7 +35,7 @@ namespace HwProj.NotificationsService.API
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
             services.AddScoped<INotificationSettingsService, NotificationSettingsService>();
             services.AddEventBus(Configuration);
-            services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
+            services.AddTransient<IEventHandler<AuthRegisterEvent>, RegisterEventHandler>();
             services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();
             services.AddTransient<IEventHandler<StudentPassTaskEvent>, StudentPassTaskEventHandler>();
             services.AddTransient<IEventHandler<UpdateHomeworkEvent>, UpdateHomeworkEventHandler>();
@@ -48,6 +48,9 @@ namespace HwProj.NotificationsService.API
             services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
             services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
             services.AddTransient<IEventHandler<PasswordRecoveryEvent>, PasswordRecoveryEventHandler>();
+            services.AddTransient<IEventHandler<RegistrationRequestConfirmationEvent>, RegistrationRequestConfirmationEventHandler>();
+            services.AddTransient<IEventHandler<RegistrationRequestRejectedEvent>, RegistrationRequestRejectedEventHandler>();
+            services.AddTransient<IEventHandler<RegistrationRequestCreatedEvent>, RegistrationRequestCreatedEventHandler>();
             services.AddSingleton<IEmailService, EmailService>();
 
             services.AddHttpClient();
@@ -67,7 +70,7 @@ namespace HwProj.NotificationsService.API
         {
             using (var eventBustSubscriber = eventBus.CreateSubscriber())
             {
-                eventBustSubscriber.Subscribe<StudentRegisterEvent, RegisterEventHandler>();
+                eventBustSubscriber.Subscribe<AuthRegisterEvent, RegisterEventHandler>();
                 eventBustSubscriber.Subscribe<RateEvent, RateEventHandler>();
                 eventBustSubscriber.Subscribe<StudentPassTaskEvent, StudentPassTaskEventHandler>();
                 eventBustSubscriber.Subscribe<UpdateHomeworkEvent, UpdateHomeworkEventHandler>();
@@ -80,6 +83,9 @@ namespace HwProj.NotificationsService.API
                 eventBustSubscriber.Subscribe<InviteLecturerEvent, InviteLecturerEventHandler>();
                 eventBustSubscriber.Subscribe<NewCourseMateEvent, NewCourseMateHandler>();
                 eventBustSubscriber.Subscribe<PasswordRecoveryEvent, PasswordRecoveryEventHandler>();
+                eventBustSubscriber.Subscribe<RegistrationRequestConfirmationEvent, RegistrationRequestConfirmationEventHandler>();
+                eventBustSubscriber.Subscribe<RegistrationRequestRejectedEvent, RegistrationRequestRejectedEventHandler>();
+                eventBustSubscriber.Subscribe<RegistrationRequestCreatedEvent, RegistrationRequestCreatedEventHandler>();
             }
 
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();

@@ -44,7 +44,10 @@ namespace HwProj.CoursesService.API
             services.AddScoped<ITaskQuestionsService, TaskQuestionsService>();
             services.AddScoped<ICourseFilterService, CourseFilterService>();
             services.AddScoped<CourseMentorOnlyAttribute>();
-
+            services.AddScoped<IRegistrationRequestsRepository, RegistrationRequestsRepository>();
+            services.AddScoped<IRegistrationRequestDraftsRepository, RegistrationRequestDraftsRepository>();
+            services.AddScoped<IRegistrationRequestsService, RegistrationRequestsService>();
+            
             services.AddEventBus(Configuration);
 
             services.AddHttpClient();

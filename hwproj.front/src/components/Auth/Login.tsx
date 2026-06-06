@@ -9,11 +9,11 @@ import {LoginViewModel} from "@/api"
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import ValidationUtils from "../Utils/ValidationUtils";
-import {Alert, Card, CardContent, Stack} from "@mui/material";
-import {DotLottieReact} from "@lottiefiles/dotlottie-react";
+import {Alert, Avatar, Card, CardContent, Stack} from "@mui/material";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 
 interface LoginProps {
-    onLogin: (returnUrl: string | null) => void;
+    onLogin(returnUrl: string | null): void;
 }
 
 interface ILoginState {
@@ -46,6 +46,22 @@ const useStyles = makeStyles((theme) => ({
 const Login: FC<LoginProps> = (props) => {
     const [searchParams] = useSearchParams()
     const returnUrl = searchParams.get("returnUrl")
+
+    const getCourseIdFromReturnUrl = (url: string | null) => {
+        if (!url) return undefined;
+
+        const match = url.match(/^\/courses\/(\d+)(?:\/|$)/);
+        if (!match) return undefined;
+
+        const parsed = Number(match[1]);
+        return Number.isNaN(parsed) ? undefined : parsed;
+    };
+
+    const courseIdFromReturnUrl = getCourseIdFromReturnUrl(returnUrl);
+    const isCourseBoundEntry = courseIdFromReturnUrl !== undefined;
+    const registerLink = isCourseBoundEntry
+        ? `/register?courseId=${courseIdFromReturnUrl}`
+        : "/register";
     const classes = useStyles()
     const [loginState, setLoginState] = useState<ILoginState>({
         email: '',
@@ -84,7 +100,7 @@ const Login: FC<LoginProps> = (props) => {
                     isLogin: result.isLogin,
                 }))
             }
-        } catch (e) {
+        } catch {
             setLoginState(prevState => ({
                 ...prevState,
                 error: ['Сервис недоступен'],
@@ -94,7 +110,6 @@ const Login: FC<LoginProps> = (props) => {
     }
 
     const handleChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.persist()
         setLoginState((prevState) => ({
             ...prevState,
             email: e.target.value
@@ -104,7 +119,6 @@ const Login: FC<LoginProps> = (props) => {
     }
 
     const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.persist()
         setLoginState((prevState) => ({
             ...prevState,
             password: e.target.value
@@ -114,7 +128,7 @@ const Login: FC<LoginProps> = (props) => {
     const headerStyles: React.CSSProperties = {marginRight: "9.5rem"};
 
     if (loginState.isLogin) {
-        return <Navigate to={"/"}/>;
+        return <Navigate to={returnUrl || "/"}/>;
     }
 
     if (loginState.error) {
@@ -123,10 +137,11 @@ const Login: FC<LoginProps> = (props) => {
 
     return (
         <Container component="main" maxWidth="xs">
-            <DotLottieReact
-                src="https://lottie.host/919997f6-e82f-4995-b17d-bb3dad2376be/jDvgCK2W1q.lottie"
-                autoplay
-            />
+            <Grid container justifyContent="center" style={{marginBottom: 16}}>
+                <Avatar className={classes.avatar} style={{color: "white", backgroundColor: "#ba2e2e"}}>
+                    <LockOutlinedIcon/>
+                </Avatar>
+            </Grid>
             <Card raised sx={{borderRadius: '16px'}}>
                 <CardContent>
                     <Grid container direction="column" spacing={1} alignItems={"center"}>
@@ -139,6 +154,13 @@ const Login: FC<LoginProps> = (props) => {
                             {loginState.error}
                         </Alert></Grid>}
                     </Grid>
+                    {isCourseBoundEntry && (
+                        <Grid item>
+                            <Alert severity="info">
+                                Для доступа к курсу сначала войдите в систему или подайте заявку на регистрацию.
+                            </Alert>
+                        </Grid>
+                    )}
                     <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
                         <Grid container direction="column" justifyContent="center">
                             <Grid item>
@@ -149,7 +171,7 @@ const Login: FC<LoginProps> = (props) => {
                                     label="Электронная почта"
                                     variant="outlined"
                                     margin="normal"
-                                    name={loginState.email}
+                                    value={loginState.email}
                                     onChange={handleChangeEmail}
                                     error={emailError !== ""}
                                     helperText={emailError}
@@ -166,7 +188,7 @@ const Login: FC<LoginProps> = (props) => {
                                     value={loginState.password}
                                     onChange={handleChangePassword}
                                 />
-                                <Link to="/recovery" state={{email: loginState.email}}>
+                                <Link to="/recovery" state={{email: loginState.email, returnUrl}}>
                                     <Typography variant={"caption"}>
                                         Забыли пароль?
                                     </Typography>
@@ -189,11 +211,11 @@ const Login: FC<LoginProps> = (props) => {
                            style={{paddingTop: 15}}
                            spacing={1}>
                         <Typography variant={"body2"}>
-                            Впервые тут?
+                            {isCourseBoundEntry ? "Нет аккаунта?" : "Впервые тут?"}
                         </Typography>
-                        <Link to="/register">
+                        <Link to={registerLink}>
                             <Typography variant={"body2"}>
-                                Регистрация
+                                {isCourseBoundEntry ? "Подать заявку на вступление" : "Регистрация"}
                             </Typography>
                         </Link>
                     </Stack>

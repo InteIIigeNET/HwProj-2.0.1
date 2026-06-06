@@ -12,7 +12,6 @@ import TaskSolutionsPage from "./components/Solutions/TaskSolutionsPage";
 import {AppBarContextAction, appBarStateManager, Header} from "./components/AppBar";
 import Login from "./components/Auth/Login";
 import EditCourse from "./components/Courses/EditCourse";
-import Register from "./components/Auth/Register";
 import ExpertsNotebook from "./components/Experts/Notebook";
 import StudentSolutionsPage from "./components/Solutions/StudentSolutionsPage";
 import EditProfile from "./components/EditProfile";
@@ -24,6 +23,9 @@ import PasswordRecovery from "components/Auth/PasswordRecovery";
 import AuthLayout from "./AuthLayout";
 import ExpertAuthLayout from "./components/Experts/AuthLayout";
 import TrackPageChanges from "TrackPageChanges";
+import RegistrationRequestForm from "@/components/RegistrationRequests/RegistrationRequestForm";
+import RegistrationRequestConfirm from "./components/RegistrationRequests/RegistrationRequestConfirm";
+import GeneralRegistrationRequests from "./components/RegistrationRequests/GeneralRegistrationRequests";
 
 // TODO: add flux
 
@@ -119,13 +121,15 @@ class App extends Component<{ navigate: any }, AppState> {
                         <Route path="courses/:courseId/editInfo" element={<EditCourse/>}/>
                         <Route path="task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
                         <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
+                        <Route path="registrationRequests/general" element={<GeneralRegistrationRequests/>}/>
                     </Route>
                     <Route path="statistics/:courseId/charts" element={<StudentStatsChart/>}/>
                     <Route path="status" element={<SystemInfoComponent/>}/>
                     <Route path="login" element={<Login onLogin={this.login}/>}/>
-                    <Route path="register" element={<Register/>}/>
+                    <Route path="register" element={<RegistrationRequestForm/>}/>
                     <Route path="recovery" element={<PasswordRecovery/>}/>
                     <Route path="resetPassword" element={<ResetPassword/>}/>
+                    <Route path="registrationRequests/confirm" element={<RegistrationRequestConfirm/>}/>
                     <Route path="join/:token" element={<ExpertAuthLayout onLogin={this.login}/>}/>
                     <Route path={"*"} element={<WrongPath/>}/>
                 </Routes>
