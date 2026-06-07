@@ -8,6 +8,7 @@ import Menu from '@material-ui/core/Menu';
 import InviteLecturerModal from "./InviteLecturerModal";
 import MailIcon from '@mui/icons-material/Mail';
 import {Button} from "@mui/material";
+import {useLocation, useNavigate} from "react-router-dom";
 
 const styles = makeStyles(theme => ({
     tools: {
@@ -85,6 +86,8 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
 
     const isLecturer = props.isLecturer
     const isExpert = props.isExpert
+    const location = useLocation()
+    const navigate = useNavigate()
 
     return (
         <AppBar position={"sticky"} style={{
@@ -129,6 +132,27 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                         </Grid>
                     }
                 </Grid>
+                {location.pathname === "/welcome" && !props.loggedIn && (
+                    <div
+                        style={{
+                            marginLeft: "auto",
+                            display: "flex",
+                            alignItems: "center",
+                        }}
+                    >
+                        <Button
+                            color="inherit"
+                            component={Link}
+                            to="/login"
+                            style={{ marginRight: 8 }}
+                        >
+                            Вход
+                        </Button>
+                        <Button color="inherit" component={Link} to="/register">
+                            Регистрация
+                        </Button>
+                    </div>
+                )}
                 {props.loggedIn && isLecturer && <div>
                     <IconButton
                         edge="start"
