@@ -128,7 +128,7 @@ class App extends Component<{ navigate: any }, AppState> {
                     <Route path="recovery" element={<PasswordRecovery/>}/>
                     <Route path="resetPassword" element={<ResetPassword/>}/>
                     <Route path="join/:token" element={<ExpertAuthLayout onLogin={this.login}/>}/>
-                    <Route path="/promo" element={<PromoPage/>}/>
+                    <Route path="/welcome" element={<PromoPage/>}/>
                     <Route path={"*"} element={<WrongPath/>}/>
                 </Routes>
                 <div style={{marginBottom: 10}}/>

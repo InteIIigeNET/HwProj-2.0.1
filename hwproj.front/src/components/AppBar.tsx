@@ -132,7 +132,7 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                         </Grid>
                     }
                 </Grid>
-                {location.pathname === "/promo" && !props.loggedIn && (
+                {location.pathname === "/welcome" && !props.loggedIn && (
                     <div
                         style={{
                             marginLeft: "auto",
