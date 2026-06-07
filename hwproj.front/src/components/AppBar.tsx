@@ -144,11 +144,13 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             color="inherit"
                             component={Link}
                             to="/login"
-                            style={{ marginRight: 8 }}
+                            sx={{"&:hover": {color: "white"}}}
                         >
                             Вход
                         </Button>
-                        <Button color="inherit" component={Link} to="/register">
+                        <Button color="inherit" component={Link}
+                                sx={{"&:hover": {color: "white"}}}
+                                to="/register">
                             Регистрация
                         </Button>
                     </div>

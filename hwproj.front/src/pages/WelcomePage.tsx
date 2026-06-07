@@ -21,7 +21,7 @@ import {
   Paper,
 } from "@mui/material";
 
-const PromoPage: React.FC = () => {
+const WelcomePage: React.FC = () => {
   const [userType, setUserType] = useState<"student" | "lecturer" | "expert">(
     "student",
   );
@@ -115,7 +115,7 @@ const PromoPage: React.FC = () => {
       <Box
         sx={{
           bgcolor: "#e3f2fd",
-          py: { xs: 8, md: 8 },
+          py: { xs: 4, md: 4 },
           textAlign: "center",
         }}
       >
@@ -136,7 +136,7 @@ const PromoPage: React.FC = () => {
             variant="h5"
             color="text.secondary"
             paragraph
-            sx={{ mb: 4, fontSize: { xs: "1rem", md: "1.5rem" } }}
+            sx={{ fontSize: { xs: "1rem", md: "1.5rem" } }}
           >
             Веб-сервис, который помогает автоматизировать учебный процесс и
             упростить взаимодействие между студентами, преподавателями и
@@ -181,9 +181,15 @@ const PromoPage: React.FC = () => {
                   },
                 }}
               >
-                <ToggleButton value="student">Студентам</ToggleButton>
-                <ToggleButton value="lecturer">Преподавателям</ToggleButton>
-                <ToggleButton value="expert">Экспертам</ToggleButton>
+                <ToggleButton 
+                    sx={{ fontSize: "1.1rem", textTransform: "none"}}
+                    value="student">Студентам</ToggleButton>
+                <ToggleButton
+                    sx={{ fontSize: "1.1rem", textTransform: "none"}}
+                    value="lecturer">Преподавателям</ToggleButton>
+                <ToggleButton
+                    sx={{ fontSize: "1.1rem", textTransform: "none"}}
+                    value="expert">Экспертам</ToggleButton>
               </ToggleButtonGroup>
             </Box>
           </Grid>
@@ -316,7 +322,7 @@ const PromoPage: React.FC = () => {
               fontSize: "1.1rem",
               textTransform: "none",
               borderRadius: "8px",
-              "&:hover": { bgcolor: "#1565c0" },
+              "&:hover": { bgcolor: "#3f51b5", color: "white" },
             }}
           >
             Присоединиться
@@ -327,4 +333,4 @@ const PromoPage: React.FC = () => {
   );
 };
 
-export default PromoPage;
+export default WelcomePage;

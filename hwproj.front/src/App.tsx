@@ -24,7 +24,7 @@ import PasswordRecovery from "components/Auth/PasswordRecovery";
 import AuthLayout from "./AuthLayout";
 import ExpertAuthLayout from "./components/Experts/AuthLayout";
 import TrackPageChanges from "TrackPageChanges";
-import PromoPage from "./pages/PromoPage";
+import WelcomePage from "./pages/WelcomePage";
 
 // TODO: add flux
 
@@ -128,7 +128,7 @@ class App extends Component<{ navigate: any }, AppState> {
                     <Route path="recovery" element={<PasswordRecovery/>}/>
                     <Route path="resetPassword" element={<ResetPassword/>}/>
                     <Route path="join/:token" element={<ExpertAuthLayout onLogin={this.login}/>}/>
-                    <Route path="/welcome" element={<PromoPage/>}/>
+                    <Route path="/welcome" element={<WelcomePage/>}/>
                     <Route path={"*"} element={<WrongPath/>}/>
                 </Routes>
                 <div style={{marginBottom: 10}}/>
