@@ -32,9 +32,11 @@ export type AppBarContextAction = { actionName: string, link: string } | null | 
 
 class AppBarStateManager {
     private _handler: ((state: AppBarContextAction) => void) | undefined = undefined
+
     public setOnContextActionChange(handler: (state: AppBarContextAction) => void) {
         this._handler = handler;
     }
+
     public setContextAction(action: AppBarContextAction) {
         this._handler!(action)
     }
@@ -46,6 +48,7 @@ class AppBarStateManager {
 
 let appBarStateManager = new AppBarStateManager()
 export {appBarStateManager}
+
 
 interface AppBarProps {
     loggedIn: boolean;
