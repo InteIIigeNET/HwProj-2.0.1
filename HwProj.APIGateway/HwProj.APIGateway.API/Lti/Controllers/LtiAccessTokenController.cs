@@ -49,7 +49,7 @@ public class LtiAccessTokenController(
 
         var unverifiedToken = handler.ReadJwtToken(clientAssertion);
 
-        var clientId = unverifiedToken.Subject;
+        var clientId = unverifiedToken.Issuer;
 
         var tool = toolService.GetByClientId(clientId);
         if (tool == null)
@@ -66,7 +66,7 @@ public class LtiAccessTokenController(
             handler.ValidateToken(clientAssertion, new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = unverifiedToken.Issuer,
+                ValidIssuer = tool.ClientId,
 
                 ValidateAudience = true,
                 ValidAudience = tokenEndpointUrl,
