@@ -36,7 +36,7 @@ public class MockToolController(IHttpClientFactory httpClientFactory) : Controll
     static MockToolController()
     {
         var rsa = RSA.Create(2048);
-        var keyId = "mock-tool-key-id";
+        const string keyId = "mock-tool-key-id";
         SigningKey = new RsaSecurityKey(rsa) { KeyId = keyId };
     }
 
@@ -172,8 +172,7 @@ public class MockToolController(IHttpClientFactory httpClientFactory) : Controll
 
         var payload = new JwtPayload
         {
-            { "iss", ToolIss },
-            { "sub", ToolNameId },
+            { "iss", ToolNameId },
             { "aud", platformIssuer },
             { "iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds() },
             { "exp", DateTimeOffset.UtcNow.AddMinutes(5).ToUnixTimeSeconds() },
@@ -333,8 +332,7 @@ public class MockToolController(IHttpClientFactory httpClientFactory) : Controll
     private static string CreateClientAssertion(string platformIssuer)
     {
         var claims = new List<Claim> {
-            new(JwtRegisteredClaimNames.Iss, ToolIss),
-            new(JwtRegisteredClaimNames.Sub, ToolNameId),
+            new(JwtRegisteredClaimNames.Iss, ToolNameId),
             new(JwtRegisteredClaimNames.Aud, $"{platformIssuer}/api/lti/token"),
             new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
             new(JwtRegisteredClaimNames.Exp, DateTimeOffset.UtcNow.AddMinutes(5).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),

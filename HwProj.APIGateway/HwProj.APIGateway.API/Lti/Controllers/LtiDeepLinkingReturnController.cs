@@ -42,7 +42,7 @@ public class LtiDeepLinkingReturnController(
         }
 
         var unverifiedToken = Handler.ReadJwtToken(tokenString);
-        var clientId = unverifiedToken.Subject;
+        var clientId = unverifiedToken.Issuer;
 
         var tool = toolService.GetByClientId(clientId);
         if (tool == null)
@@ -58,7 +58,7 @@ public class LtiDeepLinkingReturnController(
             Handler.ValidateToken(tokenString, new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = tool.issuer,
+                ValidIssuer = tool.ClientId,
                 ValidateAudience = true,
                 ValidAudience = ltiPlatformOptions.Value.Issuer,
                 ValidateLifetime = true,
