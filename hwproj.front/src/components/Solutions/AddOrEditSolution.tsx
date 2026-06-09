@@ -90,7 +90,7 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
                                 e.persist()
                                 setSolution((prevState) => ({
                                     ...prevState,
-                                    githubUrl: e.target.value,
+                                    githubUrl: e.target.value?.trim(),
                                 }))
                             }}
                         />
