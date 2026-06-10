@@ -7,27 +7,43 @@ interface IRegistrationRequestCardProps {
     request: RegistrationRequestDto;
     isProcessing?: boolean;
     isPreferredForCurrentLecturer?: boolean;
+    isNewRegistration?: boolean;
     onApprove: (requestId: number) => void;
     onReject: (request: RegistrationRequestDto) => void;
 }
 
 const RegistrationRequestCard: FC<IRegistrationRequestCardProps> = (props) => {
-    const {request, isProcessing, isPreferredForCurrentLecturer, onApprove, onReject} = props;
+    const {
+        request,
+        isProcessing,
+        isPreferredForCurrentLecturer,
+        isNewRegistration,
+        onApprove,
+        onReject,
+    } = props;
 
     return (
-        <Grid item xs={12} md={6}>
-            <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
-                <CardContent>
+        <Grid item xs={12} md={6} style={{display: "flex"}}>
+            <Card variant="elevation" 
+                  style={{
+                      backgroundColor: "ghostwhite",
+                      width: "100%",
+                      display: "flex",
+                      flexDirection: "column"
+                  }}>
+                <CardContent style={{flexGrow: 1}}>
                     <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
                         <Typography variant="h6" component="div">
                             {request.surname} {request.name}
                         </Typography>
 
-                        <Chip
-                            size="small"
-                            color="default"
-                            label={request.requestedRole === "Lecturer" ? "Преподаватель" : "Студент"}
-                        />
+                        {isNewRegistration && (
+                            <Chip
+                                size="small"
+                                color="info"
+                                label="Новая регистрация"
+                            />
+                        )}
 
                         {isPreferredForCurrentLecturer && (
                             <Chip

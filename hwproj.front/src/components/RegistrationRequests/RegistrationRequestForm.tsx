@@ -1,4 +1,4 @@
-import React, {FC, useState} from "react";
+import React, {FC, FormEvent, useState} from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
@@ -12,7 +12,7 @@ import {makeStyles} from '@material-ui/core/styles';
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Avatar from "@material-ui/core/Avatar";
 import ValidationUtils from "../Utils/ValidationUtils";
-import {Alert, AlertTitle, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent} from "@mui/material";
+import {Alert, AlertTitle, Tab, Tabs} from "@mui/material";
 
 interface IRegistrationRequestState {
     name: string;
@@ -83,7 +83,20 @@ const RegistrationRequestForm: FC = () => {
 
     const isStudentRequest = effectiveRequestedRole === RequestedRole.NUMBER_0;
 
-    const handleSubmit = async (e: any) => {
+    const handleRoleChange = (requestedRole: RequestedRole) => {
+        setRequestState((prevState) => ({
+            ...prevState,
+            requestedRole,
+        }));
+        setCommonState((prevState) => ({
+            ...prevState,
+            error: [],
+        }));
+        setPreferredLecturerEmailError("");
+        setIsSubmitButtonDisabled(false);
+    };
+
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         
         if (isSubmitting) {
@@ -119,10 +132,10 @@ const RegistrationRequestForm: FC = () => {
                 };
 
             const result = await ApiSingleton.authService.initRegistrationRequest(requestModel);
-            setCommonState(_ => ({
+            setCommonState({
                 error: result.error ?? [],
                 isConfirmationSent: result.isConfirmationSent ?? false,
-            }))
+            })
         } catch {
             setCommonState((prevState) => ({
                 ...prevState,
@@ -159,6 +172,28 @@ const RegistrationRequestForm: FC = () => {
                     {isCourseBound ? "Регистрация и заявка на курс" : "Регистрация"}
                 </Typography>
 
+                {!isCourseBound && (
+                    <Tabs
+                        value={requestState.requestedRole}
+                        onChange={(_, value: RequestedRole) => handleRoleChange(value)}
+                        variant="fullWidth"
+                        indicatorColor="primary"
+                        style={{marginTop: "16px", width: "100%"}}
+                        aria-label="Выбор роли для регистрации"
+                    >
+                        <Tab
+                            value={RequestedRole.NUMBER_0}
+                            label="Студент"
+                            disabled={isSubmitting}
+                        />
+                        <Tab
+                            value={RequestedRole.NUMBER_1}
+                            label="Преподаватель"
+                            disabled={isSubmitting}
+                        />
+                    </Tabs>
+                )}
+
                 {commonState.error.length > 0 && (
                     <Typography color="error" style={{marginBottom: 0}}>
                         {commonState.error.join(", ")}
@@ -166,35 +201,6 @@ const RegistrationRequestForm: FC = () => {
                 )}
                 <form onSubmit={handleSubmit} className={classes.form}>
                     <Grid container spacing={2}>
-                        {!isCourseBound && (
-                            <Grid item xs={12}>
-                                <FormControl fullWidth variant="outlined">
-                                    <InputLabel id="requested-role-label">Тип заявки</InputLabel>
-                                    <Select
-                                        labelId="requested-role-label"
-                                        value={String(requestState.requestedRole ?? RequestedRole.NUMBER_0)}
-                                        onChange = {(e: SelectChangeEvent) => {
-                                            const selectedRole = Number(e.target.value) as RequestedRole;
-                                            setRequestState((prevState) => ({
-                                                ...prevState,
-                                                requestedRole: selectedRole
-                                            }));
-
-                                            setPreferredLecturerEmailError("");
-                                            setIsSubmitButtonDisabled(false);
-                                        }}
-                                        label="Тип заявки"
-                                    >
-                                        <MenuItem value={String(RequestedRole.NUMBER_0)}>
-                                            Студент
-                                        </MenuItem>
-                                        <MenuItem value={String(RequestedRole.NUMBER_1)}>
-                                            Преподаватель
-                                        </MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                        )}
                         <Grid item xs={12} sm={6}>
                             <TextField
                                 fullWidth
@@ -292,10 +298,6 @@ const RegistrationRequestForm: FC = () => {
                                         setIsSubmitButtonDisabled(false);
                                     }}
                                     error={preferredLecturerEmailError !== ""}
-                                    helperText={
-                                        preferredLecturerEmailError ||
-                                        "Необязательно. Если указать преподавателя, заявку будет для него выделена"
-                                    }
                                 />
                             </Grid>
                         )}

@@ -35,11 +35,8 @@ const useStyles = makeStyles((theme) => ({
         margin: theme.spacing(1),
     },
     form: {
-        marginTop: theme.spacing(3),
+        marginTop: theme.spacing(2),
         width: '100%'
-    },
-    button: {
-        marginTop: theme.spacing(2)
     }
 }))
 
@@ -170,21 +167,19 @@ const Login: FC<LoginProps> = (props) => {
                                     fullWidth
                                     label="Электронная почта"
                                     variant="outlined"
-                                    margin="normal"
                                     value={loginState.email}
                                     onChange={handleChangeEmail}
                                     error={emailError !== ""}
                                     helperText={emailError}
                                 />
                             </Grid>
-                            <Grid item>
+                            <Grid item style={{marginTop: 16}}>
                                 <TextField
                                     required
                                     type="password"
                                     fullWidth
                                     label="Пароль"
                                     variant="outlined"
-                                    margin="normal"
                                     value={loginState.password}
                                     onChange={handleChangePassword}
                                 />
@@ -194,7 +189,7 @@ const Login: FC<LoginProps> = (props) => {
                                     </Typography>
                                 </Link>
                             </Grid>
-                            <Grid item className={classes.button}>
+                            <Grid item style={{marginTop: 16}}>
                                 <Button
                                     fullWidth
                                     variant="contained"
@@ -215,7 +210,7 @@ const Login: FC<LoginProps> = (props) => {
                         </Typography>
                         <Link to={registerLink}>
                             <Typography variant={"body2"}>
-                                {isCourseBoundEntry ? "Подать заявку на вступление" : "Регистрация"}
+                                Зарегистрироваться
                             </Typography>
                         </Link>
                     </Stack>

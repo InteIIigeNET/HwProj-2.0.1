@@ -116,8 +116,6 @@ const Course: React.FC = () => {
     const isCourseMentor = mentors.some(t => t.userId === userId)
     const isSignedInCourse = newStudents!.some(cm => cm.userId === userId)
 
-    const [applicationsTabValue, setApplicationsTabValue] = useState<number>(0)
-
     const hasRegisteredApplications = newStudents.length > 0
     const hasRegistrationRequestApplications = courseRegistrationRequests.length > 0
 
@@ -467,80 +465,29 @@ const Course: React.FC = () => {
                                 </Grid>
                             )}
 
-                            <Grid item>
-                                <Tabs
-                                    style={{marginBottom: 10}}
-                                    variant="scrollable"
-                                    scrollButtons={"auto"}
-                                    value={applicationsTabValue}
-                                    indicatorColor="primary"
-                                    onChange={(_, value) => {
-                                        setApplicationsTabValue(value);
-                                    }}
-                                >
-                                    <Tab
-                                        label={
-                                            <Stack direction="row" spacing={1} alignItems="center">
-                                                <div>Зарегистрированные</div>
-                                                <Chip
-                                                    size="small"
-                                                    color="default"
-                                                    label={newStudents.length}
-                                                />
-                                            </Stack>
-                                        }
-                                    />
-                                    <Tab
-                                        label={
-                                            <Stack direction="row" spacing={1} alignItems="center">
-                                                <div>Новые регистрации</div>
-                                                <Chip
-                                                    size="small"
-                                                    color="default"
-                                                    label={courseRegistrationRequests.length}
-                                                />
-                                            </Stack>
-                                        }
-                                    />
-                                </Tabs>
-                            </Grid>
-                            
-                            {applicationsTabValue === 0 && (
+                            {!hasRegisteredApplications &&
+                                !hasRegistrationRequestApplications &&
+                                courseRegistrationRequestsError.length === 0 && (
                                 <Grid item>
-                                    {hasRegisteredApplications ? (
-                                        <NewCourseStudents
-                                            onUpdate={() => setCurrentState()}
-                                            course={courseState.course}
-                                            students={courseState.newStudents}
-                                            courseId={courseId!}
-                                        />
-                                    ) : (
-                                        <Alert severity="info">
-                                            <AlertTitle>Нет новых заявок</AlertTitle>
-                                            Нет заявок от зарегистрированных пользователей.
-                                        </Alert>
-                                    )}
+                                    <Alert severity="info">
+                                        <AlertTitle>Нет новых заявок</AlertTitle>
+                                        На данный момент все заявки в курс обработаны.
+                                    </Alert>
                                 </Grid>
                             )}
 
-                            {applicationsTabValue === 1 && (
-                                <Grid item>
-                                    {courseRegistrationRequestsError.length > 0 ? (
-                                        <Alert severity="info">
-                                            <AlertTitle>Список недоступен</AlertTitle>
-                                            Заявки на регистрацию для вступления в курс сейчас не отображаются.
-                                        </Alert>
-                                    ) : hasRegistrationRequestApplications ? (
-                                        <CourseRegistrationRequests
-                                            requests={courseRegistrationRequests}
-                                            onUpdate={setCurrentState}
-                                        />
-                                    ) : (
-                                        <Alert severity="info">
-                                            <AlertTitle>Нет новых заявок</AlertTitle>
-                                            Нет заявок на регистрацию для вступления в курс.
-                                        </Alert>
-                                    )}
+                            {(hasRegisteredApplications || hasRegistrationRequestApplications) && (
+                                <Grid item container spacing={2}>
+                                    <CourseRegistrationRequests
+                                        requests={courseRegistrationRequests}
+                                        onUpdate={setCurrentState}
+                                    />
+                                    <NewCourseStudents
+                                        onUpdate={() => setCurrentState()}
+                                        course={courseState.course}
+                                        students={courseState.newStudents}
+                                        courseId={courseId!}
+                                    />
                                 </Grid>
                             )}
                         </Grid>

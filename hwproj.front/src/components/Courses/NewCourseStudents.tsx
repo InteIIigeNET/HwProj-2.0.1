@@ -2,7 +2,7 @@ import * as React from 'react';
 import {AccountDataDto, CourseViewModel} from '../../api/';
 import ApiSingleton from "../../api/ApiSingleton";
 import {FC} from "react";
-import {Card, CardContent, CardActions, Grid, Button, Typography, Alert, AlertTitle} from '@mui/material';
+import {Card, CardContent, CardActions, Grid, Button, Typography} from '@mui/material';
 
 interface INewCourseStudentsProps {
     course: CourseViewModel,
@@ -23,23 +23,17 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
         props.onUpdate()
     }
 
-    const studentsLength = props.students.length
-
-    if (studentsLength === 0) {
-        return (
-            <Alert>
-                <AlertTitle>
-                    На данный момент все заявки приняты!
-                </AlertTitle>
-                Уведомления о новых заявках на Ваших курсах так же будут отображены на главной странице сервиса
-            </Alert>
-        )
-    }
-    return <Grid item container spacing={1} direction={"row"} xs={"auto"}>
+    return <>
         {props.students.map((cm, i) => (
-            <Grid item>
-                <Card variant="elevation" style={{backgroundColor: "ghostwhite"}}>
-                    <CardContent>
+            <Grid item xs={12} md={6} key={cm.userId ?? i} style={{display: "flex"}}>
+                <Card variant="elevation" 
+                      style={{
+                          backgroundColor: "ghostwhite",
+                          width: "100%",
+                          display: "flex",
+                          flexDirection: "column"
+                      }}>
+                    <CardContent style={{flexGrow: 1}}>
                         <Typography variant="h6" component="div">
                             {cm.surname} {cm.name}
                         </Typography>
@@ -65,7 +59,7 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
                     </CardActions>
                 </Card>
             </Grid>))}
-    </Grid>
+    </>
 }
 
 export default NewCourseStudents

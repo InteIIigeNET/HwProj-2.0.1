@@ -73,12 +73,18 @@ const RejectRegistrationRequestModal: FC<IRejectRegistrationRequestModalProps> =
                             onChange={(e) => {
                                 setRejectReason(e.target.value);
                             }}
-                            helperText="Необязательно. Комментарий увидит пользователь."
                         />
                     </Grid>
                 </Grid>
             </DialogContent>
             <DialogActions>
+                <Button
+                    onClick={handleReject}
+                    color="error"
+                    size="small"
+                    disabled={props.isSubmitting}>
+                    Отклонить
+                </Button>
                 <Button
                     onClick={handleClose}
                     color="primary"
@@ -86,14 +92,6 @@ const RejectRegistrationRequestModal: FC<IRejectRegistrationRequestModalProps> =
                     size="medium"
                     disabled={props.isSubmitting}>
                     Отмена
-                </Button>
-                <Button
-                    onClick={handleReject}
-                    color="error"
-                    variant="contained"
-                    size="medium"
-                    disabled={props.isSubmitting}>
-                    Отклонить
                 </Button>
             </DialogActions>
         </Dialog>

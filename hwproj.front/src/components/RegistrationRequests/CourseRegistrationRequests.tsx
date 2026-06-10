@@ -96,43 +96,31 @@ const CourseRegistrationRequests: FC<ICourseRegistrationRequestsProps> = (props)
         }
     };
 
-    if (props.requests.length === 0) {
-        return (
-            <Alert severity="info">
-                <AlertTitle>Нет новых заявок</AlertTitle>
-                На данный момент все заявки на регистрацию для вступления в курс обработаны.
-            </Alert>
-        );
-    }
-
     return (
         <>
-            <Grid container direction="column" spacing={2}>
-                {error.length > 0 && (
-                    <Grid item>
-                        <Alert severity="error">
-                            <AlertTitle>Ошибка</AlertTitle>
-                            {error.join(", ")}
-                        </Alert>
-                    </Grid>
-                )}
-    
-                <Grid item container spacing={2}>
-                    {sortedRequests.map((request) => (
-                        <RegistrationRequestCard
-                            key={request.id}
-                            request={request}
-                            isProcessing={processingRequestId !== undefined || isRejectSubmitting}
-                            isPreferredForCurrentLecturer={isPreferredForCurrentLecturer(request.preferredLecturerEmail)}
-                            onApprove={approveRequest}
-                            onReject={(selectedRequest) => {
-                                setRejectingRequest(selectedRequest);
-                                setRejectError([]);
-                            }}
-                        />
-                    ))}
+            {error.length > 0 && (
+                <Grid item xs={12}>
+                    <Alert severity="error">
+                        <AlertTitle>Ошибка</AlertTitle>
+                        {error.join(", ")}
+                    </Alert>
                 </Grid>
-            </Grid>
+            )}
+
+            {sortedRequests.map((request) => (
+                <RegistrationRequestCard
+                    key={request.id}
+                    request={request}
+                    isProcessing={processingRequestId !== undefined || isRejectSubmitting}
+                    isPreferredForCurrentLecturer={isPreferredForCurrentLecturer(request.preferredLecturerEmail)}
+                    isNewRegistration
+                    onApprove={approveRequest}
+                    onReject={(selectedRequest) => {
+                        setRejectingRequest(selectedRequest);
+                        setRejectError([]);
+                    }}
+                />
+            ))}
             
             <RejectRegistrationRequestModal
                 isOpen={rejectingRequest !== undefined}

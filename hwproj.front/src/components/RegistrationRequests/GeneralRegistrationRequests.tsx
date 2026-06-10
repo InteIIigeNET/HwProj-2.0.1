@@ -81,12 +81,6 @@ const GeneralRegistrationRequests: FC = () => {
             return false;
         }
     }
-
-    useEffect(() => {
-        if (tabValue === 0 && studentRequests.length === 0 && lecturerRequests.length > 0) {
-            setTabValue(1);
-        }
-    }, [tabValue, studentRequests.length, lecturerRequests.length])
     
     const isLecturer = ApiSingleton.authService.isLecturer();
     useEffect(() => {
@@ -117,7 +111,7 @@ const GeneralRegistrationRequests: FC = () => {
             if (!refreshed) {
                 setError(["Заявка принята, но не удалось обновить список"]);
             } else {
-                setError([]);
+                setError([])
             }
         } catch {
             setError(["Сервис недоступен"]);
