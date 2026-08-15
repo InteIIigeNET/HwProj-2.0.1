@@ -47,7 +47,8 @@ namespace HwProj.CoursesService.Client
         Task RemoveStudentFromGroup(long courseId, long groupId, string userId);
         Task<GroupViewModel[]> GetGroupsById(params long[] groupIds);
         Task<long[]> GetGroupTasks(long groupId);
-        Task<Result> AcceptLecturer(long courseId, string lecturerEmail, string lecturerId);
+        Task<Result> AcceptLecturer(long courseId, string lecturerEmail, string lecturerId,
+            bool sendNotification = true);
         Task<string[]> GetCourseLecturersIds(long courseId);
         Task<Result<string[]>> GetAllTagsForCourse(long courseId);
         Task<Result<long>> CreateOrUpdateCourseFilter(long courseId, CreateCourseFilterDTO model);

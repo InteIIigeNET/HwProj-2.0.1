@@ -187,7 +187,7 @@ namespace HwProj.AuthService.Client
             return await response.DeserializeAsync<AccountDataDto[]>().ConfigureAwait(false);
         }
 
-        public async Task<Result<string>> GetOrCreateLtiBot(string toolClientId)
+        public async Task<Result<AccountDataDto>> GetOrCreateLtiBot(string toolClientId)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
@@ -200,13 +200,10 @@ namespace HwProj.AuthService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             if (!response.IsSuccessStatusCode)
             {
-                return Result<string>.Failed(response.ReasonPhrase);
+                return Result<AccountDataDto>.Failed(response.ReasonPhrase);
             }
 
-            var result = await response.DeserializeAsync<Result<AccountDataDto>>();
-            return result.Succeeded
-                ? Result<string>.Success(result.Value.UserId)
-                : Result<string>.Failed(result.Errors);
+            return await response.DeserializeAsync<Result<AccountDataDto>>();
         }
 
         public async Task<bool> Ping()

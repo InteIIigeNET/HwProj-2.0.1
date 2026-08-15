@@ -518,12 +518,14 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<long[]>();
         }
 
-        public async Task<Result> AcceptLecturer(long courseId, string lecturerEmail, string lecturerId)
+        public async Task<Result> AcceptLecturer(long courseId, string lecturerEmail, string lecturerId,
+            bool sendNotification = true)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _coursesServiceUri +
-                $"api/Courses/acceptLecturer/{courseId}?lecturerEmail={lecturerEmail}&lecturerId={lecturerId}");
+                $"api/Courses/acceptLecturer/{courseId}?lecturerEmail={lecturerEmail}&lecturerId={lecturerId}" +
+                $"&sendNotification={sendNotification}");
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);

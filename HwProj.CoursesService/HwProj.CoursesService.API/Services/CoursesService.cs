@@ -363,7 +363,8 @@ namespace HwProj.CoursesService.API.Services
             return result;
         }
 
-        public async Task<bool> AcceptLecturerAsync(long courseId, string lecturerEmail, string lecturerId)
+        public async Task<bool> AcceptLecturerAsync(long courseId, string lecturerEmail, string lecturerId,
+            bool sendNotification = true)
         {
             var course = await _coursesRepository.GetAsync(courseId);
             if (course == null) return false;
@@ -375,13 +376,17 @@ namespace HwProj.CoursesService.API.Services
                     MentorIds = newMentors,
                 });
 
-                _eventBus.Publish(new LecturerInvitedToCourseEvent
+                if (sendNotification)
                 {
-                    CourseId = courseId,
-                    CourseName = course.Name,
-                    MentorId = lecturerId,
-                    MentorEmail = lecturerEmail
-                });
+                    _eventBus.Publish(new LecturerInvitedToCourseEvent
+                    {
+                        CourseId = courseId,
+                        CourseName = course.Name,
+                        MentorId = lecturerId,
+                        MentorEmail = lecturerEmail
+                    });
+                }
+
                 //TODO: remove
                 await RejectCourseMateAsync(courseId, lecturerId);
             }
