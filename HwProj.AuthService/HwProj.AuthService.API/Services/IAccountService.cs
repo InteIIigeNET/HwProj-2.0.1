@@ -19,6 +19,7 @@ namespace HwProj.AuthService.API.Services
         Task<Result<TokenCredentials>> RefreshToken(string userId);
         Task<Result> InviteNewLecturer(string emailOfInvitedUser);
         Task<IList<User>> GetUsersInRole(string role);
+        Task<Result<AccountDataDto>> GetOrCreateLtiBot(string toolClientId);
         Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model);
         Task<Result> ResetPassword(ResetPasswordViewModel model);
         Task<GithubCredentials> AuthorizeGithub(string code, string userId);
