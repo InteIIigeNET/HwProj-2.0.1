@@ -70,48 +70,17 @@ namespace HwProj.SolutionsService.API.Controllers
 
         [HttpPost("{taskId}")]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> PostSolution(long taskId, [FromBody] PostSolutionModel solutionModel)
+        public async Task<IActionResult> PostSolution(long taskId, [FromBody] PostSolutionModel solutionModel,
+            [FromQuery] bool sendNotification = true)
         {
             var task = await _coursesClient.GetTask(taskId);
             if (!task.CanSendSolution)
                 return BadRequest();
 
             var solution = _mapper.Map<Solution>(solutionModel);
-            var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
+            var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution, sendNotification);
 
             return Ok(solutionId);
-        }
-
-        [HttpPost("postAndRateSolutionForLti/{taskId}")]
-        [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> PostAndRateSolutionForLti(long taskId,
-            [FromBody] PostSolutionModel solutionModel)
-        {
-            var task = await _coursesClient.GetTask(taskId);
-            if (!task.CanSendSolution || solutionModel.Rating == null)
-            {
-                return BadRequest();
-            }
-
-            var mapSolution = _mapper.Map<Solution>(solutionModel);
-            var solutionId = await _solutionsService.PostOrUpdateAsyncForLti(taskId, mapSolution);
-            var solution = await _solutionsService.GetSolutionAsync(solutionId);
-            var homework = await _coursesClient.GetHomework(task.HomeworkId);
-            var course = await _coursesClient.GetCourseByTaskForLti(homework.CourseId, solution.StudentId);
-
-            var lecturerId = Request.GetUserIdFromHeader();
-
-            if (course == null) return Forbid();
-
-            var ratting = solutionModel.Rating ?? 0;
-            var rateSolutionModel = new RateSolutionModel
-            {
-                LecturerComment = solutionModel.LecturerComment,
-                Rating = ratting
-            };
-
-            await _solutionsService.RateSolutionAsync(solutionId, lecturerId!, rateSolutionModel.Rating, rateSolutionModel.LecturerComment);
-            return Ok();
         }
 
         [HttpPost("rateSolution/{solutionId}")]
@@ -120,8 +89,13 @@ namespace HwProj.SolutionsService.API.Controllers
         {
             var solution = await _solutionsService.GetSolutionAsync(solutionId);
             var task = await _coursesClient.GetTask(solution.TaskId);
-            var homework = await _coursesClient.GetHomework(task.HomeworkId);
-            var course = await _coursesClient.GetCourseByTask(homework.CourseId);
+
+            if (rateSolutionModel.Rating < 0 || rateSolutionModel.Rating > task.MaxRating)
+            {
+                return BadRequest($"Rating must be between 0 and {task.MaxRating}.");
+            }
+
+            var course = await _coursesClient.GetCourseByTask(solution.TaskId);
 
             var lecturerId = Request.GetUserIdFromHeader();
 

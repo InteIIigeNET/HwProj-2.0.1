@@ -104,14 +104,9 @@ namespace HwProj.SolutionsService.API.Services
             return taskIds.Select(t => solutions.FirstOrDefault(s => s?.TaskId == t)).ToArray();
         }
 
-        public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
+        public async Task<long> PostOrUpdateAsync(long taskId, Solution solution, bool sendNotification = true)
         {
-            return await PostOrUpdateInternalAsync(taskId, solution);
-        }
-
-        public async Task<long> PostOrUpdateAsyncForLti(long taskId, Solution solution)
-        {
-            return await PostOrUpdateInternalAsync(taskId, solution, true);
+            return await PostOrUpdateInternalAsync(taskId, solution, sendNotification);
         }
 
         public async Task PostEmptySolutionWithRateAsync(long taskId, Solution solution)
@@ -320,7 +315,7 @@ namespace HwProj.SolutionsService.API.Services
         }
 
         private async Task<long> PostOrUpdateInternalAsync(
-            long taskId, Solution solution, bool isLtiRequest = false)
+            long taskId, Solution solution, bool sendNotification)
         {
             solution.PublicationDate = DateTime.UtcNow;
             solution.TaskId = taskId;
@@ -353,13 +348,11 @@ namespace HwProj.SolutionsService.API.Services
                 solutionId = await _solutionsRepository.AddAsync(solution);
 
                 var solutionModel = _mapper.Map<SolutionViewModel>(solution);
-                var course = isLtiRequest ?
-                    await _coursesServiceClient.GetCourseByTaskForLti(solution.TaskId, solution.StudentId) :
-                    await _coursesServiceClient.GetCourseByTask(solution.TaskId);
+                var course = await _coursesServiceClient.GetCourseByTask(solution.TaskId);
                 var student = await _authServiceClient.GetAccountData(solutionModel.StudentId);
                 var studentModel = _mapper.Map<AccountDataDto>(student);
 
-                if (!isLtiRequest)
+                if (sendNotification)
                 {
                     _eventBus.Publish(new StudentPassTaskEvent(course, solutionModel, studentModel, task));
                 }

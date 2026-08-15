@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Lti.Services;
 using HwProj.CoursesService.Client;
+using HwProj.Exceptions;
 using HwProj.Models.SolutionsService;
 using HwProj.SolutionsService.Client;
 using Microsoft.AspNetCore.Authorization;
@@ -39,21 +41,39 @@ public class LtiAssignmentsGradesControllers(
             return Unauthorized("Unknown tool client id.");
         }
 
+        var botId = User.FindFirst("_id")?.Value;
+        if (string.IsNullOrEmpty(botId))
+        {
+            return Unauthorized("LTI bot id is missing.");
+        }
+
         var tool = toolService.GetByClientId(toolClientId);
         if (tool == null)
         {
             return BadRequest("Tool not found.");
         }
 
-        var course = await coursesServiceClient.GetCourseByTaskForLti(taskId, score.UserId);
+        var course = await coursesServiceClient.GetCourseByTask(taskId);
         if (course == null)
         {
             return BadRequest("The task does not belong to any course.");
         }
 
+        if (!course.MentorIds.Contains(botId))
+        {
+            return Forbid();
+        }
+
         if (course.LtiToolName != tool.Name)
         {
             return BadRequest("This tool does not apply to this course.");
+        }
+
+        if (string.IsNullOrEmpty(score.UserId) ||
+            course.AcceptedStudents.All(
+                student => student.StudentId != score.UserId))
+        {
+            return BadRequest("The student does not belong to this course.");
         }
 
         if (score.ScoreGiven < 0 || score.ScoreGiven > score.ScoreMaximum)
@@ -63,18 +83,29 @@ public class LtiAssignmentsGradesControllers(
 
         try
         {
-            await solutionsClient.PostAndRateSolutionForLti(
-                taskId: taskId,
-                userId: score.UserId,
-                scoreGiven: score.ScoreGiven,
-                scoreMaximum: score.ScoreMaximum,
-                comment: $"Результат: {score.ScoreGiven}/{score.ScoreMaximum}\n\n" + score.Comment);
+            var solutionId = await solutionsClient.PostSolution(
+                taskId,
+                new PostSolutionModel
+                {
+                    StudentId = score.UserId
+                },
+                sendNotification: false);
+
+            await solutionsClient.RateSolution(solutionId, new RateSolutionModel
+            {
+                Rating = (int)Math.Round(score.ScoreGiven),
+                LecturerComment = $"Результат: {score.ScoreGiven}/{score.ScoreMaximum}\n\n" + score.Comment
+            });
 
             return Ok(new { message = "Score updated successfully" });
         }
         catch (KeyNotFoundException ex)
         {
             return NotFound(ex.Message);
+        }
+        catch (ForbiddenException)
+        {
+            return Forbid();
         }
         catch (Exception)
         {

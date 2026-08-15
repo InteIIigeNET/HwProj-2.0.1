@@ -9,7 +9,7 @@ namespace HwProj.SolutionsService.Client
         Task<Solution[]> GetAllSolutions();
         Task<Solution> GetSolutionById(long solutionId);
         Task<Solution[]> GetUserSolutions(long taskId, string studentId);
-        Task<long> PostSolution(long taskId, PostSolutionModel model);
+        Task<long> PostSolution(long taskId, PostSolutionModel model, bool sendNotification = true);
         Task PostEmptySolutionWithRate(long taskId, SolutionViewModel solution);
         Task RateSolution(long solutionId, RateSolutionModel rateSolutionModel);
         Task MarkSolution(long solutionId);
@@ -25,7 +25,5 @@ namespace HwProj.SolutionsService.Client
         Task<TaskSolutionsStats[]> GetTaskSolutionsStats(GetTasksSolutionsModel tasksSolutionsDTO);
         Task<SolutionActualityDto> GetSolutionActuality(long solutionId);
         Task<bool> Ping();
-        Task PostAndRateSolutionForLti(
-            long taskId, string userId, double scoreGiven, double scoreMaximum, string comment);
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
@@ -7,6 +8,7 @@ using HwProj.APIGateway.API.Lti.Configuration;
 using HwProj.APIGateway.API.Lti.DTOs;
 using HwProj.APIGateway.API.Lti.Services;
 using HwProj.APIGateway.API.LTI.Services;
+using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -19,6 +21,7 @@ namespace HwProj.APIGateway.API.Lti.Controllers;
 [ApiController]
 public class LtiAuthController(
     ICoursesServiceClient coursesServiceClient,
+    IAuthServiceClient authServiceClient,
     IOptions<LtiPlatformConfig> ltiPlatformOptions,
     ILtiToolService toolService,
     ILtiTokenService tokenService,
@@ -65,7 +68,15 @@ public class LtiAuthController(
             return BadRequest($"Invalid clientId. Expected: {tool.ClientId}, Got: {clientId}");
         }
 
-        var course = await coursesServiceClient.GetCourseByIdForLti(long.Parse(payload.CourseId));
+        var botResult = await authServiceClient.GetOrCreateLtiBot(tool.ClientId);
+        if (!botResult.Succeeded || botResult.Value == null)
+        {
+            return StatusCode(500, "Failed to resolve the LTI bot account.");
+        }
+
+        var course = await coursesServiceClient.GetCourseById(
+            long.Parse(payload.CourseId),
+            botResult.Value.UserId);
         if (course == null)
         {
             return NotFound("Course not found");
@@ -74,6 +85,11 @@ public class LtiAuthController(
         if (course.LtiToolName != tool.Name)
         {
             return BadRequest("The data is incorrect: the id of the instrument linked to the exchange rate does not match");
+        }
+
+        if (!course.MentorIds.Contains(botResult.Value.UserId))
+        {
+            return Forbid();
         }
 
         string idToken;
@@ -147,7 +163,7 @@ public class LtiAuthController(
             return NotFound("Tool not found");
         }
 
-        var course = await coursesServiceClient.GetCourseByIdForLti(long.Parse(courseId));
+        var course = await coursesServiceClient.GetCourseById(long.Parse(courseId));
         if (course == null)
         {
             return NotFound("Course not found");

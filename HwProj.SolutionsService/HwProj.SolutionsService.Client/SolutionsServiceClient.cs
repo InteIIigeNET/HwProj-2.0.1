@@ -70,11 +70,11 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<Solution[]>();
         }
 
-        public async Task<long> PostSolution(long taskId, PostSolutionModel model)
+        public async Task<long> PostSolution(long taskId, PostSolutionModel model, bool sendNotification = true)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _solutionServiceUri + $"api/Solutions/{taskId}")
+                _solutionServiceUri + $"api/Solutions/{taskId}?sendNotification={sendNotification}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
@@ -298,30 +298,5 @@ namespace HwProj.SolutionsService.Client
             }
         }
 
-        public async Task PostAndRateSolutionForLti(
-            long taskId, string userId, double scoreGiven, double scoreMaximum, string comment)
-        {
-            var model = new PostSolutionModel
-            {
-                StudentId = userId,
-                LecturerComment = comment,
-                Rating =  (int)Math.Round(scoreGiven)
-            };
-
-            using var httpRequest = new HttpRequestMessage(
-                HttpMethod.Post,
-                _solutionServiceUri + $"api/Solutions/postAndRateSolutionForLti/{taskId}");
-            httpRequest.Content = new StringContent(
-                JsonConvert.SerializeObject(model),
-                Encoding.UTF8,
-                "application/json");
-
-            httpRequest.TryAddUserId(_httpContextAccessor);
-            var response = await _httpClient.SendAsync(httpRequest);
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new ForbiddenException();
-            }
-        }
     }
 }
