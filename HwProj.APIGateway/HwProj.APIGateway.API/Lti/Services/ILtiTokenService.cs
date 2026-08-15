@@ -23,5 +23,6 @@ public interface ILtiTokenService
 
     public string GenerateAccessTokenForLti(
         string clientId,
+        string botId,
         string scope);
 }

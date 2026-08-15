@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using HwProj.APIGateway.API.Lti.Configuration;
 using HwProj.APIGateway.API.Lti.Services;
 using HwProj.APIGateway.API.LTI.Services;
+using HwProj.AuthService.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,8 @@ public class LtiAccessTokenController(
     IOptions<LtiPlatformConfig> options,
     ILtiToolService toolService,
     ILtiKeyService ltiKeyService,
-    ILtiTokenService tokenService
+    ILtiTokenService tokenService,
+    IAuthServiceClient authServiceClient
     ) : ControllerBase
 {
     [HttpPost("token")]
@@ -85,7 +87,20 @@ public class LtiAccessTokenController(
 
         const string scope = "https://purl.imsglobal.org/spec/lti-ags/scope/score";
 
-        var accessToken = tokenService.GenerateAccessTokenForLti(tool.ClientId, scope);
+        var botResult = await authServiceClient.GetOrCreateLtiBot(tool.ClientId);
+        if (!botResult.Succeeded || botResult.Value == null)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                error = "server_error",
+                error_description = "Failed to resolve the LTI bot account."
+            });
+        }
+
+        var accessToken = tokenService.GenerateAccessTokenForLti(
+            tool.ClientId,
+            botResult.Value.UserId,
+            scope);
 
         return Ok(new
         {

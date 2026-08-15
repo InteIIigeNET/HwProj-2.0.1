@@ -111,14 +111,16 @@ public class LtiTokenService(IOptions<LtiPlatformConfig> options) : ILtiTokenSer
         return this.CreateJwt(clientId, request);
     }
 
-    public string GenerateAccessTokenForLti(string clientId, string scope)
+    public string GenerateAccessTokenForLti(string clientId, string botId, string scope)
     {
         var now = DateTime.UtcNow;
 
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, clientId),
-            
+
+            new Claim("_id", botId),
+
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
 
             new Claim("scope", scope)
