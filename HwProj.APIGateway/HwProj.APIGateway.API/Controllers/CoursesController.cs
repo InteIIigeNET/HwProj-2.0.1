@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using HwProj.APIGateway.API.Lti.Services;
 using HwProj.APIGateway.API.Models;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
@@ -22,16 +23,19 @@ namespace HwProj.APIGateway.API.Controllers;
 public class CoursesController : AggregationController
 {
     private readonly ICoursesServiceClient _coursesClient;
+    private readonly ILtiToolService _ltiToolService;
     private readonly IMapper _mapper;
     private readonly IStudentsInformationProvider _studentsInfo;
 
     public CoursesController(
         ICoursesServiceClient coursesClient,
+        ILtiToolService ltiToolService,
         IAuthServiceClient authServiceClient,
         IMapper mapper,
         IStudentsInformationProvider studentsInfo) : base(authServiceClient)
     {
         _coursesClient = coursesClient;
+        _ltiToolService = ltiToolService;
         _mapper = mapper;
         _studentsInfo = studentsInfo;
     }
@@ -103,6 +107,40 @@ public class CoursesController : AggregationController
     [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> CreateCourse(CreateCourseViewModel model)
     {
+        AccountDataDto? ltiBot = null;
+
+        if (!string.IsNullOrWhiteSpace(model.LtiToolName))
+        {
+            var ltiTool = _ltiToolService.GetByName(model.LtiToolName);
+            if (ltiTool == null)
+            {
+                return BadRequest($"LTI-инструмент '{model.LtiToolName}' не найден");
+            }
+
+            var botResult = await AuthServiceClient.GetOrCreateLtiBot(ltiTool.ClientId);
+            if (!botResult.Succeeded)
+            {
+                return StatusCode(
+                    (int)HttpStatusCode.ServiceUnavailable,
+                    botResult.Errors);
+            }
+
+            ltiBot = botResult.Value;
+            if (ltiBot == null)
+            {
+                return StatusCode(
+                    (int)HttpStatusCode.InternalServerError,
+                    "LTI-бот был создан, но его данные не найдены");
+            }
+
+            if (ltiBot.Role != Roles.ExpertRole)
+            {
+                return StatusCode(
+                    (int)HttpStatusCode.InternalServerError,
+                    "LTI-бот не имеет роли Expert");
+            }
+        }
+
         if (model.GroupNames.Any() && model.FetchStudents)
         {
             var studentCandidates = new List<StudentModel>();
@@ -138,9 +176,33 @@ public class CoursesController : AggregationController
         }
 
         var result = await _coursesClient.CreateCourse(model);
-        return result.Succeeded
-            ? Ok(result.Value)
-            : BadRequest(result.Errors);
+        if (!result.Succeeded)
+        {
+            return BadRequest(result.Errors);
+        }
+
+        if (ltiBot != null)
+        {
+            var addExpertResult = await _coursesClient.AcceptLecturer(
+                result.Value,
+                ltiBot.Email,
+                ltiBot.UserId,
+                sendNotification: false);
+
+            if (!addExpertResult.Succeeded)
+            {
+                return StatusCode(
+                    (int)HttpStatusCode.InternalServerError,
+                    new
+                    {
+                        CourseId = result.Value,
+                        Errors = addExpertResult.Errors,
+                        Message = "Курс создан, но LTI-бот не был добавлен как эксперт"
+                    });
+            }
+        }
+
+        return Ok(result.Value);
     }
 
     [HttpPost("update/{courseId}")]
