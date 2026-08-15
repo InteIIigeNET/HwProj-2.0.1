@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using HwProj.AuthService.API.Initialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -90,8 +89,6 @@ namespace HwProj.AuthService.API
             {
                 RoleInitializer.InitializeAsync(userManager, rolesManager, eventBus).Wait();
             }
-
-            _ = LtiBotInitializer.InitializeAsync(userManager);
         }
     }
 }
