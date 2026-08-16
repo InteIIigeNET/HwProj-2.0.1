@@ -104,11 +104,6 @@ namespace HwProj.SolutionsService.API.Services
             return taskIds.Select(t => solutions.FirstOrDefault(s => s?.TaskId == t)).ToArray();
         }
 
-        public async Task<long> PostOrUpdateAsync(long taskId, Solution solution, bool sendNotification = true)
-        {
-            return await PostOrUpdateInternalAsync(taskId, solution, sendNotification);
-        }
-
         public async Task PostEmptySolutionWithRateAsync(long taskId, Solution solution)
         {
             var hasSolution = await _solutionsRepository
@@ -314,8 +309,8 @@ namespace HwProj.SolutionsService.API.Services
             return solutionsActuality;
         }
 
-        private async Task<long> PostOrUpdateInternalAsync(
-            long taskId, Solution solution, bool sendNotification)
+        public async Task<long> PostOrUpdateAsync(
+            long taskId, Solution solution, bool sendNotification = true)
         {
             solution.PublicationDate = DateTime.UtcNow;
             solution.TaskId = taskId;

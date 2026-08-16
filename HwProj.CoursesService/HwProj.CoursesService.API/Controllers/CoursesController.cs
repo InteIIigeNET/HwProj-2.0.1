@@ -58,7 +58,11 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("{courseId}")]
         public async Task<IActionResult> Get(long courseId)
         {
-            return await GetInternal(courseId);
+            var userId = Request.GetUserIdFromHeader();
+            var course = await _coursesService.GetAsync(courseId, userId);
+            if (course == null) return NotFound();
+
+            return Ok(course);
         }
 
         [HttpGet("getForMentor/{courseId}/{mentorId}")]
@@ -85,7 +89,11 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("getByTask/{taskId}")]
         public async Task<IActionResult> GetByTask(long taskId)
         {
-            return await GetByTaskInternal(taskId);
+            var userId = Request.GetUserIdFromHeader();
+            var course = await _coursesService.GetByTaskAsync(taskId, userId!);
+            if (course == null) return NotFound();
+
+            return Ok(course);
         }
 
         [HttpPost("create")]
@@ -251,22 +259,5 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(mentorsToAssignedStudents);
         }
 
-        private async Task<IActionResult> GetInternal(long courseId)
-        {
-            var userId = Request.GetUserIdFromHeader();
-            var course = await _coursesService.GetAsync(courseId, userId);
-            if (course == null) return NotFound();
-
-            return Ok(course);
-        }
-
-        private async Task<IActionResult> GetByTaskInternal(long taskId)
-        {
-            var userId = Request.GetUserIdFromHeader();
-            var course = await _coursesService.GetByTaskAsync(taskId, userId!);
-            if (course == null) return NotFound();
-
-            return Ok(course);
-        }
     }
 }
