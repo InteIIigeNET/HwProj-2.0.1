@@ -76,6 +76,12 @@ public class LtiAssignmentsGradesControllers(
             return BadRequest("The student does not belong to this course.");
         }
 
+        var task = await coursesServiceClient.GetTask(taskId);
+        if (task.LtiLaunchData == null)
+        {
+            return BadRequest("This task is not linked to an LTI tool.");
+        }
+
         if (score.ScoreGiven < 0 || score.ScoreGiven > score.ScoreMaximum)
         {
             return BadRequest("ScoreGiven must be between 0 and ScoreMaximum.");
