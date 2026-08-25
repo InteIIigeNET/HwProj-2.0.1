@@ -20,10 +20,9 @@ interface GroupSelectorProps {
     courseStudents: AccountDataDto[],
     groups: GroupViewModel[],
     onGroupIdChange: (groupId?: number) => void,
-    onGroupsUpdate: () => void,
+    onGroupsUpdate: () => Promise<void>,
     selectedGroupId?: number,
     choiceDisabled?: boolean,
-    onCreateNewGroup?: () => void,
 }
 
 const GroupSelector: FC<GroupSelectorProps> = (props) => {
@@ -80,14 +79,14 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                         groupMates: formState.memberIds.map(studentId => ({studentId})),
                     }
                 );
-                props.onGroupsUpdate();
+                await props.onGroupsUpdate();
             } else {
                 const groupId = await ApiSingleton.courseGroupsApi.courseGroupsCreateCourseGroup(props.courseId, {
                     name: formState.name.trim(),
                     groupMatesIds: formState.memberIds,
                     courseId: props.courseId,
                 });
-                props.onGroupsUpdate();
+                await props.onGroupsUpdate();
                 props.onGroupIdChange(groupId);
             }
         } catch (error) {

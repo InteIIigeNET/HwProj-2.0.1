@@ -21,7 +21,7 @@ import {IFileInfo} from "components/Files/IFileInfo";
 import {FC, useEffect, useState} from "react"
 import Utils from "services/Utils";
 import {
-    HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, PostTaskViewModel, AccountDataDto, GroupViewModel
+    HomeworkViewModel, ActionOptions, HomeworkTaskViewModel, PostTaskViewModel, AccountDataDto, GroupViewModel,
 } from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import Tags from "../Common/Tags";
@@ -61,6 +61,7 @@ interface IEditHomeworkState {
 
 const CourseHomeworkEditor: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
+    mentorId: string,
     getAllHomeworks: () => HomeworkViewModel[],
     onUpdate: (update: { homework: HomeworkViewModel } & {
         isDeleted?: boolean,
@@ -71,7 +72,7 @@ const CourseHomeworkEditor: FC<{
                         previouslyExistingFilesCount: number,
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
-    onGroupsUpdate: () => void;
+    onGroupsUpdate: () => Promise<void>;
     groups: GroupViewModel[];
 }> = (props) => {
     const homework = props.homeworkAndFilesInfo.homework
@@ -131,10 +132,10 @@ const CourseHomeworkEditor: FC<{
     useEffect(() => {
         const loadCourseStudents = async () => {
             try {
-                const courseData = await ApiSingleton.coursesApi.coursesGetAllCourseData(courseId)
+                const courseData = await ApiSingleton.coursesApi.coursesGetAllCourseData(courseId);
                 setCourseStudents(courseData.course?.acceptedStudents || [])
             } catch (error) {
-                console.error('Failed to load course students:', error)
+                console.error('Failed to load course data:', error)
             }
         }
         loadCourseStudents()
@@ -471,6 +472,7 @@ const CourseHomeworkExperimental: FC<{
     homeworkAndFilesInfo: HomeworkAndFilesInfo,
     getAllHomeworks: () => HomeworkViewModel[],
     isMentor: boolean,
+    userId: string,
     initialEditMode: boolean,
     onMount: () => void,
     onUpdate: (x: { homework: HomeworkViewModel } & {
@@ -483,7 +485,7 @@ const CourseHomeworkExperimental: FC<{
                         previouslyExistingFilesCount: number,
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
-    onGroupsUpdate: () => void;
+    onGroupsUpdate: () => Promise<void>;
     groups: GroupViewModel[];
 }> = (props) => {
     const {homework, filesInfo} = props.homeworkAndFilesInfo
@@ -501,6 +503,7 @@ const CourseHomeworkExperimental: FC<{
     if (editMode) return <CourseHomeworkEditor
         getAllHomeworks={props.getAllHomeworks}
         homeworkAndFilesInfo={{homework, filesInfo}}
+        mentorId={props.userId}
         onUpdate={update => {
             if (update.isSaved) setEditMode(false)
             props.onUpdate(update)

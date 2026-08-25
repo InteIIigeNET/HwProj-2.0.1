@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using AutoMapper;
+using HwProj.Common.Net8;
 using HwProj.CoursesService.API.Filters;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
@@ -15,11 +17,19 @@ namespace HwProj.CoursesService.API.Controllers
     {
         private readonly IGroupsService _groupsService;
         private readonly IMapper _mapper;
+        private readonly ICourseFilterService _courseFilterService;
+        private readonly ICoursesService _coursesService;
 
-        public CourseGroupsController(IMapper mapper, IGroupsService groupsService)
+        public CourseGroupsController(
+            IMapper mapper,
+            IGroupsService groupsService,
+            ICourseFilterService courseFilterService,
+            ICoursesService coursesService)
         {
             _mapper = mapper;
             _groupsService = groupsService;
+            _courseFilterService = courseFilterService;
+            _coursesService = coursesService;
         }
 
         [HttpGet("{courseId}/getAll")]
@@ -47,6 +57,15 @@ namespace HwProj.CoursesService.API.Controllers
                 GroupMates = groupViewModel.GroupMatesIds.Select(t => new GroupMate() { StudentId = t }).ToList()
             };
             var id = await _groupsService.AddGroupAsync(group);
+
+            var userId = Request.GetUserIdFromHeader();
+            var courseMentorIds = await _coursesService.GetCourseLecturers(groupViewModel.CourseId);
+            if (userId != null && courseMentorIds.Contains(userId))
+                await _courseFilterService.AddToFilter(groupViewModel.CourseId, userId, new Filter
+                {
+                    GroupIds = new List<long> { id }
+                });
+
             return Ok(id);
         }
 

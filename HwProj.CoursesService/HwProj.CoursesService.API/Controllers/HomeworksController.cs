@@ -1,7 +1,9 @@
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Domains;
 using HwProj.CoursesService.API.Filters;
+using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
+using HwProj.Common.Net8;
 using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
@@ -13,10 +15,12 @@ namespace HwProj.CoursesService.API.Controllers
     public class HomeworksController : Controller
     {
         private readonly IHomeworksService _homeworksService;
+        private readonly ICourseFilterService _courseFilterService;
 
-        public HomeworksController(IHomeworksService homeworksService)
+        public HomeworksController(IHomeworksService homeworksService, ICourseFilterService courseFilterService)
         {
             _homeworksService = homeworksService;
+            _courseFilterService = courseFilterService;
         }
 
         [HttpPost("{courseId}/add")]
@@ -28,6 +32,13 @@ namespace HwProj.CoursesService.API.Controllers
             if (validationResult.Any()) return BadRequest(validationResult);
 
             var newHomework = await _homeworksService.AddHomeworkAsync(courseId, homeworkViewModel);
+            var mentorId = Request.GetUserIdFromHeader();
+            if (mentorId != null)
+                await _courseFilterService.AddToFilter(courseId, mentorId, new Filter
+                {
+                    HomeworkIds = new System.Collections.Generic.List<long> { newHomework.Id }
+                });
+
             return Ok(newHomework.ToHomeworkViewModel());
         }
 

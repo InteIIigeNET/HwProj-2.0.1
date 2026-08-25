@@ -1,7 +1,7 @@
 import * as React from "react";
 import {FC, useEffect, useState, useMemo} from "react";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
-import {AccountDataDto, CourseViewModel, GroupViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
+import {AccountDataDto, CourseViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
@@ -49,7 +49,6 @@ interface ICourseState {
     isFound: boolean;
     course: CourseViewModel;
     courseHomeworks: HomeworkViewModel[];
-    groups: GroupViewModel[];
     mentors: AccountDataDto[];
     acceptedStudents: AccountDataDto[];
     newStudents: AccountDataDto[];
@@ -71,7 +70,6 @@ const Course: React.FC = () => {
         course: {},
         courseHomeworks: [],
         mentors: [],
-        groups: [],
         acceptedStudents: [],
         newStudents: [],
         studentSolutions: [],
@@ -90,16 +88,7 @@ const Course: React.FC = () => {
         newStudents,
         acceptedStudents,
         courseHomeworks,
-        groups
     } = courseState
-
-    const loadGroups = async () => {
-        const groups = await ApiSingleton.courseGroupsApi.courseGroupsGetAllCourseGroups(course.id!)
-        setCourseState(prevState => ({
-            ...prevState,
-            groups: groups
-        }))
-    };
 
     const userId = ApiSingleton.authService.getUserId()
 
@@ -153,9 +142,17 @@ const Course: React.FC = () => {
             courseHomeworks: course.homeworks!,
             createHomework: false,
             mentors: course.mentors!,
-            groups: course.groups || [],
             acceptedStudents: course.acceptedStudents!,
             newStudents: course.newStudents!,
+        }))
+    }
+
+    const updateCourseGroups = async () => {
+        const course = await ApiSingleton.coursesApi.coursesGetCourseData(+courseId!)
+
+        setCourseState(prevState => ({
+            ...prevState,
+            course: course,
         }))
     }
 
@@ -187,9 +184,9 @@ const Course: React.FC = () => {
     const [lecturerStatsState, setLecturerStatsState] = useState(false);
 
     const studentsWithoutGroup = useMemo(() => {
-        const inGroupIds = new Set(groups.flatMap(g => g.studentsIds));
+        const inGroupIds = new Set(course.groups?.flatMap(g => g.studentsIds) || []);
         return acceptedStudents.filter(s => !inGroupIds.has(s.userId!));
-    }, [groups, acceptedStudents]);
+    }, [course.groups, acceptedStudents]);
 
     const CourseMenu: FC = () => {
         const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -319,7 +316,7 @@ const Course: React.FC = () => {
                             }
                         </Grid>
                     </Grid>
-                    {isCourseMentor && groups.length > 0 && studentsWithoutGroup.length > 0 &&
+                    {isCourseMentor && course.groups?.length !== 0 && studentsWithoutGroup.length > 0 &&
                         <Grid item>
                             <Tooltip
                                 title={studentsWithoutGroup.length + " " + Utils.pluralizeHelper(["студент", "студента", "студентов"], studentsWithoutGroup.length) + " без группы"}
@@ -403,8 +400,8 @@ const Course: React.FC = () => {
                                 courseHomeworks: homeworks
                             }))
                         }}
-                        onGroupsUpdate={loadGroups}
-                        groups={groups}
+                        onGroupsUpdate={updateCourseGroups}
+                        groups={course.groups ?? []}
                     />
                     }
                     {tabValue === "stats" &&
@@ -416,7 +413,7 @@ const Course: React.FC = () => {
                                     isMentor={isCourseMentor}
                                     course={courseState.course}
                                     solutions={studentSolutions}
-                                    groups={groups}
+                                    groups={course.groups ?? []}
                                 />
                             </Grid>
                         </Grid>}

@@ -61,7 +61,7 @@ interface ICourseExperimentalProps {
                         previouslyExistingFilesCount: number,
                         waitingNewFilesCount: number,
                         deletingFilesIds: number[]) => void;
-    onGroupsUpdate: () => void;
+    onGroupsUpdate: () => Promise<void>;
     groups: GroupViewModel[];
 }
 
@@ -428,6 +428,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     getAllHomeworks={() => homeworks}
                     homeworkAndFilesInfo={{homework, filesInfo}}
                     isMentor={isMentor}
+                    userId={props.userId}
                     initialEditMode={initialEditMode || homeworkEditMode}
                     onMount={onSelectedItemMount}
                     onAddTask={addNewTask}

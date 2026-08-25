@@ -5,6 +5,9 @@ namespace HwProj.CoursesService.API.Models
 {
     public class Filter
     {
+        [JsonProperty(PropertyName = "GRP")]
+        public List<long> GroupIds { get; set; }
+
         [JsonProperty(PropertyName = "STUD")] 
         public List<string> StudentIds { get; set; }
 

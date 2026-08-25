@@ -218,6 +218,12 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                                                                   selectedStudents: students
                                                               }))
                                                           }
+                                                          onSelectedGroupsChange={(groups) =>
+                                                              setState(prevState => ({
+                                                                  ...prevState,
+                                                                  selectedGroups: groups
+                                                              }))
+                                                          }
                                                           onWorkspaceInitialize={(success, errors) => {
                                                               if (!success) {
                                                                   setState(prevState => ({

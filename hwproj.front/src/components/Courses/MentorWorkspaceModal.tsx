@@ -7,7 +7,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import ApiSingleton from "../../api/ApiSingleton";
 import Typography from "@material-ui/core/Typography";
 import Grid from '@material-ui/core/Grid';
-import {HomeworkViewModel, AccountDataDto, EditMentorWorkspaceDTO} from "../../api";
+import {HomeworkViewModel, AccountDataDto, EditMentorWorkspaceDTO, GroupViewModel} from "../../api";
 import {Alert} from "@mui/material";
 import ErrorsHandler from "../Utils/ErrorsHandler";
 import {Snackbar} from "@material-ui/core";
@@ -25,6 +25,7 @@ interface MentorWorkspaceProps {
 interface MentorWorkspaceState {
     selectedHomeworks: HomeworkViewModel[];
     selectedStudents: AccountDataDto[];
+    selectedGroups: GroupViewModel[];
     errors: string[];
 }
 
@@ -32,6 +33,7 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
     const [state, setState] = useState<MentorWorkspaceState>({
         selectedHomeworks: [],
         selectedStudents: [],
+        selectedGroups: [],
         errors: []
     });
 
@@ -43,12 +45,13 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
     const [isWorkspaceUpdated, setIsWorkspaceUpdated]
         = useState<boolean>(false);
 
-    // Если преподаватель не выбрал ни одного студента, по умолчанию регистрируем всех. Аналогично с выбором домашних работ
+    // Если преподаватель не выбрал ни одного студента, по умолчанию регистрируем всех. Аналогично с выбором домашних работ и групп
     const handleWorkspaceChanges = async () => {
         try {
             const workspaceViewModel: EditMentorWorkspaceDTO = {
                 homeworkIds: state.selectedHomeworks.map(homeworkViewModel => homeworkViewModel.id!),
-                studentIds: state.selectedStudents.map(accountData => accountData.userId!)
+                studentIds: state.selectedStudents.map(accountData => accountData.userId!),
+                groupIds: state.selectedGroups.map(groupViewModel => groupViewModel.id!)
             }
 
             await ApiSingleton.coursesApi.coursesEditMentorWorkspace(
@@ -96,6 +99,12 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
                                       setState(prevState => ({
                                           ...prevState,
                                           selectedStudents: students
+                                      }))
+                                  }
+                                  onSelectedGroupsChange={(groups) =>
+                                      setState(prevState => ({
+                                          ...prevState,
+                                          selectedGroups: groups
                                       }))
                                   }
                                   onWorkspaceInitialize={(success, errors) => {

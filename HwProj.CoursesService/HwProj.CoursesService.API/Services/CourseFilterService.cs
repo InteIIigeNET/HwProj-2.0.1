@@ -22,11 +22,13 @@ namespace HwProj.CoursesService.API.Services
     {
         private const string GlobalFilterId = "";
         private readonly ICourseFilterRepository _courseFilterRepository;
+        private readonly IGroupsService _groupsService;
 
         public CourseFilterService(
-            ICourseFilterRepository courseFilterRepository)
+            ICourseFilterRepository courseFilterRepository, IGroupsService groupsService)
         {
             _courseFilterRepository = courseFilterRepository;
+            _groupsService = groupsService;
         }
 
         public async Task<Result<long>> CreateOrUpdateCourseFilter(CreateCourseFilterModel courseFilterModel)
@@ -130,15 +132,41 @@ namespace HwProj.CoursesService.API.Services
         public async Task<MentorToAssignedStudentsDTO[]> GetAssignedStudentsIds(long courseId, string[] mentorsIds)
         {
             var usersCourseFilters = await _courseFilterRepository.GetAsync(mentorsIds, courseId);
+            if (usersCourseFilters == null || usersCourseFilters.Count == 0)
+                return Array.Empty<MentorToAssignedStudentsDTO>();
 
-            return usersCourseFilters
-                .Where(u => u.CourseFilter.Filter.HomeworkIds.Count == 0)
-                .Select(u => new MentorToAssignedStudentsDTO
+            var groupIds = usersCourseFilters
+                .SelectMany(filter => filter.CourseFilter.Filter.GroupIds ?? Enumerable.Empty<long>())
+                .Distinct()
+                .ToArray();
+
+            var groups = await _groupsService.GetGroupsAsync(groupIds);
+            var groupToStudentIds = groups
+                .ToDictionary(
+                    g => g.Id,
+                    g => g.GroupMates?.Select(gm => gm.StudentId).ToArray() ?? Array.Empty<string>()
+                );
+
+            var result = usersCourseFilters
+                .Select(u =>
                 {
-                    MentorId = u.Id,
-                    SelectedStudentsIds = u.CourseFilter.Filter.StudentIds
+                    var directStudents = u.CourseFilter.Filter.StudentIds ?? new List<string>() {};
+                    var groupIdsForMentor = u.CourseFilter.Filter.GroupIds ?? Enumerable.Empty<long>();
+                    var studentsFromGroups = groupIdsForMentor
+                        .Where(gid => groupToStudentIds.ContainsKey(gid))
+                        .SelectMany(gid => groupToStudentIds[gid])
+                        .Distinct()
+                        .ToList();
+
+                    return new MentorToAssignedStudentsDTO
+                    {
+                        MentorId = u.Id,
+                        SelectedStudentsIds = directStudents.Concat(studentsFromGroups).Distinct().ToList()
+                    };
                 })
                 .ToArray();
+
+            return result;
         }
 
         private async Task<long> AddCourseFilter(Filter filter, long courseId, string userId)
@@ -176,6 +204,34 @@ namespace HwProj.CoursesService.API.Services
                 }
                 : editingCourseDto.Homeworks;
 
+            var groups = filter.GroupIds.Any()
+                ? editingCourseDto.Groups.Where(g => filter.GroupIds.Contains(g.Id))
+                : editingCourseDto.Groups;
+
+            var filteredStudentIds = filter.GroupIds.Any()
+                ? filter.StudentIds.Concat(groups.SelectMany(g => g.StudentsIds))
+                : filter.StudentIds.Any()
+                    ? filter.StudentIds
+                    : editingCourseDto.AcceptedStudents.Select(st => st.StudentId);
+
+            var filteredGroups = filteredStudentIds.Any()
+                ? editingCourseDto.Groups
+                    .Select(gs =>
+                    {
+                        var groupStudentsIds = gs.StudentsIds.Intersect(filteredStudentIds).ToArray();
+                        return groupStudentsIds.Any()
+                            ? new GroupViewModel
+                        {
+                            Id = gs.Id,
+                            Name = gs.Name,
+                            StudentsIds = groupStudentsIds
+                        }
+                        : null;
+                    })
+                    .Where(t => t != null)
+                    .ToArray()
+                : editingCourseDto.Groups;
+
             return new CourseDTO
             {
                 Id = editingCourseDto.Id,
@@ -184,32 +240,21 @@ namespace HwProj.CoursesService.API.Services
                 IsCompleted = editingCourseDto.IsCompleted,
                 IsOpen = editingCourseDto.IsOpen,
                 InviteCode = editingCourseDto.InviteCode,
-                Groups =
-                    (filter.StudentIds.Any()
-                        ? editingCourseDto.Groups.Select(gs =>
-                            {
-                                var filteredStudentsIds = gs.StudentsIds.Intersect(filter.StudentIds).ToArray();
-                                return filteredStudentsIds.Any()
-                                    ? new GroupViewModel
-                                    {
-                                        Id = gs.Id,
-                                        Name = gs.Name,
-                                        StudentsIds = filteredStudentsIds
-                                    }
-                                    : null;
-                            })
-                            .Where(t => t != null)
-                            .ToArray()
-                        : editingCourseDto.Groups)!,
+                Groups = filter.GroupIds.Any()
+                    ? filteredGroups
+                        .Where(g => filter.GroupIds.Contains(g.Id) || g.Name == string.Empty)
+                        .ToArray()
+                    : filteredGroups,
                 MentorIds = filter.MentorIds.Any()
                     ? editingCourseDto.MentorIds.Intersect(filter.MentorIds).ToArray()
                     : editingCourseDto.MentorIds,
-                CourseMates =
-                    filter.StudentIds.Any()
-                        ? editingCourseDto.CourseMates
-                            .Where(mate => !mate.IsAccepted || filter.StudentIds.Contains(mate.StudentId)).ToArray()
-                        : editingCourseDto.CourseMates,
-                Homeworks = homeworks.OrderBy(hw => hw.PublicationDate).ToArray()
+                CourseMates = editingCourseDto.CourseMates
+                    .Where(mate => !mate.IsAccepted || filteredStudentIds.Contains(mate.StudentId))
+                    .ToArray(),
+                Homeworks = homeworks
+                    .Where(hw => hw.GroupId == null || groups.Any(g => g.Id == hw.GroupId))
+                    .OrderBy(hw => hw.PublicationDate)
+                    .ToArray()
             };
         }
 
@@ -225,7 +270,8 @@ namespace HwProj.CoursesService.API.Services
             {
                 var existingCourseFilter = filters.SingleOrDefault(f => f.Id == filterId)?.CourseFilter;
                 var newFilter = existingCourseFilter?.Filter
-                    ?? new Filter { StudentIds = new List<string>(), HomeworkIds = new List<long>(), MentorIds = new List<string>() };
+                    ?? new Filter { GroupIds = new List<long>(), StudentIds = new List<string>(),
+                        HomeworkIds = new List<long>(), MentorIds = new List<string>() };
                 newFilter.HomeworkIds.Add(homeworkId);
 
                 if (existingCourseFilter != null)
@@ -233,6 +279,43 @@ namespace HwProj.CoursesService.API.Services
                 else
                     await AddCourseFilter(newFilter, courseId, filterId);
             }
+        }
+
+        public async Task AddToFilter(long courseId, string userId, Filter filter)
+        {
+            var existingCourseFilter = await _courseFilterRepository.GetAsync(userId, courseId);
+            if (existingCourseFilter?.Filter is null)
+                return;
+
+            var targetFilter = existingCourseFilter.Filter.FillEmptyFields();
+            filter.FillEmptyFields();
+
+            var hasChanges =
+                AddToFilterList(targetFilter.GroupIds, filter.GroupIds)
+                | AddToFilterList(targetFilter.StudentIds, filter.StudentIds)
+                | AddToFilterList(targetFilter.HomeworkIds, filter.HomeworkIds)
+                | AddToFilterList(targetFilter.MentorIds, filter.MentorIds);
+
+            if (hasChanges)
+                await UpdateAsync(existingCourseFilter.Id, targetFilter);
+        }
+
+        private static bool AddToFilterList<T>(List<T> target, IEnumerable<T> itemsToAdd)
+        {
+            if (!target.Any())
+                return false;
+
+            var hasChanges = false;
+            foreach (var item in itemsToAdd.Distinct())
+            {
+                if (target.Contains(item))
+                    continue;
+
+                target.Add(item);
+                hasChanges = true;
+            }
+
+            return hasChanges;
         }
     }
 }
