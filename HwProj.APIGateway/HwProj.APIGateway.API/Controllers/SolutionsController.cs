@@ -20,6 +20,7 @@ using PostSolutionModel = HwProj.APIGateway.API.Models.Solutions.PostSolutionMod
 
 namespace HwProj.APIGateway.API.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 [ForbiddenExceptionFilter]
@@ -41,13 +42,17 @@ public class SolutionsController : AggregationController
     public async Task<IActionResult> GetSolutionById(long solutionId)
     {
         var result = await _solutionsClient.GetSolutionById(solutionId);
+        if (result.StudentId != UserId && !User.IsInRole(Roles.LecturerRole))
+        {
+            return Forbid();
+        }
+
         return result == null
             ? NotFound()
             : Ok(result);
     }
 
     [HttpGet("taskSolution/{taskId}/{studentId}")]
-    [Authorize]
     [ProducesResponseType(typeof(UserTaskSolutionsPageData), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetStudentSolution(long taskId, string studentId)
     {
@@ -144,7 +149,6 @@ public class SolutionsController : AggregationController
     }
 
     // Научить без конкретного taskId по courseId получать данные
-    [Authorize]
     [HttpGet("tasks/{taskId}")]
     [ProducesResponseType(typeof(TaskSolutionStatisticsPageData), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetTaskSolutionsPageData(long taskId, string? secondMentorId = null)
@@ -503,7 +507,6 @@ public class SolutionsController : AggregationController
         };
     }
 
-    [Authorize]
     [HttpGet("solutionAchievement")]
     [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetSolutionAchievement(long taskId, long solutionId)
