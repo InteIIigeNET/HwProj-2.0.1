@@ -192,7 +192,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
         return {
             points: storageValue?.points || props.solution?.rating || 0,
-            lecturerComment: storageValue?.comment || storedCriteria.commentWithoutCriteria,
+            lecturerComment: storageValue?.comment || props.solution?.lecturerComment || "",
             clickedForRate,
             addBonusPoints: hasCriteria,
         };
