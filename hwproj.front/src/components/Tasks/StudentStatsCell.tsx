@@ -41,23 +41,29 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
             <Chip color={"default"} size={"small"} label={ratedSolutionsCount}/>
         </Stack>;
 
+    const solutionUrl = forMentor
+        ? `/task/${props.taskId}/${props.studentId}`
+        : `/task/${props.taskId}`
+
+    const openInNewTab = () => window.open(solutionUrl, '_blank', 'noopener,noreferrer');
+
     const handleCellClick = (e: React.MouseEvent) => {
-        if(props.disabled) return;
+        if (props.disabled) return;
 
-        // Формируем URL
-        const url = forMentor
-            ? `/task/${props.taskId}/${props.studentId}`
-            : `/task/${props.taskId}`
-        // Проверяем, была ли нажата Ctrl/Cmd
-        const isSpecialClick = e.ctrlKey || e.metaKey;
-
-        if (isSpecialClick) {
-            // Открываем в новой вкладке
-            window.open(url, '_blank', 'noopener,noreferrer');
+        // Ctrl/Cmd + клик — открываем в новой вкладке
+        if (e.ctrlKey || e.metaKey) {
+            openInNewTab();
         } else {
-            // Переходим в текущей вкладке
-            navigate(url);
+            navigate(solutionUrl);
         }
+    };
+
+    // Средняя кнопка мыши — открываем в новой вкладке
+    const handleCellAuxClick = (e: React.MouseEvent) => {
+        if (props.disabled || e.button !== 1) return;
+
+        e.preventDefault();
+        openInNewTab();
     };
 
     return (
@@ -65,6 +71,10 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
                  title={<span style={{whiteSpace: 'pre-line'}}>{tooltipTitle}</span>}>
             <TableCell
                 onClick={handleCellClick}
+                onAuxClick={handleCellAuxClick}
+                onMouseDown={e => {
+                    if (!props.disabled && e.button === 1) e.preventDefault();
+                }}
                 className={props.isBestSolution ? "glow-cell" : ""}
                 component="td"
                 padding="none"
