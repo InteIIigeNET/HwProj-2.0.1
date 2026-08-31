@@ -9,6 +9,7 @@ import InviteLecturerModal from "./InviteLecturerModal";
 import MailIcon from '@mui/icons-material/Mail';
 import {Button} from "@mui/material";
 import {useLocation, useNavigate} from "react-router-dom";
+import hwCat from "./hw-cat.png";
 
 const styles = makeStyles(theme => ({
     tools: {
@@ -97,9 +98,39 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
             <div className={"container"} style={{display: "flex", alignItems: "center"}}>
                 <Grid container spacing={1} alignItems={"center"}>
                     <Grid item>
-                        <Link to={"/"}>
-                            <Typography variant="h6" style={{color: 'white', fontFamily: "Helvetica"}}>
-                                HW😺
+                        <Link
+                            to={"/"}
+                            aria-label={"HW — главная"}
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "4px",
+                                textDecoration: "none"
+                            }}
+                        >
+                            <img
+                                src={hwCat}
+                                alt={""}
+                                draggable={false}
+                                style={{
+                                    display: "block",
+                                    width: "50px",
+                                    height: "44px",
+                                    objectFit: "contain"
+                                }}
+                            />
+                            <Typography
+                                component={"span"}
+                                style={{
+                                    color: "white",
+                                    fontFamily: "Helvetica, Arial, sans-serif",
+                                    fontSize: "22px",
+                                    fontWeight: 700,
+                                    lineHeight: 1,
+                                    letterSpacing: "0.5px",
+                                }}
+                            >
+                                HW
                             </Typography>
                         </Link>
                     </Grid>
