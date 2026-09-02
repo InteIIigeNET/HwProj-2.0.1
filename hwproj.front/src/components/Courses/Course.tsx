@@ -31,6 +31,7 @@ import {
 } from "@mui/material";
 import {CourseExperimental} from "./CourseExperimental";
 import MentorsList from "../Common/MentorsList";
+import {CourseTile} from "../Common/CourseTile";
 import LecturerStatistics from "./Statistics/LecturerStatistics";
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import {QRCodeSVG} from 'qrcode.react';
@@ -71,22 +72,6 @@ const panelSx = {
     borderRadius: "14px",
     borderColor: "#c4cad2",
 }
-
-// Цвет плитки курса выводится из названия так же, как в списке курсов,
-// чтобы курс узнавался при переходе со списка на страницу
-const getHue = (value: string) => {
-    let hash = 0
-    for (let i = 0; i < value.length; i++) hash = (hash * 31 + value.charCodeAt(i)) % 360
-    return hash
-}
-
-const getInitials = (value: string) => value
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map(word => word[0])
-    .join("")
-    .toUpperCase()
 
 const Course: React.FC = () => {
     const {courseId, tab} = useParams()
@@ -284,7 +269,6 @@ const Course: React.FC = () => {
 
     if (isFound) {
         const courseName = course.name ?? ""
-        const hue = getHue(courseName)
 
         return (
             <div className="container">
@@ -332,23 +316,12 @@ const Course: React.FC = () => {
                             alignItems={{xs: "stretch", sm: "flex-start"}}
                         >
                             <Stack direction={"row"} spacing={2} sx={{flexGrow: 1, minWidth: 0}}>
-                                <Box
-                                    sx={{
-                                        width: 52,
-                                        height: 52,
-                                        flexShrink: 0,
-                                        borderRadius: "14px",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        fontSize: "1.15rem",
-                                        fontWeight: 700,
-                                        backgroundColor: `hsl(${hue}, 70%, 94%)`,
-                                        color: `hsl(${hue}, 45%, 38%)`,
-                                    }}
-                                >
-                                    {getInitials(courseName)}
-                                </Box>
+                                <CourseTile
+                                    name={courseName}
+                                    size={52}
+                                    fontSize={"1.15rem"}
+                                    borderRadius={"14px"}
+                                />
                                 <Box sx={{minWidth: 0}}>
                                     <Typography
                                         component={"h1"}
