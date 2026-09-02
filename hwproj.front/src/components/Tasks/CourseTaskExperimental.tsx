@@ -1,16 +1,13 @@
 import {
     Alert,
-    CardActions,
-    CardContent,
     Chip,
     Divider,
-    Grid,
     IconButton,
+    InputAdornment,
     TextField,
     Typography,
     Button,
     Box,
-    Link,
     Checkbox,
     FormControlLabel,
     Menu,
@@ -34,12 +31,149 @@ import Collapse from "@mui/material/Collapse";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import ChecklistRoundedIcon from "@mui/icons-material/ChecklistRounded";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import StarRoundedIcon from "@mui/icons-material/StarRounded";
+import GroupIcon from "@mui/icons-material/Group";
+import AddIcon from "@mui/icons-material/Add";
 import TaskCriteria from "./TaskCriteria";
 import {BonusTag} from "@/components/Common/HomeworkTags";
 import Utils from "../../services/Utils";
 import ErrorsHandler from "@/components/Utils/ErrorsHandler";
 import {enqueueSnackbar} from "notistack";
 
+
+// Оформление согласовано с редизайном страницы курса: те же радиусы, границы и мягкие плашки
+const editorHeaderSx = {
+    px: {xs: 2, sm: 2.5},
+    py: 1,
+    backgroundColor: "#f3f4fb",
+    color: "#3f51b5",
+}
+
+const detailHeaderSx = {
+    px: {xs: 2, sm: 2.5},
+    py: 2,
+    backgroundColor: "#f7f8fd",
+    borderBottom: "1px solid #e6e8f0",
+}
+
+const detailTitleSx = {
+    fontSize: "1.25rem",
+    fontWeight: 600,
+    lineHeight: 1.3,
+    m: 0,
+}
+
+const sectionSx = {
+    px: {xs: 2, sm: 2.5},
+    py: 2.5,
+}
+
+// Подпись группы полей: мелкие капсы читаются как служебный текст и не спорят с названиями
+const sectionLabelSx = {
+    display: "block",
+    color: "text.secondary",
+    fontWeight: 600,
+    fontSize: "0.6875rem",
+    letterSpacing: "0.06em",
+    textTransform: "uppercase" as const,
+}
+
+const sectionBoxSx = {
+    px: 1.5,
+    py: 1.5,
+    border: "1px solid #e0e3e7",
+    borderRadius: "12px",
+}
+
+const inputSx = {
+    "& .MuiOutlinedInput-root": {borderRadius: "10px"},
+}
+
+// Редактор markdown задаёт себе внешние отступы инлайном, поэтому гасим их через !important
+const markdownEditorSx = {
+    "& > div": {marginTop: "8px !important", marginBottom: "0 !important"},
+}
+
+const criterionCardSx = {
+    px: 1.5,
+    py: 1.5,
+    border: "1px solid #e0e3e7",
+    borderRadius: "12px",
+    backgroundColor: "#fff",
+}
+
+// Критерий дедлайна — единственный со штрафом, поэтому у него тёплая рамка вместо серой
+const deadlineCriterionCardSx = {
+    borderColor: "#f0e0bd",
+    backgroundColor: "#fffdf7",
+}
+
+const accentChipSx = {
+    height: 24,
+    backgroundColor: "#e4e7f6",
+    color: "#3f51b5",
+    "& .MuiChip-label": {px: 0.875, fontSize: "0.8125rem", fontWeight: 600},
+    "& .MuiChip-icon": {ml: 0.75, mr: -0.25, fontSize: 16, color: "inherit"},
+}
+
+const metaChipSx = {
+    height: 24,
+    backgroundColor: "#eef0f5",
+    color: "text.secondary",
+    "& .MuiChip-label": {px: 0.875, fontSize: "0.8125rem", fontWeight: 500},
+    "& .MuiChip-icon": {ml: 0.75, mr: -0.25, fontSize: 16, color: "inherit"},
+}
+
+const countChipSx = {
+    height: 20,
+    backgroundColor: "#eef0f5",
+    color: "text.secondary",
+    "& .MuiChip-label": {px: 0.75, fontSize: "0.75rem", fontWeight: 500},
+}
+
+const autoChipSx = {
+    height: 20,
+    backgroundColor: "#e8f8ee",
+    color: "#159947",
+    "& .MuiChip-label": {px: 0.75, fontSize: "0.75rem", fontWeight: 600},
+}
+
+const alertSx = {borderRadius: "12px"}
+
+const flatButtonSx = {
+    textTransform: "none" as const,
+    borderRadius: "10px",
+    alignSelf: "flex-start" as const,
+}
+
+const submitButtonSx = {
+    textTransform: "none" as const,
+    borderRadius: "10px",
+    py: 1,
+}
+
+const dangerIconButtonSx = {
+    flexShrink: 0,
+    border: "1px solid #f1d4d4",
+    borderRadius: "10px",
+}
+
+const footerSx = {
+    px: {xs: 2, sm: 2.5},
+    py: 1.5,
+    borderTop: "1px solid #e6e8f0",
+    backgroundColor: "#fafbfe",
+}
+
+// Действие появляется при наведении на карточку, но остаётся доступным с клавиатуры
+const hoverActionSx = {
+    flexShrink: 0,
+    transition: "opacity .15s",
+    "&:focus-visible": {opacity: 1},
+}
 
 interface IEditTaskMetadataState {
     hasDeadline: boolean | undefined;
@@ -136,23 +270,17 @@ const CourseTaskEditor: FC<{
             anchorEl={addCriterionAnchor}
             open={Boolean(addCriterionAnchor)}
             onClose={() => setAddCriterionAnchor(null)}
+            slotProps={{paper: {sx: {borderRadius: "12px", minWidth: 220, mt: 0.5}}}}
         >
-            <MenuItem onClick={addDefaultCriterion}>
-                Обычный критерий
+            <MenuItem onClick={addDefaultCriterion} sx={{gap: 1.25, py: 1}}>
+                <ChecklistRoundedIcon sx={{fontSize: 18, color: "text.secondary"}}/>
+                <Typography variant="body2">Обычный критерий</Typography>
             </MenuItem>
-            <MenuItem onClick={addDeadlineCriterion}>
-                <Stack direction="row" spacing={1} alignItems="center">
-                    <Typography variant="inherit">Дедлайн</Typography>
-                    <Chip
-                        label="Авто"
-                        size="small"
-                        sx={{
-                            backgroundColor: "#E8F8EE",
-                            color: "#159947",
-                            fontWeight: 600,
-                        }}
-                    />
-                </Stack>
+            <MenuItem onClick={addDeadlineCriterion} sx={{gap: 1.25, py: 1}}>
+                <ScheduleIcon sx={{fontSize: 18, color: "text.secondary"}}/>
+                <Typography variant="body2">Дедлайн</Typography>
+                <Box sx={{flexGrow: 1}}/>
+                <Chip label="Авто" size="small" sx={autoChipSx}/>
             </MenuItem>
         </Menu>
     );
@@ -304,27 +432,61 @@ const CourseTaskEditor: FC<{
     }
 
     return (
-        <CardContent>
-            <Grid container xs={"auto"} spacing={1} direction={"row"} justifyContent={"space-between"}
-                  alignItems={"flex-start"} alignContent={"start"}>
-                <Grid item xs={8}>
-                    <Stack direction={"row"} spacing={1} alignItems={"flex-end"}>
+        <Box>
+            <Stack direction={"row"} alignItems={"center"} spacing={1} sx={editorHeaderSx}>
+                <EditOutlinedIcon fontSize={"small"}/>
+                <Typography variant={"body2"} sx={{fontWeight: 500}}>
+                    {isNewTask ? "Новая задача" : "Редактирование задачи"}
+                </Typography>
+            </Stack>
+            <Divider/>
+            <Box sx={sectionSx}>
+                <Stack direction={"column"} spacing={2.5}>
+                    <Stack direction={{xs: "column", sm: "row"}} spacing={1.5} alignItems={"flex-start"}>
                         <TextField
                             required
                             fullWidth
+                            size={"small"}
                             error={!title}
                             label="Название задачи"
-                            variant="standard"
-                            margin="normal"
+                            variant="outlined"
+                            sx={inputSx}
                             value={title}
                             onChange={(e) => {
                                 e.persist()
                                 setTitle(e.target.value)
                             }}
                         />
-                        {!homework.tags!.includes(BonusTag) && <FormControlLabel
-                            style={{height: 32}}
-                            label="Бонусная"
+                        <TextField
+                            size="small"
+                            required
+                            error={maxRating <= 0}
+                            helperText={maxRatingLabel}
+                            label="Баллы"
+                            variant="outlined"
+                            type="number"
+                            sx={{...inputSx, width: {xs: "100%", sm: 120}, flexShrink: 0}}
+                            value={maxRating}
+                            InputProps={{readOnly: hasRegularCriteria}}
+                            onChange={(e) => {
+                                if (!hasRegularCriteria) {
+                                    e.persist();
+                                    setMaxRating(+e.target.value);
+                                }
+                            }}
+                        />
+                    </Stack>
+                    {!homework.tags!.includes(BonusTag) &&
+                        <FormControlLabel
+                            sx={{
+                                m: 0,
+                                pr: 1.5,
+                                py: 0.25,
+                                alignSelf: "flex-start",
+                                border: "1px solid #e0e3e7",
+                                borderRadius: "12px",
+                            }}
+                            label="Бонусная задача"
                             control={
                                 <Checkbox
                                     disableRipple
@@ -337,75 +499,53 @@ const CourseTaskEditor: FC<{
                                 />
                             }
                         />}
-                    </Stack>
-                </Grid>
-                <Grid item>
-                    <TextField
-                        size="small"
-                        required
-                        fullWidth
-                        error={maxRating <= 0}
-                        helperText={maxRatingLabel}
-                        style={{width: "90px", marginTop: 3}}
-                        label="Баллы"
-                        variant="outlined"
-                        margin="normal"
-                        type="number"
-                        value={maxRating}
-                        InputProps={{readOnly: hasRegularCriteria}}
-                        onChange={(e) => {
-                            if (!hasRegularCriteria) {
-                                e.persist();
-                                setMaxRating(+e.target.value);
-                            }
-                        }}
-                    />
-                </Grid>
-            </Grid>
-            <Grid container>
-                <Grid item xs={12} style={{marginBottom: "5px", marginTop: -2}}>
-                    <MarkdownEditor
-                        label={"Условие задачи"}
-                        height={240}
-                        maxHeight={400}
-                        value={description}
-                        onChange={(value) => {
-                            setDescription(value)
-                        }}
-                    />
-                </Grid>
-                {metadata && homeworkPublicationDateIsSet &&
-                    <Grid item xs={12} style={{marginBottom: "15px"}}>
-                        <TaskPublicationAndDeadlineDates
-                            homework={homework}
-                            hasDeadline={metadata.hasDeadline}
-                            isDeadlineStrict={metadata.isDeadlineStrict}
-                            publicationDate={metadata.publicationDate}
-                            deadlineDate={metadata.deadlineDate}
-                            disabledPublicationDate={metadata.isPublished}
-                            onChange={(state) => {
-                                setMetadata({
-                                    hasDeadline: state.hasDeadline,
-                                    isDeadlineStrict: state.isDeadlineStrict,
-                                    publicationDate: state.publicationDate,
-                                    deadlineDate: state.deadlineDate,
-                                    isPublished: metadata.isPublished,
-                                    hasErrors: state.hasErrors
-                                })
-                            }}
-                        />
-                    </Grid>
-                }
-                {metadata && !homeworkPublicationDateIsSet &&
-                    <Grid item xs={12} style={{marginBottom: "15px"}}>
+                    <Box>
+                        <Typography sx={sectionLabelSx}>Условие задачи</Typography>
+                        <Box sx={markdownEditorSx}>
+                            <MarkdownEditor
+                                label={"Условие задачи"}
+                                height={240}
+                                maxHeight={400}
+                                value={description}
+                                onChange={(value) => {
+                                    setDescription(value)
+                                }}
+                            />
+                        </Box>
+                    </Box>
+                    {metadata && homeworkPublicationDateIsSet &&
+                        <Box sx={sectionBoxSx}>
+                            <Typography sx={{...sectionLabelSx, mb: 0.5}}>Даты задачи</Typography>
+                            <TaskPublicationAndDeadlineDates
+                                homework={homework}
+                                hasDeadline={metadata.hasDeadline}
+                                isDeadlineStrict={metadata.isDeadlineStrict}
+                                publicationDate={metadata.publicationDate}
+                                deadlineDate={metadata.deadlineDate}
+                                disabledPublicationDate={metadata.isPublished}
+                                onChange={(state) => {
+                                    setMetadata({
+                                        hasDeadline: state.hasDeadline,
+                                        isDeadlineStrict: state.isDeadlineStrict,
+                                        publicationDate: state.publicationDate,
+                                        deadlineDate: state.deadlineDate,
+                                        isPublished: metadata.isPublished,
+                                        hasErrors: state.hasErrors
+                                    })
+                                }}
+                            />
+                        </Box>
+                    }
+                    {metadata && !homeworkPublicationDateIsSet &&
                         <Alert
                             severity="info"
-                            icon={false}
+                            sx={alertSx}
                             action={
                                 <Button
                                     color="inherit"
                                     size="small"
                                     onClick={props.toEditHomework}
+                                    sx={{textTransform: "none", borderRadius: "10px"}}
                                 >
                                     К заданию
                                 </Button>
@@ -413,152 +553,62 @@ const CourseTaskEditor: FC<{
                         >
                             Для изменения дат укажите дату публикации домашнего задания
                         </Alert>
-                    </Grid>
-                }
-                <Grid item xs={12} sx={{mt: 1, mb: 2}}>
-                    {criteria.length === 0 && (
-                        <Grid container direction={"row"} alignItems="baseline">
-                            <Grid item>
-                                <Typography variant="body2" color="text.secondary">
-                                    Критерии оценивания не указаны.&nbsp;
-                                </Typography>
-                            </Grid>
-                            <Grid item>
-                                <Link style={{cursor: "pointer"}} variant="body2" color="primary"
-                                      onClick={(e) => setAddCriterionAnchor(e.currentTarget)}>
-                                    Добавить критерий оценивания
-                                </Link>
-                            </Grid>
-                        </Grid>
-                    )}
-                    {criteria.length > 0 && (
-                        <>
-                            <Box sx={{mb: 1}}>
-                                <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                    }
+                    <Box sx={sectionBoxSx}>
+                        <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                            <ChecklistRoundedIcon sx={{fontSize: 18, color: "#3f51b5"}}/>
+                            <Typography variant={"body2"} sx={{fontWeight: 500}}>
+                                Критерии оценивания
+                            </Typography>
+                            {criteria.length > 0 &&
+                                <Chip size={"small"} label={criteria.length} sx={countChipSx}/>}
+                            <Box sx={{flexGrow: 1}}/>
+                            {criteria.length > 0 &&
+                                <Tooltip arrow title={isCriteriaOpen ? "Свернуть" : "Развернуть"}>
                                     <IconButton
                                         size="small"
                                         onClick={() => setIsCriteriaOpen(prev => !prev)}
                                     >
-                                        {isCriteriaOpen ? (
-                                            <ExpandLessIcon fontSize="small"/>
-                                        ) : (
-                                            <ExpandMoreIcon fontSize="small"/>
-                                        )}
+                                        {isCriteriaOpen
+                                            ? <ExpandLessIcon fontSize="small"/>
+                                            : <ExpandMoreIcon fontSize="small"/>}
                                     </IconButton>
-
-                                    <Chip size={"small"} label={criteria.length} color={"default"}/>
-
-                                    <Typography variant="subtitle1">
-                                        Критерии оценивания
-                                    </Typography>
-                                </Stack>
-                            </Box>
-
+                                </Tooltip>}
+                        </Stack>
+                        {criteria.length === 0 &&
+                            <Stack direction={"column"} spacing={0.5} sx={{mt: 1}} alignItems={"flex-start"}>
+                                <Typography variant="body2" color="text.secondary">
+                                    Критерии оценивания не указаны
+                                </Typography>
+                                <Button
+                                    size="small"
+                                    startIcon={<AddIcon/>}
+                                    onClick={(e) => setAddCriterionAnchor(e.currentTarget)}
+                                    sx={flatButtonSx}
+                                >
+                                    Добавить критерий оценивания
+                                </Button>
+                            </Stack>}
+                        {criteria.length > 0 &&
                             <Collapse in={isCriteriaOpen} timeout="auto" unmountOnExit>
-                                <Stack spacing={0.5}>
+                                <Stack direction={"column"} spacing={1} sx={{mt: 1.5}}>
                                     {criteria.map((c, index) => isDeadlineCriterion(c) ? (
-                                        <Box
-                                            key={index}
-                                            sx={{
-                                                border: "1px solid #E2E5EC",
-                                                borderRadius: "8px",
-                                                p: 2,
-                                                backgroundColor: "#fff",
-                                            }}
-                                        >
-                                            <Grid container spacing={1.5} alignItems="flex-start">
-                                                <Grid item xs={12}>
-                                                    <Stack direction="row" spacing={1} alignItems="center">
-                                                        <Chip
-                                                            label="Авто"
-                                                            size="small"
-                                                            sx={{
-                                                                backgroundColor: "#E8F8EE",
-                                                                color: "#159947",
-                                                                fontWeight: 600,
-                                                            }}
-                                                        />
-                                                        <Typography variant="subtitle1">
-                                                            Критерий дедлайна
-                                                        </Typography>
-                                                        <Tooltip
-                                                            arrow
-                                                            placement="right"
-                                                            title={`После ${c.arguments ? Utils.renderDateWithoutSeconds(new Date(c.arguments)) : "дедлайна"} будет списан ${c.maxPoints || 1} балл`}
-                                                        >
-                                                            <HelpOutlineIcon sx={{fontSize: 18, color: "#667085"}}/>
-                                                        </Tooltip>
-                                                    </Stack>
-                                                </Grid>
-                                                <Grid item xs>
-                                                    <Stack spacing={1}>
-                                                        <TextField
-                                                            fullWidth
-                                                            size="small"
-                                                            variant="standard"
-                                                            label="Название критерия"
-                                                            value={c.name}
-                                                            inputProps={{maxLength: 50}}
-                                                            onChange={(e) => updateCriterion(index, {name: e.target.value.slice(0, 50)})}
-                                                        />
-                                                        <TextField
-                                                            label="Дата и время"
-                                                            type="datetime-local"
-                                                            size="small"
-                                                            variant="standard"
-                                                            required
-                                                            error={!c.arguments}
-                                                            sx={{mt: 1}}
-                                                            value={c.arguments ? Utils.toISOString(new Date(c.arguments)) : ""}
-                                                            onChange={(e) =>
-                                                                updateCriterion(index, {
-                                                                    arguments: e.target.value
-                                                                        ? new Date(e.target.value).toISOString()
-                                                                        : undefined,
-                                                                })
-                                                            }
-                                                            InputLabelProps={{shrink: true}}
-                                                        />
-                                                        {isBasedOnEffectiveDeadline(c) && (
-                                                            <Typography variant="body2" color="text.secondary">
-                                                                На основе дедлайна
-                                                            </Typography>
-                                                        )}
-                                                    </Stack>
-                                                </Grid>
-                                                <Grid item>
-                                                    <Stack direction="row" spacing={0.75} alignItems="center">
-                                                        <Typography
-                                                            aria-hidden="true"
-                                                            color="text.secondary"
-                                                            sx={{fontSize: 20, lineHeight: 1}}
-                                                        >
-                                                            -
-                                                        </Typography>
-                                                        <TextField
-                                                            label="Штраф"
-                                                            type="number"
-                                                            size="small"
-                                                            sx={{width: 110}}
-                                                            value={c.maxPoints ?? 1}
-                                                            inputProps={{min: 1}}
-                                                            onKeyDown={(e) => {
-                                                                if (e.key === "-") e.preventDefault();
-                                                            }}
-                                                            onChange={(e) =>
-                                                                updateCriterion(index, {
-                                                                    maxPoints: Math.max(+e.target.value, 1),
-                                                                })
-                                                            }
-                                                            onBlur={(e) =>
-                                                                updateCriterion(index, {
-                                                                    maxPoints: Math.max(+e.target.value, 1),
-                                                                })
-                                                            }
-                                                        />
-                                                    </Stack>
-                                                </Grid>
-                                                <Grid item>
+                                        <Box key={index} sx={{...criterionCardSx, ...deadlineCriterionCardSx}}>
+                                            <Stack direction="row" spacing={1} alignItems="center" sx={{mb: 1.5}}>
+                                                <ScheduleIcon sx={{fontSize: 18, color: "#9a5b00"}}/>
+                                                <Typography variant="body2" sx={{fontWeight: 500}}>
+                                                    Критерий дедлайна
+                                                </Typography>
+                                                <Chip label="Авто" size="small" sx={autoChipSx}/>
+                                                <Tooltip
+                                                    arrow
+                                                    placement="right"
+                                                    title={`После ${c.arguments ? Utils.renderDateWithoutSeconds(new Date(c.arguments)) : "дедлайна"} будет списан ${c.maxPoints || 1} балл`}
+                                                >
+                                                    <HelpOutlineIcon sx={{fontSize: 16, color: "#667085"}}/>
+                                                </Tooltip>
+                                                <Box sx={{flexGrow: 1}}/>
+                                                <Tooltip arrow title={"Удалить критерий"}>
                                                     <IconButton
                                                         onClick={() => removeCriterion(index)}
                                                         color="error"
@@ -566,41 +616,53 @@ const CourseTaskEditor: FC<{
                                                     >
                                                         <CloseIcon fontSize="small"/>
                                                     </IconButton>
-                                                </Grid>
-                                            </Grid>
-                                        </Box>
-                                    ) : (
-                                        <Grid
-                                            key={index}
-                                            container
-                                            spacing={1}
-                                            alignItems="center"
-                                            sx={{py: 0.5}}
-                                        >
-                                            <Grid item xs>
+                                                </Tooltip>
+                                            </Stack>
+                                            <Stack
+                                                direction={{xs: "column", md: "row"}}
+                                                spacing={1.5}
+                                                alignItems={"flex-start"}
+                                            >
                                                 <TextField
                                                     fullWidth
                                                     size="small"
-                                                    variant={"standard"}
+                                                    variant="outlined"
                                                     label="Название критерия"
+                                                    sx={inputSx}
+                                                    error={!c.name}
                                                     value={c.name}
                                                     inputProps={{maxLength: 50}}
-                                                    onChange={(e) => {
-                                                        const raw = e.target.value;
-                                                        const limited = raw.slice(0, 50);
-                                                        updateCriterion(index, {name: limited});
-                                                    }}
+                                                    onChange={(e) => updateCriterion(index, {name: e.target.value.slice(0, 50)})}
                                                 />
-                                            </Grid>
-
-                                            <Grid item>
                                                 <TextField
-                                                    label="Баллы"
+                                                    label="Дата и время"
+                                                    type="datetime-local"
+                                                    size="small"
+                                                    variant="outlined"
+                                                    required
+                                                    error={!c.arguments}
+                                                    sx={{...inputSx, width: {xs: "100%", md: 220}, flexShrink: 0}}
+                                                    value={c.arguments ? Utils.toISOString(new Date(c.arguments)) : ""}
+                                                    onChange={(e) =>
+                                                        updateCriterion(index, {
+                                                            arguments: e.target.value
+                                                                ? new Date(e.target.value).toISOString()
+                                                                : undefined,
+                                                        })
+                                                    }
+                                                    InputLabelProps={{shrink: true}}
+                                                    helperText={isBasedOnEffectiveDeadline(c) ? "На основе дедлайна" : " "}
+                                                />
+                                                <TextField
+                                                    label="Штраф"
                                                     type="number"
                                                     size="small"
-                                                    sx={{width: 100}}
-                                                    value={c.maxPoints}
+                                                    sx={{...inputSx, width: {xs: "100%", md: 128}, flexShrink: 0}}
+                                                    value={c.maxPoints ?? 1}
                                                     inputProps={{min: 1}}
+                                                    InputProps={{
+                                                        startAdornment: <InputAdornment position="start">−</InputAdornment>,
+                                                    }}
                                                     onKeyDown={(e) => {
                                                         if (e.key === "-") e.preventDefault();
                                                     }}
@@ -615,8 +677,53 @@ const CourseTaskEditor: FC<{
                                                         })
                                                     }
                                                 />
-                                            </Grid>
-                                            <Grid item>
+                                            </Stack>
+                                        </Box>
+                                    ) : (
+                                        <Stack
+                                            key={index}
+                                            direction="row"
+                                            spacing={1.5}
+                                            alignItems="center"
+                                            sx={criterionCardSx}
+                                        >
+                                            <TextField
+                                                fullWidth
+                                                size="small"
+                                                variant="outlined"
+                                                label="Название критерия"
+                                                sx={inputSx}
+                                                error={!c.name}
+                                                value={c.name}
+                                                inputProps={{maxLength: 50}}
+                                                onChange={(e) => {
+                                                    const raw = e.target.value;
+                                                    const limited = raw.slice(0, 50);
+                                                    updateCriterion(index, {name: limited});
+                                                }}
+                                            />
+                                            <TextField
+                                                label="Баллы"
+                                                type="number"
+                                                size="small"
+                                                sx={{...inputSx, width: 104, flexShrink: 0}}
+                                                value={c.maxPoints}
+                                                inputProps={{min: 1}}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "-") e.preventDefault();
+                                                }}
+                                                onChange={(e) =>
+                                                    updateCriterion(index, {
+                                                        maxPoints: Math.max(+e.target.value, 1),
+                                                    })
+                                                }
+                                                onBlur={(e) =>
+                                                    updateCriterion(index, {
+                                                        maxPoints: Math.max(+e.target.value, 1),
+                                                    })
+                                                }
+                                            />
+                                            <Tooltip arrow title={"Удалить критерий"}>
                                                 <IconButton
                                                     onClick={() => removeCriterion(index)}
                                                     color={"error"}
@@ -624,40 +731,24 @@ const CourseTaskEditor: FC<{
                                                 >
                                                     <CloseIcon fontSize="small"/>
                                                 </IconButton>
-                                            </Grid>
-                                        </Grid>
+                                            </Tooltip>
+                                        </Stack>
                                     ))}
                                     <Button
                                         size="small"
+                                        startIcon={<AddIcon/>}
                                         onClick={(e) => setAddCriterionAnchor(e.currentTarget)}
-                                        sx={{
-                                            textTransform: "none",
-                                            fontSize: "15px",
-                                            alignSelf: "center",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "6px",
-                                            color: "#1976d2",
-                                            paddingLeft: "0px",
-                                            paddingRight: "0px",
-                                            minWidth: "auto",
-                                            width: "fit-content",
-                                            "&:hover": {
-                                                backgroundColor: "transparent",
-                                                textDecoration: "none"
-                                            }
-                                        }}
+                                        sx={flatButtonSx}
                                     >
-                                        + Добавить критерий оценивания
+                                        Добавить критерий оценивания
                                     </Button>
                                 </Stack>
-                            </Collapse>
-                        </>
-                    )}
-                    {renderAddCriterionMenu()}
-                </Grid>
-            </Grid>
-            <CardActions>
+                            </Collapse>}
+                        {renderAddCriterionMenu()}
+                    </Box>
+                </Stack>
+            </Box>
+            <Stack direction={"row"} alignItems={"center"} spacing={1} sx={footerSx}>
                 {!isNewHomework && publicationDate && new Date() >= new Date(publicationDate) && <ActionOptionsUI
                     disabled={isDisabled || handleSubmitLoading}
                     onChange={value => setEditOptions(value)}/>}
@@ -665,21 +756,27 @@ const CourseTaskEditor: FC<{
                     fullWidth
                     onClick={handleSubmit}
                     color="primary"
-                    variant="text"
+                    variant="contained"
+                    disableElevation
                     type="submit"
                     disabled={isDisabled}
                     loadingPosition="end"
                     size={"large"}
                     endIcon={<span style={{width: 17}}/>}
                     loading={handleSubmitLoading}
+                    sx={submitButtonSx}
                 >
                     {isNewTask && "Добавить задачу"}
                     {!isNewTask && "Редактировать задачу " + (editOptions.sendNotification ? "с уведомлением" : "без уведомления")}
                 </LoadingButton>}
-                <IconButton aria-label="delete" color="error" onClick={() => setShowDeleteConfirmation(true)}>
-                    <DeleteIcon/>
-                </IconButton>
-            </CardActions>
+                {isNewHomework && <Box sx={{flexGrow: 1}}/>}
+                <Tooltip arrow title={"Удалить задачу"}>
+                    <IconButton aria-label="delete" color="error" sx={dangerIconButtonSx}
+                                onClick={() => setShowDeleteConfirmation(true)}>
+                        <DeleteIcon fontSize={"small"}/>
+                    </IconButton>
+                </Tooltip>
+            </Stack>
             <DeletionConfirmation
                 onCancel={() => setShowDeleteConfirmation(false)}
                 onSubmit={deleteTask}
@@ -689,7 +786,7 @@ const CourseTaskEditor: FC<{
                 confirmationWord={''}
                 confirmationText={''}
             />
-        </CardContent>
+        </Box>
     )
 }
 
@@ -734,49 +831,60 @@ const CourseTaskExperimental: FC<{
     }
 
     return (
-        <CardContent
+        <Box
             onMouseEnter={() => setShowEditMode(props.isMentor)}
             onMouseLeave={() => setShowEditMode(false)}
         >
-            <Grid xs={12} container direction={"row"} alignItems={"center"} alignContent={"center"}
-                  justifyContent={"space-between"}>
-                <Grid container spacing={1} xs={11} alignItems={"center"}>
-                    <Grid item style={{marginRight: 1}}>
-                        <Typography variant="h6" component="div">
+            <Box sx={detailHeaderSx}>
+                <Stack direction={"row"} alignItems={"flex-start"} spacing={1}>
+                    <Box sx={{flexGrow: 1, minWidth: 0}}>
+                        <Typography component={"h2"} className={"antiLongWords"} sx={detailTitleSx}>
                             {task.title}
                         </Typography>
-                    </Grid>
-                    {task.isGroupWork && (
-                        <Grid item>
-                            <Chip color={"info"} label="Командное"/>
-                        </Grid>
-                    )}
-                    <Grid item>
-                        <Typography>{"⭐ " + task.maxRating}</Typography>
-                    </Grid>
-                </Grid>
-                {showEditMode && (
-                    <Grid item>
-                        <IconButton
-                            onClick={() => {
-                                setShowEditMode(false);
-                                setEditMode(true);
-                            }}
-                        >
-                            <EditIcon color={"primary"} style={{fontSize: 17}}/>
-                        </IconButton>
-                    </Grid>
-                )}
-            </Grid>
+                        <Stack direction={"row"} spacing={0.75} useFlexGap flexWrap={"wrap"} sx={{mt: 1}}>
+                            <Tooltip arrow title={"Максимальный балл"}>
+                                <Chip
+                                    size={"small"}
+                                    icon={<StarRoundedIcon/>}
+                                    label={task.maxRating}
+                                    sx={accentChipSx}/>
+                            </Tooltip>
+                            {task.isGroupWork &&
+                                <Chip
+                                    size={"small"}
+                                    icon={<GroupIcon/>}
+                                    label={"Командное"}
+                                    sx={metaChipSx}/>}
+                        </Stack>
+                    </Box>
+                    {props.isMentor &&
+                        <Tooltip arrow placement={"left"} title={"Редактировать задачу"}>
+                            <IconButton
+                                size={"small"}
+                                sx={{...hoverActionSx, opacity: showEditMode ? 1 : 0}}
+                                onClick={() => {
+                                    setShowEditMode(false);
+                                    setEditMode(true);
+                                }}
+                            >
+                                <EditIcon color={"primary"} sx={{fontSize: 18}}/>
+                            </IconButton>
+                        </Tooltip>}
+                </Stack>
+            </Box>
 
-            <Divider style={{marginTop: 15, marginBottom: 15}}/>
+            <Box sx={sectionSx}>
+                {task.description
+                    ? <Typography component="div" style={{color: "#454545"}} variant="body1">
+                        <MarkdownPreview value={task.description!}/>
+                    </Typography>
+                    : <Typography variant={"body2"} sx={{color: "text.disabled", fontStyle: "italic"}}>
+                        Условие задачи не заполнено
+                    </Typography>}
 
-            <Typography component="div" style={{color: "#454545"}} gutterBottom variant="body1">
-                <MarkdownPreview value={task.description!}/>
-            </Typography>
-
-            <TaskCriteria task={task}/>
-        </CardContent>
+                <TaskCriteria task={task}/>
+            </Box>
+        </Box>
     );
 }
 export default CourseTaskExperimental;

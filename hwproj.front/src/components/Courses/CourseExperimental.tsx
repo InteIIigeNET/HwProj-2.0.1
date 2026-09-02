@@ -20,7 +20,7 @@ import {
     Zoom
 } from "@mui/material";
 import {FC, useEffect, useState} from "react";
-import {Alert, Card, CardActions, Chip, Paper, Stack, Tooltip} from "@mui/material";
+import {Alert, Chip, Paper, Stack, Tooltip} from "@mui/material";
 import {Link} from "react-router-dom";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {BonusTag, DefaultTags, getTip, isBonusWork, isTestWork, TestTag} from "../Common/HomeworkTags";
@@ -88,6 +88,25 @@ const listScrollSx = {
     "&::-webkit-scrollbar-track": {backgroundColor: "transparent"},
     "&::-webkit-scrollbar-thumb": {backgroundColor: "#c4cad2", borderRadius: "3px"},
     "&::-webkit-scrollbar-thumb:hover": {backgroundColor: "#a8b0d8"},
+}
+
+const detailPanelSx = (isEditing: boolean) => ({
+    borderRadius: "14px",
+    borderColor: isEditing ? "#a8b0d8" : "#c4cad2",
+    backgroundColor: "#fff",
+    overflow: "hidden",
+})
+
+// Плашки прижаты к верхнему краю панели, поэтому свои скругления им не нужны
+const topAlertsSx = {
+    "& .MuiAlert-root": {borderRadius: 0},
+}
+
+const detailFooterSx = {
+    px: {xs: 2, sm: 2.5},
+    py: 1.5,
+    borderTop: "1px solid #e6e8f0",
+    backgroundColor: "#fafbfe",
 }
 
 const emptyStateSx = {
@@ -636,41 +655,41 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const renderHomework = (homework: HomeworkViewModel & { isModified?: boolean }) => {
         const filesInfo = id ? FileInfoConverter.getCourseUnitFilesInfo(courseFilesInfo, CourseUnitType.Homework, id) : []
         const homeworkEditMode = homework && (homework.id! < 0 || homework.isModified === true)
-        return homework && <Stack direction={"column"} spacing={2}>
-            <Card style={{backgroundColor: "ghostwhite"}} raised={homeworkEditMode}>
-                {isMentor && getGroupingAlert(homework)}
-                {isMentor && getDatesAlert(homework, true)}
-                <CourseHomeworkExperimental
-                    key={homework.id}
-                    getAllHomeworks={() => homeworks}
-                    homeworkAndFilesInfo={{homework, filesInfo}}
-                    isMentor={isMentor}
-                    initialEditMode={initialEditMode || homeworkEditMode}
-                    onMount={onSelectedItemMount}
-                    onAddTask={addNewTask}
-                    onUpdate={update => {
-                        props.onHomeworkUpdate(update)
-                        setState((prevState) => ({
-                            ...prevState,
-                            selectedItem: {
-                                isHomework: true,
-                                id: update.isDeleted ? undefined : update.homework.id!
-                            }
-                        }))
-                    }}
-                    isProcessing={props.processingFiles[homework.id!]?.isLoading || false}
-                    onStartProcessing={props.onStartProcessing}
-                    onGroupsUpdate={props.onGroupsUpdate}
-                    groups={props.groups}
-                />
-            </Card>
-        </Stack>
+        return homework && <Paper variant={"outlined"} sx={detailPanelSx(homeworkEditMode)}>
+            {isMentor && <Box sx={topAlertsSx}>
+                {getGroupingAlert(homework)}
+                {getDatesAlert(homework, true)}
+            </Box>}
+            <CourseHomeworkExperimental
+                key={homework.id}
+                getAllHomeworks={() => homeworks}
+                homeworkAndFilesInfo={{homework, filesInfo}}
+                isMentor={isMentor}
+                initialEditMode={initialEditMode || homeworkEditMode}
+                onMount={onSelectedItemMount}
+                onAddTask={addNewTask}
+                onUpdate={update => {
+                    props.onHomeworkUpdate(update)
+                    setState((prevState) => ({
+                        ...prevState,
+                        selectedItem: {
+                            isHomework: true,
+                            id: update.isDeleted ? undefined : update.homework.id!
+                        }
+                    }))
+                }}
+                isProcessing={props.processingFiles[homework.id!]?.isLoading || false}
+                onStartProcessing={props.onStartProcessing}
+                onGroupsUpdate={props.onGroupsUpdate}
+                groups={props.groups}
+            />
+        </Paper>
     }
 
     const renderTask = (task: HomeworkTaskViewModel & { isModified?: boolean }, homework: HomeworkViewModel) => {
         const taskEditMode = task && (task.id! < 0 || task.isModified === true)
-        return task && <Card style={{backgroundColor: "ghostwhite"}} raised={taskEditMode}>
-            {isMentor && getDatesAlert(task, false)}
+        return task && <Paper variant={"outlined"} sx={detailPanelSx(taskEditMode)}>
+            {isMentor && <Box sx={topAlertsSx}>{getDatesAlert(task, false)}</Box>}
             <CourseTaskExperimental
                 key={task.id}
                 task={task}
@@ -690,20 +709,23 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         }))
                 }}
                 toEditHomework={() => toEditHomework(homework!)} getAllHomeworks={() => homeworks}/>
-            {!props.isMentor && props.isStudentAccepted && < CardActions>
-                <Link
-                    style={{color: '#212529'}}
-                    to={"/task/" + task.id!.toString()}>
-                    <Button
-                        size="medium"
-                        variant="text"
-                        color="primary"
-                    >
-                        Решения
-                    </Button>
-                </Link>
-            </CardActions>}
-        </Card>
+            {!props.isMentor && props.isStudentAccepted &&
+                <Box sx={detailFooterSx}>
+                    <Link
+                        style={{textDecoration: "none"}}
+                        to={"/task/" + task.id!.toString()}>
+                        <Button
+                            size="medium"
+                            variant="contained"
+                            disableElevation
+                            color="primary"
+                            sx={{textTransform: "none", borderRadius: "10px"}}
+                        >
+                            Решения
+                        </Button>
+                    </Link>
+                </Box>}
+        </Paper>
     }
 
     const renderGif = () =>
