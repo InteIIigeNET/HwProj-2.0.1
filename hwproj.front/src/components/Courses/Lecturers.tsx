@@ -1,17 +1,12 @@
 import React, {FC, useState} from 'react'
-import List from "@material-ui/core/List";
-import { Link, ListItem, Typography, Accordion, AccordionSummary,
-    AccordionDetails, Grid, ListItemIcon, Avatar} from "@material-ui/core";
+import {Box, Chip, Divider, IconButton, Link, Paper, Stack, Tooltip, Typography} from "@mui/material";
 import {AccountDataDto} from "../../api";
-import IconButton from "@material-ui/core/IconButton";
-import PersonAddIcon from "@material-ui/icons/PersonAdd";
-import AddLecturerInCourse from "./AddLecturerInCourse";
-import {makeStyles} from '@material-ui/core/styles';
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import ListItemText from '@material-ui/core/ListItemText';
+import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
+import AddLecturerInCourse from "./AddLecturerInCourse";
 import MentorWorkspaceModal from "./MentorWorkspaceModal";
-import AvatarUtils from "../Utils/AvatarUtils";
+import {UserInitialsAvatar} from "../Common/UserInitialsAvatar";
 
 interface LecturersProps {
     mentors: AccountDataDto[];
@@ -21,32 +16,53 @@ interface LecturersProps {
 }
 
 interface EditMentorWorkspaceState {
-    mentorId: string;
-    mentorName: string;
-    mentorSurname: string;
+    mentor: AccountDataDto | undefined;
     isOpen: boolean;
 }
 
-const useStyles = makeStyles(theme => ({
-    tools: {
-        display: "flex",
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    tool: {
-        marginRight: theme.spacing(2),
-        marginLeft: theme.spacing(2),
-    }
-}))
+// Оформление панели согласовано с редизайном страницы курса и списка заданий
+const panelSx = {
+    borderRadius: "14px",
+    borderColor: "#c4cad2",
+    overflow: "hidden",
+}
+
+const headerSx = {
+    px: 1.5,
+    py: 1,
+    backgroundColor: "#f3f4fb",
+    color: "#3f51b5",
+}
+
+const headerChipSx = {
+    height: 20,
+    flexShrink: 0,
+    backgroundColor: "#e4e7f6",
+    color: "#3f51b5",
+    "& .MuiChip-label": {px: 0.75, fontSize: "0.75rem", fontWeight: 500},
+}
+
+const rowSx = {
+    px: 1.5,
+    py: 1.25,
+    alignItems: "center",
+    transition: "background-color .15s",
+    "&:hover": {backgroundColor: "rgba(63, 81, 181, 0.04)"},
+}
+
+const emptyStateSx = {
+    py: 3,
+    px: 2,
+    textAlign: "center" as const,
+    color: "text.secondary",
+}
 
 const Lecturers: FC<LecturersProps> = (props) => {
 
     const [isOpenDialogAddLecturer, setIsOpenDialogAddLecturer] = useState<boolean>(false)
 
     const [mentorWorkspaceState, setMentorWorkspaceState] = useState<EditMentorWorkspaceState>({
-        mentorId: "",
-        mentorName: "",
-        mentorSurname: "",
+        mentor: undefined,
         isOpen: false
     })
 
@@ -58,97 +74,97 @@ const Lecturers: FC<LecturersProps> = (props) => {
         setIsOpenDialogAddLecturer(false)
     }
 
-    const handleOpenMentorControl = (userId: string, name: string, surname: string) => {
+    const handleOpenMentorControl = (mentor: AccountDataDto) => {
         setMentorWorkspaceState({
-            mentorId: userId,
-            mentorName: name,
-            mentorSurname: surname,
+            mentor: mentor,
             isOpen: true
         })
     }
 
     const handleCloseMentorControl = () => {
         setMentorWorkspaceState({
-            mentorId: "",
-            mentorName: "",
-            mentorSurname: "",
+            mentor: undefined,
             isOpen: false
         })
     }
 
-    const classes = useStyles()
+    const {mentors} = props
 
     return (
-        <div>
-            <Accordion expanded={true}>
-                <AccordionSummary
-                    aria-controls="panel1a-content"
-                    id="panel1a-header"
-                >
-                    <div className={classes.tools}>
-                        <Typography style={{ fontSize: '16px'}}>
-                            Преподаватели
-                        </Typography>
-                        {props.isEditCourse &&
+        <>
+            <Paper variant={"outlined"} sx={panelSx}>
+                <Stack direction={"row"} alignItems={"center"} spacing={1} sx={headerSx}>
+                    <SchoolOutlinedIcon fontSize={"small"}/>
+                    <Typography variant={"body2"} sx={{fontWeight: 500}}>Преподаватели</Typography>
+                    {mentors.length > 0 && <Chip size={"small"} label={mentors.length} sx={headerChipSx}/>}
+                    <Box sx={{flexGrow: 1}}/>
+                    {props.isEditCourse &&
+                        <Tooltip arrow title={"Добавить преподавателя"}>
                             <IconButton
+                                size={"small"}
                                 onClick={openDialogIconAddLecturer}
-                                style={{ color: '#212529' }}
+                                sx={{color: "#3f51b5"}}
                             >
-                                <PersonAddIcon fontSize="small"/>
+                                <PersonAddIcon fontSize={"small"}/>
                             </IconButton>
-                        }
-                    </div>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Grid container direction="column">
-                        <List>
-                            {props.mentors.map(mentor =>
-                                <ListItem dense={true} key={mentor.userId}>
-                                    <ListItemIcon>
-                                        <Avatar {...AvatarUtils.stringAvatar(mentor!)} />
-                                    </ListItemIcon>
-                                    <ListItemText>
-                                        <Link
-                                            color="inherit"
-                                            component="button"
-                                            onClick={() => window.location.href = "mailto:" + mentor.email}
-                                        >
-                                            <Typography style={{fontSize: '16px'}}>
-                                                {mentor.name}&nbsp;{mentor.surname}
-                                            </Typography>
-                                        </Link>
-                                    </ListItemText>
-                                    <ListItemSecondaryAction>
-                                        <IconButton
-                                            edge="end"
-                                            onClick={() => handleOpenMentorControl(mentor.userId!, mentor.name!, mentor.surname!)}
-                                            style={{color: '#212529'}}
-                                        >
-                                            <ManageAccountsIcon fontSize="small"/>
-                                        </IconButton>
-                                    </ListItemSecondaryAction>
-                                </ListItem>
-                            )}
-                        </List>
-                    </Grid>
-                </AccordionDetails>
-            </Accordion>
+                        </Tooltip>
+                    }
+                </Stack>
+                <Divider/>
+                {mentors.length === 0
+                    ? <Typography variant={"body2"} sx={emptyStateSx}>Преподавателей пока нет</Typography>
+                    : <Stack divider={<Divider/>}>
+                        {mentors.map(mentor =>
+                            <Stack key={mentor.userId} direction={"row"} spacing={1.5} sx={rowSx}>
+                                <UserInitialsAvatar user={mentor} size={38}/>
+                                <Box sx={{flexGrow: 1, minWidth: 0}}>
+                                    <Link
+                                        href={`mailto:${mentor.email}`}
+                                        underline={"hover"}
+                                        sx={{
+                                            display: "block",
+                                            fontSize: "0.9375rem",
+                                            fontWeight: 500,
+                                            lineHeight: 1.3,
+                                            color: "#212529",
+                                            "&:hover, &:focus": {color: "#3f51b5"},
+                                        }}
+                                    >
+                                        {mentor.name}&nbsp;{mentor.surname}
+                                    </Link>
+                                    {mentor.email &&
+                                        <Typography variant={"caption"} noWrap
+                                                    sx={{display: "block", color: "text.secondary"}}>
+                                            {mentor.email}
+                                        </Typography>}
+                                </Box>
+                                <Tooltip arrow title={"Область работы преподавателя"}>
+                                    <IconButton
+                                        size={"small"}
+                                        onClick={() => handleOpenMentorControl(mentor)}
+                                        sx={{flexShrink: 0, color: "#3f51b5"}}
+                                    >
+                                        <ManageAccountsIcon fontSize={"small"}/>
+                                    </IconButton>
+                                </Tooltip>
+                            </Stack>
+                        )}
+                    </Stack>}
+            </Paper>
             <AddLecturerInCourse
                 onClose={closeDialogIconAddLecturer}
                 courseId={props.courseId}
                 isOpen={isOpenDialogAddLecturer}
                 update={props.update}
             />
-            {mentorWorkspaceState.isOpen && (
+            {mentorWorkspaceState.isOpen && mentorWorkspaceState.mentor && (
                 <MentorWorkspaceModal
                     isOpen={mentorWorkspaceState.isOpen}
                     onClose={handleCloseMentorControl}
                     courseId={+props.courseId}
-                    mentorId={mentorWorkspaceState.mentorId}
-                    mentorName={mentorWorkspaceState.mentorName}
-                    mentorSurname={mentorWorkspaceState.mentorSurname}
+                    mentor={mentorWorkspaceState.mentor}
                 />)}
-        </div>
+        </>
     )
 }
 
