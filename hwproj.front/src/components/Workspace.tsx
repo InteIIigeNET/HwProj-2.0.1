@@ -92,7 +92,7 @@ const Workspace: FC = () => {
         return (
             <div className="container" style={{marginBottom: '50px'}}>
                 <Grid container style={{marginTop: "5px"}} spacing={2}>
-                    <Grid item container direction={"row"} justifyContent={"space-between"}>
+                    <Grid item xs={12} container direction={"row"} justifyContent={"space-between"}>
                         <Grid item direction={"row"} spacing={2}>
                             <Grid item>
                                 <Typography style={{fontSize: '20px'}}>
@@ -121,7 +121,7 @@ const Workspace: FC = () => {
                                 </Grid>;
                             })}
                         </Grid>}
-                    {isUserProfile && <Grid item>
+                    {isUserProfile && <Grid item xs={12}>
                         <Tabs
                             variant="scrollable"
                             scrollButtons={"auto"}
@@ -177,7 +177,7 @@ const Workspace: FC = () => {
                                                      onGiveUpClick={onGiveUpClick}/>)}
                         </div>
                     </Grid>}
-                    <Grid item alignSelf="flex-start">
+                    <Grid item alignSelf="flex-start" sx={{width: 300, maxWidth: "100%"}}>
                         <DotLottieReact
                             src="https://lottie.host/3f7405d2-3644-4abf-80de-cea68a618ca5/NYIk0RI1Mw.lottie"
                             loop
