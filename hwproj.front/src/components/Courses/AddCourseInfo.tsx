@@ -3,7 +3,7 @@ import {
     Grid,
     TextField,
     Button, Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import {LoadingButton} from "@mui/lab";
 import {IStepComponentProps} from "./ICreateCourseState";
 import {Alert, Autocomplete, Checkbox, FormControlLabel, Chip} from "@mui/material";

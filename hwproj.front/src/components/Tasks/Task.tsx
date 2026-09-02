@@ -1,11 +1,18 @@
 import * as React from 'react';
-import Typography from '@material-ui/core/Typography';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {HomeworkTaskViewModel} from "@/api";
-import {Accordion, AccordionDetails, AccordionSummary, Grid, Tooltip} from '@material-ui/core';
 import {FC} from "react";
-import {makeStyles} from '@material-ui/core/styles';
-import {Chip, Stack} from "@mui/material";
+import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+    Box,
+    Chip,
+    Grid,
+    Stack,
+    Tooltip,
+    Typography
+} from "@mui/material";
 import Utils from "../../services/Utils";
 import {getTip} from "../Common/HomeworkTags";
 import StarIcon from '@mui/icons-material/Star';
@@ -22,17 +29,12 @@ interface ITaskProp {
     showForCourse: boolean
 }
 
-const useStyles = makeStyles(theme => ({
-    tools: {
-        width: "100%",
-        display: "flex",
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    text: {
-        marginTop: '16px',
-    }
-}))
+const toolsSx = {
+    width: "100%",
+    display: "flex",
+    flexDirection: 'row',
+    alignItems: 'center',
+}
 
 const Task: FC<ITaskProp> = (props) => {
     const publicationDate = new Date(props.task.publicationDate!)
@@ -46,7 +48,6 @@ const Task: FC<ITaskProp> = (props) => {
     const publicationDateString = Utils.renderReadableDate(publicationDate)
     const deadlineDateString = Utils.renderReadableDate(deadlineDate)
 
-    const classes = useStyles()
 
     return (
         <div style={{width: '100%'}}>
@@ -57,7 +58,7 @@ const Task: FC<ITaskProp> = (props) => {
                     id="panel1a-header"
                     style={{backgroundColor: task.isDeferred! ? "#d3d5db" : "#eceef8"}}
                 >
-                    <div className={classes.tools}>
+                    <Box sx={toolsSx}>
                         <Grid container direction="row" spacing={1} alignItems="center">
                             <Grid item>
                                 <Typography style={{fontSize: '18px', marginRight: 1}}>
@@ -120,7 +121,7 @@ const Task: FC<ITaskProp> = (props) => {
                                 </Grid>
                             }
                         </Grid>
-                    </div>
+                    </Box>
                 </AccordionSummary>
                 <AccordionDetails>
                     <Grid style={{width: "100%"}}>

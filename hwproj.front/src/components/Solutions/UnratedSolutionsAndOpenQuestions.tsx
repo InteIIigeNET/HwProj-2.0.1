@@ -86,7 +86,7 @@ const SolutionRow: FC<{ solution: SolutionPreviewView }> = ({solution}) => {
             <UserInitialsAvatar user={student}/>
             <Box sx={{flexGrow: 1, minWidth: 0}}>
                 <Stack direction={"row"} alignItems={"center"} spacing={1} flexWrap={"wrap"} sx={{rowGap: 0.5}}>
-                    <Typography component={"span"} sx={{fontSize: "1rem", fontWeight: 500, pr: 1.5}}>
+                    <Typography component={"span"} sx={{fontSize: "1rem", fontWeight: 600}}>
                         {studentName}
                     </Typography>
                     <Typography

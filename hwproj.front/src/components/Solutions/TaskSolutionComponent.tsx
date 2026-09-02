@@ -1,8 +1,8 @@
 import * as React from 'react';
 import {FC, useEffect, useState} from 'react';
-import {Button, CircularProgress, Grid, Typography} from "@material-ui/core";
-import CheckCircleOutlineIcon from "@material-ui/icons/CheckCircleOutline";
-import Link from '@material-ui/core/Link'
+import {Button, CircularProgress, Grid, Typography} from "@mui/material";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import Link from '@mui/material/Link'
 import './style.css'
 import {
     GetSolutionModel,
@@ -621,6 +621,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             <Tooltip arrow title={"Позволяет поставить оценку выше максимальной"}>
                                 <Typography variant="caption">
                                     <Link
+                                        underline={"hover"}
                                         onClick={() =>
                                             setState(prev => ({...prev, addBonusPoints: true}))
                                         }
@@ -1210,6 +1211,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         <Grid item spacing={1} container direction="column">
                             <Stack direction={"row"} alignItems={"center"} spacing={0.5}>
                                 {githubUrl && <Link
+                                    underline={"hover"}
                                     href={(githubUrl.startsWith("https://") ? "" : "https://") + githubUrl}
                                     target="_blank"
                                     style={{color: 'darkblue'}}

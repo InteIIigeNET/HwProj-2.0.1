@@ -5,7 +5,7 @@ import {AccountDataDto, CourseViewModel, GroupViewModel, HomeworkViewModel, Stat
 import StudentStats from "./StudentStats";
 import NewCourseStudents from "./NewCourseStudents";
 import ApiSingleton from "../../api/ApiSingleton";
-import EditIcon from "@material-ui/icons/Edit";
+import EditIcon from "@mui/icons-material/Edit";
 import {
     Alert,
     AlertTitle,

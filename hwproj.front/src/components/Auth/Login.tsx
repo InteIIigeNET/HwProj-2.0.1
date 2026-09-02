@@ -1,15 +1,21 @@
 import React, {FC, FormEvent} from "react";
 import {Navigate, Link, useSearchParams} from "react-router-dom";
-import {TextField, Button, Typography} from "@material-ui/core";
-import Grid from '@material-ui/core/Grid';
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Login.css";
 import {useState} from "react";
 import {LoginViewModel} from "@/api"
-import {makeStyles} from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
 import ValidationUtils from "../Utils/ValidationUtils";
-import {Alert, Card, CardContent, Stack} from "@mui/material";
+import {
+    Alert,
+    Button,
+    Card,
+    CardContent,
+    Container,
+    Grid,
+    Stack,
+    TextField,
+    Typography
+} from "@mui/material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface LoginProps {
@@ -23,30 +29,21 @@ interface ILoginState {
     isLogin: boolean;
 }
 
-const useStyles = makeStyles((theme) => ({
-    login: {
-        marginTop: '16px',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    avatar: {
-        margin: theme.spacing(1),
-    },
-    form: {
-        marginTop: theme.spacing(3),
-        width: '100%'
-    },
-    button: {
-        marginTop: theme.spacing(2)
-    }
-}))
+const inputSx = {
+    "& .MuiOutlinedInput-root": {borderRadius: "10px"},
+}
+
+const submitButtonSx = {
+    py: 1,
+    borderRadius: "10px",
+    textTransform: "none",
+    fontSize: "0.9375rem",
+    fontWeight: 500,
+}
 
 const Login: FC<LoginProps> = (props) => {
     const [searchParams] = useSearchParams()
     const returnUrl = searchParams.get("returnUrl")
-    const classes = useStyles()
     const [loginState, setLoginState] = useState<ILoginState>({
         email: '',
         password: '',
@@ -94,7 +91,6 @@ const Login: FC<LoginProps> = (props) => {
     }
 
     const handleChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.persist()
         setLoginState((prevState) => ({
             ...prevState,
             email: e.target.value
@@ -104,21 +100,14 @@ const Login: FC<LoginProps> = (props) => {
     }
 
     const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.persist()
         setLoginState((prevState) => ({
             ...prevState,
             password: e.target.value
         }))
     }
 
-    const headerStyles: React.CSSProperties = {marginRight: "9.5rem"};
-
     if (loginState.isLogin) {
         return <Navigate to={"/"}/>;
-    }
-
-    if (loginState.error) {
-        headerStyles.marginBottom = "-1.5rem";
     }
 
     return (
@@ -140,7 +129,7 @@ const Login: FC<LoginProps> = (props) => {
                             {loginState.error}
                         </Alert></Grid>}
                     </Grid>
-                    <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
+                    <form onSubmit={(e) => handleSubmit(e)} style={{marginTop: 24, width: "100%"}}>
                         <Grid container direction="column" justifyContent="center">
                             <Grid item>
                                 <TextField
@@ -150,6 +139,7 @@ const Login: FC<LoginProps> = (props) => {
                                     label="Электронная почта"
                                     variant="outlined"
                                     margin="normal"
+                                    sx={inputSx}
                                     name={loginState.email}
                                     onChange={handleChangeEmail}
                                     error={emailError !== ""}
@@ -164,6 +154,7 @@ const Login: FC<LoginProps> = (props) => {
                                     label="Пароль"
                                     variant="outlined"
                                     margin="normal"
+                                    sx={inputSx}
                                     value={loginState.password}
                                     onChange={handleChangePassword}
                                 />
@@ -173,13 +164,15 @@ const Login: FC<LoginProps> = (props) => {
                                     </Typography>
                                 </Link>
                             </Grid>
-                            <Grid item className={classes.button}>
+                            <Grid item sx={{mt: 2}}>
                                 <Button
                                     fullWidth
                                     variant="contained"
                                     color="primary"
+                                    disableElevation
                                     type="submit"
                                     disabled={isLoginButtonDisabled}
+                                    sx={submitButtonSx}
                                 >
                                     Войти
                                 </Button>

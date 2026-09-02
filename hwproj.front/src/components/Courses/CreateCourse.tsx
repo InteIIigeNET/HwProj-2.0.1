@@ -1,15 +1,15 @@
 import React, {FC, FormEvent, useState, useEffect} from "react";
 import {
-    Stepper,
+    Box,
     Step,
-    StepLabel,
     StepButton,
+    StepLabel,
+    Stepper,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 import ApiSingleton from "../../api/ApiSingleton";
 import {CoursePreviewView} from "api";
 import "./Styles/CreateCourse.css";
-import {makeStyles} from "@material-ui/core/styles";
 import {useNavigate} from "react-router-dom";
 import {useSnackbar} from "notistack";
 import ErrorsHandler from "components/Utils/ErrorsHandler";
@@ -24,24 +24,13 @@ import AddCourseInfo from "./AddCourseInfo";
 import {Container} from "@mui/material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
-const useStyles = makeStyles((theme) => ({
-    paper: {
-        marginTop: theme.spacing(7),
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
-    avatar: {
-        margin: theme.spacing(1),
-    },
-    form: {
-        marginTop: theme.spacing(3),
-        width: '100%',
-    },
-    button: {
-        marginTop: theme.spacing(1),
-    },
-}));
+// theme.spacing(n) в v4 возвращал число 8n, поэтому подставляем итоговые отступы
+const pageSx = {
+    mt: 7,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+}
 
 export const CreateCourse: FC = () => {
     const [state, setState] = useState<ICreateCourseState>({
@@ -200,7 +189,6 @@ export const CreateCourse: FC = () => {
         }
     }, [state.programName]);
 
-    const classes = useStyles()
 
     if (!ApiSingleton.authService.isLecturer()) {
         return (
@@ -212,11 +200,11 @@ export const CreateCourse: FC = () => {
 
     return baseCourses ? (
         <Container component="main" maxWidth="sm">
-            <div className={classes.paper}>
-                <Typography component="h1" variant="h5">
+            <Box sx={pageSx}>
+                <Typography component="h1" sx={{fontSize: "1.5rem", fontWeight: 500, lineHeight: 1.25}}>
                     Создать курс
                 </Typography>
-                <form onSubmit={handleSubmit} className={classes.form}>
+                <form onSubmit={handleSubmit} style={{marginTop: 24, width: "100%"}}>
                     <Stepper alternativeLabel activeStep={activeStep}>
                         {stepLabels.map((label, step) => {
                             const optionalLabel = stepIsOptional(step) ? (
@@ -240,7 +228,7 @@ export const CreateCourse: FC = () => {
                     </Stepper>
                     {handleStep(activeStep)}
                 </form>
-            </div>
+            </Box>
         </Container>
     ) : (
         <div className="container">

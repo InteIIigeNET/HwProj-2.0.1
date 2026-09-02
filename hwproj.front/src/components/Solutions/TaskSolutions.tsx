@@ -8,7 +8,7 @@ import {
     HomeworkTaskViewModel,
     SolutionState, StudentDataDto
 } from '@/api';
-import {Grid, Tab, Tabs} from "@material-ui/core";
+import {Grid, Tab, Tabs} from "@mui/material";
 import {Chip, Divider, Stack, Tooltip, Badge} from "@mui/material";
 import Utils from "../../services/Utils";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
@@ -16,6 +16,19 @@ import {QuestionMark} from "@mui/icons-material";
 import TaskQuestions from "../Tasks/TaskQuestions";
 import ApiSingleton from "../../api/ApiSingleton";
 import {DotLottieReact} from '@lottiefiles/dotlottie-react';
+
+// Оформление вкладок согласовано со страницей курса: у v5 дефолты Tabs отличаются от v4
+const tabsSx = {
+    minHeight: 44,
+    "& .MuiTab-root": {
+        minHeight: 44,
+        px: 2,
+        textTransform: "none",
+        fontSize: "0.95rem",
+        fontWeight: 500,
+    },
+    "& .MuiTabs-indicator": {height: 3, borderRadius: "3px 3px 0 0"},
+}
 
 interface ITaskSolutionsProps {
     courseId: number
@@ -161,6 +174,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
             value={tabValue}
             style={{marginTop: 3}}
             indicatorColor="primary"
+            sx={tabsSx}
             onChange={(event, value) => {
                 setState(prevState => ({
                     ...prevState,
@@ -168,7 +182,7 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                 }));
             }}
         >
-            <Tab style={{minWidth: 3}} textColor={"primary"}
+            <Tab style={{minWidth: 3}}
                  label={<Badge badgeContent={newQuestions} variant="dot" showZero={questionsState.length > 0}
                                color={newQuestions === 0 ? "success" : "primary"}>
                      <QuestionMark style={{fontSize: 15}}/>

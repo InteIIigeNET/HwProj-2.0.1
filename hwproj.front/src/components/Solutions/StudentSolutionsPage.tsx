@@ -10,11 +10,11 @@ import {
     StudentDataDto,
     TaskSolutionsStats
 } from "@/api";
-import Typography from "@material-ui/core/Typography";
+import Typography from "@mui/material/Typography";
 import Task from "../Tasks/Task";
 import TaskSolutions from "./TaskSolutions";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Grid, Tab, Tabs} from "@material-ui/core";
+import {Grid, Tab, Tabs} from "@mui/material";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import EditIcon from '@mui/icons-material/Edit';

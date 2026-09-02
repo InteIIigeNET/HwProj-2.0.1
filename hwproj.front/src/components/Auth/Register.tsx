@@ -1,16 +1,22 @@
 import React, {FC, useState} from "react";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
 import {Link} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
 import {RegisterViewModel} from "../../api/";
 import "./Styles/Register.css";
-import Container from "@material-ui/core/Container";
-import Grid from "@material-ui/core/Grid";
-import {makeStyles} from '@material-ui/core/styles';
 import ValidationUtils from "../Utils/ValidationUtils";
-import {Alert, AlertTitle, Card, CardContent, Stack} from "@mui/material";
+import {
+    Alert,
+    AlertTitle,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Container,
+    Grid,
+    Stack,
+    TextField,
+    Typography
+} from "@mui/material";
 import hwCat from "../hw-cat.png";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
@@ -19,15 +25,17 @@ interface ICommonState {
     isRegistered: boolean;
 }
 
-const useStyles = makeStyles((theme) => ({
-    form: {
-        marginTop: theme.spacing(3),
-        width: '100%'
-    },
-    button: {
-        marginTop: theme.spacing(2)
-    },
-}))
+const inputSx = {
+    "& .MuiOutlinedInput-root": {borderRadius: "10px"},
+}
+
+const submitButtonSx = {
+    py: 1,
+    borderRadius: "10px",
+    textTransform: "none",
+    fontSize: "0.9375rem",
+    fontWeight: 500,
+}
 
 const Logo: FC = () => (
     <Link
@@ -71,7 +79,6 @@ const Logo: FC = () => (
 
 const Register: FC = () => {
 
-    const classes = useStyles()
     const [registerState, setRegisterState] = useState<RegisterViewModel>({
         name: "",
         surname: "",
@@ -164,7 +171,7 @@ const Register: FC = () => {
                             {commonState.error}
                         </Alert></Grid>}
                     </Grid>
-                    <form onSubmit={handleSubmit} className={classes.form}>
+                    <form onSubmit={handleSubmit} style={{marginTop: 24, width: "100%"}}>
                         <Stack spacing={2}>
                             <Stack direction={{xs: "column", sm: "row"}} spacing={2}>
                                 <TextField
@@ -172,9 +179,10 @@ const Register: FC = () => {
                                     required
                                     label="Имя"
                                     variant="outlined"
+
+                                    sx={inputSx}
                                     name={registerState.name}
                                     onChange={(e) => {
-                                        e.persist()
                                         setRegisterState((prevState) => ({
                                             ...prevState,
                                             name: e.target.value
@@ -186,9 +194,10 @@ const Register: FC = () => {
                                     fullWidth
                                     label="Фамилия"
                                     variant="outlined"
+
+                                    sx={inputSx}
                                     name={registerState.surname}
                                     onChange={(e) => {
-                                        e.persist()
                                         setRegisterState((prevState) => ({
                                             ...prevState,
                                             surname: e.target.value
@@ -201,9 +210,10 @@ const Register: FC = () => {
                                 fullWidth
                                 label="Отчество"
                                 variant="outlined"
+
+                                sx={inputSx}
                                 name={registerState.middleName}
                                 onChange={(e) => {
-                                    e.persist()
                                     setRegisterState((prevState) => ({
                                         ...prevState,
                                         middleName: e.target.value
@@ -216,9 +226,10 @@ const Register: FC = () => {
                                 type="email"
                                 label="Электронная почта"
                                 variant="outlined"
+
+                                sx={inputSx}
                                 name={registerState.email}
                                 onChange={(e) => {
-                                    e.persist()
                                     setRegisterState((prevState) => ({
                                         ...prevState,
                                         email: e.target.value
@@ -230,17 +241,19 @@ const Register: FC = () => {
                                 helperText={emailError}
                             />
                         </Stack>
-                        <div className={classes.button}>
+                        <Box sx={{mt: 2}}>
                             <Button
                                 fullWidth
                                 variant="contained"
                                 color="primary"
+                                disableElevation
                                 type="submit"
                                 disabled={isRegisterButtonDisabled}
+                                sx={submitButtonSx}
                             >
                                 Зарегистрироваться
                             </Button>
-                        </div>
+                        </Box>
                     </form>
                     <Stack justifyContent={"center"} direction={"row"} alignItems={"baseline"}
                            style={{paddingTop: 15}}

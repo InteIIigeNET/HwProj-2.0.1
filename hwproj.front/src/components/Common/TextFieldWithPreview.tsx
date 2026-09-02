@@ -1,8 +1,8 @@
 ﻿import ReactMarkdown from "react-markdown";
 import * as React from "react";
 import {ChangeEvent, FC, useState} from "react";
-import {Tabs, Tab, TextField} from "@material-ui/core";
-import {TextFieldProps} from "@material-ui/core/TextField/TextField";
+import {Tabs, Tab, TextField} from "@mui/material";
+import {TextFieldProps} from "@mui/material/TextField";
 import {Card, CardContent} from "@mui/material";
 import SyntaxHighlighter from "react-syntax-highlighter";
 

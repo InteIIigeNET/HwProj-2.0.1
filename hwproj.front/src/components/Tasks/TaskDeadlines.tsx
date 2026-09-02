@@ -1,12 +1,12 @@
 import React, {FC, useState} from 'react';
 import {TaskDeadlineView} from "../../api";
 import {Link, NavLink} from "react-router-dom";
-import {Divider, Grid, ListItem, Typography, Link as LinkText} from "@material-ui/core";
+import {Divider, Grid, ListItem, Typography, Link as LinkText} from "@mui/material";
 import {Chip, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Stack} from "@mui/material";
 import {colorBetween} from "../../services/JsUtils";
 import Utils from "../../services/Utils";
 import ApiSingleton from "../../api/ApiSingleton";
-import Button from "@material-ui/core/Button";
+import Button from "@mui/material/Button";
 import {getTip} from "../Common/HomeworkTags";
 
 interface ITaskDeadlinesProps {

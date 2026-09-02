@@ -10,7 +10,7 @@ import {
     FormGroup,
     Grid,
     Typography
-} from "@material-ui/core";
+} from "@mui/material";
 import ApiSingleton from "api/ApiSingleton";
 import {CategorizedNotifications, NotificationViewModel, CategoryState} from "../api/";
 import "./Styles/Profile.css";

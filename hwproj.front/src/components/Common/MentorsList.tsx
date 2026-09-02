@@ -1,6 +1,6 @@
 ﻿import {FC} from "react";
 import {AccountDataDto} from "@/api";
-import {Typography} from "@material-ui/core";
+import {Typography} from "@mui/material";
 import * as React from "react";
 import {Stack, Tooltip} from "@mui/material";
 
@@ -14,7 +14,7 @@ const MentorsList: FC<{
     const fontSize = 18
 
     return <Stack direction={"row"} alignItems={"center"} spacing={1}>
-        <Typography style={{fontSize: fontSize, color: "GrayText"}}>
+        <Typography sx={{fontSize: fontSize, color: "GrayText"}}>
             {mentorsToShow.map(t => `${t.name} ${t.surname}`).join(", ")}
         </Typography>
         {mentorsToHide.length > 0 &&
@@ -26,7 +26,7 @@ const MentorsList: FC<{
                     </div>)}
                 </Typography>
             </span>}>
-                <Typography style={{fontSize: fontSize, cursor: "default"}} color={"primary"}>
+                <Typography sx={{fontSize: fontSize, cursor: "default"}} color={"primary"}>
                     и ещё {mentorsToHide.length}
                 </Typography>
             </Tooltip>}

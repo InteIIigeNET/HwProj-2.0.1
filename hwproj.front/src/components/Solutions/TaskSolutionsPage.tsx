@@ -1,13 +1,13 @@
 import * as React from "react";
 import {FC, useEffect, useState} from "react";
 import Task from "../Tasks/Task";
-import Typography from "@material-ui/core/Typography";
+import Typography from "@mui/material/Typography";
 import AddOrEditSolution from "./AddOrEditSolution";
-import Button from "@material-ui/core/Button";
+import Button from "@mui/material/Button";
 import TaskSolutions from "./TaskSolutions";
 import {AccountDataDto, HomeworksGroupUserTaskSolutions, HomeworkTaskViewModel, SolutionDto, SolutionState} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
-import {Grid, Tab, Tabs} from "@material-ui/core";
+import {Grid, Tab, Tabs} from "@mui/material";
 import {Checkbox, Chip, SelectChangeEvent, Stack, Tooltip} from "@mui/material";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import Step from "@mui/material/Step";
@@ -174,7 +174,7 @@ const TaskSolutionsPage: FC = () => {
     }
 
     return taskSolutionPage.isLoaded ? <div className={"container"} style={{marginBottom: '50px'}}>
-        <Grid container justify="center" style={{marginTop: '20px'}}>
+        <Grid container justifyContent="center" style={{marginTop: '20px'}}>
             <Grid container spacing={2} xs={12}>
                 <Grid item xs={12}>
                     <Stack direction={"row"} spacing={1}

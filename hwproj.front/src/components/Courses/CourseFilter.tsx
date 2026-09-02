@@ -1,12 +1,12 @@
 ﻿import React, {FC, useEffect, useState} from 'react';
 import {HomeworkViewModel, AccountDataDto, MentorToAssignedStudentsDTO} from '../../api';
-import Grid from "@material-ui/core/Grid";
+import Grid from "@mui/material/Grid";
 import {Autocomplete, Chip, Stack, Typography} from "@mui/material";
-import TextField from "@material-ui/core/TextField";
+import TextField from "@mui/material/TextField";
 import ApiSingleton from "../../api/ApiSingleton";
 import ErrorsHandler from "../Utils/ErrorsHandler";
 import {DotLottieReact} from '@lottiefiles/dotlottie-react';
-import Button from "@material-ui/core/Button";
+import Button from "@mui/material/Button";
 
 interface ICourseFilterProps {
     courseId: number;

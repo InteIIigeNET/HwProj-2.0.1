@@ -128,7 +128,7 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                                                 component={"div"}
                                                 sx={{
                                                     fontSize: "1.05rem",
-                                                    fontWeight: 500,
+                                                    fontWeight: 600,
                                                     lineHeight: 1.3,
                                                     display: "-webkit-box",
                                                     WebkitLineClamp: 2,

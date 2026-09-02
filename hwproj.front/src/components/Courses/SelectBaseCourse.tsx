@@ -4,7 +4,7 @@ import {
   Box,
   TextField,
   Button,
-} from "@material-ui/core";
+} from "@mui/material";
 import {Autocomplete, MenuItem} from "@mui/material";
 import {Link} from "react-router-dom";
 import {CoursePreviewView} from "api";

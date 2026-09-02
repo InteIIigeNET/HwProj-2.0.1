@@ -13,7 +13,7 @@ import {
     AlertTitle,
 } from '@mui/material';
 import {StudentCharacteristicsDto} from '@/api';
-import TextField from "@material-ui/core/TextField";
+import TextField from "@mui/material/TextField";
 import {MarkdownEditor, MarkdownPreview} from "@/components/Common/MarkdownEditor";
 import ApiSingleton from "@/api/ApiSingleton";
 import {RemovedFromCourseTag} from "@/components/Common/StudentTags";
@@ -164,6 +164,7 @@ const EditStudentCharacteristics: React.FC<Props & { onCancel: () => void, isOpe
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
+                                        variant="outlined"
                                         label="Характеристики"
                                         placeholder="Напишите"
                                     />

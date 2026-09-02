@@ -1,5 +1,5 @@
 ﻿import {FC, useState} from "react";
-import {Link} from "@material-ui/core";
+import {Link} from "@mui/material";
 import {
     Alert, Avatar, Card, CardContent,
     Dialog,
@@ -13,7 +13,7 @@ import {
 import * as React from "react";
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import {MarkdownEditor, MarkdownPreview} from "../Common/MarkdownEditor";
-import Button from "@material-ui/core/Button";
+import Button from "@mui/material/Button";
 import ApiSingleton from "../../api/ApiSingleton";
 import {AccountDataDto, AddAnswerForQuestionDto, AddTaskQuestionDto, GetTaskQuestionDto} from "@/api";
 import {Checkbox} from "@mui/material/";
@@ -123,6 +123,7 @@ const TaskQuestions: FC<ITaskQuestionsProps> = (props) => {
         </Typography>}
         <Grid container spacing={1} direction={"column"}>
             {!props.forMentor && <Grid item><Link
+                underline={"hover"}
                 style={{cursor: "pointer"}}
                 onClick={() => setAddQuestionState(prevState => ({...prevState, show: true}))}
             >

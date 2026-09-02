@@ -2,14 +2,22 @@ import * as React from "react";
 import {FC, FormEvent, useEffect, useState} from "react";
 import {Navigate} from "react-router-dom";
 import GitHubIcon from '@mui/icons-material/GitHub';
-import {Button, Container, Grid, TextField, Typography, Link} from "@material-ui/core";
 import ApiSingleton from "../api/ApiSingleton";
 import {useSearchParams} from 'react-router-dom';
-import EditIcon from "@material-ui/icons/Edit";
-import {makeStyles} from '@material-ui/core/styles';
+import EditIcon from "@mui/icons-material/Edit";
 import {EditAccountViewModel} from "@/api";
 import AvatarUtils from "@/components/Utils/AvatarUtils";
-import Avatar from "@mui/material/Avatar";
+import {
+    Alert,
+    Avatar,
+    Box,
+    Button,
+    Container,
+    Grid,
+    Link,
+    TextField,
+    Typography
+} from "@mui/material";
 
 interface IEditProfileProps {
     isExpert: boolean;
@@ -30,21 +38,25 @@ interface IEditProfileState {
     githubLoginUrl?: string
 }
 
-const useStyles = makeStyles((theme) => ({
-    paper: {
-        marginTop: theme.spacing(3),
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
-    avatar: {
-        margin: theme.spacing(1),
-    },
-    form: {
-        marginTop: theme.spacing(3),
-        width: '100%'
-    },
-}))
+// theme.spacing(n) в v4 возвращал число 8n, поэтому подставляем итоговые отступы
+const pageSx = {
+    mt: 3,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+}
+
+const inputSx = {
+    "& .MuiOutlinedInput-root": {borderRadius: "10px"},
+}
+
+const submitButtonSx = {
+    py: 1,
+    borderRadius: "10px",
+    textTransform: "none",
+    fontSize: "0.9375rem",
+    fontWeight: 500,
+}
 
 const EditProfile: FC<IEditProfileProps> = (props) => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -154,7 +166,6 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
         }
     }
 
-    const classes = useStyles()
 
     if (profile.edited) {
         return <Navigate to={"/"}/>;
@@ -163,19 +174,20 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
         <div>
             {!profile.isExternalAuth && (
                 <Container component="main" maxWidth="xs">
-                    <div className={classes.paper}>
+                    <Box sx={pageSx}>
                         <Avatar {...AvatarUtils.stringAvatar(profile!)}
-                                sx={{width: 56, height: 56}}
-                                className={classes.avatar}/>
+                                sx={{m: 1, width: 56, height: 56}}/>
                         <Typography component="h1" variant="h5">
                             Редактировать профиль
                         </Typography>
-                        {profile.errors && (
-                            <p style={{color: "red", marginBottom: "0"}}>{profile.errors}</p>
+                        {profile.errors && profile.errors.length > 0 && (
+                            <Alert severity="error" sx={{mt: 2, width: "100%", borderRadius: "10px"}}>
+                                {profile.errors.map((error, index) => <div key={index}>{error}</div>)}
+                            </Alert>
                         )}
                         <form
                             onSubmit={(e) => handleSubmit(e)}
-                            className={classes.form}
+                            style={{marginTop: 24, width: "100%"}}
                         >
                             <Grid container spacing={2}>
                                 <Grid item xs={12} sm={6}>
@@ -184,9 +196,10 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                                         required
                                         label="Имя"
                                         variant="outlined"
+
+                                        sx={inputSx}
                                         value={profile.name}
                                         onChange={(e) => {
-                                            e.persist()
                                             setProfile((prevState) => ({
                                                 ...prevState,
                                                 name: e.target.value
@@ -200,9 +213,10 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                                         fullWidth
                                         label="Фамилия"
                                         variant="outlined"
+
+                                        sx={inputSx}
                                         value={profile.surname}
                                         onChange={(e) => {
-                                            e.persist()
                                             setProfile((prevState) => ({
                                                 ...prevState,
                                                 surname: e.target.value
@@ -215,9 +229,10 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                                         fullWidth
                                         label="Отчество"
                                         variant="outlined"
+
+                                        sx={inputSx}
                                         value={profile.middleName}
                                         onChange={(e) => {
-                                            e.persist()
                                             setProfile((prevState) => ({
                                                 ...prevState,
                                                 middleName: e.target.value
@@ -231,9 +246,10 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                                         type="email"
                                         label="Электронная почта"
                                         variant="outlined"
+
+                                        sx={inputSx}
                                         value={profile.email}
                                         onChange={(e) => {
-                                            e.persist()
                                             setProfile((prevState) => ({
                                                 ...prevState,
                                                 email: e.target.value
@@ -246,9 +262,10 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                                         fullWidth
                                         label="Организация/Компания"
                                         variant="outlined"
+
+                                        sx={inputSx}
                                         value={profile.company}
                                         onChange={(e) => {
-                                            e.persist()
                                             setProfile((prevState) => ({
                                                 ...prevState,
                                                 company: e.target.value
@@ -262,9 +279,10 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                                         multiline
                                         label="Дополнительная информация (био)"
                                         variant="outlined"
+
+                                        sx={inputSx}
                                         value={profile.bio}
                                         onChange={(e) => {
-                                            e.persist()
                                             setProfile((prevState) => ({
                                                 ...prevState,
                                                 bio: e.target.value
@@ -310,24 +328,25 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                                 Сохранить
                             </Button>
                         </form>
-                    </div>
+                    </Box>
                 </Container>
             )}
             {profile.isExternalAuth && (
                 <Container component="main" maxWidth="xs">
-                    <div className={classes.paper}>
+                    <Box sx={pageSx}>
                         <Avatar {...AvatarUtils.stringAvatar(profile)}
-                                sx={{width: 56, height: 56}}
-                                className={classes.avatar}/>
+                                sx={{m: 1, width: 56, height: 56}}/>
                         <Typography component="h1" variant="h5">
                             Редактировать профиль
                         </Typography>
-                        {profile.errors && (
-                            <p style={{color: "red", marginBottom: "0"}}>{profile.errors}</p>
+                        {profile.errors && profile.errors.length > 0 && (
+                            <Alert severity="error" sx={{mt: 2, width: "100%", borderRadius: "10px"}}>
+                                {profile.errors.map((error, index) => <div key={index}>{error}</div>)}
+                            </Alert>
                         )}
                         <form
                             onSubmit={(e) => handleSubmit(e)}
-                            className={classes.form}
+                            style={{marginTop: 24, width: "100%"}}
                         >
                             <Grid container spacing={2}>
                                 <Grid item xs={12} sm={6}>
@@ -336,9 +355,10 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                                         required
                                         label="Имя"
                                         variant="outlined"
+
+                                        sx={inputSx}
                                         value={profile.name}
                                         onChange={(e) => {
-                                            e.persist()
                                             setProfile((prevState) => ({
                                                 ...prevState,
                                                 name: e.target.value
@@ -352,9 +372,10 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                                         fullWidth
                                         label="Фамилия"
                                         variant="outlined"
+
+                                        sx={inputSx}
                                         value={profile.surname}
                                         onChange={(e) => {
-                                            e.persist()
                                             setProfile((prevState) => ({
                                                 ...prevState,
                                                 surname: e.target.value
@@ -367,9 +388,10 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                                         fullWidth
                                         label="Отчество"
                                         variant="outlined"
+
+                                        sx={inputSx}
                                         value={profile.middleName}
                                         onChange={(e) => {
-                                            e.persist()
                                             setProfile((prevState) => ({
                                                 ...prevState,
                                                 middleName: e.target.value
@@ -388,7 +410,7 @@ const EditProfile: FC<IEditProfileProps> = (props) => {
                                 Редактировать профиль
                             </Button>
                         </form>
-                    </div>
+                    </Box>
                 </Container>
             )}
         </div>

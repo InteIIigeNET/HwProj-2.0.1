@@ -5,11 +5,17 @@ import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {BrowserRouter} from "react-router-dom";
-import ThemeProvider from "@material-ui/styles/ThemeProvider";
-import {createTheme} from "@material-ui/core/styles";
+import {createTheme, ThemeProvider} from "@mui/material/styles";
 import {SnackbarProvider} from "notistack";
 
 const theme = createTheme({
+    palette: {
+        // Индиго #3f51b5 — фирменный цвет: он в шапке и во всех акцентах перерисованных панелей.
+        // Раньше его давала палитра MUI v4 по умолчанию, теперь закрепляем явно.
+        primary: {
+            main: "#3f51b5",
+        },
+    },
     typography: {
         fontFamily: [
             'Helvetica',

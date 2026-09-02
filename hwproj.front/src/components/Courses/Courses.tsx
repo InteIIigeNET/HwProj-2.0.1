@@ -1,9 +1,22 @@
 import * as React from "react";
-import {Tab, Tabs} from "@material-ui/core";
+import {Tab, Tabs} from "@mui/material";
 import {CoursesList} from "./CoursesList";
 import {CoursePreviewView} from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import {appBarStateManager} from "../AppBar";
+
+// Оформление вкладок согласовано со страницей курса: у v5 дефолты Tabs отличаются от v4
+const tabsSx = {
+    minHeight: 44,
+    "& .MuiTab-root": {
+        minHeight: 44,
+        px: 2,
+        textTransform: "none",
+        fontSize: "0.95rem",
+        fontWeight: 500,
+    },
+    "& .MuiTabs-indicator": {height: 3, borderRadius: "3px 3px 0 0"},
+}
 
 interface ICoursesState {
     isLoaded: boolean;
@@ -54,6 +67,7 @@ export default class Courses extends React.Component<Props, ICoursesState> {
                     scrollButtons={"auto"}
                     value={tabValue}
                     indicatorColor="primary"
+                    sx={tabsSx}
                     onChange={(event, value) => {
                         this.setState({tabValue: value});
                     }}

@@ -1,7 +1,7 @@
 ﻿import {SolutionDto, SolutionState} from "@/api";
 import {colorBetween} from "./JsUtils";
 import Utils from "./Utils";
-import {grey} from "@material-ui/core/colors";
+import {grey} from "@mui/material/colors";
 
 export default class StudentStatsUtils {
 

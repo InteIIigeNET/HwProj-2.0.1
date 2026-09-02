@@ -1,4 +1,4 @@
-import {Box, Snackbar} from "@material-ui/core";
+import {Box, Snackbar} from "@mui/material";
 import {FileUploader} from "react-drag-drop-files";
 import * as React from "react";
 import {styled} from "@mui/material/styles";
