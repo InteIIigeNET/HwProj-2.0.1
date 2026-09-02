@@ -124,6 +124,7 @@ const Login: FC<LoginProps> = (props) => {
     return (
         <Container component="main" maxWidth="xs">
             <DotLottieReact
+                style={{marginTop: -80}}
                 src="https://lottie.host/919997f6-e82f-4995-b17d-bb3dad2376be/jDvgCK2W1q.lottie"
                 autoplay
             />

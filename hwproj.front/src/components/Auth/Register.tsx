@@ -2,17 +2,16 @@ import React, {FC, useState} from "react";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import {Navigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 import ApiSingleton from "../../api/ApiSingleton";
 import {RegisterViewModel} from "../../api/";
 import "./Styles/Register.css";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import {makeStyles} from '@material-ui/core/styles';
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
-import Avatar from "@material-ui/core/Avatar";
 import ValidationUtils from "../Utils/ValidationUtils";
-import {Alert, AlertTitle} from "@mui/material";
+import {Alert, AlertTitle, Card, CardContent, Stack} from "@mui/material";
+import hwCat from "../hw-cat.png";
 
 interface ICommonState {
     error: string[];
@@ -20,23 +19,54 @@ interface ICommonState {
 }
 
 const useStyles = makeStyles((theme) => ({
-    paper: {
-        marginTop: theme.spacing(3),
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
-    avatar: {
-        margin: theme.spacing(1),
-    },
     form: {
         marginTop: theme.spacing(3),
         width: '100%'
     },
     button: {
-        marginTop: theme.spacing(1)
+        marginTop: theme.spacing(2)
     },
 }))
+
+const Logo: FC = () => (
+    <Link
+        to={"/"}
+        aria-label={"HwProj — главная"}
+        style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            textDecoration: "none",
+            padding: "24px 0",
+        }}
+    >
+        <img
+            src={hwCat}
+            alt={""}
+            draggable={false}
+            style={{
+                display: "block",
+                width: "80px",
+                height: "70px",
+                objectFit: "contain",
+            }}
+        />
+        <Typography
+            component={"span"}
+            style={{
+                color: "#3f51b5",
+                fontFamily: "Helvetica, Arial, sans-serif",
+                fontSize: "32px",
+                fontWeight: 700,
+                lineHeight: 1,
+                letterSpacing: "0.5px",
+            }}
+        >
+            HwProj
+        </Typography>
+    </Link>
+)
 
 const Register: FC = () => {
 
@@ -62,7 +92,6 @@ const Register: FC = () => {
             setIsRegisterButtonDisabled(true);
             return;
         }
-        e.preventDefault()
         try {
             const registerModel: RegisterViewModel =
                 {
@@ -81,69 +110,83 @@ const Register: FC = () => {
             setCommonState((prevState) => ({
                 ...prevState,
                 error: ['Сервис недоступен'],
-                loggedIn: false
+                isRegistered: false
             }))
         }
     }
 
     if (commonState.isRegistered) {
-        return <Container component="main" maxWidth="xs">
-            <div className={classes.paper}>
-                <Alert severity="success" sx={{mt: 1}}>
-                    <AlertTitle>Подтведите почту</AlertTitle>
-                    Ссылка для подтверждение профиля отправлена на указанную при регистрации почту
-                </Alert>
-            </div>
-        </Container>
+        return (
+            <Container component="main" maxWidth="xs">
+                <Logo/>
+                <Card raised sx={{borderRadius: '16px'}}>
+                    <CardContent>
+                        <Alert severity="success">
+                            <AlertTitle>Подтвердите почту</AlertTitle>
+                            Ссылка для подтверждения профиля отправлена на указанную при регистрации почту
+                        </Alert>
+                        <Stack justifyContent={"center"} direction={"row"} alignItems={"baseline"}
+                               style={{paddingTop: 15}}
+                               spacing={1}>
+                            <Link to="/login">
+                                <Typography variant={"body2"}>
+                                    Вернуться ко входу
+                                </Typography>
+                            </Link>
+                        </Stack>
+                    </CardContent>
+                </Card>
+            </Container>
+        )
     }
 
     return (
         <Container component="main" maxWidth="xs">
-            <div className={classes.paper}>
-                <Avatar className={classes.avatar} style={{color: 'white', backgroundColor: '#ba2e2e'}}>
-                    <LockOutlinedIcon/>
-                </Avatar>
-                <Typography component="h1" variant="h5">
-                    Регистрация
-                </Typography>
-                {commonState.error.length > 0 && (
-                    <p style={{color: "red", marginBottom: "0"}}>{commonState.error}</p>
-                )}
-                <form onSubmit={handleSubmit} className={classes.form}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                fullWidth
-                                required
-                                label="Имя"
-                                variant="outlined"
-                                name={registerState.name}
-                                onChange={(e) => {
-                                    e.persist()
-                                    setRegisterState((prevState) => ({
-                                        ...prevState,
-                                        name: e.target.value
-                                    }))
-                                }}
-                            />
+            <Logo/>
+            <Card raised sx={{borderRadius: '16px'}}>
+                <CardContent>
+                    <Grid container direction="column" spacing={1} alignItems={"center"}>
+                        <Grid item>
+                            <Typography component="h1" variant="h5">
+                                Давайте знакомиться 🤝
+                            </Typography>
                         </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                required
-                                fullWidth
-                                label="Фамилия"
-                                variant="outlined"
-                                name={registerState.surname}
-                                onChange={(e) => {
-                                    e.persist()
-                                    setRegisterState((prevState) => ({
-                                        ...prevState,
-                                        surname: e.target.value
-                                    }))
-                                }}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
+                        {commonState.error.length > 0 && <Grid item><Alert severity={"error"}>
+                            {commonState.error}
+                        </Alert></Grid>}
+                    </Grid>
+                    <form onSubmit={handleSubmit} className={classes.form}>
+                        <Stack spacing={2}>
+                            <Stack direction={{xs: "column", sm: "row"}} spacing={2}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    label="Имя"
+                                    variant="outlined"
+                                    name={registerState.name}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setRegisterState((prevState) => ({
+                                            ...prevState,
+                                            name: e.target.value
+                                        }))
+                                    }}
+                                />
+                                <TextField
+                                    required
+                                    fullWidth
+                                    label="Фамилия"
+                                    variant="outlined"
+                                    name={registerState.surname}
+                                    onChange={(e) => {
+                                        e.persist()
+                                        setRegisterState((prevState) => ({
+                                            ...prevState,
+                                            surname: e.target.value
+                                        }))
+                                    }}
+                                />
+                            </Stack>
                             <TextField
                                 fullWidth
                                 label="Отчество"
@@ -157,8 +200,6 @@ const Register: FC = () => {
                                     }))
                                 }}
                             />
-                        </Grid>
-                        <Grid item xs={12}>
                             <TextField
                                 required
                                 fullWidth
@@ -178,20 +219,33 @@ const Register: FC = () => {
                                 error={emailError !== ""}
                                 helperText={emailError}
                             />
-                        </Grid>
-                    </Grid>
-                    <Button
-                        style={{marginTop: '15px'}}
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        type="submit"
-                        disabled={isRegisterButtonDisabled}
-                    >
-                        Зарегистрироваться
-                    </Button>
-                </form>
-            </div>
+                        </Stack>
+                        <div className={classes.button}>
+                            <Button
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                                type="submit"
+                                disabled={isRegisterButtonDisabled}
+                            >
+                                Зарегистрироваться
+                            </Button>
+                        </div>
+                    </form>
+                    <Stack justifyContent={"center"} direction={"row"} alignItems={"baseline"}
+                           style={{paddingTop: 15}}
+                           spacing={1}>
+                        <Typography variant={"body2"}>
+                            Уже есть аккаунт?
+                        </Typography>
+                        <Link to="/login">
+                            <Typography variant={"body2"}>
+                                Войти
+                            </Typography>
+                        </Link>
+                    </Stack>
+                </CardContent>
+            </Card>
         </Container>
     )
 }
