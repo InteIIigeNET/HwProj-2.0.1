@@ -1,5 +1,4 @@
 ﻿import * as React from "react";
-import {Tabs, Tab} from "@material-ui/core";
 import ApiSingleton from "api/ApiSingleton";
 import {UnratedSolutionPreviews, UserDataDto} from "@/api";
 import "./Styles/Profile.css";
@@ -7,7 +6,8 @@ import {FC, useEffect, useState} from "react";
 import {Link, useParams} from "react-router-dom";
 import TaskDeadlines from "./Tasks/TaskDeadlines";
 import UnratedSolutionsAndOpenQuestions from "./Solutions/UnratedSolutionsAndOpenQuestions";
-import {Alert, Chip, Grid, Stack, Typography} from "@mui/material";
+import {Alert, Box, Chip, Divider, Grid, Paper, Stack, Tab, Tabs, Typography} from "@mui/material";
+import {UserInitialsAvatar} from "./Common/UserInitialsAvatar";
 import NewCourseEvents from "./Courses/NewCourseEvents";
 import {TestTag} from "./Common/HomeworkTags";
 import Utils from "../services/Utils";
@@ -17,6 +17,29 @@ import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 interface IWorkspaceState {
     isLoaded: boolean;
     tabValue: number;
+}
+
+const panelSx = {
+    borderRadius: "14px",
+    borderColor: "#c4cad2",
+}
+
+const tabsSx = {
+    minHeight: 44,
+    "& .MuiTab-root": {
+        minHeight: 44,
+        px: 2,
+        textTransform: "none",
+        fontSize: "0.95rem",
+        fontWeight: 500,
+    },
+    "& .MuiTabs-indicator": {height: 3, borderRadius: "3px 3px 0 0"},
+}
+
+const roleTitles: Record<string, string> = {
+    "Lecturer": "Преподаватель",
+    "Expert": "Эксперт",
+    "Student": "Студент",
 }
 
 const Workspace: FC = () => {
@@ -88,23 +111,54 @@ const Workspace: FC = () => {
         const fullName = userData?.middleName
             ? userData.name + ' ' + userData.middleName + ' ' + userData.surname
             : userData!.name + ' ' + userData!.surname
+        const roleTitle = userData!.role ? roleTitles[userData!.role] : undefined
 
         return (
             <div className="container" style={{marginBottom: '50px'}}>
                 <Grid container style={{marginTop: "5px"}} spacing={2}>
-                    <Grid item xs={12} container direction={"row"} justifyContent={"space-between"}>
-                        <Grid item direction={"row"} spacing={2}>
-                            <Grid item>
-                                <Typography style={{fontSize: '20px'}}>
-                                    {fullName}
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                        <Grid item>
-                            <Typography style={{fontSize: '20px', color: "GrayText"}}>
-                                {userData!.email}
-                            </Typography>
-                        </Grid>
+                    <Grid item xs={12}>
+                        <Paper variant={"outlined"} sx={{...panelSx, p: {xs: 2, sm: 2.5}}}>
+                            <Stack
+                                direction={{xs: "column", sm: "row"}}
+                                spacing={2}
+                                alignItems={{xs: "stretch", sm: "center"}}
+                            >
+                                <Stack
+                                    direction={"row"}
+                                    spacing={2}
+                                    alignItems={"center"}
+                                    sx={{flexGrow: 1, minWidth: 0}}
+                                >
+                                    <UserInitialsAvatar user={userData!} size={52} fontSize={"1.15rem"}/>
+                                    <Box sx={{minWidth: 0}}>
+                                        <Typography
+                                            component={"h1"}
+                                            sx={{fontSize: "1.5rem", fontWeight: 500, lineHeight: 1.25, m: 0}}
+                                        >
+                                            {fullName}
+                                        </Typography>
+                                        <Typography
+                                            variant={"body2"}
+                                            sx={{color: "text.secondary", wordBreak: "break-word"}}
+                                        >
+                                            {userData!.email}
+                                        </Typography>
+                                        {userData!.companyName &&
+                                            <Typography variant={"caption"} sx={{color: "text.secondary"}}>
+                                                {userData!.companyName}
+                                            </Typography>}
+                                    </Box>
+                                </Stack>
+                                {roleTitle &&
+                                    <Stack
+                                        direction={"row"}
+                                        justifyContent={{xs: "flex-start", sm: "flex-end"}}
+                                        sx={{flexShrink: 0}}
+                                    >
+                                        <Chip label={roleTitle} size={"small"} sx={{color: "GrayText"}}/>
+                                    </Stack>}
+                            </Stack>
+                        </Paper>
                     </Grid>
                     {isUserProfile && !isMentor && testDeadlines &&
                         <Grid container item spacing={1} alignContent={"stretch"}>
@@ -127,6 +181,7 @@ const Workspace: FC = () => {
                             scrollButtons={"auto"}
                             value={tabValue}
                             indicatorColor="primary"
+                            sx={tabsSx}
                             onChange={(event, value) => {
                                 setProfileState(prevState => ({
                                     ...prevState,
@@ -135,20 +190,20 @@ const Workspace: FC = () => {
                             }}
                         >
                             {isMentor && <Tab label={
-                                <Stack direction="row" spacing={1}>
+                                <Stack direction="row" spacing={1} alignItems={"center"}>
                                     <div>Ожидают проверки</div>
                                     <Chip size={"small"} color={"default"}
                                           label={(unratedSolutionPreviews!.unratedSolutions!.length)}/>
                                 </Stack>}/>}
                             {isLecturer && courseEvents!.length > 0 &&
-                                <Tab label={<Stack direction="row" spacing={1}>
+                                <Tab label={<Stack direction="row" spacing={1} alignItems={"center"}>
                                     <div>Курсы</div>
                                     <Chip size={"small"} color={"primary"}
                                           label={(courseEvents!.length)}/>
                                 </Stack>}/>}
 
                             {!isMentor && <Tab label={
-                                <Stack direction="row" spacing={1}>
+                                <Stack direction="row" spacing={1} alignItems={"center"}>
                                     <div>Дедлайны</div>
                                     <Chip size={"small"} color={"default"}
                                           label={(nearestTaskDeadlines!.length)}/>
@@ -156,7 +211,7 @@ const Workspace: FC = () => {
                             {!isMentor && pastTaskDeadlines.length > 0 &&
                                 <Tab style={{minWidth: "fit-content"}}
                                      label={
-                                         <Stack direction="row" spacing={1}>
+                                         <Stack direction="row" spacing={1} alignItems={"center"}>
                                              <div>Пропущенные дедлайны</div>
                                              <Chip size={"small"}
                                                    color={"error"}
@@ -164,7 +219,8 @@ const Workspace: FC = () => {
                                          </Stack>}
                                 />}
                         </Tabs>
-                        <div style={{marginTop: 15}}>
+                        <Divider/>
+                        <Box sx={{mt: 2}}>
                             {tabValue === 0 &&
                                 (isMentor
                                     ? <UnratedSolutionsAndOpenQuestions unratedSolutionsPreviews={unratedSolutionPreviews!}/>
@@ -175,7 +231,7 @@ const Workspace: FC = () => {
                                     ? <NewCourseEvents courseEvents={courseEvents!}/>
                                     : <TaskDeadlines taskDeadlines={pastTaskDeadlines}
                                                      onGiveUpClick={onGiveUpClick}/>)}
-                        </div>
+                        </Box>
                     </Grid>}
                     <Grid item alignSelf="flex-start" sx={{width: 300, maxWidth: "100%"}}>
                         <DotLottieReact

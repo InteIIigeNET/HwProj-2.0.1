@@ -2,7 +2,6 @@ import {AccountDataDto, QuestionsSummary, SolutionPreviewView, UnratedSolutionPr
 import * as React from "react";
 import {NavLink} from "react-router-dom";
 import {
-    Avatar,
     Box,
     Divider,
     Grid,
@@ -12,6 +11,7 @@ import {
     Paper
 } from "@mui/material";
 import {EditOutlined, HelpOutline} from "@mui/icons-material";
+import {UserInitialsAvatar} from "@/components/Common/UserInitialsAvatar";
 import {FC, ReactNode, useEffect, useState} from "react";
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
@@ -56,13 +56,6 @@ const rowSx = {
     "&:hover, &:focus": {color: "#212529", textDecoration: "none"},
 }
 
-// Цвет аватара выводится из имени, чтобы одного студента было легче узнавать в списке
-const getHue = (value: string) => {
-    let hash = 0
-    for (let i = 0; i < value.length; i++) hash = (hash * 31 + value.charCodeAt(i)) % 360
-    return hash
-}
-
 const SectionPanel: FC<{ icon: ReactNode, title: string, children: ReactNode }> = ({icon, title, children}) => (
     <Paper variant={"outlined"} sx={{...panelSx, borderColor: "#a8b0d8"}}>
         <Stack
@@ -82,7 +75,6 @@ const SectionPanel: FC<{ icon: ReactNode, title: string, children: ReactNode }> 
 const SolutionRow: FC<{ solution: SolutionPreviewView }> = ({solution}) => {
     const student = solution.student!
     const studentName = `${student.surname} ${student.name}`
-    const hue = getHue(studentName)
     const date = Utils.renderReadableDate(solution.publicationDate!)
 
     return (
@@ -91,18 +83,7 @@ const SolutionRow: FC<{ solution: SolutionPreviewView }> = ({solution}) => {
             to={`/task/${solution.taskId}/${student.userId}`}
             sx={rowSx}
         >
-            <Avatar
-                sx={{
-                    width: 38,
-                    height: 38,
-                    fontSize: "0.85rem",
-                    fontWeight: 600,
-                    backgroundColor: `hsl(${hue}, 70%, 94%)`,
-                    color: `hsl(${hue}, 45%, 38%)`,
-                }}
-            >
-                {`${student.surname?.[0] ?? ""}${student.name?.[0] ?? ""}`}
-            </Avatar>
+            <UserInitialsAvatar user={student}/>
             <Box sx={{flexGrow: 1, minWidth: 0}}>
                 <Stack direction={"row"} alignItems={"center"} spacing={1} flexWrap={"wrap"} sx={{rowGap: 0.5}}>
                     <Typography component={"span"} sx={{fontSize: "1rem", fontWeight: 500, pr: 1.5}}>
