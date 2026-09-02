@@ -192,7 +192,7 @@ const Workspace: FC = () => {
                             {isMentor && <Tab label={
                                 <Stack direction="row" spacing={1} alignItems={"center"}>
                                     <div>Ожидают проверки</div>
-                                    <Chip size={"small"} color={"primary"}
+                                    <Chip size={"small"} color={"default"}
                                           label={(unratedSolutionPreviews!.unratedSolutions!.length)}/>
                                 </Stack>}/>}
                             {isLecturer && courseEvents!.length > 0 &&
