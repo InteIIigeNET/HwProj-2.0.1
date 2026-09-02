@@ -229,7 +229,7 @@ const WelcomePage: React.FC = () => {
           }}
         >
           <Grid container sx={{ height: "100%" }}>
-            {/* Левая панель (шаги), с прокруткой только на десктопе */}
+            {/* Левая панель: заголовок, список шагов и кнопка регистрации внизу */}
             <Grid
               item
               xs={12}
@@ -238,7 +238,9 @@ const WelcomePage: React.FC = () => {
                 p: { xs: 2, md: 4 },
                 borderRight: { md: "1px solid #e0e0e0" },
                 borderBottom: { xs: "1px solid #e0e0e0", md: "none" },
-                overflowY: { xs: "visible", md: "auto" },
+                display: "flex",
+                flexDirection: "column",
+                minHeight: 0,
               }}
             >
               <Typography
@@ -259,6 +261,9 @@ const WelcomePage: React.FC = () => {
                   display: "flex",
                   flexDirection: "column",
                   gap: 1.5,
+                  flexGrow: 1,
+                  minHeight: 0,
+                  overflowY: { xs: "visible", md: "auto" },
                 }}
               >
                 {steps.map((step, index) => (
@@ -317,6 +322,27 @@ const WelcomePage: React.FC = () => {
                   </Paper>
                 ))}
               </Box>
+
+              {/* Кнопка регистрации, прижатая к низу колонки */}
+              <Button
+                variant="contained"
+                component={Link}
+                to="/register"
+                fullWidth
+                sx={{
+                  flexShrink: 0,
+                  mt: 3,
+                  bgcolor: "#3f51b5",
+                  color: "white",
+                  py: 1.25,
+                  fontSize: { xs: "0.95rem", md: "1rem" },
+                  textTransform: "none",
+                  borderRadius: "8px",
+                  "&:hover": { bgcolor: "#3f51b5", color: "white" },
+                }}
+              >
+                Присоединиться
+              </Button>
             </Grid>
 
             {/* Правая панель (скриншот) */}
@@ -349,32 +375,6 @@ const WelcomePage: React.FC = () => {
             </Grid>
           </Grid>
         </Box>
-
-        {/* Кнопка регистрации */}
-        <Container
-          maxWidth="md"
-          sx={{ textAlign: "center", mt: { xs: 4, md: 6 }, mb: 4 }}
-        >
-          <Button
-            variant="contained"
-            size="large"
-            component={Link}
-            to="/register"
-            sx={{
-              bgcolor: "#3f51b5",
-              color: "white",
-              width: { xs: "100%", sm: "auto" },
-              px: { xs: 3, sm: 7 },
-              py: 2,
-              fontSize: "1.1rem",
-              textTransform: "none",
-              borderRadius: "8px",
-              "&:hover": { bgcolor: "#3f51b5", color: "white" },
-            }}
-          >
-            Присоединиться
-          </Button>
-        </Container>
       </Container>
     </Box>
   );
