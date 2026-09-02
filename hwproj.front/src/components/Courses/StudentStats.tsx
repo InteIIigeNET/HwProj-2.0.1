@@ -1,18 +1,40 @@
-import React, {useEffect, useState, useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {CourseViewModel, GroupViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import {useNavigate, useParams} from 'react-router-dom';
-import {LinearProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@material-ui/core";
+import {
+    Alert,
+    Box,
+    Button,
+    Chip,
+    Divider,
+    IconButton,
+    LinearProgress,
+    Paper,
+    Stack,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TextField,
+    Tooltip,
+    Typography
+} from "@mui/material";
 import StudentStatsCell from "../Tasks/StudentStatsCell";
-import {Alert, Button, Chip, IconButton, Stack, Typography} from "@mui/material";
-import {grey} from "@material-ui/core/colors";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
+import Utils from "../../services/Utils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
-import {BonusTag, BonusTip, DefaultTags, TestTag} from "../Common/HomeworkTags";
-import Lodash from "lodash"
-import ApiSingleton from "@/api/ApiSingleton";
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 import GroupIcon from '@mui/icons-material/Group';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
+import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
+import {BonusTag, BonusTip, DefaultTags, TestTag} from "../Common/HomeworkTags";
+import {UserInitialsAvatar} from "../Common/UserInitialsAvatar";
+import Lodash from "lodash"
+import ApiSingleton from "@/api/ApiSingleton";
 
 interface IStudentStatsProps {
     course: CourseViewModel;
@@ -27,7 +49,106 @@ interface IStudentStatsState {
     searched: string
 }
 
-const greyBorder = grey[300]
+const studentPlurals = ["студент", "студента", "студентов"]
+
+// Оформление панели согласовано с редизайном страницы курса и списка заданий
+const panelSx = {
+    borderRadius: "14px",
+    borderColor: "#c4cad2",
+    overflow: "hidden",
+    // В полноэкранном режиме тулбар должен остаться видимым, поэтому разворачиваем всю панель, а не только таблицу
+    "&:fullscreen": {
+        border: "none",
+        borderRadius: 0,
+        display: "flex",
+        flexDirection: "column",
+        backgroundColor: "#fff",
+    },
+}
+
+const toolbarSx = {
+    px: 1.5,
+    py: 1,
+    backgroundColor: "#f3f4fb",
+    color: "#3f51b5",
+}
+
+const headerChipSx = {
+    height: 20,
+    flexShrink: 0,
+    backgroundColor: "#e4e7f6",
+    color: "#3f51b5",
+    "& .MuiChip-label": {px: 0.75, fontSize: "0.75rem", fontWeight: 500},
+}
+
+const lightBorder = "1px solid #eceef3"
+const groupBorder = "1px solid #d5d9e6"
+
+// Высота первой строки шапки фиксирована, чтобы вторая строка липла ровно под неё
+const HEAD_ROW_HEIGHT = 46
+const NAME_COLUMN_WIDTH = 224
+
+const headCellSx = {
+    px: 1,
+    py: 0.5,
+    fontSize: "0.8125rem",
+    fontWeight: 500,
+    lineHeight: 1.25,
+    color: "#3f51b5",
+    backgroundColor: "#f3f4fb",
+    borderBottom: groupBorder,
+}
+
+const subHeadCellSx = {
+    top: HEAD_ROW_HEIGHT,
+    minWidth: 76,
+}
+
+// Колонка со студентом закреплена слева: при горизонтальной прокрутке широкой ведомости строка не теряется
+const stickyNameCellSx = {
+    position: "sticky" as const,
+    left: 0,
+    minWidth: NAME_COLUMN_WIDTH,
+    width: NAME_COLUMN_WIDTH,
+    maxWidth: NAME_COLUMN_WIDTH,
+    backgroundColor: "#fff",
+    // Тень вместо границы: не даёт двойной линии со следующей колонкой и показывает, что колонка "плавает" над прокруткой
+    boxShadow: "1px 0 0 #d5d9e6, 4px 0 8px -4px rgba(0, 0, 0, 0.08)",
+}
+
+const clampSx = {
+    display: "-webkit-box",
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
+}
+
+const bodyCellSx = {
+    px: 1,
+    py: 0.5,
+    borderBottom: lightBorder,
+}
+
+const summaryCellSx = {
+    ...bodyCellSx,
+    backgroundColor: "#fff",
+    borderLeft: groupBorder,
+}
+
+const sumChipSx = {
+    height: 24,
+    fontSize: "0.875rem",
+    fontWeight: 500,
+    fontVariantNumeric: "tabular-nums",
+    "& .MuiChip-label": {px: 1},
+}
+
+const captionSx = {
+    display: "block",
+    fontSize: "0.6875rem",
+    lineHeight: 1.3,
+    color: "text.secondary",
+}
 
 const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const [state, setSearched] = useState<IStudentStatsState>({
@@ -41,10 +162,10 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
 
     const [isFullscreen, setIsFullscreen] = useState(false)
 
-    const tableRef = useRef<HTMLDivElement | null>(null)
+    const panelRef = useRef<HTMLDivElement | null>(null)
 
     const toggleFullscreen = () => {
-        const target = tableRef.current
+        const target = panelRef.current
         if (!target) return
         if (!document.fullscreenElement) {
             if (target.requestFullscreen) {
@@ -66,10 +187,16 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     const {searched} = state
     const isMentor = ApiSingleton.authService.isMentor()
 
+    // Поиск студента можно начать, просто начав печатать в любом месте страницы
     useEffect(() => {
         const keyDownHandler = (event: KeyboardEvent) => {
-            if (document.fullscreenElement) return
-            if (event.ctrlKey || event.altKey) return
+            if (event.ctrlKey || event.altKey || event.metaKey) return
+
+            // Если пользователь печатает в поле поиска (или любом другом), ввод обрабатывает сам инпут
+            const target = event.target as HTMLElement | null
+            if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable))
+                return
+
             if (searched && event.key === "Escape") {
                 setSearched({searched: ""});
             } else if (searched && event.key === "Backspace") {
@@ -89,7 +216,6 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         ? props.solutions?.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase()))
         : props.solutions
 
-    const borderStyle = `1px solid ${greyBorder}`
     const testHomeworkStyle = {
         backgroundColor: "#3f51b5",
         borderLeftColor: "#3f51b5",
@@ -102,6 +228,19 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         if (idx !== 0 && homeworks[idx - 1].tags?.includes(TestTag))
             return {borderLeftColor: testHomeworkStyle.borderLeftColor}
         return undefined
+    }
+
+    // Цветовое кодирование контрольных работ и усиленная граница на стыке заданий
+    const headTaskCellSx = (homeworks: HomeworkViewModel[], idx: number, isFirstTask: boolean) => {
+        const styles = homeworkStyles(homeworks, idx)
+        return {
+            ...headCellSx,
+            ...subHeadCellSx,
+            ...(styles?.backgroundColor
+                ? {backgroundColor: styles.backgroundColor, color: styles.color}
+                : {}),
+            borderLeft: isFirstTask ? `1px solid ${styles?.borderLeftColor ?? "#d5d9e6"}` : lightBorder,
+        }
     }
 
     const notTests = homeworks.filter(h => !h.tags!.includes(TestTag))
@@ -159,102 +298,155 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         </>
     }
 
+    const totalStudents = props.solutions?.length ?? 0
+    const shownStudents = solutions?.length ?? 0
+    const hasStudents = totalStudents > 0
+
     return (
-        <div>
+        <Paper variant={"outlined"} ref={panelRef} sx={panelSx}>
+            <Stack
+                direction={{xs: "column", sm: "row"}}
+                alignItems={{xs: "stretch", sm: "center"}}
+                spacing={1}
+                sx={toolbarSx}
+            >
+                <Stack direction={"row"} alignItems={"center"} spacing={1} sx={{minWidth: 0}}>
+                    <AssessmentOutlinedIcon fontSize={"small"}/>
+                    <Typography variant={"body2"} sx={{fontWeight: 500}}>Успеваемость</Typography>
+                    {hasStudents && <Tooltip
+                        arrow
+                        title={searched
+                            ? `Найдено ${shownStudents} из ${totalStudents}`
+                            : `${totalStudents} ${Utils.pluralizeHelper(studentPlurals, totalStudents)} на курсе`}>
+                        <Chip
+                            size={"small"}
+                            sx={headerChipSx}
+                            label={searched ? `${shownStudents} / ${totalStudents}` : totalStudents}/>
+                    </Tooltip>}
+                </Stack>
+                <Box sx={{flexGrow: 1}}/>
+                <Stack direction={"row"} alignItems={"center"} spacing={1} sx={{flexShrink: 0}}>
+                    {hasStudents && <TextField
+                        size={"small"}
+                        value={searched}
+                        placeholder={"Поиск студента"}
+                        onChange={event => setSearched({searched: event.target.value})}
+                        sx={{width: {xs: "100%", sm: 200}, backgroundColor: "#fff", borderRadius: "10px"}}
+                        InputProps={{
+                            startAdornment: <SearchIcon fontSize={"small"} sx={{mr: 1, color: "text.secondary"}}/>,
+                            endAdornment: searched
+                                ? <IconButton size={"small"} onClick={() => setSearched({searched: ""})}>
+                                    <ClearIcon sx={{fontSize: 16}}/>
+                                </IconButton>
+                                : undefined,
+                            sx: {borderRadius: "10px", fontSize: "0.9375rem"},
+                        }}
+                    />}
+                    {shownStudents > 0 && <Button
+                        startIcon={<ShowChartIcon/>}
+                        color={"primary"}
+                        size={"small"}
+                        onClick={handleClick}
+                        sx={{textTransform: "none", borderRadius: "10px", flexShrink: 0}}
+                    >
+                        Графики
+                    </Button>}
+                    <Tooltip arrow title={isFullscreen ? "Выйти из полноэкранного режима" : "Полноэкранный режим"}>
+                        <IconButton size={"small"} color={"primary"} onClick={toggleFullscreen}>
+                            {isFullscreen
+                                ? <FullscreenExitIcon fontSize={"small"}/>
+                                : <FullscreenIcon fontSize={"small"}/>}
+                        </IconButton>
+                    </Tooltip>
+                </Stack>
+            </Stack>
+            <Divider/>
             {props.solutions === undefined && <LinearProgress/>}
-            {props.solutions && props.solutions.length === 0 && <Alert severity="info">
+            {props.solutions && props.solutions.length === 0 && <Alert severity="info" sx={{borderRadius: 0}}>
                 На курс пока ещё никто не записался
             </Alert>}
-            {searched &&
-                <Alert style={{marginBottom: 5}} severity="info"><b>Поиск: </b>
-                    {searched.replaceAll(" ", "·")}
-                </Alert>}
-            <TableContainer ref={tableRef} style={{maxHeight: "93vh", marginBottom: -50}}>
-                <Table stickyHeader aria-label="sticky table">
+            {hasStudents && shownStudents === 0 && <Alert severity="info" sx={{borderRadius: 0}}>
+                {"Студенты не найдены по запросу «" + searched.replaceAll(" ", "·") + "»"}
+            </Alert>}
+            <TableContainer
+                sx={{
+                    maxHeight: isFullscreen ? "none" : {xs: "70vh", md: "80vh"},
+                    flexGrow: isFullscreen ? 1 : 0,
+                    minHeight: 0,
+                    "&::-webkit-scrollbar": {width: "8px", height: "8px"},
+                    "&::-webkit-scrollbar-track": {backgroundColor: "transparent"},
+                    "&::-webkit-scrollbar-thumb": {backgroundColor: "#c4cad2", borderRadius: "4px"},
+                    "&::-webkit-scrollbar-thumb:hover": {backgroundColor: "#a8b0d8"},
+                }}>
+                <Table stickyHeader size={"small"} aria-label="Ведомость успеваемости">
                     <TableHead>
                         <TableRow>
-                            <TableCell style={{zIndex: 10}} align="center"
-                                       padding="none"
-                                       component="td">
-                                <IconButton size="medium" color={"primary"} onClick={toggleFullscreen}>
-                                    {isFullscreen
-                                        ? <FullscreenExitIcon fontSize={"medium"}/>
-                                        : <FullscreenIcon fontSize={"medium"}/>}
-                                </IconButton>
+                            <TableCell
+                                rowSpan={2}
+                                sx={{
+                                    ...headCellSx,
+                                    ...stickyNameCellSx,
+                                    backgroundColor: "#f3f4fb",
+                                    zIndex: 4,
+                                    verticalAlign: "bottom",
+                                }}>
+                                Студент
                             </TableCell>
                             {(hasHomeworks || hasTests) && <TableCell
-                                padding="checkbox"
                                 colSpan={(hasHomeworks ? 1 : 0) + (hasTests ? 1 : 0) + (showBestSolutions ? 1 : 0)}
                                 align="center"
-                                component="td"
-                                style={{
-                                    zIndex: -5,
-                                    borderLeft: borderStyle,
-                                }}
+                                sx={{...headCellSx, height: HEAD_ROW_HEIGHT, borderLeft: groupBorder}}
                             >
                                 Итоговые баллы
                             </TableCell>}
-                            {homeworks.map((homework, idx) =>
-                                <TableCell
+                            {homeworks.map((homework, idx) => {
+                                const styles = homeworkStyles(homeworks, idx)
+                                return <TableCell
                                     key={homework.id}
-                                    padding="checkbox"
-                                    component="td"
                                     align="center"
-                                    style={{
-                                        zIndex: -5,
-                                        borderLeft: borderStyle,
-                                        ...homeworkStyles(homeworks, idx)
-                                    }}
                                     colSpan={homework.tasks!.length}
+                                    sx={{
+                                        ...headCellSx,
+                                        height: HEAD_ROW_HEIGHT,
+                                        ...(styles?.backgroundColor
+                                            ? {backgroundColor: styles.backgroundColor, color: styles.color}
+                                            : {}),
+                                        borderLeft: `1px solid ${styles?.borderLeftColor ?? "#d5d9e6"}`,
+                                    }}
                                 >
-                                    {renderTitle(homework)}
-                                </TableCell>)}
+                                    <Tooltip arrow disableInteractive title={homework.title ?? ""}>
+                                        <Box sx={clampSx}>{renderTitle(homework)}</Box>
+                                    </Tooltip>
+                                </TableCell>
+                            })}
                         </TableRow>
                         <TableRow>
-                            <TableCell style={{zIndex: 10}}
-                                       component="td">
-                                {solutions && solutions.length > 0 &&
-                                    <Button startIcon={<ShowChartIcon/>} color="primary"
-                                            style={{backgroundColor: 'transparent'}} size='medium'
-                                            onClick={handleClick}>
-                                        Графики
-                                    </Button>
-                                }
-                            </TableCell>
-                            {hasHomeworks && <TableCell padding="checkbox" component="td" align="center"
-                                                        style={{
-                                                            minWidth: 70,
-                                                            paddingLeft: 5,
-                                                            paddingRight: 5,
-                                                            borderLeft: borderStyle,
-                                                        }}>
-                                ДЗ {homeworksWithGroups.length === 0 && `(${getMaxSum("", false)})`}
+                            {hasHomeworks && <TableCell
+                                align="center"
+                                sx={{...headCellSx, ...subHeadCellSx, borderLeft: groupBorder}}>
+                                {"ДЗ " + (homeworksWithGroups.length === 0 ? `(${getMaxSum("", false)})` : "")}
                             </TableCell>}
-                            {hasTests && <TableCell padding="checkbox" component="td" align="center"
-                                                    style={{
-                                                        minWidth: 70,
-                                                        paddingLeft: 5,
-                                                        paddingRight: 5,
-                                                        borderLeft: borderStyle,
-                                                    }}>
-                                КР {testsWithGroups.length === 0 && `(${getMaxSum("", true)})`}
+                            {hasTests && <TableCell
+                                align="center"
+                                sx={{...headCellSx, ...subHeadCellSx, borderLeft: groupBorder}}>
+                                {"КР " + (testsWithGroups.length === 0 ? `(${getMaxSum("", true)})` : "")}
                             </TableCell>}
-                            {showBestSolutions && <TableCell padding="checkbox" component="td" align="center"
-                                                             style={{borderLeft: borderStyle}}>
-                                🥇
+                            {showBestSolutions && <TableCell
+                                align="center"
+                                sx={{...headCellSx, ...subHeadCellSx, minWidth: 52, borderLeft: groupBorder}}>
+                                <Tooltip arrow title={"Задачи, где студент первым получил лучшую оценку"}>
+                                    <Box component={"span"}>🥇</Box>
+                                </Tooltip>
                             </TableCell>}
                             {homeworks.map((homework, idx) =>
                                 homework.tasks!.map((task, i) => (
-                                    <TableCell padding="checkbox" component="td" align="center"
-                                               style={{
-                                                   minWidth: "75px",
-                                                   paddingLeft: 10,
-                                                   paddingRight: 10,
-                                                   borderLeft: i === 0 ? borderStyle : "",
-                                                   ...homeworkStyles(homeworks, idx)
-                                               }}
-                                               key={task.id}>
-                                        {renderTitle(task)}
+                                    <TableCell
+                                        key={task.id}
+                                        align="center"
+                                        sx={headTaskCellSx(homeworks, idx, i === 0)}>
+                                        <Tooltip arrow disableInteractive title={task.title ?? ""}>
+                                            <Box sx={clampSx}>{renderTitle(task)}</Box>
+                                        </Tooltip>
                                     </TableCell>
                                 ))
                             )}
@@ -296,98 +488,84 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                 .toArray().length
 
                             const studentGroups = props.groups.filter(x => x.studentsIds!.includes(cm.id!))
+                            const groupNames = studentGroups
+                                .filter(g => g.name?.trim())
+                                .map(r => r.name)
+                                .join(', ')
+                            const reviewers = (cm.reviewers ?? [])
+                                .filter(r => r.userId !== props.userId)
+                                .map(r => `${r.name} ${r.surname}`)
+                                .join(', ')
 
                             return (
-                                <TableRow key={index} hover style={{height: 50}}>
+                                <TableRow
+                                    key={index}
+                                    hover
+                                    sx={{
+                                        height: 52,
+                                        // Закреплённая колонка имеет собственный фон, поэтому подсвечиваем её отдельно
+                                        "&:hover .stats-sticky-name": {backgroundColor: "#f0f2f7"},
+                                    }}>
                                     <TableCell
+                                        className={"stats-sticky-name"}
                                         align="left"
-                                        padding="checkbox"
-                                        style={{paddingRight: 10, paddingLeft: 10}}
-                                        component="td"
-                                        scope="row"
-                                        variant={"head"}
-                                    >
-                                        {cm.surname} {cm.name}
-                                        {studentGroups.length > 0 && <Typography
-                                            gutterBottom
-                                            style={{
-                                                color: "GrayText",
-                                                fontSize: "12px",
-                                                lineHeight: '1.2'
-                                            }}
-                                        >
-                                            <Stack direction="row" spacing={1}>
-                                                <GroupIcon style={{fontSize: "12px"}}/>
-                                                <div>{studentGroups
-                                                    .filter(g => g.name?.trim())
-                                                    .map(r => r.name)
-                                                    .join(', ')}</div>
-                                            </Stack>
-                                        </Typography>}
-                                        <Typography
-                                            style={{
-                                                color: "GrayText",
-                                                fontSize: "12px",
-                                                lineHeight: '1.2'
-                                            }}
-                                        >
-                                            {cm.reviewers && cm.reviewers
-                                                .filter(r => r.userId !== props.userId)
-                                                .map(r => `${r.name} ${r.surname}`)
-                                                .join(', ')}
-                                        </Typography>
+                                        sx={{...bodyCellSx, ...stickyNameCellSx, zIndex: 1}}>
+                                        <Stack direction={"row"} alignItems={"center"} spacing={1.25}
+                                               sx={{minWidth: 0}}>
+                                            <UserInitialsAvatar
+                                                user={{name: cm.name, surname: cm.surname}}
+                                                size={30}
+                                                fontSize={"0.7rem"}/>
+                                            <Box sx={{minWidth: 0}}>
+                                                <Typography
+                                                    sx={{fontSize: "0.9375rem", fontWeight: 500, lineHeight: 1.25}}>
+                                                    {cm.surname} {cm.name}
+                                                </Typography>
+                                                {groupNames && <Tooltip arrow disableInteractive title={groupNames}>
+                                                    <Stack direction={"row"} alignItems={"center"} spacing={0.5}
+                                                           sx={{color: "text.secondary"}}>
+                                                        <GroupIcon sx={{fontSize: 12, flexShrink: 0}}/>
+                                                        <Typography noWrap sx={captionSx}>{groupNames}</Typography>
+                                                    </Stack>
+                                                </Tooltip>}
+                                                {reviewers && <Tooltip arrow disableInteractive title={reviewers}>
+                                                    <Typography noWrap sx={captionSx}>{reviewers}</Typography>
+                                                </Tooltip>}
+                                            </Box>
+                                        </Stack>
                                     </TableCell>
-                                    {hasHomeworks && <TableCell
-                                        align="center"
-                                        padding="none"
-                                        style={{
-                                            borderLeft: borderStyle,
-                                            backgroundColor: "white"
-                                        }}
-                                        component="td"
-                                        scope="row"
-                                        variant={"body"}
-                                    >
-                                        {studentHomeworksMaxSum > 0 && <Chip size={"small"}
-                                              style={{
-                                                  backgroundColor: StudentStatsUtils.getRatingColor(homeworksSum, studentHomeworksMaxSum),
-                                                  fontSize: 16
-                                              }}
-                                              label={`${homeworksSum} ${homeworksWithGroups.length > 0 ? `/ ${studentHomeworksMaxSum}` : ""}`}/>}
+                                    {hasHomeworks && <TableCell align="center" sx={summaryCellSx}>
+                                        {studentHomeworksMaxSum > 0 && <Chip
+                                            size={"small"}
+                                            sx={{
+                                                ...sumChipSx,
+                                                backgroundColor: StudentStatsUtils.getRatingColor(homeworksSum, studentHomeworksMaxSum),
+                                            }}
+                                            label={homeworksWithGroups.length > 0
+                                                ? `${homeworksSum} / ${studentHomeworksMaxSum}`
+                                                : homeworksSum}/>}
                                     </TableCell>}
-                                    {hasTests && <TableCell
-                                        align="center"
-                                        padding="none"
-                                        style={{
-                                            borderLeft: borderStyle,
-                                            backgroundColor: "white"
-                                        }}
-                                        component="td"
-                                        scope="row"
-                                        variant={"body"}
-                                    >
-                                        {studentTestsMaxSum > 0 && <Chip size={"small"}
-                                              style={{
-                                                  backgroundColor: StudentStatsUtils.getRatingColor(testsSum, studentTestsMaxSum),
-                                                  fontSize: 16
-                                              }}
-                                              label={`${testsSum} ${testsWithGroups.length > 0 ? `/ ${studentTestsMaxSum}` : ""}`}/>}
+                                    {hasTests && <TableCell align="center" sx={summaryCellSx}>
+                                        {studentTestsMaxSum > 0 && <Chip
+                                            size={"small"}
+                                            sx={{
+                                                ...sumChipSx,
+                                                backgroundColor: StudentStatsUtils.getRatingColor(testsSum, studentTestsMaxSum),
+                                            }}
+                                            label={testsWithGroups.length > 0
+                                                ? `${testsSum} / ${studentTestsMaxSum}`
+                                                : testsSum}/>}
                                     </TableCell>}
-                                    {showBestSolutions && <TableCell
-                                        align="center"
-                                        padding="none"
-                                        style={{
-                                            borderLeft: borderStyle,
-                                            backgroundColor: "white"
-                                        }}>
-                                        {bestSolutionsCount > 0
-                                            ? <Typography variant={"caption"}
-                                                          color={"grey"}>{bestSolutionsCount}</Typography>
-                                            : ""}
+                                    {showBestSolutions && <TableCell align="center" sx={summaryCellSx}>
+                                        {bestSolutionsCount > 0 && <Typography
+                                            variant={"caption"}
+                                            sx={{fontWeight: 500, color: "#a9791a"}}>
+                                            {bestSolutionsCount}
+                                        </Typography>}
                                     </TableCell>}
                                     {homeworks.map((homework, idx) =>
                                         homework.tasks!.map((task, i) => {
-                                            const additionalStyles = i === 0 && homeworkStyles(homeworks, idx)
+                                            const styles = homeworkStyles(homeworks, idx)
                                             const isDisabled = homework.groupId
                                                 ? !props.groups.find(g => g.id === homework.groupId)?.studentsIds?.includes(cm.id!)
                                                 : false
@@ -403,7 +581,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                 taskMaxRating={task.maxRating!}
                                                 isBestSolution={bestTaskSolutions.get(task.id!) === cm.id}
                                                 disabled={isDisabled}
-                                                {...additionalStyles}/>;
+                                                borderLeftColor={i === 0
+                                                    ? styles?.borderLeftColor ?? "#d5d9e6"
+                                                    : "#eceef3"}/>;
                                         })
                                     )}
                                 </TableRow>
@@ -412,7 +592,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                     </TableBody>
                 </Table>
             </TableContainer>
-        </div>
+        </Paper>
     );
 }
 

@@ -1,12 +1,10 @@
 import * as React from "react";
 import {FC} from "react";
-import TableCell from "@material-ui/core/TableCell";
 import {useNavigate} from "react-router-dom";
 import {SolutionDto} from "api";
-import {Chip, Stack, Tooltip} from "@mui/material";
+import {Box, Chip, Stack, TableCell, Tooltip} from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import Utils from "../../services/Utils";
-import {grey} from "@material-ui/core/colors";
 import "../Courses/Styles/StudentStatsCell.css";
 
 interface ITaskStudentCellProps {
@@ -22,9 +20,9 @@ interface ITaskStudentCellProps {
 
 const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }> = (props) => {
     const navigate = useNavigate()
-    const {solutions, taskMaxRating, forMentor} = props
+    const {solutions, taskMaxRating, forMentor, disabled} = props
 
-    const cellState = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating, props.disabled)
+    const cellState = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating, disabled)
 
     const {ratedSolutionsCount, solutionsDescription} = cellState;
 
@@ -37,7 +35,9 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
     const result = cellState.lastRatedSolution === undefined
         ? ""
         : <Stack direction="row" spacing={0.3} justifyContent={"center"} alignItems={"center"}>
-            <div>{cellState.lastRatedSolution.rating!}</div>
+            <Box component={"span"} sx={{fontVariantNumeric: "tabular-nums"}}>
+                {cellState.lastRatedSolution.rating!}
+            </Box>
             <Chip color={"default"} size={"small"} label={ratedSolutionsCount}/>
         </Stack>;
 
@@ -48,7 +48,7 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
     const openInNewTab = () => window.open(solutionUrl, '_blank', 'noopener,noreferrer');
 
     const handleCellClick = (e: React.MouseEvent) => {
-        if (props.disabled) return;
+        if (disabled) return;
 
         // Ctrl/Cmd + клик — открываем в новой вкладке
         if (e.ctrlKey || e.metaKey) {
@@ -60,7 +60,7 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
 
     // Средняя кнопка мыши — открываем в новой вкладке
     const handleCellAuxClick = (e: React.MouseEvent) => {
-        if (props.disabled || e.button !== 1) return;
+        if (disabled || e.button !== 1) return;
 
         e.preventDefault();
         openInNewTab();
@@ -73,18 +73,20 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
                 onClick={handleCellClick}
                 onAuxClick={handleCellAuxClick}
                 onMouseDown={e => {
-                    if (!props.disabled && e.button === 1) e.preventDefault();
+                    if (!disabled && e.button === 1) e.preventDefault();
                 }}
                 className={props.isBestSolution ? "glow-cell" : ""}
-                component="td"
-                padding="none"
-                variant={"body"}
-                scope="row"
                 align="center"
-                style={{
+                sx={{
+                    p: 0,
+                    minWidth: 76,
                     backgroundColor: cellState.color,
-                    borderLeft: `1px solid ${props.borderLeftColor || grey[300]}`,
-                    cursor: props.disabled ? "default" : "pointer",
+                    borderLeft: `1px solid ${props.borderLeftColor || "#eceef3"}`,
+                    borderBottom: "1px solid #eceef3",
+                    cursor: disabled ? "default" : "pointer",
+                    transition: "box-shadow .12s",
+                    // Подсветка кликабельной ячейки: обводка внутрь, чтобы не спорить с цветовым кодированием оценки
+                    ...(disabled ? {} : {"&:hover": {boxShadow: "inset 0 0 0 2px #3f51b5"}}),
                 }}>
                 {result}
             </TableCell>
