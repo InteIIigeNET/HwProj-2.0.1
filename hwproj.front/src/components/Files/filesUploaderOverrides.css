@@ -1,4 +1,12 @@
-/* Overrides for react-drag-drop-files FileUploader to prevent the hidden input from being block-level */
+/* Overrides for react-drag-drop-files FileUploader: библиотека отдаёт наружу только className своего label */
 .rddu-no-block {
-    display: inline !important; /* make input non-blocking */
+    display: block !important; /* инлайновый label ломал геометрию оверлея «Перетащите файлы сюда» */
+    width: 100%;
+    border-radius: 16px;
+}
+
+/* Вместо чёрного outline библиотеки — мягкое индиго-кольцо в тон зоне загрузки */
+.rddu-no-block:focus-within {
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.18);
 }

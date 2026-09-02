@@ -4,7 +4,7 @@ import * as React from "react";
 import {styled} from "@mui/material/styles";
 import {useEffect, useState} from "react";
 import {IFileInfo} from "./IFileInfo";
-import {Alert, Card, CardContent, Grid, Stack, Typography} from "@mui/material";
+import {Alert, CircularProgress, Stack, Typography} from "@mui/material";
 import FilesPreviewList from "./FilesPreviewList";
 import {CourseUnitType} from "./CourseUnitType";
 import {FileStatus} from "./FileStatus";
@@ -34,9 +34,57 @@ const VisuallyHiddenInput = styled('input')({
     width: 1,
 });
 
+// Зона загрузки согласована с редизайном курса: скруглённая панель и индиго-акцент вместо синей рамки
+const dropzoneSx = (isDragging: boolean) => ({
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 1,
+    px: 2,
+    py: 2.25,
+    borderRadius: "16px",
+    border: "2px dashed",
+    borderColor: isDragging ? "#3f51b5" : "#ccd4ea",
+    backgroundColor: isDragging ? "#f0f2fc" : "#fafbfe",
+    textAlign: "center" as const,
+    cursor: "pointer",
+    transition: "border-color .15s, background-color .15s",
+    "&:hover": {
+        borderColor: "#9aa5db",
+        backgroundColor: "#f4f6fd",
+    },
+    "&:hover .files-uploader-icon": {
+        backgroundColor: "#dadffa",
+    },
+})
+
+const iconTileSx = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: 44,
+    height: 44,
+    borderRadius: "50%",
+    backgroundColor: "#e4e7f6",
+    color: "#3f51b5",
+    transition: "background-color .15s",
+}
+
+// Подсказку при перетаскивании библиотека рисует своим оверлеем, стилизуем её инлайном
+const dropMessageStyle: React.CSSProperties = {
+    border: "2px dashed #3f51b5",
+    borderRadius: "16px",
+    backgroundColor: "#eef1fc",
+    opacity: 1,
+    color: "#3f51b5",
+    fontWeight: 600,
+    fontSize: "0.9375rem",
+}
+
 const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
     const [selectedFilesInfo, setSelectedFilesInfo] = useState<IFileInfo[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
 
     // Для корректного отображения файлов React-ом
     useEffect(() => {
@@ -104,8 +152,15 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
         });
     }
 
+    const limitsHint = [
+        `до ${(maxFileSizeInBytes / 1024 / 1024).toFixed(0)} MB`,
+        props.maxFilesCount
+            ? `не более ${props.maxFilesCount} ${Utils.pluralizeHelper(["файла", "файлов", "файлов"], props.maxFilesCount)}`
+            : null,
+    ].filter(Boolean).join(" · ")
+
     return (
-        <Grid container direction="column" marginBottom={props.isLoading ? 0 : 1}>
+        <Stack direction={"column"} spacing={1.5} marginBottom={props.isLoading ? 0 : 1}>
             {error && (
                 <Snackbar
                     open={!!error}
@@ -113,42 +168,53 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
                     onClose={() => setError(null)}
                     anchorOrigin={{vertical: "top", horizontal: "center"}}
                 >
-                    <Alert severity="error">{error}</Alert>
+                    <Alert
+                        severity="error"
+                        variant="filled"
+                        onClose={() => setError(null)}
+                        sx={{borderRadius: "12px", alignItems: "center"}}
+                    >
+                        {error}
+                    </Alert>
                 </Snackbar>
             )}
-            <Grid item xs={12}>
-                <FileUploader
-                    classes="rddu-no-block"
-                    handleChange={handleFileInputChange}
-                    hoverTitle={"Перетащите файлы сюда для загрузки"}
-                    children={
-                        <Card
-                            style={{
-                                border: "1px dashed #1976d2",
-                                backgroundColor: "ghostwhite",
-                                textAlign: "center",
-                            }}
-                            variant={"outlined"}>
-                            <CardContent>
-                                <Typography color={"primary"} variant={"body1"}>
-                                    {props.courseUnitType === CourseUnitType.Solution
-                                        ? "Загрузите файлы решения"
-                                        : "Загрузите материалы задания"}
-                                </Typography>
-                                <CloudUploadOutlinedIcon color="primary" fontSize={"medium"}/>
-                            </CardContent>
-                        </Card>}
-                    multiple={true}
-                    name="file"/>
-            </Grid>
+            <FileUploader
+                classes="rddu-no-block"
+                handleChange={handleFileInputChange}
+                onDraggingStateChange={setIsDragging}
+                dropMessageStyle={dropMessageStyle}
+                hoverTitle={"Перетащите файлы сюда для загрузки"}
+                children={
+                    <Box sx={dropzoneSx(isDragging)}>
+                        <Box className={"files-uploader-icon"} sx={iconTileSx}>
+                            <CloudUploadOutlinedIcon sx={{fontSize: 24}}/>
+                        </Box>
+                        <Box>
+                            <Typography sx={{fontSize: "0.9375rem", fontWeight: 600, color: "#3f51b5"}}>
+                                {props.courseUnitType === CourseUnitType.Solution
+                                    ? "Загрузите файлы решения"
+                                    : "Загрузите материалы задания"}
+                            </Typography>
+                            <Typography variant={"caption"} sx={{color: "text.secondary"}}>
+                                Перетащите файлы сюда или нажмите, чтобы выбрать
+                            </Typography>
+                        </Box>
+                        <Typography variant={"caption"} sx={{color: "text.disabled", fontSize: "0.7rem"}}>
+                            {limitsHint}
+                        </Typography>
+                    </Box>}
+                multiple={true}
+                name="file"/>
             {props.isLoading &&
-                <Grid item>
-                    <Box marginTop="18px" marginBottom="-9px">
-                        <p>Получаем информацию о файлах...</p>
-                    </Box>
-                </Grid>
+                <Stack direction={"row"} alignItems={"center"} spacing={0.75} sx={{color: "#3f51b5"}}>
+                    <CircularProgress size={"14px"} color={"inherit"}/>
+                    <Typography variant={"caption"} sx={{fontWeight: 500}}>
+                        Получаем информацию о файлах...
+                    </Typography>
+                </Stack>
             }
-            <Grid item xs={12}>
+            {/* Пустой список рисовать не нужно: он оставлял бы под зоной загрузки лишний отступ */}
+            {selectedFilesInfo.length > 0 &&
                 <FilesPreviewList
                     filesInfo={selectedFilesInfo}
                     onRemoveFileInfo={(fI) => {
@@ -158,9 +224,8 @@ const FilesUploader: React.FC<IFilesUploaderProps> = (props) => {
                             return updatedArray;
                         });
                     }}
-                />
-            </Grid>
-        </Grid>
+                />}
+        </Stack>
     )
 }
 

@@ -1,12 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {Box, Typography, IconButton, useTheme, CircularProgress} from '@mui/material';
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import ImageIcon from '@mui/icons-material/Image';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import DescriptionIcon from '@mui/icons-material/Description';
-import CloseIcon from '@mui/icons-material/Close';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ErrorIcon from '@mui/icons-material/Error';
+import {Box, Typography, IconButton, LinearProgress, Stack} from '@mui/material';
+import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
+import ImageRoundedIcon from '@mui/icons-material/ImageRounded';
+import PictureAsPdfRoundedIcon from '@mui/icons-material/PictureAsPdfRounded';
+import DescriptionRoundedIcon from '@mui/icons-material/DescriptionRounded';
+import FolderZipRoundedIcon from '@mui/icons-material/FolderZipRounded';
+import CodeRoundedIcon from '@mui/icons-material/CodeRounded';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import ErrorRoundedIcon from '@mui/icons-material/ErrorRounded';
+import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
 import {IFileInfo} from './IFileInfo';
 import {FileStatus} from "./FileStatus";
 import LightTooltip from '../Common/LightTooltip';
@@ -18,10 +21,118 @@ interface FilePreviewProps {
     showOkStatus?: boolean;
 }
 
+type FileKind = "image" | "pdf" | "document" | "archive" | "code" | "other"
+
+// Плитка типа файла: спокойные тона в духе редизайна курса, по одному оттенку на тип
+const kindStyles: Record<FileKind, { bg: string, color: string }> = {
+    image: {bg: "#e8f3ea", color: "#2e7d32"},
+    pdf: {bg: "#fdecec", color: "#c62828"},
+    document: {bg: "#eaf1fd", color: "#1565c0"},
+    archive: {bg: "#fff4d6", color: "#9a5b00"},
+    code: {bg: "#efeafc", color: "#5c35b8"},
+    other: {bg: "#eef0f5", color: "#5f6673"},
+}
+
+const kindIcons: Record<FileKind, React.ReactElement> = {
+    image: <ImageRoundedIcon sx={{fontSize: 22}}/>,
+    pdf: <PictureAsPdfRoundedIcon sx={{fontSize: 22}}/>,
+    document: <DescriptionRoundedIcon sx={{fontSize: 22}}/>,
+    archive: <FolderZipRoundedIcon sx={{fontSize: 22}}/>,
+    code: <CodeRoundedIcon sx={{fontSize: 22}}/>,
+    other: <InsertDriveFileRoundedIcon sx={{fontSize: 22}}/>,
+}
+
+interface StatusInfo {
+    text: string;
+    tooltipText: string;
+    icon: React.ReactElement | null;
+    color: string;
+    bg: string;
+    // Пока файл едет на сервер, вместо статичной плашки показываем полосу прогресса
+    inProgress: boolean;
+    isError: boolean;
+}
+
+const cardSx = (isError: boolean, isClickable: boolean) => ({
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 1.25,
+    width: '100%',
+    minWidth: 0,
+    boxSizing: 'border-box',
+    px: 1.25,
+    py: 1,
+    borderRadius: '12px',
+    border: '1px solid',
+    borderColor: isError ? '#f0c7c7' : '#e0e3e7',
+    backgroundColor: isError ? '#fef7f7' : '#fff',
+    overflow: 'hidden',
+    transition: 'border-color .15s, box-shadow .15s',
+    '&:hover': {
+        borderColor: isError ? '#e0a9a9' : (isClickable ? '#b7bfe8' : '#c4cad2'),
+        boxShadow: '0 2px 8px rgba(31, 41, 55, 0.07)',
+    },
+    // Иконку скачивания показываем только при наведении, чтобы карточка оставалась спокойной
+    '&:hover .file-preview-download': {opacity: 1},
+})
+
+const thumbSx = (kind: FileKind) => ({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 38,
+    height: 38,
+    flexShrink: 0,
+    borderRadius: '10px',
+    overflow: 'hidden',
+    backgroundColor: kindStyles[kind].bg,
+    color: kindStyles[kind].color,
+})
+
+const nameSx = (isClickable: boolean) => ({
+    fontSize: '0.875rem',
+    fontWeight: 500,
+    lineHeight: 1.3,
+    color: 'text.primary',
+    transition: 'color .15s',
+    ...(isClickable && {
+        '&:hover': {color: '#3f51b5', textDecoration: 'underline'},
+    }),
+})
+
+const statusPillSx = (status: StatusInfo) => ({
+    flexShrink: 0,
+    px: 0.75,
+    py: 0.125,
+    borderRadius: '999px',
+    backgroundColor: status.bg,
+    color: status.color,
+})
+
+const removeButtonSx = {
+    flexShrink: 0,
+    width: 26,
+    height: 26,
+    color: '#8a919e',
+    transition: 'color .15s, background-color .15s',
+    '&:hover': {color: '#c62828', backgroundColor: '#fdecec'},
+}
+
+const progressSx = {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 2,
+    backgroundColor: 'transparent',
+    '& .MuiLinearProgress-bar': {backgroundColor: '#3f51b5'},
+}
+
 const FilePreview: React.FC<FilePreviewProps> = (props) => {
-    const theme = useTheme();
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const hasRemoveButton = !!props.onRemove;
+    const isClickable = !!props.onClick;
 
     useEffect(() => {
         if (props.fileInfo.file && props.fileInfo.type?.startsWith('image/')) {
@@ -32,25 +143,28 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
         }
     }, [props.fileInfo.file]);
 
-    const getFileIcon = () => {
-        const iconStyle = {fontSize: 24};
+    const getFileKind = (): FileKind => {
+        const name = props.fileInfo.name.toLowerCase();
+        const endsWithAny = (...extensions: string[]) => extensions.some(e => name.endsWith(e));
+
         if (props.fileInfo.type?.startsWith('image/') ||
-            props.fileInfo.name.endsWith('png') ||
-            props.fileInfo.name.endsWith('jpg') ||
-            props.fileInfo.name.endsWith('jpeg')) {
-            return <ImageIcon sx={iconStyle}/>;
+            endsWithAny('png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp')) {
+            return "image";
         }
-        if (props.fileInfo.type === 'application/pdf' ||
-            props.fileInfo.name.endsWith('pdf')) {
-            return <PictureAsPdfIcon sx={iconStyle}/>;
+        if (props.fileInfo.type === 'application/pdf' || endsWithAny('pdf')) {
+            return "pdf";
         }
         if (props.fileInfo.type?.startsWith('text/') ||
-            props.fileInfo.name.endsWith('txt') ||
-            props.fileInfo.name.endsWith('doc') ||
-            props.fileInfo.name.endsWith('docx')) {
-            return <DescriptionIcon sx={iconStyle}/>;
+            endsWithAny('txt', 'doc', 'docx', 'rtf', 'odt', 'md')) {
+            return "document";
         }
-        return <InsertDriveFileIcon sx={iconStyle}/>;
+        if (endsWithAny('zip', 'rar', '7z', 'tar', 'gz')) {
+            return "archive";
+        }
+        if (endsWithAny('cs', 'java', 'py', 'js', 'ts', 'tsx', 'cpp', 'c', 'h', 'kt', 'go', 'rs', 'json', 'xml', 'ipynb')) {
+            return "code";
+        }
+        return "other";
     };
 
     const getFileSize = (sizeInBytes: number) => {
@@ -63,105 +177,72 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
         return `${sizeInKB.toFixed(1)} KB`;
     }
 
-    const getStatusInfo = (status: FileStatus) => {
+    const getStatusInfo = (status: FileStatus): StatusInfo => {
+        const idle: StatusInfo = {
+            text: "",
+            tooltipText: "",
+            icon: null,
+            color: "text.secondary",
+            bg: "transparent",
+            inProgress: false,
+            isError: false,
+        };
+
         switch (status) {
             case FileStatus.Uploading:
-                return {
-                    text: "Загружаем",
-                    tooltipText: "",
-                    icon: <CircularProgress size={14} thickness={5} sx={{color: theme.palette.info.main}}/>,
-                    color: {
-                        bg: theme.palette.grey[200],
-                        text: theme.palette.info.main
-                    }
-                };
+                return {...idle, text: "Загружаем", color: "#3f51b5", bg: "#e4e7f6", inProgress: true};
             case FileStatus.Deleting:
-                return {
-                    text: "Удаляем",
-                    tooltipText: "",
-                    icon: <CircularProgress size={14} thickness={5} sx={{color: theme.palette.info.main}}/>,
-                    color: {
-                        bg: theme.palette.grey[200],
-                        text: theme.palette.info.main
-                    }
-                };
+                return {...idle, text: "Удаляем", color: "#3f51b5", bg: "#e4e7f6", inProgress: true};
             case FileStatus.UploadingError:
                 return {
+                    ...idle,
                     text: "Ошибка загрузки",
                     // tooltipText: "" "Нажмите, чтобы повторить загрузку",
-                    icon: <ErrorIcon sx={{fontSize: '0.85rem', color: theme.palette.error.dark}}/>,
-                    color: {
-                        bg: theme.palette.grey[200],
-                        text: theme.palette.error.dark
-                    }
+                    icon: <ErrorRoundedIcon sx={{fontSize: '0.85rem'}}/>,
+                    color: "#c62828",
+                    bg: "#fbdede",
+                    isError: true,
                 };
             case FileStatus.DeletingError:
                 return {
+                    ...idle,
                     text: "Ошибка удаления",
                     // tooltipText: "Нажмите, чтобы повторить удаление",
-                    icon: <ErrorIcon sx={{fontSize: '0.85rem', color: theme.palette.error.dark}}/>,
-                    color: {
-                        bg: theme.palette.grey[200],
-                        text: theme.palette.error.dark
-                    }
+                    icon: <ErrorRoundedIcon sx={{fontSize: '0.85rem'}}/>,
+                    color: "#c62828",
+                    bg: "#fbdede",
+                    isError: true,
                 };
             case FileStatus.ReadyToUse:
-                return {
-                    tooltipText: "",
-                    icon: props.showOkStatus ?
-                        <CheckCircleIcon sx={{fontSize: '0.85rem', color: theme.palette.success.dark}}/> : <></>,
-                    color: {
-                        bg: theme.palette.grey[200],
-                        text: theme.palette.success.dark
+                return props.showOkStatus
+                    ? {
+                        ...idle,
+                        tooltipText: "Файл загружен",
+                        icon: <CheckCircleRoundedIcon sx={{fontSize: '1rem', color: '#2e7d32'}}/>,
                     }
-                };
+                    : idle;
             default:
-                return {
-                    text: "",
-                    tooltipText: "",
-                    icon: <></>,
-                    color: {
-                        bg: theme.palette.grey[200],
-                        text: theme.palette.text.secondary
-                    }
-                };
+                return idle;
         }
     }
 
+    const kind = getFileKind();
     const statusInfo = getStatusInfo(props.fileInfo.status);
 
-    return (
-        <Box sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1,
-            padding: '8px 12px',
-            border: '1px solid #e0e0e0',
-            borderRadius: 1,
-            backgroundColor: statusInfo.color.bg,
-            maxWidth: hasRemoveButton ? 310 : 270,
-            minWidth: 200,
-            width: '100%',
-            boxSizing: 'border-box',
-            transition: 'all 0.2s ease',
-            position: 'relative', // Для позиционирования статуса
-            '&:hover': {
-                boxShadow: theme.shadows[1]
-            }
-        }}>
-            {/* Обертка для превью/иконки */}
-            <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 40,
-                height: 40,
-                flexShrink: 0,
-                borderRadius: 0.5,
-                backgroundColor: 'rgba(255,255,255,0.4)',
+    // У готового файла статус — только галочка, плашка вокруг неё выглядела бы шумно
+    const status = statusInfo.text
+        ? <Stack direction="row" alignItems="center" spacing={0.5} sx={statusPillSx(statusInfo)}>
+            {statusInfo.icon}
+            <Typography variant="caption" sx={{fontSize: '0.7rem', fontWeight: 600, whiteSpace: 'nowrap'}}>
+                {statusInfo.text}
+            </Typography>
+        </Stack>
+        : statusInfo.icon && <Box sx={{display: 'flex', flexShrink: 0}}>{statusInfo.icon}</Box>
 
-                overflow: 'hidden'
-            }}>
+    return (
+        <Box sx={cardSx(statusInfo.isError, isClickable)}>
+            {/* Обертка для превью/иконки */}
+            <Box sx={thumbSx(kind)}>
                 {previewUrl ? (
                     <img
                         src={previewUrl}
@@ -172,16 +253,7 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
                             objectFit: 'cover'
                         }}
                     />
-                ) : (
-                    <Box sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: theme.palette.text.secondary
-                    }}>
-                        {getFileIcon()}
-                    </Box>
-                )}
+                ) : kindIcons[kind]}
             </Box>
 
             {/* Текстовая информация */}
@@ -190,74 +262,56 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
                 sx={{
                     flex: 1,
                     minWidth: 0,
-                    cursor: props.onClick ? 'pointer' : 'default',
+                    cursor: isClickable ? 'pointer' : 'default',
                 }}>
-                <Typography
-                    variant="body2"
-                    noWrap
-                    sx={{
-                        fontWeight: 500,
-                        fontSize: '0.85rem',
-                        color: theme.palette.text.primary
-                    }}
-                >
-                    {props.fileInfo.name}
-                </Typography>
+                <LightTooltip title={props.fileInfo.name} enterDelay={600} placement={"top"}>
+                    <Typography variant="body2" noWrap sx={nameSx(isClickable)}>
+                        {props.fileInfo.name}
+                    </Typography>
+                </LightTooltip>
 
-                <Box sx={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: 1.5
-                }}>
+                <Stack direction="row" alignItems="center" spacing={1} sx={{mt: 0.25, minWidth: 0}}>
                     <Typography
                         variant="caption"
-                        sx={{
-                            fontSize: '0.75rem',
-                            fontWeight: 500,
-                            color: theme.palette.text.secondary
-                        }}
+                        sx={{fontSize: '0.75rem', fontWeight: 500, color: 'text.secondary', whiteSpace: 'nowrap'}}
                     >
                         {getFileSize(props.fileInfo.sizeInBytes)}
                     </Typography>
 
-                    <Box sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 0.5,
-                        marginLeft: 'auto', // Прижимаем к правому краю
-                        paddingLeft: 1, // Отступ от текста
-                        backgroundColor: statusInfo.color.bg,
-                        zIndex: 1
-                    }}>
-                        {statusInfo.icon}
-                        <LightTooltip title={statusInfo.tooltipText}>
-                            <Typography
-                                variant="caption"
-                                sx={{
-                                    fontSize: '0.75rem',
-                                    fontWeight: 500,
-                                    color: statusInfo.color.text
-                                }}
-                            >
-                                {statusInfo.text}
-                            </Typography>
-                        </LightTooltip>
-                    </Box>
-                </Box>
+                    {status &&
+                        <Box sx={{display: 'flex', marginLeft: 'auto'}}>
+                            {statusInfo.tooltipText
+                                ? <LightTooltip title={statusInfo.tooltipText}>{status}</LightTooltip>
+                                : status}
+                        </Box>}
+                </Stack>
             </Box>
 
-            {hasRemoveButton && (
-                <IconButton
-                    size="small"
-                    onClick={() => props.onRemove!(props.fileInfo)}
+            {isClickable && !hasRemoveButton &&
+                <DownloadRoundedIcon
+                    className={"file-preview-download"}
                     sx={{
                         flexShrink: 0,
-                        color: theme.palette.text.secondary
-                    }}
-                >
-                    <CloseIcon fontSize="small"/>
-                </IconButton>
+                        fontSize: 18,
+                        color: '#8a919e',
+                        opacity: 0,
+                        transition: 'opacity .15s',
+                        pointerEvents: 'none',
+                    }}/>}
+
+            {hasRemoveButton && (
+                <LightTooltip title={"Убрать файл"}>
+                    <IconButton
+                        size="small"
+                        onClick={() => props.onRemove!(props.fileInfo)}
+                        sx={removeButtonSx}
+                    >
+                        <CloseRoundedIcon sx={{fontSize: 17}}/>
+                    </IconButton>
+                </LightTooltip>
             )}
+
+            {statusInfo.inProgress && <LinearProgress sx={progressSx}/>}
         </Box>
     );
 };
