@@ -112,8 +112,9 @@ const rowSx = {
 
 // Непрерывная линия таймлайна: внутри задания связывает его задачи, а между заданиями
 // продолжается в промежуток, поэтому список читается как одна лента, а не как набор блоков.
-// Отступы подобраны под центры маркеров: 18px — центр строки задания, 19px — центр последней задачи.
-const railSx = (isFirst: boolean, isLast: boolean, hasTasks: boolean) => ({
+// Отступы подобраны под центры маркеров: 20px — центр строки задания, 17px — центр последней
+// строки уровня задачи (в том числе заглушки «Без задач», у неё та же геометрия).
+const railSx = (isFirst: boolean, isLast: boolean, endsWithTaskRow: boolean) => ({
     position: "absolute" as const,
     left: 25,
     width: "2px",
@@ -121,7 +122,7 @@ const railSx = (isFirst: boolean, isLast: boolean, hasTasks: boolean) => ({
     borderRadius: "1px",
     top: isFirst ? 20 : 0,
     bottom: isLast
-        ? (hasTasks ? 17 : "calc(100% - 20px)")
+        ? (endsWithTaskRow ? 17 : "calc(100% - 20px)")
         : -14,
 })
 
@@ -155,6 +156,15 @@ const taskDotSx = {
     height: 10,
     borderRadius: "50%",
     border: "2px solid",
+    backgroundColor: "#fff",
+}
+
+// Маркер заглушки: размер как у задачи, но пунктиром — сразу видно, что это не задача
+const emptyTaskDotSx = {
+    width: 10,
+    height: 10,
+    borderRadius: "50%",
+    border: "1px dashed #c2c7d6",
     backgroundColor: "#fff",
 }
 
@@ -809,7 +819,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 backgroundColor: isGroupSelected ? "#f7f8fd" : "transparent",
                                 transition: "border-color .15s, background-color .15s",
                             }}>
-                                <Box sx={railSx(index === 0, index === visibleHomeworks.length - 1, hasTasks)}/>
+                                <Box sx={railSx(index === 0, index === visibleHomeworks.length - 1, hasTasks || x.id! > 0)}/>
                                 <ListItemButton
                                     selected={isRowSelected(true, x.id!)}
                                     onClick={() => setState(prevState => ({
@@ -870,11 +880,23 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         </ListItemButton>)}
                                     </Box>
                                     : x.id! > 0 &&
-                                    <Typography
-                                        variant={"caption"}
-                                        sx={{display: "block", px: 1.25, pb: 0.5, color: "text.secondary"}}>
-                                        Без задач
-                                    </Typography>}
+                                    // Заглушка повторяет геометрию строки задачи (маркер + текст),
+                                    // но пунктирный маркер и курсив не дают спутать её с названием задачи
+                                    <Stack direction={"row"} alignItems={"center"}
+                                           sx={{px: 1.25, gap: 1, py: 0.875}}>
+                                        <Box sx={taskMarkerSx}>
+                                            <Box sx={emptyTaskDotSx}/>
+                                        </Box>
+                                        <Typography
+                                            sx={{
+                                                fontSize: "0.9375rem",
+                                                lineHeight: 1.35,
+                                                fontStyle: "italic",
+                                                color: "text.disabled",
+                                            }}>
+                                            Без задач
+                                        </Typography>
+                                    </Stack>}
                                 {x.id! < 0 &&
                                     <Button fullWidth
                                             onClick={() => addNewTask(x)}
