@@ -11,7 +11,6 @@ import {
     Collapse,
     Divider,
     Fab,
-    Grid,
     IconButton,
     ListItemButton,
     TextField,
@@ -111,15 +110,27 @@ const rowSx = {
     },
 }
 
-// Вертикальная линия, связывающая задачи одного задания: её центр совпадает с центром маркера задачи
-const taskRailSx = {
+// Непрерывная линия таймлайна: внутри задания связывает его задачи, а между заданиями
+// продолжается в промежуток, поэтому список читается как одна лента, а не как набор блоков.
+// Отступы подобраны под центры маркеров: 18px — центр строки задания, 19px — центр последней задачи.
+const railSx = (isFirst: boolean, isLast: boolean, hasTasks: boolean) => ({
     position: "absolute" as const,
     left: 25,
-    top: 0,
-    bottom: 16,
     width: "2px",
     backgroundColor: "#e3e6ee",
     borderRadius: "1px",
+    top: isFirst ? 20 : 0,
+    bottom: isLast
+        ? (hasTasks ? 17 : "calc(100% - 20px)")
+        : -14,
+})
+
+// Задание — крупный узел ленты, задача — мелкий: так видна вложенность
+const homeworkDotSx = {
+    width: 12,
+    height: 12,
+    flexShrink: 0,
+    borderRadius: "50%",
 }
 
 const taskMarkerSx = {
@@ -130,6 +141,14 @@ const taskMarkerSx = {
     justifyContent: "center" as const,
     zIndex: 1,
 }
+
+// Колонки раскладки: Grid container со spacing нельзя вкладывать в Stack со spacing —
+// Stack ставит детям margin: 0 и стирает отрицательные отступы Grid, из-за чего колонка съезжает
+const columnSx = (share: number) => ({
+    width: "100%",
+    minWidth: 0,
+    flex: {md: `${share} 1 0`},
+})
 
 const taskDotSx = {
     width: 10,
@@ -350,6 +369,13 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Tooltip>
         if (showWarningsForEntity(task, false)) return renderWarningIcon(task, false)
         return <Box sx={{...taskDotSx, borderColor: task.isDeferred ? "#dcdfe6" : "#a8b0d8"}}/>
+    }
+
+    // Узел задания: если есть статус (ошибка, правки, предупреждение) — он занимает место узла
+    const renderHomeworkNode = (homework: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
+        const status = isMentor ? renderHomeworkStatus(homework) : null
+        if (status !== null) return status
+        return <Box sx={{...homeworkDotSx, backgroundColor: homework.isDeferred ? "#c9cedb" : "#3f51b5"}}/>
     }
 
     // Дедлайн задачи в списке: близкий срок подсвечивается только тому студенту, который ещё ничего не сдал
@@ -685,8 +711,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Alert>
     </Stack>
 
-    return <Grid container direction={{xs: "column", sm: "column", md: "row", lg: "row"}} spacing={1}>
-        <Grid item xs={12} sm={12} md={4} lg={4} order={{xs: 2, sm: 2, md: 1, lg: 1}}>
+    return <Stack direction={{xs: "column", md: "row"}} spacing={1} alignItems={"flex-start"}>
+        <Box sx={{...columnSx(4), order: {xs: 2, md: 1}}}>
             <Paper variant={"outlined"} sx={listPanelSx}>
                 <Stack direction={"row"} alignItems={"center"} spacing={1} sx={listHeaderSx}>
                     <AssignmentOutlinedIcon fontSize={"small"}/>
@@ -766,28 +792,35 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         <Typography variant={"body2"} sx={emptyStateSx}>
                             {"Ничего не найдено по запросу «" + search.trim() + "»"}
                         </Typography>}
-                    <Stack direction={"column"} spacing={0.5}>
-                        {visibleHomeworks.map((x: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
+                    <Stack direction={"column"} spacing={1.5}>
+                        {visibleHomeworks.map((x: HomeworkViewModel & {
+                            isModified?: boolean,
+                            hasErrors?: boolean
+                        }, index) => {
                             const isGroupSelected = selectedItemHomework?.id === x.id
+                            const hasTasks = x.tasks!.length > 0
                             return <Box key={x.id} sx={{
-                                pb: 0.5,
+                                position: "relative",
+                                // Без вертикальных отступов: строки прилегают к рамке задания без пустого зазора,
+                                // воздух внутри строк даёт их собственный py
                                 borderRadius: "12px",
                                 border: "1px solid",
                                 borderColor: isGroupSelected ? "#3f51b5" : "transparent",
                                 backgroundColor: isGroupSelected ? "#f7f8fd" : "transparent",
                                 transition: "border-color .15s, background-color .15s",
                             }}>
+                                <Box sx={railSx(index === 0, index === visibleHomeworks.length - 1, hasTasks)}/>
                                 <ListItemButton
                                     selected={isRowSelected(true, x.id!)}
                                     onClick={() => setState(prevState => ({
                                         ...prevState,
                                         selectedItem: {isHomework: true, id: x.id},
                                     }))}
-                                    sx={{...rowSx, py: 1}}
+                                    sx={{...rowSx, py: 1.25}}
                                 >
+                                    <Box sx={taskMarkerSx}>{renderHomeworkNode(x)}</Box>
                                     <Stack direction={"row"} alignItems={"center"} spacing={0.75}
                                            sx={{flexGrow: 1, minWidth: 0}}>
-                                        {isMentor && renderHomeworkStatus(x)}
                                         {x.groupId && <Tooltip arrow title={"Командная работа"}>
                                             <GroupIcon
                                                 fontSize={"small"}
@@ -797,7 +830,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         <Box sx={{minWidth: 0}}>
                                             <Typography
                                                 className="antiLongWords"
-                                                sx={{fontSize: "1rem", fontWeight: 500, lineHeight: 1.3}}
+                                                sx={{fontSize: "1rem", fontWeight: 600, lineHeight: 1.3}}
                                                 color={x.isDeferred
                                                     ? "textSecondary"
                                                     : x.tags!.includes(TestTag) ? "primary" : "textPrimary"}>
@@ -815,9 +848,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                     </Stack>
                                     {renderHomeworkCounter(x)}
                                 </ListItemButton>
-                                {x.tasks!.length > 0
-                                    ? <Box sx={{position: "relative"}}>
-                                        <Box sx={taskRailSx}/>
+                                {hasTasks
+                                    ? <Box>
                                         {x.tasks!.map(t => <ListItemButton
                                             key={t.id}
                                             selected={isRowSelected(false, t.id!)}
@@ -825,7 +857,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                                 ...prevState,
                                                 selectedItem: {isHomework: false, id: t.id},
                                             }))}
-                                            sx={{...rowSx, py: 0.625}}
+                                            sx={{...rowSx, py: 0.875}}
                                         >
                                             <Box sx={taskMarkerSx}>{renderTaskStatus(t)}</Box>
                                             <Typography
@@ -856,18 +888,18 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     </Stack>
                 </Box>
             </Paper>
-        </Grid>
-        <Grid item xs={12} sm={12} md={8} lg={8} order={{xs: 1, sm: 1, md: 2, lg: 2}}>
+        </Box>
+        <Box sx={{...columnSx(8), order: {xs: 1, md: 2}}}>
             {isHomework
                 ? renderHomework(selectedItem as HomeworkViewModel)
                 : renderTask(selectedItem as HomeworkTaskViewModel, selectedItemHomework!)}
-            <Grid item sx={{display: {xs: 'none', md: 'flex'}}}>
+            <Box sx={{display: {xs: 'none', md: 'flex'}}}>
                 {renderGif()}
-            </Grid>
-        </Grid>
-        <Grid item sx={{display: {xs: 'flex', md: 'none'}}} order={{xs: 3, sm: 3}}>
+            </Box>
+        </Box>
+        <Box sx={{display: {xs: 'flex', md: 'none'}, width: "100%", order: 3}}>
             {renderGif()}
-        </Grid>
+        </Box>
 
         {/* Кнопка "Наверх" для мобильных устройств */}
         <Zoom in={showScrollButton && isMobile}>
@@ -887,5 +919,5 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 <ArrowUpwardIcon/>
             </Fab>
         </Zoom>
-    </Grid>
+    </Stack>
 }
