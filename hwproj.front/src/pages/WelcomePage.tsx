@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   MenuBook,
-  Assignment,
   Feedback,
   Create,
   TrendingUp,
@@ -109,13 +108,19 @@ const WelcomePage: React.FC = () => {
       ? lecturerSteps
       : expertSteps;
 
+  const userTypes = [
+    { value: "student", label: "Студентам" },
+    { value: "lecturer", label: "Преподавателям" },
+    { value: "expert", label: "Экспертам" },
+  ] as const;
+
   return (
-    <Box>
+    <Box sx={{ overflowX: "hidden" }}>
       {/* Hero Section */}
       <Box
         sx={{
           bgcolor: "#e3f2fd",
-          py: { xs: 4, md: 4 },
+          py: { xs: 3, md: 4 },
           textAlign: "center",
         }}
       >
@@ -126,7 +131,7 @@ const WelcomePage: React.FC = () => {
             gutterBottom
             sx={{
               fontWeight: 700,
-              fontSize: { xs: "2rem", md: "3.5rem" },
+              fontSize: { xs: "1.75rem", sm: "2.25rem", md: "3.5rem" },
               color: "#3f51b5",
             }}
           >
@@ -136,7 +141,7 @@ const WelcomePage: React.FC = () => {
             variant="h5"
             color="text.secondary"
             paragraph
-            sx={{ fontSize: { xs: "1rem", md: "1.5rem" } }}
+            sx={{ fontSize: { xs: "0.95rem", sm: "1.1rem", md: "1.5rem" } }}
           >
             Веб-сервис, который помогает автоматизировать учебный процесс и
             упростить взаимодействие между студентами, преподавателями и
@@ -145,8 +150,16 @@ const WelcomePage: React.FC = () => {
         </Container>
       </Box>
 
-      {/* Объединённая секция с фиксированной высотой и прокруткой в левой панели */}
-      <Container maxWidth="xl" sx={{ mt: 6, mb: 8 }}>
+      {/* Объединённая секция: на десктопе — фиксированная высота с прокруткой
+          в левой панели, на мобильных — колонка с автовысотой */}
+      <Container
+        maxWidth="xl"
+        sx={{
+          mt: { xs: 3, md: 6 },
+          mb: { xs: 4, md: 8 },
+          px: { xs: 1.5, sm: 2, md: 3 },
+        }}
+      >
         {/* Табы, выровненные по левой колонке */}
         <Grid container>
           <Grid item xs={12} md={5}>
@@ -154,7 +167,6 @@ const WelcomePage: React.FC = () => {
               sx={{
                 display: "flex",
                 justifyContent: "center",
-                overflow: "hidden",
               }}
             >
               <ToggleButtonGroup
@@ -162,7 +174,10 @@ const WelcomePage: React.FC = () => {
                 exclusive
                 onChange={handleUserType}
                 sx={{
+                  maxWidth: "100%",
+                  width: { xs: "100%", sm: "auto" },
                   "& .MuiToggleButtonGroup-grouped": {
+                    flex: { xs: 1, sm: "none" },
                     border: "1px solid #e0e0e0",
                     borderRadius: 0,
                     borderBottom: "1px solid #e0e0e0",
@@ -181,48 +196,59 @@ const WelcomePage: React.FC = () => {
                   },
                 }}
               >
-                <ToggleButton 
-                    sx={{ fontSize: "1.1rem", textTransform: "none"}}
-                    value="student">Студентам</ToggleButton>
-                <ToggleButton
-                    sx={{ fontSize: "1.1rem", textTransform: "none"}}
-                    value="lecturer">Преподавателям</ToggleButton>
-                <ToggleButton
-                    sx={{ fontSize: "1.1rem", textTransform: "none"}}
-                    value="expert">Экспертам</ToggleButton>
+                {userTypes.map(({ value, label }) => (
+                  <ToggleButton
+                    key={value}
+                    value={value}
+                    sx={{
+                      fontSize: { xs: "0.75rem", sm: "0.95rem", md: "1.1rem" },
+                      px: { xs: 0.5, sm: 1.5, md: 2 },
+                      py: { xs: 1, md: 1.5 },
+                      lineHeight: 1.2,
+                      textTransform: "none",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {label}
+                  </ToggleButton>
+                ))}
               </ToggleButtonGroup>
             </Box>
           </Grid>
         </Grid>
 
-        {/* Основной контейнер с фиксированной высотой */}
+        {/* Основной контейнер: фиксированная высота только на десктопе */}
         <Box
           sx={{
             borderRadius: "16px",
             border: "1px solid #e0e0e0",
-            height: 580,
+            height: { xs: "auto", md: 580 },
             overflow: "hidden",
             boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
             backgroundColor: "#fff",
           }}
         >
           <Grid container sx={{ height: "100%" }}>
-            {/* Левая панель (шаги) с прокруткой */}
+            {/* Левая панель (шаги), с прокруткой только на десктопе */}
             <Grid
               item
               xs={12}
               md={5}
               sx={{
-                p: 4,
+                p: { xs: 2, md: 4 },
                 borderRight: { md: "1px solid #e0e0e0" },
-                overflowY: "auto",
+                borderBottom: { xs: "1px solid #e0e0e0", md: "none" },
+                overflowY: { xs: "visible", md: "auto" },
               }}
             >
               <Typography
                 variant="h5"
                 align="center"
                 gutterBottom
-                sx={{ fontWeight: 500 }}
+                sx={{
+                  fontWeight: 500,
+                  fontSize: { xs: "1.25rem", md: "1.5rem" },
+                }}
               >
                 Как это работает
               </Typography>
@@ -260,15 +286,31 @@ const WelcomePage: React.FC = () => {
                     }}
                   >
                     <Box
-                      sx={{ color: "#3f51b5", display: "flex", fontSize: 24 }}
+                      sx={{
+                        color: "#3f51b5",
+                        display: "flex",
+                        fontSize: 24,
+                        flexShrink: 0,
+                      }}
                     >
                       {step.icon}
                     </Box>
-                    <Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: { xs: "0.95rem", md: "1rem" },
+                          lineHeight: 1.3,
+                        }}
+                      >
                         {step.label}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: "0.8rem", md: "0.875rem" } }}
+                      >
                         {step.description}
                       </Typography>
                     </Box>
@@ -288,6 +330,7 @@ const WelcomePage: React.FC = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                minWidth: 0,
               }}
             >
               <Box
@@ -296,7 +339,7 @@ const WelcomePage: React.FC = () => {
                 alt={steps[activeStep].label}
                 sx={{
                   maxWidth: "100%",
-                  maxHeight: "100%",
+                  maxHeight: { xs: "50vh", md: "100%" },
                   objectFit: "contain",
                   borderRadius: "12px",
                   boxShadow: 2,
@@ -308,7 +351,10 @@ const WelcomePage: React.FC = () => {
         </Box>
 
         {/* Кнопка регистрации */}
-        <Container maxWidth="md" sx={{ textAlign: "center", mt: 6, mb: 4 }}>
+        <Container
+          maxWidth="md"
+          sx={{ textAlign: "center", mt: { xs: 4, md: 6 }, mb: 4 }}
+        >
           <Button
             variant="contained"
             size="large"
@@ -317,7 +363,8 @@ const WelcomePage: React.FC = () => {
             sx={{
               bgcolor: "#3f51b5",
               color: "white",
-              px: 7,
+              width: { xs: "100%", sm: "auto" },
+              px: { xs: 3, sm: 7 },
               py: 2,
               fontSize: "1.1rem",
               textTransform: "none",
