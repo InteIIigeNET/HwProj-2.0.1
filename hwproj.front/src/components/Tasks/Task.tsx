@@ -8,14 +8,18 @@ import {
     AccordionSummary,
     Box,
     Chip,
-    Grid,
     Stack,
     Tooltip,
     Typography
 } from "@mui/material";
 import Utils from "../../services/Utils";
 import {getTip} from "../Common/HomeworkTags";
-import StarIcon from '@mui/icons-material/Star';
+import StarRoundedIcon from '@mui/icons-material/StarRounded';
+import GroupIcon from '@mui/icons-material/Group';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+import EventOutlinedIcon from '@mui/icons-material/EventOutlined';
+import LockClockOutlinedIcon from '@mui/icons-material/LockClockOutlined';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import {MarkdownPreview} from "../Common/MarkdownEditor";
 import TaskCriteria from "@/components/Tasks/TaskCriteria";
 
@@ -29,11 +33,63 @@ interface ITaskProp {
     showForCourse: boolean
 }
 
-const toolsSx = {
+// Оформление согласовано с редизайном страницы курса: панель с рамкой вместо «полосатого» аккордеона
+const accordionSx = {
     width: "100%",
-    display: "flex",
-    flexDirection: 'row',
-    alignItems: 'center',
+    border: "1px solid #c4cad2",
+    borderRadius: "14px",
+    overflow: "hidden",
+    backgroundColor: "#fff",
+    // Аккордеон по умолчанию рисует разделитель сверху и раздвигает себя при раскрытии
+    "&:before": {display: "none"},
+    "&.Mui-expanded": {margin: 0},
+}
+
+const summarySx = (isDeferred: boolean) => ({
+    px: {xs: 2, sm: 2.5},
+    backgroundColor: isDeferred ? "#f1f2f5" : "#f7f8fd",
+    "&.Mui-expanded": {borderBottom: "1px solid #e6e8f0"},
+    "& .MuiAccordionSummary-content": {my: 1.75, minWidth: 0},
+})
+
+const titleSx = {
+    fontSize: "1.125rem",
+    fontWeight: 600,
+    lineHeight: 1.3,
+    wordBreak: "break-word" as const,
+}
+
+const accentChipSx = {
+    height: 24,
+    backgroundColor: "#e4e7f6",
+    color: "#3f51b5",
+    "& .MuiChip-label": {px: 0.875, fontSize: "0.8125rem", fontWeight: 600},
+    "& .MuiChip-icon": {ml: 0.75, mr: -0.25, fontSize: 16, color: "inherit"},
+}
+
+const metaChipSx = {
+    height: 24,
+    backgroundColor: "#eef0f5",
+    color: "text.secondary",
+    "& .MuiChip-label": {px: 0.875, fontSize: "0.8125rem", fontWeight: 500},
+    "& .MuiChip-icon": {ml: 0.75, mr: -0.25, fontSize: 16, color: "inherit"},
+}
+
+// Жёсткий дедлайн и незаполненные даты — предупреждающие состояния, поэтому тёплая плашка
+const warnChipSx = {
+    height: 24,
+    backgroundColor: "#fff4d6",
+    color: "#8a6d00",
+    "& .MuiChip-label": {px: 0.875, fontSize: "0.8125rem", fontWeight: 500},
+    "& .MuiChip-icon": {ml: 0.75, mr: -0.25, fontSize: 16, color: "inherit"},
+}
+
+const plainChipSx = {
+    height: 24,
+    backgroundColor: "transparent",
+    color: "text.secondary",
+    border: "1px dashed #c9cedb",
+    "& .MuiChip-label": {px: 0.875, fontSize: "0.8125rem", fontWeight: 500},
 }
 
 const Task: FC<ITaskProp> = (props) => {
@@ -50,89 +106,97 @@ const Task: FC<ITaskProp> = (props) => {
 
 
     return (
-        <div style={{width: '100%'}}>
-            <Accordion expanded={props.isExpanded ? true : undefined}>
+        <Box sx={{width: '100%'}}>
+            <Accordion
+                disableGutters
+                elevation={0}
+                expanded={props.isExpanded ? true : undefined}
+                sx={accordionSx}
+            >
                 <AccordionSummary
                     expandIcon={!props.isExpanded ? <ExpandMoreIcon/> : undefined}
                     aria-controls="panel1a-content"
                     id="panel1a-header"
-                    style={{backgroundColor: task.isDeferred! ? "#d3d5db" : "#eceef8"}}
+                    sx={summarySx(task.isDeferred!)}
                 >
-                    <Box sx={toolsSx}>
-                        <Grid container direction="row" spacing={1} alignItems="center">
-                            <Grid item>
-                                <Typography style={{fontSize: '18px', marginRight: 1}}>
-                                    {task.title}{getTip(task)}
-                                </Typography>
-                            </Grid>
-                            <Grid item>
+                    <Box sx={{minWidth: 0}}>
+                        <Typography component={"h2"} sx={titleSx}>
+                            {task.title}{getTip(task)}
+                        </Typography>
+                        <Stack direction={"row"} spacing={0.75} useFlexGap flexWrap={"wrap"} sx={{mt: 1}}>
+                            <Tooltip arrow title={"Максимальный балл"}>
                                 <Chip
-                                    label={
-                                        <Stack direction="row" alignItems="center" spacing={0.5}>
-                                            <StarIcon style={{fontSize: 15}}/>
-                                            <div>{task.maxRating}</div>
-                                        </Stack>
-                                    }
-                                    variant={"outlined"}
-                                    style={{fontWeight: "bold"}}
-                                    color={"success"}
-                                />
-                            </Grid>
+                                    size={"small"}
+                                    icon={<StarRoundedIcon/>}
+                                    label={task.maxRating}
+                                    sx={accentChipSx}/>
+                            </Tooltip>
                             {task.isGroupWork &&
-                                <Grid item>
-                                    <Chip variant="outlined" color="info" label="Командное"/>
-                                </Grid>
+                                <Chip
+                                    size={"small"}
+                                    icon={<GroupIcon/>}
+                                    label="Командное"
+                                    sx={metaChipSx}/>
                             }
                             {props.forMentor && publicationDateIsSet &&
-                                <Grid item>
-                                    <Chip variant="outlined" label={"🕘 " + publicationDateString}/>
-                                </Grid>
+                                <Tooltip arrow title={"Дата публикации"}>
+                                    <Chip
+                                        size={"small"}
+                                        icon={<ScheduleIcon/>}
+                                        label={publicationDateString}
+                                        sx={metaChipSx}/>
+                                </Tooltip>
                             }
                             {props.forMentor && !publicationDateIsSet &&
-                                <Grid item>
-                                    <Tooltip arrow title={"Не выставлена дата публикации"}>
-                                        <Chip label={"⚠️"} variant="outlined"/>
-                                    </Tooltip>
-                                </Grid>
+                                <Tooltip arrow title={"Не выставлена дата публикации"}>
+                                    <Chip
+                                        size={"small"}
+                                        icon={<WarningAmberRoundedIcon/>}
+                                        label="Нет публикации"
+                                        sx={warnChipSx}/>
+                                </Tooltip>
                             }
                             {task.hasDeadline && deadlineDateIsSet &&
-                                <Grid item>
-                                    <Tooltip
-                                        arrow
-                                        title={task.isDeadlineStrict ? "Нельзя публиковать решения после дедлайна" : "Дедлайн"}
-                                    >
-                                        <Chip
-                                            variant="outlined"
-                                            label={(task.isDeadlineStrict ? "⛔ До" : "До") + " " + deadlineDateString}
-                                        />
-                                    </Tooltip>
-                                </Grid>
+                                <Tooltip
+                                    arrow
+                                    title={task.isDeadlineStrict ? "Нельзя публиковать решения после дедлайна" : "Дедлайн"}
+                                >
+                                    <Chip
+                                        size={"small"}
+                                        icon={task.isDeadlineStrict
+                                            ? <LockClockOutlinedIcon/>
+                                            : <EventOutlinedIcon/>}
+                                        label={"До " + deadlineDateString}
+                                        sx={task.isDeadlineStrict ? warnChipSx : metaChipSx}/>
+                                </Tooltip>
                             }
                             {props.forMentor && task.hasDeadline && !deadlineDateIsSet &&
-                                <Grid item>
-                                    <Tooltip arrow title={"Не выставлена дата дедлайна"}>
-                                        <Chip label={"⚠️"} variant="outlined"/>
-                                    </Tooltip>
-                                </Grid>
+                                <Tooltip arrow title={"Не выставлена дата дедлайна"}>
+                                    <Chip
+                                        size={"small"}
+                                        icon={<WarningAmberRoundedIcon/>}
+                                        label="Нет дедлайна"
+                                        sx={warnChipSx}/>
+                                </Tooltip>
                             }
                             {!task.hasDeadline &&
-                                <Grid item>
-                                    <Chip variant="outlined" label="без дедлайна"/>
-                                </Grid>
+                                <Chip size={"small"} label="Без дедлайна" sx={plainChipSx}/>
                             }
-                        </Grid>
+                        </Stack>
                     </Box>
                 </AccordionSummary>
-                <AccordionDetails>
-                    <Grid style={{width: "100%"}}>
-                        <Typography variant="body1">
+                <AccordionDetails sx={{px: {xs: 2, sm: 2.5}, py: 2.5}}>
+                    {task.description
+                        ? <Typography component="div" style={{color: "#454545"}} variant="body1">
                             <MarkdownPreview value={task.description!}/>
                         </Typography>
-                        <TaskCriteria task={task}/>
-                    </Grid>
+                        : <Typography variant={"body2"} sx={{color: "text.disabled", fontStyle: "italic"}}>
+                            Условие задачи не заполнено
+                        </Typography>}
+                    <TaskCriteria task={task}/>
                 </AccordionDetails>
             </Accordion>
-        </div>
+        </Box>
     );
 }
 

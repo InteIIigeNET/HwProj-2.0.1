@@ -257,7 +257,14 @@ const TaskSolutionsPage: FC = () => {
                                 </Tabs>
                             }
                         </Grid>
-                        <Grid item xs={12}>
+                        {/* Ниже идёт полоска с оценками и вкладки решений, поэтому у панели задачи
+                            снимаются нижние скругления — полоса приклеивается к её краю */}
+                        <Grid item xs={12} sx={taskSolutionPage.addSolution ? undefined : {
+                            "& .MuiAccordion-root": {
+                                borderBottomLeftRadius: 0,
+                                borderBottomRightRadius: 0,
+                            },
+                        }}>
                             <Task
                                 task={task}
                                 forStudent={true}
