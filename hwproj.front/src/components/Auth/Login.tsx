@@ -132,7 +132,7 @@ const Login: FC<LoginProps> = (props) => {
                 <CardContent>
                     <Grid container direction="column" spacing={1} alignItems={"center"}>
                         <Grid item>
-                            <Typography component="h1" variant="h5">
+                            <Typography component="h1" variant="h5" align={"center"}>
                                 Привет 👋, рады Вас видеть
                             </Typography>
                         </Grid>

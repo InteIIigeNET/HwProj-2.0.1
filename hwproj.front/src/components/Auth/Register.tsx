@@ -12,6 +12,7 @@ import {makeStyles} from '@material-ui/core/styles';
 import ValidationUtils from "../Utils/ValidationUtils";
 import {Alert, AlertTitle, Card, CardContent, Stack} from "@mui/material";
 import hwCat from "../hw-cat.png";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
 interface ICommonState {
     error: string[];
@@ -118,7 +119,11 @@ const Register: FC = () => {
     if (commonState.isRegistered) {
         return (
             <Container component="main" maxWidth="xs">
-                <Logo/>
+                <DotLottieReact
+                    style={{marginTop: -80}}
+                    src="https://lottie.host/919997f6-e82f-4995-b17d-bb3dad2376be/jDvgCK2W1q.lottie"
+                    autoplay
+                />
                 <Card raised sx={{borderRadius: '16px'}}>
                     <CardContent>
                         <Alert severity="success">
@@ -142,12 +147,16 @@ const Register: FC = () => {
 
     return (
         <Container component="main" maxWidth="xs">
-            <Logo/>
+            <DotLottieReact
+                style={{marginTop: -80}}
+                src="https://lottie.host/919997f6-e82f-4995-b17d-bb3dad2376be/jDvgCK2W1q.lottie"
+                autoplay
+            />
             <Card raised sx={{borderRadius: '16px'}}>
                 <CardContent>
                     <Grid container direction="column" spacing={1} alignItems={"center"}>
                         <Grid item>
-                            <Typography component="h1" variant="h5">
+                            <Typography component="h1" variant="h5" align={"center"}>
                                 Давайте знакомиться 🤝
                             </Typography>
                         </Grid>
@@ -188,6 +197,7 @@ const Register: FC = () => {
                                 />
                             </Stack>
                             <TextField
+                                size={"small"}
                                 fullWidth
                                 label="Отчество"
                                 variant="outlined"
