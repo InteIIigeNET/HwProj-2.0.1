@@ -1,8 +1,9 @@
 import * as React from 'react';
 import {FC, useEffect, useState} from 'react';
-import {Button, CircularProgress, Grid, Typography} from "@mui/material";
+import {Button, CircularProgress, Typography} from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import Link from '@mui/material/Link'
+// Глобальный класс .antiLongWords используется и другими страницами, поэтому стиль подключаем здесь
 import './style.css'
 import {
     GetSolutionModel,
@@ -15,20 +16,26 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {
     Alert,
     Avatar,
+    Divider,
+    LinearProgress,
+    Paper,
     Rating,
     Stack,
     Tooltip,
-    Card,
-    CardContent,
-    CardActions,
     IconButton,
     Chip,
     Box, TextField
 } from "@mui/material";
+import AccessTimeRoundedIcon from '@mui/icons-material/AccessTimeRounded';
 import AvatarUtils from "../Utils/AvatarUtils";
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
-import {Edit, ThumbDown, ThumbUp} from "@mui/icons-material";
+import {ThumbDown, ThumbUp} from "@mui/icons-material";
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
+import AssignmentTurnedInOutlinedIcon from '@mui/icons-material/AssignmentTurnedInOutlined';
+import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import {MarkdownEditor, MarkdownPreview} from "../Common/MarkdownEditor";
 import {LoadingButton} from "@mui/lab";
 import CheckIcon from '@mui/icons-material/Done';
@@ -58,6 +65,160 @@ type CriterionRating = {
     value: number;
     comment: string;
 };
+
+// Оформление согласовано с редизайном страницы решений студента: та же рамка, радиусы и мягкие шапки
+const panelSx = {
+    borderRadius: "14px",
+    borderColor: "#c4cad2",
+    overflow: "hidden",
+}
+
+const panelHeaderSx = {
+    px: 1.5,
+    py: 1,
+    backgroundColor: "#f3f4fb",
+    color: "#3f51b5",
+}
+
+const sectionSx = {
+    px: {xs: 1.5, sm: 2},
+    py: 1.75,
+}
+
+const actionsBarSx = {
+    px: {xs: 1.5, sm: 2},
+    py: 1.25,
+    backgroundColor: "#fafbfe",
+}
+
+const alertSx = {borderRadius: "12px"}
+
+const actionButtonSx = {
+    textTransform: "none",
+    borderRadius: "10px",
+    fontWeight: 500,
+    px: 2,
+}
+
+const inputSx = {
+    "& .MuiOutlinedInput-root": {borderRadius: "10px"},
+}
+
+const linkChipSx = {
+    height: 24,
+    border: "1px solid #d5d9e6",
+    backgroundColor: "#f6f7fb",
+    color: "#24292f",
+    fontWeight: 500,
+    transition: "background-color .15s, border-color .15s",
+    "& .MuiChip-icon": {fontSize: 14, ml: 0.75, mr: -0.25, color: "inherit"},
+    "& .MuiChip-label": {px: 0.75, fontSize: "0.8125rem"},
+    "&:hover, &:focus": {backgroundColor: "#eef0f8", borderColor: "#a8b0d8", textDecoration: "none"},
+}
+
+const pendingChipSx = {
+    height: 22,
+    flexShrink: 0,
+    backgroundColor: "#e4e7f6",
+    color: "#3f51b5",
+    "& .MuiChip-label": {px: 0.875, fontSize: "0.75rem", fontWeight: 500},
+}
+
+// Цвет оценки берём из ведомости, поэтому чипу задаём только форму и ровные цифры
+const scoreChipSx = (color: string) => ({
+    height: 24,
+    flexShrink: 0,
+    backgroundColor: color,
+    color: "#fff",
+    fontVariantNumeric: "tabular-nums",
+    "& .MuiChip-label": {px: 1, fontSize: "0.8125rem", fontWeight: 600},
+})
+
+// Оценку показываем в спокойной подложке, чтобы звёзды и «палец вниз» читались как один контрол
+const ratingBoxSx = {
+    px: 1,
+    py: 0.5,
+    borderRadius: "12px",
+    border: "1px solid #e0e3e7",
+    backgroundColor: "#fff",
+}
+
+const scoreTextSx = {
+    ml: 0.5,
+    fontSize: "0.9375rem",
+    fontWeight: 600,
+    fontVariantNumeric: "tabular-nums",
+    color: "text.secondary",
+    whiteSpace: "nowrap" as const,
+}
+
+const criteriaBoxSx = {
+    borderRadius: "12px",
+    border: "1px solid #e0e3e7",
+    backgroundColor: "#fff",
+    overflow: "hidden",
+}
+
+const criteriaRowSx = {
+    px: 1.5,
+    py: 0.875,
+    minHeight: 44,
+}
+
+const criteriaFooterSx = {
+    px: 1.5,
+    py: 1,
+    backgroundColor: "#fafbfe",
+}
+
+const hintSx = {
+    color: "text.secondary",
+    fontSize: "0.75rem",
+}
+
+// Полоса врезок под решением: дедлайн и место среди решений стоят рядом, как две ячейки статистики
+const insightPanelSx = {
+    ...panelSx,
+    borderColor: "#dfe3f2",
+    backgroundColor: "#fff",
+}
+
+const insightCellSx = {
+    flex: 1,
+    minWidth: 0,
+    px: 1.75,
+    py: 1.25,
+}
+
+const insightBadgeSx = (bg: string, fg: string) => ({
+    width: 34,
+    height: 34,
+    flexShrink: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "10px",
+    backgroundColor: bg,
+    color: fg,
+})
+
+const criterionValueSx = {
+    minWidth: 42,
+    textAlign: "right" as const,
+    fontVariantNumeric: "tabular-nums",
+    fontWeight: 600,
+    color: "text.secondary",
+    whiteSpace: "nowrap" as const,
+}
+
+// Тон панели повторяет прежнюю логику подсветки оценки: зелёный / янтарный / красный.
+// Шапка чуть глубже тела, чтобы разделитель читался на залитой панели
+const gradeTone = (percent: number) =>
+    percent >= 70
+        ? {bg: "rgb(237,247,237)", headerBg: "rgb(226,243,226)", fg: "rgb(30,70,32)"}
+        : percent <= 34
+            ? {bg: "rgb(253,237,237)", headerBg: "rgb(251,227,227)", fg: "rgb(95,33,32)"}
+            : {bg: "rgb(255,244,229)", headerBg: "rgb(254,237,212)", fg: "rgb(102,60,0)"}
 
 interface ISolutionProps {
     courseId: number,
@@ -206,13 +367,16 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const initialDraft = loadCriteriaDraft();
     const initialStoredCriteria = parseStoredCriteria(props.solution?.lecturerComment);
 
+    // Критерий по дедлайну считается автоматически. Если сравнивать нечего (решения нет либо у критерия
+    // не задана дата), штрафа нет: блок и раньше показывал «Сдано вовремя», но значение оставалось NaN
+    // и критерий считался незаполненным — оценку было не выставить
     const getDeadlineCriterionValue = (criterion: { arguments?: string; maxPoints?: number }) => {
-        if (!props.solution?.publicationDate || !criterion.arguments) return Number.NaN;
+        if (!props.solution?.publicationDate || !criterion.arguments) return 0;
 
         const solutionDate = new Date(props.solution.publicationDate).getTime();
         const deadlineDate = new Date(criterion.arguments).getTime();
 
-        if (Number.isNaN(solutionDate) || Number.isNaN(deadlineDate)) return Number.NaN;
+        if (Number.isNaN(solutionDate) || Number.isNaN(deadlineDate)) return 0;
 
         return solutionDate <= deadlineDate ? 0 : -(criterion.maxPoints ?? 0);
     };
@@ -300,8 +464,13 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         );
     const criteriaSum = Math.max(0, criteriaTotalRaw) + (Number.isFinite(extraScore) ? extraScore : 0);
 
+    // Автоматические критерии (дедлайн) преподаватель не заполняет, поэтому они не могут блокировать оценку
+    const isAutoCriterion = (criterionId: number) =>
+        taskWithCriteria.criteria?.find(c => c.id === criterionId)?.type === CriterionTypeDeadline;
+
     const hasUnfilledCriteria =
-        hasCriteria && criterionRatings.some(c => !Number.isFinite(c.value));
+        hasCriteria && criterionRatings.some(c =>
+            !isAutoCriterion(c.criterionId) && !Number.isFinite(c.value));
     const isRateButtonDisabled = hasUnfilledCriteria;
 
     const [isCtrlPressed, setIsCtrlPressed] = useState(false)
@@ -521,6 +690,10 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         if (isCtrlPressed) await rateSolution(points, lecturerComment)
     }
 
+    const scoreColor = points < 0
+        ? "#d32f2f"
+        : StudentStatsUtils.getRatingColor(points, maxRating)
+
     const renderRateInput = () => {
         const showThumbs = maxRating === 1;
         const isEditable = props.forMentor && (!isRated || state.clickedForRate);
@@ -528,21 +701,21 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         if (hasCriteria && props.forMentor) {
             if (!isRated) {
                 return (
-                    <Button
-                        size="small"
-                        onClick={() => {
-                            setCriteriaModified(true);
-                            setState(prev => ({...prev, points: criteriaSum, clickedForRate: true}));
-                        }}
-                        style={{
-                            color: "#3f51b5",
-                            textTransform: "uppercase",
-                            fontWeight: 500,
-                            fontSize: "0.95rem",
-                        }}
-                    >
-                        Оценить решение
-                    </Button>
+                    <Box>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            disableElevation
+                            startIcon={<StarBorderRoundedIcon/>}
+                            sx={actionButtonSx}
+                            onClick={() => {
+                                setCriteriaModified(true);
+                                setState(prev => ({...prev, points: criteriaSum, clickedForRate: true}));
+                            }}
+                        >
+                            Оценить решение
+                        </Button>
+                    </Box>
                 );
             }
         }
@@ -553,104 +726,99 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
         if (maxRating <= 10 && points <= maxRating && !addBonusPoints)
             return (
-                <Grid container item direction="row" spacing={1} alignItems="center">
+                <Stack direction="row" alignItems="center" spacing={1.5} flexWrap="wrap" sx={{rowGap: 1}}>
                     {showThumbs && (
-                        <Grid item>
-                            <Stack direction="row" alignItems="center">
-                                <IconButton disabled={!isEditable} onClick={() => thumbsHandler(1)}>
-                                    <ThumbUp color={points === 1 ? "success" : "disabled"}/>
-                                </IconButton>
-                                <IconButton disabled={!isEditable} onClick={() => thumbsHandler(0)}>
-                                    <ThumbDown
-                                        color={
-                                            (isRated || state.clickedForRate) && points === 0
-                                                ? "error"
-                                                : "disabled"
-                                        }
-                                    />
-                                </IconButton>
-                            </Stack>
-                        </Grid>
+                        <Stack direction="row" alignItems="center" sx={ratingBoxSx}>
+                            <IconButton disabled={!isEditable} onClick={() => thumbsHandler(1)}>
+                                <ThumbUp color={points === 1 ? "success" : "disabled"}/>
+                            </IconButton>
+                            <IconButton disabled={!isEditable} onClick={() => thumbsHandler(0)}>
+                                <ThumbDown
+                                    color={
+                                        (isRated || state.clickedForRate) && points === 0
+                                            ? "error"
+                                            : "disabled"
+                                    }
+                                />
+                            </IconButton>
+                        </Stack>
                     )}
 
                     {!showThumbs && (
-                        <Grid item>
-                            <Stack direction="row" alignItems="center">
-                                {(isEditable || !isRated) && (
-                                    <IconButton
-                                        size="small"
-                                        disabled={!isEditable}
-                                        onClick={() => thumbsHandler(0)}
-                                    >
-                                        <ThumbDown
-                                            color={state.clickedForRate && points === 0 ? "error" : "disabled"}
-                                        />
-                                    </IconButton>
-                                )}
-                                <Rating
-                                    key={solution?.id}
-                                    name="customized"
-                                    size="large"
-                                    max={maxRating}
-                                    value={points}
-                                    readOnly={!isEditable}
-                                    onMouseDown={event => {
-                                        const isFirefox = navigator.userAgent
-                                            .toLowerCase()
-                                            .includes("firefox");
-                                        if (event.ctrlKey && isFirefox) {
-                                            const ratingElement = event.currentTarget;
-                                            const {left, width} = ratingElement.getBoundingClientRect();
-                                            const relativeX = (event.clientX - left) / width;
-                                            const star = Math.ceil(relativeX * maxRating) || 0;
-                                            const rating = star === points ? 0 : star;
+                        <Stack direction="row" alignItems="center" sx={ratingBoxSx}>
+                            {(isEditable || !isRated) && (
+                                <IconButton
+                                    size="small"
+                                    disabled={!isEditable}
+                                    onClick={() => thumbsHandler(0)}
+                                >
+                                    <ThumbDown
+                                        color={state.clickedForRate && points === 0 ? "error" : "disabled"}
+                                    />
+                                </IconButton>
+                            )}
+                            <Rating
+                                key={solution?.id}
+                                name="customized"
+                                size="large"
+                                max={maxRating}
+                                value={points}
+                                readOnly={!isEditable}
+                                onMouseDown={event => {
+                                    const isFirefox = navigator.userAgent
+                                        .toLowerCase()
+                                        .includes("firefox");
+                                    if (event.ctrlKey && isFirefox) {
+                                        const ratingElement = event.currentTarget;
+                                        const {left, width} = ratingElement.getBoundingClientRect();
+                                        const relativeX = (event.clientX - left) / width;
+                                        const star = Math.ceil(relativeX * maxRating) || 0;
+                                        const rating = star === points ? 0 : star;
 
-                                            clickForRate(rating || 0, true);
-                                        }
-                                    }}
-                                    onChange={(_, newValue) => {
-                                        clickForRate(newValue || 0, true);
-                                    }}
-                                />
-                            </Stack>
-                        </Grid>
+                                        clickForRate(rating || 0, true);
+                                    }
+                                }}
+                                onChange={(_, newValue) => {
+                                    clickForRate(newValue || 0, true);
+                                }}
+                            />
+                            {/* Цифрой дублируем звёзды: так оценку видно, не пересчитывая их глазами */}
+                            <Typography sx={scoreTextSx}>{`${points} / ${maxRating}`}</Typography>
+                        </Stack>
                     )}
 
                     {!addBonusPoints && props.forMentor && state.clickedForRate && (
-                        <Grid item>
-                            <Tooltip arrow title={"Позволяет поставить оценку выше максимальной"}>
-                                <Typography variant="caption">
-                                    <Link
-                                        underline={"hover"}
-                                        onClick={() =>
-                                            setState(prev => ({...prev, addBonusPoints: true}))
-                                        }
-                                    >
-                                        Нужна особая оценка?
-                                    </Link>
-                                </Typography>
-                            </Tooltip>
-                        </Grid>
+                        <Tooltip arrow title={"Позволяет поставить оценку выше максимальной"}>
+                            <Link
+                                component="button"
+                                type="button"
+                                underline={"hover"}
+                                sx={{fontSize: "0.8125rem"}}
+                                onClick={() =>
+                                    setState(prev => ({...prev, addBonusPoints: true}))
+                                }
+                            >
+                                Нужна особая оценка?
+                            </Link>
+                        </Tooltip>
                     )}
-                </Grid>
+                </Stack>
             );
 
         return (
-            <Stack direction="row" spacing={1} alignItems={"baseline"}>
+            <Stack direction="row" spacing={1} alignItems={"center"}>
                 {isEditable ? (
                     <TextField
-                        style={{width: 100}}
                         required
                         label="Баллы"
-                        variant="standard"
-                        margin="normal"
+                        variant="outlined"
+                        size="small"
                         type="number"
-                        fullWidth
+                        sx={{...inputSx, width: 110}}
                         InputProps={{
                             readOnly: hasCriteria || !props.forMentor || !state.clickedForRate,
                             inputProps: {min: 0, value: points},
                         }}
-                        size="small"
                         onChange={(e) => {
                             if (hasCriteria) return;
 
@@ -669,12 +837,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         }}
                     />
                 ) : (
-                    <Chip
-                        label={<Typography variant="h6">{points}</Typography>}
-                        size="medium"
-                    />
+                    <Chip label={points} size="medium" sx={scoreChipSx(scoreColor)}/>
                 )}
-                <div>{` / ${maxRating}`}</div>
+                <Typography sx={{color: "text.secondary", fontVariantNumeric: "tabular-nums"}}>
+                    {` / ${maxRating}`}
+                </Typography>
             </Stack>
         );
     };
@@ -719,15 +886,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         ? <CheckIcon fontSize="small" color="success"/>
                         : <CloseIcon fontSize="small" color="error"/>}
                     sx={{
-                        gridColumn: "1 / span 2",
+                        borderRadius: "10px",
                         alignItems: "center",
                         py: 0.5,
-                        "& .MuiAlert-message": {
-                            width: "100%",
-                        },
-                        "& .MuiAlert-icon": {
-                            alignItems: "center",
-                        },
+                        "& .MuiAlert-message": {width: "100%", py: 0.5},
+                        "& .MuiAlert-icon": {alignItems: "center", py: 0.5},
                     }}
                 >
                     <Stack
@@ -737,9 +900,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         spacing={2}
                         sx={{width: "100%"}}
                     >
-                        <Box>
-                            <Typography variant="body1">{c.name}</Typography>
-                            <Typography variant="caption" color="textSecondary">
+                        <Box sx={{minWidth: 0}}>
+                            <Typography variant="body2" sx={{fontWeight: 500}}>{c.name}</Typography>
+                            <Typography variant="caption" sx={{color: "text.secondary"}}>
                                 {isSubmittedOnTime
                                     ? "Сдано вовремя"
                                     : `Сдано позже${deadlineDelay ? ` на ${deadlineDelay}` : ""}`}
@@ -750,6 +913,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 size="small"
                                 color="error"
                                 label={numericValue}
+                                sx={{flexShrink: 0, fontVariantNumeric: "tabular-nums"}}
                             />
                         )}
                     </Stack>
@@ -780,30 +944,25 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             const isFilled = hasExplicitValue && (isThumbCriterion || numericValue !== 0);
 
             return (
-                <React.Fragment key={c.id}>
-                    <Box display="flex" alignItems="center">
-                        <Box
-                            width={24}
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                            mr={1}
-                        >
-                            <CheckCircleOutlineIcon
-                                style={{
-                                    fontSize: 18,
-                                    color: isFilled ? "#3f51b5" : "#c0c0c0",
-                                    opacity: isFilled ? 1 : 0.4,
-                                }}
-                            />
-                        </Box>
+                <Stack
+                    key={c.id}
+                    direction="row"
+                    alignItems="center"
+                    spacing={1.25}
+                    sx={criteriaRowSx}
+                >
+                    <CheckCircleOutlineIcon
+                        sx={{
+                            fontSize: 18,
+                            flexShrink: 0,
+                            color: isFilled ? "#3f51b5" : "#c6cad6",
+                        }}
+                    />
+                    <Typography variant="body2" sx={{flexGrow: 1, minWidth: 0}}>
+                        {c.name}
+                    </Typography>
 
-                        <Typography variant="body1">
-                            {c.name}
-                        </Typography>
-                    </Box>
-
-                    <Box justifySelf="end">
+                    <Box sx={{flexShrink: 0}}>
                         {isThumbCriterion ? (
                             <Stack direction="row" alignItems="center">
                                 <IconButton
@@ -848,39 +1007,43 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
                             </Stack>
                         ) : hasStars ? (
-                            <Rating
-                                max={c.maxPoints}
-                                size="medium"
-                                value={Math.max(
-                                    0,
-                                    Math.min(numericValue, c.maxPoints ?? Number.POSITIVE_INFINITY)
-                                )}
-                                onChange={(_, newValue) => {
-                                    let val = Number(newValue || 0);
-                                    if (Number.isNaN(val)) val = 0;
-                                    if (c.maxPoints && val > c.maxPoints) {
-                                        val = c.maxPoints;
-                                    }
+                            <Stack direction="row" alignItems="center" spacing={0.75}>
+                                <Rating
+                                    max={c.maxPoints}
+                                    size="medium"
+                                    value={Math.max(
+                                        0,
+                                        Math.min(numericValue, c.maxPoints ?? Number.POSITIVE_INFINITY)
+                                    )}
+                                    onChange={(_, newValue) => {
+                                        let val = Number(newValue || 0);
+                                        if (Number.isNaN(val)) val = 0;
+                                        if (c.maxPoints && val > c.maxPoints) {
+                                            val = c.maxPoints;
+                                        }
 
-                                    setCriteriaModified(true);
-                                    setCriterionRatings(prev =>
-                                        prev.map(r =>
-                                            r.criterionId === c.id
-                                                ? {...r, value: val}
-                                                : r
-                                        )
-                                    );
-                                }}
-                            />
+                                        setCriteriaModified(true);
+                                        setCriterionRatings(prev =>
+                                            prev.map(r =>
+                                                r.criterionId === c.id
+                                                    ? {...r, value: val}
+                                                    : r
+                                            )
+                                        );
+                                    }}
+                                />
+                                <Typography variant="caption" sx={criterionValueSx}>
+                                    {`${hasExplicitValue ? numericValue : "—"} / ${c.maxPoints}`}
+                                </Typography>
+                            </Stack>
                         ) : (
-                            <Box display="flex" alignItems="center" justifyContent="flex-end">
+                            <Stack direction="row" alignItems="center" spacing={0.75}>
                                 <TextField
                                     type="number"
                                     size="small"
-                                    style={{width: 50}}
+                                    sx={{...inputSx, width: 76}}
                                     value={numericValue}
-                                    variant="standard"
-                                    margin="dense"
+                                    variant="outlined"
                                     inputProps={{max: c.maxPoints}}
                                     onChange={e => {
                                         let val = Number(e.target.value);
@@ -896,81 +1059,45 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                         );
                                     }}
                                 />
-
-                                <Typography
-                                    variant="body2"
-                                    style={{marginLeft: 4}}
-                                >
-                                    / {c.maxPoints}
+                                <Typography variant="caption" sx={criterionValueSx}>
+                                    {`/ ${c.maxPoints}`}
                                 </Typography>
-                            </Box>
+                            </Stack>
                         )}
                     </Box>
-                </React.Fragment>
+                </Stack>
             );
         };
 
         return (
-            <Grid container item direction="column" spacing={1} style={{marginTop: 0}}>
-                <Grid item>
-                    <Box
-                        display="grid"
-                        gridTemplateColumns="minmax(0, 1fr) auto"
-                        columnGap={16}
-                        rowGap={0.75}
-                        sx={{width: "100%"}}
-                    >
-                        {deadlineCriteria.length > 0 && (
-                            <Box
-                                gridColumn="1 / span 2"
-                                display="grid"
-                                rowGap={0.75}
-                                mb={regularCriteria.length > 0 ? 1.5 : 0}
-                            >
-                                {deadlineCriteria.map(renderDeadlineCriterion)}
-                            </Box>
-                        )}
+            <Stack spacing={1.5}>
+                {deadlineCriteria.length > 0 &&
+                    <Stack spacing={1}>
+                        {deadlineCriteria.map(renderDeadlineCriterion)}
+                    </Stack>}
+                <Box sx={criteriaBoxSx}>
+                    <Stack divider={<Divider/>}>
                         {regularCriteria.map(renderRegularCriterion)}
-                        <Box display="flex" alignItems="center">
-                            <Box
-                                width={24}
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="center"
-                                mr={1}
-                            >
-                                <CheckCircleOutlineIcon
-                                    style={{
-                                        fontSize: 18,
-                                        color: extraScore !== 0 ? "#3f51b5" : "#c0c0c0",
-                                        opacity: extraScore !== 0 ? 1 : 0.4,
-                                    }}
-                                />
-                            </Box>
-
-                            <Typography
-                                variant="body1"
-                                style={{
-                                    color: '#555',
-                                    marginTop: 0,
-                                    marginBottom: 0,
-                                    lineHeight: 1.2,
-                                    letterSpacing: '0.2px',
-                                    display: 'flex',
-                                    alignItems: 'center',
+                        <Stack direction="row" alignItems="center" spacing={1.25} sx={criteriaRowSx}>
+                            <CheckCircleOutlineIcon
+                                sx={{
+                                    fontSize: 18,
+                                    flexShrink: 0,
+                                    color: extraScore !== 0 ? "#3f51b5" : "#c6cad6",
                                 }}
-                            >
-                                Доп. оценка (опционально)
-                            </Typography>
-                        </Box>
-                        <Box justifySelf="end">
+                            />
+                            <Box sx={{flexGrow: 1, minWidth: 0}}>
+                                <Typography variant="body2">Доп. оценка</Typography>
+                                <Typography variant="caption" sx={{color: "text.secondary"}}>
+                                    Необязательно, добавляется к сумме
+                                </Typography>
+                            </Box>
                             <TextField
                                 type="number"
                                 size="small"
-                                style={{width: 50}}
+                                sx={{...inputSx, width: 76, flexShrink: 0}}
                                 value={extraScore}
-                                variant="standard"
-                                margin="dense"
+                                variant="outlined"
                                 placeholder="0"
                                 inputProps={{min: 0}}
                                 onChange={e => {
@@ -982,331 +1109,448 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     setExtraScore(val);
                                 }}
                             />
-                        </Box>
-                    </Box>
-                </Grid>
-
-                <Grid item>
-                    <Typography
-                        variant="body1"
-                        style={{
-                            marginTop: 0,
-                            marginBottom: 8,
-                            fontSize: "0.95rem",
-                            fontWeight: 500,
-                            color: totalWithExtra === 0 ? "#d32f2f" : undefined,
-                        }}
+                        </Stack>
+                    </Stack>
+                    <Divider/>
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        spacing={1}
+                        sx={criteriaFooterSx}
                     >
-                        {`Сумма по критериям: ${totalWithExtra} из ${maxRating}`}
-                    </Typography>
-                </Grid>
-
-            </Grid>
+                        <Typography variant="body2" sx={{fontWeight: 500}}>
+                            Сумма по критериям
+                        </Typography>
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                            {hasUnfilledCriteria &&
+                                <Typography variant="caption" sx={{color: "warning.dark"}}>
+                                    заполнены не все критерии
+                                </Typography>}
+                            <Chip
+                                size="small"
+                                label={`${totalWithExtra} из ${maxRating}`}
+                                sx={{
+                                    flexShrink: 0,
+                                    fontVariantNumeric: "tabular-nums",
+                                    fontWeight: 600,
+                                    ...(totalWithExtra === 0
+                                        ? {backgroundColor: "#fdeded", color: "#5f2120"}
+                                        : {backgroundColor: "#e4e7f6", color: "#3f51b5"}),
+                                }}
+                            />
+                        </Stack>
+                    </Stack>
+                </Box>
+            </Stack>
         );
     };
 
 
     const sentAfterDeadline = solution && task.hasDeadline && getDatesDiff(solution.publicationDate!, task.deadlineDate!)
 
-    const renderRatingCard = () => {
-        const rating = points * 100 / maxRating
-        const {backgroundColor, color} =
-            state.clickedForRate || !isRated
-                ? {backgroundColor: undefined, color: undefined}
-                : rating >= 70
-                    ? {backgroundColor: "rgb(237,247,237)", color: "rgb(30,70,32)"}
-                    : rating <= 34
-                        ? {backgroundColor: "rgb(253,237,237)", color: "rgb(95,33,32)"}
-                        : {backgroundColor: "rgb(255,244,229)", color: "rgb(102,60,0)"}
+    const renderRatingPanel = () => {
+        const percent = maxRating > 0 ? points * 100 / maxRating : 0
+        const isEditing = props.forMentor && state.clickedForRate
+        // Тон и цвет рамки берём и во время оценивания — оценка сразу видна по цвету панели
+        const isScored = isRated || state.clickedForRate
+        const tone = isScored ? gradeTone(percent) : undefined
 
-        const isNegative = points < 0
-        return <Card
-            variant="outlined"
-            sx={{
-                borderColor:
-                    (state.clickedForRate || isRated)
-                        ? (isNegative
-                            ? "rgb(211,47,47)"
-                            : StudentStatsUtils.getRatingColor(points, maxRating))
-                        : "",
-                width: "100%",
-                backgroundColor,
-                color,
-            }}
-        >
-            <CardContent>
-                <Grid container direction={"column"} spacing={1}>
-                    {(!hasCriteria || !state.clickedForRate) && <Grid item>
-                        {renderRateInput()}
-                    </Grid>}
-                    {props.forMentor && hasCriteria && state.addBonusPoints && state.clickedForRate && (
-                        <Grid item>
-                            {renderCriteriaBlock()}
-                        </Grid>
-                    )}
+        return (
+            <Paper
+                variant={"outlined"}
+                sx={{
+                    ...panelSx,
+                    borderWidth: 2,
+                    borderColor: isScored ? scoreColor : "#c4cad2",
+                }}
+            >
+                <Stack
+                    direction={"row"}
+                    alignItems={"center"}
+                    spacing={1}
+                    sx={{...panelHeaderSx, ...(tone && {backgroundColor: tone.bg, color: tone.fg})}}
+                >
+                    <StarBorderRoundedIcon fontSize={"small"}/>
+                    <Typography variant={"body2"} sx={{fontWeight: 500}}>
+                        {isEditing
+                            ? (isRated ? "Изменение оценки" : "Оценивание решения")
+                            : "Оценка"}
+                    </Typography>
+                    <Box sx={{flexGrow: 1}}/>
+                    {isScored
+                        ? <Chip
+                            size={"small"}
+                            label={`${points} / ${maxRating}`}
+                            sx={scoreChipSx(scoreColor)}
+                        />
+                        : <Chip size={"small"} label={"Ожидает проверки"} sx={pendingChipSx}/>}
+                </Stack>
+                <Divider/>
+                <Box sx={sectionSx}>
+                    <Stack spacing={1.75}>
+                        {(!hasCriteria || !state.clickedForRate) && renderRateInput()}
+                        {props.forMentor && hasCriteria && state.addBonusPoints && state.clickedForRate &&
+                            renderCriteriaBlock()}
 
-                    {!isRated && !state.clickedForRate && maxRating <= 10 && !addBonusPoints && <Grid item>
-                        <Typography variant={"caption"} style={{color: "GrayText"}}>
-                            Нажмите{" "}
-                            <span style={{color: isCtrlPressed ? "blue" : "inherit"}}>
-                                <KeyboardCommandKeyIcon style={{fontSize: 10, marginTop: -2}}/>
-                                Ctrl
-                            </span>{" "} + {" "}
-                            <span>
-                                ЛКМ
-                                <MouseOutlinedIcon style={{fontSize: 10, marginTop: -2}}/>
-                            </span>{" "}для быстрого оценивания
-                        </Typography>
-                    </Grid>}
-                    {lastRating !== undefined && state.clickedForRate &&
-                        <Grid item>
-                            <Typography variant={"caption"} style={{color: "GrayText", marginTop: -10}}>
-                                Оценка за предыдущее решение: {lastRating} ⭐
-                            </Typography>
-                        </Grid>}
-                    {lecturerName && isRated && (
-                        <Grid item>
-                            <Stack direction={"row"} alignItems={"center"} spacing={1} style={{marginTop: 5}}>
+                        {!isRated && !state.clickedForRate && maxRating <= 10 && !addBonusPoints &&
+                            <Typography sx={hintSx}>
+                                Нажмите{" "}
+                                <Box component={"span"} sx={{color: isCtrlPressed ? "#3f51b5" : "inherit"}}>
+                                    <KeyboardCommandKeyIcon sx={{fontSize: 10, mt: "-2px"}}/>
+                                    Ctrl
+                                </Box>{" "} + {" "}
+                                <Box component={"span"}>
+                                    ЛКМ
+                                    <MouseOutlinedIcon sx={{fontSize: 10, mt: "-2px"}}/>
+                                </Box>{" "}для быстрого оценивания
+                            </Typography>}
+
+                        {lastRating !== undefined && state.clickedForRate &&
+                            <Typography sx={hintSx}>
+                                {`Оценка за предыдущее решение: ${lastRating} ⭐`}
+                            </Typography>}
+
+                        {lecturerName && isRated && (
+                            <Stack direction={"row"} alignItems={"center"} spacing={1.5}>
                                 {props.forMentor && state.clickedForRate ? (
-                                    <Avatar>
-                                        <Edit/>
-                                    </Avatar>
-                                ) : (
-                                    <Avatar {...AvatarUtils.stringAvatar(lecturer!)} />
-                                )}
-
-                                <Stack direction={"column"}>
-                                    <Typography variant={"body1"}>
-                                        {props.forMentor && state.clickedForRate ? (
-                                            "..."
-                                        ) : (
-                                            <div style={{color: "black"}}>
-                                                {lecturerName}
-                                                <sub style={{color: "#3f51b5"}}> {lecturer!.companyName}</sub>
-                                            </div>
-                                        )}
-                                    </Typography>
-                                    {ratingTime && (
-                                        <Typography variant={"caption"} style={{color: "GrayText"}}>
-                                            {ratingTime}
+                                    <>
+                                        <Avatar sx={{width: 36, height: 36, backgroundColor: "#e8ebfa", color: "#3f51b5"}}>
+                                            <EditOutlinedIcon fontSize={"small"}/>
+                                        </Avatar>
+                                        <Typography variant={"body2"} sx={{color: "text.secondary"}}>
+                                            Оценка будет перевыставлена
                                         </Typography>
-                                    )}
-                                </Stack>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Avatar
+                                            {...AvatarUtils.stringAvatar(lecturer!)}
+                                            sx={{width: 36, height: 36, fontSize: "0.8125rem"}}
+                                        />
+                                        <Box sx={{minWidth: 0}}>
+                                            <Typography variant={"body2"} sx={{fontWeight: 500}}>
+                                                {lecturerName}
+                                                {lecturer!.companyName &&
+                                                    <Box component={"span"} sx={{color: "#3f51b5", fontWeight: 400}}>
+                                                        {` · ${lecturer!.companyName}`}
+                                                    </Box>}
+                                            </Typography>
+                                            {ratingTime &&
+                                                <Typography variant={"caption"} sx={{color: "text.secondary"}}>
+                                                    {ratingTime}
+                                                </Typography>}
+                                        </Box>
+                                    </>
+                                )}
                             </Stack>
-                        </Grid>
-                    )}
-                    {state.clickedForRate && props.forMentor
-                        ? (
-                            <Grid item style={{marginBottom: -7, marginTop: -8}}>
-                                <MarkdownEditor
-                                    label="Комментарий преподавателя"
-                                    value={state.lecturerComment}
-                                    onChange={(value) => {
-                                        setState((prevState) => ({
-                                            ...prevState,
-                                            lecturerComment: value,
-                                        }));
-                                    }}
-                                />
-                            </Grid>
-                        )
-                        : isRated && (
-                        <Grid item>
-                            <MarkdownPreview
-                                value={lecturerComment}
-                                backgroundColor={backgroundColor}
-                                textColor={color}
-                            />
-                        </Grid>
-                    )
-                    }
-                </Grid>
-            </CardContent>
-            {props.forMentor && state.clickedForRate && (
-                <>
-                    <CardActions>
-                        <LoadingButton
-                            endIcon={<span style={{width: rateInProgress ? 17 : 0}}/>}
-                            style={isRateButtonDisabled ? {} : {color: "#3f51b5"}}
-                            loading={rateInProgress}
-                            loadingPosition="end"
-                            size="small"
-                            disabled={isRateButtonDisabled || rateInProgress}
-                            onClick={() => {
-                                rateSolution(points, lecturerComment);
-                            }}
-                        >
-                            {isRated ? "Изменить оценку" : "Оценить решение"}
-                        </LoadingButton>
+                        )}
 
-                        {!rateInProgress && (
-                            <Button
-                                size="small"
+                        {state.clickedForRate && props.forMentor
+                            ? (
+                                <Box sx={{"& > div[data-color-mode]": {mt: "0 !important", mb: "0 !important"}}}>
+                                    <MarkdownEditor
+                                        label="Комментарий преподавателя"
+                                        value={state.lecturerComment}
+                                        onChange={(value) => {
+                                            setState((prevState) => ({
+                                                ...prevState,
+                                                lecturerComment: value,
+                                            }));
+                                        }}
+                                    />
+                                </Box>
+                            )
+                            : isRated && lecturerComment && (
+                            // Комментарий преподавателя — часть панели оценки, поэтому без своей подложки
+                            <MarkdownPreview value={lecturerComment}/>
+                        )
+                        }
+                    </Stack>
+                </Box>
+                {props.forMentor && state.clickedForRate &&
+                    <>
+                        <Divider/>
+                        <Stack
+                            direction={"row"}
+                            alignItems={"center"}
+                            spacing={1}
+                            flexWrap={"wrap"}
+                            sx={{...actionsBarSx, rowGap: 1}}
+                        >
+                            <LoadingButton
+                                variant="contained"
+                                color="primary"
+                                disableElevation
+                                endIcon={<span style={{width: rateInProgress ? 17 : 0}}/>}
+                                loading={rateInProgress}
+                                loadingPosition="end"
+                                disabled={isRateButtonDisabled || rateInProgress}
+                                sx={actionButtonSx}
                                 onClick={() => {
-                                    const storedCriteria = parseStoredCriteria(props.solution?.lecturerComment);
-                                    setState(prevState => ({
-                                        ...prevState,
-                                        points: props.solution?.rating || 0,
-                                        lecturerComment: storedCriteria.commentWithoutCriteria,
-                                        addBonusPoints: hasCriteria,
-                                        clickedForRate: false,
-                                    }));
+                                    rateSolution(points, lecturerComment);
                                 }}
                             >
-                                Отмена
+                                {isRated ? "Изменить оценку" : "Оценить решение"}
+                            </LoadingButton>
+
+                            {!rateInProgress && (
+                                <Button
+                                    variant="text"
+                                    sx={actionButtonSx}
+                                    onClick={() => {
+                                        const storedCriteria = parseStoredCriteria(props.solution?.lecturerComment);
+                                        setState(prevState => ({
+                                            ...prevState,
+                                            points: props.solution?.rating || 0,
+                                            lecturerComment: storedCriteria.commentWithoutCriteria,
+                                            addBonusPoints: hasCriteria,
+                                            clickedForRate: false,
+                                        }));
+                                    }}
+                                >
+                                    Отмена
+                                </Button>
+                            )}
+
+                            {isRateButtonDisabled &&
+                                <Typography variant={"caption"} sx={{color: "warning.dark"}}>
+                                    Заполните все критерии, чтобы выставить оценку
+                                </Typography>}
+                        </Stack>
+                    </>
+                }
+                {props.forMentor && isRated && !state.clickedForRate &&
+                    <>
+                        <Divider/>
+                        <Box sx={actionsBarSx}>
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                startIcon={<EditOutlinedIcon/>}
+                                sx={actionButtonSx}
+                                onClick={() => setState(prev => ({...prev, clickedForRate: true}))}
+                            >
+                                Изменить оценку
                             </Button>
-                        )}
-                    </CardActions>
-                </>
-            )}
-            {props.forMentor && isRated && !state.clickedForRate && <CardActions>
-                <Button
-                    color="primary"
-                    size="small"
-                    onClick={() => {
-                        if (hasCriteria) {
-                            setState(prev => ({
-                                ...prev,
-                                clickedForRate: true,
-                            }));
-                        } else {
-                            setState(prev => ({
-                                ...prev,
-                                clickedForRate: true,
-                            }));
-                        }
-                    }}
-                >
-                    Изменить оценку
-                </Button>
-            </CardActions>}
-        </Card>
+                        </Box>
+                    </>}
+            </Paper>
+        )
     }
 
-    return <Grid container direction="column" spacing={2} style={{marginTop: -16}}>
+    return <Stack direction={"column"} spacing={2}>
+        {solution && commitsActuality && !commitsActuality.isActual &&
+            <Alert severity="error" sx={alertSx}>
+                {`${commitsActuality.comment ?? ""}. `}
+                {commitsActuality.additionalData &&
+                    <a href={clearUrl(props.solution!.githubUrl!) + `/commits/${commitsActuality.additionalData}`}
+                       target="_blank"
+                       rel="noopener noreferrer"
+                    >
+                        Последний коммит решения
+                    </a>}
+            </Alert>}
+
         {solution &&
-            <Grid item container direction={"column"} spacing={1}>
-                {commitsActuality && !commitsActuality.isActual &&
-                    <Grid item>
-                        <Alert severity="error">
-                            {`${commitsActuality.comment ?? ""}. `}
-                            {commitsActuality.additionalData &&
-                                <a href={clearUrl(props.solution!.githubUrl!) + `/commits/${commitsActuality.additionalData}`}
-                                   target="_blank"
-                                   rel="noopener noreferrer"
-                                >
-                                    Последний коммит решения
-                                </a>}
-                        </Alert>
-                    </Grid>
-                }
-                <Grid item>
-                    <Stack direction={students.length > 1 ? "column" : "row"}
-                           alignItems={students.length === 1 ? "center" : "normal"} spacing={1}>
-                        <Stack direction={"row"} spacing={1}>
-                            {students && students.map(t => <Tooltip title={t.surname + " " + t.name}>
-                                <span><UserAvatar user={t} key={t.userId}/></span>
-                            </Tooltip>)}
-                        </Stack>
-                        <Grid item spacing={1} container direction="column">
-                            <Stack direction={"row"} alignItems={"center"} spacing={0.5}>
-                                {githubUrl && <Link
-                                    underline={"hover"}
-                                    href={(githubUrl.startsWith("https://") ? "" : "https://") + githubUrl}
-                                    target="_blank"
-                                    style={{color: 'darkblue'}}
-                                >
-                                    Ссылка на решение
-                                </Link>}
-                                {checkTestsActuality && (solutionActuality
-                                    ? renderTestsStatus(solutionActuality.testsActuality)
-                                    : <CircularProgress size={12}/>)}
+            <Paper variant={"outlined"} sx={panelSx}>
+                <Stack direction={"row"} alignItems={"center"} spacing={1} sx={panelHeaderSx}>
+                    <AssignmentTurnedInOutlinedIcon fontSize={"small"}/>
+                    <Typography variant={"body2"} sx={{fontWeight: 500}}>Решение</Typography>
+                    <Box sx={{flexGrow: 1}}/>
+                    <Typography variant={"caption"} sx={{flexShrink: 0}}>
+                        {postedSolutionTime}{solution.isModified ? " · отредактировано" : ""}
+                    </Typography>
+                </Stack>
+                <Divider/>
+                <Box sx={sectionSx}>
+                    <Stack spacing={1.5}>
+                        <Stack direction={"row"} alignItems={"flex-start"} spacing={1.5}>
+                            <Stack direction={"row"} spacing={0.5} sx={{flexShrink: 0}}>
+                                {students && students.map(t =>
+                                    <Tooltip key={t.userId} title={t.surname + " " + t.name}>
+                                        <span><UserAvatar user={t}/></span>
+                                    </Tooltip>)}
                             </Stack>
-                            <Stack direction={"row"} alignItems={"baseline"} spacing={1}>
-                                <Typography variant={"caption"} style={{color: "GrayText"}}>
-                                    {postedSolutionTime} {solution.isModified && "(отредактировано)"}
+                            {/* Имена — первой строкой, ссылка на решение и статус тестов — под ними */}
+                            <Box sx={{flexGrow: 1, minWidth: 0}}>
+                                <Typography variant={"body2"} sx={{fontWeight: 500}}>
+                                    {students.map(t => `${t.surname} ${t.name}`).join(", ")}
                                 </Typography>
-                                {solution?.comment &&
-                                    <Tooltip arrow placement={"right"}
-                                             title={<div>
-                                                 {showOriginalCommentText ? "Показать отформатированный текст решения" : "Показать оригинальный текст решения"}
-                                             </div>}>
-                                        <div style={{cursor: "pointer", marginTop: -2}}
-                                             onClick={() => setShowOriginalCommentText(!showOriginalCommentText)}>
-                                            {showOriginalCommentText
-                                                ? <BlurOffIcon style={{fontSize: 14}} color={"inherit"}/>
-                                                : <BlurOnIcon style={{fontSize: 14}} color={"inherit"}/>}
-                                        </div>
-                                    </Tooltip>}
-                            </Stack>
-                        </Grid>
+                                {(githubUrl || checkTestsActuality) &&
+                                    <Stack
+                                        direction={"row"}
+                                        alignItems={"center"}
+                                        spacing={1}
+                                        flexWrap={"wrap"}
+                                        sx={{mt: 0.5, rowGap: 0.5}}
+                                    >
+                                        {githubUrl &&
+                                            <Chip
+                                                component={"a"}
+                                                href={(githubUrl.startsWith("https://") ? "" : "https://") + githubUrl}
+                                                target={"_blank"}
+                                                rel={"noopener noreferrer"}
+                                                clickable
+                                                size={"small"}
+                                                icon={<GitHubIcon/>}
+                                                label={"Ссылка на решение"}
+                                                sx={linkChipSx}
+                                            />}
+                                        {checkTestsActuality && (solutionActuality
+                                            ? renderTestsStatus(solutionActuality.testsActuality)
+                                            : <CircularProgress size={12}/>)}
+                                    </Stack>}
+                            </Box>
+                            {solution.comment && <>
+                                <Tooltip
+                                    arrow
+                                    title={showOriginalCommentText
+                                        ? "Показать отформатированный текст решения"
+                                        : "Показать оригинальный текст решения"}
+                                >
+                                    <IconButton
+                                        size={"small"}
+                                        sx={{flexShrink: 0, color: "text.secondary"}}
+                                        onClick={() => setShowOriginalCommentText(!showOriginalCommentText)}
+                                    >
+                                        {showOriginalCommentText
+                                            ? <BlurOffIcon sx={{fontSize: 16}}/>
+                                            : <BlurOnIcon sx={{fontSize: 16}}/>}
+                                    </IconButton>
+                                </Tooltip>
+                            </>}
+                        </Stack>
+
+                        {/* Комментарий — часть панели решения, поэтому без своей подложки */}
+                        {solution.comment && (showOriginalCommentText
+                            ? <Typography variant={"body2"} sx={{whiteSpace: "break-spaces"}}>
+                                {solution.comment}
+                            </Typography>
+                            : <MarkdownPreview value={solution.comment}/>)}
+
+                        {filesInfo.length > 0 &&
+                            <Box>
+                                {props.isProcessing &&
+                                    <Stack direction={"row"} alignItems={"center"} spacing={0.75}
+                                           sx={{color: "#3f51b5"}}>
+                                        <CircularProgress size={"14px"} color={"inherit"}/>
+                                        <Typography variant={"caption"} sx={{fontWeight: 500}}>
+                                            Обрабатываем файлы...
+                                        </Typography>
+                                    </Stack>}
+                                <FilesPreviewList
+                                    showOkStatus={!props.forMentor}
+                                    filesInfo={filesInfo}
+                                    onClickFileInfo={async (fileInfo: IFileInfo) => {
+                                        const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!)
+                                        window.open(url, '_blank');
+                                    }}
+                                />
+                            </Box>}
                     </Stack>
-                </Grid>
-                <Grid item spacing={8}>
-                    {solution.comment &&
-                        <Grid item style={{marginBottom: -10}} spacing={4}>
-                            {showOriginalCommentText
-                                ? <Typography
-                                    style={{
-                                        marginBottom: 15,
-                                        whiteSpace: 'break-spaces'
-                                    }}>{solution.comment}</Typography>
-                                : <MarkdownPreview value={solution.comment}/>}
-                        </Grid>
-                    }
-                    {filesInfo.length > 0 && (
-                        <div>
-                            {props.isProcessing && <div
-                                style={{display: 'flex', alignItems: 'center', color: '#1976d2', fontWeight: '500'}}>
-                                <CircularProgress size="20px"/>
-                                &nbsp;&nbsp;Обрабатываем файлы...
-                            </div>}
-                            <FilesPreviewList
-                                showOkStatus={!props.forMentor}
-                                filesInfo={filesInfo}
-                                onClickFileInfo={async (fileInfo: IFileInfo) => {
-                                    const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!)
-                                    window.open(url, '_blank');
-                                }}
-                            />
-                        </div>
-                    )}
-                </Grid>
-            </Grid>
-        }
-        {props.forMentor && props.isLastSolution && student && <Grid item>
+                </Box>
+            </Paper>}
+
+        {/* Дедлайн и место среди решений — две «врезки» одной полосы: два отдельных алерта
+            занимали много места и спорили за внимание с оценкой */}
+        {(sentAfterDeadline || checkAchievement) &&
+            <Paper variant={"outlined"} sx={insightPanelSx}>
+                <Stack direction={{xs: "column", sm: "row"}} alignItems={"stretch"}>
+                    {sentAfterDeadline &&
+                        <Stack direction={"row"} alignItems={"center"} spacing={1.5} sx={insightCellSx}>
+                            <Box sx={insightBadgeSx("#fff4e5", "#a35b00")}>
+                                <AccessTimeRoundedIcon sx={{fontSize: 19}}/>
+                            </Box>
+                            <Box sx={{minWidth: 0}}>
+                                <Typography variant={"body2"} sx={{fontWeight: 500}}>
+                                    Сдано позже дедлайна
+                                </Typography>
+                                <Typography variant={"caption"} sx={{color: "text.secondary"}}>
+                                    {`на ${sentAfterDeadline}`}
+                                </Typography>
+                            </Box>
+                        </Stack>}
+                    {checkAchievement &&
+                        <Stack
+                            direction={"row"}
+                            alignItems={"center"}
+                            spacing={1.5}
+                            sx={{
+                                ...insightCellSx,
+                                ...(sentAfterDeadline && {
+                                    borderTop: {xs: "1px solid #e3e6ee", sm: "none"},
+                                    borderLeft: {xs: "none", sm: "1px solid #e3e6ee"},
+                                }),
+                            }}
+                        >
+                            <Box
+                                sx={insightBadgeSx(
+                                    achievement !== undefined && achievement >= 80 ? "#e8f3ea" : "#e8ebfa",
+                                    achievement !== undefined && achievement >= 80 ? "#2e7d32" : "#3f51b5",
+                                )}
+                            >
+                                {achievement !== undefined
+                                    ? <EmojiEventsOutlinedIcon sx={{fontSize: 19}}/>
+                                    : <CircularProgress size={16} color={"inherit"}/>}
+                            </Box>
+                            <Box sx={{flexGrow: 1, minWidth: 0}}>
+                                {achievement !== undefined
+                                    ? <>
+                                        <Stack
+                                            direction={"row"}
+                                            alignItems={"baseline"}
+                                            justifyContent={"space-between"}
+                                            spacing={1}
+                                        >
+                                            <Typography variant={"body2"} sx={{fontWeight: 500}}>
+                                                Лучше других решений
+                                            </Typography>
+                                            <Typography
+                                                variant={"body2"}
+                                                sx={{
+                                                    flexShrink: 0,
+                                                    fontWeight: 600,
+                                                    fontVariantNumeric: "tabular-nums",
+                                                    color: achievement >= 80 ? "#2e7d32" : "#3f51b5",
+                                                }}
+                                            >
+                                                {`${achievement}%`}
+                                            </Typography>
+                                        </Stack>
+                                        {/* Полоса показывает место решения среди остальных по этой задаче */}
+                                        <LinearProgress
+                                            variant={"determinate"}
+                                            value={Math.min(100, Math.max(0, achievement))}
+                                            sx={{
+                                                mt: 0.75,
+                                                height: 6,
+                                                borderRadius: "3px",
+                                                backgroundColor: "#eceff3",
+                                                "& .MuiLinearProgress-bar": {
+                                                    borderRadius: "3px",
+                                                    backgroundColor: achievement >= 80 ? "#2e9e5b" : "#3f51b5",
+                                                },
+                                            }}
+                                        />
+                                    </>
+                                    : <Typography variant={"body2"} sx={{color: "text.secondary"}}>
+                                        Смотрим на решения...
+                                    </Typography>}
+                            </Box>
+                        </Stack>}
+                </Stack>
+            </Paper>}
+
+        {props.forMentor && props.isLastSolution && student &&
             <StudentCharacteristics
                 characteristics={student.characteristics}
                 onChange={x => props.onRateSolutionClick?.()} //TODO
                 courseId={props.courseId}
-                studentId={student.userId!}/>
-        </Grid>}
-        {
-            sentAfterDeadline && <Grid item>
-                <Alert variant="standard" severity="warning">
-                    Решение сдано позже дедлайна на {sentAfterDeadline}.
-                </Alert>
-            </Grid>
-        }
-        {
-            checkAchievement && <Grid item>
-                <Alert variant="outlined"
-                       icon={achievement !== undefined ? null : <CircularProgress size={20} color={"inherit"}/>}
-                       severity={achievement !== undefined && achievement >= 80 ? "success" : "info"}>
-                    {achievement !== undefined ? `Лучше ${achievement}% других решений по задаче.` : "Смотрим на решения..."}
-                </Alert>
-            </Grid>
-        }
-        {
-            (props.forMentor || isRated) &&
-            <Grid xs={12} container item style={{marginTop: '10px'}}>
-                {
-                    renderRatingCard()
-                }
-            </Grid>
+                studentId={student.userId!}/>}
 
-        }
-    </Grid>
+        {(props.forMentor || isRated) && renderRatingPanel()}
+    </Stack>
 }
 
 export default TaskSolutionComponent
