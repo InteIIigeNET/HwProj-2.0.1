@@ -1,6 +1,8 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "HwProj",
+  "name": "HwProj — сервис для учебных курсов и заданий",
+  "description": "Веб-сервис, который помогает автоматизировать учебный процесс и упростить взаимодействие между студентами, преподавателями и экспертами из индустрии.",
+  "lang": "ru",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,8 +10,8 @@
       "type": "image/x-icon"
     }
   ],
-  "start_url": ".",
+  "start_url": "/welcome",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#3f51b5",
   "background_color": "#ffffff"
 }

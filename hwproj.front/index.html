@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="utf-8" />
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -8,22 +8,55 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#3f51b5" />
+
+    <!--
+      Базовые SEO-теги. Приложение одностраничное, поэтому для конкретного
+      маршрута title/description/canonical/robots переписывает компонент
+      src/PageMeta.tsx — здесь лежат значения по умолчанию (лендинг /welcome).
+    -->
+    <title>HwProj — сервис для учебных курсов, заданий и проверки решений</title>
+    <meta
+      name="description"
+      content="HwProj — веб-сервис, который автоматизирует учебный процесс: курсы и задания, дедлайны и уведомления, сдача решений, проверка и обратная связь, статистика успеваемости."
+    />
+    <link rel="canonical" href="https://hwproj.ru/welcome" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="HwProj" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:url" content="https://hwproj.ru/welcome" />
+    <meta property="og:title" content="HwProj — сервис для учебных курсов, заданий и проверки решений" />
+    <meta
+      property="og:description"
+      content="HwProj — веб-сервис, который автоматизирует учебный процесс: курсы и задания, дедлайны и уведомления, сдача решений, проверка и обратная связь, статистика успеваемости."
+    />
+    <meta property="og:image" content="https://hwproj.ru/screenshots/student-step1.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "HwProj",
+        "url": "https://hwproj.ru/welcome",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "inLanguage": "ru",
+        "description": "Веб-сервис, который помогает автоматизировать учебный процесс и упростить взаимодействие между студентами, преподавателями и экспертами из индустрии.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "RUB"
+        }
+      }
+    </script>
+
     <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
     <link rel="manifest" href="/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>HwProj</title>
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript" >
       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -47,16 +80,42 @@
       </div>
     </noscript>
     <div id="root"></div>
-    <script type="module" src="/src/index.tsx"></script>
     <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
+      Текстовая версия лендинга для роботов, которые не исполняют JavaScript:
+      без неё в HTML-ответе нет ни одного слова о сервисе. Повторяет содержимое
+      src/pages/WelcomePage.tsx — при правках лендинга обновлять вместе с ним.
     -->
+    <noscript>
+      <h1>HwProj — сервис для учебных курсов, заданий и проверки решений</h1>
+      <p>
+        Веб-сервис, который помогает автоматизировать учебный процесс и упростить
+        взаимодействие между студентами, преподавателями и экспертами из индустрии.
+      </p>
+      <h2>Студентам</h2>
+      <ul>
+        <li>Записывайтесь на курсы и получайте доступ к материалам.</li>
+        <li>Следите за дедлайнами по всем курсам.</li>
+        <li>Сдавайте задания и получайте оценки и обратную связь преподавателей.</li>
+        <li>Отслеживайте свою успеваемость.</li>
+      </ul>
+      <h2>Преподавателям</h2>
+      <ul>
+        <li>Создавайте курс: материалы, задания, дедлайны и балльная система.</li>
+        <li>Приглашайте студентов и экспертов, контролируйте сроки.</li>
+        <li>Проверяйте решения и отвечайте на вопросы прямо в сервисе.</li>
+        <li>Анализируйте успеваемость студентов.</li>
+      </ul>
+      <h2>Экспертам</h2>
+      <ul>
+        <li>Переходите по приглашению преподавателя и сразу приступайте к работе.</li>
+        <li>Оценивайте работы закреплённых студентов и оставляйте комментарии.</li>
+      </ul>
+      <p>
+        <a href="https://hwproj.ru/register">Присоединиться</a> ·
+        <a href="https://hwproj.ru/login">Войти</a>
+      </p>
+      <p>Для работы с сервисом включите JavaScript.</p>
+    </noscript>
+    <script type="module" src="/src/index.tsx"></script>
   </body>
 </html>

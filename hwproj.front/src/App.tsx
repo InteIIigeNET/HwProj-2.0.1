@@ -24,6 +24,7 @@ import PasswordRecovery from "components/Auth/PasswordRecovery";
 import AuthLayout from "./AuthLayout";
 import ExpertAuthLayout from "./components/Experts/AuthLayout";
 import TrackPageChanges from "TrackPageChanges";
+import PageMeta from "PageMeta";
 import WelcomePage from "./pages/WelcomePage";
 
 // TODO: add flux
@@ -103,6 +104,7 @@ class App extends Component<{ navigate: any }, AppState> {
                         onLogout={this.logout}
                         contextAction={this.state.appBarContextAction}/>
                 <TrackPageChanges/>
+                <PageMeta/>
                 <Routes>
                     <Route element={<AuthLayout/>}>
                         <Route path="user/edit" element={<EditProfile isExpert={this.state.isExpert}/>}/>

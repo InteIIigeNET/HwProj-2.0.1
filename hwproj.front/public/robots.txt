@@ -1,0 +1,27 @@
+# https://hwproj.ru/robots.txt
+# Индексируем только публичные страницы: лендинг и формы входа/регистрации.
+# Всё остальное — личный кабинет: за авторизацией, для поиска бесполезно.
+
+User-agent: *
+Allow: /$
+Allow: /welcome
+Allow: /login
+Allow: /register
+Allow: /screenshots/
+Allow: /favicon.ico
+Allow: /manifest.json
+Disallow: /courses
+Disallow: /create_course
+Disallow: /task
+Disallow: /profile
+Disallow: /user
+Disallow: /notifications
+Disallow: /experts
+Disallow: /statistics
+Disallow: /status
+Disallow: /join
+Disallow: /recovery
+Disallow: /resetPassword
+Disallow: /*?returnUrl=
+
+Sitemap: https://hwproj.ru/sitemap.xml
