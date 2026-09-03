@@ -249,15 +249,6 @@ const tabSx = {
 
 const alertSx = {borderRadius: "12px"}
 
-// Полоска с оценками и вкладки решений — продолжение условия задачи, поэтому идут без зазора,
-// а у панели задачи снимаются нижние скругления, чтобы цветная полоса приклеивалась к её краю
-const solutionsGroupSx = {
-    "& .MuiAccordion-root": {
-        borderBottomLeftRadius: 0,
-        borderBottomRightRadius: 0,
-    },
-}
-
 // Колонки раскладки: Grid container со spacing нельзя вкладывать в Stack со spacing —
 // Stack ставит детям margin: 0 и стирает отрицательные отступы Grid
 const columnSx = (mdShare: number, lgShare: number) => ({
@@ -641,7 +632,7 @@ const StudentSolutionsPage: FC = () => {
                                         </Tabs>
                                     </Paper>
                                 }
-                                <Box sx={solutionsGroupSx}>
+                                <Box>
                                     <Task
                                         task={studentSolutionsState.task}
                                         forStudent={false}

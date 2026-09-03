@@ -53,6 +53,7 @@ import {IFileInfo} from "@/components/Files/IFileInfo";
 import FilesPreviewList from "@/components/Files/FilesPreviewList";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
 import {UserAvatar} from "@/components/Common/UserAvatar";
+import {PanelConnector} from "@/components/Common/PanelConnector";
 
 type TaskWithCriteria = HomeworkTaskViewModel & {};
 
@@ -93,17 +94,6 @@ const actionsBarSx = {
 
 const alertSx = {borderRadius: "12px"}
 
-// Решение и оценка — одна история, поэтому карточки соединяет вертикальная перемычка на уровне
-// иконок в шапках: без неё оценка висела в воздухе отдельной карточкой. Градиент ведёт от рамки
-// решения к цвету оценки, так что взгляд сам переходит от одного к другому
-const connectorSx = (color: string) => ({
-    alignSelf: "flex-start",
-    ml: "22px", // по центру иконок в шапках обеих карточек
-    width: 2,
-    height: 20,
-    borderRadius: "1px",
-    backgroundImage: `linear-gradient(to bottom, #c4cad2, ${color})`,
-})
 
 const actionButtonSx = {
     textTransform: "none",
@@ -1582,7 +1572,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     </>}
                 </Paper>
                 {showRatingPanel && <>
-                    <Box sx={connectorSx(ratingPanelColor)}/>
+                    <PanelConnector to={ratingPanelColor}/>
                     {renderRatingPanel()}
                 </>}
             </Stack>}

@@ -8,27 +8,85 @@ import {
     HomeworkTaskViewModel,
     SolutionState, StudentDataDto
 } from '@/api';
-import {Grid, Tab, Tabs} from "@mui/material";
-import {Chip, Divider, Stack, Tooltip, Badge} from "@mui/material";
+import {Box, Grid, Tab, Tabs} from "@mui/material";
+import {Chip, Stack, Tooltip} from "@mui/material";
 import Utils from "../../services/Utils";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {QuestionMark} from "@mui/icons-material";
+import AssignmentTurnedInOutlinedIcon from '@mui/icons-material/AssignmentTurnedInOutlined';
+import HistoryRoundedIcon from '@mui/icons-material/HistoryRounded';
 import TaskQuestions from "../Tasks/TaskQuestions";
 import ApiSingleton from "../../api/ApiSingleton";
 import {DotLottieReact} from '@lottiefiles/dotlottie-react';
+import {PanelConnector} from "@/components/Common/PanelConnector";
 
-// Оформление вкладок согласовано со страницей курса: у v5 дефолты Tabs отличаются от v4
-const tabsSx = {
-    minHeight: 44,
-    "& .MuiTab-root": {
-        minHeight: 44,
-        px: 2,
-        textTransform: "none",
-        fontSize: "0.95rem",
-        fontWeight: 500,
-    },
-    "& .MuiTabs-indicator": {height: 3, borderRadius: "3px 3px 0 0"},
+// Вкладки — segmented control вместо подчёркивания: страница и так набрана карточками, поэтому
+// переключатель не заводит свою панель, а занимает ровно свою ширину на скруглённой дорожке
+const tabsTrackSx = {
+    alignSelf: "flex-start",
+    // Тот же зазор, что между решением и оценкой: условие задачи, вкладки и содержимое стоят
+    // в одном ритме, а вкладки больше не приклеены к карточке задачи
+    mt: 2.5,
+    maxWidth: "100%",
+    p: 0.5,
+    borderRadius: "999px",
+    backgroundColor: "#f1f3fb",
+    border: "1px solid #e3e6f3",
 }
+
+const tabsSx = {
+    minHeight: 0,
+    "& .MuiTabs-indicator": {display: "none"},
+    "& .MuiTabs-scrollButtons": {width: 26},
+    // Скроллер режет содержимое по своим краям, иначе тень активной «таблетки» обрезается
+    "& .MuiTabs-scroller": {py: "3px", my: "-3px"},
+    "& .MuiTab-root": {
+        minHeight: 34,
+        minWidth: 0,
+        mx: 0.25,
+        px: 1.75,
+        py: 0,
+        borderRadius: "999px",
+        textTransform: "none",
+        fontSize: "0.875rem",
+        fontWeight: 500,
+        color: "text.secondary",
+        transition: "background-color .15s, color .15s, box-shadow .15s",
+        "& .MuiTab-iconWrapper": {fontSize: 17, mr: 0.75},
+        "&:hover": {color: "#3f51b5", backgroundColor: "rgba(63,81,181,0.07)"},
+        // Активная вкладка — приподнятая белая «таблетка»: видно даже боковым зрением
+        "&.Mui-selected": {
+            color: "#3f51b5",
+            backgroundColor: "#fff",
+            boxShadow: "0 1px 3px rgba(20,28,58,0.12)",
+        },
+    },
+}
+
+const tabLabelSx = {
+    display: "inline-flex",
+    alignItems: "center",
+}
+
+// Счётчик внутри вкладки: акцентный, когда есть что разобрать, зелёный — когда всё разобрано,
+// и спокойный для обычного количества
+const countPillSx = (tone: "accent" | "success" | "muted") => ({
+    height: 18,
+    minWidth: 18,
+    px: 0.5,
+    ml: 0.875,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "999px",
+    fontSize: "0.6875rem",
+    fontWeight: 700,
+    lineHeight: 1,
+    fontVariantNumeric: "tabular-nums" as const,
+    ...(tone === "accent" && {backgroundColor: "#3f51b5", color: "#fff"}),
+    ...(tone === "success" && {backgroundColor: "#dcefe0", color: "#2e7d32"}),
+    ...(tone === "muted" && {backgroundColor: "#dfe3f0", color: "#5b6472"}),
+})
 
 interface ITaskSolutionsProps {
     courseId: number
@@ -89,6 +147,14 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
         : undefined
 
     const newQuestions = questionsState.filter(x => x.answer === null).length
+
+    // Значения вкладок заданы явно, поэтому набор вкладок можно менять, не сдвигая нумерацию.
+    // Если выбранной вкладки в этом наборе нет (решений не осталось), падаем на вопросы
+    const hasLastSolutionTab = student !== undefined
+    const hasPreviousAttemptsTab = arrayOfRatedSolutions.length > 0
+    const activeTab = (tabValue === 1 && !hasLastSolutionTab) || (tabValue === 2 && !hasPreviousAttemptsTab)
+        ? 0
+        : tabValue
 
     const renderSolutionsRate = () => {
         const ratedSolutions = sortedSolutions
@@ -167,42 +233,65 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
     }
 
     return <Grid container alignItems="stretch" direction="column">
-        {renderSolutionsRate()}
-        <Tabs
-            variant="scrollable"
-            scrollButtons={"auto"}
-            value={tabValue}
-            style={{marginTop: 3}}
-            indicatorColor="primary"
-            sx={tabsSx}
-            onChange={(event, value) => {
-                setState(prevState => ({
-                    ...prevState,
-                    tabValue: value
-                }));
-            }}
-        >
-            <Tab style={{minWidth: 3}}
-                 label={<Badge badgeContent={newQuestions} variant="dot" showZero={questionsState.length > 0}
-                               color={newQuestions === 0 ? "success" : "primary"}>
-                     <QuestionMark style={{fontSize: 15}}/>
-                 </Badge>}/>
-            {student !== undefined && <Tab label="Последнее решение"/>}
-            {arrayOfRatedSolutions.length > 0 && <Tab label={
-                <Stack direction="row" spacing={1}>
-                    <div>Предыдущие попытки</div>
-                    <Chip size={"small"}
-                          color={"default"}
-                          label={(arrayOfRatedSolutions.length)}/>
-                </Stack>}/>}
-        </Tabs>
-        {tabValue === 0 && <Grid item style={{marginTop: '5px'}}>
+        {/*{renderSolutionsRate()}*/}
+        <Box sx={tabsTrackSx}>
+            <Tabs
+                variant="scrollable"
+                scrollButtons={"auto"}
+                value={activeTab}
+                sx={tabsSx}
+                onChange={(event, value) => {
+                    setState(prevState => ({
+                        ...prevState,
+                        tabValue: value
+                    }));
+                }}
+            >
+                {/* Вкладка вопросов раньше была безымянной иконкой с точкой — теперь у неё
+                    подпись и число: сразу видно, сколько вопросов ждёт ответа */}
+                <Tab
+                    value={0}
+                    icon={<QuestionMark/>}
+                    iconPosition={"start"}
+                    title={newQuestions > 0
+                        ? `${newQuestions} без ответа`
+                        : questionsState.length > 0 ? "Все вопросы разобраны" : "Вопросов пока нет"}
+                    label={<Box component={"span"} sx={tabLabelSx}>
+                        Вопросы
+                        {questionsState.length > 0 &&
+                            <Box component={"span"} sx={countPillSx(newQuestions > 0 ? "accent" : "success")}>
+                                {newQuestions > 0 ? newQuestions : questionsState.length}
+                            </Box>}
+                    </Box>}/>
+                {hasLastSolutionTab &&
+                    <Tab
+                        value={1}
+                        icon={<AssignmentTurnedInOutlinedIcon/>}
+                        iconPosition={"start"}
+                        label={"Последнее решение"}/>}
+                {hasPreviousAttemptsTab &&
+                    <Tab
+                        value={2}
+                        icon={<HistoryRoundedIcon/>}
+                        iconPosition={"start"}
+                        label={<Box component={"span"} sx={tabLabelSx}>
+                            Предыдущие попытки
+                            <Box component={"span"} sx={countPillSx("muted")}>
+                                {arrayOfRatedSolutions.length}
+                            </Box>
+                        </Box>}/>}
+            </Tabs>
+        </Box>
+        {/* Содержимое вкладки — продолжение переключателя, поэтому та же перемычка, что между
+            решением и оценкой: она же задаёт зазор, своих отступов панелям не нужно */}
+        <PanelConnector from={"#dfe3f2"}/>
+        {activeTab === 0 && <Grid item>
             <TaskQuestions forMentor={forMentor}
                            taskId={task.id!}
                            courseStudents={props.courseStudents}
                            questions={questionsState} onChange={getQuestions}/>
         </Grid>}
-        {tabValue === 1 && <Grid item style={{marginTop: '16px'}}>
+        {activeTab === 1 && <Grid item>
             {(lastSolution || forMentor) && student !== undefined
                 ? <TaskSolutionComponent
                     task={props.task}
@@ -225,23 +314,25 @@ const TaskSolutions: FC<ITaskSolutionsProps> = (props) => {
                     />
                 </div>}
         </Grid>}
-        {tabValue === 2 &&
-            arrayOfRatedSolutions.reverse().map((x, i) =>
-                <Grid key={x.id} item style={{marginTop: '16px'}}>
-                    <TaskSolutionComponent
-                        task={props.task}
-                        forMentor={false}
-                        solution={x}
-                        student={student!}
-                        onRateSolutionClick={onSolutionRateClick}
-                        isLastSolution={false}
-                        courseId={props.courseId}
-                        courseFilesInfo={props.courseFiles}
-                        isProcessing={props.processingFiles[x.id!]?.isLoading || false}
-                    />
-                    {i < arrayOfRatedSolutions.length - 1 ?
-                        <Divider style={{marginTop: 10, marginBottom: 4}}/> : null}
-                </Grid>)}
+        {activeTab === 2 &&
+            <Grid item>
+                {/* Карточки решений сами обведены рамкой, поэтому разделители между ними не нужны */}
+                <Stack direction={"column"} spacing={2}>
+                    {[...arrayOfRatedSolutions].reverse().map(x =>
+                        <TaskSolutionComponent
+                            key={x.id}
+                            task={props.task}
+                            forMentor={false}
+                            solution={x}
+                            student={student!}
+                            onRateSolutionClick={onSolutionRateClick}
+                            isLastSolution={false}
+                            courseId={props.courseId}
+                            courseFilesInfo={props.courseFiles}
+                            isProcessing={props.processingFiles[x.id!]?.isLoading || false}
+                        />)}
+                </Stack>
+            </Grid>}
     </Grid>
 }
 

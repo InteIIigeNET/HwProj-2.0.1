@@ -138,15 +138,6 @@ const tabSx = {
     fontWeight: 500,
 }
 
-// Полоска с оценками и вкладки решений — продолжение условия задачи, поэтому идут без зазора,
-// а у панели задачи снимаются нижние скругления, чтобы цветная полоса приклеивалась к её краю
-const solutionsGroupSx = {
-    "& .MuiAccordion-root": {
-        borderBottomLeftRadius: 0,
-        borderBottomRightRadius: 0,
-    },
-}
-
 const TaskSolutionsPage: FC = () => {
     const {taskId} = useParams()
     const navigate = useNavigate()
@@ -385,7 +376,7 @@ const TaskSolutionsPage: FC = () => {
                     </Tabs>
                 </Paper>
             }
-            <Box sx={taskSolutionPage.addSolution ? undefined : solutionsGroupSx}>
+            <Box>
                 <Task
                     task={task}
                     forStudent={true}
