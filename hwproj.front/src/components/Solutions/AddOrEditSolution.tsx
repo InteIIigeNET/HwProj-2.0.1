@@ -9,7 +9,21 @@ import {
     PostSolutionModel,
     SolutionState,
 } from "@/api";
-import {Alert, Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid} from "@mui/material";
+import {
+    Alert,
+    Autocomplete,
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    Stack,
+    Typography
+} from "@mui/material";
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import {MarkdownEditor} from "../Common/MarkdownEditor";
 import {TestTag} from "../Common/HomeworkTags";
 import {LoadingButton} from "@mui/lab";
@@ -36,8 +50,47 @@ interface IAddSolutionProps {
         deletingFilesIds: number[]) => void,
 }
 
+// Оформление согласовано с редизайном страницы решений: те же радиусы, мягкий индиго-акцент и компактные подсказки
+const titleIconSx = {
+    width: 36,
+    height: 36,
+    flexShrink: 0,
+    borderRadius: "10px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f0f2fc",
+    color: "#3f51b5",
+}
+
+const inputSx = {
+    "& .MuiOutlinedInput-root": {borderRadius: "10px"},
+}
+
+// Подсказка под полем — это уточнение, а не отдельный блок: убираем лишнюю высоту стандартного Alert
+const hintAlertSx = {
+    mt: 1,
+    py: 0,
+    borderRadius: "10px",
+    alignItems: "center",
+    "& .MuiAlert-icon": {py: 0.75, mr: 1},
+    "& .MuiAlert-message": {py: 0.75, fontSize: "0.8125rem"},
+}
+
+const actionButtonSx = {
+    textTransform: "none",
+    borderRadius: "10px",
+    fontWeight: 500,
+    px: 2,
+}
+
+// У редактора markdown отступы заданы инлайном — гасим их, чтобы вертикальный ритм задавал Stack
+const editorBlockSx = {
+    "& > div[data-color-mode]": {marginTop: "0 !important", marginBottom: "12px !important"},
+}
+
 const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
-    const { lastSolution } = props
+    const {lastSolution} = props
     const isEdit = lastSolution?.state === SolutionState.NUMBER_0
     const lastGroup = lastSolution?.groupMates?.map(x => x.userId!) || []
 
@@ -65,26 +118,42 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
         );
     }
 
-    const { githubUrl } = solution
+    const {githubUrl} = solution
     const isTest = props.task.tags?.includes(TestTag)
     const showTestGithubInfo = isTest && githubUrl?.startsWith("https://github") && githubUrl.includes("/pull/")
     const courseMates = props.students.filter(s => props.userId !== s.userId)
 
     return (
         <Dialog fullWidth
-            maxWidth="md"
-            open={true}
-            onClose={() => props.onCancel()} aria-labelledby="form-dialog-title">
-            <DialogTitle id="form-dialog-title">
-                Отправить новое решение
+                maxWidth="md"
+                open={true}
+                PaperProps={{sx: {borderRadius: "16px"}}}
+                onClose={() => props.onCancel()} aria-labelledby="form-dialog-title">
+            <DialogTitle id="form-dialog-title" sx={{px: 3, py: 2}}>
+                <Stack direction={"row"} alignItems={"center"} spacing={1.5}>
+                    <Box sx={titleIconSx}>
+                        {isEdit ? <EditOutlinedIcon fontSize={"small"}/> : <SendOutlinedIcon fontSize={"small"}/>}
+                    </Box>
+                    <Box sx={{minWidth: 0}}>
+                        <Typography sx={{fontSize: "1.1rem", fontWeight: 500, lineHeight: 1.3}}>
+                            {isEdit ? "Изменить решение" : "Отправить решение"}
+                        </Typography>
+                        {props.task.title &&
+                            <Typography variant={"caption"} sx={{color: "text.secondary", wordBreak: "break-word"}}>
+                                {props.task.title}
+                            </Typography>}
+                    </Box>
+                </Stack>
             </DialogTitle>
-            <DialogContent>
-                <Grid style={{ marginTop: 10 }} container xs={12}>
-                    <Grid item xs={12}>
+            <Divider/>
+            <DialogContent sx={{px: 3, pt: 2.5}}>
+                <Stack direction={"column"} spacing={2}>
+                    <Box>
                         <TextField
                             fullWidth
                             label="Ссылка на решение"
                             variant="outlined"
+                            sx={inputSx}
                             value={solution.githubUrl}
                             onChange={(e) => {
                                 e.persist()
@@ -95,20 +164,20 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
                             }}
                         />
                         {showTestGithubInfo &&
-                            <Alert sx={{ paddingTop: 0, paddingBottom: 0, marginTop: 0.2 }} severity="info">
+                            <Alert sx={hintAlertSx} severity="info">
                                 Для данного решения будет сохранена информация о коммитах на момент отправки.
-                                <br />
                                 Убедитесь, что работа закончена, и отправьте решение в конце.
                             </Alert>}
                         {!isEdit && githubUrl === lastSolution?.githubUrl && !showTestGithubInfo &&
-                            <Alert sx={{ paddingTop: 0, paddingBottom: 0, marginTop: 0.2 }} severity="info">Ссылка
-                                взята из предыдущего
-                                решения</Alert>}
-                    </Grid>
-                    {props.supportsGroup && <Grid item xs={12} style={{ marginTop: '16px' }}>
+                            <Alert sx={hintAlertSx} severity="info">
+                                Ссылка взята из предыдущего решения
+                            </Alert>}
+                    </Box>
+                    {props.supportsGroup && <Box>
                         <Autocomplete
                             multiple
                             id="tags-outlined"
+                            sx={inputSx}
                             options={courseMates}
                             value={courseMates.filter(s => solution.groupMateIds?.includes(s.userId!))}
                             getOptionLabel={(option) => option.surname! + ' ' + option.name! + " / " + option.email!}
@@ -129,11 +198,11 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
                             )}
                         />
                         {!isEdit && lastGroup?.length > 0 && solution.groupMateIds === lastGroup &&
-                            <Alert sx={{ paddingTop: 0, paddingBottom: 0, marginTop: 0.2 }} severity="info">Команда
-                                взята из предыдущего
-                                решения</Alert>}
-                    </Grid>}
-                    <Grid item xs={12} style={{ marginTop: '12px', marginBottom: -4 }}>
+                            <Alert sx={hintAlertSx} severity="info">
+                                Команда взята из предыдущего решения
+                            </Alert>}
+                    </Box>}
+                    <Box sx={editorBlockSx}>
                         <MarkdownEditor
                             label={"Комментарий"}
                             value={solution.comment ?? ""}
@@ -158,28 +227,32 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
                             courseUnitId={lastSolution?.id !== undefined ? lastSolution.id : -1}
                             maxFilesCount={maxFilesCount}
                         />
-                    </Grid>
-                </Grid>
+                    </Box>
+                </Stack>
             </DialogContent>
-            <DialogActions>
-                <LoadingButton
-                    size="medium"
-                    variant="text"
-                    color="primary"
-                    type="submit"
-                    loading={disableSend}
-                    onClick={e => handleSubmit(e)}
-                >
-                    {isEdit ? "Изменить решение" : "Отправить решение"}
-                </LoadingButton>
+            <Divider/>
+            <DialogActions sx={{px: 3, py: 2}}>
                 {!disableSend && <Button
                     size="medium"
                     onClick={() => props.onCancel()}
                     variant="text"
                     color="inherit"
+                    sx={actionButtonSx}
                 >
                     Отменить
                 </Button>}
+                <LoadingButton
+                    size="medium"
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    disableElevation
+                    loading={disableSend}
+                    sx={actionButtonSx}
+                    onClick={e => handleSubmit(e)}
+                >
+                    {isEdit ? "Изменить решение" : "Отправить решение"}
+                </LoadingButton>
             </DialogActions>
         </Dialog>
     )
