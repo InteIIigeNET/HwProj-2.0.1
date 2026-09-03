@@ -93,6 +93,18 @@ const actionsBarSx = {
 
 const alertSx = {borderRadius: "12px"}
 
+// Решение и оценка — одна история, поэтому карточки соединяет вертикальная перемычка на уровне
+// иконок в шапках: без неё оценка висела в воздухе отдельной карточкой. Градиент ведёт от рамки
+// решения к цвету оценки, так что взгляд сам переходит от одного к другому
+const connectorSx = (color: string) => ({
+    alignSelf: "flex-start",
+    ml: "22px", // по центру иконок в шапках обеих карточек
+    width: 2,
+    height: 20,
+    borderRadius: "1px",
+    backgroundImage: `linear-gradient(to bottom, #c4cad2, ${color})`,
+})
+
 const actionButtonSx = {
     textTransform: "none",
     borderRadius: "10px",
@@ -1155,6 +1167,10 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     const sentAfterDeadline = solution && task.hasDeadline && getDatesDiff(solution.publicationDate!, task.deadlineDate!)
 
+    const showRatingPanel = props.forMentor || isRated
+    // Цвет рамки панели оценки — он же цвет перемычки к решению, чтобы связка читалась как одно целое
+    const ratingPanelColor = isRated || state.clickedForRate ? scoreColor : "#c4cad2"
+
     const renderRatingPanel = () => {
         const percent = maxRating > 0 ? points * 100 / maxRating : 0
         const isEditing = props.forMentor && state.clickedForRate
@@ -1168,7 +1184,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 sx={{
                     ...panelSx,
                     borderWidth: 2,
-                    borderColor: isScored ? scoreColor : "#c4cad2",
+                    borderColor: ratingPanelColor,
                 }}
             >
                 <Stack
@@ -1358,210 +1374,218 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     </a>}
             </Alert>}
 
+        {/* Решение и оценка — связанная пара: карточки стоят вплотную и соединены перемычкой,
+            поэтому оценка читается как продолжение решения, а не как отдельный блок */}
         {solution &&
-            <Paper variant={"outlined"} sx={panelSx}>
-                <Stack direction={"row"} alignItems={"center"} spacing={1} sx={panelHeaderSx}>
-                    <AssignmentTurnedInOutlinedIcon fontSize={"small"}/>
-                    <Typography variant={"body2"} sx={{fontWeight: 500}}>Решение</Typography>
-                    <Box sx={{flexGrow: 1}}/>
-                    <Typography variant={"caption"} sx={{flexShrink: 0}}>
-                        {postedSolutionTime}{solution.isModified ? " · отредактировано" : ""}
-                    </Typography>
-                </Stack>
-                <Divider/>
-                <Box sx={sectionSx}>
-                    <Stack spacing={1.5}>
-                        <Stack direction={"row"} alignItems={"flex-start"} spacing={1.5}>
-                            <Stack direction={"row"} spacing={0.5} sx={{flexShrink: 0}}>
-                                {students && students.map(t =>
-                                    <Tooltip key={t.userId} title={t.surname + " " + t.name}>
-                                        <span><UserAvatar user={t}/></span>
-                                    </Tooltip>)}
-                            </Stack>
-                            {/* Имена — первой строкой, ссылка на решение и статус тестов — под ними */}
-                            <Box sx={{flexGrow: 1, minWidth: 0}}>
-                                <Typography variant={"body2"} sx={{fontWeight: 500}}>
-                                    {students.map(t => `${t.surname} ${t.name}`).join(", ")}
-                                </Typography>
-                                {(githubUrl || checkTestsActuality) &&
-                                    <Stack
-                                        direction={"row"}
-                                        alignItems={"center"}
-                                        spacing={1}
-                                        flexWrap={"wrap"}
-                                        sx={{mt: 0.5, rowGap: 0.5}}
-                                    >
-                                        {githubUrl &&
-                                            <Chip
-                                                component={"a"}
-                                                href={(githubUrl.startsWith("https://") ? "" : "https://") + githubUrl}
-                                                target={"_blank"}
-                                                rel={"noopener noreferrer"}
-                                                clickable
-                                                size={"small"}
-                                                icon={<GitHubIcon/>}
-                                                label={"Ссылка на решение"}
-                                                sx={linkChipSx}
-                                            />}
-                                        {checkTestsActuality && (solutionActuality
-                                            ? renderTestsStatus(solutionActuality.testsActuality)
-                                            : <CircularProgress size={12}/>)}
-                                    </Stack>}
-                            </Box>
-                            {/* Правый угол карточки: характеристика студента и переключатель текста решения —
-                                подальше от ссылки на решение, чтобы не нажать по ошибке */}
-                            <Stack
-                                direction={"row"}
-                                alignItems={"flex-start"}
-                                spacing={0.5}
-                                sx={{flexShrink: 0, maxWidth: {xs: 180, sm: 320, md: 440}}}
-                            >
-                                {props.forMentor && props.isLastSolution && student &&
-                                    <StudentCharacteristics
-                                        characteristics={student.characteristics}
-                                        onChange={x => props.onRateSolutionClick?.()} //TODO
-                                        courseId={props.courseId}
-                                        studentId={student.userId!}/>}
-                                {solution.comment &&
-                                    <Tooltip
-                                        arrow
-                                        title={showOriginalCommentText
-                                            ? "Показать отформатированный текст решения"
-                                            : "Показать оригинальный текст решения"}
-                                    >
-                                        <IconButton
-                                            size={"small"}
-                                            sx={{flexShrink: 0, color: "text.secondary"}}
-                                            onClick={() => setShowOriginalCommentText(!showOriginalCommentText)}
-                                        >
-                                            {showOriginalCommentText
-                                                ? <BlurOffIcon sx={{fontSize: 16}}/>
-                                                : <BlurOnIcon sx={{fontSize: 16}}/>}
-                                        </IconButton>
-                                    </Tooltip>}
-                            </Stack>
-                        </Stack>
-
-                        {/* Комментарий — часть панели решения, поэтому без своей подложки */}
-                        {solution.comment && (showOriginalCommentText
-                            ? <Typography variant={"body2"} sx={{whiteSpace: "break-spaces"}}>
-                                {solution.comment}
-                            </Typography>
-                            : <MarkdownPreview value={solution.comment}/>)}
-
-                        {filesInfo.length > 0 &&
-                            <Box>
-                                {props.isProcessing &&
-                                    <Stack direction={"row"} alignItems={"center"} spacing={0.75}
-                                           sx={{color: "#3f51b5"}}>
-                                        <CircularProgress size={"14px"} color={"inherit"}/>
-                                        <Typography variant={"caption"} sx={{fontWeight: 500}}>
-                                            Обрабатываем файлы...
-                                        </Typography>
-                                    </Stack>}
-                                <FilesPreviewList
-                                    showOkStatus={!props.forMentor}
-                                    filesInfo={filesInfo}
-                                    onClickFileInfo={async (fileInfo: IFileInfo) => {
-                                        const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!)
-                                        window.open(url, '_blank');
-                                    }}
-                                />
-                            </Box>}
+            <Stack direction={"column"}>
+                <Paper variant={"outlined"} sx={panelSx}>
+                    <Stack direction={"row"} alignItems={"center"} spacing={1} sx={panelHeaderSx}>
+                        <AssignmentTurnedInOutlinedIcon fontSize={"small"}/>
+                        <Typography variant={"body2"} sx={{fontWeight: 500}}>Решение</Typography>
+                        <Box sx={{flexGrow: 1}}/>
+                        <Typography variant={"caption"} sx={{flexShrink: 0}}>
+                            {postedSolutionTime}{solution.isModified ? " · отредактировано" : ""}
+                        </Typography>
                     </Stack>
-                </Box>
-
-                {/* Дедлайн и место среди решений — подвал самой карточки решения: отдельные алерты
-                    занимали много места и спорили за внимание с оценкой. Обе врезки тянутся
-                    до нижнего края карточки, а вместе делят его поровну */}
-                {(sentAfterDeadline || checkAchievement) && <>
                     <Divider/>
-                    <Stack direction={{xs: "column", sm: "row"}} alignItems={"stretch"}>
-                        {sentAfterDeadline &&
-                            <Stack direction={"row"} alignItems={"center"} spacing={1.5} sx={deadlineCellSx}>
-                                <Box sx={insightBadgeSx("#fff", "#a35b00")}>
-                                    <AccessTimeRoundedIcon sx={{fontSize: 19}}/>
-                                </Box>
-                                <Box sx={{minWidth: 0}}>
-                                    <Typography variant={"body2"} sx={{fontWeight: 500}}>
-                                        Сдано позже дедлайна
-                                    </Typography>
-                                    <Typography variant={"caption"} sx={{color: "text.secondary"}}>
-                                        {`на ${sentAfterDeadline}`}
-                                    </Typography>
-                                </Box>
-                            </Stack>}
-                        {checkAchievement &&
-                            <Stack
-                                direction={"row"}
-                                alignItems={"center"}
-                                spacing={1.5}
-                                sx={{
-                                    ...achievementCellSx,
-                                    ...(sentAfterDeadline && {
-                                        borderTop: {xs: "1px solid rgba(0,0,0,0.07)", sm: "none"},
-                                        borderLeft: {xs: "none", sm: "1px solid rgba(0,0,0,0.07)"},
-                                    }),
-                                }}
-                            >
-                                <Box
-                                    sx={insightBadgeSx(
-                                        "#fff",
-                                        achievement !== undefined && achievement >= 80 ? "#2e7d32" : "#3f51b5",
-                                    )}
-                                >
-                                    {achievement !== undefined
-                                        ? <EmojiEventsOutlinedIcon sx={{fontSize: 19}}/>
-                                        : <CircularProgress size={16} color={"inherit"}/>}
-                                </Box>
+                    <Box sx={sectionSx}>
+                        <Stack spacing={1.5}>
+                            <Stack direction={"row"} alignItems={"flex-start"} spacing={1.5}>
+                                <Stack direction={"row"} spacing={0.5} sx={{flexShrink: 0}}>
+                                    {students && students.map(t =>
+                                        <Tooltip key={t.userId} title={t.surname + " " + t.name}>
+                                            <span><UserAvatar user={t}/></span>
+                                        </Tooltip>)}
+                                </Stack>
+                                {/* Имена — первой строкой, ссылка на решение и статус тестов — под ними */}
                                 <Box sx={{flexGrow: 1, minWidth: 0}}>
-                                    {achievement !== undefined
-                                        ? <>
-                                            <Stack
-                                                direction={"row"}
-                                                alignItems={"baseline"}
-                                                justifyContent={"space-between"}
-                                                spacing={1}
-                                            >
-                                                <Typography variant={"body2"} sx={{fontWeight: 500}}>
-                                                    Лучше других решений
-                                                </Typography>
-                                                <Typography
-                                                    variant={"body2"}
-                                                    sx={{
-                                                        flexShrink: 0,
-                                                        fontWeight: 600,
-                                                        fontVariantNumeric: "tabular-nums",
-                                                        color: achievement >= 80 ? "#2e7d32" : "#3f51b5",
-                                                    }}
-                                                >
-                                                    {`${achievement}%`}
-                                                </Typography>
-                                            </Stack>
-                                            {/* Полоса показывает место решения среди остальных по этой задаче */}
-                                            <LinearProgress
-                                                variant={"determinate"}
-                                                value={Math.min(100, Math.max(0, achievement))}
-                                                sx={{
-                                                    mt: 0.75,
-                                                    height: 6,
-                                                    borderRadius: "3px",
-                                                    backgroundColor: "rgba(255,255,255,0.85)",
-                                                    "& .MuiLinearProgress-bar": {
-                                                        borderRadius: "3px",
-                                                        backgroundColor: achievement >= 80 ? "#2e9e5b" : "#3f51b5",
-                                                    },
-                                                }}
-                                            />
-                                        </>
-                                        : <Typography variant={"body2"} sx={{color: "text.secondary"}}>
-                                            Смотрим на решения...
-                                        </Typography>}
+                                    <Typography variant={"body2"} sx={{fontWeight: 500}}>
+                                        {students.map(t => `${t.surname} ${t.name}`).join(", ")}
+                                    </Typography>
+                                    {(githubUrl || checkTestsActuality) &&
+                                        <Stack
+                                            direction={"row"}
+                                            alignItems={"center"}
+                                            spacing={1}
+                                            flexWrap={"wrap"}
+                                            sx={{mt: 0.5, rowGap: 0.5}}
+                                        >
+                                            {githubUrl &&
+                                                <Chip
+                                                    component={"a"}
+                                                    href={(githubUrl.startsWith("https://") ? "" : "https://") + githubUrl}
+                                                    target={"_blank"}
+                                                    rel={"noopener noreferrer"}
+                                                    clickable
+                                                    size={"small"}
+                                                    icon={<GitHubIcon/>}
+                                                    label={"Ссылка на решение"}
+                                                    sx={linkChipSx}
+                                                />}
+                                            {checkTestsActuality && (solutionActuality
+                                                ? renderTestsStatus(solutionActuality.testsActuality)
+                                                : <CircularProgress size={12}/>)}
+                                        </Stack>}
                                 </Box>
-                            </Stack>}
-                    </Stack>
+                                {/* Правый угол карточки: характеристика студента и переключатель текста решения —
+                                    подальше от ссылки на решение, чтобы не нажать по ошибке */}
+                                <Stack
+                                    direction={"row"}
+                                    alignItems={"flex-start"}
+                                    spacing={0.5}
+                                    sx={{flexShrink: 0, maxWidth: {xs: 180, sm: 320, md: 440}}}
+                                >
+                                    {props.forMentor && props.isLastSolution && student &&
+                                        <StudentCharacteristics
+                                            characteristics={student.characteristics}
+                                            onChange={x => props.onRateSolutionClick?.()} //TODO
+                                            courseId={props.courseId}
+                                            studentId={student.userId!}/>}
+                                    {solution.comment &&
+                                        <Tooltip
+                                            arrow
+                                            title={showOriginalCommentText
+                                                ? "Показать отформатированный текст решения"
+                                                : "Показать оригинальный текст решения"}
+                                        >
+                                            <IconButton
+                                                size={"small"}
+                                                sx={{flexShrink: 0, color: "text.secondary"}}
+                                                onClick={() => setShowOriginalCommentText(!showOriginalCommentText)}
+                                            >
+                                                {showOriginalCommentText
+                                                    ? <BlurOffIcon sx={{fontSize: 16}}/>
+                                                    : <BlurOnIcon sx={{fontSize: 16}}/>}
+                                            </IconButton>
+                                        </Tooltip>}
+                                </Stack>
+                            </Stack>
+    
+                            {/* Комментарий — часть панели решения, поэтому без своей подложки */}
+                            {solution.comment && (showOriginalCommentText
+                                ? <Typography variant={"body2"} sx={{whiteSpace: "break-spaces"}}>
+                                    {solution.comment}
+                                </Typography>
+                                : <MarkdownPreview value={solution.comment}/>)}
+    
+                            {filesInfo.length > 0 &&
+                                <Box>
+                                    {props.isProcessing &&
+                                        <Stack direction={"row"} alignItems={"center"} spacing={0.75}
+                                               sx={{color: "#3f51b5"}}>
+                                            <CircularProgress size={"14px"} color={"inherit"}/>
+                                            <Typography variant={"caption"} sx={{fontWeight: 500}}>
+                                                Обрабатываем файлы...
+                                            </Typography>
+                                        </Stack>}
+                                    <FilesPreviewList
+                                        showOkStatus={!props.forMentor}
+                                        filesInfo={filesInfo}
+                                        onClickFileInfo={async (fileInfo: IFileInfo) => {
+                                            const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!)
+                                            window.open(url, '_blank');
+                                        }}
+                                    />
+                                </Box>}
+                        </Stack>
+                    </Box>
+    
+                    {/* Дедлайн и место среди решений — подвал самой карточки решения: отдельные алерты
+                        занимали много места и спорили за внимание с оценкой. Обе врезки тянутся
+                        до нижнего края карточки, а вместе делят его поровну */}
+                    {(sentAfterDeadline || checkAchievement) && <>
+                        <Divider/>
+                        <Stack direction={{xs: "column", sm: "row"}} alignItems={"stretch"}>
+                            {sentAfterDeadline &&
+                                <Stack direction={"row"} alignItems={"center"} spacing={1.5} sx={deadlineCellSx}>
+                                    <Box sx={insightBadgeSx("#fff", "#a35b00")}>
+                                        <AccessTimeRoundedIcon sx={{fontSize: 19}}/>
+                                    </Box>
+                                    <Box sx={{minWidth: 0}}>
+                                        <Typography variant={"body2"} sx={{fontWeight: 500}}>
+                                            Сдано позже дедлайна
+                                        </Typography>
+                                        <Typography variant={"caption"} sx={{color: "text.secondary"}}>
+                                            {`на ${sentAfterDeadline}`}
+                                        </Typography>
+                                    </Box>
+                                </Stack>}
+                            {checkAchievement &&
+                                <Stack
+                                    direction={"row"}
+                                    alignItems={"center"}
+                                    spacing={1.5}
+                                    sx={{
+                                        ...achievementCellSx,
+                                        ...(sentAfterDeadline && {
+                                            borderTop: {xs: "1px solid rgba(0,0,0,0.07)", sm: "none"},
+                                            borderLeft: {xs: "none", sm: "1px solid rgba(0,0,0,0.07)"},
+                                        }),
+                                    }}
+                                >
+                                    <Box
+                                        sx={insightBadgeSx(
+                                            "#fff",
+                                            achievement !== undefined && achievement >= 80 ? "#2e7d32" : "#3f51b5",
+                                        )}
+                                    >
+                                        {achievement !== undefined
+                                            ? <EmojiEventsOutlinedIcon sx={{fontSize: 19}}/>
+                                            : <CircularProgress size={16} color={"inherit"}/>}
+                                    </Box>
+                                    <Box sx={{flexGrow: 1, minWidth: 0}}>
+                                        {achievement !== undefined
+                                            ? <>
+                                                <Stack
+                                                    direction={"row"}
+                                                    alignItems={"baseline"}
+                                                    justifyContent={"space-between"}
+                                                    spacing={1}
+                                                >
+                                                    <Typography variant={"body2"} sx={{fontWeight: 500}}>
+                                                        Лучше других решений
+                                                    </Typography>
+                                                    <Typography
+                                                        variant={"body2"}
+                                                        sx={{
+                                                            flexShrink: 0,
+                                                            fontWeight: 600,
+                                                            fontVariantNumeric: "tabular-nums",
+                                                            color: achievement >= 80 ? "#2e7d32" : "#3f51b5",
+                                                        }}
+                                                    >
+                                                        {`${achievement}%`}
+                                                    </Typography>
+                                                </Stack>
+                                                {/* Полоса показывает место решения среди остальных по этой задаче */}
+                                                <LinearProgress
+                                                    variant={"determinate"}
+                                                    value={Math.min(100, Math.max(0, achievement))}
+                                                    sx={{
+                                                        mt: 0.75,
+                                                        height: 6,
+                                                        borderRadius: "3px",
+                                                        backgroundColor: "rgba(255,255,255,0.85)",
+                                                        "& .MuiLinearProgress-bar": {
+                                                            borderRadius: "3px",
+                                                            backgroundColor: achievement >= 80 ? "#2e9e5b" : "#3f51b5",
+                                                        },
+                                                    }}
+                                                />
+                                            </>
+                                            : <Typography variant={"body2"} sx={{color: "text.secondary"}}>
+                                                Смотрим на решения...
+                                            </Typography>}
+                                    </Box>
+                                </Stack>}
+                        </Stack>
+                    </>}
+                </Paper>
+                {showRatingPanel && <>
+                    <Box sx={connectorSx(ratingPanelColor)}/>
+                    {renderRatingPanel()}
                 </>}
-            </Paper>}
+            </Stack>}
 
         {/* Решения нет, но характеристику студенту преподаватель поставить всё равно может */}
         {!solution && props.forMentor && props.isLastSolution && student &&
@@ -1571,7 +1595,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 courseId={props.courseId}
                 studentId={student.userId!}/>}
 
-        {(props.forMentor || isRated) && renderRatingPanel()}
+        {!solution && showRatingPanel && renderRatingPanel()}
     </Stack>
 }
 
