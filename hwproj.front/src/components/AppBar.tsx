@@ -18,7 +18,6 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import PersonAddAlt1OutlinedIcon from '@mui/icons-material/PersonAddAlt1Outlined';
 import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -300,10 +299,6 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                         transformOrigin={{vertical: "top", horizontal: "right"}}
                         PaperProps={{sx: menuPaperSx}}
                     >
-                        <MenuItem component={Link} to={"/user/edit"} onClick={handleClose}>
-                            <ListItemIcon><PersonOutlineIcon fontSize="small"/></ListItemIcon>
-                            <ListItemText>Редактировать профиль</ListItemText>
-                        </MenuItem>
                         {isLecturer && <MenuItem onClick={openInviteLecturer}>
                             <ListItemIcon><PersonAddAlt1OutlinedIcon fontSize="small"/></ListItemIcon>
                             <ListItemText>Пригласить преподавателя</ListItemText>
@@ -316,7 +311,8 @@ export const Header: React.FC<AppBarProps> = (props: AppBarProps) => {
                             <ListItemIcon><AddCircleOutlineIcon fontSize="small"/></ListItemIcon>
                             <ListItemText>Создать курс</ListItemText>
                         </MenuItem>}
-                        <Divider sx={{my: 0.5}}/>
+                        {/* У студента других пунктов в меню нет, поэтому черта перед выходом не нужна */}
+                        {isLecturer && <Divider sx={{my: 0.5}}/>}
                         <MenuItem onClick={props.onLogout}>
                             <ListItemIcon><LogoutIcon fontSize="small"/></ListItemIcon>
                             <ListItemText>Выйти</ListItemText>
