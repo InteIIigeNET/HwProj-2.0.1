@@ -15,7 +15,6 @@ import {
     Dialog,
     DialogContent,
     DialogTitle,
-    Divider,
     Grid,
     IconButton,
     ListItemIcon,
@@ -37,6 +36,9 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import {QRCodeSVG} from 'qrcode.react';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import GroupIcon from '@mui/icons-material/Group';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
+import FactCheckOutlinedIcon from '@mui/icons-material/FactCheckOutlined';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
@@ -92,6 +94,73 @@ const pendingChipSx = {
     fontWeight: 500,
     "& .MuiChip-icon": {color: "#fff"},
 }
+
+// Табы — это навигация, а не ещё одна панель: рамки и фона у полосы нет, она сливается со страницей.
+// При скролле полоса залипает под шапкой приложения, чтобы переключаться можно было из любого места;
+// полупрозрачный фон с размытием нужен только для того, чтобы контент уезжал под неё, а не сквозь неё
+const tabsBarSx = {
+    position: "sticky",
+    top: {xs: 52, sm: 56},
+    zIndex: 2,
+    py: 0.25,
+    backgroundColor: "rgba(255, 255, 255, 0.85)",
+    backdropFilter: "blur(8px)",
+}
+
+const tabsSx = {
+    minHeight: 0,
+    // Скроллер табов обрезает всё, что выходит за его границы, поэтому тень активной таблетки
+    // помещается только за счёт его собственных отступов
+    "& .MuiTabs-scroller": {py: 0.75},
+    "& .MuiTabs-flexContainer": {gap: 0.75},
+    "& .MuiTabs-scrollButtons": {width: 26},
+    "& .MuiTab-root": {
+        minHeight: 38,
+        minWidth: 0,
+        px: 1.75,
+        borderRadius: "999px",
+        textTransform: "none",
+        fontSize: "0.9375rem",
+        fontWeight: 500,
+        color: "text.secondary",
+        transition: "background-color .2s, color .2s, box-shadow .2s",
+        "& .MuiTab-iconWrapper": {mr: 0.75, ml: 0},
+        "&:hover": {backgroundColor: "rgba(63, 81, 181, 0.06)", color: "#3f51b5"},
+        // Активный таб — светлая таблетка в тон шапкам панелей: заметно, но без плотной заливки,
+        // которая перетягивала бы внимание с содержимого страницы
+        "&.Mui-selected": {
+            color: "#3f51b5",
+            backgroundColor: "#eef0fa",
+            fontWeight: 600,
+            boxShadow: "inset 0 0 0 1px rgba(63, 81, 181, 0.16)",
+        },
+        "&.Mui-selected:hover": {backgroundColor: "#e6e9f7"},
+    },
+}
+
+const tabCountSx = {
+    ml: 0.75,
+    px: 0.625,
+    minWidth: 20,
+    height: 20,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "999px",
+    fontSize: "0.75rem",
+    fontWeight: 600,
+    backgroundColor: "#e4e7f6",
+    color: "#3f51b5",
+    // Внутри активной таблетки бейдж на тон плотнее её фона, иначе он бы на нём растворился
+    ".Mui-selected &": {backgroundColor: "#dce1f5"},
+}
+
+// Счётчик показываем только когда есть что показать: ноль в бейдже — визуальный шум
+const TabLabel: FC<{text: string, count: number}> = ({text, count}) =>
+    <Box component={"span"} sx={{display: "inline-flex", alignItems: "center"}}>
+        {text}
+        {count > 0 && <Box component={"span"} sx={tabCountSx}>{count}</Box>}
+    </Box>
 
 const Course: React.FC = () => {
     const {courseId, tab} = useParams()
@@ -215,6 +284,14 @@ const Course: React.FC = () => {
         .flatMap(x => x!.tasks)
         .filter(t => t!.solutions!.slice(-1)[0]?.state === 0) //last solution
         .length
+
+    // Эксперту доступны не все табы, поэтому выделять нечего, если текущего таба в полосе нет
+    const visibleTabs: TabValue[] = [
+        ...(!isExpert ? ["homeworks" as TabValue] : []),
+        ...(showStatsTab ? ["stats" as TabValue] : []),
+        ...(showApplicationsTab && !isExpert ? ["applications" as TabValue] : []),
+    ]
+    const activeTab = visibleTabs.includes(tabValue) ? tabValue : false
 
     const [lecturerStatsState, setLecturerStatsState] = useState(false);
 
@@ -420,47 +497,38 @@ const Course: React.FC = () => {
                             />
                         }
                     </Paper>
-                    <Box>
+                    <Box sx={tabsBarSx}>
                         <Tabs
                             variant="scrollable"
                             scrollButtons={"auto"}
-                            value={tabValue === "homeworks" ? 0 : tabValue === "stats" ? 1 : tabValue === "applications" ? 2 : 3}
-                            indicatorColor="primary"
-                            sx={{
-                                minHeight: 44,
-                                "& .MuiTab-root": {
-                                    minHeight: 44,
-                                    px: 2,
-                                    textTransform: "none",
-                                    fontSize: "0.95rem",
-                                    fontWeight: 500,
-                                },
-                                "& .MuiTabs-indicator": {height: 3, borderRadius: "3px 3px 0 0"},
-                            }}
-                            onChange={(event, value) => {
-                                if (value === 0 && !isExpert) navigate(`/courses/${courseId}/homeworks`)
-                                if (value === 1) navigate(`/courses/${courseId}/stats`)
-                                if (value === 2 && !isExpert) navigate(`/courses/${courseId}/applications`)
-                                if (value === 3) navigate(`/courses/${courseId}/groups`)
-                            }}
+                            allowScrollButtonsMobile
+                            value={activeTab}
+                            onChange={(event, value: TabValue) => navigate(`/courses/${courseId}/${value}`)}
+                            TabIndicatorProps={{sx: {display: "none"}}}
+                            sx={tabsSx}
                         >
                             {!isExpert &&
-                                <Tab label={<div>Задания</div>}/>}
-                            {showStatsTab && <Tab label={
-                                <Stack direction="row" spacing={1} alignItems={"center"}>
-                                    <div>Решения</div>
-                                    <Chip size={"small"} color={"default"}
-                                          label={unratedSolutionsCount}/>
-                                </Stack>
-                            }/>}
-                            {showApplicationsTab && !isExpert && <Tab label={
-                                <Stack direction="row" spacing={1} alignItems={"center"}>
-                                    <div>Заявки</div>
-                                    <Chip size={"small"} color={"default"}
-                                          label={newStudents.length}/>
-                                </Stack>}/>}
+                                <Tab
+                                    value={"homeworks"}
+                                    icon={<AssignmentOutlinedIcon fontSize={"small"}/>}
+                                    iconPosition={"start"}
+                                    label={"Задания"}
+                                />}
+                            {showStatsTab &&
+                                <Tab
+                                    value={"stats"}
+                                    icon={<FactCheckOutlinedIcon fontSize={"small"}/>}
+                                    iconPosition={"start"}
+                                    label={<TabLabel text={"Решения"} count={unratedSolutionsCount}/>}
+                                />}
+                            {showApplicationsTab && !isExpert &&
+                                <Tab
+                                    value={"applications"}
+                                    icon={<PersonAddIcon fontSize={"small"}/>}
+                                    iconPosition={"start"}
+                                    label={<TabLabel text={"Заявки"} count={newStudents.length}/>}
+                                />}
                         </Tabs>
-                        <Divider/>
                     </Box>
                     {tabValue === "homeworks" && <CourseExperimental
                         courseId={+courseId!}
