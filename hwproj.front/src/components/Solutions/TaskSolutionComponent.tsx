@@ -1402,24 +1402,38 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                             : <CircularProgress size={12}/>)}
                                     </Stack>}
                             </Box>
-                            {solution.comment && <>
-                                <Tooltip
-                                    arrow
-                                    title={showOriginalCommentText
-                                        ? "Показать отформатированный текст решения"
-                                        : "Показать оригинальный текст решения"}
-                                >
-                                    <IconButton
-                                        size={"small"}
-                                        sx={{flexShrink: 0, color: "text.secondary"}}
-                                        onClick={() => setShowOriginalCommentText(!showOriginalCommentText)}
+                            {/* Правый угол карточки: характеристика студента и переключатель текста решения —
+                                подальше от ссылки на решение, чтобы не нажать по ошибке */}
+                            <Stack
+                                direction={"row"}
+                                alignItems={"flex-start"}
+                                spacing={0.5}
+                                sx={{flexShrink: 0, maxWidth: {xs: 180, sm: 320, md: 440}}}
+                            >
+                                {props.forMentor && props.isLastSolution && student &&
+                                    <StudentCharacteristics
+                                        characteristics={student.characteristics}
+                                        onChange={x => props.onRateSolutionClick?.()} //TODO
+                                        courseId={props.courseId}
+                                        studentId={student.userId!}/>}
+                                {solution.comment &&
+                                    <Tooltip
+                                        arrow
+                                        title={showOriginalCommentText
+                                            ? "Показать отформатированный текст решения"
+                                            : "Показать оригинальный текст решения"}
                                     >
-                                        {showOriginalCommentText
-                                            ? <BlurOffIcon sx={{fontSize: 16}}/>
-                                            : <BlurOnIcon sx={{fontSize: 16}}/>}
-                                    </IconButton>
-                                </Tooltip>
-                            </>}
+                                        <IconButton
+                                            size={"small"}
+                                            sx={{flexShrink: 0, color: "text.secondary"}}
+                                            onClick={() => setShowOriginalCommentText(!showOriginalCommentText)}
+                                        >
+                                            {showOriginalCommentText
+                                                ? <BlurOffIcon sx={{fontSize: 16}}/>
+                                                : <BlurOnIcon sx={{fontSize: 16}}/>}
+                                        </IconButton>
+                                    </Tooltip>}
+                            </Stack>
                         </Stack>
 
                         {/* Комментарий — часть панели решения, поэтому без своей подложки */}
@@ -1542,7 +1556,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 </Stack>
             </Paper>}
 
-        {props.forMentor && props.isLastSolution && student &&
+        {/* Решения нет, но характеристику студенту преподаватель поставить всё равно может */}
+        {!solution && props.forMentor && props.isLastSolution && student &&
             <StudentCharacteristics
                 characteristics={student.characteristics}
                 onChange={x => props.onRateSolutionClick?.()} //TODO

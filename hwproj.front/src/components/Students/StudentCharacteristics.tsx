@@ -3,15 +3,20 @@ import {
     Grid,
     Chip,
     Alert,
+    Box,
     Button,
+    Link,
+    Popover,
+    Stack,
+    Tooltip,
     Typography,
     Dialog,
     DialogTitle,
     DialogContent,
     Autocomplete,
     DialogActions,
-    AlertTitle,
 } from '@mui/material';
+import PsychologyOutlinedIcon from '@mui/icons-material/PsychologyOutlined';
 import {StudentCharacteristicsDto} from '@/api';
 import TextField from "@mui/material/TextField";
 import {MarkdownEditor, MarkdownPreview} from "@/components/Common/MarkdownEditor";
@@ -26,6 +31,41 @@ interface Props {
     onChange: (characteristics: StudentCharacteristicsDto) => void;
 }
 
+const tagChipSx = {
+    height: 22,
+    borderRadius: "999px",
+    "& .MuiChip-label": {px: 0.875, fontSize: "0.75rem", fontWeight: 500},
+}
+
+const linkSx = {
+    fontSize: "0.75rem",
+    flexShrink: 0,
+}
+
+// Точка-разделитель между ссылками: явно отделяет «описание» от «изменить характеристику»
+const linkSeparatorSx = {
+    width: 3,
+    height: 3,
+    flexShrink: 0,
+    borderRadius: "50%",
+    backgroundColor: "#b9bece",
+}
+
+// Описание открываем во всплывающей карточке: в углу карточки студента для него нет места,
+// а разворачивать его инлайном значило бы двигать всё решение
+const descriptionPopoverSx = {
+    borderRadius: "12px",
+    borderColor: "#c4cad2",
+    mt: 0.5,
+    p: 1.5,
+    maxWidth: 460,
+}
+
+const descriptionSx = {
+    mt: 0.5,
+    "& .markdown-preview": {paddingBottom: "0 !important", fontSize: "0.875rem"},
+}
+
 const renderTag = (tag: string, props?: any) => {
     if (tag.startsWith("-")) {
         return <Chip {...props} label={tag.substring(1).trim()} color={"error"}/>
@@ -36,29 +76,21 @@ const renderTag = (tag: string, props?: any) => {
     return <Chip {...props} label={tag.trim()} color={"default"}/>
 }
 
+// Характеристика живёт прямо в карточке студента под решением, поэтому выглядит как строка меток
+// со ссылками, а не как отдельный блок-уведомление
 export const StudentCharacteristics: React.FC<Props> = (props) => {
     const {characteristics} = props
     const [isEdit, setIsEdit] = React.useState(false)
     const description = characteristics?.description
-    const hasCharacteristics = characteristics && (characteristics.tags && characteristics.tags.length > 0 || characteristics.description)
-    const maxDescriptionLength = 400
-    const tooLongDescription = description != undefined && description.length > maxDescriptionLength
+    const tags = characteristics?.tags ?? []
+    const hasCharacteristics = !!characteristics && (tags.length > 0 || !!description)
 
-    const [showFullDescription, setShowFullDescription] = useState(!tooLongDescription)
+    const [descriptionAnchor, setDescriptionAnchor] = useState<HTMLElement | null>(null)
 
-    useEffect(() => setShowFullDescription(!tooLongDescription), [tooLongDescription])
-
-    const renderUpdateButton = () => {
-        return <Typography color={"#3f51b5"} variant={"caption"} style={{cursor: "pointer"}}
-                           onClick={() => setIsEdit(true)}>
-            {hasCharacteristics ? "Изменить характеристику" : "Добавить характеристику студенту"}
-        </Typography>
-    }
-
-    if (!hasCharacteristics && !isEdit) return renderUpdateButton()
+    useEffect(() => setDescriptionAnchor(null), [props.studentId, description])
 
     return (
-        <div>
+        <Box>
             {isEdit && <EditStudentCharacteristics
                 isOpen={isEdit}
                 courseId={props.courseId}
@@ -69,37 +101,64 @@ export const StudentCharacteristics: React.FC<Props> = (props) => {
                     setIsEdit(false)
                     props.onChange(x)
                 }}/>}
-            <Grid item><Alert severity="info">
-                <AlertTitle>Характеристика студента</AlertTitle>
-                <Grid container direction={"column"} spacing={1}>
-                    <Grid item container spacing={0.5} direction={"row"}>
-                        {characteristics?.tags!.sort().map((tag, index) => (
-                            <Grid item key={index}>
-                                {renderTag(tag, {size: "small"})}
-                            </Grid>
-                        ))}
-                    </Grid>
-                    {description && <Grid item
-                                          style={tooLongDescription ? {cursor: "pointer"} : undefined}
-                                          onClick={() => {
-                                              if (!showFullDescription) {
-                                                  setShowFullDescription(true)
-                                              } else if (showFullDescription && tooLongDescription) {
-                                                  setShowFullDescription(false)
-                                              }
-                                          }}>
-                        <MarkdownPreview
-                            value={showFullDescription
-                                ? tooLongDescription
-                                    ? description + "\n\n**Нажмите, чтобы свернуть**" : description
-                                : description.substring(0, maxDescriptionLength) + "...**Нажмите, чтобы показать целиком**"}
-                        />
-                    </Grid>}
-                    <Grid item>{renderUpdateButton()}</Grid>
-                </Grid>
-            </Alert>
-            </Grid>
-        </div>)
+            <Stack
+                direction={"row"}
+                alignItems={"center"}
+                justifyContent={"flex-end"}
+                spacing={0.75}
+                flexWrap={"wrap"}
+                sx={{rowGap: 0.75}}
+            >
+                {hasCharacteristics &&
+                    <Tooltip arrow title={"Характеристика студента — её видят только преподаватели курса"}>
+                        <PsychologyOutlinedIcon sx={{fontSize: 17, flexShrink: 0, color: "text.secondary"}}/>
+                    </Tooltip>}
+                {[...tags].sort().map((tag, index) => (
+                    <React.Fragment key={index}>
+                        {renderTag(tag, {size: "small", sx: tagChipSx})}
+                    </React.Fragment>
+                ))}
+                {description && <>
+                    <Link
+                        component={"button"}
+                        type={"button"}
+                        variant={"caption"}
+                        underline={"hover"}
+                        sx={linkSx}
+                        onClick={(e: React.MouseEvent<HTMLElement>) => setDescriptionAnchor(e.currentTarget)}
+                    >
+                        описание
+                    </Link>
+                    <Box sx={linkSeparatorSx}/>
+                </>}
+                <Link
+                    component={"button"}
+                    type={"button"}
+                    variant={"caption"}
+                    underline={"hover"}
+                    sx={linkSx}
+                    onClick={() => setIsEdit(true)}
+                >
+                    {hasCharacteristics ? "изменить характеристику" : "добавить характеристику студенту"}
+                </Link>
+            </Stack>
+            {description &&
+                <Popover
+                    open={!!descriptionAnchor}
+                    anchorEl={descriptionAnchor}
+                    onClose={() => setDescriptionAnchor(null)}
+                    anchorOrigin={{vertical: "bottom", horizontal: "right"}}
+                    transformOrigin={{vertical: "top", horizontal: "right"}}
+                    PaperProps={{variant: "outlined", sx: descriptionPopoverSx}}
+                >
+                    <Typography variant={"caption"} sx={{fontWeight: 500, color: "text.secondary"}}>
+                        Характеристика студента
+                    </Typography>
+                    <Box sx={descriptionSx}>
+                        <MarkdownPreview value={description}/>
+                    </Box>
+                </Popover>}
+        </Box>)
 };
 
 const EditStudentCharacteristics: React.FC<Props & { onCancel: () => void, isOpen: boolean }> =
