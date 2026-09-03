@@ -176,18 +176,24 @@ const hintSx = {
     fontSize: "0.75rem",
 }
 
-// Полоса врезок под решением: дедлайн и место среди решений стоят рядом, как две ячейки статистики
-const insightPanelSx = {
-    ...panelSx,
-    borderColor: "#dfe3f2",
-    backgroundColor: "#fff",
-}
-
+// Подвал карточки решения: дедлайн и место среди решений — две ячейки статистики, которые делят
+// низ карточки поровну и заканчиваются на её нижнем крае. Подложки тонированы (жёлтая и синяя),
+// чтобы врезки не сливались с белым телом карточки
 const insightCellSx = {
     flex: 1,
     minWidth: 0,
     px: 1.75,
     py: 1.25,
+}
+
+const deadlineCellSx = {
+    ...insightCellSx,
+    backgroundColor: "#fdf1d6",
+}
+
+const achievementCellSx = {
+    ...insightCellSx,
+    backgroundColor: "#e5e9f8",
 }
 
 const insightBadgeSx = (bg: string, fg: string) => ({
@@ -1464,96 +1470,97 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             </Box>}
                     </Stack>
                 </Box>
-            </Paper>}
 
-        {/* Дедлайн и место среди решений — две «врезки» одной полосы: два отдельных алерта
-            занимали много места и спорили за внимание с оценкой */}
-        {(sentAfterDeadline || checkAchievement) &&
-            <Paper variant={"outlined"} sx={insightPanelSx}>
-                <Stack direction={{xs: "column", sm: "row"}} alignItems={"stretch"}>
-                    {sentAfterDeadline &&
-                        <Stack direction={"row"} alignItems={"center"} spacing={1.5} sx={insightCellSx}>
-                            <Box sx={insightBadgeSx("#fff4e5", "#a35b00")}>
-                                <AccessTimeRoundedIcon sx={{fontSize: 19}}/>
-                            </Box>
-                            <Box sx={{minWidth: 0}}>
-                                <Typography variant={"body2"} sx={{fontWeight: 500}}>
-                                    Сдано позже дедлайна
-                                </Typography>
-                                <Typography variant={"caption"} sx={{color: "text.secondary"}}>
-                                    {`на ${sentAfterDeadline}`}
-                                </Typography>
-                            </Box>
-                        </Stack>}
-                    {checkAchievement &&
-                        <Stack
-                            direction={"row"}
-                            alignItems={"center"}
-                            spacing={1.5}
-                            sx={{
-                                ...insightCellSx,
-                                ...(sentAfterDeadline && {
-                                    borderTop: {xs: "1px solid #e3e6ee", sm: "none"},
-                                    borderLeft: {xs: "none", sm: "1px solid #e3e6ee"},
-                                }),
-                            }}
-                        >
-                            <Box
-                                sx={insightBadgeSx(
-                                    achievement !== undefined && achievement >= 80 ? "#e8f3ea" : "#e8ebfa",
-                                    achievement !== undefined && achievement >= 80 ? "#2e7d32" : "#3f51b5",
-                                )}
+                {/* Дедлайн и место среди решений — подвал самой карточки решения: отдельные алерты
+                    занимали много места и спорили за внимание с оценкой. Обе врезки тянутся
+                    до нижнего края карточки, а вместе делят его поровну */}
+                {(sentAfterDeadline || checkAchievement) && <>
+                    <Divider/>
+                    <Stack direction={{xs: "column", sm: "row"}} alignItems={"stretch"}>
+                        {sentAfterDeadline &&
+                            <Stack direction={"row"} alignItems={"center"} spacing={1.5} sx={deadlineCellSx}>
+                                <Box sx={insightBadgeSx("#fff", "#a35b00")}>
+                                    <AccessTimeRoundedIcon sx={{fontSize: 19}}/>
+                                </Box>
+                                <Box sx={{minWidth: 0}}>
+                                    <Typography variant={"body2"} sx={{fontWeight: 500}}>
+                                        Сдано позже дедлайна
+                                    </Typography>
+                                    <Typography variant={"caption"} sx={{color: "text.secondary"}}>
+                                        {`на ${sentAfterDeadline}`}
+                                    </Typography>
+                                </Box>
+                            </Stack>}
+                        {checkAchievement &&
+                            <Stack
+                                direction={"row"}
+                                alignItems={"center"}
+                                spacing={1.5}
+                                sx={{
+                                    ...achievementCellSx,
+                                    ...(sentAfterDeadline && {
+                                        borderTop: {xs: "1px solid rgba(0,0,0,0.07)", sm: "none"},
+                                        borderLeft: {xs: "none", sm: "1px solid rgba(0,0,0,0.07)"},
+                                    }),
+                                }}
                             >
-                                {achievement !== undefined
-                                    ? <EmojiEventsOutlinedIcon sx={{fontSize: 19}}/>
-                                    : <CircularProgress size={16} color={"inherit"}/>}
-                            </Box>
-                            <Box sx={{flexGrow: 1, minWidth: 0}}>
-                                {achievement !== undefined
-                                    ? <>
-                                        <Stack
-                                            direction={"row"}
-                                            alignItems={"baseline"}
-                                            justifyContent={"space-between"}
-                                            spacing={1}
-                                        >
-                                            <Typography variant={"body2"} sx={{fontWeight: 500}}>
-                                                Лучше других решений
-                                            </Typography>
-                                            <Typography
-                                                variant={"body2"}
-                                                sx={{
-                                                    flexShrink: 0,
-                                                    fontWeight: 600,
-                                                    fontVariantNumeric: "tabular-nums",
-                                                    color: achievement >= 80 ? "#2e7d32" : "#3f51b5",
-                                                }}
+                                <Box
+                                    sx={insightBadgeSx(
+                                        "#fff",
+                                        achievement !== undefined && achievement >= 80 ? "#2e7d32" : "#3f51b5",
+                                    )}
+                                >
+                                    {achievement !== undefined
+                                        ? <EmojiEventsOutlinedIcon sx={{fontSize: 19}}/>
+                                        : <CircularProgress size={16} color={"inherit"}/>}
+                                </Box>
+                                <Box sx={{flexGrow: 1, minWidth: 0}}>
+                                    {achievement !== undefined
+                                        ? <>
+                                            <Stack
+                                                direction={"row"}
+                                                alignItems={"baseline"}
+                                                justifyContent={"space-between"}
+                                                spacing={1}
                                             >
-                                                {`${achievement}%`}
-                                            </Typography>
-                                        </Stack>
-                                        {/* Полоса показывает место решения среди остальных по этой задаче */}
-                                        <LinearProgress
-                                            variant={"determinate"}
-                                            value={Math.min(100, Math.max(0, achievement))}
-                                            sx={{
-                                                mt: 0.75,
-                                                height: 6,
-                                                borderRadius: "3px",
-                                                backgroundColor: "#eceff3",
-                                                "& .MuiLinearProgress-bar": {
+                                                <Typography variant={"body2"} sx={{fontWeight: 500}}>
+                                                    Лучше других решений
+                                                </Typography>
+                                                <Typography
+                                                    variant={"body2"}
+                                                    sx={{
+                                                        flexShrink: 0,
+                                                        fontWeight: 600,
+                                                        fontVariantNumeric: "tabular-nums",
+                                                        color: achievement >= 80 ? "#2e7d32" : "#3f51b5",
+                                                    }}
+                                                >
+                                                    {`${achievement}%`}
+                                                </Typography>
+                                            </Stack>
+                                            {/* Полоса показывает место решения среди остальных по этой задаче */}
+                                            <LinearProgress
+                                                variant={"determinate"}
+                                                value={Math.min(100, Math.max(0, achievement))}
+                                                sx={{
+                                                    mt: 0.75,
+                                                    height: 6,
                                                     borderRadius: "3px",
-                                                    backgroundColor: achievement >= 80 ? "#2e9e5b" : "#3f51b5",
-                                                },
-                                            }}
-                                        />
-                                    </>
-                                    : <Typography variant={"body2"} sx={{color: "text.secondary"}}>
-                                        Смотрим на решения...
-                                    </Typography>}
-                            </Box>
-                        </Stack>}
-                </Stack>
+                                                    backgroundColor: "rgba(255,255,255,0.85)",
+                                                    "& .MuiLinearProgress-bar": {
+                                                        borderRadius: "3px",
+                                                        backgroundColor: achievement >= 80 ? "#2e9e5b" : "#3f51b5",
+                                                    },
+                                                }}
+                                            />
+                                        </>
+                                        : <Typography variant={"body2"} sx={{color: "text.secondary"}}>
+                                            Смотрим на решения...
+                                        </Typography>}
+                                </Box>
+                            </Stack>}
+                    </Stack>
+                </>}
             </Paper>}
 
         {/* Решения нет, но характеристику студенту преподаватель поставить всё равно может */}
