@@ -23,7 +23,7 @@ export default class StudentStatsUtils {
         return ratedSolutions.slice(-1)[0]
     }
 
-    static calculateLastRatedSolutionInfo(solutions: SolutionDto[], taskMaxRating: number, disabled: boolean = false) {
+    static calculateLastRatedSolutionInfo(solutions: SolutionDto[], taskMaxRating: number, disabled: boolean = false, isDeferred: boolean = false) {
         const ratedSolutions = solutions!.filter(x => x.state !== SolutionState.NUMBER_0)
         const ratedSolutionsCount = ratedSolutions.length
         const isFirstUnratedTry = ratedSolutionsCount === 0
@@ -33,6 +33,8 @@ export default class StudentStatsUtils {
         let solutionsDescription: string
         if (disabled)
             solutionsDescription = "Задача недоступна для этого студента"
+        else if (isDeferred)
+            solutionsDescription = "Задача ещё не опубликована"
         else if (lastSolution === undefined)
             solutionsDescription = "Решение отсутствует"
         else if (isFirstUnratedTry)
@@ -42,7 +44,7 @@ export default class StudentStatsUtils {
         else solutionsDescription = "Последняя оценка — " + `${lastRatedSolution.rating}/${taskMaxRating} ${Utils.pluralizeHelper(["балл", "балла", "баллов"], taskMaxRating)}\nНовое решение ожидает проверки`
 
         let color: string
-        if (disabled)
+        if (disabled || isDeferred)
             color = grey[300]
         else if (lastSolution == undefined)
             color = "#ffffff"

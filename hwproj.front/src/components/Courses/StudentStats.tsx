@@ -414,8 +414,13 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         borderLeft: `1px solid ${styles?.borderLeftColor ?? "#d5d9e6"}`,
                                     }}
                                 >
-                                    <Tooltip arrow disableInteractive title={homework.title ?? ""}>
-                                        <Box sx={clampSx}>{renderTitle(homework)}</Box>
+                                    <Tooltip arrow disableInteractive
+                                             title={homework.isDeferred
+                                                 ? `${homework.title ?? ""} — ещё не опубликовано`
+                                                 : homework.title ?? ""}>
+                                        <Box sx={{...clampSx, ...(homework.isDeferred ? {opacity: 0.6} : {})}}>
+                                            {renderTitle(homework)}
+                                        </Box>
                                     </Tooltip>
                                 </TableCell>
                             })}
@@ -444,8 +449,14 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                         key={task.id}
                                         align="center"
                                         sx={headTaskCellSx(homeworks, idx, i === 0)}>
-                                        <Tooltip arrow disableInteractive title={task.title ?? ""}>
-                                            <Box sx={clampSx}>{renderTitle(task)}</Box>
+                                        <Tooltip arrow disableInteractive
+                                                 title={task.isDeferred
+                                                     ? `${task.title ?? ""} — ещё не опубликована`
+                                                     : task.title ?? ""}>
+                                            {/* Заголовок неопубликованной задачи приглушаем прозрачностью: она работает и на синей шапке КР */}
+                                            <Box sx={{...clampSx, ...(task.isDeferred ? {opacity: 0.6} : {})}}>
+                                                {renderTitle(task)}
+                                            </Box>
                                         </Tooltip>
                                     </TableCell>
                                 ))
@@ -581,6 +592,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                 taskMaxRating={task.maxRating!}
                                                 isBestSolution={bestTaskSolutions.get(task.id!) === cm.id}
                                                 disabled={isDisabled}
+                                                isDeferred={task.isDeferred}
                                                 borderLeftColor={i === 0
                                                     ? styles?.borderLeftColor ?? "#d5d9e6"
                                                     : "#eceef3"}/>;

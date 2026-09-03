@@ -14,15 +14,18 @@ interface ITaskStudentCellProps {
     userId: string;
     taskMaxRating: number;
     isBestSolution: boolean;
+    // Задача ещё не опубликована: переходить к решению не к чему, так как студент задачу не видел
+    isDeferred?: boolean;
     solutions?: SolutionDto[];
     disabled?: boolean;
 }
 
 const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }> = (props) => {
     const navigate = useNavigate()
-    const {solutions, taskMaxRating, forMentor, disabled} = props
+    const {solutions, taskMaxRating, forMentor, disabled, isDeferred} = props
+    const isClickable = !disabled && !isDeferred
 
-    const cellState = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating, disabled)
+    const cellState = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, taskMaxRating, disabled, isDeferred)
 
     const {ratedSolutionsCount, solutionsDescription} = cellState;
 
@@ -48,7 +51,7 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
     const openInNewTab = () => window.open(solutionUrl, '_blank', 'noopener,noreferrer');
 
     const handleCellClick = (e: React.MouseEvent) => {
-        if (disabled) return;
+        if (!isClickable) return;
 
         // Ctrl/Cmd + клик — открываем в новой вкладке
         if (e.ctrlKey || e.metaKey) {
@@ -60,7 +63,7 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
 
     // Средняя кнопка мыши — открываем в новой вкладке
     const handleCellAuxClick = (e: React.MouseEvent) => {
-        if (disabled || e.button !== 1) return;
+        if (!isClickable || e.button !== 1) return;
 
         e.preventDefault();
         openInNewTab();
@@ -73,7 +76,7 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
                 onClick={handleCellClick}
                 onAuxClick={handleCellAuxClick}
                 onMouseDown={e => {
-                    if (!disabled && e.button === 1) e.preventDefault();
+                    if (isClickable && e.button === 1) e.preventDefault();
                 }}
                 className={props.isBestSolution ? "glow-cell" : ""}
                 align="center"
@@ -83,10 +86,10 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
                     backgroundColor: cellState.color,
                     borderLeft: `1px solid ${props.borderLeftColor || "#eceef3"}`,
                     borderBottom: "1px solid #eceef3",
-                    cursor: disabled ? "default" : "pointer",
+                    cursor: isClickable ? "pointer" : "default",
                     transition: "box-shadow .12s",
                     // Подсветка кликабельной ячейки: обводка внутрь, чтобы не спорить с цветовым кодированием оценки
-                    ...(disabled ? {} : {"&:hover": {boxShadow: "inset 0 0 0 2px #3f51b5"}}),
+                    ...(isClickable ? {"&:hover": {boxShadow: "inset 0 0 0 2px #3f51b5"}} : {}),
                 }}>
                 {result}
             </TableCell>
