@@ -73,6 +73,18 @@ const panelSx = {
     borderColor: "#c4cad2",
 }
 
+// Плашка о завершении курса — верхняя часть шапки, а не отдельный блок над ней:
+// поэтому у неё нет собственных скруглений и боковых рамок, а края совпадают с краями карточки
+const completedAlertSx = {
+    borderRadius: 0,
+    px: {xs: 2, sm: 2.5},
+    py: 1.25,
+    alignItems: "flex-start",
+    borderBottom: "1px solid #f2e2c4",
+    "& .MuiAlert-icon": {py: 0.25, mr: 1.5},
+    "& .MuiAlert-message": {py: 0},
+}
+
 // Статус заявки студент должен заметить сразу: заливка вместо бледной рамки, белый текст и иконка
 const pendingChipSx = {
     backgroundColor: "info.dark",
@@ -308,20 +320,21 @@ const Course: React.FC = () => {
                     </DialogContent>
                 </Dialog>
                 <Stack spacing={2} sx={{mt: 2, mb: 2}}>
-                    {course.isCompleted &&
-                        <Alert severity="warning">
-                            <AlertTitle>Курс завершен!</AlertTitle>
-                            {isAcceptedStudent
-                                ? "Вы можете отправлять решения и получать уведомления об их проверке."
-                                : isCourseMentor && !isExpert
-                                    ? "Вы продолжите получать уведомления о новых заявках на вступление и решениях."
-                                    : !isMentor ? "Вы можете записаться на курс и отправлять решения." : ""}
-                        </Alert>}
-                    <Paper variant={"outlined"} sx={{...panelSx, p: {xs: 2, sm: 2.5}}}>
+                    <Paper variant={"outlined"} sx={{...panelSx, overflow: "hidden"}}>
+                        {course.isCompleted &&
+                            <Alert severity="warning" sx={completedAlertSx}>
+                                <AlertTitle sx={{mb: 0.25, fontSize: "0.9375rem"}}>Курс завершен!</AlertTitle>
+                                {isAcceptedStudent
+                                    ? "Вы можете отправлять решения и получать уведомления об их проверке."
+                                    : isCourseMentor && !isExpert
+                                        ? "Вы продолжите получать уведомления о новых заявках на вступление и решениях."
+                                        : !isMentor ? "Вы можете записаться на курс и отправлять решения." : ""}
+                            </Alert>}
                         <Stack
                             direction={{xs: "column", sm: "row"}}
                             spacing={2}
                             alignItems={{xs: "stretch", sm: "flex-start"}}
+                            sx={{p: {xs: 2, sm: 2.5}}}
                         >
                             <Stack direction={"row"} spacing={2} sx={{flexGrow: 1, minWidth: 0}}>
                                 <CourseTile
@@ -379,8 +392,7 @@ const Course: React.FC = () => {
                                             label={`${studentsWithoutGroup.length} без группы`}
                                         />
                                     </Tooltip>}
-                                {course.isCompleted &&
-                                    <Chip label="Завершён" size={"small"} sx={{color: "GrayText"}}/>}
+                                {/* Чип «Завершён» не нужен: о завершении курса говорит плашка над шапкой */}
                                 {!isSignedInCourse && !isMentor && !isAcceptedStudent &&
                                     <Button
                                         variant="contained"
