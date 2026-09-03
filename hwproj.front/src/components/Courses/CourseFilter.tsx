@@ -1,12 +1,13 @@
 ﻿import React, {FC, useEffect, useState} from 'react';
 import {HomeworkViewModel, AccountDataDto, MentorToAssignedStudentsDTO} from '../../api';
 import Grid from "@mui/material/Grid";
-import {Autocomplete, Chip, Stack, Typography} from "@mui/material";
+import {Autocomplete, Box, Chip, Stack, Typography} from "@mui/material";
 import TextField from "@mui/material/TextField";
 import ApiSingleton from "../../api/ApiSingleton";
 import ErrorsHandler from "../Utils/ErrorsHandler";
 import {DotLottieReact} from '@lottiefiles/dotlottie-react';
 import Button from "@mui/material/Button";
+import {UserInitialsAvatar} from "../Common/UserInitialsAvatar";
 
 interface ICourseFilterProps {
     courseId: number;
@@ -24,6 +25,24 @@ interface ICourseFilterState {
     selectedStudents: AccountDataDto[];
     mentors: AccountDataDto[];
     assignedStudents: MentorToAssignedStudentsDTO[]
+}
+
+// Оформление согласовано с приглашением преподавателя: скруглённый инпут и строки с аватарами
+const inputSx = {
+    "& .MuiOutlinedInput-root": {borderRadius: "10px"},
+}
+
+const optionNameSx = {
+    fontSize: "0.9375rem",
+    fontWeight: 500,
+    lineHeight: 1.3,
+}
+
+// Аватар вложен в label, а не передан в avatar: так у него сохраняются цвета из UserInitialsAvatar
+const studentChipSx = {
+    height: 28,
+    borderRadius: "14px",
+    "& .MuiChip-label": {pl: 0.5, pr: 1},
 }
 
 // Если преподаватель не выбрал ни одного студента, по умолчанию регистрируем всех. Аналогично с выбором домашних работ
@@ -140,6 +159,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                     <TextField
                                         {...params}
                                         variant="outlined"
+                                        sx={inputSx}
                                         label={state.selectedHomeworks.length === 0 ? "" : "Задания"}
                                         placeholder={state.selectedHomeworks.length === 0 ? "Все задания" : ""}
                                     />
@@ -182,15 +202,45 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                             <TextField
                                                 {...params}
                                                 variant="outlined"
+                                                sx={inputSx}
                                                 label={state.selectedStudents.length === 0 ? "" : `Студенты (${state.selectedStudents.length})`}
                                                 placeholder={state.selectedStudents.length === 0 ? "Все студенты" : ""}
                                             />)}
+                                        renderOption={(optionProps, option) => {
+                                            const assignedMentors = getAssignedMentors(option.userId!)
+                                            return <Box component={"li"} {...optionProps} key={option.userId}>
+                                                <Stack direction={"row"} alignItems={"center"} spacing={1.5}
+                                                       sx={{width: "100%", minWidth: 0}}>
+                                                    <UserInitialsAvatar user={option} size={32} fontSize={"0.7rem"}/>
+                                                    <Box sx={{minWidth: 0}}>
+                                                        <Typography sx={optionNameSx}>
+                                                            {`${option.surname ?? ""} ${option.name ?? ""}`.trim()}
+                                                        </Typography>
+                                                        <Typography variant={"caption"} noWrap
+                                                                    sx={{display: "block", color: "text.secondary"}}>
+                                                            {assignedMentors.length > 0
+                                                                ? "Преподаватель " + assignedMentors[0]
+                                                                : option.email}
+                                                        </Typography>
+                                                    </Box>
+                                                </Stack>
+                                            </Box>
+                                        }}
                                         renderTags={(value, getTagProps) =>
                                             value.map((option, index) =>
                                                 <Chip
-                                                    label={option.surname + ' ' + option.name}
                                                     {...getTagProps({index})}
-                                                    style={studentsWithMultipleReviewers.has(option.userId!) ? {color: "#3f51b5"} : undefined}
+                                                    key={option.userId}
+                                                    sx={studentsWithMultipleReviewers.has(option.userId!)
+                                                        ? {...studentChipSx, color: "#3f51b5"}
+                                                        : studentChipSx}
+                                                    label={
+                                                        <Stack direction={"row"} alignItems={"center"} spacing={0.75}>
+                                                            <UserInitialsAvatar user={option} size={20}
+                                                                                fontSize={"0.5625rem"}/>
+                                                            <span>{option.surname + ' ' + option.name}</span>
+                                                        </Stack>
+                                                    }
                                                 />)
                                         }
                                         noOptionsText={'Больше нет студентов для выбора'}

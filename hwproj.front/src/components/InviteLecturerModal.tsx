@@ -128,7 +128,7 @@ const InviteLecturerModal: FC<InviteLecturer> = (props) => {
         >
             <Box component={"form"} onSubmit={handleSubmit}>
                 <DialogTitle id="form-dialog-title" sx={{p: 2}}>
-                    <Stack direction={"row"} alignItems={"center"}>
+                    <Stack direction={"row"} alignItems={"center"} spacing={1.5}>
                         <Box sx={iconBadgeSx}>
                             <PersonAddAlt1OutlinedIcon fontSize={"small"}/>
                         </Box>

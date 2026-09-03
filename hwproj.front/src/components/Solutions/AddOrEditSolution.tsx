@@ -14,6 +14,7 @@ import {
     Autocomplete,
     Box,
     Button,
+    Chip,
     Dialog,
     DialogActions,
     DialogContent,
@@ -32,6 +33,7 @@ import FilesUploader from '../Files/FilesUploader';
 import {CourseUnitType} from '../Files/CourseUnitType';
 import FileInfoConverter from "@/components/Utils/FileInfoConverter";
 import {FilesHandler} from "@/components/Files/FilesHandler";
+import {UserInitialsAvatar} from "@/components/Common/UserInitialsAvatar";
 
 interface IAddSolutionProps {
     courseId: number
@@ -87,6 +89,19 @@ const actionButtonSx = {
 // У редактора markdown отступы заданы инлайном — гасим их, чтобы вертикальный ритм задавал Stack
 const editorBlockSx = {
     "& > div[data-color-mode]": {marginTop: "0 !important", marginBottom: "12px !important"},
+}
+
+const optionNameSx = {
+    fontSize: "0.9375rem",
+    fontWeight: 500,
+    lineHeight: 1.3,
+}
+
+// Аватар вложен в label, а не передан в avatar: так у него сохраняются цвета из UserInitialsAvatar
+const memberChipSx = {
+    height: 28,
+    borderRadius: "14px",
+    "& .MuiChip-label": {pl: 0.5, pr: 1},
 }
 
 const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
@@ -181,7 +196,9 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
                             options={courseMates}
                             value={courseMates.filter(s => solution.groupMateIds?.includes(s.userId!))}
                             getOptionLabel={(option) => option.surname! + ' ' + option.name! + " / " + option.email!}
+                            getOptionKey={(option) => option.userId ?? ""}
                             filterSelectedOptions
+                            noOptionsText={"Нет подходящих однокурсников"}
                             onChange={(e, values) => {
                                 e.persist()
                                 setSolution((prevState) => ({
@@ -189,6 +206,39 @@ const AddOrEditSolution: FC<IAddSolutionProps> = (props) => {
                                     groupMateIds: values.map(x => x.userId!)
                                 }))
                             }}
+                            renderOption={(optionProps, option) => (
+                                <Box component={"li"} {...optionProps} key={option.userId}>
+                                    <Stack direction={"row"} alignItems={"center"} spacing={1.5}
+                                           sx={{width: "100%", minWidth: 0}}>
+                                        <UserInitialsAvatar user={option} size={32} fontSize={"0.7rem"}/>
+                                        <Box sx={{minWidth: 0}}>
+                                            <Typography sx={optionNameSx}>
+                                                {`${option.surname ?? ""} ${option.name ?? ""}`.trim()}
+                                            </Typography>
+                                            <Typography variant={"caption"} noWrap
+                                                        sx={{display: "block", color: "text.secondary"}}>
+                                                {option.email}
+                                            </Typography>
+                                        </Box>
+                                    </Stack>
+                                </Box>
+                            )}
+                            renderTags={(value, getTagProps) =>
+                                value.map((option, index) => (
+                                    <Chip
+                                        {...getTagProps({index})}
+                                        key={option.userId}
+                                        sx={memberChipSx}
+                                        label={
+                                            <Stack direction={"row"} alignItems={"center"} spacing={0.75}>
+                                                <UserInitialsAvatar user={option} size={20}
+                                                                    fontSize={"0.5625rem"}/>
+                                                <span>{`${option.surname ?? ""} ${option.name ?? ""}`.trim()}</span>
+                                            </Stack>
+                                        }
+                                    />
+                                ))
+                            }
                             renderInput={(params) => (
                                 <TextField
                                     {...params}

@@ -73,6 +73,14 @@ const panelSx = {
     borderColor: "#c4cad2",
 }
 
+// Статус заявки студент должен заметить сразу: заливка вместо бледной рамки, белый текст и иконка
+const pendingChipSx = {
+    backgroundColor: "info.dark",
+    color: "#fff",
+    fontWeight: 500,
+    "& .MuiChip-icon": {color: "#fff"},
+}
+
 const Course: React.FC = () => {
     const {courseId, tab} = useParams()
     const [searchParams] = useSearchParams()
@@ -386,10 +394,9 @@ const Course: React.FC = () => {
                                 {isSignedInCourse && !isAcceptedStudent &&
                                     <Chip
                                         size={"small"}
-                                        variant={"outlined"}
-                                        color={"warning"}
                                         icon={<HourglassEmptyIcon fontSize={"small"}/>}
                                         label={"Заявка рассматривается"}
+                                        sx={pendingChipSx}
                                     />}
                                 <CourseMenu/>
                             </Stack>
