@@ -1,15 +1,18 @@
 import React, {FC, FormEvent, useState, useEffect} from "react";
 import {
+    Alert,
     Box,
+    Container,
+    Divider,
+    Paper,
     Step,
     StepButton,
-    StepLabel,
     Stepper,
     Typography,
 } from "@mui/material";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import ApiSingleton from "../../api/ApiSingleton";
 import {CoursePreviewView} from "api";
-import "./Styles/CreateCourse.css";
 import {useNavigate} from "react-router-dom";
 import {useSnackbar} from "notistack";
 import ErrorsHandler from "components/Utils/ErrorsHandler";
@@ -21,15 +24,46 @@ import {
 } from "./ICreateCourseState";
 import SelectBaseCourse from "./SelectBaseCourse";
 import AddCourseInfo from "./AddCourseInfo";
-import {Container} from "@mui/material";
+import {CourseTile} from "../Common/CourseTile";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 
-// theme.spacing(n) в v4 возвращал число 8n, поэтому подставляем итоговые отступы
-const pageSx = {
-    mt: 7,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
+// Оформление панелей согласовано с редизайном страницы курса и её редактирования
+const panelSx = {
+    borderRadius: "14px",
+    borderColor: "#c4cad2",
+    overflow: "hidden",
+}
+
+const iconBadgeSx = {
+    width: 52,
+    height: 52,
+    flexShrink: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "14px",
+    backgroundColor: "#e8ebfa",
+    color: "#3f51b5",
+}
+
+const stepperBarSx = {
+    px: {xs: 1, sm: 2},
+    pt: 2,
+    pb: 1.5,
+    backgroundColor: "#fafbfe",
+}
+
+const stepperSx = {
+    "& .MuiStepLabel-label": {
+        textTransform: "none",
+        fontSize: "0.9375rem",
+        fontWeight: 500,
+    },
+    "& .MuiStepLabel-label.Mui-active": {color: "#3f51b5", fontWeight: 600},
+    "& .MuiStepIcon-root": {fontSize: 28, color: "#dfe3f2"},
+    "& .MuiStepIcon-root.Mui-active": {color: "#3f51b5"},
+    "& .MuiStepIcon-root.Mui-completed": {color: "#2e9e5b"},
+    "& .MuiStepConnector-line": {borderColor: "#e3e6ee", borderTopWidth: 2},
 }
 
 export const CreateCourse: FC = () => {
@@ -78,8 +112,9 @@ export const CreateCourse: FC = () => {
     const stepIsDisabled = (step: CreateCourseStep) =>
         step > activeStep || step === CreateCourseStep.SelectBaseCourseStep && !baseCourses?.length
 
+    // Курсы лектора и названия программ грузим одним проходом: раньше список курсов запрашивался дважды
     useEffect(() => {
-        const loadBaseCourses = async () => {
+        const loadData = async () => {
             try {
                 const userCourses = await ApiSingleton.coursesApi.coursesGetAllUserCourses()
                 if (!userCourses.length) skipCurrentStep()
@@ -93,9 +128,23 @@ export const CreateCourse: FC = () => {
                     {variant: "warning", autoHideDuration: 4000},
                 )
             }
-        };
 
-        loadBaseCourses()
+            try {
+                const programResponse = await ApiSingleton.coursesApi.coursesGetProgramNames()
+                const programNames = programResponse
+                    .map(model => model.programName)
+                    .filter((name): name is string => name !== undefined)
+                setState(prev => ({...prev, programNames}))
+            } catch (e) {
+                console.error("Ошибка при загрузке названий программ:", e)
+                enqueueSnackbar(
+                    "Не удалось загрузить список программ",
+                    {variant: "warning", autoHideDuration: 4000},
+                )
+            }
+        }
+
+        loadData()
     }, [])
 
     const handleStep = (step: CreateCourseStep) => {
@@ -137,31 +186,6 @@ export const CreateCourse: FC = () => {
         }
     }
 
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                const userCourses = await ApiSingleton.coursesApi.coursesGetAllUserCourses();
-                if (!userCourses.length) skipCurrentStep();
-                setBaseCourses(userCourses);
-
-                const programResponse = await ApiSingleton.coursesApi.coursesGetProgramNames();
-                const programNames = programResponse
-                    .map(model => model.programName)
-                    .filter((name): name is string => name !== undefined);
-                setState(prev => ({...prev, programNames}));
-            } catch (e) {
-                console.error("Error loading data:", e);
-                setBaseCourses([]);
-                enqueueSnackbar(
-                    "Не удалось загрузить данные",
-                    {variant: "warning", autoHideDuration: 4000},
-                );
-            }
-        };
-
-        loadData();
-    }, []);
-
     const fetchGroups = async (program: string) => {
         if (!program) {
             setState(prev => ({...prev, groupNames: []}));
@@ -192,23 +216,56 @@ export const CreateCourse: FC = () => {
 
     if (!ApiSingleton.authService.isLecturer()) {
         return (
-            <Typography component="h1" variant="h5">
-                Страница не доступна
-            </Typography>
+            <Container component="main" maxWidth="sm" sx={{mt: 4}}>
+                <Alert severity="warning" sx={{borderRadius: "12px"}}>
+                    Страница доступна только преподавателям
+                </Alert>
+            </Container>
         )
     }
 
+    const courseName = state.courseName.trim()
+
     return baseCourses ? (
-        <Container component="main" maxWidth="sm">
-            <Box sx={pageSx}>
-                <Typography component="h1" sx={{fontSize: "1.5rem", fontWeight: 500, lineHeight: 1.25}}>
-                    Создать курс
-                </Typography>
-                <form onSubmit={handleSubmit} style={{marginTop: 24, width: "100%"}}>
-                    <Stepper alternativeLabel activeStep={activeStep}>
+        <Container component="main" maxWidth="sm" sx={{mt: {xs: 2, sm: 3}, mb: 6}}>
+            {/* Шапка: пока название не введено — иконка, дальше показываем будущую плитку курса */}
+            <Paper variant={"outlined"} sx={{...panelSx, p: {xs: 2, sm: 2.5}, mb: 2}}>
+                <Box sx={{display: "flex", alignItems: "center", gap: 2}}>
+                    {courseName
+                        ? <CourseTile
+                            name={courseName}
+                            size={52}
+                            fontSize={"1.15rem"}
+                            borderRadius={"14px"}
+                        />
+                        : <Box sx={iconBadgeSx}>
+                            <AddCircleOutlineIcon sx={{fontSize: 26}}/>
+                        </Box>}
+                    <Box sx={{minWidth: 0}}>
+                        <Typography variant={"caption"} sx={{color: "text.secondary"}}>
+                            Новый курс
+                        </Typography>
+                        <Typography
+                            component={"h1"}
+                            sx={{
+                                fontSize: "1.5rem",
+                                fontWeight: 500,
+                                lineHeight: 1.25,
+                                m: 0,
+                                wordBreak: "break-word",
+                            }}
+                        >
+                            {courseName || "Создать курс"}
+                        </Typography>
+                    </Box>
+                </Box>
+            </Paper>
+            <Paper variant={"outlined"} sx={panelSx}>
+                <Box sx={stepperBarSx}>
+                    <Stepper alternativeLabel activeStep={activeStep} sx={stepperSx}>
                         {stepLabels.map((label, step) => {
                             const optionalLabel = stepIsOptional(step) ? (
-                                <Typography variant="caption">
+                                <Typography variant="caption" sx={{color: "text.secondary"}}>
                                     Необязательно
                                 </Typography>
                             ) : undefined
@@ -217,18 +274,20 @@ export const CreateCourse: FC = () => {
                                     key={step}
                                     completed={stepIsCompleted(step)}
                                     disabled={stepIsDisabled(step)}
-                                    style={{textAlign: "center"}}
                                 >
                                     <StepButton optional={optionalLabel} onClick={() => goToStep(step)}>
-                                        <StepLabel>{label}</StepLabel>
+                                        {label}
                                     </StepButton>
                                 </Step>
                             )
                         })}
                     </Stepper>
+                </Box>
+                <Divider/>
+                <Box component={"form"} onSubmit={handleSubmit} sx={{p: {xs: 2, sm: 2.5}}}>
                     {handleStep(activeStep)}
-                </form>
-            </Box>
+                </Box>
+            </Paper>
         </Container>
     ) : (
         <div className="container">

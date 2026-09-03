@@ -1,12 +1,53 @@
 import React, {FC, ChangeEvent} from "react"
 import {
-    Grid,
+    Alert,
+    Autocomplete,
+    Box,
+    Button,
+    Checkbox,
+    Chip,
+    FormControlLabel,
+    Stack,
     TextField,
-    Button, Typography,
+    Typography,
 } from "@mui/material";
 import {LoadingButton} from "@mui/lab";
 import {IStepComponentProps} from "./ICreateCourseState";
-import {Alert, Autocomplete, Checkbox, FormControlLabel, Chip} from "@mui/material";
+
+const inputSx = {
+    "& .MuiOutlinedInput-root": {borderRadius: "10px"},
+}
+
+const actionButtonSx = {
+    textTransform: "none",
+    borderRadius: "10px",
+    fontWeight: 500,
+    px: 2,
+}
+
+// Подсказка прикреплена прямо под полем, поэтому без верхнего отступа
+// и без лишней высоты стандартного Alert
+const hintAlertSx = {
+    mt: 0.25,
+    py: 0,
+    borderRadius: "10px",
+    alignItems: "center",
+    "& .MuiAlert-icon": {py: 0.75, mr: 1},
+    "& .MuiAlert-message": {py: 0.75, fontSize: "0.8125rem"},
+}
+
+const optionRowSx = {
+    px: 1.5,
+    py: 1,
+    border: "1px solid #e0e3e7",
+    borderRadius: "12px",
+}
+
+const groupChipSx = {
+    height: 26,
+    borderRadius: "999px",
+    "& .MuiChip-label": {px: 1, fontSize: "0.8125rem", fontWeight: 500},
+}
 
 const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
     const handleCourseNameChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -39,21 +80,30 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
 
     const isGroupFromList = (group: string) => state.groupNames.includes(group);
 
+    // Пока программа не выбрана из списка, группы и студентов из базы университета подтянуть нельзя
+    const showProgramHint = !state.programNames.includes(state.programName)
+    const canGoBack = !!state.baseCourses?.length
+
     return (
-        <Grid container spacing={2}>
-            <Grid item xs={12}>
-                <TextField
-                    required
-                    label="Название курса"
-                    variant="outlined"
-                    fullWidth
-                    value={state.courseName}
-                    onChange={handleCourseNameChange}
-                />
-            </Grid>
-            <Grid item xs={12}>
+        <Stack spacing={2}>
+            <TextField
+                required
+                fullWidth
+                size={"small"}
+                label="Название курса"
+                variant="outlined"
+                sx={inputSx}
+                value={state.courseName}
+                onChange={handleCourseNameChange}
+            />
+            {/* Подсказка прижата к полю программы, поэтому блок отделяем от следующего поля
+                своим нижним отступом: верхний Stack задаёт margin-top детям и перебил бы mt */}
+            <Box sx={{mb: 1}}>
                 <Autocomplete
                     freeSolo
+                    fullWidth
+                    size={"small"}
+                    sx={inputSx}
                     value={state.programName}
                     onChange={(_, newValue) => {
                         setState(prev => ({
@@ -71,48 +121,52 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                             fullWidth
                         />
                     )}
-                    fullWidth
                 />
-                <Alert severity={"info"}>Выберите программу из списка, чтобы иметь возможность выбрать группу и
-                    студентов из базы студентов университета</Alert>
-            </Grid>
-
-            <Grid item xs={12}>
-                <Autocomplete
-                    multiple
-                    freeSolo
-                    value={state.selectedGroups}
-                    onChange={handleGroupSelection}
-                    options={state.programName ? state.groupNames : []}
-                    loading={state.fetchingGroups}
-                    renderInput={(params) => (
-                        <TextField
-                            {...params}
-                            label="Название группы (групп)"
-                            variant="outlined"
-                            fullWidth
-                            helperText={"После ввода нажмите Enter"}
-                            placeholder={state.programName 
-                                ? "Выберите или введите название группы или нескольких групп" 
-                                : "Введите название группы или нескольких групп"}
+                {showProgramHint &&
+                    <Alert severity={"info"} sx={hintAlertSx}>
+                        Выберите программу из списка, чтобы добавить группы и студентов из базы университета
+                    </Alert>}
+            </Box>
+            <Autocomplete
+                multiple
+                freeSolo
+                fullWidth
+                size={"small"}
+                sx={inputSx}
+                value={state.selectedGroups}
+                onChange={handleGroupSelection}
+                options={state.programName ? state.groupNames : []}
+                loading={state.fetchingGroups}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        label="Название группы (групп)"
+                        variant="outlined"
+                        fullWidth
+                        helperText={"После ввода нажмите Enter"}
+                        placeholder={state.programName
+                            ? "Выберите или введите название группы или нескольких групп"
+                            : "Введите название группы или нескольких групп"}
+                    />
+                )}
+                renderTags={(value, getTagProps) =>
+                    value.map((option, index) => (
+                        <Chip
+                            {...getTagProps({index})}
+                            key={option}
+                            label={option}
+                            size={"small"}
+                            // введённые руками группы остаются серыми, из базы — индиго
+                            color={isGroupFromList(option) ? "primary" : "default"}
+                            sx={groupChipSx}
                         />
-                    )}
-                    renderTags={(value, getTagProps) =>
-                        value.map((option, index) => (
-                            <Chip
-                                label={option}
-                                {...getTagProps({ index })}
-                                color={isGroupFromList(option) ? "primary" : "default"}
-                            />
-                        ))
-                    }
-                    fullWidth
-                />
-            </Grid>
-
-            {state.isGroupFromList && (
-                <Grid item xs={12}>
+                    ))
+                }
+            />
+            {state.isGroupFromList &&
+                <Box sx={optionRowSx}>
                     <FormControlLabel
+                        sx={{m: 0}}
                         control={
                             <Checkbox
                                 checked={state.fetchStudents}
@@ -124,33 +178,36 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                         }
                         label="Добавить студентов из выбранных групп"
                     />
-                </Grid>
-            )}
-            <Grid item xs={12} style={{marginTop: 8, display: "flex", justifyContent: "space-between"}}>
-                <Button
-                    variant="text"
-                    size="large"
-                    hidden={!state.baseCourses?.length}
-                    onClick={handleBack}
-                >
-                    Назад
-                </Button>
+                    <Typography variant={"caption"} sx={{display: "block", pl: 4, color: "text.secondary"}}>
+                        Студенты подтянутся из базы университета — записываться на курс им не придётся
+                    </Typography>
+                </Box>}
+            <Stack
+                direction={"row"}
+                alignItems={"center"}
+                justifyContent={"flex-end"}
+                spacing={1}
+                sx={{pt: 0.5}}
+            >
+                {/* Кнопку скрываем условием, а не атрибутом hidden:
+                    MUI задаёт кнопке display: inline-flex, и hidden на неё не действует */}
+                {canGoBack &&
+                    <Button variant="text" onClick={handleBack} sx={{...actionButtonSx, mr: "auto"}}>
+                        Назад
+                    </Button>}
                 <LoadingButton
                     type="submit"
-                    variant="text"
-                    size="large"
-                    sx={{
-                        marginLeft: "auto",
-                        color: "#3f51b5",
-                        ":hover": {background: "#f7f8fc"},
-                    }}
+                    variant="contained"
+                    color="primary"
+                    disableElevation
+                    sx={actionButtonSx}
                     disabled={!state.courseName || state.selectedGroups.length === 0}
                     loading={state.courseIsLoading}
                 >
                     Создать курс
                 </LoadingButton>
-            </Grid>
-        </Grid>
+            </Stack>
+        </Stack>
     )
 }
 
