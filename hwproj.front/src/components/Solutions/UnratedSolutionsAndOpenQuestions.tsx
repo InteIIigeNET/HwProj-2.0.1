@@ -10,14 +10,15 @@ import {
     ListItemButton,
     Paper
 } from "@mui/material";
-import {EditOutlined, HelpOutline} from "@mui/icons-material";
+import {EditOutlined, FactCheckOutlined, HelpOutline} from "@mui/icons-material";
 import {UserInitialsAvatar} from "@/components/Common/UserInitialsAvatar";
-import {FC, ReactNode, useEffect, useState} from "react";
+import {FC, Fragment, ReactNode, useEffect, useState} from "react";
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
 import TextField from "@mui/material/TextField";
 import ApiSingleton from "@/api/ApiSingleton";
 import {TestTip} from "@/components/Common/HomeworkTags";
+import {PanelConnector} from "@/components/Common/PanelConnector";
 
 interface IUnratedSolutionsProps {
     unratedSolutionsPreviews: UnratedSolutionPreviews
@@ -39,9 +40,32 @@ const taskPlurals = ["задача содержит", "задачи содерж
 
 type FilterTitleName = "coursesFilter" | "homeworksFilter" | "tasksFilter" | "studentsFilter"
 
+const panelBorderColor = "#c4cad2"
+const sectionBorderColor = "#a8b0d8"
+const sectionHeaderColor = "#3f51b5"
+const sectionHeaderBackground = "#f3f4fb"
+const emptyStateBorderColor = "#d7dbe0"
+
+// Фильтры стоят в шапке карточки и должны читаться как её продолжение, а не как поля ввода поверх неё:
+// рамок нет вообще, подчёркивание проступает под курсором, а у выбранного фильтра остаётся видимым —
+// так сразу понятно, какими срезами сузили список, и в карточке не появляется второго контура
+const filterSx = (active: boolean) => ({
+    "& .MuiInputLabel-root": {
+        color: "#7d86b8",
+        "&.Mui-focused": {color: sectionHeaderColor},
+    },
+    "& .MuiInput-root": {
+        color: "#212529",
+        "& .MuiInput-input": {fontSize: "0.875rem"},
+        "&:before": {borderBottomColor: active ? sectionHeaderColor : "transparent"},
+        "&:hover:not(.Mui-disabled, .Mui-error):before": {borderBottomColor: sectionBorderColor},
+        "& .MuiSvgIcon-root": {color: "#8a93bd"},
+    },
+})
+
 const panelSx = {
     borderRadius: "14px",
-    borderColor: "#c4cad2",
+    borderColor: panelBorderColor,
     overflow: "hidden",
 }
 
@@ -56,21 +80,26 @@ const rowSx = {
     "&:hover, &:focus": {color: "#212529", textDecoration: "none"},
 }
 
-const SectionPanel: FC<{ icon: ReactNode, title: string, children: ReactNode }> = ({icon, title, children}) => (
-    <Paper variant={"outlined"} sx={{...panelSx, borderColor: "#a8b0d8"}}>
-        <Stack
-            direction={"row"}
-            alignItems={"center"}
-            spacing={1}
-            sx={{px: 2, py: 1.25, color: "#3f51b5", backgroundColor: "#f3f4fb"}}
-        >
-            {icon}
-            <Typography variant={"body2"} sx={{fontWeight: 500}}>{title}</Typography>
-        </Stack>
-        <Divider/>
-        {children}
-    </Paper>
-)
+/**
+ * Карточка раздела: заголовок с иконкой, справа необязательное действие, ниже содержимое.
+ * `toolbar` — продолжение заголовка на той же подложке (например, фильтры). Когда он есть,
+ * границей содержимого работает край подложки, и разделитель уже не нужен.
+ */
+const SectionPanel: FC<{ icon: ReactNode, title: string, action?: ReactNode, toolbar?: ReactNode, children: ReactNode }> =
+    ({icon, title, action, toolbar, children}) => (
+        <Paper variant={"outlined"} sx={{...panelSx, borderColor: sectionBorderColor}}>
+            <Box sx={{color: sectionHeaderColor, backgroundColor: sectionHeaderBackground}}>
+                <Stack direction={"row"} alignItems={"center"} spacing={1} sx={{px: 2, py: 1.25}}>
+                    {icon}
+                    <Typography variant={"body2"} sx={{fontWeight: 500, flexGrow: 1, minWidth: 0}}>{title}</Typography>
+                    {action}
+                </Stack>
+                {toolbar}
+            </Box>
+            {toolbar ? null : <Divider/>}
+            {children}
+        </Paper>
+    )
 
 const SolutionRow: FC<{ solution: SolutionPreviewView }> = ({solution}) => {
     const student = solution.student!
@@ -126,14 +155,13 @@ const SolutionRow: FC<{ solution: SolutionPreviewView }> = ({solution}) => {
     )
 }
 
-const EmptyState: FC<{ text: string }> = ({text}) => (
+const EmptyState: FC<{ text: string, inset?: boolean }> = ({text, inset}) => (
     <Box
         sx={{
-            py: 6,
+            py: inset ? 5 : 6,
             textAlign: "center",
-            border: "1px dashed #d7dbe0",
-            borderRadius: "14px",
             color: "text.secondary",
+            ...(inset ? {} : {border: `1px dashed ${emptyStateBorderColor}`, borderRadius: "14px"}),
         }}
     >
         <Typography variant={"body1"}>{text}</Typography>
@@ -256,17 +284,29 @@ const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => 
             fullWidth
             size={"small"}
             options={options}
-            defaultValue={""}
             value={value}
-            renderInput={params => <TextField {...params} fullWidth label={name}/>}
+            sx={filterSx(value !== "")}
+            renderInput={params => <TextField
+                {...params}
+                fullWidth
+                variant={"standard"}
+                label={name}
+                placeholder={"Все"}
+                InputLabelProps={{shrink: true}}
+            />}
             key={name}
             onChange={(_, newValue) => handleFilterChange(filterName, newValue || "")}
         />)
     }
 
-    const renderFilter = () => {
-        return <Paper variant={"outlined"} sx={{...panelSx, p: 2, mb: 2}}>
-            <Grid container spacing={1.5}>
+    // Сколько решений ждёт проверки, а под фильтром — сколько из них осталось видно
+    const unratedTitle = filteredUnratedSolutions.length < unratedSolutions.length
+        ? `${filteredUnratedSolutions.length} из ${unratedSolutions.length} ${Utils.pluralizeHelper(solutionPlurals, unratedSolutions.length)} по фильтру`
+        : `${unratedSolutions.length} ${Utils.pluralizeHelper(solutionPlurals, unratedSolutions.length)} на проверке`
+
+    const renderFilters = () => (
+        <Box sx={{px: 2, pb: 1.5}}>
+            <Grid container columnSpacing={2.5} rowSpacing={0.5}>
                 <Grid item xs={12} sm={6} lg={3}>
                     {renderSelect("Курс", "coursesFilter", filtersState.coursesFilter, filtersState.courses)}
                 </Grid>
@@ -280,31 +320,23 @@ const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => 
                     {renderSelect("Студент", "studentsFilter", filtersState.studentsFilter, filtersState.students)}
                 </Grid>
             </Grid>
-            <Stack
-                direction={"row"}
-                alignItems={"center"}
-                justifyContent={"space-between"}
-                spacing={1}
-                flexWrap={"wrap"}
-                sx={{mt: 1.5, rowGap: 1}}
-            >
-                {filteredUnratedSolutions.length < unratedSolutions.length &&
-                    <Typography variant={"caption"} sx={{color: "text.secondary"}}>
-                        {`${filteredUnratedSolutions.length} ${Utils.pluralizeHelper(solutionPlurals, filteredUnratedSolutions.length)} найдено по заданному фильтру`}
-                    </Typography>}
-                {randomSolution &&
-                    <NavLink
-                        // прижимаем ссылку вправо, даже когда счётчика слева нет
-                        style={{color: "#1976d2", marginLeft: "auto"}}
-                        to={`/task/${randomSolution.taskId}/${randomSolution.student!.userId}`}
-                    >
-                        <Typography variant={"caption"}>
-                            проверить случайное решение
-                        </Typography>
-                    </NavLink>}
-            </Stack>
-        </Paper>
-    }
+        </Box>
+    )
+
+    const renderRandomSolutionLink = () => randomSolution &&
+        <Typography
+            component={NavLink}
+            to={`/task/${randomSolution.taskId}/${randomSolution.student!.userId}`}
+            variant={"caption"}
+            sx={{
+                flexShrink: 0,
+                color: sectionHeaderColor,
+                textDecoration: "underline",
+                "&:hover, &:focus": {color: "#303f9f", textDecoration: "underline"},
+            }}
+        >
+            проверить случайное решение
+        </Typography>
 
     const renderSolutions = (solutions: SolutionPreviewView[]) => (
         <Stack divider={<Divider/>}>
@@ -312,49 +344,72 @@ const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => 
         </Stack>
     )
 
+    // Вопросы, незаконченные проверки, фильтры и список решений — одна ветка работы преподавателя,
+    // поэтому карточки соединяем перемычками; зазор между ними задаёт сама перемычка
+    const panels: { key: string, color: string, node: ReactNode }[] = []
+
+    if (openQuestions.length > 0) panels.push({
+        key: "questions",
+        color: sectionBorderColor,
+        node: <SectionPanel
+            icon={<HelpOutline fontSize={"small"}/>}
+            title={`${openQuestions.length} ${Utils.pluralizeHelper(taskPlurals, openQuestions.length)} вопросы от студентов`}
+        >
+            <Stack divider={<Divider/>}>
+                {openQuestions.sort((a, b) => b.count! - a.count!).map((taskQuestions, i) => (
+                    <ListItemButton
+                        key={"question" + i}
+                        component={NavLink}
+                        to={`/task/${taskQuestions.taskId}/undefined`}
+                        sx={{...rowSx, alignItems: "center"}}
+                    >
+                        <Typography sx={{flexGrow: 1, minWidth: 0}}>
+                            {taskQuestions.taskTitle}
+                        </Typography>
+                        <Chip label={taskQuestions.count} size={"small"} color={"primary"}
+                              sx={{flexShrink: 0}}/>
+                    </ListItemButton>
+                ))}
+            </Stack>
+        </SectionPanel>
+    })
+
+    if (semiRatedSolutions.length > 0) panels.push({
+        key: "semiRated",
+        color: sectionBorderColor,
+        node: <SectionPanel
+            icon={<EditOutlined fontSize={"small"}/>}
+            title={`${semiRatedSolutions.length} ${Utils.pluralizeHelper(solutionPlurals, semiRatedSolutions.length)} с незаконченной проверкой`}
+        >
+            {renderSolutions(semiRatedSolutions)}
+        </SectionPanel>
+    })
+
+    panels.push(unratedSolutions.length === 0
+        ? {key: "allRated", color: emptyStateBorderColor, node: <EmptyState text={"Все решения проверены."}/>}
+        : {
+            key: "unrated",
+            color: sectionBorderColor,
+            node: <SectionPanel
+                icon={<FactCheckOutlined fontSize={"small"}/>}
+                title={unratedTitle}
+                action={renderRandomSolutionLink()}
+                toolbar={renderFilters()}
+            >
+                {filteredUnratedSolutions.length === 0
+                    ? <EmptyState inset text={"По заданному фильтру ничего не найдено."}/>
+                    : renderSolutions(filteredUnratedSolutions)}
+            </SectionPanel>
+        })
+
     return (
-        <Stack spacing={2.5}>
-            {openQuestions.length > 0 &&
-                <SectionPanel
-                    icon={<HelpOutline fontSize={"small"}/>}
-                    title={`${openQuestions.length} ${Utils.pluralizeHelper(taskPlurals, openQuestions.length)} вопросы от студентов`}
-                >
-                    <Stack divider={<Divider/>}>
-                        {openQuestions.sort((a, b) => b.count! - a.count!).map((taskQuestions, i) => (
-                            <ListItemButton
-                                key={"question" + i}
-                                component={NavLink}
-                                to={`/task/${taskQuestions.taskId}/undefined`}
-                                sx={{...rowSx, alignItems: "center"}}
-                            >
-                                <Typography sx={{flexGrow: 1, minWidth: 0}}>
-                                    {taskQuestions.taskTitle}
-                                </Typography>
-                                <Chip label={taskQuestions.count} size={"small"} color={"primary"}
-                                      sx={{flexShrink: 0}}/>
-                            </ListItemButton>
-                        ))}
-                    </Stack>
-                </SectionPanel>
-            }
-            {semiRatedSolutions.length > 0 &&
-                <SectionPanel
-                    icon={<EditOutlined fontSize={"small"}/>}
-                    title={`${semiRatedSolutions.length} ${Utils.pluralizeHelper(solutionPlurals, semiRatedSolutions.length)} с незаконченной проверкой`}
-                >
-                    {renderSolutions(semiRatedSolutions)}
-                </SectionPanel>
-            }
-            <Box>
-                {unratedSolutions.length > 0 && renderFilter()}
-                {unratedSolutions.length === 0
-                    ? <EmptyState text={"Все решения проверены."}/>
-                    : filteredUnratedSolutions.length === 0
-                        ? <EmptyState text={"По заданному фильтру ничего не найдено."}/>
-                        : <Paper variant={"outlined"} sx={panelSx}>
-                            {renderSolutions(filteredUnratedSolutions)}
-                        </Paper>}
-            </Box>
+        <Stack>
+            {panels.map(({key, color, node}, i) => (
+                <Fragment key={key}>
+                    {i > 0 && <PanelConnector from={panels[i - 1].color} to={color}/>}
+                    {node}
+                </Fragment>
+            ))}
         </Stack>
     )
 }
