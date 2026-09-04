@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Unicode;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Lti.Configuration;
@@ -50,6 +52,11 @@ public class LtiDeepLinkingReturnController(
             return Unauthorized($"Unknown tool clientId: {clientId}");
         }
 
+        if (string.IsNullOrWhiteSpace(tool.LaunchUrl))
+        {
+            return BadRequest("Tool launch URL is not configured");
+        }
+
         var signingKeys = await ltiKeyService.GetKeysAsync(tool.JwksEndpoint);
         JwtSecurityToken validatedToken;
 
@@ -86,26 +93,36 @@ public class LtiDeepLinkingReturnController(
             return Content("<script>window.close();</script>", "text/html");
         }
 
-        string jsonPayload;
         var options = new JsonSerializerOptions
         {
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
         };
 
-        if (itemsClaims.Count == 1)
+        var contentItems = new List<JsonNode?>();
+        try
         {
-            var singleParsed = JsonSerializer.Deserialize<JsonElement>(itemsClaims[0]);
+            foreach (var itemsClaim in itemsClaims)
+            {
+                var parsedClaim = JsonNode.Parse(itemsClaim);
+                if (parsedClaim is JsonArray itemsArray)
+                {
+                    foreach (var item in itemsArray)
+                    {
+                        contentItems.Add(ApplyLaunchUrlFallback(item, tool.LaunchUrl));
+                    }
+                }
+                else
+                {
+                    contentItems.Add(ApplyLaunchUrlFallback(parsedClaim, tool.LaunchUrl));
+                }
+            }
+        }
+        catch (JsonException)
+        {
+            return BadRequest("Invalid content_items claim");
+        }
 
-            jsonPayload = singleParsed.ValueKind == JsonValueKind.Array ?
-                JsonSerializer.Serialize(singleParsed, options) : JsonSerializer.Serialize(new[] { singleParsed }, options);
-        }
-        else
-        {
-            var elements = itemsClaims
-                .Select(v => JsonSerializer.Deserialize<JsonElement>(v))
-                .ToList();
-            jsonPayload = JsonSerializer.Serialize(elements, options);
-        }
+        var jsonPayload = JsonSerializer.Serialize(contentItems, options);
 
         // language=html
         var htmlResponse = $@"
@@ -138,5 +155,33 @@ public class LtiDeepLinkingReturnController(
         </html>";
 
         return Content(htmlResponse, "text/html");
+    }
+
+    private static JsonNode? ApplyLaunchUrlFallback(JsonNode? contentItem, string launchUrl)
+    {
+        if (contentItem is not JsonObject contentItemObject)
+        {
+            return contentItem;
+        }
+
+        var isLtiResourceLink = contentItemObject["type"] is JsonValue typeValue &&
+                                typeValue.TryGetValue<string>(out var type) &&
+                                string.Equals(type, "ltiResourceLink", StringComparison.Ordinal);
+
+        if (!isLtiResourceLink)
+        {
+            return contentItemObject;
+        }
+
+        var hasLaunchUrl = contentItemObject["url"] is JsonValue urlValue &&
+                           urlValue.TryGetValue<string>(out var url) &&
+                           !string.IsNullOrWhiteSpace(url);
+
+        if (!hasLaunchUrl)
+        {
+            contentItemObject["url"] = launchUrl;
+        }
+
+        return contentItemObject;
     }
 }
