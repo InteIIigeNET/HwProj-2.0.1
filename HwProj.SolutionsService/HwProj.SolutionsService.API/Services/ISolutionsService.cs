@@ -16,6 +16,8 @@ namespace HwProj.SolutionsService.API.Services
         Task<Solution[]> GetTaskSolutionsFromGroupAsync(long taskId, long groupId);
 
         Task<long> PostOrUpdateAsync(long taskId, Solution solution, bool sendNotification = true);
+        Task<long> PostOrUpdateWithRateAsync(long taskId, Solution solution, string lecturerId, int rating,
+            string? lecturerComment, bool sendNotification = true);
         Task PostEmptySolutionWithRateAsync(long task, Solution solution);
 
         Task RateSolutionAsync(long solutionId, string lecturerId, int newRating, string lecturerComment);

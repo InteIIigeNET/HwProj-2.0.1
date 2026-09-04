@@ -70,15 +70,14 @@ namespace HwProj.SolutionsService.API.Controllers
 
         [HttpPost("{taskId}")]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> PostSolution(long taskId, [FromBody] PostSolutionModel solutionModel,
-            [FromQuery] bool sendNotification = true)
+        public async Task<IActionResult> PostSolution(long taskId, [FromBody] PostSolutionModel solutionModel)
         {
             var task = await _coursesClient.GetTask(taskId);
             if (!task.CanSendSolution)
                 return BadRequest();
 
             var solution = _mapper.Map<Solution>(solutionModel);
-            var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution, sendNotification);
+            var solutionId = await _solutionsService.PostOrUpdateAsync(taskId, solution);
 
             return Ok(solutionId);
         }
@@ -106,6 +105,43 @@ namespace HwProj.SolutionsService.API.Controllers
             }
 
             return Forbid();
+        }
+
+        [HttpPost("postSolutionWithRate/{taskId}")]
+        public async Task<IActionResult> PostSolutionWithRate(
+            long taskId,
+            [FromBody] PostSolutionModel solutionModel,
+            [FromQuery] bool sendNotification = true)
+        {
+            var task = await _coursesClient.GetTask(taskId);
+            if (!task.CanSendSolution)
+                return BadRequest();
+
+            if (!solutionModel.Rating.HasValue ||
+                solutionModel.Rating.Value < 0 ||
+                solutionModel.Rating.Value > task.MaxRating)
+            {
+                return BadRequest($"Rating must be between 0 and {task.MaxRating}.");
+            }
+
+            var rating = solutionModel.Rating.Value;
+
+            var course = await _coursesClient.GetCourseByTask(taskId);
+            var lecturerId = Request.GetUserIdFromHeader();
+
+            if (course == null || lecturerId == null || !course.MentorIds.Contains(lecturerId))
+                return Forbid();
+
+            var solution = _mapper.Map<Solution>(solutionModel);
+            var solutionId = await _solutionsService.PostOrUpdateWithRateAsync(
+                taskId,
+                solution,
+                lecturerId,
+                rating,
+                solutionModel.LecturerComment,
+                sendNotification);
+
+            return Ok(solutionId);
         }
 
         [HttpPost("rateEmptySolution/{taskId}")]

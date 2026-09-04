@@ -70,11 +70,11 @@ namespace HwProj.SolutionsService.Client
             return await response.DeserializeAsync<Solution[]>();
         }
 
-        public async Task<long> PostSolution(long taskId, PostSolutionModel model, bool sendNotification = true)
+        public async Task<long> PostSolution(long taskId, PostSolutionModel model)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Post,
-                _solutionServiceUri + $"api/Solutions/{taskId}?sendNotification={sendNotification}")
+                _solutionServiceUri + $"api/Solutions/{taskId}")
             {
                 Content = new StringContent(
                     JsonConvert.SerializeObject(model),
@@ -108,6 +108,27 @@ namespace HwProj.SolutionsService.Client
             var response = await _httpClient.SendAsync(httpRequest);
             if (!response.IsSuccessStatusCode)
                 throw new InvalidOperationException(response.ReasonPhrase);
+        }
+
+        public async Task PostSolutionWithRate(long taskId, PostSolutionModel model, bool sendNotification = true)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _solutionServiceUri +
+                $"api/Solutions/postSolutionWithRate/{taskId}?sendNotification={sendNotification}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new ForbiddenException();
+            }
         }
 
         public async Task RateSolution(long solutionId, RateSolutionModel rateSolutionModel)
