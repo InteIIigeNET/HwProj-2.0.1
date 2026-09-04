@@ -89,19 +89,15 @@ public class LtiAssignmentsGradesControllers(
 
         try
         {
-            var solutionId = await solutionsClient.PostSolution(
+            await solutionsClient.PostSolutionWithRate(
                 taskId,
                 new PostSolutionModel
                 {
-                    StudentId = score.UserId
+                    StudentId = score.UserId,
+                    Rating = (int)Math.Round(score.ScoreGiven),
+                    LecturerComment = $"Результат: {score.ScoreGiven}/{score.ScoreMaximum}\n\n" + score.Comment
                 },
-                sendNotification: false);
-
-            await solutionsClient.RateSolution(solutionId, new RateSolutionModel
-            {
-                Rating = (int)Math.Round(score.ScoreGiven),
-                LecturerComment = $"Результат: {score.ScoreGiven}/{score.ScoreMaximum}\n\n" + score.Comment
-            });
+                false);
 
             return Ok(new { message = "Score updated successfully" });
         }
