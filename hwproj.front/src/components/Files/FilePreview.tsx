@@ -19,6 +19,9 @@ interface FilePreviewProps {
     onClick?: (f: IFileInfo) => void;
     onRemove?: (f: IFileInfo) => void;
     showOkStatus?: boolean;
+    // Плоский вид для списка внутри уже очерченного блока: без рамки и подложки,
+    // строка подсвечивается только при наведении
+    flat?: boolean;
 }
 
 type FileKind = "image" | "pdf" | "document" | "archive" | "code" | "other"
@@ -53,7 +56,7 @@ interface StatusInfo {
     isError: boolean;
 }
 
-const cardSx = (isError: boolean, isClickable: boolean) => ({
+const cardSx = (isError: boolean, isClickable: boolean, isFlat: boolean) => ({
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
@@ -61,18 +64,22 @@ const cardSx = (isError: boolean, isClickable: boolean) => ({
     width: '100%',
     minWidth: 0,
     boxSizing: 'border-box',
-    px: 1.25,
+    px: isFlat ? 1 : 1.25,
     py: 1,
-    borderRadius: '12px',
+    borderRadius: isFlat ? '10px' : '12px',
     border: '1px solid',
-    borderColor: isError ? '#f0c7c7' : '#e0e3e7',
-    backgroundColor: isError ? '#fef7f7' : '#fff',
+    borderColor: isFlat ? 'transparent' : (isError ? '#f0c7c7' : '#e0e3e7'),
+    backgroundColor: isError ? '#fef7f7' : (isFlat ? 'transparent' : '#fff'),
     overflow: 'hidden',
-    transition: 'border-color .15s, box-shadow .15s',
-    '&:hover': {
-        borderColor: isError ? '#e0a9a9' : (isClickable ? '#b7bfe8' : '#c4cad2'),
-        boxShadow: '0 2px 8px rgba(31, 41, 55, 0.07)',
-    },
+    transition: 'border-color .15s, box-shadow .15s, background-color .15s',
+    // В плоском виде рамка и тень не нужны: за границы отвечает блок-родитель,
+    // а строка отзывается на наведение мягкой подложкой
+    '&:hover': isFlat
+        ? {backgroundColor: isError ? 'rgba(198, 40, 40, 0.07)' : 'rgba(63, 81, 181, 0.07)'}
+        : {
+            borderColor: isError ? '#e0a9a9' : (isClickable ? '#b7bfe8' : '#c4cad2'),
+            boxShadow: '0 2px 8px rgba(31, 41, 55, 0.07)',
+        },
     // Иконку скачивания показываем только при наведении, чтобы карточка оставалась спокойной
     '&:hover .file-preview-download': {opacity: 1},
 })
@@ -240,7 +247,7 @@ const FilePreview: React.FC<FilePreviewProps> = (props) => {
         : statusInfo.icon && <Box sx={{display: 'flex', flexShrink: 0}}>{statusInfo.icon}</Box>
 
     return (
-        <Box sx={cardSx(statusInfo.isError, isClickable)}>
+        <Box sx={cardSx(statusInfo.isError, isClickable, !!props.flat)}>
             {/* Обертка для превью/иконки */}
             <Box sx={thumbSx(kind)}>
                 {previewUrl ? (

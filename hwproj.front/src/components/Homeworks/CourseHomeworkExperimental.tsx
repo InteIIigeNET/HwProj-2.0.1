@@ -91,6 +91,15 @@ const sectionBoxSx = {
     borderRadius: "12px",
 }
 
+// Материалы задания: вместо рамки — мягкая подложка, а файлы внутри идут плоскими строками.
+// Так блок читается как часть описания, а не как ещё одна карточка внутри карточки
+const materialsBoxSx = {
+    px: 1.5,
+    py: 1.25,
+    borderRadius: "12px",
+    backgroundColor: "#f7f8fd",
+}
+
 const inputSx = {
     "& .MuiOutlinedInput-root": {borderRadius: "10px"},
 }
@@ -737,8 +746,8 @@ const CourseHomeworkExperimental: FC<{
                         Описание задания не заполнено
                     </Typography>}
                 {filesInfo.length > 0 &&
-                    <Box sx={sectionBoxSx}>
-                        <Stack direction={"row"} alignItems={"center"} spacing={1} sx={{mb: 0.5}}>
+                    <Box sx={materialsBoxSx}>
+                        <Stack direction={"row"} alignItems={"center"} spacing={1} sx={{mb: 0.25}}>
                             <Typography sx={sectionLabelSx}>Материалы</Typography>
                             {props.isProcessing &&
                                 <Stack direction={"row"} alignItems={"center"} spacing={0.75}
@@ -750,6 +759,7 @@ const CourseHomeworkExperimental: FC<{
                                 </Stack>}
                         </Stack>
                         <FilesPreviewList
+                            flat
                             showOkStatus={props.isMentor}
                             filesInfo={filesInfo}
                             onClickFileInfo={async (fileInfo: IFileInfo) => {
