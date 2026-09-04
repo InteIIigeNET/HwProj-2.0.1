@@ -743,7 +743,15 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Alert>
     </Stack>
 
-    return <Stack direction={{xs: "column", md: "row"}} spacing={1} alignItems={"flex-start"}>
+    // useFlexGap обязателен: колонки меняются местами через order, а по умолчанию Stack раздаёт
+    // отступы margin'ом соседним по разметке детям — на мобильных зазор оказывался не между
+    // колонками, а над верхней из них
+    return <Stack
+        direction={{xs: "column", md: "row"}}
+        spacing={{xs: 1.5, md: 1}}
+        useFlexGap
+        alignItems={"flex-start"}
+    >
         <Box sx={{...columnSx(4), order: {xs: 2, md: 1}}}>
             <Paper variant={"outlined"} sx={listPanelSx}>
                 <Stack direction={"row"} alignItems={"center"} spacing={1} sx={listHeaderSx}>

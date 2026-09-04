@@ -69,18 +69,68 @@ const rowSx = {
     "&:hover": {backgroundColor: "rgba(63, 81, 181, 0.04)"},
 }
 
+// Геометрия у всех кнопок панели общая: одинаковая форма, вес и ширина читаются как один набор
 const actionButtonSx = {
     borderRadius: "10px",
     textTransform: "none",
+    fontSize: "0.8125rem",
     fontWeight: 500,
     flexShrink: 0,
     // на узких экранах у кнопок остаётся только иконка, чтобы строка не разъезжалась
-    minWidth: {xs: 36, sm: "auto"},
+    minWidth: {xs: 36, sm: 112},
     px: {xs: 1, sm: 1.5},
+    transition: "background-color .15s, border-color .15s, color .15s",
     "& .MuiButton-startIcon": {mr: {xs: 0, sm: 0.75}, ml: 0},
 }
 
+const disabledButtonSx = {color: "#aeb4c2", backgroundColor: "#f4f5f7", border: "1px solid #e6e8ec"}
+
+// Заявки чаще принимают, чем отклоняют, поэтому «Принять» тонирована акцентом панели,
+// а «Отклонить» остаётся нейтральной и краснеет только под курсором: решение видно,
+// но кнопки не спорят за внимание с содержимым строки
+const acceptButtonSx = {
+    ...actionButtonSx,
+    color: "#3f51b5",
+    backgroundColor: "#eef0fa",
+    border: "1px solid rgba(63, 81, 181, 0.16)",
+    "&:hover": {backgroundColor: "#e2e6f7", borderColor: "rgba(63, 81, 181, 0.32)"},
+    "&.Mui-disabled": disabledButtonSx,
+}
+
+const rejectButtonSx = {
+    ...actionButtonSx,
+    color: "#6b7280",
+    backgroundColor: "#f4f5f7",
+    border: "1px solid #e2e5ea",
+    "&:hover": {color: "#c62828", backgroundColor: "#fdecec", borderColor: "#f3c9c9"},
+    "&.Mui-disabled": disabledButtonSx,
+}
+
+// Пока запрос в полёте, кнопки заблокированы, но нажатая сохраняет свой цвет и показывает
+// спиннер на месте иконки — так видно, что именно происходит со строкой, и она не меняет ширину
+const acceptButtonPendingSx = {
+    ...acceptButtonSx,
+    "&.Mui-disabled": {color: "#3f51b5", backgroundColor: "#eef0fa", border: "1px solid rgba(63, 81, 181, 0.16)"},
+}
+
+const rejectButtonPendingSx = {
+    ...rejectButtonSx,
+    "&.Mui-disabled": {color: "#c62828", backgroundColor: "#fdecec", border: "1px solid #f3c9c9"},
+}
+
+// В шапке форма та же, но кнопка светлая: тонировка акцентом слилась бы с её заливкой
+const headerButtonSx = {
+    ...actionButtonSx,
+    color: "#3f51b5",
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    border: "1px solid rgba(63, 81, 181, 0.16)",
+    "&:hover": {backgroundColor: "#fff", borderColor: "rgba(63, 81, 181, 0.32)"},
+    "&.Mui-disabled": {...disabledButtonSx, backgroundColor: "rgba(255, 255, 255, 0.5)"},
+}
+
 const actionLabelSx = {display: {xs: "none", sm: "inline"}}
+
+type PendingAction = "accept" | "reject"
 
 // Поиск нужен, только когда заявок много: на двух-трёх строках он лишний
 const searchThreshold = 5
@@ -88,7 +138,7 @@ const searchThreshold = 5
 const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
     const {students} = props
 
-    const [pendingIds, setPendingIds] = useState<string[]>([])
+    const [pendingActions, setPendingActions] = useState<Record<string, PendingAction>>({})
     const [searchQuery, setSearchQuery] = useState("")
     const [isAcceptAllOpen, setIsAcceptAllOpen] = useState(false)
 
@@ -101,23 +151,30 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
                 .includes(query))
     }, [students, searchQuery])
 
-    // Пока запрос в полёте, показываем спиннер вместо кнопок и не даём нажать что-то ещё
-    const withPending = async (studentIds: string[], action: (studentId: string) => Promise<Response>) => {
-        setPendingIds(prevState => [...prevState, ...studentIds])
+    // Пока запрос в полёте, не даём нажать что-то ещё
+    const withPending = async (
+        studentIds: string[],
+        action: PendingAction,
+        request: (studentId: string) => Promise<Response>) => {
+        setPendingActions(prevState =>
+            ({...prevState, ...Object.fromEntries(studentIds.map(id => [id, action]))}))
         try {
             for (const studentId of studentIds)
-                await action(studentId)
+                await request(studentId)
             props.onUpdate()
         } finally {
-            setPendingIds(prevState => prevState.filter(id => !studentIds.includes(id)))
+            setPendingActions(prevState =>
+                Object.fromEntries(Object.entries(prevState).filter(([id]) => !studentIds.includes(id))))
         }
     }
 
     const acceptStudents = (studentIds: string[]) =>
-        withPending(studentIds, studentId => ApiSingleton.coursesApi.coursesAcceptStudent(props.course.id!, studentId))
+        withPending(studentIds, "accept",
+            studentId => ApiSingleton.coursesApi.coursesAcceptStudent(props.course.id!, studentId))
 
     const rejectStudent = (studentId: string) =>
-        withPending([studentId], id => ApiSingleton.coursesApi.coursesRejectStudent(props.course.id!, id))
+        withPending([studentId], "reject",
+            id => ApiSingleton.coursesApi.coursesRejectStudent(props.course.id!, id))
 
     const acceptAll = async () => {
         setIsAcceptAllOpen(false)
@@ -135,7 +192,7 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
         )
     }
 
-    const isBusy = pendingIds.length > 0
+    const isBusy = Object.keys(pendingActions).length > 0
     const isSearching = searchQuery.trim() !== ""
 
     return (
@@ -152,7 +209,7 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
                             startIcon={<DoneAllIcon fontSize={"small"}/>}
                             onClick={() => setIsAcceptAllOpen(true)}
                             disabled={isBusy}
-                            sx={{...actionButtonSx, color: "#3f51b5"}}
+                            sx={headerButtonSx}
                         >
                             <Box component={"span"} sx={actionLabelSx}>
                                 {isSearching ? "Принять найденных" : "Принять всех"}
@@ -187,7 +244,7 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
                     </Typography>
                     : <Stack divider={<Divider/>}>
                         {filteredStudents.map(student => {
-                            const isPending = pendingIds.includes(student.userId!)
+                            const pendingAction = pendingActions[student.userId!]
                             return (
                                 <Stack key={student.userId} direction={"row"} spacing={1.5} sx={rowSx}>
                                     <UserInitialsAvatar user={student} size={38}/>
@@ -210,32 +267,30 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
                                                 {student.email}
                                             </Link>}
                                     </Box>
-                                    {isPending
-                                        ? <CircularProgress size={20} sx={{flexShrink: 0, mx: 1.5}}/>
-                                        : <Stack direction={"row"} spacing={1} sx={{flexShrink: 0}}>
-                                            <Button
-                                                size={"small"}
-                                                variant={"contained"}
-                                                disableElevation
-                                                startIcon={<CheckIcon fontSize={"small"}/>}
-                                                onClick={() => acceptStudents([student.userId!])}
-                                                disabled={isBusy}
-                                                sx={actionButtonSx}
-                                            >
-                                                <Box component={"span"} sx={actionLabelSx}>Принять</Box>
-                                            </Button>
-                                            <Button
-                                                size={"small"}
-                                                variant={"outlined"}
-                                                color={"error"}
-                                                startIcon={<CloseIcon fontSize={"small"}/>}
-                                                onClick={() => rejectStudent(student.userId!)}
-                                                disabled={isBusy}
-                                                sx={actionButtonSx}
-                                            >
-                                                <Box component={"span"} sx={actionLabelSx}>Отклонить</Box>
-                                            </Button>
-                                        </Stack>}
+                                    <Stack direction={"row"} spacing={1} sx={{flexShrink: 0}}>
+                                        <Button
+                                            size={"small"}
+                                            startIcon={pendingAction === "accept"
+                                                ? <CircularProgress size={16} color={"inherit"}/>
+                                                : <CheckIcon fontSize={"small"}/>}
+                                            onClick={() => acceptStudents([student.userId!])}
+                                            disabled={isBusy}
+                                            sx={pendingAction === "accept" ? acceptButtonPendingSx : acceptButtonSx}
+                                        >
+                                            <Box component={"span"} sx={actionLabelSx}>Принять</Box>
+                                        </Button>
+                                        <Button
+                                            size={"small"}
+                                            startIcon={pendingAction === "reject"
+                                                ? <CircularProgress size={16} color={"inherit"}/>
+                                                : <CloseIcon fontSize={"small"}/>}
+                                            onClick={() => rejectStudent(student.userId!)}
+                                            disabled={isBusy}
+                                            sx={pendingAction === "reject" ? rejectButtonPendingSx : rejectButtonSx}
+                                        >
+                                            <Box component={"span"} sx={actionLabelSx}>Отклонить</Box>
+                                        </Button>
+                                    </Stack>
                                 </Stack>
                             )
                         })}

@@ -34,6 +34,10 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import ChecklistRoundedIcon from "@mui/icons-material/ChecklistRounded";
 import ScheduleIcon from "@mui/icons-material/Schedule";
+import AlarmRoundedIcon from "@mui/icons-material/AlarmRounded";
+import LockClockRoundedIcon from "@mui/icons-material/LockClockRounded";
+import AllInclusiveRoundedIcon from "@mui/icons-material/AllInclusiveRounded";
+import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import GroupIcon from "@mui/icons-material/Group";
 import AddIcon from "@mui/icons-material/Add";
@@ -132,6 +136,27 @@ const countChipSx = {
     backgroundColor: "#eef0f5",
     color: "text.secondary",
     "& .MuiChip-label": {px: 0.75, fontSize: "0.75rem", fontWeight: 500},
+}
+
+const deadlineChipSx = {
+    height: 24,
+    maxWidth: "100%",
+    "& .MuiChip-label": {px: 0.875, fontSize: "0.8125rem", fontWeight: 500},
+    "& .MuiChip-icon": {ml: 0.75, mr: -0.25, fontSize: 16, color: "inherit"},
+}
+
+// Цвет пилюли дедлайна — это шкала: спокойный серый, пока время есть, тёплый за три дня,
+// красный в последние сутки и приглушённый, когда строгий срок уже закрыт
+const deadlineTones = {
+    calm: {backgroundColor: "#eef0f5", color: "text.secondary"},
+    soon: {backgroundColor: "#fff4e5", color: "#a35b00"},
+    urgent: {
+        backgroundColor: "#fdecec",
+        color: "#c62828",
+        fontWeight: 600,
+        boxShadow: "inset 0 0 0 1px rgba(198, 40, 40, 0.18)",
+    },
+    closed: {backgroundColor: "#f4eeee", color: "#96595a"},
 }
 
 const autoChipSx = {
@@ -790,6 +815,76 @@ const CourseTaskEditor: FC<{
     )
 }
 
+const day = 24 * 60 * 60 * 1000
+
+// Главный вопрос студента к задаче — сколько осталось времени, поэтому в шапке не только дата,
+// но и остаток срока, а строгость дедлайна видна по иконке: у закрытого срока замок
+const TaskDeadline: FC<{task: HomeworkTaskViewModel, isMentor: boolean}> = ({task, isMentor}) => {
+    const hasDeadline = task.hasDeadline ?? false
+    const isDeadlineSet = hasDeadline && !task.deadlineDateNotSet && task.deadlineDate != null
+
+    // Незаполненный срок — забота преподавателя: студенту такая пилюля ничего не даёт
+    if (hasDeadline && !isDeadlineSet) return isMentor
+        ? <Tooltip arrow title={"Задача ждёт даты: без неё срок сдачи не показывается студентам"}>
+            <Chip
+                size={"small"}
+                icon={<WarningAmberRoundedIcon/>}
+                label={"Дедлайн не выставлен"}
+                sx={{...deadlineChipSx, ...deadlineTones.soon}}/>
+        </Tooltip>
+        : null
+
+    if (!isDeadlineSet) return (
+        <Tooltip arrow title={"Решения принимаются без ограничения по сроку"}>
+            <Chip
+                size={"small"}
+                icon={<AllInclusiveRoundedIcon/>}
+                label={"Без дедлайна"}
+                sx={{...deadlineChipSx, ...deadlineTones.calm}}/>
+        </Tooltip>
+    )
+
+    const deadline = new Date(task.deadlineDate!)
+    const isStrict = task.isDeadlineStrict ?? false
+    const remaining = deadline.getTime() - Date.now()
+    const isPassed = remaining <= 0
+    const isSoon = !isPassed && remaining <= 3 * day
+    const isUrgent = !isPassed && remaining <= day
+
+    const tone = isPassed
+        ? isStrict ? deadlineTones.closed : deadlineTones.calm
+        : isUrgent ? deadlineTones.urgent
+            : isSoon ? deadlineTones.soon
+                : deadlineTones.calm
+
+    const icon = isPassed
+        ? isStrict ? <LockClockRoundedIcon/> : <ScheduleIcon/>
+        : isSoon ? <AlarmRoundedIcon/> : <ScheduleIcon/>
+
+    const label = isPassed
+        ? `Дедлайн истёк ${Utils.pluralizeDateTime(-remaining)} назад`
+        : isSoon
+            ? `До ${Utils.renderReadableDate(deadline)} · ещё ${Utils.pluralizeDateTime(remaining)}`
+            : `До ${Utils.renderReadableDate(deadline)}`
+
+    const strictNote = isStrict
+        ? isPassed
+            ? "Срок строгий: решения больше не принимаются"
+            : "Срок строгий: после дедлайна решения не принимаются"
+        : "Срок нестрогий: решения принимаются и после дедлайна"
+
+    return (
+        <Tooltip
+            arrow
+            title={<span style={{whiteSpace: "pre-line"}}>
+                {`${Utils.renderReadableDate(deadline)}\n${strictNote}`}
+            </span>}
+        >
+            <Chip size={"small"} icon={icon} label={label} sx={{...deadlineChipSx, ...tone}}/>
+        </Tooltip>
+    )
+}
+
 const CourseTaskExperimental: FC<{
     task: TaskEditData,
     homework: HomeworkViewModel,
@@ -849,6 +944,7 @@ const CourseTaskExperimental: FC<{
                                     label={task.maxRating}
                                     sx={accentChipSx}/>
                             </Tooltip>
+                            <TaskDeadline task={task} isMentor={props.isMentor}/>
                             {task.isGroupWork &&
                                 <Chip
                                     size={"small"}

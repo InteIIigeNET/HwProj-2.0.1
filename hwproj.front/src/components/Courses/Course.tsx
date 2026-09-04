@@ -431,8 +431,8 @@ const Course: React.FC = () => {
                                         <Typography variant={"caption"} sx={{color: "text.secondary"}}>
                                             {course.groupName}
                                         </Typography>}
-                                    <Box sx={{mt: 1, minWidth: 0, "& .MuiTypography-root": {fontSize: "0.875rem"}}}>
-                                        <MentorsList mentors={mentors}/>
+                                    <Box sx={{mt: 1, minWidth: 0}}>
+                                        <MentorsList mentors={mentors} size={30}/>
                                     </Box>
                                 </Box>
                             </Stack>

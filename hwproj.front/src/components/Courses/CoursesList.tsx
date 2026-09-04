@@ -152,8 +152,8 @@ export class CoursesList extends React.Component<ICoursesProps, {}> {
                                         spacing={1}
                                         sx={{mt: "auto", pt: 2}}
                                     >
-                                        <Box sx={{minWidth: 0, "& .MuiTypography-root": {fontSize: "0.875rem"}}}>
-                                            <MentorsList mentors={course.mentors ?? []}/>
+                                        <Box sx={{minWidth: 0}}>
+                                            <MentorsList mentors={course.mentors ?? []} size={26}/>
                                         </Box>
                                         {course.isCompleted &&
                                             <Chip
