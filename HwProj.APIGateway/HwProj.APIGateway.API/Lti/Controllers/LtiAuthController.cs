@@ -52,7 +52,10 @@ public class LtiAuthController(
             return BadRequest("Invalid or expired lti_message_hint");
         }
 
-        if (payload?.ToolName == null || payload.CourseId == null)
+        var targetLinkUri = payload?.TargetLinkUri;
+        if (payload?.ToolName == null ||
+            payload.CourseId == null ||
+            string.IsNullOrWhiteSpace(targetLinkUri))
         {
             return BadRequest("Invalid or expired lti_message_hint");
         }
@@ -99,7 +102,7 @@ public class LtiAuthController(
                 idToken = tokenService.CreateDeepLinkingToken(
                     clientId: clientId,
                     courseId: payload.CourseId,
-                    targetLinkUri: redirectUri,
+                    targetLinkUri: targetLinkUri,
                     userId:  payload.UserId,
                     nonce: nonce
                 );
@@ -108,7 +111,7 @@ public class LtiAuthController(
                 idToken = tokenService.CreateResourceLinkToken(
                     clientId: clientId,
                     courseId: payload.CourseId,
-                    targetLinkUri: redirectUri,
+                    targetLinkUri: targetLinkUri,
                     ltiCustomParams: payload.Custom,
                     userId: payload.UserId,
                     nonce: nonce,
@@ -207,6 +210,8 @@ public class LtiAuthController(
             return BadRequest("Either resourceLinkId OR (isDeepLink + courseId + toolId) must be provided.");
         }
 
+        payload.TargetLinkUri = targetUrl;
+
         var json = JsonSerializer.Serialize(payload);
         var messageHint = this.protector.Protect(json);
 
@@ -271,5 +276,6 @@ public class LtiAuthController(
         public string? CourseId { get; set; }
         public string? ToolName { get; set; }
         public string? Custom { get; set; }
+        public string? TargetLinkUri { get; set; }
     }
 }

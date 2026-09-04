@@ -1,5 +1,6 @@
 #if DEBUG
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -19,9 +20,11 @@ namespace HwProj.APIGateway.API.Lti.Controllers;
 public class MockToolController(IHttpClientFactory httpClientFactory) : ControllerBase
 {
     private static readonly RsaSecurityKey SigningKey;
+    private static readonly ConcurrentDictionary<string, string> LoginStates = new();
 
     private const string ToolIss = "Local Mock Tool";
     private const string ToolNameId = "mock-tool-client-id";
+    private const string TargetLinkUriClaim = "https://purl.imsglobal.org/spec/lti/claim/target_link_uri";
 
     private record MockTask(string Id, string Title, string Description, int Score);
     private static readonly List<MockTask> AvailableTasks =
@@ -48,22 +51,49 @@ public class MockToolController(IHttpClientFactory httpClientFactory) : Controll
     }
 
     [HttpPost("login")]
-    public IActionResult Login([FromForm] string iss, [FromForm] string login_hint, [FromForm] string lti_message_hint)
+    public IActionResult Login(
+        [FromForm] string iss,
+        [FromForm] string login_hint,
+        [FromForm] string lti_message_hint,
+        [FromForm(Name = "target_link_uri")] string targetLinkUri)
     {
-        var callbackUrl = $"{iss}/api/lti/authorize?" +
-                          $"client_id={ToolNameId}&" +
-                          $"response_type=id_token&" +
-                          $"redirect_uri=http://localhost:5000/api/mocktool/callback&" +
-                          $"login_hint={login_hint}&" +
-                          $"lti_message_hint={lti_message_hint}&" +
-                          $"scope=openid&state=xyz&nonce={Guid.NewGuid()}";
+        if (string.IsNullOrWhiteSpace(targetLinkUri))
+        {
+            return BadRequest("target_link_uri is required");
+        }
+
+        var state = Guid.NewGuid().ToString();
+        LoginStates[state] = targetLinkUri;
+
+        var queryParameters = new Dictionary<string, string>
+        {
+            ["client_id"] = ToolNameId,
+            ["response_type"] = "id_token",
+            ["redirect_uri"] = "http://localhost:5000/api/mocktool/callback",
+            ["login_hint"] = login_hint,
+            ["lti_message_hint"] = lti_message_hint,
+            ["scope"] = "openid",
+            ["state"] = state,
+            ["nonce"] = Guid.NewGuid().ToString()
+        };
+
+        var queryString = string.Join("&", queryParameters.Select(parameter =>
+            $"{Uri.EscapeDataString(parameter.Key)}={Uri.EscapeDataString(parameter.Value)}"));
+        var callbackUrl = $"{iss.TrimEnd('/')}/api/lti/authorize?{queryString}";
 
         return Redirect(callbackUrl);
     }
 
     [HttpPost("callback")]
-    public async Task<IActionResult> Callback([FromForm] string id_token)
+    public async Task<IActionResult> Callback(
+        [FromForm] string id_token,
+        [FromForm] string state)
     {
+        if (!LoginStates.TryRemove(state, out var expectedTargetLinkUri))
+        {
+            return BadRequest("Unknown or already used state");
+        }
+
         var handler = new JwtSecurityTokenHandler();
         if (!handler.CanReadToken(id_token)) return BadRequest("Invalid Token");
         var unverifiedToken = handler.ReadJwtToken(id_token);
@@ -81,6 +111,7 @@ public class MockToolController(IHttpClientFactory httpClientFactory) : Controll
 
         var platformKeySet = new JsonWebKeySet(jwksJson);
 
+        SecurityToken validatedToken;
         try {
             handler.ValidateToken(id_token, new TokenValidationParameters
             {
@@ -91,17 +122,24 @@ public class MockToolController(IHttpClientFactory httpClientFactory) : Controll
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKeys = platformKeySet.Keys
-            }, out _);
+            }, out validatedToken);
         } catch (Exception ex) {
             return Unauthorized($"HwProj signature validation error: {ex.Message}");
         }
 
-        var messageType = unverifiedToken.Claims.FirstOrDefault(c => c.Type == "https://purl.imsglobal.org/spec/lti/claim/message_type")?.Value;
+        var token = (JwtSecurityToken)validatedToken;
+        var actualTargetLinkUri = token.Claims.FirstOrDefault(c => c.Type == TargetLinkUriClaim)?.Value;
+        if (!string.Equals(actualTargetLinkUri, expectedTargetLinkUri, StringComparison.Ordinal))
+        {
+            return Unauthorized("The target_link_uri claim does not match the initial login request");
+        }
+
+        var messageType = token.Claims.FirstOrDefault(c => c.Type == "https://purl.imsglobal.org/spec/lti/claim/message_type")?.Value;
 
         return messageType switch
         {
-            "LtiDeepLinkingRequest" => RenderDeepLinkingSelectionUI(unverifiedToken),
-            "LtiResourceLinkRequest" => HandleResourceLink(unverifiedToken),
+            "LtiDeepLinkingRequest" => RenderDeepLinkingSelectionUI(token),
+            "LtiResourceLinkRequest" => HandleResourceLink(token),
             _ => BadRequest($"Unknown message type: {messageType}")
         };
     }
@@ -155,7 +193,6 @@ public class MockToolController(IHttpClientFactory httpClientFactory) : Controll
             ["type"] = "ltiResourceLink",
             ["title"] = t.Title,
             ["text"] = t.Description,
-            ["url"] = $"http://localhost:5000/mock/task/{t.Id}", 
 
             ["lineItem"] = new Dictionary<string, object> 
             {
