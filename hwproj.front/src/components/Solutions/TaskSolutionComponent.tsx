@@ -1533,7 +1533,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                                     spacing={1}
                                                 >
                                                     <Typography variant={"body2"} sx={{fontWeight: 500}}>
-                                                        Лучше других решений
+                                                        Рейтинг решения
                                                     </Typography>
                                                     <Typography
                                                         variant={"body2"}
