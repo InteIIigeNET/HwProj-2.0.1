@@ -659,6 +659,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const postedSolutionTime = solution && Utils.renderReadableDate(solution.publicationDate!)
     const ratingTime = solution && solution.ratingDate && Utils.renderReadableDate(solution.ratingDate!)
     const students = (solution?.groupMates?.length || 0) > 0 ? solution!.groupMates! : [student]
+    const studentHasCharacteristics = !!student.characteristics &&
+        ((student.characteristics.tags?.length ?? 0) > 0 || !!student.characteristics.description)
     const lecturer = solution?.lecturer
     const lecturerName = lecturer && (lecturer.surname + " " + lecturer.name)
     const commitsActuality = solutionActuality?.commitsActuality
@@ -702,7 +704,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         ? "#d32f2f"
         : StudentStatsUtils.getRatingColor(points, maxRating)
 
-    const renderRateInput = () => {
+    const renderRateInput = (showFramedBox: boolean = true) => {
         const showThumbs = maxRating === 1;
         const isEditable = props.forMentor && (!isRated || state.clickedForRate);
 
@@ -736,7 +738,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             return (
                 <Stack direction="row" alignItems="center" spacing={1.5} flexWrap="wrap" sx={{rowGap: 1}}>
                     {showThumbs && (
-                        <Stack direction="row" alignItems="center" sx={ratingBoxSx}>
+                        <Stack direction="row" alignItems="center" sx={showFramedBox ? ratingBoxSx : undefined}>
                             <IconButton disabled={!isEditable} onClick={() => thumbsHandler(1)}>
                                 <ThumbUp color={points === 1 ? "success" : "disabled"}/>
                             </IconButton>
@@ -753,7 +755,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     )}
 
                     {!showThumbs && (
-                        <Stack direction="row" alignItems="center" sx={ratingBoxSx}>
+                        <Stack direction="row" alignItems="center" sx={showFramedBox ? ratingBoxSx : undefined}>
                             {(isEditable || !isRated) && (
                                 <IconButton
                                     size="small"
@@ -1164,9 +1166,17 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     const renderRatingPanel = () => {
         const percent = maxRating > 0 ? points * 100 / maxRating : 0
         const isEditing = props.forMentor && state.clickedForRate
+        const showRateControlInBody = (!hasCriteria || !state.clickedForRate) && (!isRated || isEditing)
+        const showRateControlInHeader = (!hasCriteria || !state.clickedForRate) && isRated && !isEditing
         // Тон и цвет рамки берём и во время оценивания — оценка сразу видна по цвету панели
         const isScored = isRated || state.clickedForRate
         const tone = isScored ? gradeTone(percent) : undefined
+        const hasLecturerComment = !!lecturerComment?.trim()
+        const showCriteriaBlock = props.forMentor && hasCriteria && state.addBonusPoints && state.clickedForRate
+        const showQuickRateHint = !isRated && !state.clickedForRate && maxRating <= 10 && !addBonusPoints
+        const showLastRatingHint = lastRating !== undefined && state.clickedForRate
+        const showLecturerInfo = !!(lecturerName && isRated)
+        const showLecturerComment = (state.clickedForRate && props.forMentor) || (isRated && hasLecturerComment)
 
         return (
             <Paper
@@ -1177,35 +1187,28 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     borderColor: ratingPanelColor,
                 }}
             >
-                <Stack
-                    direction={"row"}
-                    alignItems={"center"}
-                    spacing={1}
-                    sx={{...panelHeaderSx, ...(tone && {backgroundColor: tone.bg, color: tone.fg})}}
-                >
-                    <StarBorderRoundedIcon fontSize={"small"}/>
-                    <Typography variant={"body2"} sx={{fontWeight: 500}}>
-                        {isEditing
-                            ? (isRated ? "Изменение оценки" : "Оценивание решения")
-                            : "Оценка"}
-                    </Typography>
-                    <Box sx={{flexGrow: 1}}/>
-                    {isScored
-                        ? <Chip
-                            size={"small"}
-                            label={`${points} / ${maxRating}`}
-                            sx={scoreChipSx(scoreColor)}
-                        />
-                        : <Chip size={"small"} label={"Ожидает проверки"} sx={pendingChipSx}/>}
+                <Stack sx={{...panelHeaderSx, ...(tone && {backgroundColor: tone.bg, color: tone.fg})}}>
+                    <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                        <StarBorderRoundedIcon fontSize={"small"}/>
+                        <Typography variant={"body2"} sx={{fontWeight: 500}}>
+                            {isEditing
+                                ? (isRated ? "Изменение оценки" : "Оценивание решения")
+                                : "Оценка"}
+                        </Typography>
+                        <Box sx={{flexGrow: 1}}/>
+                        {!isScored
+                            ? <Chip size={"small"} label={"Ожидает проверки"} sx={pendingChipSx}/>
+                            : showRateControlInHeader && renderRateInput(false)}
+                    </Stack>
                 </Stack>
                 <Divider/>
                 <Box sx={sectionSx}>
                     <Stack spacing={1.75}>
-                        {(!hasCriteria || !state.clickedForRate) && renderRateInput()}
-                        {props.forMentor && hasCriteria && state.addBonusPoints && state.clickedForRate &&
-                            renderCriteriaBlock()}
+                        {showRateControlInBody && renderRateInput(false)}
 
-                        {!isRated && !state.clickedForRate && maxRating <= 10 && !addBonusPoints &&
+                        {showCriteriaBlock && renderCriteriaBlock()}
+
+                        {showQuickRateHint &&
                             <Typography sx={hintSx}>
                                 Нажмите{" "}
                                 <Box component={"span"} sx={{color: isCtrlPressed ? "#3f51b5" : "inherit"}}>
@@ -1218,12 +1221,12 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 </Box>{" "}для быстрого оценивания
                             </Typography>}
 
-                        {lastRating !== undefined && state.clickedForRate &&
+                        {showLastRatingHint &&
                             <Typography sx={hintSx}>
                                 {`Оценка за предыдущее решение: ${lastRating} ⭐`}
                             </Typography>}
 
-                        {lecturerName && isRated && (
+                        {showLecturerInfo && (
                             <Stack direction={"row"} alignItems={"center"} spacing={1.5}>
                                 {props.forMentor && state.clickedForRate ? (
                                     <>
@@ -1273,7 +1276,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     />
                                 </Box>
                             )
-                            : isRated && lecturerComment && (
+                            : isRated && hasLecturerComment && (
                             // Комментарий преподавателя — часть панели оценки, поэтому без своей подложки
                             <MarkdownPreview value={lecturerComment}/>
                         )
@@ -1368,7 +1371,18 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
             поэтому оценка читается как продолжение решения, а не как отдельный блок */}
         {solution &&
             <Stack direction={"column"}>
-                <Paper variant={"outlined"} sx={panelSx}>
+                <Paper
+                    variant={"outlined"}
+                    sx={{
+                        ...panelSx,
+                        ...(props.forMentor && props.isLastSolution && !studentHasCharacteristics && {
+                            "&:hover .solution-characteristics-on-hover": {
+                                opacity: 1,
+                                pointerEvents: "auto",
+                            },
+                        }),
+                    }}
+                >
                     <Stack direction={"row"} alignItems={"center"} spacing={1} sx={panelHeaderSx}>
                         <AssignmentTurnedInOutlinedIcon fontSize={"small"}/>
                         <Typography variant={"body2"} sx={{fontWeight: 500}}>Решение</Typography>
@@ -1426,11 +1440,22 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     sx={{flexShrink: 0, maxWidth: {xs: 180, sm: 320, md: 440}}}
                                 >
                                     {props.forMentor && props.isLastSolution && student &&
-                                        <StudentCharacteristics
-                                            characteristics={student.characteristics}
-                                            onChange={x => props.onRateSolutionClick?.()} //TODO
-                                            courseId={props.courseId}
-                                            studentId={student.userId!}/>}
+                                        <Box
+                                            className={"solution-characteristics-on-hover"}
+                                            sx={!studentHasCharacteristics
+                                                ? {
+                                                    opacity: 0,
+                                                    pointerEvents: "none",
+                                                    transition: "opacity .15s ease",
+                                                }
+                                                : undefined}
+                                        >
+                                            <StudentCharacteristics
+                                                characteristics={student.characteristics}
+                                                onChange={x => props.onRateSolutionClick?.()} //TODO
+                                                courseId={props.courseId}
+                                                studentId={student.userId!}/>
+                                        </Box>}
                                     {solution.comment &&
                                         <Tooltip
                                             arrow
@@ -1576,14 +1601,6 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     {renderRatingPanel()}
                 </>}
             </Stack>}
-
-        {/* Решения нет, но характеристику студенту преподаватель поставить всё равно может */}
-        {!solution && props.forMentor && props.isLastSolution && student &&
-            <StudentCharacteristics
-                characteristics={student.characteristics}
-                onChange={x => props.onRateSolutionClick?.()} //TODO
-                courseId={props.courseId}
-                studentId={student.userId!}/>}
 
         {!solution && showRatingPanel && renderRatingPanel()}
     </Stack>
