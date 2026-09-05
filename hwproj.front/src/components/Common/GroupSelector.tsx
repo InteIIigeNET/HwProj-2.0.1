@@ -24,6 +24,7 @@ import ApiSingleton from "../../api/ApiSingleton";
 import {GroupViewModel, AccountDataDto} from "@/api";
 import {UserInitialsAvatar} from "./UserInitialsAvatar";
 import Utils from "../../services/Utils";
+import Lodash from "lodash";
 
 interface GroupSelectorProps {
     courseId: number,
@@ -244,6 +245,10 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
         .map(studentId => studentsById.get(studentId))
         .filter((student): student is AccountDataDto => student != undefined)
 
+    const autocompleteStudentOptions = Lodash(props.courseStudents || [])
+        .sortBy(x => otherGroupsByStudent.get(x.userId!) !== undefined)
+        .value()
+
     const handleSubmitEdit = async () => {
         setIsSubmitting(true);
         try {
@@ -399,7 +404,7 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
                     multiple
                     fullWidth
                     size={"small"}
-                    options={props.courseStudents || []}
+                    options={autocompleteStudentOptions}
                     value={members}
                     filterOptions={studentFilterOptions}
                     filterSelectedOptions
