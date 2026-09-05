@@ -220,13 +220,16 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
         [props.courseStudents]);
 
     // Студент может числиться сразу в нескольких группах — это разрешено, но о таком составе
-    // стоит предупредить, поэтому для каждого держим список его остальных групп
+    // стоит предупредить, поэтому для каждого держим список его остальных групп.
+    // Безымянных групп нет и в самом списке групп, поэтому и рядом со студентом
+    // о них не сообщаем: назвать такую группу в плашке всё равно нечем
     const otherGroupsByStudent = useMemo(() => {
         const map = new Map<string, string[]>();
-        const otherGroups = (props.groups || []).filter(group => group.id !== props.selectedGroupId)
+        const otherGroups = (props.groups || [])
+            .filter(group => group.id !== props.selectedGroupId && group.name?.trim())
         otherGroups.forEach(group => group.studentsIds?.forEach(studentId => {
             if (!map.has(studentId)) map.set(studentId, []);
-            map.get(studentId)!.push(group.name?.trim() || "без названия");
+            map.get(studentId)!.push(group.name!.trim());
         }));
         return map;
     }, [props.groups, props.selectedGroupId]);
