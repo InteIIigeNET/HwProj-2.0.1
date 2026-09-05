@@ -102,6 +102,22 @@ const actionButtonSx = {
     px: 2,
 }
 
+const softPrimaryActionButtonSx = {
+    ...actionButtonSx,
+    color: "#3f51b5",
+    backgroundColor: "#eef0fa",
+    border: "1px solid rgba(63, 81, 181, 0.16)",
+    "&:hover": {
+        backgroundColor: "#e2e6f7",
+        borderColor: "rgba(63, 81, 181, 0.3)",
+    },
+    "&.Mui-disabled": {
+        color: "#aeb4c2",
+        backgroundColor: "#f4f5f7",
+        border: "1px solid #e6e8ec",
+    },
+}
+
 const inputSx = {
     "& .MuiOutlinedInput-root": {borderRadius: "10px"},
 }
@@ -717,7 +733,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             color="primary"
                             disableElevation
                             startIcon={<StarBorderRoundedIcon/>}
-                            sx={actionButtonSx}
+                            sx={softPrimaryActionButtonSx}
                             onClick={() => {
                                 setCriteriaModified(true);
                                 setState(prev => ({...prev, points: criteriaSum, clickedForRate: true}));
@@ -1301,7 +1317,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 loading={rateInProgress}
                                 loadingPosition="end"
                                 disabled={isRateButtonDisabled || rateInProgress}
-                                sx={actionButtonSx}
+                                sx={softPrimaryActionButtonSx}
                                 onClick={() => {
                                     rateSolution(points, lecturerComment);
                                 }}
