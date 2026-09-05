@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {FC, useMemo, useState} from "react";
+import {FC, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {AccountDataDto, CourseViewModel} from '../../api/';
 import ApiSingleton from "../../api/ApiSingleton";
 import {
@@ -67,6 +67,21 @@ const rowSx = {
     alignItems: "center",
     transition: "background-color .15s",
     "&:hover": {backgroundColor: "rgba(63, 81, 181, 0.04)"},
+}
+
+const namesHeaderSx = {
+    px: 1.5,
+    py: 0.75,
+    display: "flex",
+    alignItems: "center",
+    color: "text.secondary",
+}
+
+const namesGridSx = {
+    display: "grid",
+    gridTemplateColumns: "var(--surname-width, max-content) minmax(0, 1fr)",
+    columnGap: 0.5,
+    minWidth: 0,
 }
 
 // Геометрия у всех кнопок панели общая: одинаковая форма, вес и ширина читаются как один набор
@@ -141,6 +156,7 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
     const [pendingActions, setPendingActions] = useState<Record<string, PendingAction>>({})
     const [searchQuery, setSearchQuery] = useState("")
     const [isAcceptAllOpen, setIsAcceptAllOpen] = useState(false)
+    const panelRef = useRef<HTMLDivElement>(null)
 
     const filteredStudents = useMemo(() => {
         const query = searchQuery.trim().toLowerCase()
@@ -150,6 +166,27 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
                 .toLowerCase()
                 .includes(query))
     }, [students, searchQuery])
+
+    useLayoutEffect(() => {
+        const panel = panelRef.current
+        if (!panel) return
+
+        let cancelled = false
+        const updateSurnameWidth = () => {
+            if (cancelled) return
+            const surnames = panel.querySelectorAll<HTMLElement>("[data-student-surname]")
+            const width = Math.max(0, ...Array.from(surnames, surname => surname.getBoundingClientRect().width))
+            panel.style.setProperty("--surname-width", `${Math.ceil(width)}px`)
+        }
+
+        updateSurnameWidth()
+        void document.fonts.ready.then(updateSurnameWidth)
+        document.fonts.addEventListener("loadingdone", updateSurnameWidth)
+        return () => {
+            cancelled = true
+            document.fonts.removeEventListener("loadingdone", updateSurnameWidth)
+        }
+    }, [filteredStudents])
 
     // Пока запрос в полёте, не даём нажать что-то ещё
     const withPending = async (
@@ -197,7 +234,7 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
 
     return (
         <>
-            <Paper variant={"outlined"} sx={panelSx}>
+            <Paper variant={"outlined"} ref={panelRef} sx={panelSx}>
                 <Stack direction={"row"} alignItems={"center"} spacing={1} sx={headerSx}>
                     <PersonAddIcon fontSize={"small"}/>
                     <Typography variant={"body2"} sx={{fontWeight: 500}}>Заявки на вступление</Typography>
@@ -235,6 +272,16 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
                         </Box>
                         <Divider/>
                     </>}
+                <Box sx={namesHeaderSx}>
+                    <Box sx={{width: 38, flexShrink: 0}}/>
+                    <Box sx={{width: 12, flexShrink: 0}}/>
+                    <Box sx={{...namesGridSx, flexGrow: 1}}>
+                        <Typography variant={"caption"} noWrap sx={{fontWeight: 500}}>Фамилия</Typography>
+                        <Typography variant={"caption"} noWrap sx={{fontWeight: 500}}>Имя</Typography>
+                    </Box>
+                    <Box sx={{width: {xs: 84, sm: 236}, flexShrink: 0}}/>
+                </Box>
+                <Divider/>
                 {filteredStudents.length === 0
                     ? <Typography
                         variant={"body2"}
@@ -249,13 +296,22 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
                                 <Stack key={student.userId} direction={"row"} spacing={1.5} sx={rowSx}>
                                     <UserInitialsAvatar user={student} size={38}/>
                                     <Box sx={{flexGrow: 1, minWidth: 0}}>
-                                        <Typography
-                                            component={"div"}
-                                            noWrap
-                                            sx={{fontSize: "0.9375rem", fontWeight: 500, lineHeight: 1.3}}
-                                        >
-                                            {student.surname}&nbsp;{student.name}
-                                        </Typography>
+                                        <Box sx={namesGridSx}>
+                                            <Typography
+                                                component={"div"}
+                                                noWrap
+                                                sx={{fontSize: "0.9375rem", fontWeight: 600, lineHeight: 1.3, flexShrink: 0}}
+                                            >
+                                                <span data-student-surname>{student.surname}</span>
+                                            </Typography>
+                                            <Typography
+                                                component={"div"}
+                                                noWrap
+                                                sx={{fontSize: "0.9375rem", fontWeight: 500, lineHeight: 1.3, minWidth: 0, flex: 1}}
+                                            >
+                                                {student.name}
+                                            </Typography>
+                                        </Box>
                                         {student.email &&
                                             <Link
                                                 href={`mailto:${student.email}`}
