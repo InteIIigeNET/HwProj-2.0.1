@@ -234,10 +234,6 @@ const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => 
         .filter(t => !filtersState.tasksFilter || t.taskTitle === filtersState.tasksFilter)
         .filter(t => !filtersState.studentsFilter || renderStudent(t.student!) === filtersState.studentsFilter)
 
-    const randomSolution = filteredUnratedSolutions.length > 1
-        ? filteredUnratedSolutions[Math.floor(Math.random() * filteredUnratedSolutions.length)]
-        : undefined
-
     const handleFilterChange = (filterName: FilterTitleName, value: string) => {
         let courseFilter = filtersState.coursesFilter
         let homeworkFilter = filtersState.homeworksFilter
@@ -305,7 +301,7 @@ const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => 
         : `${unratedSolutions.length} ${Utils.pluralizeHelper(solutionPlurals, unratedSolutions.length)} на проверке`
 
     const renderFilters = () => (
-        <Box sx={{px: 2, pb: 1.5}}>
+        <Box sx={{px: 2, pt: 0.5, pb: 1.5}}>
             <Grid container columnSpacing={2.5} rowSpacing={0.5}>
                 <Grid item xs={12} sm={6} lg={3}>
                     {renderSelect("Курс", "coursesFilter", filtersState.coursesFilter, filtersState.courses)}
@@ -322,21 +318,6 @@ const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => 
             </Grid>
         </Box>
     )
-
-    const renderRandomSolutionLink = () => randomSolution &&
-        <Typography
-            component={NavLink}
-            to={`/task/${randomSolution.taskId}/${randomSolution.student!.userId}`}
-            variant={"caption"}
-            sx={{
-                flexShrink: 0,
-                color: sectionHeaderColor,
-                textDecoration: "underline",
-                "&:hover, &:focus": {color: "#303f9f", textDecoration: "underline"},
-            }}
-        >
-            проверить случайное решение
-        </Typography>
 
     const renderSolutions = (solutions: SolutionPreviewView[]) => (
         <Stack divider={<Divider/>}>
@@ -393,7 +374,6 @@ const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => 
             node: <SectionPanel
                 icon={<FactCheckOutlined fontSize={"small"}/>}
                 title={unratedTitle}
-                action={renderRandomSolutionLink()}
                 toolbar={renderFilters()}
             >
                 {filteredUnratedSolutions.length === 0
