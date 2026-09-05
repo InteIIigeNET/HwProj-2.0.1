@@ -168,6 +168,11 @@ const deferredChipSx = {
 
 const alertSx = {borderRadius: "12px"}
 
+// Ограничение действует на всю страницу группы, а не на отдельное поле, поэтому плашка
+// прижата к её верхнему краю: без скруглений и без отступов по краям она читается
+// как полоса под переключателем, а не как ещё одна карточка над полями
+const topAlertSx = {borderRadius: 0}
+
 const footerSx = {
     px: {xs: 2, sm: 2.5},
     py: 1.5,
@@ -599,6 +604,11 @@ const CourseHomeworkEditor: FC<{
             />
         </Box>}
         {page === "group" && <Box>
+            {!isNewHomework &&
+                <Alert severity="info" sx={topAlertSx}>
+                    Группу нельзя изменить после публикации задания, но состав группы
+                    можно менять в любое время
+                </Alert>}
             <Box sx={sectionSx}>
                 <GroupSelector
                     courseId={courseId}
