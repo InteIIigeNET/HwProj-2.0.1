@@ -739,7 +739,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 setState(prev => ({...prev, points: criteriaSum, clickedForRate: true}));
                             }}
                         >
-                            Оценить решение
+                            {solution ? "Оценить решение" : "Выставить оценку"}
                         </Button>
                     </Box>
                 );
@@ -1207,13 +1207,15 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     <Stack direction={"row"} alignItems={"center"} spacing={1}>
                         <StarBorderRoundedIcon fontSize={"small"}/>
                         <Typography variant={"body2"} sx={{fontWeight: 500}}>
-                            {isEditing
-                                ? (isRated ? "Изменение оценки" : "Оценивание решения")
-                                : "Оценка"}
+                            {!solution
+                                ? "Оценка без решения"
+                                : isEditing
+                                    ? (isRated ? "Изменение оценки" : "Оценивание решения")
+                                    : "Оценка"}
                         </Typography>
                         <Box sx={{flexGrow: 1}}/>
                         {!isScored
-                            ? <Chip size={"small"} label={"Ожидает проверки"} sx={pendingChipSx}/>
+                            ? solution && <Chip size={"small"} label={"Ожидает проверки"} sx={pendingChipSx}/>
                             : showRateControlInHeader && renderRateInput(false)}
                     </Stack>
                 </Stack>
@@ -1322,7 +1324,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     rateSolution(points, lecturerComment);
                                 }}
                             >
-                                {isRated ? "Изменить оценку" : "Оценить решение"}
+                                {isRated
+                                    ? "Изменить оценку"
+                                    : solution ? "Оценить решение" : "Выставить оценку"}
                             </LoadingButton>
 
                             {!rateInProgress && (
