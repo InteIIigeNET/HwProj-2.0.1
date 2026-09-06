@@ -46,6 +46,10 @@ const groupPlurals = ["группе", "группах", "группах"]
 const getFullName = (student: AccountDataDto) =>
     `${student.surname ?? ""} ${student.name ?? ""} ${student.middleName ?? ""}`.replace(/\s+/g, " ").trim()
 
+// Курс отдаёт студентов в порядке записи, поэтому в списках сортируем по алфавиту сами
+const compareStudents = (left: AccountDataDto, right: AccountDataDto) =>
+    getFullName(left).localeCompare(getFullName(right), "ru")
+
 // В инпуте выбранные имена не остаются (состав перечислен списком ниже),
 // поэтому искать нужно и по почте тоже
 const studentFilterOptions = createFilterOptions<AccountDataDto>({
@@ -238,15 +242,18 @@ const GroupSelector: FC<GroupSelectorProps> = (props) => {
     const members = useMemo(
         () => formState.memberIds
             .map(studentId => studentsById.get(studentId))
-            .filter((student): student is AccountDataDto => student != undefined),
+            .filter((student): student is AccountDataDto => student != undefined)
+            .sort(compareStudents),
         [formState.memberIds, studentsById]);
 
     const getGroupStudents = (group: GroupViewModel) => (group.studentsIds || [])
         .map(studentId => studentsById.get(studentId))
         .filter((student): student is AccountDataDto => student != undefined)
 
-    const autocompleteStudentOptions = Lodash(props.courseStudents || [])
-        .sortBy(x => otherGroupsByStudent.get(x.userId!) !== undefined)
+    // Сначала студенты, не занятые в других группах, а внутри каждой части — по алфавиту:
+    // sortBy устойчива, поэтому порядок по имени сохраняется
+    const autocompleteStudentOptions = Lodash([...(props.courseStudents || [])].sort(compareStudents))
+        .sortBy(x => otherGroupsByStudent.has(x.userId!))
         .value()
 
     const handleSubmitEdit = async () => {

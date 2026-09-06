@@ -1,13 +1,15 @@
-﻿import React, {FC, useEffect, useState} from 'react';
-import {HomeworkViewModel, AccountDataDto, MentorToAssignedStudentsDTO} from '../../api';
+﻿import React, {FC, useEffect, useMemo, useState} from 'react';
+import {HomeworkViewModel, AccountDataDto, MentorToAssignedStudentsDTO, GroupViewModel} from '../../api';
 import Grid from "@mui/material/Grid";
-import {Autocomplete, Box, Chip, Stack, Typography} from "@mui/material";
+import {Autocomplete, Box, Chip, Stack, Tooltip, Typography} from "@mui/material";
 import TextField from "@mui/material/TextField";
 import ApiSingleton from "../../api/ApiSingleton";
 import ErrorsHandler from "../Utils/ErrorsHandler";
 import {DotLottieReact} from '@lottiefiles/dotlottie-react';
 import Button from "@mui/material/Button";
 import {UserInitialsAvatar} from "../Common/UserInitialsAvatar";
+import GroupsIcon from "@mui/icons-material/Groups";
+import Utils from "../../services/Utils";
 
 interface ICourseFilterProps {
     courseId: number;
@@ -21,6 +23,7 @@ interface ICourseFilterProps {
 interface ICourseFilterState {
     courseHomeworks: HomeworkViewModel[];
     courseStudents: AccountDataDto[];
+    courseGroups: GroupViewModel[];
     selectedHomeworks: HomeworkViewModel[];
     selectedStudents: AccountDataDto[];
     mentors: AccountDataDto[];
@@ -31,6 +34,13 @@ interface ICourseFilterState {
 const inputSx = {
     "& .MuiOutlinedInput-root": {borderRadius: "10px"},
 }
+
+const getStudentName = (student: AccountDataDto) =>
+    `${student.surname ?? ""} ${student.name ?? ""}`.trim()
+
+// Курс отдаёт студентов в порядке записи, поэтому в списке сортируем по алфавиту сами
+const compareStudents = (left: AccountDataDto, right: AccountDataDto) =>
+    getStudentName(left).localeCompare(getStudentName(right), "ru")
 
 const optionNameSx = {
     fontSize: "0.9375rem",
@@ -45,11 +55,37 @@ const studentChipSx = {
     "& .MuiChip-label": {pl: 0.5, pr: 1},
 }
 
+// Группа, за которой закреплены задание или студент, — справочная пометка, а не выбор:
+// поэтому плашка нейтрально-серая. Синим здесь помечены студенты с несколькими преподавателями
+const groupChipSx = {
+    height: 22,
+    maxWidth: 190,
+    flexShrink: 0,
+    backgroundColor: "#eef0f5",
+    color: "text.secondary",
+    "& .MuiChip-label": {px: 0.75, fontSize: "0.75rem", fontWeight: 500},
+    "& .MuiChip-icon": {ml: 0.625, mr: -0.25, fontSize: 14, color: "inherit"},
+}
+
+// В выбранных плашках группа приписана к названию мелким серым и обрезается,
+// чтобы длинное имя группы не растягивало поле
+const groupSuffixSx = {
+    color: "text.secondary",
+    fontSize: "0.75rem",
+    maxWidth: 140,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+}
+
+const groupPlurals = ["группе", "группах", "группах"]
+
 // Если преподаватель не выбрал ни одного студента, по умолчанию регистрируем всех. Аналогично с выбором домашних работ
 const CourseFilter: FC<ICourseFilterProps> = (props) => {
     const [state, setState] = useState<ICourseFilterState>({
         courseHomeworks: [],
         courseStudents: [],
+        courseGroups: [],
         selectedHomeworks: [],
         selectedStudents: [],
         assignedStudents: [],
@@ -88,6 +124,7 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                     ...prevState,
                     courseHomeworks: course.homeworks ?? [],
                     courseStudents: course.acceptedStudents ?? [],
+                    courseGroups: course.groups ?? [],
                     selectedStudents: initSelectedStudentsView,
                     selectedHomeworks: initSelectedHomeworksView,
                     mentors: course.mentors!,
@@ -117,6 +154,45 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
     useEffect(() => {
         props.onSelectedHomeworksChange(state.selectedHomeworks)
     }, [state.selectedHomeworks]);
+
+    // Безымянные группы не показываем: назвать такую группу в плашке всё равно нечем
+    const namedGroups = useMemo(
+        () => state.courseGroups.filter(group => group.name?.trim()),
+        [state.courseGroups])
+
+    // У задания группа лежит id-шником, а у студента — его id внутри самих групп,
+    // поэтому раскладываем группы и по id, и по студентам
+    const groupNameById = useMemo(
+        () => new Map(namedGroups.map(group => [group.id!, group.name!.trim()])),
+        [namedGroups])
+
+    const groupNamesByStudent = useMemo(() => {
+        const map = new Map<string, string[]>()
+        namedGroups.forEach(group => group.studentsIds?.forEach(studentId => {
+            if (!map.has(studentId)) map.set(studentId, [])
+            map.get(studentId)!.push(group.name!.trim())
+        }))
+        return map
+    }, [namedGroups])
+
+    const getHomeworkGroup = (homework: HomeworkViewModel) =>
+        homework.groupId == undefined ? undefined : groupNameById.get(homework.groupId)
+
+    const getStudentGroups = (studentId: string) => groupNamesByStudent.get(studentId) ?? []
+
+    // Студент может числиться сразу в нескольких группах: одну называем по имени,
+    // для нескольких — считаем, полный список остаётся в подсказке
+    const groupsLabel = (groupNames: string[]) => groupNames.length === 1
+        ? groupNames[0]
+        : `в ${groupNames.length} ${Utils.pluralizeHelper(groupPlurals, groupNames.length)}`
+
+    const groupsTitle = (groupNames: string[]) => groupNames.length === 1
+        ? `Группа: ${groupNames[0]}`
+        : `Группы: ${groupNames.join(", ")}`
+
+    const studentOptions = useMemo(
+        () => [...state.courseStudents].sort(compareStudents),
+        [state.courseStudents])
 
     //TODO: memoize?
     const getAssignedMentors = (studentId: string) =>
@@ -155,6 +231,38 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                 getOptionKey={(option: HomeworkViewModel) => option.id ?? 0}
                                 filterSelectedOptions
                                 isOptionEqualToValue={(option, value) => option.id === value.id}
+                                renderOption={(optionProps, option) => {
+                                    const groupName = getHomeworkGroup(option)
+                                    return <Box component={"li"} {...optionProps} key={option.id}>
+                                        <Stack direction={"row"} alignItems={"center"} spacing={1.5}
+                                               sx={{width: "100%", minWidth: 0}}>
+                                            <Typography noWrap sx={{...optionNameSx, flexGrow: 1}}>
+                                                {option.title ?? "Без названия"}
+                                            </Typography>
+                                            {groupName &&
+                                                <Chip size={"small"} icon={<GroupsIcon/>} label={groupName}
+                                                      sx={groupChipSx}/>}
+                                        </Stack>
+                                    </Box>
+                                }}
+                                renderTags={(value, getTagProps) =>
+                                    value.map((option, index) => {
+                                        const groupName = getHomeworkGroup(option)
+                                        return <Chip
+                                            {...getTagProps({index})}
+                                            key={option.id}
+                                            label={
+                                                <Stack direction={"row"} alignItems={"center"} spacing={0.75}>
+                                                    <span>{option.title ?? "Без названия"}</span>
+                                                    {groupName &&
+                                                        <Box component={"span"} sx={groupSuffixSx}>
+                                                            {`· ${groupName}`}
+                                                        </Box>}
+                                                </Stack>
+                                            }
+                                        />
+                                    })
+                                }
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
@@ -189,11 +297,11 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                     <Autocomplete
                                         multiple
                                         fullWidth
-                                        options={state.courseStudents}
+                                        options={studentOptions}
                                         getOptionLabel={(option: AccountDataDto) => {
                                             const assignedMentors = getAssignedMentors(option.userId!)
                                             const suffix = assignedMentors.length > 0 ? " — преподаватель " + assignedMentors[0] + "" : ""
-                                            return option.surname + ' ' + option.name + suffix;
+                                            return getStudentName(option) + suffix;
                                         }}
                                         getOptionKey={(option: AccountDataDto) => option.userId ?? ""}
                                         filterSelectedOptions
@@ -208,13 +316,14 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                             />)}
                                         renderOption={(optionProps, option) => {
                                             const assignedMentors = getAssignedMentors(option.userId!)
+                                            const studentGroups = getStudentGroups(option.userId!)
                                             return <Box component={"li"} {...optionProps} key={option.userId}>
                                                 <Stack direction={"row"} alignItems={"center"} spacing={1.5}
                                                        sx={{width: "100%", minWidth: 0}}>
                                                     <UserInitialsAvatar user={option} size={32} fontSize={"0.7rem"}/>
-                                                    <Box sx={{minWidth: 0}}>
+                                                    <Box sx={{minWidth: 0, flexGrow: 1}}>
                                                         <Typography sx={optionNameSx}>
-                                                            {`${option.surname ?? ""} ${option.name ?? ""}`.trim()}
+                                                            {getStudentName(option)}
                                                         </Typography>
                                                         <Typography variant={"caption"} noWrap
                                                                     sx={{display: "block", color: "text.secondary"}}>
@@ -223,12 +332,19 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                                                 : option.email}
                                                         </Typography>
                                                     </Box>
+                                                    {studentGroups.length > 0 &&
+                                                        <Tooltip arrow title={groupsTitle(studentGroups)}>
+                                                            <Chip size={"small"} icon={<GroupsIcon/>}
+                                                                  label={groupsLabel(studentGroups)}
+                                                                  sx={groupChipSx}/>
+                                                        </Tooltip>}
                                                 </Stack>
                                             </Box>
                                         }}
                                         renderTags={(value, getTagProps) =>
-                                            value.map((option, index) =>
-                                                <Chip
+                                            value.map((option, index) => {
+                                                const studentGroups = getStudentGroups(option.userId!)
+                                                const chip = <Chip
                                                     {...getTagProps({index})}
                                                     key={option.userId}
                                                     sx={studentsWithMultipleReviewers.has(option.userId!)
@@ -238,10 +354,21 @@ const CourseFilter: FC<ICourseFilterProps> = (props) => {
                                                         <Stack direction={"row"} alignItems={"center"} spacing={0.75}>
                                                             <UserInitialsAvatar user={option} size={20}
                                                                                 fontSize={"0.5625rem"}/>
-                                                            <span>{option.surname + ' ' + option.name}</span>
+                                                            <span>{getStudentName(option)}</span>
+                                                            {studentGroups.length > 0 &&
+                                                                <Box component={"span"} sx={groupSuffixSx}>
+                                                                    {`· ${groupsLabel(studentGroups)}`}
+                                                                </Box>}
                                                         </Stack>
                                                     }
-                                                />)
+                                                />
+                                                return studentGroups.length === 0
+                                                    ? chip
+                                                    : <Tooltip arrow key={option.userId}
+                                                               title={groupsTitle(studentGroups)}>
+                                                        {chip}
+                                                    </Tooltip>
+                                            })
                                         }
                                         noOptionsText={'Больше нет студентов для выбора'}
                                         value={state.selectedStudents}
