@@ -2,7 +2,6 @@
 import MDEditor, { PreviewType } from "@uiw/react-md-editor";
 import {getCommands, getExtraCommands} from "./Styles/MarkdownEditorCommands.ru";
 import rehypeSanitize, {defaultSchema} from 'rehype-sanitize';
-import * as React from "react";
 
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
@@ -36,7 +35,7 @@ const customRehypeSanitizeSchema: Schema = {
         'math', 'mrow', 'mi', 'mo', 'mn', 'msub', 'msup', 'mfrac', 'msqrt',
         // MathML Advanced:
         'maction', 'maligngroup', 'malignmark', 'menclose', 'merror',
-        'mfenced', 'mi', 'mlongdiv', 'mmultiscripts', 'mover',
+        'mfenced', 'mlongdiv', 'mmultiscripts', 'mover',
         'mpadded', 'mphantom', 'mroot', 'ms', 'mscarries', 'mscarry',
         'msgroup', 'msline', 'mspace', 'msrow', 'mstack', 'mstyle',
         'msubsup', 'mtable', 'mtd', 'mtext', 'mtr', 'munder', 'munderover',
@@ -59,18 +58,6 @@ const MarkdownPreview: FC<MarkdownPreviewProps> = (props) => <MDEditor.Markdown
         color: props.textColor ?? "inherit",
         paddingBottom: '15px'
     }}
-    components={{
-        a: ({ node, ...props }) => (
-            <a
-                {...props}
-                style={{
-                    wordBreak: 'break-all',
-                    display: 'inline-block',
-                    maxWidth: '100%'
-                }}
-            />
-        ),
-    }}
     wrapperElement={{
         "data-color-mode": "light"
     }}
@@ -89,6 +76,7 @@ const MarkdownEditor: FC<MarkdownEditorProps> = (props) => {
     return (
         <div data-color-mode="light" style={{marginTop: '15px', marginBottom: '15px'}}>
             <MDEditor
+                className="hw-md-editor"
                 commands={[...getCommands()]}
                 extraCommands={[...getExtraCommands()]}
                 value={props.value}
