@@ -768,7 +768,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 }}
                 toEditHomework={() => toEditHomework(homework!)} getAllHomeworks={() => homeworks}/>
             {!props.isMentor && props.isStudentAccepted && task.id! > 0 &&
-                <Box sx={{...detailFooterSx, backgroundColor: "#fff"}}>
+                <Box sx={{...detailFooterSx, py: 2.5, backgroundColor: "#fff"}}>
                     <TaskInlineSolutions
                         key={task.id}
                         courseId={props.courseId}
