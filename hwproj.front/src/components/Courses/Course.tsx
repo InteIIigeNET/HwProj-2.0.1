@@ -278,6 +278,7 @@ const Course: React.FC = () => {
 
     const {tabValue} = pageState
     const searchedHomeworkId = searchParams.get("homeworkId")
+    const searchedTaskId = searchParams.get("taskId")
 
     const unratedSolutionsCount = (studentSolutions || [])
         .flatMap(x => x.homeworks)
@@ -537,7 +538,9 @@ const Course: React.FC = () => {
                         isMentor={isCourseMentor}
                         studentSolutions={studentSolutions || []}
                         isStudentAccepted={isAcceptedStudent}
+                        courseMates={acceptedStudents}
                         selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
+                        selectedTaskId={searchedTaskId == null ? undefined : +searchedTaskId}
                         userId={userId!}
                         processingFiles={courseFilesState.processingFilesState}
                         onStartProcessing={updateCourseUnitFiles}

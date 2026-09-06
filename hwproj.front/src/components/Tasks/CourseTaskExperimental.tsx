@@ -889,6 +889,8 @@ const CourseTaskExperimental: FC<{
     task: TaskEditData,
     homework: HomeworkViewModel,
     isMentor: boolean,
+    isStudentAccepted?: boolean,
+    rating?: number | "?",
     initialEditMode: boolean,
     onMount: () => void,
     onUpdate: (x: { task: TaskEditData, isDeleted?: boolean }) => void
@@ -937,13 +939,21 @@ const CourseTaskExperimental: FC<{
                             {task.title}
                         </Typography>
                         <Stack direction={"row"} spacing={0.75} useFlexGap flexWrap={"wrap"} sx={{mt: 1}}>
-                            <Tooltip arrow title={"Максимальный балл"}>
-                                <Chip
-                                    size={"small"}
-                                    icon={<StarRoundedIcon/>}
-                                    label={task.maxRating}
-                                    sx={accentChipSx}/>
-                            </Tooltip>
+                            {!props.isMentor && props.isStudentAccepted
+                                ? <Tooltip arrow title={"Ваш балл за задачу"}>
+                                    <Chip
+                                        size={"small"}
+                                        icon={<StarRoundedIcon/>}
+                                        label={(props.rating ?? 0) + " / " + task.maxRating}
+                                        sx={accentChipSx}/>
+                                </Tooltip>
+                                : <Tooltip arrow title={"Максимальный балл"}>
+                                    <Chip
+                                        size={"small"}
+                                        icon={<StarRoundedIcon/>}
+                                        label={task.maxRating}
+                                        sx={accentChipSx}/>
+                                </Tooltip>}
                             <TaskDeadline task={task} isMentor={props.isMentor}/>
                             {task.isGroupWork &&
                                 <Chip
@@ -970,6 +980,10 @@ const CourseTaskExperimental: FC<{
             </Box>
 
             <Box sx={sectionSx}>
+                {!props.isMentor &&
+                    <Typography variant={"subtitle2"} sx={{color: "#3f51b5", fontWeight: 600, mb: 1}}>
+                        Условие задачи
+                    </Typography>}
                 {task.description
                     ? <Typography component="div" style={{color: "#454545"}} variant="body1">
                         <MarkdownPreview value={task.description!}/>
