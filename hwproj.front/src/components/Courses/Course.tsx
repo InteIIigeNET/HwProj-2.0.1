@@ -264,9 +264,12 @@ const Course: React.FC = () => {
         setCurrentState()
     }, [])
 
-    useEffect(() => {
+    const refreshStudentSolutions = () =>
         ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
             .then(res => setStudentSolutions(res))
+
+    useEffect(() => {
+        refreshStudentSolutions()
     }, [courseId])
 
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
@@ -539,6 +542,7 @@ const Course: React.FC = () => {
                         studentSolutions={studentSolutions || []}
                         isStudentAccepted={isAcceptedStudent}
                         courseMates={acceptedStudents}
+                        onStudentSolutionsUpdate={refreshStudentSolutions}
                         selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
                         selectedTaskId={searchedTaskId == null ? undefined : +searchedTaskId}
                         userId={userId!}

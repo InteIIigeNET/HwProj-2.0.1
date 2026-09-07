@@ -198,6 +198,7 @@ interface ICourseExperimentalProps {
     isMentor: boolean
     isStudentAccepted: boolean
     courseMates: AccountDataDto[]
+    onStudentSolutionsUpdate: () => void
     userId: string
     selectedHomeworkId: number | undefined
     selectedTaskId: number | undefined
@@ -775,6 +776,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         task={task}
                         userId={userId}
                         courseMates={props.courseMates}
+                        onSolutionsChanged={props.onStudentSolutionsUpdate}
                     />
                 </Box>}
         </Paper>

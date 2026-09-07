@@ -51,6 +51,9 @@ interface ITaskInlineSolutionsProps {
     task: HomeworkTaskViewModel
     userId: string
     courseMates: AccountDataDto[]
+    // Решение отправляется/меняется прямо здесь, но баллы за задачу в шапке и в превью слева
+    // считаются из статистики курса на уровне Course — просим её перечитать данные.
+    onSolutionsChanged: () => void
 }
 
 const TaskInlineSolutions: FC<ITaskInlineSolutionsProps> = (props) => {
@@ -79,6 +82,13 @@ const TaskInlineSolutions: FC<ITaskInlineSolutionsProps> = (props) => {
         setSolutions(taskSolutions)
         setShowPrevious(false)
         setAddSolution(false)
+    }
+
+    // Вызывается после успешной отправки/изменения решения: обновляем и локальный список,
+    // и данные курса, чтобы перерисовались баллы за задачу (шапка задачи, превью в ленте слева)
+    const handleSolutionSaved = async () => {
+        await getSolutions()
+        props.onSolutionsChanged()
     }
 
     const getQuestions = async () => {
@@ -169,7 +179,7 @@ const TaskInlineSolutions: FC<ITaskInlineSolutionsProps> = (props) => {
             courseId={courseId}
             userId={userId}
             task={task}
-            onAdd={getSolutions}
+            onAdd={handleSolutionSaved}
             onCancel={() => setAddSolution(false)}
             lastSolution={lastSolution}
             students={courseMates}
