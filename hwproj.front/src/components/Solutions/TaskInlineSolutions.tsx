@@ -11,6 +11,7 @@ import {Box, Button, Collapse, Stack, Typography} from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import ApiSingleton from "../../api/ApiSingleton";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
 import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
@@ -46,6 +47,14 @@ const emptyStateSx = {
     color: "text.secondary",
 }
 
+// Стандартная «гифка загрузки» проекта, размер как в FilesPreviewList
+const loaderSx = {
+    width: "100%",
+    maxWidth: 180,
+    mx: "auto",
+    py: 2,
+}
+
 interface ITaskInlineSolutionsProps {
     courseId: number
     task: HomeworkTaskViewModel
@@ -61,6 +70,7 @@ const TaskInlineSolutions: FC<ITaskInlineSolutionsProps> = (props) => {
     const student = courseMates.find(x => x.userId === userId)
 
     const [solutions, setSolutions] = useState<GetSolutionModel[]>([])
+    const [solutionsLoaded, setSolutionsLoaded] = useState(false)
     const [questions, setQuestions] = useState<GetTaskQuestionDto[]>([])
     const [addSolution, setAddSolution] = useState(false)
     const [showPrevious, setShowPrevious] = useState(false)
@@ -71,17 +81,21 @@ const TaskInlineSolutions: FC<ITaskInlineSolutionsProps> = (props) => {
     } = FilesUploadWaiter(courseId, CourseUnitType.Solution, false)
 
     const getSolutions = async () => {
-        const pageData = await ApiSingleton.solutionsApi.solutionsGetStudentSolution(task.id!, userId)
-        const taskSolutions = (pageData.taskSolutions ?? [])
-            .flatMap(x => x.homeworkSolutions ?? [])
-            .flatMap(x => x?.studentSolutions ?? [])
-            .filter(x => Number(x?.taskId) === task.id)
-            .flatMap(x => x?.solutions ?? [])
-        taskSolutions.sort((a, b) =>
-            new Date(a.publicationDate!).getTime() - new Date(b.publicationDate!).getTime())
-        setSolutions(taskSolutions)
-        setShowPrevious(false)
-        setAddSolution(false)
+        try {
+            const pageData = await ApiSingleton.solutionsApi.solutionsGetStudentSolution(task.id!, userId)
+            const taskSolutions = (pageData.taskSolutions ?? [])
+                .flatMap(x => x.homeworkSolutions ?? [])
+                .flatMap(x => x?.studentSolutions ?? [])
+                .filter(x => Number(x?.taskId) === task.id)
+                .flatMap(x => x?.solutions ?? [])
+            taskSolutions.sort((a, b) =>
+                new Date(a.publicationDate!).getTime() - new Date(b.publicationDate!).getTime())
+            setSolutions(taskSolutions)
+            setShowPrevious(false)
+            setAddSolution(false)
+        } finally {
+            setSolutionsLoaded(true)
+        }
     }
 
     // Вызывается после успешной отправки/изменения решения: обновляем и локальный список,
@@ -97,6 +111,7 @@ const TaskInlineSolutions: FC<ITaskInlineSolutionsProps> = (props) => {
     }
 
     useEffect(() => {
+        setSolutionsLoaded(false)
         setAddSolution(false)
         getSolutions()
         getQuestions()
@@ -118,6 +133,18 @@ const TaskInlineSolutions: FC<ITaskInlineSolutionsProps> = (props) => {
             courseFilesInfo={courseFilesState.courseFiles}
             isProcessing={courseFilesState.processingFilesState[solution.id!]?.isLoading || false}
         />
+    )
+
+    // Пока решения по задаче не загрузились, показываем загрузку, а не пустой список:
+    // иначе на медленном ответе бэкенда UI ошибочно сообщает, что решений нет.
+    if (!solutionsLoaded) return (
+        <Box sx={loaderSx}>
+            <DotLottieReact
+                src="https://lottie.host/fae237c0-ae74-458a-96f8-788fa3dcd895/MY7FxHtnH9.lottie"
+                loop
+                autoplay
+            />
+        </Box>
     )
 
     return <Stack direction={"column"} spacing={2.5}>

@@ -344,7 +344,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     // Фильтр "Только нерешенные" для студента: показываем задачи, по которым ещё нет ни одного решения.
-    // Ключ localStorage общий со старой страницей решений, чтобы выбор пользователя сохранился.
     type Filter = "Только нерешенные"
     const FilterStorageKey = "TaskSolutionsPage"
     const canFilterNotSolved = !isMentor && isStudentAccepted
@@ -734,7 +733,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Paper>
     }
 
-    // Балл студента за задачу для шапки: "?" — если есть неоценённое решение, иначе оценка последней проверки
+    // Балл студента за задачу для шапки: "?" — если решение первое и не имеет оценки, иначе оценка последней проверки
     const getTaskRating = (task: HomeworkTaskViewModel): number | "?" => {
         if (isMentor || !isStudentAccepted) return 0
         const {lastSolution, lastRatedSolution} =
