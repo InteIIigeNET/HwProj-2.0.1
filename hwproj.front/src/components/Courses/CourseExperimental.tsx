@@ -675,6 +675,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 suggestedMaxRating: targetRating,
                 tags: homework.tags,
                 isDeferred: homework.isDeferred,
+                criteria: [],
                 ltiLaunchData: item.ltiLaunchData,
             }
             props.onTaskUpdate({task})

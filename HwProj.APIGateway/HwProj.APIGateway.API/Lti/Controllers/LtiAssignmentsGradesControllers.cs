@@ -23,7 +23,7 @@ public class LtiAssignmentsGradesControllers(
     ILtiToolService toolService)
     : ControllerBase
 {
-    [HttpPost("lineItem/{taskId}")]
+    [HttpPost("lineItem/{taskId}/scores")]
     [Consumes("application/vnd.ims.lti-ags.v1.score+json")]
     public async Task<IActionResult> UpdateTaskScore(long taskId, [FromBody] Score score)
     {
