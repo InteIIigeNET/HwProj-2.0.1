@@ -3,7 +3,7 @@ import {
     AccountDataDto,
     FileInfoDTO, GroupViewModel,
     HomeworkTaskViewModel,
-    HomeworkViewModel, SolutionDto, StatisticsCourseMatesModel,
+    HomeworkViewModel, SolutionDto, SolutionState, StatisticsCourseMatesModel,
 } from "@/api";
 import {
     AlertTitle,
@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import {FC, useEffect, useState} from "react";
 import {Alert, Chip, Paper, Stack, Tooltip} from "@mui/material";
-import TaskInlineSolutions from "../Solutions/TaskInlineSolutions";
+import CourseTaskSolutions from "../Solutions/CourseTaskSolutions";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {BonusTag, DefaultTags, getTip, isBonusWork, isTestWork, TestTag} from "../Common/HomeworkTags";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
@@ -32,6 +32,8 @@ import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExper
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import EditIcon from "@mui/icons-material/Edit";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import ErrorIcon from '@mui/icons-material/Error';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import SwitchAccessShortcutIcon from '@mui/icons-material/SwitchAccessShortcut';
@@ -110,6 +112,14 @@ const detailFooterSx = {
     py: 1.5,
     borderTop: "1px solid #e6e8f0",
     backgroundColor: "#fafbfe",
+}
+
+const solutionActionButtonSx = {
+    textTransform: "none" as const,
+    borderRadius: "10px",
+    fontWeight: 500,
+    px: 2,
+    flexShrink: 0,
 }
 
 const emptyStateSx = {
@@ -256,6 +266,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         selectedItem: {id: undefined, isHomework: true},
     })
 
+    // Диалог отправки/редактирования решения открывается кнопкой в подвале карточки задачи,
+    // а сам диалог и блок решений живут в CourseTaskSolutions под карточкой — состояние общее.
+    const [addSolutionOpen, setAddSolutionOpen] = useState(false)
+
     useEffect(() => {
         // Диплинк на конкретную задачу (?taskId=...): открываем её сразу, не дожидаясь клика по ленте
         const homeworkWithTask = selectedTaskId != null
@@ -301,6 +315,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const initialEditMode = state.initialEditMode
     const {id, isHomework} = state.selectedItem
+
+    // Смена выбранного элемента ленты закрывает форму отправки решения
+    useEffect(() => {
+        setAddSolutionOpen(false)
+    }, [id, isHomework])
 
     const renderDate = (date: Date) => {
         date = new Date(date)
@@ -742,9 +761,19 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return lastRatedSolution == null ? "?" : lastRatedSolution.rating ?? 0
     }
 
+    // Последнее решение студента без оценки — кнопка предлагает «Изменить решение», а не «Добавить»
+    const isSolutionEdit = (task: HomeworkTaskViewModel): boolean => {
+        const solutions = taskSolutionsMap.get(task.id!) ?? []
+        return solutions[solutions.length - 1]?.state === SolutionState.NUMBER_0
+    }
+
     const renderTask = (task: HomeworkTaskViewModel & { isModified?: boolean }, homework: HomeworkViewModel) => {
         const taskEditMode = task && (task.id! < 0 || task.isModified === true)
-        return task && <Paper variant={"outlined"} sx={detailPanelSx(taskEditMode)}>
+        if (!task) return task
+
+        const isStudent = !isMentor && props.isStudentAccepted && task.id! > 0
+
+        const taskPanel = <Paper variant={"outlined"} sx={detailPanelSx(taskEditMode)}>
             {isMentor && <Box sx={topAlertsSx}>{getDatesAlert(task, false)}</Box>}
             <CourseTaskExperimental
                 key={task.id}
@@ -767,18 +796,36 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         }))
                 }}
                 toEditHomework={() => toEditHomework(homework!)} getAllHomeworks={() => homeworks}/>
-            {!props.isMentor && props.isStudentAccepted && task.id! > 0 &&
-                <Box sx={{...detailFooterSx, py: 2.5, backgroundColor: "#fff"}}>
-                    <TaskInlineSolutions
-                        key={task.id}
-                        courseId={props.courseId}
-                        task={task}
-                        userId={userId}
-                        courseMates={props.courseMates}
-                        onSolutionsChanged={props.onStudentSolutionsUpdate}
-                    />
-                </Box>}
+            {isStudent && task.canSendSolution && <Box sx={detailFooterSx}>
+                <Button
+                    variant={"contained"}
+                    color={"primary"}
+                    disableElevation
+                    startIcon={isSolutionEdit(task) ? <EditOutlinedIcon/> : <AddCircleOutlineIcon/>}
+                    sx={solutionActionButtonSx}
+                    onClick={() => setAddSolutionOpen(true)}
+                >
+                    {isSolutionEdit(task) ? "Изменить решение" : "Добавить решение"}
+                </Button>
+            </Box>}
         </Paper>
+
+        if (isStudent)
+            return <>
+                {taskPanel}
+                <CourseTaskSolutions
+                    key={`solutions-${task.id}`}
+                    task={task}
+                    courseId={props.courseId}
+                    userId={userId}
+                    courseMates={props.courseMates}
+                    addSolutionOpen={addSolutionOpen}
+                    onCloseAddSolution={() => setAddSolutionOpen(false)}
+                    onSolutionsChanged={props.onStudentSolutionsUpdate}
+                />
+            </>
+
+        return taskPanel
     }
 
     const renderGif = () =>
@@ -795,6 +842,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             Самое время добавить новое задание!
         </Alert>
     </Stack>
+
+    const showBottomGif = isMentor || !isStudentAccepted || isHomework
 
     // useFlexGap обязателен: колонки меняются местами через order, а по умолчанию Stack раздаёт
     // отступы margin'ом соседним по разметке детям — на мобильных зазор оказывался не между
@@ -1016,13 +1065,15 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             {isHomework
                 ? renderHomework(selectedItem as HomeworkViewModel)
                 : renderTask(selectedItem as HomeworkTaskViewModel, selectedItemHomework!)}
-            <Box sx={{display: {xs: 'none', md: 'flex'}}}>
+            {/* Декоративная гифка — везде, кроме случая «принятый студент + выбрана задача»,
+                где под задачей идёт блок решений. */}
+            {showBottomGif && <Box sx={{display: {xs: 'none', md: 'flex'}}}>
                 {renderGif()}
-            </Box>
+            </Box>}
         </Box>
-        <Box sx={{display: {xs: 'flex', md: 'none'}, width: "100%", order: 3}}>
+        {showBottomGif && <Box sx={{display: {xs: 'flex', md: 'none'}, width: "100%", order: 3}}>
             {renderGif()}
-        </Box>
+        </Box>}
 
         {/* Кнопка "Наверх" для мобильных устройств */}
         <Zoom in={showScrollButton && isMobile}>
