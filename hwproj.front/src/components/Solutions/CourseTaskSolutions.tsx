@@ -50,8 +50,6 @@ const CourseTaskSolutions: FC<ICourseTaskSolutionsProps> = (props) => {
                 .flatMap(x => x?.studentSolutions ?? [])
                 .filter(x => Number(x?.taskId) === task.id)
                 .flatMap(x => x?.solutions ?? [])
-            taskSolutions.sort((a, b) =>
-                new Date(a.publicationDate!).getTime() - new Date(b.publicationDate!).getTime())
             setSolutions(taskSolutions)
         } finally {
             setSolutionsLoaded(true)

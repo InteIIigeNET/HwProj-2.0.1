@@ -540,11 +540,12 @@ const Course: React.FC = () => {
                         courseFilesInfo={courseFilesState.courseFiles}
                         isMentor={isCourseMentor}
                         studentSolutions={studentSolutions || []}
-                        isStudentAccepted={isAcceptedStudent}
                         courseMates={acceptedStudents}
                         onStudentSolutionsUpdate={refreshStudentSolutions}
-                        selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
-                        selectedTaskId={searchedTaskId == null ? undefined : +searchedTaskId}
+                        searchedItem={{
+                            isHomework: searchedHomeworkId == null ? searchedTaskId == null ? undefined : false : true,
+                            id: searchedHomeworkId == null ? searchedTaskId == null ? undefined : +searchedTaskId : +searchedHomeworkId,
+                        }}
                         userId={userId!}
                         processingFiles={courseFilesState.processingFilesState}
                         onStartProcessing={updateCourseUnitFiles}

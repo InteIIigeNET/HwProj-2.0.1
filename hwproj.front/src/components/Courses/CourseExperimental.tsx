@@ -206,12 +206,10 @@ interface ICourseExperimentalProps {
     studentSolutions: StatisticsCourseMatesModel[]
     courseId: number
     isMentor: boolean
-    isStudentAccepted: boolean
     courseMates: AccountDataDto[]
     onStudentSolutionsUpdate: () => void
     userId: string
-    selectedHomeworkId: number | undefined
-    selectedTaskId: number | undefined
+    searchedItem: { isHomework: boolean | undefined, id: number | undefined }
     onHomeworkUpdate: (update: { homework: HomeworkViewModel } & {
         isDeleted?: boolean
     }) => void
@@ -259,7 +257,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return true
     })
 
-    const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId, selectedTaskId, courseFilesInfo} = props
+    const {isMentor, studentSolutions, userId, searchedItem, courseFilesInfo} = props
+    const isStudentAccepted = props.courseMates.some(x => x.userId === userId)
 
     const [state, setState] = useState<ICourseExperimentalState>({
         initialEditMode: false,
@@ -271,25 +270,25 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const [addSolutionOpen, setAddSolutionOpen] = useState(false)
 
     useEffect(() => {
-        // Диплинк на конкретную задачу (?taskId=...): открываем её сразу, не дожидаясь клика по ленте
-        const homeworkWithTask = selectedTaskId != null
-            ? homeworks?.find(x => x.tasks?.some(t => t.id === selectedTaskId))
+        // Диплинк на конкретную задачу (useSearchParams): открываем её сразу, не дожидаясь клика по ленте
+        const homeworkWithTask = searchedItem.isHomework === false
+            ? homeworks?.find(x => x.tasks?.some(t => t.id === searchedItem.id))
             : undefined
         if (homeworkWithTask) {
             setState((prevState) => ({
                 ...prevState,
-                selectedItem: {isHomework: false, id: selectedTaskId},
+                selectedItem: {isHomework: false, id: searchedItem.id},
             }))
             return
         }
 
-        const defaultHomeworkIndex = Math.max(selectedHomeworkId ? homeworks?.findIndex(x => x.id === selectedHomeworkId) : 0, 0)
+        const defaultHomeworkIndex = Math.max(searchedItem.isHomework ? homeworks?.findIndex(x => x.id === searchedItem.id) : 0, 0)
         const defaultHomework = homeworks?.[defaultHomeworkIndex]
         setState((prevState) => ({
             ...prevState,
             selectedItem: {isHomework: true, id: defaultHomework?.id},
         }))
-    }, [hideDeferred, selectedTaskId, selectedHomeworkId])
+    }, [hideDeferred, searchedItem.isHomework, searchedItem.id])
 
     // Обработчик прокрутки страницы
     useEffect(() => {
@@ -771,7 +770,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         const taskEditMode = task && (task.id! < 0 || task.isModified === true)
         if (!task) return task
 
-        const isStudent = !isMentor && props.isStudentAccepted && task.id! > 0
+        const isStudent = !isMentor && isStudentAccepted && task.id! > 0
 
         const taskPanel = <Paper variant={"outlined"} sx={detailPanelSx(taskEditMode)}>
             {isMentor && <Box sx={topAlertsSx}>{getDatesAlert(task, false)}</Box>}
@@ -780,7 +779,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 task={task}
                 homework={homework!}
                 isMentor={isMentor}
-                isStudentAccepted={props.isStudentAccepted}
+                isStudentAccepted={isStudentAccepted}
                 rating={getTaskRating(task)}
                 initialEditMode={initialEditMode || taskEditMode}
                 onMount={onSelectedItemMount}
