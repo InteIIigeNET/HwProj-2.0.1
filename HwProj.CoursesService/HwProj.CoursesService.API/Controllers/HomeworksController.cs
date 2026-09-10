@@ -27,26 +27,19 @@ namespace HwProj.CoursesService.API.Controllers
             var validationResult = Validator.ValidateHomework(homeworkViewModel);
             if (validationResult.Any()) return BadRequest(validationResult);
 
-            var newHomework = await _homeworksService.AddHomeworkAsync(courseId, homeworkViewModel);
-            return Ok(newHomework.ToHomeworkViewModel());
+            var responseViewModel = await _homeworksService.AddHomeworkAsync(courseId, homeworkViewModel);
+
+            return Ok(responseViewModel);
         }
 
         [HttpGet("get/{homeworkId}")]
         public async Task<HomeworkViewModel> GetHomework(long homeworkId)
-        {
-            var homeworkFromDb = await _homeworksService.GetHomeworkAsync(homeworkId);
-            var homework = homeworkFromDb.ToHomeworkViewModel();
-            return homework;
-        }
+            => await _homeworksService.GetHomeworkAsync(homeworkId);
 
         [HttpGet("getForEditing/{homeworkId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<HomeworkViewModel> GetForEditingHomework(long homeworkId)
-        {
-            var homeworkFromDb = await _homeworksService.GetForEditingHomeworkAsync(homeworkId);
-            var homework = homeworkFromDb.ToHomeworkViewModel();
-            return homework;
-        }
+            => await _homeworksService.GetForEditingHomeworkAsync(homeworkId);
 
         [HttpDelete("delete/{homeworkId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
@@ -61,11 +54,13 @@ namespace HwProj.CoursesService.API.Controllers
             [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
             var homework = await _homeworksService.GetForEditingHomeworkAsync(homeworkId);
-            var validationResult = Validator.ValidateHomework(homeworkViewModel, homework);
+            var validationResult = Validator.ValidateHomework(homeworkViewModel,
+                homework);
             if (validationResult.Any()) return BadRequest(validationResult);
 
             var updatedHomework = await _homeworksService.UpdateHomeworkAsync(homeworkId, homeworkViewModel);
-            return Ok(updatedHomework.ToHomeworkViewModel());
+
+            return Ok(updatedHomework);
         }
     }
 }

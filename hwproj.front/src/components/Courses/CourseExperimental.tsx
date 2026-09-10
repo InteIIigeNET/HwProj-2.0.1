@@ -42,6 +42,7 @@ import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import Lodash from "lodash";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
 import GroupIcon from '@mui/icons-material/Group';
+import {LtiImportButton, LtiItemDto} from "../Tasks/LtiImportButton";
 
 // Оформление списка заданий согласовано с редизайном страницы курса и списка курсов
 const listPanelSx = {
@@ -192,6 +193,7 @@ interface ICourseExperimentalProps {
     courseFilesInfo: FileInfoDTO[]
     studentSolutions: StatisticsCourseMatesModel[]
     courseId: number
+    ltiToolName: string | undefined
     isMentor: boolean
     isStudentAccepted: boolean
     userId: string
@@ -611,13 +613,12 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         }))
     }
 
-    const addNewTask = (homework: HomeworkViewModel) => {
-        const id = newTaskCounter
+    const calculateSuggestedRating = (homework: HomeworkViewModel) => {
         const tags = homework.tags!
         const isTest = tags.includes(TestTag)
         const isBonus = tags.includes(BonusTag)
 
-        const ratingCandidate = Lodash(homeworks
+        return Lodash(homeworks
             .map(h => h.tasks![0])
             .filter(x => {
                 if (x === undefined) return false
@@ -628,11 +629,16 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             .map(x => x.maxRating!)
             .groupBy(x => [x])
             .entries()
-            .sortBy(x => x[1].length).last()?.[1][0]
+            .sortBy(x => x[1].length).last()?.[1][0] || 10
+    }
+
+    const addNewTask = (homework: HomeworkViewModel) => {
+        const id = newTaskCounter
+        const ratingCandidate = calculateSuggestedRating(homework)
 
         const task = {
             homeworkId: homework.id,
-            maxRating: ratingCandidate || 10,
+            maxRating: ratingCandidate,
             suggestedMaxRating: ratingCandidate,
             title: `Новая задача`,
             tags: homework.tags,
@@ -650,6 +656,33 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             }
         }))
         setNewTaskCounter(id - 1)
+    }
+
+    const handleLtiImport = (items: LtiItemDto[], homework: HomeworkViewModel) => {
+        let currentCounter = newTaskCounter
+        const suggestedRating = calculateSuggestedRating(homework)
+
+        items.forEach(item => {
+            if (!item.ltiLaunchData) return
+            const targetRating = item.scoreMaximum > 0 ? item.scoreMaximum : suggestedRating
+
+            const task = {
+                id: currentCounter,
+                homeworkId: homework.id,
+                title: item.title || "External Task",
+                description: item.text?.trim() || "",
+                maxRating: targetRating,
+                suggestedMaxRating: targetRating,
+                tags: homework.tags,
+                isDeferred: homework.isDeferred,
+                criteria: [],
+                ltiLaunchData: item.ltiLaunchData,
+            }
+            props.onTaskUpdate({task})
+            currentCounter--
+        })
+
+        setNewTaskCounter(currentCounter)
     }
 
     const renderHomework = (homework: HomeworkViewModel & { isModified?: boolean }) => {
@@ -905,6 +938,16 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                                 sx={{flexGrow: 1, minWidth: 0, fontSize: "0.9375rem", lineHeight: 1.35}}
                                                 color={t.isDeferred ? "textSecondary" : "textPrimary"}>
                                                 {t.title}{getTip(t)}
+                                                {t.ltiLaunchData &&
+                                                    <Tooltip title="Задание из внешнего инструмента" arrow>
+                                                        <Chip
+                                                            label="LTI"
+                                                            size="small"
+                                                            variant="outlined"
+                                                            color="info"
+                                                            sx={{ml: 1, height: 20}}
+                                                        />
+                                                    </Tooltip>}
                                             </Typography>
                                             {renderTaskDeadline(t)}
                                         </ListItemButton>)}
@@ -928,13 +971,21 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         </Typography>
                                     </Stack>}
                                 {x.id! < 0 &&
-                                    <Button fullWidth
-                                            onClick={() => addNewTask(x)}
-                                            size={"small"}
-                                            startIcon={<AddIcon/>}
-                                            sx={{textTransform: "none", borderRadius: "10px", mt: 0.5}}>
-                                        Добавить задачу
-                                    </Button>}
+                                    <Stack direction={"column"} spacing={0} sx={{mt: 0.5}}>
+                                        <Button fullWidth
+                                                onClick={() => addNewTask(x)}
+                                                size={"small"}
+                                                startIcon={<AddIcon/>}
+                                                sx={{textTransform: "none", borderRadius: "10px"}}>
+                                            Добавить задачу
+                                        </Button>
+                                        {props.ltiToolName &&
+                                            <LtiImportButton
+                                                courseId={props.courseId}
+                                                toolName={props.ltiToolName}
+                                                onImport={(items) => handleLtiImport(items, x)}
+                                            />}
+                                    </Stack>}
                             </Box>;
                         })}
                     </Stack>

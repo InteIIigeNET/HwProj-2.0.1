@@ -20,11 +20,13 @@ import {appBarStateManager} from "../AppBar";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import {FilesUploadWaiter} from "@/components/Files/FilesUploadWaiter";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
+import {LtiLaunchButton} from "@/components/Solutions/LtiLaunchButton";
 
 interface ITaskSolutionsState {
     isLoaded: boolean
     addSolution: boolean
     courseId: number
+    ltiToolName: string
     homeworkGroupedSolutions: HomeworksGroupUserTaskSolutions[]
     courseMates: AccountDataDto[]
 }
@@ -147,6 +149,7 @@ const TaskSolutionsPage: FC = () => {
     const [taskSolutionPage, setTaskSolutionPage] = useState<ITaskSolutionsState>({
         isLoaded: false,
         courseId: 0,
+        ltiToolName: "",
         addSolution: false,
         homeworkGroupedSolutions: [],
         courseMates: []
@@ -164,7 +167,20 @@ const TaskSolutionsPage: FC = () => {
     const showOnlyNotSolved = filterState.some(x => x === "Только нерешенные")
 
     useEffect(() => {
-        getSolutions()
+        getSolutions();
+
+        const handleLtiMessage = (event: MessageEvent) => {
+
+            if (event.data === 'lti_success_refresh') {
+                getSolutions();
+            }
+        };
+
+        window.addEventListener("message", handleLtiMessage);
+
+        return () => {
+            window.removeEventListener("message", handleLtiMessage);
+        };
     }, [])
 
     useEffect(() => {
@@ -182,12 +198,13 @@ const TaskSolutionsPage: FC = () => {
             isLoaded: true,
             addSolution: false,
             courseId: pageData.courseId!,
+            ltiToolName: pageData.ltiToolName!,
             homeworkGroupedSolutions: pageData.taskSolutions!,
             courseMates: pageData.courseMates!,
         })
     }
 
-    const {homeworkGroupedSolutions, courseId, courseMates} = taskSolutionPage
+    const {homeworkGroupedSolutions, courseId, courseMates, ltiToolName} = taskSolutionPage
     const student = courseMates.find(x => x.userId === userId)!
 
     useEffect(() => {
@@ -261,6 +278,42 @@ const TaskSolutionsPage: FC = () => {
         }))
     }
 
+    const renderSolutionButton = () => {
+        if (task.ltiLaunchData) {
+            return (
+                <LtiLaunchButton
+                    courseId={courseId}
+                    toolName={ltiToolName}
+                    taskId={task.id || 0}
+                    ltiLaunchData={task.ltiLaunchData}
+                    />
+            )
+        }
+
+        if (task.canSendSolution) {
+            return (
+                <Button
+                    variant="contained"
+                    color="primary"
+                    disableElevation
+                    startIcon={isEdit ? <EditOutlinedIcon/> : <AddCircleOutlineIcon/>}
+                    sx={actionButtonSx}
+                    onClick={(e) => {
+                        e.persist();
+                        setTaskSolutionPage((prevState) => ({
+                            ...prevState,
+                            addSolution: true,
+                        }));
+                    }}
+                >
+                    {isEdit ? "Изменить решение" : "Добавить решение"}
+                </Button>
+            );
+        }
+
+        return null
+    }
+
     const renderRatingChip = (solutionsDescription: string, color: string, lastRatedSolution: SolutionDto) => {
         return <Tooltip arrow disableInteractive enterDelay={1000} title={<span
             style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
@@ -331,22 +384,7 @@ const TaskSolutionsPage: FC = () => {
                         }
                         label={<Typography variant={"body2"}>Только нерешенные</Typography>}
                     />
-                    {task.canSendSolution && <Button
-                        variant="contained"
-                        color="primary"
-                        disableElevation
-                        startIcon={isEdit ? <EditOutlinedIcon/> : <AddCircleOutlineIcon/>}
-                        sx={actionButtonSx}
-                        onClick={(e) => {
-                            e.persist()
-                            setTaskSolutionPage((prevState) => ({
-                                ...prevState,
-                                addSolution: true,
-                            }))
-                        }}
-                    >
-                        {isEdit ? "Изменить решение" : "Добавить решение"}
-                    </Button>}
+                    {renderSolutionButton()}
                 </Stack>
             </Paper>
             {currentHomeworksGroup && taskIndexInHomework !== -1 && currentHomeworksGroup.homeworkSolutions!.length > 1 &&

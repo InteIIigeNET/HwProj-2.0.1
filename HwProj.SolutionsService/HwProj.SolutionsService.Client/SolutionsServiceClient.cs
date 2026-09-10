@@ -110,6 +110,27 @@ namespace HwProj.SolutionsService.Client
                 throw new InvalidOperationException(response.ReasonPhrase);
         }
 
+        public async Task PostSolutionWithRate(long taskId, PostSolutionModel model, bool sendNotification = true)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _solutionServiceUri +
+                $"api/Solutions/postSolutionWithRate/{taskId}?sendNotification={sendNotification}")
+            {
+                Content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new ForbiddenException();
+            }
+        }
+
         public async Task RateSolution(long solutionId, RateSolutionModel rateSolutionModel)
         {
             using var httpRequest = new HttpRequestMessage(
@@ -297,5 +318,6 @@ namespace HwProj.SolutionsService.Client
                 return false;
             }
         }
+
     }
 }

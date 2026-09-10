@@ -532,6 +532,7 @@ const Course: React.FC = () => {
                     </Box>
                     {tabValue === "homeworks" && <CourseExperimental
                         courseId={+courseId!}
+                        ltiToolName={course.ltiToolName}
                         homeworks={courseHomeworks}
                         courseFilesInfo={courseFilesState.courseFiles}
                         isMentor={isCourseMentor}

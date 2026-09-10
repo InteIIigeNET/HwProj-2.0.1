@@ -139,6 +139,14 @@ namespace HwProj.AuthService.API.Controllers
             return Ok(result);
         }
 
+        [HttpPost("getOrCreateLtiBot")]
+        [ProducesResponseType(typeof(Result<AccountDataDto>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetOrCreateLtiBot([FromBody] string toolClientId)
+        {
+            var result = await _accountService.GetOrCreateLtiBot(toolClientId);
+            return Ok(result);
+        }
+
         [HttpPost("requestPasswordRecovery")]
         public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)
         {

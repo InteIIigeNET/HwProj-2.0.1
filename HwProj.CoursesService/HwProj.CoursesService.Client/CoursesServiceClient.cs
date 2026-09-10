@@ -61,13 +61,21 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? await response.DeserializeAsync<CourseDTO>() : null;
         }
 
-        public async Task<CourseDTO?> GetCourseById(long courseId)
+        public async Task<CourseDTO?> GetCourseById(long courseId, string? userId = null)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _coursesServiceUri + $"api/Courses/{courseId}");
 
-            httpRequest.TryAddUserId(_httpContextAccessor);
+            if (string.IsNullOrEmpty(userId))
+            {
+                httpRequest.TryAddUserId(_httpContextAccessor);
+            }
+            else
+            {
+                httpRequest.Headers.Add("UserId", userId);
+            }
+
             var response = await _httpClient.SendAsync(httpRequest);
             return response.IsSuccessStatusCode ? await response.DeserializeAsync<CourseDTO>() : null;
         }
@@ -509,12 +517,14 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<long[]>();
         }
 
-        public async Task<Result> AcceptLecturer(long courseId, string lecturerEmail, string lecturerId)
+        public async Task<Result> AcceptLecturer(long courseId, string lecturerEmail, string lecturerId,
+            bool sendNotification = true)
         {
             using var httpRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 _coursesServiceUri +
-                $"api/Courses/acceptLecturer/{courseId}?lecturerEmail={lecturerEmail}&lecturerId={lecturerId}");
+                $"api/Courses/acceptLecturer/{courseId}?lecturerEmail={lecturerEmail}&lecturerId={lecturerId}" +
+                $"&sendNotification={sendNotification}");
 
             httpRequest.TryAddUserId(_httpContextAccessor);
             var response = await _httpClient.SendAsync(httpRequest);
@@ -641,5 +651,6 @@ namespace HwProj.CoursesService.Client
                 return false;
             }
         }
+
     }
 }

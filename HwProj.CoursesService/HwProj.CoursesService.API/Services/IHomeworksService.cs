@@ -6,14 +6,14 @@ namespace HwProj.CoursesService.API.Services
 {
     public interface IHomeworksService
     {
-        Task<Homework> AddHomeworkAsync(long courseId, CreateHomeworkViewModel homeworkViewModel);
+        Task<HomeworkViewModel> AddHomeworkAsync(long courseId, CreateHomeworkViewModel homeworkViewModel);
 
-        Task<Homework> GetHomeworkAsync(long homeworkId, bool withCriteria = false);
+        Task<HomeworkViewModel> GetHomeworkAsync(long homeworkId, bool withCriteria = false);
 
-        Task<Homework> GetForEditingHomeworkAsync(long homeworkId);
+        Task<HomeworkViewModel> GetForEditingHomeworkAsync(long homeworkId);
 
         Task DeleteHomeworkAsync(long homeworkId);
 
-        Task<Homework> UpdateHomeworkAsync(long homeworkId, CreateHomeworkViewModel homeworkViewModel);
+        Task<HomeworkViewModel> UpdateHomeworkAsync(long homeworkId, CreateHomeworkViewModel homeworkViewModel);
     }
 }

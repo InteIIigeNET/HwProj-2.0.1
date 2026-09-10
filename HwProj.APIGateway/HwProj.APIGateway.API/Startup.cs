@@ -1,7 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
 using HwProj.APIGateway.API.Filters;
+using HwProj.APIGateway.API.Lti.Configuration;
+using HwProj.APIGateway.API.Lti.Services;
+using HwProj.APIGateway.API.LTI.Services;
 using HwProj.AuthService.Client;
 using HwProj.ContentService.Client;
 using HwProj.CoursesService.Client;
@@ -68,8 +72,30 @@ public class Startup
                         new SymmetricSecurityKey(Encoding.ASCII.GetBytes(appSettings["SecurityKey"])),
                     ValidateIssuerSigningKey = true
                 };
+            })
+            .AddJwtBearer("LtiScheme", options =>
+            {
+                var ltiConfig = Configuration.GetSection("LtiPlatform").Get<LtiPlatformConfig>();
+                if (ltiConfig == null) return;
+
+                var rsa = RSA.Create();
+
+                rsa.ImportFromPem(ltiConfig.SigningKey.PrivateKeyPem);
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = ltiConfig.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = ltiConfig.Issuer,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+
+                    IssuerSigningKeys = [new RsaSecurityKey(rsa)]
+                };
             });
 
+        services.AddMemoryCache();
         services.AddHttpClient();
         services.AddHttpContextAccessor();
 
@@ -78,6 +104,12 @@ public class Startup
         services.AddSolutionServiceClient();
         services.AddNotificationsServiceClient();
         services.AddContentServiceClient();
+
+        services.Configure<LtiPlatformConfig>(Configuration.GetSection("LtiPlatform"));
+        services.Configure<List<LtiToolConfig>>(Configuration.GetSection("LtiTools"));
+        services.AddSingleton<ILtiToolService, LtiToolService>();
+        services.AddSingleton<ILtiTokenService, LtiTokenService>();
+        services.AddSingleton<ILtiKeyService, LtiKeyService>(); 
 
         services.AddScoped<CourseMentorOnlyAttribute>();
         services.AddScoped<FilesPrivacyFilter>();

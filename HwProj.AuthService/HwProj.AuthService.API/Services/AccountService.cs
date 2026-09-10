@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
 using System.Web;
 using AutoMapper;
 using HwProj.AuthService.API.Extensions;
@@ -225,6 +227,76 @@ namespace HwProj.AuthService.API.Services
             return await _userManager.GetUsersInRoleAsync(role);
         }
 
+        public async Task<Result<AccountDataDto>> GetOrCreateLtiBot(string toolClientId)
+        {
+            if (string.IsNullOrWhiteSpace(toolClientId))
+            {
+                return Result<AccountDataDto>.Failed("ClientId LTI-инструмента не указан");
+            }
+
+            var botId = GetLtiBotId(toolClientId);
+            var botEmail = $"{botId}@system.local";
+            var bot = await _aspUserManager.FindByIdAsync(botId);
+
+            if (bot != null)
+            {
+                if (!string.Equals(bot.Email, botEmail, StringComparison.OrdinalIgnoreCase))
+                {
+                    return Result<AccountDataDto>.Failed(
+                        $"Идентификатор LTI-бота {botId} уже занят другим пользователем");
+                }
+            }
+            else
+            {
+                var userWithBotEmail = await _aspUserManager.FindByEmailAsync(botEmail);
+                if (userWithBotEmail != null)
+                {
+                    return Result<AccountDataDto>.Failed(
+                        $"Почта LTI-бота {botEmail} уже принадлежит пользователю с другим идентификатором");
+                }
+
+                bot = new User
+                {
+                    Id = botId,
+                    UserName = botEmail,
+                    Email = botEmail,
+                    EmailConfirmed = true,
+                    Name = "LTI Bot",
+                    Surname = "",
+                    MiddleName = "",
+                    IsExternalAuth = false,
+                };
+
+                var createResult = await _aspUserManager.CreateAsync(bot);
+                if (!createResult.Succeeded)
+                {
+                    var concurrentlyCreatedBot = await _aspUserManager.FindByIdAsync(botId);
+                    if (concurrentlyCreatedBot == null ||
+                        !string.Equals(concurrentlyCreatedBot.Email, botEmail,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        return Result<AccountDataDto>.Failed(
+                            createResult.Errors.Select(error => error.Description).ToArray());
+                    }
+
+                    bot = concurrentlyCreatedBot;
+                }
+            }
+
+            var isExpert = await _aspUserManager.IsInRoleAsync(bot, Roles.ExpertRole);
+            if (!isExpert)
+            {
+                var roleResult = await _userManager.AddToRoleAsync(bot, Roles.ExpertRole);
+                if (roleResult.Succeeded || await _aspUserManager.IsInRoleAsync(bot, Roles.ExpertRole))
+                    return Result<AccountDataDto>.Success(bot.ToAccountDataDto(Roles.ExpertRole));
+
+                return Result<AccountDataDto>.Failed(
+                    roleResult.Errors.Select(error => error.Description).ToArray());
+            }
+
+            return Result<AccountDataDto>.Success(bot.ToAccountDataDto(Roles.ExpertRole));
+        }
+
         public async Task<Result> RequestPasswordRecovery(RequestPasswordRecoveryViewModel model)
         {
             var user = await _aspUserManager.FindByEmailAsync(model.Email);
@@ -376,6 +448,25 @@ namespace HwProj.AuthService.API.Services
         private async Task<Result<TokenCredentials>> GetToken(User user)
         {
             return Result<TokenCredentials>.Success(await _tokenService.GetTokenAsync(user).ConfigureAwait(false));
+        }
+
+        private static string GetLtiBotId(string toolClientId)
+        {
+            if (string.IsNullOrWhiteSpace(toolClientId))
+            {
+                throw new ArgumentException(
+                    "ClientId LTI-инструмента не указан",
+                    nameof(toolClientId));
+            }
+
+            var source = $"hwproj:lti-bot:{toolClientId.Trim()}";
+            var bytes = Encoding.UTF8.GetBytes(source);
+            var hash = SHA256.HashData(bytes);
+            var hashString = Convert
+                .ToHexString(hash)
+                .ToLowerInvariant();
+
+            return $"lti-bot-{hashString}";
         }
     }
 }

@@ -60,6 +60,7 @@ namespace HwProj.SolutionsService.API.Services
         public async Task<Solution[]> GetTaskSolutionsFromStudentAsync(long taskId, string studentId)
         {
             var course = await _coursesServiceClient.GetCourseByTask(taskId);
+
             if (course == null) return Array.Empty<Solution>();
 
             var studentGroupsIds = course.Groups
@@ -100,50 +101,6 @@ namespace HwProj.SolutionsService.API.Services
                 .ToList();
 
             return taskIds.Select(t => solutions.FirstOrDefault(s => s?.TaskId == t)).ToArray();
-        }
-
-        public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
-        {
-            solution.PublicationDate = DateTime.UtcNow;
-            solution.TaskId = taskId;
-
-            var task = await _coursesServiceClient.GetTask(solution.TaskId);
-
-            var lastSolution =
-                await _solutionsRepository
-                    .FindAll(s => s.TaskId == taskId && s.StudentId == solution.StudentId)
-                    .OrderByDescending(t => t.PublicationDate)
-                    .FirstOrDefaultAsync();
-
-            long? solutionId;
-
-            if (lastSolution != null && lastSolution.State == SolutionState.Posted)
-            {
-                var isModified = lastSolution.GithubUrl != solution.GithubUrl || lastSolution.Comment != solution.Comment;
-                await _solutionsRepository.UpdateAsync(lastSolution.Id, x => new Solution
-                {
-                    GithubUrl = solution.GithubUrl,
-                    Comment = solution.Comment,
-                    GroupId = solution.GroupId,
-                    IsModified = isModified,
-                    State = SolutionState.Posted,
-                });
-                solutionId = lastSolution.Id;
-            }
-            else
-            {
-                solutionId = await _solutionsRepository.AddAsync(solution);
-
-                var solutionModel = _mapper.Map<SolutionViewModel>(solution);
-                var course = await _coursesServiceClient.GetCourseByTask(solution.TaskId);
-                var student = await _authServiceClient.GetAccountData(solutionModel.StudentId);
-                var studentModel = _mapper.Map<AccountDataDto>(student);
-                _eventBus.Publish(new StudentPassTaskEvent(course, solutionModel, studentModel, task));
-            }
-
-            if (task.Tags.Contains(HomeworkTags.Test))
-                await TrySaveSolutionCommitsInfo(solutionId.Value, solution.GithubUrl);
-            return solutionId.Value;
         }
 
         public async Task PostEmptySolutionWithRateAsync(long taskId, Solution solution)
@@ -349,6 +306,128 @@ namespace HwProj.SolutionsService.API.Services
             }
 
             return solutionsActuality;
+        }
+
+        public async Task<long> PostOrUpdateAsync(
+            long taskId, Solution solution, bool sendNotification = true)
+        {
+            solution.PublicationDate = DateTime.UtcNow;
+            solution.TaskId = taskId;
+
+            var task = await _coursesServiceClient.GetTask(solution.TaskId);
+
+            var lastSolution =
+                await _solutionsRepository
+                    .FindAll(s => s.TaskId == taskId && s.StudentId == solution.StudentId)
+                    .OrderByDescending(t => t.PublicationDate)
+                    .FirstOrDefaultAsync();
+
+            long? solutionId;
+
+            if (lastSolution != null && lastSolution.State == SolutionState.Posted)
+            {
+                var isModified = lastSolution.GithubUrl != solution.GithubUrl ||
+                                 lastSolution.Comment != solution.Comment;
+                await _solutionsRepository.UpdateAsync(lastSolution.Id, x => new Solution
+                {
+                    GithubUrl = solution.GithubUrl,
+                    Comment = solution.Comment,
+                    GroupId = solution.GroupId,
+                    IsModified = isModified,
+                    State = SolutionState.Posted,
+                });
+                solutionId = lastSolution.Id;
+            }
+            else
+            {
+                solutionId = await _solutionsRepository.AddAsync(solution);
+
+                var solutionModel = _mapper.Map<SolutionViewModel>(solution);
+                var course = await _coursesServiceClient.GetCourseByTask(solution.TaskId);
+                var student = await _authServiceClient.GetAccountData(solutionModel.StudentId);
+                var studentModel = _mapper.Map<AccountDataDto>(student);
+
+                if (sendNotification)
+                {
+                    _eventBus.Publish(new StudentPassTaskEvent(course, solutionModel, studentModel, task));
+                }
+            }
+
+            if (task.Tags.Contains(HomeworkTags.Test))
+                await TrySaveSolutionCommitsInfo(solutionId.Value, solution.GithubUrl);
+            return solutionId.Value;
+        }
+
+        public async Task<long> PostOrUpdateWithRateAsync(
+            long taskId,
+            Solution solution,
+            string lecturerId,
+            int rating,
+            string? lecturerComment,
+            bool sendNotification = true)
+        {
+            var currentTime = DateTime.UtcNow;
+            var task = await _coursesServiceClient.GetTask(taskId);
+
+            solution.TaskId = taskId;
+            solution.PublicationDate = currentTime;
+            solution.RatingDate = currentTime;
+            solution.Rating = rating;
+            solution.LecturerId = lecturerId;
+            solution.LecturerComment = lecturerComment ?? string.Empty;
+            solution.State = rating >= task.MaxRating
+                ? SolutionState.Final
+                : SolutionState.Rated;
+
+            var lastSolution = await _solutionsRepository
+                .FindAll(s => s.TaskId == taskId && s.StudentId == solution.StudentId)
+                .OrderByDescending(s => s.PublicationDate)
+                .FirstOrDefaultAsync();
+
+            long solutionId;
+
+            if (lastSolution != null && lastSolution.State == SolutionState.Posted)
+            {
+                var isModified = lastSolution.GithubUrl != solution.GithubUrl ||
+                                 lastSolution.Comment != solution.Comment;
+
+                await _solutionsRepository.UpdateAsync(lastSolution.Id, _ => new Solution
+                {
+                    GithubUrl = solution.GithubUrl,
+                    Comment = solution.Comment,
+                    GroupId = solution.GroupId,
+                    IsModified = isModified,
+                    State = solution.State,
+                    Rating = solution.Rating,
+                    RatingDate = solution.RatingDate,
+                    LecturerId = solution.LecturerId,
+                    LecturerComment = solution.LecturerComment
+                });
+
+                solutionId = lastSolution.Id;
+            }
+            else
+            {
+                solutionId = await _solutionsRepository.AddAsync(solution);
+
+                if (sendNotification)
+                {
+                    var solutionModel = _mapper.Map<SolutionViewModel>(solution);
+                    var course = await _coursesServiceClient.GetCourseByTask(taskId);
+                    var student = await _authServiceClient.GetAccountData(solution.StudentId);
+                    var studentModel = _mapper.Map<AccountDataDto>(student);
+
+                    _eventBus.Publish(new StudentPassTaskEvent(course, solutionModel, studentModel, task));
+                }
+            }
+
+            var ratedSolutionModel = _mapper.Map<SolutionViewModel>(solution);
+            _eventBus.Publish(new RateEvent(task, ratedSolutionModel));
+
+            if (task.Tags.Contains(HomeworkTags.Test) && !string.IsNullOrWhiteSpace(solution.GithubUrl))
+                await TrySaveSolutionCommitsInfo(solutionId, solution.GithubUrl);
+
+            return solutionId;
         }
 
         private async Task TrySaveSolutionCommitsInfo(long solutionId, string solutionUrl)

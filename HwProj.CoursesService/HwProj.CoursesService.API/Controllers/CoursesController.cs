@@ -89,7 +89,7 @@ namespace HwProj.CoursesService.API.Controllers
         public async Task<IActionResult> GetByTask(long taskId)
         {
             var userId = Request.GetUserIdFromHeader();
-            var course = await _coursesService.GetByTaskAsync(taskId, userId);
+            var course = await _coursesService.GetByTaskAsync(taskId, userId!);
             if (course == null) return NotFound();
 
             return Ok(course);
@@ -121,7 +121,8 @@ namespace HwProj.CoursesService.API.Controllers
                 Name = courseViewModel.Name,
                 GroupName = courseViewModel.GroupName,
                 IsCompleted = courseViewModel.IsCompleted,
-                IsOpen = courseViewModel.IsOpen
+                IsOpen = courseViewModel.IsOpen,
+                LtiToolName = courseViewModel.LtiToolName
             });
 
             return Ok();
@@ -177,9 +178,9 @@ namespace HwProj.CoursesService.API.Controllers
         [HttpGet("acceptLecturer/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AcceptLecturer(long courseId, [FromQuery] string lecturerEmail,
-            [FromQuery] string lecturerId)
+            [FromQuery] string lecturerId, [FromQuery] bool sendNotification = true)
         {
-            await _coursesService.AcceptLecturerAsync(courseId, lecturerEmail, lecturerId);
+            await _coursesService.AcceptLecturerAsync(courseId, lecturerEmail, lecturerId, sendNotification);
             return Ok();
         }
 
@@ -256,5 +257,6 @@ namespace HwProj.CoursesService.API.Controllers
             var mentorsToAssignedStudents = await _courseFilterService.GetAssignedStudentsIds(courseId, mentorIds);
             return Ok(mentorsToAssignedStudents);
         }
+
     }
 }

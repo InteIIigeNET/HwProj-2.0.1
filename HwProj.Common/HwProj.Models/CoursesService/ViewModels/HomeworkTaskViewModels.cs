@@ -31,6 +31,8 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public bool DeadlineDateNotSet { get; set; }
 
+        public long CourseId { get; set; }
+
         public long HomeworkId { get; set; }
 
         public bool IsGroupWork { get; set; }
@@ -38,6 +40,9 @@ namespace HwProj.Models.CoursesService.ViewModels
         public bool IsDeferred { get; set; }
 
         public List<CriterionViewModel>? Criteria { get; set; } = new List<CriterionViewModel>();
+
+        [JsonProperty]
+        public LtiLaunchData? LtiLaunchData { get; set; }
     }
 
     public class HomeworkTaskForEditingViewModel
@@ -70,5 +75,13 @@ namespace HwProj.Models.CoursesService.ViewModels
         public ActionOptions? ActionOptions { get; set; }
 
         public List<CriterionViewModel> Criteria { get; set; }
+
+        public LtiLaunchData? LtiLaunchData { get; set; }
+    }
+
+    public class LtiLaunchData
+    {
+        public string LtiLaunchUrl { get; set; }
+        public string? CustomParams { get; set; }
     }
 }

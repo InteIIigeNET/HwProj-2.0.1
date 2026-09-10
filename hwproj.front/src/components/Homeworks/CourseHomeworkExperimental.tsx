@@ -415,7 +415,8 @@ const CourseHomeworkEditor: FC<{
                         ...t,
                         title: t.title!,
                         maxRating: t.maxRating!,
-                        criteria: t.criteria || []
+                        criteria: t.criteria || [],
+                        ltiLaunchData: t.ltiLaunchData,
                     }
                     return task
                 }) : []

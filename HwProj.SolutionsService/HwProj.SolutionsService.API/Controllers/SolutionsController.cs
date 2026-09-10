@@ -21,7 +21,7 @@ using Microsoft.EntityFrameworkCore;
 namespace HwProj.SolutionsService.API.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
+    // [Authorize(AuthenticationSchemes = AuthSchemeConstants.UserIdAuthentication)]
     [ApiController]
     public class SolutionsController : Controller
     {
@@ -85,10 +85,16 @@ namespace HwProj.SolutionsService.API.Controllers
         {
             var solution = await _solutionsService.GetSolutionAsync(solutionId);
             var task = await _coursesClient.GetTask(solution.TaskId);
-            var homework = await _coursesClient.GetHomework(task.HomeworkId);
-            var course = await _coursesClient.GetCourseById(homework.CourseId);
+
+            if (rateSolutionModel.Rating < 0 || rateSolutionModel.Rating > task.MaxRating)
+            {
+                return BadRequest($"Rating must be between 0 and {task.MaxRating}.");
+            }
+
+            var course = await _coursesClient.GetCourseByTask(solution.TaskId);
 
             var lecturerId = Request.GetUserIdFromHeader();
+
             if (course != null && lecturerId != null && course.MentorIds.Contains(lecturerId))
             {
                 await _solutionsService.RateSolutionAsync(solutionId, lecturerId, rateSolutionModel.Rating, rateSolutionModel.LecturerComment);
@@ -96,6 +102,43 @@ namespace HwProj.SolutionsService.API.Controllers
             }
 
             return Forbid();
+        }
+
+        [HttpPost("postSolutionWithRate/{taskId}")]
+        public async Task<IActionResult> PostSolutionWithRate(
+            long taskId,
+            [FromBody] PostSolutionModel solutionModel,
+            [FromQuery] bool sendNotification = true)
+        {
+            var task = await _coursesClient.GetTask(taskId);
+            if (!task.CanSendSolution)
+                return BadRequest();
+
+            if (!solutionModel.Rating.HasValue ||
+                solutionModel.Rating.Value < 0 ||
+                solutionModel.Rating.Value > task.MaxRating)
+            {
+                return BadRequest($"Rating must be between 0 and {task.MaxRating}.");
+            }
+
+            var rating = solutionModel.Rating.Value;
+
+            var course = await _coursesClient.GetCourseByTask(taskId);
+            var lecturerId = Request.GetUserIdFromHeader();
+
+            if (course == null || lecturerId == null || !course.MentorIds.Contains(lecturerId))
+                return Forbid();
+
+            var solution = _mapper.Map<Solution>(solutionModel);
+            var solutionId = await _solutionsService.PostOrUpdateWithRateAsync(
+                taskId,
+                solution,
+                lecturerId,
+                rating,
+                solutionModel.LecturerComment,
+                sendNotification);
+
+            return Ok(solutionId);
         }
 
         [HttpPost("rateEmptySolution/{taskId}")]
