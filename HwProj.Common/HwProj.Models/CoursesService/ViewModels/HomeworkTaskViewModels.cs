@@ -33,8 +33,6 @@ namespace HwProj.Models.CoursesService.ViewModels
 
         public long HomeworkId { get; set; }
 
-        public long CourseId { get; set; }
-
         public bool IsGroupWork { get; set; }
 
         public bool IsDeferred { get; set; }

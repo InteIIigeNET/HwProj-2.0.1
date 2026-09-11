@@ -40,7 +40,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             {
                 Sender = "SolutionService",
                 Body =
-                    $"Задача <a href='{_configuration["Url"]}/courses/{@event.Task.CourseId}/homeworks?taskId={@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> оценена на " +
+                    $"Задача <a href='{_configuration["Url"]}/courses/{@event.CourseId}/homeworks?taskId={@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> оценена на " +
                     $"<b>{@event.Solution.Rating}/{@event.Task.MaxRating}</b>." +
                     $"{commentBody}",
                 Category = CategoryState.Homeworks,
