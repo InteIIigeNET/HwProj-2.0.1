@@ -8,7 +8,6 @@ import StudentStatsChart from "./components/Courses/Statistics/StudentStatsChart
 import {CreateCourse} from "./components/Courses/CreateCourse";
 import Notifications from "./components/Notifications";
 import Workspace from "./components/Workspace";
-import TaskSolutionsPage from "./components/Solutions/TaskSolutionsPage";
 import {AppBarContextAction, appBarStateManager, Header} from "./components/AppBar";
 import Login from "./components/Auth/Login";
 import EditCourse from "./components/Courses/EditCourse";
@@ -121,7 +120,6 @@ class App extends Component<{ navigate: any }, AppState> {
                         <Route path="courses/:courseId/:tab" element={<Course/>}/>
                         <Route path="courses/:courseId/editInfo" element={<EditCourse/>}/>
                         <Route path="task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
-                        <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
                     </Route>
                     <Route path="statistics/:courseId/charts" element={<StudentStatsChart/>}/>
                     <Route path="status" element={<SystemInfoComponent/>}/>

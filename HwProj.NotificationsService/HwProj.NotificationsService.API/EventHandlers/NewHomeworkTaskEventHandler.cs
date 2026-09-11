@@ -41,7 +41,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     Sender = "CourseService",
                     Body =
                         $"В курсе <a href='{url}/courses/{@event.CourseId}'>{@event.CourseName}</a>" +
-                        $" опубликована новая задача <a href='{url}/task/{@event.TaskId}'>{@event.TaskTitle}</a>." +
+                        $" опубликована новая задача <a href='{url}/courses/{@event.CourseId}/homeworks?taskId={@event.TaskId}'>{@event.TaskTitle}</a>." +
                         (@event.DeadlineDate is { } deadline ? $"\n\nДедлайн: {deadline:U}" : ""),
 
                     Category = CategoryState.Homeworks,

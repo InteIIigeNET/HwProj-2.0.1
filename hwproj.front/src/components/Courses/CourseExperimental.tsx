@@ -1,16 +1,19 @@
 import * as React from "react";
 import {
+    AccountDataDto,
     FileInfoDTO, GroupViewModel,
     HomeworkTaskViewModel,
-    HomeworkViewModel, SolutionDto, StatisticsCourseMatesModel,
+    HomeworkViewModel, SolutionDto, SolutionState, StatisticsCourseMatesModel,
 } from "@/api";
 import {
     AlertTitle,
     Box,
     Button,
+    Checkbox,
     Collapse,
     Divider,
     Fab,
+    FormControlLabel,
     IconButton,
     ListItemButton,
     TextField,
@@ -21,7 +24,7 @@ import {
 } from "@mui/material";
 import {FC, useEffect, useState} from "react";
 import {Alert, Chip, Paper, Stack, Tooltip} from "@mui/material";
-import {Link} from "react-router-dom";
+import CourseTaskSolutions from "../Solutions/CourseTaskSolutions";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {BonusTag, DefaultTags, getTip, isBonusWork, isTestWork, TestTag} from "../Common/HomeworkTags";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
@@ -29,6 +32,8 @@ import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExper
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import EditIcon from "@mui/icons-material/Edit";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import ErrorIcon from '@mui/icons-material/Error';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import SwitchAccessShortcutIcon from '@mui/icons-material/SwitchAccessShortcut';
@@ -107,6 +112,14 @@ const detailFooterSx = {
     py: 1.5,
     borderTop: "1px solid #e6e8f0",
     backgroundColor: "#fafbfe",
+}
+
+const solutionActionButtonSx = {
+    textTransform: "none" as const,
+    borderRadius: "10px",
+    fontWeight: 500,
+    px: 2,
+    flexShrink: 0,
 }
 
 const emptyStateSx = {
@@ -193,9 +206,10 @@ interface ICourseExperimentalProps {
     studentSolutions: StatisticsCourseMatesModel[]
     courseId: number
     isMentor: boolean
-    isStudentAccepted: boolean
+    courseMates: AccountDataDto[]
+    onStudentSolutionsUpdate: () => void
     userId: string
-    selectedHomeworkId: number | undefined
+    searchedItem: { isHomework: boolean | undefined, id: number | undefined }
     onHomeworkUpdate: (update: { homework: HomeworkViewModel } & {
         isDeleted?: boolean
     }) => void
@@ -243,21 +257,38 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return true
     })
 
-    const {isMentor, studentSolutions, isStudentAccepted, userId, selectedHomeworkId, courseFilesInfo} = props
+    const {isMentor, studentSolutions, userId, searchedItem, courseFilesInfo} = props
+    const isStudentAccepted = props.courseMates.some(x => x.userId === userId)
 
     const [state, setState] = useState<ICourseExperimentalState>({
         initialEditMode: false,
         selectedItem: {id: undefined, isHomework: true},
     })
 
+    // Диалог отправки/редактирования решения открывается кнопкой в подвале карточки задачи,
+    // а сам диалог и блок решений живут в CourseTaskSolutions под карточкой — состояние общее.
+    const [addSolutionOpen, setAddSolutionOpen] = useState(false)
+
     useEffect(() => {
-        const defaultHomeworkIndex = Math.max(selectedHomeworkId ? homeworks?.findIndex(x => x.id === selectedHomeworkId) : 0, 0)
+        // Диплинк на конкретную задачу (useSearchParams): открываем её сразу, не дожидаясь клика по ленте
+        const homeworkWithTask = searchedItem.isHomework === false
+            ? homeworks?.find(x => x.tasks?.some(t => t.id === searchedItem.id))
+            : undefined
+        if (homeworkWithTask) {
+            setState((prevState) => ({
+                ...prevState,
+                selectedItem: {isHomework: false, id: searchedItem.id},
+            }))
+            return
+        }
+
+        const defaultHomeworkIndex = Math.max(searchedItem.isHomework ? homeworks?.findIndex(x => x.id === searchedItem.id) : 0, 0)
         const defaultHomework = homeworks?.[defaultHomeworkIndex]
         setState((prevState) => ({
             ...prevState,
             selectedItem: {isHomework: true, id: defaultHomework?.id},
         }))
-    }, [hideDeferred])
+    }, [hideDeferred, searchedItem.isHomework, searchedItem.id])
 
     // Обработчик прокрутки страницы
     useEffect(() => {
@@ -283,6 +314,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const initialEditMode = state.initialEditMode
     const {id, isHomework} = state.selectedItem
+
+    // Смена выбранного элемента ленты закрывает форму отправки решения
+    useEffect(() => {
+        setAddSolutionOpen(false)
+    }, [id, isHomework])
 
     const renderDate = (date: Date) => {
         date = new Date(date)
@@ -324,6 +360,29 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             .flatMap(t => t.tasks!)
             .forEach(x => taskSolutionsMap.set(x.id!, x.solutions!))
     }
+
+    // Фильтр "Только нерешенные" для студента: показываем задачи, по которым ещё нет ни одного решения.
+    type Filter = "Только нерешенные"
+    const FilterStorageKey = "TaskSolutionsPage"
+    const canFilterNotSolved = !isMentor && isStudentAccepted
+
+    const [filterState, setFilterState] = useState<Filter[]>(
+        localStorage.getItem(FilterStorageKey)?.split(", ").filter(x => x !== "").map(x => x as Filter) || []
+    )
+    const showOnlyNotSolved = canFilterNotSolved && filterState.some(x => x === "Только нерешенные")
+
+    const handleFilterChange = () => {
+        const filters: Filter[] = filterState.length > 0 ? [] : ["Только нерешенные"]
+        localStorage.setItem(FilterStorageKey, filters.join(", "))
+        setFilterState(filters)
+    }
+
+    const isTaskNotSolved = (task: HomeworkTaskViewModel) =>
+        (taskSolutionsMap.get(task.id!)?.length ?? 0) === 0
+
+    // Задача видна, если фильтр выключен, либо она ещё не решена, либо это новая (несохранённая) задача
+    const isTaskVisible = (task: HomeworkTaskViewModel) =>
+        !showOnlyNotSolved || task.id! < 0 || isTaskNotSolved(task)
 
     const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
         if (!isMentor) return false
@@ -567,12 +626,18 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     const searchQuery = search.trim().toLowerCase()
 
-    // Поиск сужает только список слева: остальная логика (группировка КР, подбор баллов) считает по всем заданиям
-    const visibleHomeworks = searchQuery === ""
-        ? homeworks
-        : homeworks.filter(x => x.id! < 0
+    // Поиск и фильтр "только нерешенные" сужают только список слева: остальная логика
+    // (группировка КР, подбор баллов) считает по всем заданиям
+    const visibleHomeworks = homeworks.filter(x => {
+        if (x.id! < 0) return true
+        const matchesSearch = searchQuery === ""
             || (x.title ?? "").toLowerCase().includes(searchQuery)
-            || x.tasks!.some(t => (t.title ?? "").toLowerCase().includes(searchQuery)))
+            || x.tasks!.some(t => (t.title ?? "").toLowerCase().includes(searchQuery))
+        if (!matchesSearch) return false
+        // При фильтре "только нерешенные" скрываем задание целиком, если в нём не осталось видимых задач
+        if (showOnlyNotSolved && !x.tasks!.some(isTaskVisible)) return false
+        return true
+    })
 
     const selectedItemHomework = isHomework
         ? homeworks.find(x => x.id === id)!
@@ -686,15 +751,36 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Paper>
     }
 
+    // Балл студента за задачу для шапки: "?" — если решение первое и не имеет оценки, иначе оценка последней проверки
+    const getTaskRating = (task: HomeworkTaskViewModel): number | "?" => {
+        if (isMentor || !isStudentAccepted) return 0
+        const {lastSolution, lastRatedSolution} =
+            StudentStatsUtils.calculateLastRatedSolutionInfo(taskSolutionsMap.get(task.id!) ?? [], task.maxRating!)
+        if (lastSolution == null) return 0
+        return lastRatedSolution == null ? "?" : lastRatedSolution.rating ?? 0
+    }
+
+    // Последнее решение студента без оценки — кнопка предлагает «Изменить решение», а не «Добавить»
+    const isSolutionEdit = (task: HomeworkTaskViewModel): boolean => {
+        const solutions = taskSolutionsMap.get(task.id!) ?? []
+        return solutions[solutions.length - 1]?.state === SolutionState.NUMBER_0
+    }
+
     const renderTask = (task: HomeworkTaskViewModel & { isModified?: boolean }, homework: HomeworkViewModel) => {
         const taskEditMode = task && (task.id! < 0 || task.isModified === true)
-        return task && <Paper variant={"outlined"} sx={detailPanelSx(taskEditMode)}>
+        if (!task) return task
+
+        const isStudent = !isMentor && isStudentAccepted && task.id! > 0
+
+        const taskPanel = <Paper variant={"outlined"} sx={detailPanelSx(taskEditMode)}>
             {isMentor && <Box sx={topAlertsSx}>{getDatesAlert(task, false)}</Box>}
             <CourseTaskExperimental
                 key={task.id}
                 task={task}
                 homework={homework!}
                 isMentor={isMentor}
+                isStudentAccepted={isStudentAccepted}
+                rating={getTaskRating(task)}
                 initialEditMode={initialEditMode || taskEditMode}
                 onMount={onSelectedItemMount}
                 onUpdate={update => {
@@ -709,23 +795,36 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                         }))
                 }}
                 toEditHomework={() => toEditHomework(homework!)} getAllHomeworks={() => homeworks}/>
-            {!props.isMentor && props.isStudentAccepted &&
-                <Box sx={detailFooterSx}>
-                    <Link
-                        style={{textDecoration: "none"}}
-                        to={"/task/" + task.id!.toString()}>
-                        <Button
-                            size="medium"
-                            variant="contained"
-                            disableElevation
-                            color="primary"
-                            sx={{textTransform: "none", borderRadius: "10px"}}
-                        >
-                            Решения
-                        </Button>
-                    </Link>
-                </Box>}
+            {isStudent && task.canSendSolution && <Box sx={detailFooterSx}>
+                <Button
+                    variant={"contained"}
+                    color={"primary"}
+                    disableElevation
+                    startIcon={isSolutionEdit(task) ? <EditOutlinedIcon/> : <AddCircleOutlineIcon/>}
+                    sx={solutionActionButtonSx}
+                    onClick={() => setAddSolutionOpen(true)}
+                >
+                    {isSolutionEdit(task) ? "Изменить решение" : "Добавить решение"}
+                </Button>
+            </Box>}
         </Paper>
+
+        if (isStudent)
+            return <>
+                {taskPanel}
+                <CourseTaskSolutions
+                    key={`solutions-${task.id}`}
+                    task={task}
+                    courseId={props.courseId}
+                    userId={userId}
+                    courseMates={props.courseMates}
+                    addSolutionOpen={addSolutionOpen}
+                    onCloseAddSolution={() => setAddSolutionOpen(false)}
+                    onSolutionsChanged={props.onStudentSolutionsUpdate}
+                />
+            </>
+
+        return taskPanel
     }
 
     const renderGif = () =>
@@ -742,6 +841,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             Самое время добавить новое задание!
         </Alert>
     </Stack>
+
+    const showBottomGif = isMentor || !isStudentAccepted || isHomework
 
     // useFlexGap обязателен: колонки меняются местами через order, а по умолчанию Stack раздаёт
     // отступы margin'ом соседним по разметке детям — на мобильных зазор оказывался не между
@@ -824,13 +925,30 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     </Stack>
                     <Divider/>
                 </>}
+                {canFilterNotSolved && homeworks.length > 0 && <>
+                    <Box sx={{px: 1.5, py: 0.5, backgroundColor: "#fafbfe"}}>
+                        <FormControlLabel
+                            sx={{m: 0}}
+                            control={
+                                <Checkbox
+                                    size={"small"}
+                                    checked={filterState.includes("Только нерешенные")}
+                                    onChange={handleFilterChange}/>
+                            }
+                            label={<Typography variant={"body2"}>Только нерешенные</Typography>}
+                        />
+                    </Box>
+                    <Divider/>
+                </>}
                 <Box sx={listScrollSx}>
                     {isMentor && homeworks.length === 0 && renderLecturerWelcomeScreen()}
                     {!isMentor && homeworks.length === 0 &&
                         <Typography variant={"body2"} sx={emptyStateSx}>Заданий пока нет</Typography>}
                     {homeworks.length > 0 && visibleHomeworks.length === 0 &&
                         <Typography variant={"body2"} sx={emptyStateSx}>
-                            {"Ничего не найдено по запросу «" + search.trim() + "»"}
+                            {search.trim() !== ""
+                                ? "Ничего не найдено по запросу «" + search.trim() + "»"
+                                : "Нерешённых задач нет"}
                         </Typography>}
                     <Stack direction={"column"} spacing={1.5}>
                         {visibleHomeworks.map((x: HomeworkViewModel & {
@@ -838,7 +956,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                             hasErrors?: boolean
                         }, index) => {
                             const isGroupSelected = selectedItemHomework?.id === x.id
-                            const hasTasks = x.tasks!.length > 0
+                            const visibleTasks = x.tasks!.filter(isTaskVisible)
+                            const hasTasks = visibleTasks.length > 0
                             return <Box key={x.id} sx={{
                                 position: "relative",
                                 // Без вертикальных отступов: строки прилегают к рамке задания без пустого зазора,
@@ -890,7 +1009,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 </ListItemButton>
                                 {hasTasks
                                     ? <Box>
-                                        {x.tasks!.map(t => <ListItemButton
+                                        {visibleTasks.map(t => <ListItemButton
                                             key={t.id}
                                             selected={isRowSelected(false, t.id!)}
                                             onClick={() => setState(prevState => ({
@@ -945,13 +1064,15 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             {isHomework
                 ? renderHomework(selectedItem as HomeworkViewModel)
                 : renderTask(selectedItem as HomeworkTaskViewModel, selectedItemHomework!)}
-            <Box sx={{display: {xs: 'none', md: 'flex'}}}>
+            {/* Декоративная гифка — везде, кроме случая «принятый студент + выбрана задача»,
+                где под задачей идёт блок решений. */}
+            {showBottomGif && <Box sx={{display: {xs: 'none', md: 'flex'}}}>
                 {renderGif()}
-            </Box>
+            </Box>}
         </Box>
-        <Box sx={{display: {xs: 'flex', md: 'none'}, width: "100%", order: 3}}>
+        {showBottomGif && <Box sx={{display: {xs: 'flex', md: 'none'}, width: "100%", order: 3}}>
             {renderGif()}
-        </Box>
+        </Box>}
 
         {/* Кнопка "Наверх" для мобильных устройств */}
         <Zoom in={showScrollButton && isMobile}>

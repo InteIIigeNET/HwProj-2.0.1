@@ -169,6 +169,7 @@ namespace HwProj.SolutionsService.API.Services
                 var ratingDate = DateTime.UtcNow;
                 var solution = await _solutionsRepository.GetAsync(solutionId);
                 var task = await _coursesServiceClient.GetTask(solution.TaskId);
+                var course = await _coursesServiceClient.GetCourseByTask(solution.TaskId);
                 var state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
                 await _solutionsRepository
                     .RateSolutionAsync(solutionId, state, lecturerId, newRating, ratingDate, lecturerComment);
@@ -176,7 +177,7 @@ namespace HwProj.SolutionsService.API.Services
                 var solutionModel = _mapper.Map<SolutionViewModel>(solution);
                 solutionModel.LecturerComment = lecturerComment;
                 solutionModel.Rating = newRating;
-                _eventBus.Publish(new RateEvent(task, solutionModel));
+                _eventBus.Publish(new RateEvent(task, solutionModel, course?.Id ?? 0));
             }
         }
 
