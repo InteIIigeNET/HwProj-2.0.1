@@ -58,6 +58,7 @@ namespace HwProj.CoursesService.API.Domains
                 IsDeferred = DateTime.UtcNow < evaluatedPublicationDate,
                 IsGroupWork = tags.Contains(HomeworkTags.GroupWork),
                 HomeworkId = task.HomeworkId,
+                CourseId = task.Homework.CourseId,
                 Tags = tags,
                 Criteria = task.Criteria.Select(c => new CriterionViewModel
                     {
