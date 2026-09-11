@@ -10,6 +10,7 @@ import "../Courses/Styles/StudentStatsCell.css";
 interface ITaskStudentCellProps {
     studentId: string;
     taskId: number;
+    courseId: string;
     forMentor: boolean;
     userId: string;
     taskMaxRating: number;
@@ -46,7 +47,7 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
 
     const solutionUrl = forMentor
         ? `/task/${props.taskId}/${props.studentId}`
-        : `/task/${props.taskId}`
+        : `/courses/${props.courseId}/homeworks?taskId=${props.taskId}`
 
     const openInNewTab = () => window.open(solutionUrl, '_blank', 'noopener,noreferrer');
 

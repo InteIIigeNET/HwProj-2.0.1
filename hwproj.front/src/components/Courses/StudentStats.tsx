@@ -588,6 +588,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                                 userId={props.userId}
                                                 forMentor={props.isMentor}
                                                 studentId={String(cm.id)}
+                                                courseId={courseId!}
                                                 taskId={task.id!}
                                                 taskMaxRating={task.maxRating!}
                                                 isBestSolution={bestTaskSolutions.get(task.id!) === cm.id}
