@@ -1,31 +1,37 @@
 import * as React from 'react';
 import {FC, useEffect, useState} from 'react';
-import {Button, CircularProgress, Typography} from "@mui/material";
+import {
+    Alert,
+    Avatar,
+    Box,
+    Button,
+    Chip,
+    CircularProgress,
+    Divider,
+    IconButton,
+    LinearProgress,
+    Paper,
+    Rating,
+    Stack,
+    TextField,
+    Tooltip,
+    Typography
+} from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import Link from '@mui/material/Link'
 // Глобальный класс .antiLongWords используется и другими страницами, поэтому стиль подключаем здесь
 import './style.css'
 import {
+    CriterionViewModel,
+    FileInfoDTO,
     GetSolutionModel,
     HomeworkTaskViewModel,
-    SolutionState,
     SolutionActualityDto,
-    SolutionActualityPart, StudentDataDto, FileInfoDTO, CriterionViewModel
+    SolutionActualityPart,
+    SolutionState,
+    StudentDataDto
 } from '@/api'
 import ApiSingleton from "../../api/ApiSingleton";
-import {
-    Alert,
-    Avatar,
-    Divider,
-    LinearProgress,
-    Paper,
-    Rating,
-    Stack,
-    Tooltip,
-    IconButton,
-    Chip,
-    Box, TextField
-} from "@mui/material";
 import AccessTimeRoundedIcon from '@mui/icons-material/AccessTimeRounded';
 import AvatarUtils from "../Utils/AvatarUtils";
 import Utils from "../../services/Utils";
@@ -961,13 +967,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
             const numericValue = Number.isFinite(current.value) ? current.value : 0;
 
-            const hasExplicitValue = Number.isFinite(current.value);
+            const hasExplicitValue = Number.isInteger(current.value);
 
             const isThumbCriterion = c.maxPoints === 1;
             const hasStars =
                 typeof c.maxPoints === "number" && c.maxPoints <= 10 && !isThumbCriterion;
-
-            const isFilled = hasExplicitValue && (isThumbCriterion || numericValue !== 0);
 
             return (
                 <Stack
@@ -981,7 +985,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         sx={{
                             fontSize: 18,
                             flexShrink: 0,
-                            color: isFilled ? "#3f51b5" : "#c6cad6",
+                            color: hasExplicitValue ? "#3f51b5" : "#c6cad6",
                         }}
                     />
                     <Typography variant="body2" sx={{flexGrow: 1, minWidth: 0}}>
@@ -1033,7 +1037,21 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
                             </Stack>
                         ) : hasStars ? (
-                            <Stack direction="row" alignItems="center" spacing={0.75}>
+                            <Stack direction="row" alignItems="center">
+                                <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                        //TODO: автоматически проставлять при изменнении рейтинга
+                                        setCriteriaModified(true)
+                                        setCriterionRatings(prev =>
+                                            prev.map(r => r.criterionId === c.id ? {...r, value: 0} : r))
+                                    }}
+                                >
+                                    <ThumbDown
+                                        fontSize="small"
+                                        color={criterionRatings.find(r => r.criterionId === c.id)?.value === 0 ? "error" : "disabled"}
+                                    />
+                                </IconButton>
                                 <Rating
                                     max={c.maxPoints}
                                     size="medium"
@@ -1248,7 +1266,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                             <Stack direction={"row"} alignItems={"center"} spacing={1.5}>
                                 {props.forMentor && state.clickedForRate ? (
                                     <>
-                                        <Avatar sx={{width: 36, height: 36, backgroundColor: "#e8ebfa", color: "#3f51b5"}}>
+                                        <Avatar
+                                            sx={{width: 36, height: 36, backgroundColor: "#e8ebfa", color: "#3f51b5"}}>
                                             <EditOutlinedIcon fontSize={"small"}/>
                                         </Avatar>
                                         <Typography variant={"body2"} sx={{color: "text.secondary"}}>
@@ -1495,14 +1514,14 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                         </Tooltip>}
                                 </Stack>
                             </Stack>
-    
+
                             {/* Комментарий — часть панели решения, поэтому без своей подложки */}
                             {solution.comment && (showOriginalCommentText
                                 ? <Typography variant={"body2"} sx={{whiteSpace: "break-spaces"}}>
                                     {solution.comment}
                                 </Typography>
                                 : <MarkdownPreview value={solution.comment}/>)}
-    
+
                             {filesInfo.length > 0 &&
                                 <Box>
                                     {props.isProcessing &&
@@ -1524,7 +1543,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 </Box>}
                         </Stack>
                     </Box>
-    
+
                     {/* Дедлайн и место среди решений — подвал самой карточки решения: отдельные алерты
                         занимали много места и спорили за внимание с оценкой. Обе врезки тянутся
                         до нижнего края карточки, а вместе делят его поровну */}
