@@ -13,6 +13,7 @@ export const useCourseActions = () => {
         deleteHomework: homework.deleteHomework,
 
         createTask: task.createTask,
+        importLtiTasks: task.importLtiTasks,
         startTaskEdit: task.startTaskEdit,
         patchTaskDraft: task.patchTaskDraft,
         saveTask: task.saveTask,

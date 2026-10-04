@@ -11,10 +11,17 @@ import {
 } from '../slices/courseEditingSlice';
 import {store} from '../store';
 import {updateTask, deleteTask as deleteTaskAction } from '../slices/homeworkSlice';
-import {HomeworkViewModel, HomeworkTaskViewModel, CriterionViewModel, PostTaskViewModel, ActionOptions } from '@/api';
+import {HomeworkViewModel, HomeworkTaskViewModel, CriterionViewModel, PostTaskViewModel, ActionOptions, LtiLaunchData } from '@/api';
 import ApiSingleton from '@/api/ApiSingleton';
 import {BonusTag, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
 import {useMergedHomeworks} from "@/store/storeHooks/courseEditingHooks";
+
+export type LtiItemDto = {
+    title: string;
+    text?: string;
+    ltiLaunchData: LtiLaunchData;
+    scoreMaximum: number;
+};
 
 export const useDraftTask = (taskId: number, homeworkId: number) => {
     const draftHw = useCourseState(state =>
@@ -140,23 +147,57 @@ export const useTaskEditing = () => {
         return suggestedRating;
     }, [mergedHomeworks]);
 
-    const createTaskDraft = useCallback((homework: HomeworkViewModel) => {
+    const createTaskDraft = useCallback((
+        homework: HomeworkViewModel,
+        options?: {
+            title?: string;
+            description?: string;
+            maxRating?: number;
+            suggestedMaxRating?: number;
+            ltiLaunchData?: LtiLaunchData;
+            selectAfterCreate?: boolean;
+        },
+    ) => {
         ensureHomeworkInDrafts(homework);
         const newId = store.getState().editing.draftIdCounter;
-        const suggestedMaxRating = getSuggestedTaskRating(homework);
+        const suggestedMaxRating = options?.suggestedMaxRating ?? getSuggestedTaskRating(homework);
         dispatch(createNewDraftTask({
             homeworkId: homework.id!,
-            title: 'Новая задача',
-            description: '',
-            maxRating: suggestedMaxRating ?? 10,
+            title: options?.title ?? 'Новая задача',
+            description: options?.description ?? '',
+            maxRating: options?.maxRating ?? suggestedMaxRating ?? 10,
             suggestedMaxRating,
             isDeferred: homework.isDeferred || false,
             deadlineDateNotSet: true,
             deadlineDate: undefined,
             tags: homework.tags || [],
+            ltiLaunchData: options?.ltiLaunchData,
+            selectAfterCreate: options?.selectAfterCreate,
         }));
         return newId;
     }, [dispatch, ensureHomeworkInDrafts, getSuggestedTaskRating]);
+
+    const importLtiTasks = useCallback((homework: HomeworkViewModel, items: LtiItemDto[]) => {
+        const importableItems = items.filter(item => item.ltiLaunchData);
+        if (importableItems.length === 0) return;
+
+        const suggestedRating = getSuggestedTaskRating(homework) ?? 10;
+        let lastCreatedId: number | undefined;
+
+        importableItems.forEach((item, index) => {
+            const targetRating = item.scoreMaximum > 0 ? item.scoreMaximum : suggestedRating;
+            lastCreatedId = createTaskDraft(homework, {
+                title: item.title || 'External Task',
+                description: item.text?.trim() || '',
+                maxRating: targetRating,
+                suggestedMaxRating: targetRating,
+                ltiLaunchData: item.ltiLaunchData,
+                selectAfterCreate: index === importableItems.length - 1,
+            });
+        });
+
+        return lastCreatedId;
+    }, [createTaskDraft, getSuggestedTaskRating]);
 
     const setTaskDraftFromLoaded = useCallback((task: HomeworkTaskViewModel, homework: HomeworkViewModel) => {
         ensureHomeworkInDrafts(homework);
@@ -279,6 +320,7 @@ export const useTaskEditing = () => {
             isDeadlineStrict: task.isDeadlineStrict,
             publicationDate: task.publicationDateNotSet ? undefined : publicationDate,
             deadlineDate: task.deadlineDateNotSet ? undefined : task.deadlineDate,
+            ltiLaunchData: task.ltiLaunchData,
         };
     }, []);
 
@@ -313,6 +355,7 @@ export const useTaskEditing = () => {
 
     return {
         createTask: createTaskDraft,
+        importLtiTasks,
         startTaskEdit,
         patchTaskDraft: updateTaskDraftState,
         saveTask,

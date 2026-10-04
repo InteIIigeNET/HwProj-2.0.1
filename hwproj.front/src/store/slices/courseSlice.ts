@@ -3,7 +3,7 @@ import {AccountDataDto, CourseViewModel} from '@/api';
 
 export type CurrentCourseMeta = Pick<
   CourseViewModel,
-  'id' | 'name' | 'groupName' | 'isCompleted'
+  'id' | 'name' | 'groupName' | 'isCompleted' | 'ltiToolName'
 >;
 
 export const toCurrentCourseMeta = (
@@ -13,6 +13,7 @@ export const toCurrentCourseMeta = (
   name: course.name,
   groupName: course.groupName,
   isCompleted: course.isCompleted,
+  ltiToolName: course.ltiToolName,
 });
 
 interface CourseState {

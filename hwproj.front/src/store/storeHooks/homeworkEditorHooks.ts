@@ -220,6 +220,7 @@ export const useHomeworkEditing = () => {
             publicationDate: t.publicationDate ?? homework.publicationDate,
             maxRating: t.maxRating!,
             criteria: t.criteria || [],
+            ltiLaunchData: t.ltiLaunchData,
         } as PostTaskViewModel)) : [],
     }), []);
 

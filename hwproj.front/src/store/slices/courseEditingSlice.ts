@@ -1,5 +1,5 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {HomeworkTaskViewModel, HomeworkViewModel} from "@/api";
+import {HomeworkTaskViewModel, HomeworkViewModel, LtiLaunchData} from "@/api";
 
 export interface SelectedItem {
     isHomework: boolean;
@@ -112,19 +112,24 @@ const courseEditingSlice = createSlice({
             deadlineDateNotSet: boolean;
             deadlineDate?: Date;
             tags: string[];
+            ltiLaunchData?: LtiLaunchData;
+            selectAfterCreate?: boolean;
         }>) => {
             const hw = state.draftHomeworks.find(dh => dh.id === action.payload.homeworkId);
             if (!hw) return;
             const newId = state.draftIdCounter;
             if (!hw.tasks) hw.tasks = [];
-            const {homeworkId, ...rest} = action.payload;
+            const {homeworkId, selectAfterCreate = true, ...rest} = action.payload;
             hw.tasks.push({
                 ...rest,
                 id: newId,
                 homeworkId,
+                criteria: [],
             } as HomeworkTaskViewModel);
             state.draftIdCounter -= 1;
-            state.selectedItem = {isHomework: false, id: newId};
+            if (selectAfterCreate) {
+                state.selectedItem = {isHomework: false, id: newId};
+            }
         },
 
         setSelectedItem: (state, action: PayloadAction<SelectedItem>) => {

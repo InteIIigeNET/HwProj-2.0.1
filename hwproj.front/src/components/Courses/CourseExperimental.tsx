@@ -46,10 +46,30 @@ import {useCourseActions} from "@/store/courseActions";
 import {useCourseFiles, useCourseFilePolling, useCoursePageData, useIsCourseMentor} from "@/store/storeHooks/courseHooks";
 import {useCourseState} from "@/store/hooks";
 import GroupIcon from '@mui/icons-material/Group';
+import {LtiImportButton, LtiItemDto} from "../Tasks/LtiImportButton";
 
 interface ICourseExperimentalProps {
     courseId: number
     selectedHomeworkId: number | undefined
+}
+
+const HomeworkLtiImportButton: FC<{
+    courseId: number
+    toolName: string
+    homework: HomeworkViewModel
+}> = ({courseId, toolName, homework}) => {
+    const {importLtiTasks} = useCourseActions()
+    const onImport = useCallback((items: LtiItemDto[]) => {
+        importLtiTasks(homework, items)
+    }, [homework, importLtiTasks])
+
+    return (
+        <LtiImportButton
+            courseId={courseId}
+            toolName={toolName}
+            onImport={onImport}
+        />
+    )
 }
 
 export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
@@ -73,6 +93,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const {selectedHomeworkId} = props
     const {userId, studentSolutions, isAcceptedStudent, groups} = useCoursePageData();
     const courseFilesInfo = useCourseState(state => state.courseFiles.items);
+    const ltiToolName = useCourseState(state => state.course.currentCourseMeta?.ltiToolName);
     const isCourseMentor = useIsCourseMentor();
     const {updateFiles, setFileLoading} = useCourseFiles(props.courseId, isCourseMentor);
     const {startProcessing} = useCourseFilePolling(props.courseId, updateFiles, setFileLoading);
@@ -496,18 +517,36 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         <Typography className="antiLongWords"
                                                     color={t.isDeferred ? "textSecondary" : "textPrimary"}>
                                             {t.title}{getTip(t)}
+                                            {t.ltiLaunchData &&
+                                                <Tooltip title="Задание из внешнего инструмента" arrow>
+                                                    <Chip
+                                                        label="LTI"
+                                                        size="small"
+                                                        variant="outlined"
+                                                        color="info"
+                                                        sx={{ml: 1, height: 20}}
+                                                    />
+                                                </Tooltip>}
                                         </Typography>
                                     </TimelineContent>
                                 </TimelineItem>)}
                             </Stack>
                             {x.id! < 0 &&
-                                <Button fullWidth
-                                        onClick={() => handleCreateTask(x)}
-                                        style={{borderRadius: 8, marginBottom: 10, marginTop: 5}}
-                                        variant={"text"}
-                                        size={"small"}>
-                                    + Добавить задачу
-                                </Button>}
+                                <Stack direction={"column"} spacing={0}
+                                       style={{borderRadius: 8, marginBottom: 10, marginTop: 5}}>
+                                    <Button fullWidth
+                                            onClick={() => handleCreateTask(x)}
+                                            variant={"text"}
+                                            size={"small"}>
+                                        + Добавить задачу
+                                    </Button>
+                                    {ltiToolName &&
+                                        <HomeworkLtiImportButton
+                                            courseId={props.courseId}
+                                            toolName={ltiToolName}
+                                            homework={x}
+                                        />}
+                                </Stack>}
                         </div>;
                     })}
                 </Stack>

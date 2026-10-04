@@ -112,6 +112,36 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                 />
             </Grid>
 
+            <Grid item xs={12}>
+                <Autocomplete
+                    fullWidth
+                    options={state.ltiTools}
+                    getOptionLabel={(option) => option.name ?? ""}
+                    value={
+                        state.ltiToolName == null
+                            ? null
+                            : state.ltiTools.find(tool => tool.name === state.ltiToolName) ?? null
+                    }
+                    onChange={(_, newValue) => {
+                        setState(prev => ({
+                            ...prev,
+                            ltiToolName: newValue?.name ?? undefined,
+                        }));
+                    }}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            label="Внешний LTI-инструмент"
+                            placeholder="Выберите инструмент"
+                            variant="outlined"
+                            fullWidth
+                            helperText="Позволяет импортировать задачи из внешних систем"
+                        />
+                    )}
+                    clearOnEscape
+                />
+            </Grid>
+
             {state.isGroupFromList && (
                 <Grid item xs={12}>
                     <FormControlLabel
