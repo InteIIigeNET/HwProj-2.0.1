@@ -29,10 +29,6 @@ const groupSlice = createSlice({
             }
         },
 
-        removeGroup(state, action: PayloadAction<number>) {
-            state.items = state.items.filter(group => group.id !== action.payload);
-        },
-
         resetGroups(state) {
             state.items = [];
         },
@@ -43,7 +39,6 @@ export const {
     setGroups,
     addGroup,
     updateGroup,
-    removeGroup,
     resetGroups,
 } = groupSlice.actions;
 

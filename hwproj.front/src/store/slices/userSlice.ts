@@ -20,7 +20,6 @@ const userSlice = createSlice({
 export const {setUser} = userSlice.actions;
 
 export const selectUserId = (state: { user: UserState }) => state.user?.userId ?? null;
-export const selectUserRole = (state: { user: UserState }) => state.user?.role ?? null;
 export const selectIsLecturer = (state: { user: UserState }) => state.user?.role === "Lecturer";
 export const selectIsExpert = (state: { user: UserState }) => state.user?.role === "Expert";
 export const selectIsLecturerOrExpert = (state: { user: UserState }) =>
