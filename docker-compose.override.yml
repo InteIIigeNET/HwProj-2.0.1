@@ -1,6 +1,7 @@
 services:
   mssqllocaldb:
     container_name: mssqllocaldb
+    restart: unless-stopped
     environment:
       SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
       ACCEPT_EULA: "Y"
@@ -20,6 +21,7 @@ services:
 
   rabbitmq:
     container_name: rabbitmq
+    restart: unless-stopped
     #environment:
      #- RABBITMQ_DEFAULT_USER=guest
      #- RABBITMQ_DEFAULT_PASS=guest
@@ -28,6 +30,7 @@ services:
       - "${RABBITMQ_15672_PORT}"
 
   hwproj.apigateway.api:
+    restart: unless-stopped
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
@@ -52,6 +55,7 @@ services:
       - "127.0.0.1:5000:5000"
 
   hwproj.authservice.api:
+    restart: unless-stopped
     environment:
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=AuthServiceDB;User=sa;Password=Your_password123;TrustServerCertificate=true;
       - ASPNETCORE_ENVIRONMENT=Production
@@ -64,6 +68,7 @@ services:
       - Gtihub:OrganizationNameGithub=${GITHUB_ORGANIZATION_NAME}
 
   hwproj.coursesservice.api:
+    restart: unless-stopped
     environment:
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=CourseWorksServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;TrustServerCertificate=true;
       - ASPNETCORE_ENVIRONMENT=Production
@@ -73,6 +78,7 @@ services:
       - Services:Content=http://hwproj.contentservice.api
 
   hwproj.notificationsservice.api:
+    restart: unless-stopped
     environment:
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=NotificationsServiceDB;MultipleActiveResultSets=True;User=sa;Password=Your_password123;TrustServerCertificate=true;
       - ASPNETCORE_ENVIRONMENT=Production
@@ -87,6 +93,7 @@ services:
       - Notification:Url=https://hwproj.ru
 
   hwproj.solutionsservice.api:
+    restart: unless-stopped
     environment:
       - ConnectionStrings:DefaultConnectionForLinux=Server=mssqllocaldb;Database=SolutionServiceDB;User=sa;Password=Your_password123;
       - ASPNETCORE_ENVIRONMENT=Production
@@ -97,6 +104,7 @@ services:
       - Github:Token=${GITHUB_TOKEN}
 
   hwproj.contentservice.api:
+    restart: unless-stopped
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_HTTP_PORTS=80
