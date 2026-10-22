@@ -99,7 +99,7 @@ namespace HwProj.CoursesService.API.Domains
                 Name = course.Name,
                 GroupName = course.GroupName,
                 IsCompleted = course.IsCompleted,
-                MentorIds = course.MentorIds.Split('/', SplitOptions),
+                MentorIds = course.Mentors.Select(x => x.UserId).ToArray(),
                 IsOpen = course.IsOpen,
                 InviteCode = course.InviteCode,
                 CourseMates = course.CourseMates.Select(cm => cm.ToCourseMateViewModel()).ToArray(),
@@ -113,7 +113,7 @@ namespace HwProj.CoursesService.API.Domains
                 Name = course.Name,
                 GroupName = course.GroupName,
                 IsCompleted = course.IsCompleted,
-                MentorIds = course.MentorIds.Split('/', SplitOptions),
+                MentorIds = course.Mentors.Select(x => x.UserId).ToArray(),
             };
 
         public static Criterion ToCriterion(this CriterionViewModel criterion) => new Criterion

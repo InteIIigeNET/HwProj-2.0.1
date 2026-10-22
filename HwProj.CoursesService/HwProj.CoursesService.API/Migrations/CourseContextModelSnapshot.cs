@@ -66,9 +66,6 @@ namespace HwProj.CoursesService.API.Migrations
                     b.Property<bool>("IsOpen")
                         .HasColumnType("bit");
 
-                    b.Property<string>("MentorIds")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -117,6 +114,23 @@ namespace HwProj.CoursesService.API.Migrations
                     b.ToTable("CourseMates");
                 });
 
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.CourseMentor", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("CourseId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("UserId", "CourseId");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CourseMentors");
+                });
+
             modelBuilder.Entity("HwProj.CoursesService.API.Models.Criterion", b =>
                 {
                     b.Property<long>("Id")
@@ -125,11 +139,11 @@ namespace HwProj.CoursesService.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<int>("MaxPoints")
-                        .HasColumnType("int");
-
                     b.Property<string>("Arguments")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MaxPoints")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -380,6 +394,15 @@ namespace HwProj.CoursesService.API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("HwProj.CoursesService.API.Models.CourseMentor", b =>
+                {
+                    b.HasOne("HwProj.CoursesService.API.Models.Course", null)
+                        .WithMany("Mentors")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("HwProj.CoursesService.API.Models.Criterion", b =>
                 {
                     b.HasOne("HwProj.CoursesService.API.Models.HomeworkTask", "Task")
@@ -456,6 +479,8 @@ namespace HwProj.CoursesService.API.Migrations
                     b.Navigation("CourseMates");
 
                     b.Navigation("Homeworks");
+
+                    b.Navigation("Mentors");
                 });
 
             modelBuilder.Entity("HwProj.CoursesService.API.Models.CourseMate", b =>
