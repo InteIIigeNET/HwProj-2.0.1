@@ -18,6 +18,7 @@ namespace HwProj.CoursesService.API.Models
         public DbSet<UserToCourseFilter> UserToCourseFilters { get; set; }
         public DbSet<TaskQuestion> Questions { get; set; }
         public DbSet<Criterion> Criteria { get; set; }
+        public DbSet<CourseMentor> CourseMentors { get; set; }
 
         public CourseContext(DbContextOptions options)
             : base(options)
