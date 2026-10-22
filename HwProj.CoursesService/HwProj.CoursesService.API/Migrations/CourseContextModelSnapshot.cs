@@ -66,9 +66,6 @@ namespace HwProj.CoursesService.API.Migrations
                     b.Property<bool>("IsOpen")
                         .HasColumnType("bit");
 
-                    b.Property<string>("MentorIds")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
