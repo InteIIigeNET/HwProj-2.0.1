@@ -79,8 +79,6 @@ export const CreateCourse: FC = () => {
         selectedGroups: [],
         fetchingGroups: false,
         courseIsLoading: false,
-        ltiTools: [],
-        ltiToolName: undefined,
     })
 
     const {activeStep, completedSteps, baseCourses, selectedBaseCourse} = state
@@ -144,17 +142,6 @@ export const CreateCourse: FC = () => {
                     {variant: "warning", autoHideDuration: 4000},
                 )
             }
-
-            try {
-                const ltiTools = await ApiSingleton.ltiToolsApi.ltiToolsGetAll()
-                setState(prev => ({...prev, ltiTools}))
-            } catch (e) {
-                console.error("Ошибка при загрузке LTI-инструментов:", e)
-                enqueueSnackbar(
-                    "Не удалось загрузить список LTI-инструментов",
-                    {variant: "warning", autoHideDuration: 4000},
-                )
-            }
         }
 
         loadData()
@@ -185,7 +172,6 @@ export const CreateCourse: FC = () => {
             isOpen: true,
             baseCourseId: selectedBaseCourse?.id,
             fetchStudents: state.isGroupFromList ? state.fetchStudents : false,
-            ltiToolName: state.ltiToolName,
         }
         try {
             setCourseIsLoading(true)

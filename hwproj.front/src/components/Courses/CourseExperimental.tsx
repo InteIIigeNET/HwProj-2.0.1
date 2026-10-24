@@ -20,10 +20,9 @@ import {
     useTheme,
     Zoom
 } from "@mui/material";
-import {FC, useCallback, useEffect, useMemo, useState} from "react";
+import {FC, useEffect, useMemo, useState} from "react";
 import {Alert, Chip, Paper, Stack, Tooltip} from "@mui/material";
 import CourseTaskSolutions from "../Solutions/CourseTaskSolutions";
-import {LtiLaunchButton} from "../Solutions/LtiLaunchButton";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {DefaultTags, getTip, TestTag} from "../Common/HomeworkTags";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
@@ -62,7 +61,6 @@ import {
     useIsCourseMentor
 } from "@/store/storeHooks/courseHooks";
 import {useCourseState} from "@/store/hooks";
-import {LtiImportButton, LtiItemDto} from "../Tasks/LtiImportButton";
 
 // Оформление списка заданий согласовано с редизайном страницы курса и списка курсов
 const listPanelSx = {
@@ -222,25 +220,6 @@ interface ICourseExperimentalProps {
     selectedTaskId: number | undefined
 }
 
-const HomeworkLtiImportButton: FC<{
-    courseId: number
-    toolName: string
-    homework: HomeworkViewModel
-}> = ({courseId, toolName, homework}) => {
-    const {importLtiTasks} = useCourseActions()
-    const onImport = useCallback((items: LtiItemDto[]) => {
-        importLtiTasks(homework, items)
-    }, [homework, importLtiTasks])
-
-    return (
-        <LtiImportButton
-            courseId={courseId}
-            toolName={toolName}
-            onImport={onImport}
-        />
-    )
-}
-
 export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const [hideDeferred, setHideDeferred] = useState<boolean>(false)
     const [showOnlyGroupedTest, setShowOnlyGroupedTest] = useState<string | undefined>(undefined)
@@ -265,7 +244,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const {selectedHomeworkId, selectedTaskId} = props
     const {userId, studentSolutions, isAcceptedStudent, acceptedStudents, groups} = useCoursePageData()
     const courseFilesInfo = useCourseState(state => state.courseFiles.items)
-    const ltiToolName = useCourseState(state => state.course.currentCourseMeta?.ltiToolName)
     const isMentor = useIsCourseMentor()
     const isStudentAccepted = isAcceptedStudent
     const {updateFiles, setFileLoading} = useCourseFiles(props.courseId, isMentor)
@@ -675,15 +653,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 homework={homework!}
                 toEditHomework={() => toEditHomework(homework!)}
             />
-            {isStudent && task.ltiLaunchData && <Box sx={detailFooterSx}>
-                <LtiLaunchButton
-                    courseId={props.courseId}
-                    toolName={ltiToolName ?? ""}
-                    taskId={task.id!}
-                    ltiLaunchData={task.ltiLaunchData}
-                />
-            </Box>}
-            {isStudent && !task.ltiLaunchData && task.canSendSolution && <Box sx={detailFooterSx}>
+            {isStudent && task.canSendSolution && <Box sx={detailFooterSx}>
                 <Button
                     variant={"contained"}
                     color={"primary"}
@@ -906,16 +876,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                                 sx={{flexGrow: 1, minWidth: 0, fontSize: "0.9375rem", lineHeight: 1.35}}
                                                 color={t.isDeferred ? "textSecondary" : "textPrimary"}>
                                                 {t.title}{getTip(t)}
-                                                {t.ltiLaunchData &&
-                                                    <Tooltip title="Задание из внешнего инструмента" arrow>
-                                                        <Chip
-                                                            label="LTI"
-                                                            size="small"
-                                                            variant="outlined"
-                                                            color="info"
-                                                            sx={{ml: 1, height: 20}}
-                                                        />
-                                                    </Tooltip>}
                                             </Typography>
                                             {renderTaskDeadline(t)}
                                         </ListItemButton>)}
@@ -947,12 +907,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                                 sx={{textTransform: "none", borderRadius: "10px"}}>
                                             Добавить задачу
                                         </Button>
-                                        {ltiToolName &&
-                                            <HomeworkLtiImportButton
-                                                courseId={props.courseId}
-                                                toolName={ltiToolName}
-                                                homework={x}
-                                            />}
                                     </Stack>}
                             </Box>;
                         })}

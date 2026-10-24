@@ -1,5 +1,5 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {HomeworkTaskViewModel, HomeworkViewModel, LtiLaunchData} from "@/api";
+import {HomeworkTaskViewModel, HomeworkViewModel} from "@/api";
 
 export interface SelectedItem {
     isHomework: boolean;
@@ -112,7 +112,6 @@ const courseEditingSlice = createSlice({
             deadlineDateNotSet: boolean;
             deadlineDate?: Date;
             tags: string[];
-            ltiLaunchData?: LtiLaunchData;
             selectAfterCreate?: boolean;
         }>) => {
             const hw = state.draftHomeworks.find(dh => dh.id === action.payload.homeworkId);
