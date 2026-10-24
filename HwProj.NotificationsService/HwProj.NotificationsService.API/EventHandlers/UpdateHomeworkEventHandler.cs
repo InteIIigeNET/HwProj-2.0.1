@@ -39,7 +39,8 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 {
                     Sender = "CourseService",
                     Body =
-                        $"В курсе <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a> домашнее задание <i>{@event.HomeworkTitle}</i> обновлено.",
+                        $"В курсе <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a> домашнее задание " +
+                        $"<a href='{_configuration["Url"]}/courses/{@event.CourseId}/homeworks?homeworkId={@event.HomeworkId}'>{@event.HomeworkTitle}</a> обновлено.",
                     Category = CategoryState.Homeworks,
                     Date = DateTime.UtcNow,
                     HasSeen = false,

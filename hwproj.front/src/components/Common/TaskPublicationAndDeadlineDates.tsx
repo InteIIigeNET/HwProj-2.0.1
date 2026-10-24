@@ -3,7 +3,7 @@ import TextField from '@mui/material/TextField';
 import Utils from "../../services/Utils";
 import Checkbox from '@mui/material/Checkbox';
 import {Grid} from "@mui/material";
-import {Typography, Link, Tooltip, FormControlLabel, FormHelperText} from '@material-ui/core';
+import {Typography, Link, Tooltip, FormControlLabel, FormHelperText} from '@mui/material';
 import {HomeworkViewModel} from 'api';
 
 interface IDateFieldsProps {
@@ -81,7 +81,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     return <div>
         <Tooltip placement={"right"} arrow title={"Позволяет переопределить даты для задачи"}>
             <Typography variant={"caption"} style={{fontSize: "14px", cursor: "pointer"}}>
-                <Link onClick={() => {
+                <Link underline={"hover"} onClick={() => {
                     setState((prevState) => ({
                         ...prevState,
                         hasDeadline: undefined,

@@ -1,18 +1,29 @@
 ﻿import React, {FC, useEffect, useState} from 'react'
-import {makeStyles} from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import ApiSingleton from "../../api/ApiSingleton";
-import Typography from "@material-ui/core/Typography";
-import Grid from '@material-ui/core/Grid';
-import {IconButton} from "@material-ui/core";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CloseIcon from '@mui/icons-material/Close';
 import {CoursePreviewView, HomeworkViewModel, InviteExpertViewModel, AccountDataDto} from "../../api";
-import {Select, MenuItem, InputLabel, FormControl} from "@mui/material";
+import {
+    Alert,
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    FormControl,
+    Grid,
+    IconButton,
+    InputLabel,
+    MenuItem,
+    Select,
+    Snackbar,
+    Stack,
+    TextField,
+    Tooltip,
+    Typography
+} from "@mui/material";
 import CourseFilter from "../Courses/CourseFilter";
 import NameBuilder from "../Utils/NameBuilder";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
@@ -35,12 +46,6 @@ interface IInviteExpertState {
 }
 
 // TODO: make placeholder darker
-const useStyles = makeStyles({
-    placeholder: {
-        color: 'black'
-    },
-});
-
 const handleCopyClick = (textToCopy: string) => {
     navigator.clipboard.writeText(textToCopy);
 }
@@ -147,17 +152,39 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
     }
 
     return (
-        <div>
-            <Dialog open={props.isOpen} onClose={props.onClose} aria-labelledby="dialog-title" fullWidth>
-                <DialogTitle id="dialog-title" style={{textAlign: "center"}}>
-                    {props.expertFullName}
+        <>
+            <Dialog
+                open={props.isOpen}
+                onClose={props.onClose}
+                aria-labelledby="dialog-title"
+                fullWidth
+                maxWidth={"sm"}
+                PaperProps={{sx: {borderRadius: "16px"}}}
+            >
+                <DialogTitle id="dialog-title" sx={{p: 2}}>
+                    <Stack direction={"row"} alignItems={"center"} spacing={1.5}>
+                        <Box sx={{flexGrow: 1, minWidth: 0}}>
+                            <Typography sx={{fontSize: "1.05rem", fontWeight: 500, lineHeight: 1.3}}>
+                                {props.expertFullName}
+                            </Typography>
+                            <Typography variant={"caption"} sx={{color: "text.secondary"}}>
+                                Приглашение эксперта на курс
+                            </Typography>
+                        </Box>
+                        <Tooltip arrow title={"Закрыть"}>
+                            <IconButton size={"small"} onClick={props.onClose} sx={{flexShrink: 0}}>
+                                <CloseIcon fontSize={"small"}/>
+                            </IconButton>
+                        </Tooltip>
+                    </Stack>
                 </DialogTitle>
-                <DialogContent>
-                    <Grid item container direction={"row"} justifyContent={"center"}>
-                        {state.errors.length > 0 && (
-                            <p style={{color: "red", marginBottom: "5px"}}>{state.errors}</p>
-                        )}
-                    </Grid>
+                <Divider/>
+                <DialogContent sx={{p: 2}}>
+                    {state.errors.length > 0 && (
+                        <Alert severity="error" sx={{mb: 1.5, borderRadius: "10px"}}>
+                            {state.errors.map((error, index) => <div key={index}>{error}</div>)}
+                        </Alert>
+                    )}
                     {isCourseListLoading ? (
                         <div className="container">
                             <DotLottieReact
@@ -270,55 +297,44 @@ const InviteExpertModal: FC<IInviteExpertProps> = (props) => {
                                             </Grid>
                                         </Grid>
                                     </Grid>)}
-                                <Grid
-                                    direction="row"
-                                    justifyContent="flex-end"
-                                    alignItems="flex-end"
-                                    container
-                                    style={{marginTop: '15px'}}
-                                >
-                                    <Grid item>
-                                        <Button
-                                            onClick={props.onClose}
-                                            color="primary"
-                                            variant="contained"
-                                            style={{marginRight: '10px'}}
-                                        >
-                                            Закрыть
-                                        </Button>
-                                    </Grid>
-                                    {!isInvited && <Grid item>
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={handleInvitation}
-                                            disabled={isInviteButtonDisabled}
-                                        >
-                                            Получить ссылку
-                                        </Button>
-                                    </Grid>}
-                                </Grid>
                             </Grid>
                         </div>)}
                 </DialogContent>
-                <DialogActions>
-                </DialogActions>
-                {isLinkCopied && (
-                    <div style={{
-                        position: 'fixed',
-                        bottom: '20px',
-                        right: '20px',
-                        backgroundColor: '#3F51B5',
-                        color: 'white',
-                        padding: '10px',
-                        borderRadius: '5px',
-                        zIndex: 1000
-                    }}>
-                        Ссылка скопирована в буфер обмена
-                    </div>
-                )}
+                {!isCourseListLoading && <>
+                    <Divider/>
+                    <DialogActions sx={{px: 2, py: 1.5, gap: 1}}>
+                        {!isInvited && <Button
+                            variant="contained"
+                            color="primary"
+                            disableElevation
+                            onClick={handleInvitation}
+                            disabled={isInviteButtonDisabled}
+                            sx={{textTransform: "none", borderRadius: "10px", px: 2.5}}
+                        >
+                            Получить ссылку
+                        </Button>}
+                        <Button
+                            onClick={props.onClose}
+                            color="primary"
+                            variant="text"
+                            sx={{textTransform: "none", borderRadius: "10px"}}
+                        >
+                            Закрыть
+                        </Button>
+                    </DialogActions>
+                </>}
             </Dialog>
-        </div>
+            <Snackbar
+                anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+                open={isLinkCopied}
+                onClose={() => setIsLinkCopied(false)}
+                autoHideDuration={5000}
+            >
+                <Alert severity="success" variant="filled" sx={{borderRadius: "10px"}}>
+                    Ссылка скопирована в буфер обмена
+                </Alert>
+            </Snackbar>
+        </>
     )
 }
 

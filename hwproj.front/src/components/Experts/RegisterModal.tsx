@@ -1,14 +1,14 @@
 ﻿import React, {FC, useState} from "react";
-import TextField from "@material-ui/core/TextField";
+import TextField from "@mui/material/TextField";
 import {Dialog, DialogTitle, DialogContent, DialogActions} from "@mui/material";
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 import ApiSingleton from "../../api/ApiSingleton";
 import {RegisterExpertViewModel} from "@/api";
 import "../Auth/Styles/Register.css";
-import Grid from "@material-ui/core/Grid";
-import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
-import Avatar from "@material-ui/core/Avatar";
+import Grid from "@mui/material/Grid";
+import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
+import Avatar from "@mui/material/Avatar";
 import Tags from "../Common/Tags";
 import ValidationUtils from "../Utils/ValidationUtils";
 

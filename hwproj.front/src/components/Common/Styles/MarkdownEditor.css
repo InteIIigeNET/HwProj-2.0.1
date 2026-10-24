@@ -1,13 +1,418 @@
-﻿.w-md-editor-text-pre > code,
-.w-md-editor-text-input {
-    font-size: 16px !important;
-    line-height: 19px !important;
+﻿/*
+ * Оформление редактора markdown и его превью.
+ * Подключается после markdown-editor.css и markdown.css из @uiw, поэтому
+ * переопределения ниже рассчитаны на такой порядок импортов (см. MarkdownEditor.tsx).
+ * Шрифты Inter и JetBrains Mono подключены в index.html; дальше по стеку идут
+ * системные фолбэки, так что без сети вёрстка не разъезжается.
+ */
+:root {
+    --hw-font-sans: "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --hw-font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --hw-accent: #3f51b5;
+    --hw-text: #1f2430;
+    --hw-text-muted: #667085;
+    --hw-border: rgba(16, 24, 40, 0.1);
+    /* Палитра подсветки кода — One Dark */
+    --hw-code-bg: #282c34;
+    --hw-code-fg: #abb2bf;
 }
 
-.markdown-preview{
-    font-size: 1rem;
-    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+/* ── Редактор ───────────────────────────────────────────────────────────── */
+
+.w-md-editor.hw-md-editor {
+    --md-editor-font-family: var(--hw-font-mono);
+    border-radius: 14px;
+    box-shadow: 0 0 0 1px var(--hw-border);
+    transition: box-shadow 0.18s ease;
+}
+
+.w-md-editor.hw-md-editor:hover {
+    box-shadow: 0 0 0 1px rgba(16, 24, 40, 0.2);
+}
+
+.w-md-editor.hw-md-editor:focus-within {
+    box-shadow: 0 0 0 1px var(--hw-accent), 0 0 0 4px rgba(63, 81, 181, 0.12);
+}
+
+.w-md-editor.hw-md-editor.w-md-editor-fullscreen {
+    border-radius: 0;
+}
+
+/* Панель инструментов */
+.hw-md-editor .w-md-editor-toolbar {
+    padding: 6px 8px;
+    background: #fafafc;
+    border-bottom: 1px solid rgba(16, 24, 40, 0.08);
+    border-radius: 14px 14px 0 0;
+}
+
+.hw-md-editor.w-md-editor-fullscreen .w-md-editor-toolbar {
+    border-radius: 0;
+}
+
+.hw-md-editor .w-md-editor-toolbar li > button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin: 0 1px;
+    padding: 0;
+    color: #4a5261;
+    border-radius: 8px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.hw-md-editor .w-md-editor-toolbar li > button:hover,
+.hw-md-editor .w-md-editor-toolbar li > button:focus-visible {
+    color: var(--hw-accent);
+    background-color: rgba(63, 81, 181, 0.09);
+}
+
+.hw-md-editor .w-md-editor-toolbar li > button:active,
+.hw-md-editor .w-md-editor-toolbar li.active > button {
+    color: var(--hw-accent);
+    background-color: rgba(63, 81, 181, 0.14);
+}
+
+.hw-md-editor .w-md-editor-toolbar-divider {
+    margin: -3px 6px 0 6px !important;
+    background-color: rgba(16, 24, 40, 0.12);
+}
+
+/* Область ввода. Все четыре селектора держим с одинаковыми метриками:
+   подсвеченный <pre> лежит ровно под прозрачной <textarea>, и любое
+   расхождение размера или интерлиньяжа уводит каретку от текста. */
+.hw-md-editor .w-md-editor-text {
+    padding: 14px 16px;
+    /* Слои ниже наследуют обе строки — лигатуры выключаем разом и в <pre>, и в <textarea> */
+    font-feature-settings: normal;
+    font-variant-ligatures: none;
+}
+
+.hw-md-editor .w-md-editor-text,
+.hw-md-editor .w-md-editor-text-pre,
+.hw-md-editor .w-md-editor-text-input,
+.hw-md-editor .w-md-editor-text-pre > code {
+    font-size: 15px !important;
+    line-height: 24px !important;
+}
+
+.hw-md-editor .w-md-editor-text-input::placeholder {
+    color: #98a2b3;
+}
+
+.hw-md-editor .w-md-editor-content {
+    border-radius: 0 0 14px 14px;
+}
+
+/* Ручка изменения высоты — сдвигаем от скруглённого угла, иначе он её срезает */
+.hw-md-editor .w-md-editor-bar {
+    right: 6px;
+    bottom: 2px;
+    color: rgba(16, 24, 40, 0.35);
+}
+
+/* Живое превью рядом с редактором */
+.hw-md-editor .w-md-editor-preview {
+    padding: 14px 18px;
+    border-left: 1px solid rgba(16, 24, 40, 0.08);
+    box-shadow: none;
+}
+
+/* ── Превью markdown ────────────────────────────────────────────────────── */
+
+.markdown-preview {
+    font-family: var(--hw-font-sans);
+    font-size: 15.5px;
     font-weight: 400;
-    line-height: 1.5;
-    letter-spacing: 0.00938em;
+    line-height: 1.7;
+    letter-spacing: -0.003em;
+    color: var(--hw-text);
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.markdown-preview > *:first-child {
+    margin-top: 0;
+}
+
+.markdown-preview > *:last-child {
+    margin-bottom: 0;
+}
+
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3,
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview h6 {
+    margin-top: 1.6em;
+    margin-bottom: 0.6em;
+    font-weight: 650;
+    line-height: 1.3;
+    letter-spacing: -0.018em;
+    color: #14181f;
+}
+
+.markdown-preview h1 {
+    font-size: 1.75em;
+    padding-bottom: 0;
+    letter-spacing: -0.025em;
+    border-bottom: 0;
+}
+
+.markdown-preview h2 {
+    font-size: 1.4em;
+    padding-bottom: 0.28em;
+    border-bottom: 1px solid var(--hw-border);
+}
+
+.markdown-preview h3 {
+    font-size: 1.18em;
+}
+
+.markdown-preview h4 {
+    font-size: 1.05em;
+}
+
+.markdown-preview h5 {
+    font-size: 0.95em;
+}
+
+.markdown-preview h6 {
+    font-size: 0.9em;
+    color: var(--hw-text-muted);
+}
+
+.markdown-preview p {
+    margin-top: 0;
+    margin-bottom: 0.9em;
+}
+
+.markdown-preview strong {
+    font-weight: 650;
+    color: #14181f;
+}
+
+.markdown-preview a {
+    color: var(--hw-accent);
+    font-weight: 500;
+    /* Длинные ссылки без пробелов не должны распирать превью */
+    overflow-wrap: anywhere;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2.5px;
+    text-decoration-color: rgba(63, 81, 181, 0.35);
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+.markdown-preview a:hover {
+    color: #2c3a94;
+    text-decoration-color: currentColor;
+}
+
+/* Якорь у заголовка (rehype-autolink-headings) — не ссылка в тексте */
+.markdown-preview a.anchor,
+.markdown-preview a.anchor:hover {
+    text-decoration: none;
+}
+
+.markdown-preview ul,
+.markdown-preview ol {
+    margin-top: 0;
+    margin-bottom: 0.9em;
+    padding-left: 1.5em;
+}
+
+.markdown-preview li + li {
+    margin-top: 0.3em;
+}
+
+.markdown-preview li::marker {
+    color: var(--hw-text-muted);
+}
+
+.markdown-preview blockquote {
+    margin: 1.2em 0;
+    padding: 0.5em 1.1em;
+    color: var(--hw-text-muted);
+    background: rgba(63, 81, 181, 0.045);
+    border-left: 3px solid rgba(63, 81, 181, 0.45);
+    border-radius: 0 8px 8px 0;
+}
+
+.markdown-preview blockquote > *:last-child {
+    margin-bottom: 0;
+}
+
+.markdown-preview hr {
+    height: 1px;
+    margin: 1.8em 0;
+    padding: 0;
+    background: var(--hw-border);
+    border: 0;
+}
+
+.markdown-preview img {
+    border-radius: 10px;
+}
+
+.markdown-preview table th,
+.markdown-preview table td {
+    padding: 8px 14px;
+    border-color: var(--hw-border);
+}
+
+.markdown-preview table th {
+    font-weight: 600;
+    background: #f7f8fb;
+}
+
+.markdown-preview table tr {
+    background: transparent;
+    border-top-color: var(--hw-border);
+}
+
+.markdown-preview table tr:nth-child(2n) {
+    background: rgba(16, 24, 40, 0.02);
+}
+
+/* Инлайновый код — «чип», а не блок */
+.markdown-preview :not(pre) > code {
+    padding: 0.15em 0.4em;
+    font-family: var(--hw-font-mono);
+    font-feature-settings: normal;
+    font-variant-ligatures: none;
+    font-size: 0.855em;
+    color: #37406b;
+    background: rgba(63, 81, 181, 0.08);
+    border: 1px solid rgba(63, 81, 181, 0.1);
+    border-radius: 6px;
+}
+
+/* ── Блоки кода ─────────────────────────────────────────────────────────── */
+
+.markdown-preview pre {
+    margin: 1.35em 0;
+    padding: 0;
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--hw-code-fg);
+    background: var(--hw-code-bg);
+    border: 1px solid rgba(16, 24, 40, 0.18);
+    border-radius: 12px;
+    box-shadow: 0 8px 22px -14px rgba(16, 24, 40, 0.6);
+}
+
+.markdown-preview pre > code {
+    padding: 16px 18px;
+    font-family: var(--hw-font-mono);
+    color: inherit;
+    background: transparent;
+    /* Без лигатур: студент должен видеть ровно те символы, что написал,
+       иначе JetBrains Mono склеивает => и -> в стрелки. Одного
+       font-variant-ligatures мало — "calt" наследуется из
+       font-feature-settings у .markdown-preview и перебивает его. */
+    font-feature-settings: normal;
+    font-variant-ligatures: none;
+}
+
+.markdown-preview pre > code::-webkit-scrollbar {
+    height: 8px;
+}
+
+.markdown-preview pre > code::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.markdown-preview pre > code::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+}
+
+.markdown-preview pre > code::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.markdown-preview pre .highlight-line {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.markdown-preview pre .code-line.line-number::before {
+    color: rgba(255, 255, 255, 0.28);
+}
+
+/* Токены Prism в палитре One Dark. Селекторы намеренно длиннее, чем в
+   markdown.css: там токены раскрашены переменными светлой темы GitHub. */
+.markdown-preview pre .token.comment,
+.markdown-preview pre .token.prolog,
+.markdown-preview pre .token.doctype,
+.markdown-preview pre .token.cdata {
+    color: #7f848e;
+    font-style: italic;
+}
+
+.markdown-preview pre .token.punctuation {
+    color: #abb2bf;
+}
+
+.markdown-preview pre .token.tag,
+.markdown-preview pre .token.property,
+.markdown-preview pre .token.selector,
+.markdown-preview pre .token.symbol,
+.markdown-preview pre .token.variable,
+.markdown-preview pre .token.deleted {
+    color: #e06c75;
+}
+
+.markdown-preview pre .token.number,
+.markdown-preview pre .token.boolean,
+.markdown-preview pre .token.constant {
+    color: #d19a66;
+}
+
+.markdown-preview pre .token.string,
+.markdown-preview pre .token.char,
+.markdown-preview pre .token.attr-value,
+.markdown-preview pre .token.regex,
+.markdown-preview pre .token.url,
+.markdown-preview pre .token.inserted {
+    color: #98c379;
+}
+
+.markdown-preview pre .token.operator,
+.markdown-preview pre .token.entity {
+    color: #56b6c2;
+}
+
+.markdown-preview pre .token.keyword,
+.markdown-preview pre .token.atrule,
+.markdown-preview pre .token.rule,
+.markdown-preview pre .token.important {
+    color: #c678dd;
+}
+
+.markdown-preview pre .token.function,
+.markdown-preview pre .token.function-variable,
+.markdown-preview pre .token.property-access {
+    color: #61afef;
+}
+
+.markdown-preview pre .token.class-name,
+.markdown-preview pre .token.maybe-class-name,
+.markdown-preview pre .token.attr-name,
+.markdown-preview pre .token.builtin,
+.markdown-preview pre .token.namespace {
+    color: #e5c07b;
+    opacity: 1;
+}
+
+.markdown-preview pre .code-line .token.deleted {
+    background-color: rgba(224, 108, 117, 0.14);
+}
+
+.markdown-preview pre .code-line .token.inserted {
+    background-color: rgba(152, 195, 121, 0.14);
 }

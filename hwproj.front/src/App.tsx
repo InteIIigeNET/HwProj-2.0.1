@@ -8,7 +8,6 @@ import StudentStatsChart from "./components/Courses/Statistics/StudentStatsChart
 import {CreateCourse} from "./components/Courses/CreateCourse";
 import Notifications from "./components/Notifications";
 import Workspace from "./components/Workspace";
-import TaskSolutionsPage from "./components/Solutions/TaskSolutionsPage";
 import {AppBarContextAction, appBarStateManager, Header} from "./components/AppBar";
 import Login from "./components/Auth/Login";
 import EditCourse from "./components/Courses/EditCourse";
@@ -24,6 +23,8 @@ import PasswordRecovery from "components/Auth/PasswordRecovery";
 import AuthLayout from "./AuthLayout";
 import ExpertAuthLayout from "./components/Experts/AuthLayout";
 import TrackPageChanges from "TrackPageChanges";
+import PageMeta from "PageMeta";
+import WelcomePage from "./pages/WelcomePage";
 
 // TODO: add flux
 
@@ -102,6 +103,7 @@ class App extends Component<{ navigate: any }, AppState> {
                         onLogout={this.logout}
                         contextAction={this.state.appBarContextAction}/>
                 <TrackPageChanges/>
+                <PageMeta/>
                 <Routes>
                     <Route element={<AuthLayout/>}>
                         <Route path="user/edit" element={<EditProfile isExpert={this.state.isExpert}/>}/>
@@ -118,7 +120,6 @@ class App extends Component<{ navigate: any }, AppState> {
                         <Route path="courses/:courseId/:tab" element={<Course/>}/>
                         <Route path="courses/:courseId/editInfo" element={<EditCourse/>}/>
                         <Route path="task/:taskId/:studentId" element={<StudentSolutionsPage/>}/>
-                        <Route path="task/:taskId/" element={<TaskSolutionsPage/>}/>
                     </Route>
                     <Route path="statistics/:courseId/charts" element={<StudentStatsChart/>}/>
                     <Route path="status" element={<SystemInfoComponent/>}/>
@@ -127,6 +128,7 @@ class App extends Component<{ navigate: any }, AppState> {
                     <Route path="recovery" element={<PasswordRecovery/>}/>
                     <Route path="resetPassword" element={<ResetPassword/>}/>
                     <Route path="join/:token" element={<ExpertAuthLayout onLogin={this.login}/>}/>
+                    <Route path="/welcome" element={<WelcomePage/>}/>
                     <Route path={"*"} element={<WrongPath/>}/>
                 </Routes>
                 <div style={{marginBottom: 10}}/>

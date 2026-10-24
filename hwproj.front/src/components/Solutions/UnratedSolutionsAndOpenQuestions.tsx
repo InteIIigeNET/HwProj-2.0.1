@@ -2,19 +2,23 @@ import {AccountDataDto, QuestionsSummary, SolutionPreviewView, UnratedSolutionPr
 import * as React from "react";
 import {NavLink} from "react-router-dom";
 import {
+    Box,
     Divider,
     Grid,
-    ListItem,
     Typography,
-    Chip, Card, CardContent, Autocomplete, Stack,
-    Badge
+    Chip, Autocomplete, Stack,
+    ListItemButton,
+    Paper
 } from "@mui/material";
-import {FC, useEffect, useState} from "react";
+import {EditOutlined, FactCheckOutlined, HelpOutline} from "@mui/icons-material";
+import {UserInitialsAvatar} from "@/components/Common/UserInitialsAvatar";
+import {FC, Fragment, ReactNode, useEffect, useState} from "react";
 import Utils from "../../services/Utils";
 import {RatingStorage} from "../Storages/RatingStorage";
 import TextField from "@mui/material/TextField";
 import ApiSingleton from "@/api/ApiSingleton";
 import {TestTip} from "@/components/Common/HomeworkTags";
+import {PanelConnector} from "@/components/Common/PanelConnector";
 
 interface IUnratedSolutionsProps {
     unratedSolutionsPreviews: UnratedSolutionPreviews
@@ -35,6 +39,134 @@ const solutionPlurals = ["решение", "решения", "решений"]
 const taskPlurals = ["задача содержит", "задачи содержат", "задач содержат"]
 
 type FilterTitleName = "coursesFilter" | "homeworksFilter" | "tasksFilter" | "studentsFilter"
+
+const panelBorderColor = "#c4cad2"
+const sectionBorderColor = "#a8b0d8"
+const sectionHeaderColor = "#3f51b5"
+const sectionHeaderBackground = "#f3f4fb"
+const emptyStateBorderColor = "#d7dbe0"
+
+// Фильтры стоят в шапке карточки и должны читаться как её продолжение, а не как поля ввода поверх неё:
+// рамок нет вообще, подчёркивание проступает под курсором, а у выбранного фильтра остаётся видимым —
+// так сразу понятно, какими срезами сузили список, и в карточке не появляется второго контура
+const filterSx = (active: boolean) => ({
+    "& .MuiInputLabel-root": {
+        color: "#7d86b8",
+        "&.Mui-focused": {color: sectionHeaderColor},
+    },
+    "& .MuiInput-root": {
+        color: "#212529",
+        "& .MuiInput-input": {fontSize: "0.875rem"},
+        "&:before": {borderBottomColor: active ? sectionHeaderColor : "transparent"},
+        "&:hover:not(.Mui-disabled, .Mui-error):before": {borderBottomColor: sectionBorderColor},
+        "& .MuiSvgIcon-root": {color: "#8a93bd"},
+    },
+})
+
+const panelSx = {
+    borderRadius: "14px",
+    borderColor: panelBorderColor,
+    overflow: "hidden",
+}
+
+const rowSx = {
+    px: 2,
+    py: 1.5,
+    alignItems: "flex-start",
+    gap: 1.5,
+    color: "#212529",
+    textDecoration: "none",
+    // Bootstrap подчёркивает и перекрашивает ссылки на hover — строка списка не должна вести себя как текстовая ссылка
+    "&:hover, &:focus": {color: "#212529", textDecoration: "none"},
+}
+
+/**
+ * Карточка раздела: заголовок с иконкой, справа необязательное действие, ниже содержимое.
+ * `toolbar` — продолжение заголовка на той же подложке (например, фильтры). Когда он есть,
+ * границей содержимого работает край подложки, и разделитель уже не нужен.
+ */
+const SectionPanel: FC<{ icon: ReactNode, title: string, action?: ReactNode, toolbar?: ReactNode, children: ReactNode }> =
+    ({icon, title, action, toolbar, children}) => (
+        <Paper variant={"outlined"} sx={{...panelSx, borderColor: sectionBorderColor}}>
+            <Box sx={{color: sectionHeaderColor, backgroundColor: sectionHeaderBackground}}>
+                <Stack direction={"row"} alignItems={"center"} spacing={1} sx={{px: 2, py: 1.25}}>
+                    {icon}
+                    <Typography variant={"body2"} sx={{fontWeight: 500, flexGrow: 1, minWidth: 0}}>{title}</Typography>
+                    {action}
+                </Stack>
+                {toolbar}
+            </Box>
+            {toolbar ? null : <Divider/>}
+            {children}
+        </Paper>
+    )
+
+const SolutionRow: FC<{ solution: SolutionPreviewView }> = ({solution}) => {
+    const student = solution.student!
+    const studentName = `${student.surname} ${student.name}`
+    const date = Utils.renderReadableDate(solution.publicationDate!)
+
+    return (
+        <ListItemButton
+            component={NavLink}
+            to={`/task/${solution.taskId}/${student.userId}`}
+            sx={rowSx}
+        >
+            <UserInitialsAvatar user={student}/>
+            <Box sx={{flexGrow: 1, minWidth: 0}}>
+                <Stack direction={"row"} alignItems={"center"} spacing={1} flexWrap={"wrap"} sx={{rowGap: 0.5}}>
+                    <Typography component={"span"} sx={{fontSize: "1rem", fontWeight: 600}}>
+                        {studentName}
+                    </Typography>
+                    <Typography
+                        component={"span"}
+                        sx={{fontSize: "1rem", color: solution.isTest ? "primary.main" : "inherit"}}
+                    >
+                        {solution.taskTitle}
+                        {solution.isTest && <TestTip/>}
+                    </Typography>
+                    {solution.isFirstTry && solution.sentAfterDeadline &&
+                        <Chip color="error" label="Дедлайн" size={"small"}/>}
+                    {!solution.isFirstTry &&
+                        <Chip color="secondary" label="Повторно" size={"small"}/>}
+                    {solution.groupId &&
+                        <Chip color="primary" label="Командное" size={"small"}/>}
+                    {solution.isCourseCompleted &&
+                        <Chip label="Курс завершён" size={"small"} sx={{color: "GrayText"}}/>}
+                </Stack>
+                <Typography variant={"caption"} sx={{color: "text.secondary"}}>
+                    <Box component={"span"} sx={{display: {xs: "inline", sm: "none"}}}>{date} · </Box>
+                    {solution.courseTitle} • {solution.homeworkTitle}
+                </Typography>
+            </Box>
+            <Typography
+                variant={"caption"}
+                sx={{
+                    display: {xs: "none", sm: "block"},
+                    flexShrink: 0,
+                    pt: 0.5,
+                    whiteSpace: "nowrap",
+                    color: "text.secondary",
+                }}
+            >
+                {date}
+            </Typography>
+        </ListItemButton>
+    )
+}
+
+const EmptyState: FC<{ text: string, inset?: boolean }> = ({text, inset}) => (
+    <Box
+        sx={{
+            py: inset ? 5 : 6,
+            textAlign: "center",
+            color: "text.secondary",
+            ...(inset ? {} : {border: `1px dashed ${emptyStateBorderColor}`, borderRadius: "14px"}),
+        }}
+    >
+        <Typography variant={"body1"}>{text}</Typography>
+    </Box>
+)
 
 const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => {
     const [openQuestions, setOpenQuestions] = useState<QuestionsSummary[]>([])
@@ -102,10 +234,6 @@ const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => 
         .filter(t => !filtersState.tasksFilter || t.taskTitle === filtersState.tasksFilter)
         .filter(t => !filtersState.studentsFilter || renderStudent(t.student!) === filtersState.studentsFilter)
 
-    const randomSolution = filteredUnratedSolutions.length > 1
-        ? filteredUnratedSolutions[Math.floor(Math.random() * filteredUnratedSolutions.length)]
-        : undefined
-
     const handleFilterChange = (filterName: FilterTitleName, value: string) => {
         let courseFilter = filtersState.coursesFilter
         let homeworkFilter = filtersState.homeworksFilter
@@ -150,158 +278,119 @@ const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => 
     const renderSelect = (name: string, filterName: FilterTitleName, value: string, options: string[]) => {
         return (<Autocomplete
             fullWidth
+            size={"small"}
             options={options}
-            defaultValue={""}
             value={value}
+            sx={filterSx(value !== "")}
             renderInput={params => <TextField
                 {...params}
                 fullWidth
-                style={{minWidth: 250, width: 55 + value.length * 10}}
+                variant={"standard"}
                 label={name}
+                placeholder={"Все"}
+                InputLabelProps={{shrink: true}}
             />}
             key={name}
             onChange={(_, newValue) => handleFilterChange(filterName, newValue || "")}
         />)
     }
 
-    const renderFilter = () => {
-        return <div style={{marginBottom: 15}}>
-            <Grid container item xs={"auto"} spacing={1} direction={"row"}>
-                <Grid item>
+    // Сколько решений ждёт проверки, а под фильтром — сколько из них осталось видно
+    const unratedTitle = filteredUnratedSolutions.length < unratedSolutions.length
+        ? `${filteredUnratedSolutions.length} из ${unratedSolutions.length} ${Utils.pluralizeHelper(solutionPlurals, unratedSolutions.length)} по фильтру`
+        : `${unratedSolutions.length} ${Utils.pluralizeHelper(solutionPlurals, unratedSolutions.length)} на проверке`
+
+    const renderFilters = () => (
+        <Box sx={{px: 2, pt: 0.5, pb: 1.5}}>
+            <Grid container columnSpacing={2.5} rowSpacing={0.5}>
+                <Grid item xs={12} sm={6} lg={3}>
                     {renderSelect("Курс", "coursesFilter", filtersState.coursesFilter, filtersState.courses)}
                 </Grid>
-                <Grid item>
+                <Grid item xs={12} sm={6} lg={3}>
                     {renderSelect("Задание", "homeworksFilter", filtersState.homeworksFilter, filtersState.homeworks)}
                 </Grid>
-                <Grid item>
+                <Grid item xs={12} sm={6} lg={3}>
                     {renderSelect("Задача", "tasksFilter", filtersState.tasksFilter, filtersState.tasks)}
                 </Grid>
-                <Grid item>
+                <Grid item xs={12} sm={6} lg={3}>
                     {renderSelect("Студент", "studentsFilter", filtersState.studentsFilter, filtersState.students)}
                 </Grid>
             </Grid>
-            <Grid container direction={"row"} spacing={1} style={{marginTop: 5}}>
-                {filteredUnratedSolutions.length < unratedSolutions.length && <Grid item>
-                    <Typography variant={"caption"} color={"GrayText"}>
-                        {`${filteredUnratedSolutions.length} ${Utils.pluralizeHelper(solutionPlurals, filteredUnratedSolutions.length)} найдено по заданному фильтру`}
-                    </Typography>
-                </Grid>}
-                {randomSolution && <Grid item>
-                    <NavLink
-                        style={{color: "#1976d2"}}
-                        to={`/task/${randomSolution.taskId}/${randomSolution.student!.userId}`}
-                    >
-                        <Typography variant={"caption"}>
-                            проверить случайное решение
-                        </Typography>
-                    </NavLink>
-                </Grid>}
-            </Grid>
-        </div>
-    }
+        </Box>
+    )
 
-    const renderSolutions = (solutions: SolutionPreviewView[]) => {
-        return solutions.map((solution, i) => (
-            <Grid item key={i}>
-                <ListItem
-                    key={i}
-                    style={{padding: 0}}
-                >
-                    <Grid container alignItems={"center"} spacing={1}>
-                        <Grid item style={{marginRight: 2}}>
-                            <NavLink
-                                to={`/task/${solution.taskId}/${solution.student!.userId}`}
-                                style={{color: "#212529"}}
-                            >
-                                <Typography style={{fontSize: "20px"}} color={solution.isTest ? "primary" : "default"}>
-                                    {solution.student!.surname} {solution.student!.name} {" • "} {solution.taskTitle}
-                                    {solution.isTest && <TestTip/>}
-                                </Typography>
-                            </NavLink>
-                        </Grid>
-                        {solution.isFirstTry && solution.sentAfterDeadline &&
-                            <Grid item>
-                                <Chip color="error" label="Дедлайн" size={"small"}/></Grid>}
-                        {!solution.isFirstTry &&
-                            <Grid item>
-                                <Chip color="secondary" label="Повторно" size={"small"}/></Grid>}
-                        {solution.groupId &&
-                            <Grid item>
-                                <Chip color="primary" label="Командное" size={"small"}/></Grid>}
-                        {solution.isCourseCompleted &&
-                            <Grid item>
-                                <Chip style={{color: "GrayText"}} label="Курс завершен"
-                                      size={"small"}/>
-                            </Grid>}
-                    </Grid>
-                </ListItem>
-                <Typography style={{fontSize: "18px", color: "GrayText"}}>
-                    {solution.courseTitle + " • " + solution.homeworkTitle}
-                </Typography>
-                {Utils.renderReadableDate(solution.publicationDate!)}
-                {i < solutions.length - 1 ?
-                    <Divider style={{marginTop: 10, marginBottom: 10}}/> : null}
-            </Grid>
-        ))
-    }
+    const renderSolutions = (solutions: SolutionPreviewView[]) => (
+        <Stack divider={<Divider/>}>
+            {solutions.map((solution, i) => <SolutionRow key={i} solution={solution}/>)}
+        </Stack>
+    )
+
+    // Вопросы, незаконченные проверки, фильтры и список решений — одна ветка работы преподавателя,
+    // поэтому карточки соединяем перемычками; зазор между ними задаёт сама перемычка
+    const panels: { key: string, color: string, node: ReactNode }[] = []
+
+    if (openQuestions.length > 0) panels.push({
+        key: "questions",
+        color: sectionBorderColor,
+        node: <SectionPanel
+            icon={<HelpOutline fontSize={"small"}/>}
+            title={`${openQuestions.length} ${Utils.pluralizeHelper(taskPlurals, openQuestions.length)} вопросы от студентов`}
+        >
+            <Stack divider={<Divider/>}>
+                {openQuestions.sort((a, b) => b.count! - a.count!).map((taskQuestions, i) => (
+                    <ListItemButton
+                        key={"question" + i}
+                        component={NavLink}
+                        to={`/task/${taskQuestions.taskId}/undefined`}
+                        sx={{...rowSx, alignItems: "center"}}
+                    >
+                        <Typography sx={{flexGrow: 1, minWidth: 0}}>
+                            {taskQuestions.taskTitle}
+                        </Typography>
+                        <Chip label={taskQuestions.count} size={"small"} color={"primary"}
+                              sx={{flexShrink: 0}}/>
+                    </ListItemButton>
+                ))}
+            </Stack>
+        </SectionPanel>
+    })
+
+    if (semiRatedSolutions.length > 0) panels.push({
+        key: "semiRated",
+        color: sectionBorderColor,
+        node: <SectionPanel
+            icon={<EditOutlined fontSize={"small"}/>}
+            title={`${semiRatedSolutions.length} ${Utils.pluralizeHelper(solutionPlurals, semiRatedSolutions.length)} с незаконченной проверкой`}
+        >
+            {renderSolutions(semiRatedSolutions)}
+        </SectionPanel>
+    })
+
+    panels.push(unratedSolutions.length === 0
+        ? {key: "allRated", color: emptyStateBorderColor, node: <EmptyState text={"Все решения проверены."}/>}
+        : {
+            key: "unrated",
+            color: sectionBorderColor,
+            node: <SectionPanel
+                icon={<FactCheckOutlined fontSize={"small"}/>}
+                title={unratedTitle}
+                toolbar={renderFilters()}
+            >
+                {filteredUnratedSolutions.length === 0
+                    ? <EmptyState inset text={"По заданному фильтру ничего не найдено."}/>
+                    : renderSolutions(filteredUnratedSolutions)}
+            </SectionPanel>
+        })
 
     return (
-        <div>
-            {openQuestions.length > 0 &&
-                <Card variant={"outlined"} style={{marginBottom: 20, borderColor: "#3f51b5"}}>
-                    <CardContent>
-                        <div style={{marginBottom: 10}}>
-                            <Typography variant={"caption"} color={"#3f51b5"} style={{marginBottom: 10}}>
-                                {`${openQuestions.length} ${Utils.pluralizeHelper(taskPlurals, openQuestions.length)} вопросы от студентов`}
-                            </Typography>
-                        </div>
-                        <div>{openQuestions.sort((a, b) => b.count! - a.count!).map((taskQuestions, i) => (
-                            <Grid item key={"question" + i}>
-                                <ListItem>
-                                    <Grid container alignItems={"center"} spacing={1}>
-                                        <Stack direction={"row"} spacing={2} alignItems={"center"}>
-                                            <Badge badgeContent={taskQuestions.count} variant="standard"
-                                                   color={"primary"}/>
-                                            <Grid item>
-                                                <NavLink
-                                                    to={`/task/${taskQuestions.taskId}/undefined`}
-                                                    style={{color: "#212529"}}
-                                                >
-                                                    <Typography style={{fontSize: "15px"}}>
-                                                        {taskQuestions.taskTitle}
-                                                    </Typography>
-                                                </NavLink>
-                                            </Grid>
-                                        </Stack>
-                                    </Grid>
-                                </ListItem>
-                            </Grid>
-                        ))}</div>
-                    </CardContent>
-                </Card>
-            }
-            {semiRatedSolutions.length > 0 &&
-                <Card variant={"outlined"} style={{marginBottom: 20, borderColor: "#3f51b5"}}>
-                    <CardContent>
-                        <div style={{marginBottom: 10}}>
-                            <Typography variant={"caption"} color={"#3f51b5"} style={{marginBottom: 10}}>
-                                {`${semiRatedSolutions.length} ${Utils.pluralizeHelper(solutionPlurals, semiRatedSolutions.length)} с незаконченной проверкой`}
-                            </Typography>
-                        </div>
-                        <div>{renderSolutions(semiRatedSolutions)}</div>
-                    </CardContent>
-                </Card>
-            }
-            {renderFilter()}
-            {unratedSolutions.length === 0 ?
-                <div>
-                    <Typography variant={"body1"} color={"GrayText"}>Все решения проверены.</Typography>
-                </div> :
-                <div>
-                    {renderSolutions(filteredUnratedSolutions)}
-                </div>
-            }
-        </div>
+        <Stack>
+            {panels.map(({key, color, node}, i) => (
+                <Fragment key={key}>
+                    {i > 0 && <PanelConnector from={panels[i - 1].color} to={color}/>}
+                    {node}
+                </Fragment>
+            ))}
+        </Stack>
     )
 }
 

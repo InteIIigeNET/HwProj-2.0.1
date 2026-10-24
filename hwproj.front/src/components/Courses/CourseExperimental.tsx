@@ -1,28 +1,29 @@
 import * as React from "react";
 import {
     HomeworkTaskViewModel,
-    HomeworkViewModel, SolutionDto,
+    HomeworkViewModel, SolutionDto, SolutionState,
 } from "@/api";
 import {
     AlertTitle,
+    Box,
     Button,
+    Checkbox,
+    Collapse,
+    Divider,
     Fab,
-    Grid,
+    FormControlLabel,
+    IconButton,
+    ListItemButton,
+    TextField,
     Typography,
     useMediaQuery,
     useTheme,
     Zoom
 } from "@mui/material";
 import {FC, useCallback, useEffect, useMemo, useState} from "react";
-import Timeline from '@mui/lab/Timeline';
-import TimelineItem from '@mui/lab/TimelineItem';
-import TimelineSeparator from '@mui/lab/TimelineSeparator';
-import TimelineConnector from '@mui/lab/TimelineConnector';
-import TimelineContent from '@mui/lab/TimelineContent';
-import TimelineDot from '@mui/lab/TimelineDot';
-import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
-import {Alert, Card, CardActions, Chip, Paper, Stack, Tooltip} from "@mui/material";
-import {Link} from "react-router-dom";
+import {Alert, Chip, Paper, Stack, Tooltip} from "@mui/material";
+import CourseTaskSolutions from "../Solutions/CourseTaskSolutions";
+import {LtiLaunchButton} from "../Solutions/LtiLaunchButton";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {DefaultTags, getTip, TestTag} from "../Common/HomeworkTags";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
@@ -30,10 +31,20 @@ import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExper
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import EditIcon from "@mui/icons-material/Edit";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import ErrorIcon from '@mui/icons-material/Error';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import SwitchAccessShortcutIcon from '@mui/icons-material/SwitchAccessShortcut';
+import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
+import GroupIcon from '@mui/icons-material/Group';
 import {
     useEditingStatus,
     useEditingSelection,
@@ -43,14 +54,172 @@ import {
     useVisibleCourseHomeworks
 } from "@/store/storeHooks/courseEditingHooks";
 import {useCourseActions} from "@/store/courseActions";
-import {useCourseFiles, useCourseFilePolling, useCoursePageData, useIsCourseMentor} from "@/store/storeHooks/courseHooks";
+import {
+    useCourseFiles,
+    useCourseFilePolling,
+    useCourseLoader,
+    useCoursePageData,
+    useIsCourseMentor
+} from "@/store/storeHooks/courseHooks";
 import {useCourseState} from "@/store/hooks";
-import GroupIcon from '@mui/icons-material/Group';
 import {LtiImportButton, LtiItemDto} from "../Tasks/LtiImportButton";
+
+// Оформление списка заданий согласовано с редизайном страницы курса и списка курсов
+const listPanelSx = {
+    borderRadius: "14px",
+    borderColor: "#c4cad2",
+    overflow: "hidden",
+}
+
+const listHeaderSx = {
+    px: 1.5,
+    py: 1,
+    backgroundColor: "#f3f4fb",
+    color: "#3f51b5",
+}
+
+const headerChipSx = {
+    height: 20,
+    flexShrink: 0,
+    backgroundColor: "#e4e7f6",
+    color: "#3f51b5",
+    "& .MuiChip-label": {px: 0.75, fontSize: "0.75rem", fontWeight: 500},
+}
+
+const countChipSx = {
+    height: 20,
+    flexShrink: 0,
+    backgroundColor: "#eef0f5",
+    color: "text.secondary",
+    "& .MuiChip-label": {px: 0.75, fontSize: "0.75rem", fontWeight: 500},
+}
+
+const filterBarSx = {
+    px: 1.5,
+    py: 0.75,
+    backgroundColor: "#fff8e6",
+    color: "#8a6d00",
+}
+
+const listScrollSx = {
+    p: 1,
+    overflowY: "auto" as const,
+    maxHeight: {xs: "none", md: "70vh"},
+    "&::-webkit-scrollbar": {width: "6px"},
+    "&::-webkit-scrollbar-track": {backgroundColor: "transparent"},
+    "&::-webkit-scrollbar-thumb": {backgroundColor: "#c4cad2", borderRadius: "3px"},
+    "&::-webkit-scrollbar-thumb:hover": {backgroundColor: "#a8b0d8"},
+}
+
+const detailPanelSx = (isEditing: boolean) => ({
+    borderRadius: "14px",
+    borderColor: isEditing ? "#a8b0d8" : "#c4cad2",
+    backgroundColor: "#fff",
+    overflow: "hidden",
+})
+
+// Плашки прижаты к верхнему краю панели, поэтому свои скругления им не нужны
+const topAlertsSx = {
+    "& .MuiAlert-root": {borderRadius: 0},
+}
+
+const detailFooterSx = {
+    px: {xs: 2, sm: 2.5},
+    py: 1.5,
+    borderTop: "1px solid #e6e8f0",
+    backgroundColor: "#fafbfe",
+}
+
+const solutionActionButtonSx = {
+    textTransform: "none" as const,
+    borderRadius: "10px",
+    fontWeight: 500,
+    px: 2,
+    flexShrink: 0,
+}
+
+const emptyStateSx = {
+    py: 3,
+    px: 2,
+    textAlign: "center" as const,
+    color: "text.secondary",
+}
+
+const rowSx = {
+    px: 1.25,
+    gap: 1,
+    borderRadius: "10px",
+    alignItems: "center" as const,
+    transition: "background-color .15s",
+    "&:hover": {backgroundColor: "rgba(63, 81, 181, 0.06)"},
+    "&.Mui-selected": {
+        backgroundColor: "rgba(63, 81, 181, 0.14)",
+        "&:hover": {backgroundColor: "rgba(63, 81, 181, 0.18)"},
+    },
+}
+
+// Непрерывная линия таймлайна: внутри задания связывает его задачи, а между заданиями
+// продолжается в промежуток, поэтому список читается как одна лента, а не как набор блоков.
+// Отступы подобраны под центры маркеров: 20px — центр строки задания, 17px — центр последней
+// строки уровня задачи (в том числе заглушки «Без задач», у неё та же геометрия).
+const railSx = (isFirst: boolean, isLast: boolean, endsWithTaskRow: boolean) => ({
+    position: "absolute" as const,
+    left: 25,
+    width: "2px",
+    backgroundColor: "#e3e6ee",
+    borderRadius: "1px",
+    top: isFirst ? 20 : 0,
+    bottom: isLast
+        ? (endsWithTaskRow ? 17 : "calc(100% - 20px)")
+        : -14,
+})
+
+// Задание — крупный узел ленты, задача — мелкий: так видна вложенность
+const homeworkDotSx = {
+    width: 12,
+    height: 12,
+    flexShrink: 0,
+    borderRadius: "50%",
+}
+
+const taskMarkerSx = {
+    width: 32,
+    flexShrink: 0,
+    display: "flex" as const,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+    zIndex: 1,
+}
+
+// Колонки раскладки: Grid container со spacing нельзя вкладывать в Stack со spacing —
+// Stack ставит детям margin: 0 и стирает отрицательные отступы Grid, из-за чего колонка съезжает
+const columnSx = (share: number) => ({
+    width: "100%",
+    minWidth: 0,
+    flex: {md: `${share} 1 0`},
+})
+
+const taskDotSx = {
+    width: 10,
+    height: 10,
+    borderRadius: "50%",
+    border: "2px solid",
+    backgroundColor: "#fff",
+}
+
+// Маркер заглушки: размер как у задачи, но пунктиром — сразу видно, что это не задача
+const emptyTaskDotSx = {
+    width: 10,
+    height: 10,
+    borderRadius: "50%",
+    border: "1px dashed #c2c7d6",
+    backgroundColor: "#fff",
+}
 
 interface ICourseExperimentalProps {
     courseId: number
     selectedHomeworkId: number | undefined
+    selectedTaskId: number | undefined
 }
 
 const HomeworkLtiImportButton: FC<{
@@ -77,6 +246,9 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const [showOnlyGroupedTest, setShowOnlyGroupedTest] = useState<string | undefined>(undefined)
     const filterAdded = hideDeferred || showOnlyGroupedTest !== undefined
 
+    const [showSearch, setShowSearch] = useState<boolean>(false)
+    const [search, setSearch] = useState<string>("")
+
     // Определяем разрешение экрана пользователя
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -90,43 +262,28 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const {isHomeworkEditing, isTaskEditing} = useEditingStatus()
     const homeworks = useVisibleCourseHomeworks(mergedHomeworks, hideDeferred, showOnlyGroupedTest)
 
-    const {selectedHomeworkId} = props
-    const {userId, studentSolutions, isAcceptedStudent, groups} = useCoursePageData();
-    const courseFilesInfo = useCourseState(state => state.courseFiles.items);
-    const ltiToolName = useCourseState(state => state.course.currentCourseMeta?.ltiToolName);
-    const isCourseMentor = useIsCourseMentor();
-    const {updateFiles, setFileLoading} = useCourseFiles(props.courseId, isCourseMentor);
-    const {startProcessing} = useCourseFilePolling(props.courseId, updateFiles, setFileLoading);
+    const {selectedHomeworkId, selectedTaskId} = props
+    const {userId, studentSolutions, isAcceptedStudent, acceptedStudents, groups} = useCoursePageData()
+    const courseFilesInfo = useCourseState(state => state.courseFiles.items)
+    const ltiToolName = useCourseState(state => state.course.currentCourseMeta?.ltiToolName)
+    const isMentor = useIsCourseMentor()
+    const isStudentAccepted = isAcceptedStudent
+    const {updateFiles, setFileLoading} = useCourseFiles(props.courseId, isMentor)
+    const {startProcessing} = useCourseFilePolling(props.courseId, updateFiles, setFileLoading)
+    const {loadStudentSolutions} = useCourseLoader(props.courseId)
 
     const {
-        selectedItem,
+        selectedItem: selectedNavItem,
         selectedHomework: selectedItemHomework,
         selectedItemData,
     } = useSelectedCourseItemData(homeworks)
-    const {id, isHomework} = selectedItem
+    const {id, isHomework} = selectedNavItem
 
-    useEnsureSelectedHomework(homeworks, selectedHomeworkId, hideDeferred)
+    useEnsureSelectedHomework(homeworks, selectedHomeworkId, selectedTaskId, hideDeferred)
 
-    const handleSelectHomework = useCallback((homeworkId: number) => {
-        selectItem({isHomework: true, id: homeworkId})
-    }, [selectItem])
-
-    const handleSelectTask = useCallback((taskId: number) => {
-        selectItem({isHomework: false, id: taskId})
-    }, [selectItem])
-
-    const handleResetFilters = useCallback(() => {
-        setHideDeferred(false)
-        setShowOnlyGroupedTest(undefined)
-    }, [])
-
-    const handleShowGroupedTest = useCallback((groupingTag: string) => {
-        setShowOnlyGroupedTest(groupingTag)
-    }, [])
-
-    const handleHideDeferred = useCallback(() => {
-        setHideDeferred(true)
-    }, [])
+    // Диалог отправки/редактирования решения открывается кнопкой в подвале карточки задачи,
+    // а сам диалог и блок решений живут в CourseTaskSolutions под карточкой — состояние общее.
+    const [addSolutionOpen, setAddSolutionOpen] = useState(false)
 
     // Обработчик прокрутки страницы
     useEffect(() => {
@@ -150,6 +307,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         });
     };
 
+    // Смена выбранного элемента ленты закрывает форму отправки решения
+    useEffect(() => {
+        setAddSolutionOpen(false)
+    }, [id, isHomework])
+
     const renderDate = (date: Date) => {
         date = new Date(date)
         const options: Intl.DateTimeFormatOptions = {
@@ -168,37 +330,55 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return date.toLocaleString("ru-RU", options)
     }
 
-    const clickedItemStyle = {
-        backgroundColor: "ghostwhite",
-        borderRadius: 9,
-        cursor: "pointer",
-        border: "1px solid lightgrey"
+    // В узкой колонке списка нужна компактная дата: "12 сент." вместо "12 сентября"
+    const renderShortDate = (date: Date) => {
+        date = new Date(date)
+        const options: Intl.DateTimeFormatOptions = {
+            month: 'short',
+            day: 'numeric'
+        };
+        return date.toLocaleString("ru-RU", options)
     }
 
-    const hoveredItemStyle = {...clickedItemStyle, border: "1px solid lightgrey"}
-
-    const warningTimelineDotStyle = {
-        borderWidth: 0,
-        margin: 0,
-        padding: "4px 0px",
-    }
-
-    const getStyle = (itemIsHomework: boolean, itemId: number) =>
-        itemIsHomework === isHomework && itemId === id ? clickedItemStyle : {borderRadius: 9}
+    const isRowSelected = (itemIsHomework: boolean, itemId: number) =>
+        itemIsHomework === isHomework && itemId === id
 
     const taskSolutionsMap = useMemo(() => {
         const map = new Map<number, SolutionDto[]>()
-        if (isCourseMentor || !isAcceptedStudent) return map
+        if (isMentor || !isStudentAccepted) return map
         studentSolutions
             .filter(t => t.id === userId)
             .flatMap(t => t.homeworks!)
             .flatMap(t => t.tasks!)
             .forEach(x => map.set(x.id!, x.solutions!))
         return map
-    }, [studentSolutions, userId, isCourseMentor, isAcceptedStudent])
+    }, [studentSolutions, userId, isMentor, isStudentAccepted])
+
+    // Фильтр "Только нерешенные" для студента: показываем задачи, по которым ещё нет ни одного решения.
+    type Filter = "Только нерешенные"
+    const FilterStorageKey = "TaskSolutionsPage"
+    const canFilterNotSolved = !isMentor && isStudentAccepted
+
+    const [filterState, setFilterState] = useState<Filter[]>(
+        localStorage.getItem(FilterStorageKey)?.split(", ").filter(x => x !== "").map(x => x as Filter) || []
+    )
+    const showOnlyNotSolved = canFilterNotSolved && filterState.some(x => x === "Только нерешенные")
+
+    const handleFilterChange = () => {
+        const filters: Filter[] = filterState.length > 0 ? [] : ["Только нерешенные"]
+        localStorage.setItem(FilterStorageKey, filters.join(", "))
+        setFilterState(filters)
+    }
+
+    const isTaskNotSolved = (task: HomeworkTaskViewModel) =>
+        (taskSolutionsMap.get(task.id!)?.length ?? 0) === 0
+
+    // Задача видна, если фильтр выключен, либо она ещё не решена, либо это новая (несохранённая) задача
+    const isTaskVisible = (task: HomeworkTaskViewModel) =>
+        !showOnlyNotSolved || task.id! < 0 || isTaskNotSolved(task)
 
     const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
-        if (!isCourseMentor) return false
+        if (!isMentor) return false
         if (entity.publicationDateNotSet || entity.hasDeadline && entity.deadlineDateNotSet) return true
 
         if (!isHomework) return false
@@ -206,21 +386,42 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return result !== true && result.hasErrors
     }
 
-    const hasInvalidTaskMaxRating = (t: HomeworkTaskViewModel & { hasErrors?: boolean }) => {
-        const mr = t.maxRating ?? 0;
-        return t.hasErrors || mr <= 0 || mr > 100;
-    };
-
-    const renderHomeworkStatus = (homework: HomeworkViewModel & { hasErrors?: boolean }) => {
-        const hasErrors = homework.id! < 0 && (homework.hasErrors || homework.tasks!.some(hasInvalidTaskMaxRating))
-        if (hasErrors)
-            return <div style={{fontSize: 16}}><ErrorIcon fontSize="small" color={"error"}/><br/></div>
-        if (isHomeworkEditing(homework.id!))
-            return <div style={{fontSize: 16}}><EditIcon fontSize="small" color={"primary"}/><br/></div>
-        return showWarningsForEntity(homework, true) && <div style={{fontSize: 16}}>⚠️<br/></div>
+    // Расшифровываем предупреждение в подсказке, чтобы преподаватель сразу понимал, что именно не заполнено
+    const getWarningTitle = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomeworkEntity: boolean) => {
+        if (entity.publicationDateNotSet) return "Не выставлена дата публикации"
+        if (entity.hasDeadline && entity.deadlineDateNotSet) return "Не выставлена дата дедлайна"
+        if (isHomeworkEntity) {
+            const result = validateTestGrouping(entity)
+            if (result !== true && result.hasErrors)
+                return `Контрольные работы с ключом «${result.groupingTag}» отличаются по количеству задач или баллам`
+        }
+        return "Проверьте настройки"
     }
 
-    const renderTaskStatus = (task: HomeworkTaskViewModel & { hasErrors?: boolean }) => {
+    const renderWarningIcon = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomeworkEntity: boolean) =>
+        <Tooltip arrow title={getWarningTitle(entity, isHomeworkEntity)}>
+            <WarningAmberRoundedIcon fontSize="small" sx={{flexShrink: 0, color: "#ed6c02"}}/>
+        </Tooltip>
+
+    const hasInvalidTaskMaxRating = (t: HomeworkTaskViewModel & { hasErrors?: boolean }) => {
+        const mr = t.maxRating ?? 0;
+        return !!t.hasErrors || mr <= 0 || mr > 100;
+    };
+
+    const renderHomeworkStatus = (homework: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
+        const hasErrors = homework.id! < 0 && (homework.hasErrors || homework.tasks!.some(hasInvalidTaskMaxRating))
+        if (hasErrors)
+            return <Tooltip arrow title={"Заполнены не все обязательные поля"}>
+                <ErrorIcon fontSize="small" color={"error"} sx={{flexShrink: 0}}/>
+            </Tooltip>
+        if (isHomeworkEditing(homework.id!) || homework.isModified)
+            return <Tooltip arrow title={"Есть несохранённые изменения"}>
+                <EditIcon fontSize="small" color={"primary"} sx={{flexShrink: 0}}/>
+            </Tooltip>
+        return showWarningsForEntity(homework, true) ? renderWarningIcon(homework, true) : null
+    }
+
+    const renderTaskStatus = (task: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
         if (taskSolutionsMap.has(task.id!)) {
             const solutions = taskSolutionsMap.get(task.id!)
             const {
@@ -232,24 +433,82 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             if (lastSolution != null) return (
                 <Tooltip arrow disableInteractive enterDelay={1000}
                          title={<span style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
-                    <Chip style={{backgroundColor: color, marginTop: '11.5px'}}
-                          size={"small"}
-                          label={lastRatedSolution == null ? "?" : lastRatedSolution.rating}/>
+                    <Chip size={"small"}
+                          label={lastRatedSolution == null ? "?" : lastRatedSolution.rating}
+                          sx={{
+                              backgroundColor: color,
+                              height: 22,
+                              minWidth: 30,
+                              fontWeight: 500,
+                              "& .MuiChip-label": {px: 0.75},
+                          }}/>
                 </Tooltip>
             )
         }
-        if (hasInvalidTaskMaxRating(task)) return <ErrorIcon fontSize="small" color={"error"}/>
-        if (isTaskEditing(task.id!))
-            return <EditIcon fontSize="small" color={"primary"}/>
-        return showWarningsForEntity(task, false) ? (
-            <Typography color={task.isDeferred ? "textSecondary" : "textPrimary"}>
-                <TimelineDot variant="outlined" style={warningTimelineDotStyle}>⚠️</TimelineDot>
-            </Typography>
-        ) : <TimelineDot variant="outlined"/>
+        if (hasInvalidTaskMaxRating(task)) return <Tooltip arrow title={"Заполнены не все обязательные поля"}>
+            <ErrorIcon fontSize="small" color={"error"}/>
+        </Tooltip>
+        if (isTaskEditing(task.id!) || task.isModified) return <Tooltip arrow title={"Есть несохранённые изменения"}>
+            <EditIcon fontSize="small" color={"primary"}/>
+        </Tooltip>
+        if (showWarningsForEntity(task, false)) return renderWarningIcon(task, false)
+        return <Box sx={{...taskDotSx, borderColor: task.isDeferred ? "#dcdfe6" : "#a8b0d8"}}/>
+    }
+
+    // Узел задания: если есть статус (ошибка, правки, предупреждение) — он занимает место узла
+    const renderHomeworkNode = (homework: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
+        const status = isMentor ? renderHomeworkStatus(homework) : null
+        if (status !== null) return status
+        return <Box sx={{...homeworkDotSx, backgroundColor: homework.isDeferred ? "#c9cedb" : "#3f51b5"}}/>
+    }
+
+    // Дедлайн задачи в списке: близкий срок подсвечивается только тому студенту, который ещё ничего не сдал
+    const renderTaskDeadline = (task: HomeworkTaskViewModel) => {
+        if (task.deadlineDateNotSet || !task.deadlineDate) return null
+        const deadline = new Date(task.deadlineDate).getTime()
+        const now = Date.now()
+        const hasSolution = (taskSolutionsMap.get(task.id!)?.length ?? 0) > 0
+        const isSoon = !isMentor && !hasSolution && deadline > now && deadline - now <= 3 * 24 * 60 * 60 * 1000
+        return (
+            <Stack direction={"row"} alignItems={"center"} spacing={0.25}
+                   sx={{flexShrink: 0, color: isSoon ? "warning.main" : "text.secondary"}}>
+                {isSoon && <ScheduleIcon sx={{fontSize: 14}}/>}
+                <Typography variant={"caption"} sx={{whiteSpace: "nowrap", fontWeight: isSoon ? 500 : 400}}>
+                    {renderShortDate(task.deadlineDate) + ", " + renderTime(task.deadlineDate)}
+                </Typography>
+            </Stack>
+        )
+    }
+
+    // Студенту показываем набранные за задание баллы, преподавателю — количество задач
+    const renderHomeworkCounter = (homework: HomeworkViewModel) => {
+        const tasksCount = homework.tasks!.length
+        if (isMentor) return tasksCount > 0
+            ? <Tooltip arrow title={"Задач в задании"}>
+                <Chip size={"small"} label={tasksCount} sx={countChipSx}/>
+            </Tooltip>
+            : null
+
+        let maxSum = 0
+        let ratingSum = 0
+        let ratedCount = 0
+        homework.tasks!.forEach(t => {
+            const solutions = taskSolutionsMap.get(t.id!)
+            if (solutions === undefined) return
+            maxSum += t.maxRating ?? 0
+            const {lastRatedSolution} = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions, t.maxRating!)
+            if (lastRatedSolution == null) return
+            ratingSum += lastRatedSolution.rating ?? 0
+            ratedCount++
+        })
+        if (ratedCount === 0) return null
+        return <Tooltip arrow title={"Набрано баллов за задание"}>
+            <Chip size={"small"} label={ratingSum + " / " + maxSum} sx={countChipSx}/>
+        </Tooltip>
     }
 
     const toEditHomework = (homework: HomeworkViewModel) => {
-        handleSelectHomework(homework.id!)
+        selectItem({isHomework: true, id: homework.id!})
     }
 
     const validateTestGrouping = (homework: HomeworkViewModel) => {
@@ -274,7 +533,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             )
         }
 
-        if (isCourseMentor && entity.hasDeadline && entity.deadlineDateNotSet) return (
+        if (isMentor && entity.hasDeadline && entity.deadlineDateNotSet) return (
             <Alert severity="warning">
                 {"Не выставлена дата дедлайна"}
             </Alert>
@@ -289,7 +548,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                   <Button
                                       color="inherit"
                                       size="small"
-                                      onClick={() => handleSelectHomework((entity as HomeworkTaskViewModel).homeworkId!)}
+                                      onClick={() => selectItem({
+                                          isHomework: true,
+                                          id: (entity as HomeworkTaskViewModel).homeworkId!
+                                      })}
                                   >
                                       Перейти к заданию
                                   </Button>}>Часть добавления нового задания</Alert>
@@ -302,7 +564,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                        <Button
                            color="inherit"
                            size="small"
-                           onClick={handleHideDeferred}
+                           onClick={() => setHideDeferred(true)}
                        >
                            Скрыть неопубликованное
                        </Button>}>
@@ -321,7 +583,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                               fullWidth
                                               color="inherit"
                                               size="small"
-                                              onClick={() => handleShowGroupedTest(groupingTag)}
+                                              onClick={() => setShowOnlyGroupedTest(groupingTag)}
                                           >
                                               Задания
                                           </Button>}>
@@ -334,7 +596,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                               fullWidth
                               color="inherit"
                               size="small"
-                              onClick={() => handleShowGroupedTest(groupingTag)}
+                              onClick={() => setShowOnlyGroupedTest(groupingTag)}
                           >
                               Задания
                           </Button>}>
@@ -347,58 +609,110 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Alert>
     }
 
-    const handleCreateHomework = () => {
+    const searchQuery = search.trim().toLowerCase()
+
+    // Поиск и фильтр "только нерешенные" сужают только список слева: остальная логика
+    // (группировка КР, подбор баллов) считает по всем заданиям
+    const visibleHomeworks = homeworks.filter(x => {
+        if (x.id! < 0) return true
+        const matchesSearch = searchQuery === ""
+            || (x.title ?? "").toLowerCase().includes(searchQuery)
+            || x.tasks!.some(t => (t.title ?? "").toLowerCase().includes(searchQuery))
+        if (!matchesSearch) return false
+        // При фильтре "только нерешенные" скрываем задание целиком, если в нём не осталось видимых задач
+        if (showOnlyNotSolved && !x.tasks!.some(isTaskVisible)) return false
+        return true
+    })
+
+    const selectedItem = selectedItemData
+
+    const addNewHomework = () => {
         createHomework(props.courseId)
     }
 
-    const handleCreateTask = (homework: HomeworkViewModel) => {
+    const addNewTask = (homework: HomeworkViewModel) => {
         createTask(homework)
     }
 
-    const renderHomework = (homework: HomeworkViewModel) => {
+    const renderHomework = (homework: HomeworkViewModel & { isModified?: boolean }) => {
         const filesInfo = homework.id
             ? FileInfoConverter.getCourseUnitFilesInfo(courseFilesInfo, CourseUnitType.Homework, homework.id)
             : []
-        const homeworkEditMode = homework && isHomeworkEditing(homework.id!)
-        return homework && <Stack direction={"column"} spacing={2}>
-            <Card style={{backgroundColor: "ghostwhite", overflow: homeworkEditMode ? 'visible' : 'hidden'}} raised={homeworkEditMode}>
-                {isCourseMentor && getGroupingAlert(homework)}
-                {isCourseMentor && getDatesAlert(homework, true)}
-                <CourseHomeworkExperimental
-                    key={homework.id}
-                    homeworkAndFilesInfo={{homework, filesInfo}}
-                    onAddTask={handleCreateTask}
-                    onStartProcessing={startProcessing}
-                    onGroupsUpdate={() => {}}
-                    groups={groups}
-                />
-            </Card>
-        </Stack>
+        const homeworkEditMode = homework && (homework.id! < 0 || isHomeworkEditing(homework.id!))
+        return homework && <Paper variant={"outlined"} sx={detailPanelSx(!!homeworkEditMode)}>
+            {isMentor && <Box sx={topAlertsSx}>
+                {getGroupingAlert(homework)}
+                {getDatesAlert(homework, true)}
+            </Box>}
+            <CourseHomeworkExperimental
+                key={homework.id}
+                homeworkAndFilesInfo={{homework, filesInfo}}
+                onAddTask={addNewTask}
+                onStartProcessing={startProcessing}
+                onGroupsUpdate={() => {}}
+                groups={groups}
+            />
+        </Paper>
     }
 
-    const renderTask = (task: HomeworkTaskViewModel, homework: HomeworkViewModel) => {
-        const taskEditMode = task && isTaskEditing(task.id!)
-        return task && <Card style={{backgroundColor: "ghostwhite", overflow: taskEditMode ? 'visible' : 'hidden'}} raised={taskEditMode}>
-            {isCourseMentor && getDatesAlert(task, false)}
+    // Последнее решение студента без оценки — кнопка предлагает «Изменить решение», а не «Добавить»
+    const isSolutionEdit = (task: HomeworkTaskViewModel): boolean => {
+        const solutions = taskSolutionsMap.get(task.id!) ?? []
+        return solutions[solutions.length - 1]?.state === SolutionState.NUMBER_0
+    }
+
+    const renderTask = (task: HomeworkTaskViewModel & { isModified?: boolean }, homework: HomeworkViewModel) => {
+        const taskEditMode = task && (task.id! < 0 || isTaskEditing(task.id!))
+        if (!task) return task
+
+        const isStudent = !isMentor && isStudentAccepted && task.id! > 0
+
+        const taskPanel = <Paper variant={"outlined"} sx={detailPanelSx(!!taskEditMode)}>
+            {isMentor && <Box sx={topAlertsSx}>{getDatesAlert(task, false)}</Box>}
             <CourseTaskExperimental
                 key={task.id}
                 task={task}
                 homework={homework!}
-                toEditHomework={() => toEditHomework(homework!)}/>
-            {!isCourseMentor && isAcceptedStudent && < CardActions>
-                <Link
-                    style={{color: '#212529'}}
-                    to={"/task/" + task.id!.toString()}>
-                    <Button
-                        size="medium"
-                        variant="text"
-                        color="primary"
-                    >
-                        Решения
-                    </Button>
-                </Link>
-            </CardActions>}
-        </Card>
+                toEditHomework={() => toEditHomework(homework!)}
+            />
+            {isStudent && task.ltiLaunchData && <Box sx={detailFooterSx}>
+                <LtiLaunchButton
+                    courseId={props.courseId}
+                    toolName={ltiToolName ?? ""}
+                    taskId={task.id!}
+                    ltiLaunchData={task.ltiLaunchData}
+                />
+            </Box>}
+            {isStudent && !task.ltiLaunchData && task.canSendSolution && <Box sx={detailFooterSx}>
+                <Button
+                    variant={"contained"}
+                    color={"primary"}
+                    disableElevation
+                    startIcon={isSolutionEdit(task) ? <EditOutlinedIcon/> : <AddCircleOutlineIcon/>}
+                    sx={solutionActionButtonSx}
+                    onClick={() => setAddSolutionOpen(true)}
+                >
+                    {isSolutionEdit(task) ? "Изменить решение" : "Добавить решение"}
+                </Button>
+            </Box>}
+        </Paper>
+
+        if (isStudent && userId)
+            return <>
+                {taskPanel}
+                <CourseTaskSolutions
+                    key={`solutions-${task.id}`}
+                    task={task}
+                    courseId={props.courseId}
+                    userId={userId}
+                    courseMates={acceptedStudents}
+                    addSolutionOpen={addSolutionOpen}
+                    onCloseAddSolution={() => setAddSolutionOpen(false)}
+                    onSolutionsChanged={() => { void loadStudentSolutions() }}
+                />
+            </>
+
+        return taskPanel
     }
 
     const renderGif = () =>
@@ -416,155 +730,251 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Alert>
     </Stack>
 
-    return <Grid container direction={{xs: "column", sm: "column", md: "row", lg: "row"}} spacing={1}>
-        <Grid item xs={12} sm={12} md={4} lg={4} order={{xs: 2, sm: 2, md: 1, lg: 1}}>
-            <Timeline style={{overflow: 'auto', paddingLeft: 0, paddingRight: 8}}
-                      sx={{
-                          maxHeight: {
-                              xs: 'none',
-                              md: '75vh'
-                          },
-                          '&::-webkit-scrollbar': {
-                              width: "3px",
-                          },
-                          '&::-webkit-scrollbar-track': {
-                              backgroundColor: "ghostwhite",
-                              borderRadius: 9
-                          },
-                          '&::-webkit-scrollbar-thumb': {
-                              backgroundColor: "lightgrey",
-                              borderRadius: 9
-                          }
-                      }}>
-                {isCourseMentor && filterAdded && <Stack direction={"column"} alignItems={"center"}>
-                    <Button
-                        fullWidth
-                        onClick={handleResetFilters}
-                        style={{borderRadius: 8, marginBottom: 10}} variant={"outlined"} size={"medium"}>
-                        Показать все задания
-                    </Button>
-                    <Typography
-                        variant={"caption"}>{hideDeferred
-                        ? "только опубликованные задания"
-                        : showOnlyGroupedTest
-                            ? `контрольные работы '${showOnlyGroupedTest}'`
-                            : ""}
-                    </Typography>
-                </Stack>}
-                {isCourseMentor && !filterAdded && <Button
-                    onClick={handleCreateHomework}
-                    style={{borderRadius: 8, marginBottom: 10}} variant={"text"} size={"small"}>
-                    + Добавить задание
-                </Button>}
-                {isCourseMentor && homeworks.length === 0 && renderLecturerWelcomeScreen()}
-                <Stack direction={"column"} spacing={0.5}>
-                    {homeworks.map((x: HomeworkViewModel & { hasErrors?: boolean }) => {
-                        return <div key={x.id} style={selectedItemHomework?.id === x.id ? {
-                            border: "1px solid #3f51b5",
-                            borderRadius: 9,
-                        } : undefined}>
-                            <Stack direction={"column"} spacing={0.5}>
-                                <Paper
-                                    key={x.id}
-                                    elevation={0}
-                                    component={Stack}
-                                    justifyContent="center"
-                                    alignContent={"center"}
-                                    sx={{":hover": hoveredItemStyle}}
-                                    style={{...getStyle(true, x.id!), minHeight: 50}}
-                                    onClick={() => handleSelectHomework(x.id!)}>
-                                    <Stack direction={"column"} alignItems={"center"}>
-                                        {x.groupId && <GroupIcon
-                                            fontSize={"small"}
-                                            color={x.isDeferred ? "disabled" : x.tags!.includes(TestTag) ? "primary" : "inherit"}
-                                        />}
-                                        <Typography variant="h6" style={{fontSize: 18}} align={"center"}
-                                                    color={x.isDeferred
-                                                        ? "textSecondary"
-                                                        : x.tags!.includes(TestTag) ? "primary" : "textPrimary"}>
-                                            {isCourseMentor && renderHomeworkStatus(x)}
-                                            {x.title}{getTip(x)}
-                                        </Typography>
-                                    </Stack>
-                                    {x.isDeferred && !x.publicationDateNotSet &&
-                                        <Typography style={{fontSize: "14px"}} align={"center"}>
-                                            {"🕘 " + renderDate(x.publicationDate!) + " " + renderTime(x.publicationDate!)}
-                                        </Typography>}
-                                    {x.tasks?.length === 0 &&
-                                        <TimelineItem style={{minHeight: 30}}>
-                                            <TimelineOppositeContent></TimelineOppositeContent>
-                                            <TimelineSeparator><TimelineConnector/></TimelineSeparator>
-                                            <TimelineContent></TimelineContent>
-                                        </TimelineItem>}
-                                </Paper>
-                                {x.tasks!.map(t => <TimelineItem
-                                    key={t.id}
-                                    onClick={() => handleSelectTask(t.id!)}
-                                    style={getStyle(false, t.id!)}
-                                    sx={{":hover": hoveredItemStyle}}>
-                                    {!t.deadlineDateNotSet &&
-                                        <TimelineOppositeContent color="textSecondary">
-                                            {t.deadlineDate ? renderDate(t.deadlineDate) : ""}
-                                            <br/>
-                                            {t.deadlineDate ? renderTime(t.deadlineDate) : ""}
-                                        </TimelineOppositeContent>
-                                    }
-                                    <TimelineSeparator>
-                                        {renderTaskStatus(t)}
-                                        <TimelineConnector/>
-                                    </TimelineSeparator>
-                                    <TimelineContent alignItems={"center"}>
-                                        <Typography className="antiLongWords"
-                                                    color={t.isDeferred ? "textSecondary" : "textPrimary"}>
-                                            {t.title}{getTip(t)}
-                                            {t.ltiLaunchData &&
-                                                <Tooltip title="Задание из внешнего инструмента" arrow>
-                                                    <Chip
-                                                        label="LTI"
-                                                        size="small"
-                                                        variant="outlined"
-                                                        color="info"
-                                                        sx={{ml: 1, height: 20}}
-                                                    />
-                                                </Tooltip>}
-                                        </Typography>
-                                    </TimelineContent>
-                                </TimelineItem>)}
-                            </Stack>
-                            {x.id! < 0 &&
-                                <Stack direction={"column"} spacing={0}
-                                       style={{borderRadius: 8, marginBottom: 10, marginTop: 5}}>
-                                    <Button fullWidth
-                                            onClick={() => handleCreateTask(x)}
-                                            variant={"text"}
-                                            size={"small"}>
-                                        + Добавить задачу
-                                    </Button>
-                                    {ltiToolName &&
-                                        <HomeworkLtiImportButton
-                                            courseId={props.courseId}
-                                            toolName={ltiToolName}
-                                            homework={x}
-                                        />}
-                                </Stack>}
-                        </div>;
-                    })}
+    const showBottomGif = isMentor || !isStudentAccepted || isHomework
+
+    // useFlexGap обязателен: колонки меняются местами через order, а по умолчанию Stack раздаёт
+    // отступы margin'ом соседним по разметке детям — на мобильных зазор оказывался не между
+    // колонками, а над верхней из них
+    return <Stack
+        direction={{xs: "column", md: "row"}}
+        spacing={{xs: 1.5, md: 1}}
+        useFlexGap
+        alignItems={"flex-start"}
+    >
+        <Box sx={{...columnSx(4), order: {xs: 2, md: 1}}}>
+            <Paper variant={"outlined"} sx={listPanelSx}>
+                <Stack direction={"row"} alignItems={"center"} spacing={1} sx={listHeaderSx}>
+                    <AssignmentOutlinedIcon fontSize={"small"}/>
+                    <Typography variant={"body2"} sx={{fontWeight: 500}}>Задания</Typography>
+                    <Chip size={"small"} label={visibleHomeworks.length} sx={headerChipSx}/>
+                    <Box sx={{flexGrow: 1}}/>
+                    <Tooltip arrow title={showSearch ? "Сбросить поиск" : "Поиск по названию"}>
+                        <IconButton
+                            size={"small"}
+                            onClick={() => {
+                                setSearch("")
+                                setShowSearch(!showSearch)
+                            }}
+                            sx={{color: showSearch ? "#3f51b5" : "text.secondary"}}
+                        >
+                            {showSearch ? <ClearIcon fontSize={"small"}/> : <SearchIcon fontSize={"small"}/>}
+                        </IconButton>
+                    </Tooltip>
+                    {isMentor && !filterAdded && (homeworks[0]?.id || 1) > 0 &&
+                        <Button
+                            onClick={addNewHomework}
+                            size={"small"}
+                            startIcon={<AddIcon/>}
+                            sx={{textTransform: "none", borderRadius: "10px", flexShrink: 0}}
+                        >
+                            Задание
+                        </Button>}
                 </Stack>
-            </Timeline>
-        </Grid>
-        <Grid item xs={12} sm={12} md={8} lg={8} order={{xs: 1, sm: 1, md: 2, lg: 2}}>
-            {selectedItemData && (isHomework || selectedItemHomework)
+                <Divider/>
+                <Collapse in={showSearch} unmountOnExit>
+                    <Box sx={{px: 1.5, py: 1.25}}>
+                        <TextField
+                            fullWidth
+                            autoFocus
+                            size={"small"}
+                            value={search}
+                            placeholder={"Название задания или задачи"}
+                            onChange={event => setSearch(event.target.value)}
+                            InputProps={{
+                                startAdornment: <SearchIcon fontSize={"small"}
+                                                            sx={{mr: 1, color: "text.secondary"}}/>,
+                                sx: {borderRadius: "10px", fontSize: "0.9375rem"},
+                            }}
+                        />
+                    </Box>
+                    <Divider/>
+                </Collapse>
+                {filterAdded && <>
+                    <Stack direction={"row"} alignItems={"center"} spacing={1} sx={filterBarSx}>
+                        <FilterAltOutlinedIcon sx={{fontSize: 18, flexShrink: 0}}/>
+                        <Typography variant={"caption"} sx={{flexGrow: 1, minWidth: 0}}>
+                            {hideDeferred
+                                ? "Только опубликованные задания"
+                                : showOnlyGroupedTest
+                                    ? "Контрольные работы «" + showOnlyGroupedTest + "»"
+                                    : ""}
+                        </Typography>
+                        <Button
+                            size={"small"}
+                            color={"inherit"}
+                            onClick={() => {
+                                setHideDeferred(false)
+                                setShowOnlyGroupedTest(undefined)
+                            }}
+                            sx={{textTransform: "none", borderRadius: "8px", flexShrink: 0}}
+                        >
+                            Показать все
+                        </Button>
+                    </Stack>
+                    <Divider/>
+                </>}
+                {canFilterNotSolved && homeworks.length > 0 && <>
+                    <Box sx={{px: 1.5, py: 0.5, backgroundColor: "#fafbfe"}}>
+                        <FormControlLabel
+                            sx={{m: 0}}
+                            control={
+                                <Checkbox
+                                    size={"small"}
+                                    checked={filterState.includes("Только нерешенные")}
+                                    onChange={handleFilterChange}/>
+                            }
+                            label={<Typography variant={"body2"}>Только нерешенные</Typography>}
+                        />
+                    </Box>
+                    <Divider/>
+                </>}
+                <Box sx={listScrollSx}>
+                    {isMentor && homeworks.length === 0 && renderLecturerWelcomeScreen()}
+                    {!isMentor && homeworks.length === 0 &&
+                        <Typography variant={"body2"} sx={emptyStateSx}>Заданий пока нет</Typography>}
+                    {homeworks.length > 0 && visibleHomeworks.length === 0 &&
+                        <Typography variant={"body2"} sx={emptyStateSx}>
+                            {search.trim() !== ""
+                                ? "Ничего не найдено по запросу «" + search.trim() + "»"
+                                : "Нерешённых задач нет"}
+                        </Typography>}
+                    <Stack direction={"column"} spacing={1.5}>
+                        {visibleHomeworks.map((x: HomeworkViewModel & {
+                            isModified?: boolean,
+                            hasErrors?: boolean
+                        }, index) => {
+                            const isGroupSelected = selectedItemHomework?.id === x.id
+                            const visibleTasks = x.tasks!.filter(isTaskVisible)
+                            const hasTasks = visibleTasks.length > 0
+                            return <Box key={x.id} sx={{
+                                position: "relative",
+                                // Без вертикальных отступов: строки прилегают к рамке задания без пустого зазора,
+                                // воздух внутри строк даёт их собственный py
+                                borderRadius: "12px",
+                                border: "1px solid",
+                                borderColor: isGroupSelected ? "#3f51b5" : "transparent",
+                                backgroundColor: isGroupSelected ? "#f7f8fd" : "transparent",
+                                transition: "border-color .15s, background-color .15s",
+                            }}>
+                                <Box sx={railSx(index === 0, index === visibleHomeworks.length - 1, hasTasks || x.id! > 0)}/>
+                                <ListItemButton
+                                    selected={isRowSelected(true, x.id!)}
+                                    onClick={() => selectItem({isHomework: true, id: x.id})}
+                                    sx={{...rowSx, py: 1.25}}
+                                >
+                                    <Box sx={taskMarkerSx}>{renderHomeworkNode(x)}</Box>
+                                    <Stack direction={"row"} alignItems={"center"} spacing={0.75}
+                                           sx={{flexGrow: 1, minWidth: 0}}>
+                                        {x.groupId && <Tooltip arrow title={"Командная работа"}>
+                                            <GroupIcon
+                                                fontSize={"small"}
+                                                sx={{flexShrink: 0}}
+                                                color={x.isDeferred ? "disabled" : x.tags!.includes(TestTag) ? "primary" : "action"}/>
+                                        </Tooltip>}
+                                        <Box sx={{minWidth: 0}}>
+                                            <Typography
+                                                className="antiLongWords"
+                                                sx={{fontSize: "1rem", fontWeight: 600, lineHeight: 1.3}}
+                                                color={x.isDeferred
+                                                    ? "textSecondary"
+                                                    : x.tags!.includes(TestTag) ? "primary" : "textPrimary"}>
+                                                {x.title}{getTip(x)}
+                                            </Typography>
+                                            {x.isDeferred && !x.publicationDateNotSet &&
+                                                <Stack direction={"row"} alignItems={"center"} spacing={0.5}
+                                                       sx={{mt: 0.25, color: "text.secondary"}}>
+                                                    <ScheduleIcon sx={{fontSize: 14, flexShrink: 0}}/>
+                                                    <Typography variant={"caption"} sx={{whiteSpace: "nowrap"}}>
+                                                        {renderShortDate(x.publicationDate!) + ", " + renderTime(x.publicationDate!)}
+                                                    </Typography>
+                                                </Stack>}
+                                        </Box>
+                                    </Stack>
+                                    {renderHomeworkCounter(x)}
+                                </ListItemButton>
+                                {hasTasks
+                                    ? <Box>
+                                        {visibleTasks.map(t => <ListItemButton
+                                            key={t.id}
+                                            selected={isRowSelected(false, t.id!)}
+                                            onClick={() => selectItem({isHomework: false, id: t.id})}
+                                            sx={{...rowSx, py: 0.875}}
+                                        >
+                                            <Box sx={taskMarkerSx}>{renderTaskStatus(t)}</Box>
+                                            <Typography
+                                                className="antiLongWords"
+                                                sx={{flexGrow: 1, minWidth: 0, fontSize: "0.9375rem", lineHeight: 1.35}}
+                                                color={t.isDeferred ? "textSecondary" : "textPrimary"}>
+                                                {t.title}{getTip(t)}
+                                                {t.ltiLaunchData &&
+                                                    <Tooltip title="Задание из внешнего инструмента" arrow>
+                                                        <Chip
+                                                            label="LTI"
+                                                            size="small"
+                                                            variant="outlined"
+                                                            color="info"
+                                                            sx={{ml: 1, height: 20}}
+                                                        />
+                                                    </Tooltip>}
+                                            </Typography>
+                                            {renderTaskDeadline(t)}
+                                        </ListItemButton>)}
+                                    </Box>
+                                    : x.id! > 0 &&
+                                    // Заглушка повторяет геометрию строки задачи (маркер + текст),
+                                    // но пунктирный маркер и курсив не дают спутать её с названием задачи
+                                    <Stack direction={"row"} alignItems={"center"}
+                                           sx={{px: 1.25, gap: 1, py: 0.875}}>
+                                        <Box sx={taskMarkerSx}>
+                                            <Box sx={emptyTaskDotSx}/>
+                                        </Box>
+                                        <Typography
+                                            sx={{
+                                                fontSize: "0.9375rem",
+                                                lineHeight: 1.35,
+                                                fontStyle: "italic",
+                                                color: "text.disabled",
+                                            }}>
+                                            Без задач
+                                        </Typography>
+                                    </Stack>}
+                                {x.id! < 0 &&
+                                    <Stack direction={"column"} spacing={0.5} sx={{mt: 0.5}}>
+                                        <Button fullWidth
+                                                onClick={() => addNewTask(x)}
+                                                size={"small"}
+                                                startIcon={<AddIcon/>}
+                                                sx={{textTransform: "none", borderRadius: "10px"}}>
+                                            Добавить задачу
+                                        </Button>
+                                        {ltiToolName &&
+                                            <HomeworkLtiImportButton
+                                                courseId={props.courseId}
+                                                toolName={ltiToolName}
+                                                homework={x}
+                                            />}
+                                    </Stack>}
+                            </Box>;
+                        })}
+                    </Stack>
+                </Box>
+            </Paper>
+        </Box>
+        <Box sx={{...columnSx(8), order: {xs: 1, md: 2}}}>
+            {selectedItem && selectedItemHomework
                 ? isHomework
-                    ? renderHomework(selectedItemData as HomeworkViewModel)
-                    : renderTask(selectedItemData as HomeworkTaskViewModel, selectedItemHomework!)
+                    ? renderHomework(selectedItem as HomeworkViewModel)
+                    : renderTask(selectedItem as HomeworkTaskViewModel, selectedItemHomework)
                 : null}
-            <Grid item sx={{display: {xs: 'none', md: 'flex'}}}>
+            {/* Декоративная гифка — везде, кроме случая «принятый студент + выбрана задача»,
+                где под задачей идёт блок решений. */}
+            {showBottomGif && <Box sx={{display: {xs: 'none', md: 'flex'}}}>
                 {renderGif()}
-            </Grid>
-        </Grid>
-        <Grid item sx={{display: {xs: 'flex', md: 'none'}}} order={{xs: 3, sm: 3}}>
+            </Box>}
+        </Box>
+        {showBottomGif && <Box sx={{display: {xs: 'flex', md: 'none'}, width: "100%", order: 3}}>
             {renderGif()}
-        </Grid>
+        </Box>}
 
         {/* Кнопка "Наверх" для мобильных устройств */}
         <Zoom in={showScrollButton && isMobile}>
@@ -584,5 +994,5 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 <ArrowUpwardIcon/>
             </Fab>
         </Zoom>
-    </Grid>
+    </Stack>
 }

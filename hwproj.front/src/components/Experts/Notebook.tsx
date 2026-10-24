@@ -8,7 +8,7 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import {Typography, Grid, Button, Checkbox, FormControlLabel, Snackbar} from "@material-ui/core";
+import {Typography, Grid, Button, Checkbox, FormControlLabel, Snackbar} from "@mui/material";
 import {ExpertDataDTO, UpdateExpertTagsDTO} from 'api/api';
 import ApiSingleton from "../../api/ApiSingleton";
 import RegisterExpertModal from "./RegisterModal";

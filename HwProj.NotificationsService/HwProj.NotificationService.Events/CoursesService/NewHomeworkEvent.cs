@@ -5,9 +5,10 @@ namespace HwProj.NotificationService.Events.CoursesService
 {
     public class NewHomeworkEvent : Event
     {
-        public NewHomeworkEvent(string homeworkTitle, string courseName, long courseId, string[] studentIds, DateTime? deadlineDate)
+        public NewHomeworkEvent(string homeworkTitle, long homeworkId, string courseName, long courseId, string[] studentIds, DateTime? deadlineDate)
         {
             HomeworkTitle = homeworkTitle;
+            HomeworkId = homeworkId;
             CourseName = courseName;
             StudentIds = studentIds;
             DeadlineDate = deadlineDate;
@@ -15,6 +16,7 @@ namespace HwProj.NotificationService.Events.CoursesService
         }
 
         public string HomeworkTitle { get; set; }
+        public long HomeworkId { get; set; }
         public string CourseName { get; set; }
         public long CourseId { get; set; }
         public DateTime? DeadlineDate { get; set; }

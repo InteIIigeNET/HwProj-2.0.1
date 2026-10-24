@@ -1,5 +1,5 @@
 import React, {FC} from "react";
-import {Grid} from "@material-ui/core";
+import {Grid} from "@mui/material";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const WrongPath: FC = () => {

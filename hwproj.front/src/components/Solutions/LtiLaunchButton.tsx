@@ -69,12 +69,12 @@ export const LtiLaunchButton: FC<LtiLaunchButtonProps> = ({ courseId, toolName, 
     return (
         <>
             <LoadingButton
-                fullWidth
-                size="large"
                 variant="contained"
                 color="primary"
+                disableElevation
                 onClick={() => setOpenDialog(true)}
                 loading={isLoading}
+                sx={{textTransform: "none", borderRadius: "10px", fontWeight: 500, px: 2}}
             >
                 Решить задачу
             </LoadingButton>

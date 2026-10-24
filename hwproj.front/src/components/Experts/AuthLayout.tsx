@@ -1,7 +1,7 @@
 ﻿import {Navigate, useParams} from 'react-router-dom';
 import React, {FC, useEffect, useState} from "react";
 import ApiSingleton from "./../../api/ApiSingleton";
-import {Box, Typography} from "@material-ui/core";
+import {Box, Typography} from "@mui/material";
 import {TokenCredentials} from "api/api";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 

@@ -10,15 +10,15 @@ HwProj — это веб-сервис, созданный для автомат�
 
 **Для преподавателей** в HwProj реализована лента непроверенных решений: здесь содержится информация о решениях со всех курсов преподавателя, отсортированных по времени выполнения заданий с возможностью фильтрации.
 
-<img width="600" height="400" alt="image_2025-10-27_01-34-23" src="https://github.com/user-attachments/assets/77d36bfe-13aa-415d-bd8b-c4c6550bb56a" />
+<img alt="image_2025-10-27_01-34-23" src="https://github.com/user-attachments/assets/77d36bfe-13aa-415d-bd8b-c4c6550bb56a" />
 
 **Для студентов** HwProj предоставляет ленту назначенных задач с информацией о дедлайнах.
 
-<img width="300" height="300" alt="image_2025-10-27_01-34-23" src="https://github.com/user-attachments/assets/dbb83a16-d3f7-4117-89fe-e4c2c676adea" />
+<img alt="image_2025-10-27_01-34-23" src="https://github.com/user-attachments/assets/dbb83a16-d3f7-4117-89fe-e4c2c676adea" />
 
 **Внешние эксперты** в сервисе могут просматривать, комментировать и оценивать решения студентов по просьбе преподавателей.
 
-<img width="350" height="350" alt="image_2025-10-27_01-34-23" src="https://github.com/user-attachments/assets/2d351109-5d45-4892-a075-829d700a7860" />
+<img  alt="image_2025-10-27_01-34-23" src="https://github.com/user-attachments/assets/2d351109-5d45-4892-a075-829d700a7860" />
 
 
 Чтобы узнать больше о возможностях сервиса, ознакомьтесь с [нашей документацией](Docs/documentation.pdf). Для начала работы с сервисом предлагаем воспользоваться [инструкцией](https://docs.google.com/document/d/18W-LAuG7Dq75V2p-imF2KWIWvq8MhLl2Zr3ucLQnKCY/edit?usp=sharing).

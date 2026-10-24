@@ -1,16 +1,27 @@
-import {Box, Button, DialogActions} from '@material-ui/core'
-import Dialog from '@material-ui/core/Dialog'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Grid from '@material-ui/core/Grid'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
+import {
+    Alert,
+    Autocomplete,
+    Box,
+    Button,
+    createFilterOptions,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    IconButton,
+    Stack,
+    TextField,
+    Tooltip,
+    Typography
+} from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
+import PersonAddAlt1OutlinedIcon from '@mui/icons-material/PersonAddAlt1Outlined'
 import ApiSingleton from 'api/ApiSingleton'
 import React, {FC, FormEvent, useEffect, useState} from 'react'
-import {AccountDataDto} from "../../api";
-import {Autocomplete} from "@material-ui/lab";
+import {AccountDataDto} from "@/api";
 import ValidationUtils from "../Utils/ValidationUtils";
+import {UserInitialsAvatar} from "../Common/UserInitialsAvatar";
 
 interface AddLecturerInCourseProps {
     onClose: any;
@@ -24,6 +35,23 @@ interface AddLecturerInCourseState {
     errors: string[];
     info: string[];
     data: AccountDataDto[];
+}
+
+// В инпут подставляем только email, поэтому по ФИО ищем через отдельный матчер
+const filterOptions = createFilterOptions<AccountDataDto>({
+    stringify: option => `${option.email ?? ""} ${option.surname ?? ""} ${option.name ?? ""} ${option.middleName ?? ""}`,
+})
+
+const iconBadgeSx = {
+    width: 40,
+    height: 40,
+    flexShrink: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "12px",
+    backgroundColor: "#e4e7f6",
+    color: "#3f51b5",
 }
 
 const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
@@ -63,12 +91,14 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
     }
 
     const closeDialogIcon = () => {
-        setLecturerState({
+        // Диалог смонтирован всегда, а список преподавателей загружается один раз при монтировании,
+        // поэтому очищаем только ввод: иначе при повторном открытии подсказок не останется
+        setLecturerState((prevState) => ({
+            ...prevState,
             info: [],
             errors: [],
             email: '',
-            data: [],
-        })
+        }))
         props.onClose()
     }
 
@@ -87,116 +117,125 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
     }, [])
 
     return (
-        <div>
-            <Dialog
-                onClose={closeDialogIcon}
-                aria-labelledby="simple-dialog-title"
-                open={props.isOpen}
-            >
-                <DialogTitle id="form-dialog-title">
-                    Добавить преподавателя в курс
+        <Dialog
+            onClose={closeDialogIcon}
+            aria-labelledby="add-lecturer-title"
+            open={props.isOpen}
+            fullWidth
+            maxWidth={"sm"}
+            PaperProps={{sx: {borderRadius: "16px"}}}
+        >
+            <Box component={"form"} onSubmit={handleSubmit}>
+                <DialogTitle id="add-lecturer-title" sx={{p: 2}}>
+                    <Stack direction={"row"} alignItems={"center"} spacing={1.5}>
+                        <Box sx={iconBadgeSx}>
+                            <PersonAddAlt1OutlinedIcon fontSize={"small"}/>
+                        </Box>
+                        <Box sx={{flexGrow: 1, minWidth: 0}}>
+                            <Typography sx={{fontSize: "1.05rem", fontWeight: 500, lineHeight: 1.3}}>
+                                Добавить преподавателя
+                            </Typography>
+                            <Typography variant={"caption"} sx={{color: "text.secondary"}}>
+                                Приглашение по адресу электронной почты
+                            </Typography>
+                        </Box>
+                        <Tooltip arrow title={"Закрыть"}>
+                            <IconButton size={"small"} onClick={closeDialogIcon} sx={{flexShrink: 0}}>
+                                <CloseIcon fontSize={"small"}/>
+                            </IconButton>
+                        </Tooltip>
+                    </Stack>
                 </DialogTitle>
-                <DialogContent>
-                    <DialogContentText component="div">
-                        <Typography>
-                            Для добавления преподавателя в курс, введите его адрес элекстронной почты.
-                            Пользователь должен быть зарегистрированным и иметь статус лектора.
+                <Divider/>
+                <DialogContent sx={{p: 2}}>
+                    <Stack spacing={3}>
+                        <Typography variant={"body2"} sx={{color: "text.secondary"}}>
+                            Пользователь должен быть зарегистрирован и иметь статус лектора.
+                            Начните вводить email или ФИО — подходящие преподаватели появятся в списке.
                         </Typography>
-                        <div style={{textAlign: 'center', marginBottom: "0"}}>
-                            {lecturerState.info && (
-                                <p style={{color: "green", marginBottom: "0"}}>
-                                    {lecturerState.info}
-                                </p>
+                        {lecturerState.info.length > 0 &&
+                            <Alert severity="success" sx={{borderRadius: "10px"}}>
+                                {lecturerState.info.map((message, index) => <div key={index}>{message}</div>)}
+                            </Alert>}
+                        {lecturerState.errors.length > 0 &&
+                            <Alert severity="error" sx={{borderRadius: "10px"}}>
+                                {lecturerState.errors.map((error, index) => <div key={index}>{error}</div>)}
+                            </Alert>}
+                        <Autocomplete
+                            freeSolo
+                            disableClearable
+                            fullWidth
+                            options={lecturerState.data}
+                            filterOptions={filterOptions}
+                            inputValue={lecturerState.email}
+                            getOptionLabel={option => typeof option === "string" ? option : (option.email ?? "")}
+                            getOptionKey={option => typeof option === "string" ? option : (option.userId ?? "")}
+                            noOptionsText={"Нет подходящих преподавателей"}
+                            onChange={(_, value) => setLecturerState((prevState) => ({
+                                ...prevState,
+                                email: typeof value === "string" ? value : (value.email ?? "")
+                            }))}
+                            onInputChange={(_, value, reason) => {
+                                // reason === "reset" приходит при выборе из списка — email там уже выставлен в onChange
+                                if (reason === "input") setLecturerState((prevState) => ({
+                                    ...prevState,
+                                    email: value
+                                }))
+                            }}
+                            renderOption={(optionProps, option) => (
+                                <Box component={"li"} {...optionProps} key={option.userId}>
+                                    <Stack direction={"row"} alignItems={"center"} spacing={1.5}
+                                           sx={{width: "100%", minWidth: 0}}>
+                                        <UserInitialsAvatar user={option} size={32} fontSize={"0.7rem"}/>
+                                        <Box sx={{minWidth: 0}}>
+                                            <Typography
+                                                sx={{fontSize: "0.9375rem", fontWeight: 500, lineHeight: 1.3}}>
+                                                {`${option.surname ?? ""} ${option.name ?? ""} ${option.middleName ?? ""}`.trim()}
+                                            </Typography>
+                                            <Typography variant={"caption"} noWrap
+                                                        sx={{display: "block", color: "text.secondary"}}>
+                                                {option.email}
+                                            </Typography>
+                                        </Box>
+                                    </Stack>
+                                </Box>
                             )}
-                            {lecturerState.errors && (
-                                <p style={{color: "red", marginBottom: "0"}}>
-                                    {lecturerState.errors}
-                                </p>
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    autoFocus
+                                    size={"small"}
+                                    label="Email или ФИО преподавателя"
+                                    variant="outlined"
+                                    sx={{"& .MuiOutlinedInput-root": {borderRadius: "10px"}}}
+                                />
                             )}
-                        </div>
-                        <form onSubmit={(e) => handleSubmit(e)}>
-                            <Grid container justifyContent="flex-end">
-                                <Grid item xs={12}>
-                                    <Autocomplete
-                                        onChange={(e, values) => {
-                                            e.persist()
-                                            setLecturerState((prevState) => ({
-                                                ...prevState,
-                                                email: (values as AccountDataDto).email!
-                                            }))
-                                        }}
-                                        freeSolo
-                                        disableClearable
-                                        getOptionLabel={(option) => option.email! + ' (' + option.surname! + ' ' + option.name! + ' ' + option.middleName! + ')'}
-                                        options={lecturerState.data}
-                                        renderOption={(props, option) => (
-                                            <Grid
-                                                direction="row"
-                                                justifyContent="flex-start"
-                                                alignItems="flex-end"
-                                                container
-                                            >
-                                                <Grid item>
-                                                    <Box component="li" {...props} fontWeight='fontWeightMedium'>
-                                                        {props.email} /
-                                                    </Box>
-                                                </Grid>
-                                                <Grid item>
-                                                    <Typography
-                                                        style={{marginLeft: '3px'}}
-                                                    >
-                                                        {props.name} {props.surname}
-                                                    </Typography>
-                                                </Grid>
-                                            </Grid>
-                                        )}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Введите email или ФИО"
-                                                InputProps={{
-                                                    ...params.InputProps,
-                                                    type: 'search',
-                                                }}
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-                                <Grid
-                                    direction="row"
-                                    justifyContent="flex-end"
-                                    alignItems="flex-end"
-                                    container
-                                    style={{marginTop: '16px'}}
-                                >
-                                    <Grid item>
-                                        <Button
-                                            onClick={closeDialogIcon}
-                                            color="primary"
-                                            variant="contained"
-                                            style={{marginRight: '10px'}}
-                                        >
-                                            Закрыть
-                                        </Button>
-                                    </Grid>
-                                    <Grid item>
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            type="submit"
-                                        >
-                                            Пригласить
-                                        </Button>
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-                        </form>
-                    </DialogContentText>
+                        />
+                    </Stack>
                 </DialogContent>
-                <DialogActions>
+                <Divider/>
+                <DialogActions sx={{px: 2, py: 1.5, gap: 1}}>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        disableElevation
+                        disabled={!lecturerState.email.trim()}
+                        sx={{textTransform: "none", borderRadius: "10px", px: 2.5}}
+                    >
+                        Пригласить
+                    </Button>
+                    <Button
+                        onClick={closeDialogIcon}
+                        color="primary"
+                        variant="text"
+                        sx={{textTransform: "none", borderRadius: "10px"}}
+                    >
+                        Закрыть
+                    </Button>
                 </DialogActions>
-            </Dialog>
-        </div>
+            </Box>
+        </Dialog>
     )
 }
 

@@ -122,6 +122,7 @@ export const useVisibleCourseHomeworks = (
 export const useEnsureSelectedHomework = (
     homeworks: HomeworkViewModel[],
     selectedHomeworkId: number | undefined,
+    selectedTaskId: number | undefined,
     resetKey: unknown
 ) => {
     const {selectedItem, select} = useEditingSelection();
@@ -135,11 +136,17 @@ export const useEnsureSelectedHomework = (
             return;
         }
 
-        const defaultHomeworkIndex = Math.max(
-            selectedHomeworkId ? homeworks.findIndex(homework => homework.id === selectedHomeworkId) : 0,
-            0
-        );
-        const defaultHomework = homeworks[defaultHomeworkIndex];
+        if (selectedHomeworkId != null && homeworks.some(homework => homework.id === selectedHomeworkId)) {
+            select({isHomework: true, id: selectedHomeworkId});
+            return;
+        }
+
+        if (selectedTaskId != null && homeworks.some(homework => homework.tasks?.some(task => task.id === selectedTaskId))) {
+            select({isHomework: false, id: selectedTaskId});
+            return;
+        }
+
+        const defaultHomework = homeworks[0];
         select({isHomework: true, id: defaultHomework?.id});
-    }, [homeworks, resetKey, select, selectedHomeworkId, selectedItem.id, selectedItem.isHomework]);
+    }, [homeworks, resetKey, select, selectedHomeworkId, selectedTaskId, selectedItem.id, selectedItem.isHomework]);
 };

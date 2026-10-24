@@ -529,9 +529,22 @@ public class SolutionsController : AggregationController
         if (lastRatedSolutions.Any(x => x!.GroupId != null))
             lastRatedSolutions = lastRatedSolutions.DistinctBy(t => t!.Id).ToArray();
 
-        var betterThanCount = lastRatedSolutions.Count(t => solution.Rating > t!.Rating);
-        if (betterThanCount == 0) return Ok(lastRatedSolutions.Length == 1 ? 100 : 0);
-        return Ok(betterThanCount * 100 / (lastRatedSolutions.Length - 1));
+        var score = solution.Rating;
+        var maxScore = course.Homeworks.SelectMany(x => x.Tasks).First(x => x.Id == taskId).MaxRating;
+        var otherScores = lastRatedSolutions
+            .Where(x => x!.Id != solutionId)
+            .Select(x => x!.Rating)
+            .ToArray();
+        
+        var absolute = (double)score / maxScore;
+
+        if (otherScores.Length == 0)
+            return Ok(Math.Round(absolute * 100));
+
+        var averageDeficit = otherScores.Average(other => Math.Max(0, other - score));
+        var relative = 1.0 - averageDeficit / maxScore;
+
+        return Ok(Math.Round(Math.Sqrt(absolute * relative) * 100));
     }
 
     private async Task<SolutionPreviewDto[]> GetAllUnratedSolutionsForTasks(

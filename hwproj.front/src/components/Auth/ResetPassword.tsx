@@ -1,16 +1,16 @@
 import React, {FC, FormEvent} from "react";
-import {
-    TextField,
-    Button,
-    Typography
-} from "@material-ui/core";
-import Grid from '@material-ui/core/Grid';
 import ApiSingleton from "../../api/ApiSingleton";
 import "./Styles/Register.css";
 import {useState} from "react";
-import {makeStyles} from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
-import {Alert, AlertTitle} from "@mui/material";
+import {
+    Alert,
+    AlertTitle,
+    Button,
+    Container,
+    Grid,
+    TextField,
+    Typography
+} from "@mui/material";
 
 interface IResetPasswordState {
     password: string;
@@ -19,31 +19,25 @@ interface IResetPasswordState {
     isSuccess: boolean;
 }
 
-const useStyles = makeStyles((theme) => ({
-    paper: {
-        marginTop: theme.spacing(8),
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
-    login: {
-        marginTop: '16px',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    avatar: {
-        margin: theme.spacing(1),
-    },
-    form: {
-        marginTop: theme.spacing(3),
-        width: '100%'
-    },
-    button: {
-        marginTop: theme.spacing(2)
-    },
-}))
+// theme.spacing(n) в v4 возвращал число 8n, поэтому подставляем итоговые отступы
+const headerSx = {
+    mt: 8,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+}
+
+const inputSx = {
+    "& .MuiOutlinedInput-root": {borderRadius: "10px"},
+}
+
+const submitButtonSx = {
+    py: 1,
+    borderRadius: "10px",
+    textTransform: "none",
+    fontSize: "0.9375rem",
+    fontWeight: 500,
+}
 
 const ResetPassword: FC = () => {
 
@@ -52,7 +46,6 @@ const ResetPassword: FC = () => {
     const token = urlParams.get("token")
     const isUrlValid = userId !== null && token !== null
 
-    const classes = useStyles()
     const [resetPasswordState, setState] = useState<IResetPasswordState>({
         password: "",
         passwordConfirm: "",
@@ -97,14 +90,14 @@ const ResetPassword: FC = () => {
 
     return (
         <Container component="main" maxWidth="xs">
-            <Grid container className={classes.paper}>
+            <Grid container sx={headerSx}>
                 <Typography component="h1" variant="h5">
                     Изменение пароля
                 </Typography>
-                {resetPasswordState.errors && (
-                    <p style={{color: "red", marginBottom: "0"}}>
-                        {resetPasswordState.errors}
-                    </p>
+                {resetPasswordState.errors && resetPasswordState.errors.length > 0 && (
+                    <Alert severity="error" sx={{mt: 2, width: "100%", borderRadius: "10px"}}>
+                        {resetPasswordState.errors.map((error, index) => <div key={index}>{error}</div>)}
+                    </Alert>
                 )}
             </Grid>
             {resetPasswordState.isSuccess
@@ -119,7 +112,7 @@ const ResetPassword: FC = () => {
                 >
                     <AlertTitle>Пароль успешно изменён</AlertTitle>
                 </Alert>
-                : isUrlValid && <form onSubmit={(e) => handleSubmit(e)} className={classes.form}>
+                : isUrlValid && <form onSubmit={(e) => handleSubmit(e)} style={{marginTop: 24, width: "100%"}}>
                 <Grid container direction="column" spacing={2} justifyContent="center">
                     <Grid item>
                         <TextField
@@ -128,9 +121,9 @@ const ResetPassword: FC = () => {
                             type="password"
                             label="Новый пароль"
                             variant="outlined"
+                            sx={inputSx}
                             value={resetPasswordState.password}
                             onChange={(e) => {
-                                e.persist()
                                 setState((prevState) => ({
                                     ...prevState,
                                     password: e.target.value
@@ -147,9 +140,9 @@ const ResetPassword: FC = () => {
                             type="password"
                             label="Подтвердите пароль"
                             variant="outlined"
+                            sx={inputSx}
                             value={resetPasswordState.passwordConfirm}
                             onChange={(e) => {
-                                e.persist()
                                 setState((prevState) => ({
                                     ...prevState,
                                     passwordConfirm: e.target.value
@@ -163,7 +156,9 @@ const ResetPassword: FC = () => {
                             fullWidth
                             variant="contained"
                             color="primary"
+                            disableElevation
                             type="submit"
+                            sx={submitButtonSx}
                         >
                             Сменить пароль
                         </Button>

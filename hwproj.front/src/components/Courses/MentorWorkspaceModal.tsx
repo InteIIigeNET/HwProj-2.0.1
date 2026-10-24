@@ -1,25 +1,32 @@
 ﻿import React, {FC, useState} from 'react'
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import {
+    Alert,
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    IconButton,
+    Snackbar,
+    Stack,
+    Tooltip,
+    Typography
+} from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import ApiSingleton from "../../api/ApiSingleton";
-import Typography from "@material-ui/core/Typography";
-import Grid from '@material-ui/core/Grid';
-import {HomeworkViewModel, AccountDataDto, EditMentorWorkspaceDTO} from "../../api";
-import {Alert} from "@mui/material";
+import {AccountDataDto, EditMentorWorkspaceDTO, HomeworkViewModel} from "@/api";
 import ErrorsHandler from "../Utils/ErrorsHandler";
-import {Snackbar} from "@material-ui/core";
 import CourseFilter from "./CourseFilter";
+import {UserInitialsAvatar} from "../Common/UserInitialsAvatar";
 
 interface MentorWorkspaceProps {
     isOpen: boolean;
     onClose: any;
-    mentorId: string;
     courseId: number;
-    mentorName: string;
-    mentorSurname: string;
+    // Передаём аккаунт целиком, чтобы в заголовке показать настоящий аватар преподавателя
+    mentor: AccountDataDto;
 }
 
 interface MentorWorkspaceState {
@@ -52,7 +59,7 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
             }
 
             await ApiSingleton.coursesApi.coursesEditMentorWorkspace(
-                props.courseId, props.mentorId, workspaceViewModel
+                props.courseId, props.mentor.userId!, workspaceViewModel
             );
 
             setIsWorkspaceUpdated(true);
@@ -66,76 +73,112 @@ const MentorWorkspaceModal: FC<MentorWorkspaceProps> = (props) => {
     }
 
     return (
-        <div>
-            <Dialog open={props.isOpen} onClose={props.onClose} aria-labelledby="dialog-title" fullWidth>
-                <DialogTitle id="dialog-title">
-                    <Typography component="div" align="center" variant="h6">
-                        {props.mentorName}&nbsp;{props.mentorSurname}
-                    </Typography>
+        <>
+            <Dialog
+                open={props.isOpen}
+                onClose={props.onClose}
+                aria-labelledby="dialog-title"
+                fullWidth
+                maxWidth={"sm"}
+                PaperProps={{sx: {borderRadius: "16px"}}}
+            >
+                <DialogTitle id="dialog-title" sx={{p: 2}}>
+                    <Stack direction={"row"} alignItems={"center"} spacing={1.5}>
+                        <UserInitialsAvatar user={props.mentor} size={40}/>
+                        <Box sx={{flexGrow: 1, minWidth: 0}}>
+                            <Typography sx={{fontSize: "1.05rem", fontWeight: 500, lineHeight: 1.3}}>
+                                {props.mentor.name}&nbsp;{props.mentor.surname}
+                            </Typography>
+                            <Typography variant={"caption"} sx={{color: "text.secondary"}}>
+                                Область работы преподавателя
+                            </Typography>
+                        </Box>
+                        <Tooltip arrow title={"Закрыть"}>
+                            <IconButton size={"small"} onClick={props.onClose} sx={{flexShrink: 0}}>
+                                <CloseIcon fontSize={"small"}/>
+                            </IconButton>
+                        </Tooltip>
+                    </Stack>
                 </DialogTitle>
-                <DialogContent>
-                    <Grid item container direction={"row"} justifyContent={"center"}>
-                        {state.errors.length > 0 && (
-                            <p style={{color: "red", marginBottom: "5px"}}>{state.errors}</p>
-                        )}
-                    </Grid>
-                    {!isWorkspaceLoading &&
-                        <Typography>
-                            Здесь Вы можете изменить область работы преподавателя
-                        </Typography>}
-                    <CourseFilter courseId={props.courseId}
-                                  mentorId={props.mentorId}
-                                  isStudentsSelectionHidden={false}
-                                  onSelectedHomeworksChange={(homeworks) =>
-                                      setState(prevState => ({
-                                          ...prevState,
-                                          selectedHomeworks: homeworks
-                                      }))
-                                  }
-                                  onSelectedStudentsChange={(students) =>
-                                      setState(prevState => ({
-                                          ...prevState,
-                                          selectedStudents: students
-                                      }))
-                                  }
-                                  onWorkspaceInitialize={(success, errors) => {
-                                      if (!success) {
+                <Divider/>
+                <DialogContent sx={{p: 2}}>
+                    <Stack spacing={1.5}>
+                        {state.errors.length > 0 &&
+                            <Alert severity="error" sx={{borderRadius: "10px"}}>
+                                {state.errors.map((error, index) => <div key={index}>{error}</div>)}
+                            </Alert>}
+                        {!isWorkspaceLoading &&
+                            <Typography variant={"body2"} sx={{color: "text.secondary"}}>
+                                Выберите задания и студентов, за которые отвечает преподаватель.
+                                Если ничего не выбрать, преподаватель получит доступ ко всему курсу.
+                            </Typography>}
+                        <CourseFilter courseId={props.courseId}
+                                      mentorId={props.mentor.userId!}
+                                      isStudentsSelectionHidden={false}
+                                      onSelectedHomeworksChange={(homeworks) =>
                                           setState(prevState => ({
                                               ...prevState,
-                                              errors: errors ?? ['Сервис недоступен']
+                                              selectedHomeworks: homeworks
                                           }))
                                       }
-                                      setIsWorkspaceLoading(false)
-                                  }}
-                    />
+                                      onSelectedStudentsChange={(students) =>
+                                          setState(prevState => ({
+                                              ...prevState,
+                                              selectedStudents: students
+                                          }))
+                                      }
+                                      onWorkspaceInitialize={(success, errors) => {
+                                          if (!success) {
+                                              setState(prevState => ({
+                                                  ...prevState,
+                                                  errors: errors ?? ['Сервис недоступен']
+                                              }))
+                                          }
+                                          setIsWorkspaceLoading(false)
+                                      }}
+                        />
+                    </Stack>
                 </DialogContent>
-                {!isWorkspaceLoading && <DialogActions style={{marginTop: 10}}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleWorkspaceChanges}
-                    >
-                        Изменить
-                    </Button>
-                    <Button
-                        onClick={props.onClose}
-                        color="primary"
-                        variant="text"
-                    >
-                        Закрыть
-                    </Button>
-                </DialogActions>}
-                <Snackbar
-                    anchorOrigin={{vertical: 'top', horizontal: 'center'}}
-                    open={isWorkspaceUpdated}
-                    onClose={() => setIsWorkspaceUpdated(false)}
-                    key={'top center'}
-                    autoHideDuration={5000}
-                >
-                    <Alert severity="success">Успешно обновлено</Alert>
-                </Snackbar>
+                {!isWorkspaceLoading && <>
+                    <Divider/>
+                    <DialogActions sx={{px: 2, py: 1.5, gap: 1}}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            disableElevation
+                            onClick={handleWorkspaceChanges}
+                            sx={{textTransform: "none", borderRadius: "10px", px: 2.5}}
+                        >
+                            Изменить
+                        </Button>
+                        <Button
+                            onClick={props.onClose}
+                            color="primary"
+                            variant="text"
+                            sx={{textTransform: "none", borderRadius: "10px"}}
+                        >
+                            Закрыть
+                        </Button>
+                    </DialogActions>
+                </>}
             </Dialog>
-        </div>
+            <Snackbar
+                anchorOrigin={{vertical: 'top', horizontal: 'center'}}
+                open={isWorkspaceUpdated}
+                onClose={() => setIsWorkspaceUpdated(false)}
+                key={'top center'}
+                autoHideDuration={5000}
+            >
+                <Alert
+                    severity="success"
+                    variant="filled"
+                    onClose={() => setIsWorkspaceUpdated(false)}
+                    sx={{borderRadius: "10px"}}
+                >
+                    Успешно обновлено
+                </Alert>
+            </Snackbar>
+        </>
     )
 }
 
