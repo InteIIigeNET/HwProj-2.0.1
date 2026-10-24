@@ -109,6 +109,9 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                         setState(prev => ({
                             ...prev,
                             programName: newValue || '',
+                            selectedGroups: [],
+                            isGroupFromList: false,
+                            fetchStudents: false,
                         }));
                     }}
                     options={state.programNames}
@@ -162,6 +165,35 @@ const AddCourseInfo: FC<IStepComponentProps> = ({state, setState}) => {
                         />
                     ))
                 }
+            />
+            <Autocomplete
+                fullWidth
+                size={"small"}
+                sx={inputSx}
+                options={state.ltiTools}
+                getOptionLabel={(option) => option.name ?? ""}
+                value={
+                    state.ltiToolName == null
+                        ? null
+                        : state.ltiTools.find(tool => tool.name === state.ltiToolName) ?? null
+                }
+                onChange={(_, newValue) => {
+                    setState(prev => ({
+                        ...prev,
+                        ltiToolName: newValue?.name ?? undefined,
+                    }));
+                }}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        label="Внешний LTI-инструмент"
+                        placeholder="Выберите инструмент"
+                        variant="outlined"
+                        fullWidth
+                        helperText="Позволяет импортировать задачи из внешних систем"
+                    />
+                )}
+                clearOnEscape
             />
             {state.isGroupFromList &&
                 <Box sx={optionRowSx}>

@@ -15,9 +15,8 @@ import {
     Tooltip
 } from "@mui/material";
 import {MarkdownEditor, MarkdownPreview} from "components/Common/MarkdownEditor";
-import {FC, useEffect, useState, useMemo} from "react"
+import {FC, useCallback, useState} from "react"
 import {ActionOptions, CriterionType, CriterionViewModel, HomeworkTaskViewModel, HomeworkViewModel} from "@/api";
-import ApiSingleton from "../../api/ApiSingleton";
 import * as React from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -46,6 +45,10 @@ import {BonusTag} from "@/components/Common/HomeworkTags";
 import Utils from "../../services/Utils";
 import ErrorsHandler from "@/components/Utils/ErrorsHandler";
 import {enqueueSnackbar} from "notistack";
+import UndoIcon from "@mui/icons-material/Undo";
+import {useDraftTask, useTaskEditorState} from "@/store/storeHooks/taskEditorHooks";
+import {useCourseActions} from "@/store/courseActions";
+import {useIsCourseMentor} from "@/store/storeHooks/courseHooks";
 
 
 // Оформление согласовано с редизайном страницы курса: те же радиусы, границы и мягкие плашки
@@ -200,15 +203,6 @@ const hoverActionSx = {
     "&:focus-visible": {opacity: 1},
 }
 
-interface IEditTaskMetadataState {
-    hasDeadline: boolean | undefined;
-    deadlineDate: Date | undefined;
-    isDeadlineStrict: boolean | undefined;
-    publicationDate: Date | undefined;
-    isPublished: boolean;
-    hasErrors: boolean
-}
-
 type TaskEditData = HomeworkTaskViewModel & {
     isModified?: boolean;
     hasErrors?: boolean;
@@ -218,77 +212,79 @@ type TaskEditData = HomeworkTaskViewModel & {
 const CriterionTypeDeadline = CriterionType.NUMBER_1;
 
 const CourseTaskEditor: FC<{
-    speculativeTask: TaskEditData,
-    speculativeHomework: HomeworkViewModel,
-    onUpdate: (update: { task: TaskEditData, isDeleted?: boolean, isSaved?: boolean }) => void,
-    getAllHomeworks: () => HomeworkViewModel[],
+    task: TaskEditData,
+    homework: HomeworkViewModel,
     toEditHomework: () => void,
 }> = (props) => {
-    const [taskData, setTaskData] = useState<{
-        task: HomeworkTaskViewModel,
-        homework: HomeworkViewModel,
-        isLoaded: boolean
-    }>({
-        task: props.speculativeTask,
-        homework: props.speculativeHomework,
-        isLoaded: props.speculativeTask.id! < 0 || props.speculativeTask.isModified === true
-    })
+    const {
+        patchTaskDraft,
+        addCriterion,
+        updateCriterion: updateCriterionInStore,
+        removeCriterion: removeCriterionInStore,
+        saveTask,
+        deleteTask: deleteTaskAction,
+        cancelTaskEdit,
+    } = useCourseActions()
 
-    const [criteria, setCriteria] = useState<CriterionViewModel[]>(taskData.task.criteria || [])
     const [isCriteriaOpen, setIsCriteriaOpen] = useState(false)
     const [addCriterionAnchor, setAddCriterionAnchor] = useState<null | HTMLElement>(null)
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+    const [handleSubmitLoading, setHandleSubmitLoading] = useState(false)
+    const [editOptions, setEditOptions] = useState<ActionOptions>({sendNotification: false})
+
+    const task = props.task
+    const homework = props.homework
+    const {
+        criteria,
+        autoMaxFromCriteria,
+        maxRating,
+        isBonusExplicit,
+        publicationDate,
+        hasErrors,
+        isNewTask,
+        isNewHomework,
+        homeworkPublicationDateIsSet,
+        taskPublicationDate,
+        taskDeadlineDate,
+        isPublicationDateDisabled,
+        maxRatingLabel,
+    } = useTaskEditorState(task, homework)
+
+    const patchTask = useCallback((patch: Partial<TaskEditData>) => {
+        patchTaskDraft({
+            ...task,
+            ...patch,
+        } as TaskEditData)
+    }, [patchTaskDraft, task])
 
     const isDeadlineCriterion = (criterion: CriterionViewModel) => criterion.type === CriterionTypeDeadline;
 
     const addDefaultCriterion = () => {
-        setCriteria(prev => [
-            ...prev,
-            {id: 0, type: 0, name: `Критерий №${prev.length + 1}`, maxPoints: 1}
-        ]);
-        setIsCriteriaOpen(true);
-        setAddCriterionAnchor(null);
-    };
+        addCriterion(task, {id: 0, type: 0, name: `Критерий №${criteria.length + 1}`, maxPoints: 1})
+        setIsCriteriaOpen(true)
+        setAddCriterionAnchor(null)
+    }
 
     const addDeadlineCriterion = () => {
-        const deadline = metadata?.deadlineDate || homework.deadlineDate
-            ? new Date(metadata?.deadlineDate || homework.deadlineDate!)
-            : new Date();
+        const deadline = taskDeadlineDate || (homework.deadlineDate ? new Date(homework.deadlineDate) : new Date())
+        addCriterion(task, {
+            id: 0,
+            type: CriterionTypeDeadline,
+            name: "Сдано вовремя",
+            maxPoints: 1,
+            arguments: deadline.toISOString(),
+        })
+        setIsCriteriaOpen(true)
+        setAddCriterionAnchor(null)
+    }
 
-        setCriteria(prev => [
-            ...prev,
-            {
-                id: 0,
-                type: CriterionTypeDeadline,
-                name: "Сдано вовремя",
-                maxPoints: 1,
-                arguments: deadline.toISOString(),
-            }
-        ]);
-        setIsCriteriaOpen(true);
-        setAddCriterionAnchor(null);
-    };
+    const updateCriterion = (index: number, patch: Partial<CriterionViewModel>) => {
+        updateCriterionInStore(task, index, patch)
+    }
 
-    const updateCriterion = (index: number, patch: Partial<CriterionViewModel>) =>
-        setCriteria(prev =>
-            prev.map((c, i) => (i === index ? {...c, ...patch} : c))
-        )
-
-    const removeCriterion = (index: number) =>
-        setCriteria(prev => prev.filter((_, i) => i !== index))
-
-    const criteriaTotalPoints = useMemo(
-        () =>
-            (criteria).reduce(
-                (sum, c) => sum + (isDeadlineCriterion(c) ? 0 : (c.maxPoints || 0)),
-                0
-            ),
-        [criteria]
-    )
-
-    const hasRegularCriteria = criteria.some(c => !isDeadlineCriterion(c));
-    const criteriaHasErrors = criteria.some(c =>
-        !c.name || (c.maxPoints ?? 0) <= 0 || (isDeadlineCriterion(c) && !c.arguments)
-    );
+    const removeCriterion = (index: number) => {
+        removeCriterionInStore(task, index)
+    }
 
     const renderAddCriterionMenu = () => (
         <Menu
@@ -310,155 +306,57 @@ const CourseTaskEditor: FC<{
         </Menu>
     );
 
-    useEffect(() => {
-        if (hasRegularCriteria) setMaxRating(criteriaTotalPoints);
-    }, [criteriaTotalPoints, hasRegularCriteria]);
-
-    const isNewTask = taskData.task.id! < 0
-
-    const [metadata, setMetadata] = useState<IEditTaskMetadataState | undefined>(
-        isNewTask || taskData.isLoaded ? {
-            publicationDate: taskData.task.publicationDate,
-            hasDeadline: taskData.task.hasDeadline,
-            deadlineDate: taskData.task.deadlineDate,
-            isDeadlineStrict: taskData.task.isDeadlineStrict,
-            isPublished: taskData.task.isDeferred || !taskData.homework.isDeferred,
-            hasErrors: false,
-        } : undefined)
-
-    useEffect(() => {
-        if (isNewTask || taskData.isLoaded) return
-        ApiSingleton.tasksApi
-            .tasksGetForEditingTask(task.id!)
-            .then(r => {
-                const task = r.task!
-                setTaskData({
-                    homework: r.homework!,
-                    task: r.task!,
-                    isLoaded: true,
-                })
-                setCriteria(task.criteria || [])
-                setMetadata({
-                    hasDeadline: task.hasDeadline!,
-                    deadlineDate: task.deadlineDateNotSet
-                        ? undefined
-                        : new Date(task.deadlineDate!),
-                    isDeadlineStrict: task.isDeadlineStrict!,
-                    publicationDate: task.publicationDateNotSet
-                        ? undefined
-                        : new Date(task.publicationDate!),
-                    isPublished: !task.isDeferred,
-                    hasErrors: false,
-                })
-            })
-    }, [])
-
-    const {task, homework, isLoaded} = taskData
-    const {id} = task
-
-    //TODO: suggested max rating
-    const [title, setTitle] = useState<string>(task.title!)
-    const [maxRating, setMaxRating] = useState<number>(
-        hasRegularCriteria ? criteriaTotalPoints : task.maxRating!
-    )
-    const [description, setDescription] = useState<string>(task.description || "")
-    const [isBonusExplicit, setIsBonusExplicit] = useState<boolean>(props.speculativeTask.tags!.includes(BonusTag) && !props.speculativeHomework.tags!.includes(BonusTag))
-
-    const [hasErrors, setHasErrors] = useState<boolean>(props.speculativeTask.hasErrors || false)
-    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false)
-
-    const [handleSubmitLoading, setHandleSubmitLoading] = useState(false);
-    const [editOptions, setEditOptions] = useState<ActionOptions>({sendNotification: false})
-
-    const publicationDate = metadata?.publicationDate || homework.publicationDate
-
-    useEffect(() => {
-        const update = {
-            ...props.speculativeTask,
-            ...metadata!,
-            title: title!,
-            description: description,
-            deadlineDateNotSet: metadata?.hasDeadline === true && !metadata.deadlineDate,
-            maxRating: maxRating,
-            isBonusExplicit: isBonusExplicit,
-            tags: isBonusExplicit ? [...homework.tags!, BonusTag] : homework.tags!,
-            hasErrors: hasErrors,
-            criteria: criteria,
-        }
-        props.onUpdate({task: update});
-    }, [title, description, maxRating, metadata, isBonusExplicit, hasErrors, criteria]);
-
-    useEffect(() => {
-        setHasErrors(!title || maxRating <= 0 || metadata?.hasErrors === true || criteriaHasErrors)
-    }, [title, maxRating, metadata?.hasErrors, criteriaHasErrors])
-
     const handleSubmit = async (e: any) => {
         e.preventDefault()
         setHandleSubmitLoading(true)
-
         try {
-            const update = {
-                ...metadata!,
-                title: title!,
-                description: description,
-                isBonusExplicit: isBonusExplicit,
-                maxRating: maxRating,
-                actionOptions: editOptions,
-                criteria: criteria,
-            };
-
-            const updatedTask = isNewTask
-                ? await ApiSingleton.tasksApi.tasksAddTask(homework.id!, update)
-                : await ApiSingleton.tasksApi.tasksUpdateTask(+id!, update)
-
-            if (isNewTask)
-                props.onUpdate({
-                    task: props.speculativeTask,
-                    isDeleted: true,
-                })
-            props.onUpdate({task: updatedTask.value!, isSaved: true})
+            await saveTask(task.id!, homework.id!, editOptions)
         } catch (error) {
-            const errors = await ErrorsHandler.getErrorMessages(error as Response, "errors");
+            const errors = await ErrorsHandler.getErrorMessages(error as Response, "errors")
             enqueueSnackbar(errors[0] || "Не удалось сохранить задачу", {
                 variant: "error",
                 autoHideDuration: 4000,
-            });
+            })
         } finally {
             setHandleSubmitLoading(false)
         }
     }
 
     const deleteTask = async () => {
-        if (!isNewTask) await ApiSingleton.tasksApi.tasksDeleteTask(id!)
-        props.onUpdate({task, isDeleted: true})
+        await deleteTaskAction(task.id!, homework.id!)
     }
 
-    const isDisabled = hasErrors || !isLoaded
-    const isNewHomework = taskData.task.homeworkId! < 0
+    const cancelEditing = () => {
+        cancelTaskEdit(task.id!, homework.id!)
+    }
 
-    const homeworkPublicationDateIsSet = !homework.publicationDateNotSet
-
-    const maxRatingLabel =
-        hasRegularCriteria ? "Критерии" : props.speculativeTask.suggestedMaxRating === maxRating ? "Вычислено" : undefined
+    const isDisabled = hasErrors
 
     const getEffectiveDeadlineDate = () => {
-        const hasEffectiveDeadline = metadata?.hasDeadline ?? homework.hasDeadline;
-        const deadlineDate = metadata?.deadlineDate || homework.deadlineDate;
-
-        return hasEffectiveDeadline && deadlineDate ? new Date(deadlineDate) : undefined;
+        const hasEffectiveDeadline = task.hasDeadline ?? homework.hasDeadline
+        const deadlineDate = task.deadlineDate || homework.deadlineDate
+        return hasEffectiveDeadline && deadlineDate ? new Date(deadlineDate) : undefined
     }
 
     const isBasedOnEffectiveDeadline = (criterion: CriterionViewModel) => {
-        const effectiveDeadlineDate = getEffectiveDeadlineDate();
-
+        const effectiveDeadlineDate = getEffectiveDeadlineDate()
         return !!criterion.arguments
             && !!effectiveDeadlineDate
-            && new Date(criterion.arguments).getTime() === effectiveDeadlineDate.getTime();
+            && new Date(criterion.arguments).getTime() === effectiveDeadlineDate.getTime()
     }
 
     return (
         <Box>
             <Stack direction={"row"} alignItems={"center"} spacing={1} sx={editorHeaderSx}>
+                <IconButton
+                    onClick={cancelEditing}
+                    disabled={handleSubmitLoading}
+                    size={"small"}
+                    color={"error"}
+                    aria-label={"undo"}
+                >
+                    <UndoIcon fontSize={"small"}/>
+                </IconButton>
                 <EditOutlinedIcon fontSize={"small"}/>
                 <Typography variant={"body2"} sx={{fontWeight: 500}}>
                     {isNewTask ? "Новая задача" : "Редактирование задачи"}
@@ -472,15 +370,12 @@ const CourseTaskEditor: FC<{
                             required
                             fullWidth
                             size={"small"}
-                            error={!title}
+                            error={!task.title}
                             label="Название задачи"
                             variant="outlined"
                             sx={inputSx}
-                            value={title}
-                            onChange={(e) => {
-                                e.persist()
-                                setTitle(e.target.value)
-                            }}
+                            value={task.title ?? ""}
+                            onChange={(e) => patchTask({title: e.target.value})}
                         />
                         <TextField
                             size="small"
@@ -492,12 +387,12 @@ const CourseTaskEditor: FC<{
                             type="number"
                             sx={{...inputSx, width: {xs: "100%", sm: 120}, flexShrink: 0}}
                             value={maxRating}
-                            InputProps={{readOnly: hasRegularCriteria}}
+                            InputProps={{readOnly: autoMaxFromCriteria}}
                             onChange={(e) => {
-                                if (!hasRegularCriteria) {
-                                    e.persist();
-                                    setMaxRating(+e.target.value);
-                                }
+                                if (autoMaxFromCriteria) return
+                                const raw = +e.target.value || 0
+                                const clamped = raw < 1 ? 1 : raw > 100 ? 100 : Math.round(raw)
+                                patchTask({maxRating: clamped})
                             }}
                         />
                     </Stack>
@@ -518,9 +413,11 @@ const CourseTaskEditor: FC<{
                                     size={"small"}
                                     color="primary"
                                     checked={isBonusExplicit}
-                                    onChange={(e) => {
-                                        setIsBonusExplicit(prevState => !prevState)
-                                    }}
+                                    onChange={() => patchTask({
+                                        tags: isBonusExplicit
+                                            ? (task.tags || []).filter(t => t !== BonusTag)
+                                            : [...(homework.tags || []), BonusTag],
+                                    })}
                                 />
                             }
                         />}
@@ -531,37 +428,36 @@ const CourseTaskEditor: FC<{
                                 label={"Условие задачи"}
                                 height={240}
                                 maxHeight={400}
-                                value={description}
-                                onChange={(value) => {
-                                    setDescription(value)
-                                }}
+                                value={task.description || ""}
+                                onChange={(value) => patchTask({description: value})}
                             />
                         </Box>
                     </Box>
-                    {metadata && homeworkPublicationDateIsSet &&
+                    {homeworkPublicationDateIsSet &&
                         <Box sx={sectionBoxSx}>
                             <Typography sx={{...sectionLabelSx, mb: 0.5}}>Даты задачи</Typography>
                             <TaskPublicationAndDeadlineDates
                                 homework={homework}
-                                hasDeadline={metadata.hasDeadline}
-                                isDeadlineStrict={metadata.isDeadlineStrict}
-                                publicationDate={metadata.publicationDate}
-                                deadlineDate={metadata.deadlineDate}
-                                disabledPublicationDate={metadata.isPublished}
+                                hasDeadline={task.hasDeadline}
+                                isDeadlineStrict={task.isDeadlineStrict}
+                                publicationDate={taskPublicationDate}
+                                deadlineDate={taskDeadlineDate}
+                                disabledPublicationDate={isPublicationDateDisabled}
                                 onChange={(state) => {
-                                    setMetadata({
+                                    patchTaskDraft({
+                                        ...task,
                                         hasDeadline: state.hasDeadline,
                                         isDeadlineStrict: state.isDeadlineStrict,
                                         publicationDate: state.publicationDate,
                                         deadlineDate: state.deadlineDate,
-                                        isPublished: metadata.isPublished,
-                                        hasErrors: state.hasErrors
-                                    })
+                                        deadlineDateNotSet: state.hasDeadline && !state.deadlineDate,
+                                        hasErrors: state.hasErrors,
+                                    } as HomeworkTaskViewModel)
                                 }}
                             />
                         </Box>
                     }
-                    {metadata && !homeworkPublicationDateIsSet &&
+                    {!homeworkPublicationDateIsSet &&
                         <Alert
                             severity="info"
                             sx={alertSx}
@@ -807,7 +703,7 @@ const CourseTaskEditor: FC<{
                 onSubmit={deleteTask}
                 isOpen={showDeleteConfirmation}
                 dialogTitle={'Удаление задачи'}
-                dialogContentText={`Вы точно хотите удалить задачу '${title || ""}'?`}
+                dialogContentText={`Вы точно хотите удалить задачу '${task.title || ""}'?`}
                 confirmationWord={''}
                 confirmationText={''}
             />
@@ -888,48 +784,27 @@ const TaskDeadline: FC<{task: HomeworkTaskViewModel, isMentor: boolean}> = ({tas
 const CourseTaskExperimental: FC<{
     task: TaskEditData,
     homework: HomeworkViewModel,
-    isMentor: boolean,
-    isStudentAccepted?: boolean,
-    rating?: number | "?",
-    initialEditMode: boolean,
-    onMount: () => void,
-    onUpdate: (x: { task: TaskEditData, isDeleted?: boolean }) => void
     toEditHomework: () => void,
-    getAllHomeworks: () => HomeworkViewModel[],
 }> = (props) => {
+    const isCourseMentor = useIsCourseMentor()
+    const draftTask = useDraftTask(props.task.id!, props.task.homeworkId!)
+    const {startTaskEdit} = useCourseActions()
+
     const {task, homework} = props
     const [showEditMode, setShowEditMode] = useState(false)
-    const [editMode, setEditMode] = useState(false)
 
-    useEffect(() => {
-        setEditMode(props.initialEditMode)
-        props.onMount()
-    }, [task.id])
-
-    if (editMode) {
+    if (draftTask) {
         return <CourseTaskEditor
             key={task.id}
-            speculativeTask={task}
-            speculativeHomework={homework}
-            onUpdate={update => {
-                const updateFix = {
-                    ...update,
-                    task: {
-                        ...update.task,
-                        isModified: !update.isSaved,
-                    }
-                }
-                props.onUpdate(updateFix)
-                if (update.isSaved) setEditMode(false)
-            }}
-            getAllHomeworks={props.getAllHomeworks}
+            task={draftTask}
+            homework={homework}
             toEditHomework={props.toEditHomework}
         />
     }
 
     return (
         <Box
-            onMouseEnter={() => setShowEditMode(props.isMentor)}
+            onMouseEnter={() => setShowEditMode(isCourseMentor)}
             onMouseLeave={() => setShowEditMode(false)}
         >
             <Box sx={detailHeaderSx}>
@@ -939,15 +814,15 @@ const CourseTaskExperimental: FC<{
                             {task.title}
                         </Typography>
                         <Stack direction={"row"} spacing={0.75} useFlexGap flexWrap={"wrap"} sx={{ mt: 1 }}>
-                            <Tooltip arrow title={!props.isMentor && props.isStudentAccepted ? "Ваш балл за задачу" : "Максимальный балл"}>
+                            <Tooltip arrow title={"Максимальный балл"}>
                                 <Chip
                                     size={"small"}
                                     icon={<StarRoundedIcon />}
-                                    label={!props.isMentor && props.isStudentAccepted ? (props.rating ?? 0) + " / " + task.maxRating : task.maxRating}
+                                    label={task.maxRating}
                                     sx={accentChipSx} />
                             </Tooltip>
 
-                            <TaskDeadline task={task} isMentor={props.isMentor} />
+                            <TaskDeadline task={task} isMentor={isCourseMentor} />
                             {task.isGroupWork &&
                                 <Chip
                                     size={"small"}
@@ -956,14 +831,15 @@ const CourseTaskExperimental: FC<{
                                     sx={metaChipSx} />}
                         </Stack>
                     </Box>
-                    {props.isMentor &&
+                    {isCourseMentor &&
                         <Tooltip arrow placement={"left"} title={"Редактировать задачу"}>
                             <IconButton
                                 size={"small"}
                                 sx={{...hoverActionSx, opacity: showEditMode ? 1 : 0}}
                                 onClick={() => {
-                                    setShowEditMode(false);
-                                    setEditMode(true);
+                                    setShowEditMode(false)
+                                    if (task.id! < 0) return
+                                    startTaskEdit(task.id!).catch(() => {})
                                 }}
                             >
                                 <EditIcon color={"primary"} sx={{fontSize: 18}}/>
