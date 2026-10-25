@@ -23,8 +23,9 @@ export const useDraftTask = (taskId: number, homeworkId: number) => {
 };
 
 const normalizeDraftDate = (value: unknown): Date | undefined => {
-    if (value instanceof Date) return value.toISOString() as unknown as Date;
-    return value as Date | undefined;
+    if (value == null) return undefined;
+    if (value instanceof Date) return value;
+    return new Date(value as string);
 };
 
 const normalizeTaskDraft = (task: HomeworkTaskViewModel): HomeworkTaskViewModel => ({

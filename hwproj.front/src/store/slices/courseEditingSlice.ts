@@ -32,7 +32,7 @@ const courseEditingSlice = createSlice({
                 id: newId,
                 title: 'Новое задание',
                 description: '',
-                publicationDate: defaultPublicationDate.toISOString() as unknown as Date,
+                publicationDate: defaultPublicationDate,
                 publicationDateNotSet: false,
                 hasDeadline: false,
                 deadlineDate: undefined,

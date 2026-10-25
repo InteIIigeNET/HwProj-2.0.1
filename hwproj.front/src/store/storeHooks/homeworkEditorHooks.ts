@@ -38,8 +38,9 @@ export const useDraftHomework = (homeworkId: number) =>
     useCourseState(state => state.editing.draftHomeworks.find(dh => dh.id === homeworkId));
 
 const normalizeDraftDate = (value: unknown): Date | undefined => {
-    if (value instanceof Date) return value.toISOString() as unknown as Date;
-    return value as Date | undefined;
+    if (value == null) return undefined;
+    if (value instanceof Date) return value;
+    return new Date(value as string);
 };
 
 const normalizeHomeworkDraft = (homework: HomeworkViewModel): HomeworkViewModel => ({

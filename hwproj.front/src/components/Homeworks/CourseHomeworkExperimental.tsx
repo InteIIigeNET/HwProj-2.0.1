@@ -401,19 +401,16 @@ const CourseHomeworkEditor: FC<{
                             onChange={(state) => {
                                 const nextPublication = state.publicationDate
                                 const conflictsWithTasks = changedTaskPublicationDates.some(d => nextPublication && d < nextPublication)
-                                const currentPublicationDate = loadedHomework.publicationDate instanceof Date
-                                    ? loadedHomework.publicationDate.toISOString()
-                                    : loadedHomework.publicationDate
-                                const currentDeadlineDate = loadedHomework.deadlineDate instanceof Date
-                                    ? loadedHomework.deadlineDate.toISOString()
-                                    : loadedHomework.deadlineDate
-                                const nextPublicationDate = state.publicationDate?.toISOString()
-                                const nextDeadlineDate = state.deadlineDate?.toISOString()
+                                const sameInstant = (current: Date | undefined, next: Date | undefined) => {
+                                    if (current == null && next == null) return true
+                                    if (current == null || next == null) return false
+                                    return new Date(current).getTime() === next.getTime()
+                                }
                                 const nextDeadlineDateNotSet = state.hasDeadline && !state.deadlineDate
                                 const nextHasErrors = state.hasErrors || conflictsWithTasks
                                 if (
-                                    currentPublicationDate === nextPublicationDate
-                                    && currentDeadlineDate === nextDeadlineDate
+                                    sameInstant(loadedHomework.publicationDate, state.publicationDate)
+                                    && sameInstant(loadedHomework.deadlineDate, state.deadlineDate)
                                     && (loadedHomework.hasDeadline ?? false) === state.hasDeadline
                                     && (loadedHomework.isDeadlineStrict ?? false) === state.isDeadlineStrict
                                     && (loadedHomework.deadlineDateNotSet ?? false) === nextDeadlineDateNotSet
@@ -423,9 +420,9 @@ const CourseHomeworkEditor: FC<{
                                 }
                                 patchHomeworkDraft({
                                     ...loadedHomework,
-                                    publicationDate: nextPublicationDate,
+                                    publicationDate: state.publicationDate,
                                     hasDeadline: state.hasDeadline,
-                                    deadlineDate: nextDeadlineDate,
+                                    deadlineDate: state.deadlineDate,
                                     isDeadlineStrict: state.isDeadlineStrict,
                                     deadlineDateNotSet: nextDeadlineDateNotSet,
                                     hasErrors: nextHasErrors,
