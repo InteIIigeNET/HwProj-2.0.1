@@ -26,7 +26,7 @@ import CourseTaskSolutions from "../Solutions/CourseTaskSolutions";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {DefaultTags, getTip, TestTag} from "../Common/HomeworkTags";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
-import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExperimental";
+import CourseHomeworkExperimental, {taskDeadlineBeforePublicationMessage} from "components/Homeworks/CourseHomeworkExperimental";
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import EditIcon from "@mui/icons-material/Edit";
@@ -387,9 +387,12 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     };
 
     const renderHomeworkStatus = (homework: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
-        const hasErrors = homework.id! < 0 && (homework.hasErrors || homework.tasks!.some(hasInvalidTaskMaxRating))
+        const dateError = homework.tasks
+            ?.map(task => taskDeadlineBeforePublicationMessage(task, homework))
+            .find((message): message is string => !!message)
+        const hasErrors = !!dateError || (homework.id! < 0 && (homework.hasErrors || homework.tasks!.some(hasInvalidTaskMaxRating)))
         if (hasErrors)
-            return <Tooltip arrow title={"Заполнены не все обязательные поля"}>
+            return <Tooltip arrow title={dateError || "Заполнены не все обязательные поля"}>
                 <ErrorIcon fontSize="small" color={"error"} sx={{flexShrink: 0}}/>
             </Tooltip>
         if (isHomeworkEditing(homework.id!) || homework.isModified)
@@ -399,7 +402,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return showWarningsForEntity(homework, true) ? renderWarningIcon(homework, true) : null
     }
 
-    const renderTaskStatus = (task: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
+    const renderTaskStatus = (task: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean }, homework: HomeworkViewModel) => {
+        const dateError = taskDeadlineBeforePublicationMessage(task, homework)
+        if (dateError) return <Tooltip arrow title={dateError}>
+            <ErrorIcon fontSize="small" color={"error"}/>
+        </Tooltip>
         if (taskSolutionsMap.has(task.id!)) {
             const solutions = taskSolutionsMap.get(task.id!)
             const {
@@ -870,7 +877,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                             onClick={() => selectItem({isHomework: false, id: t.id})}
                                             sx={{...rowSx, py: 0.875}}
                                         >
-                                            <Box sx={taskMarkerSx}>{renderTaskStatus(t)}</Box>
+                                            <Box sx={taskMarkerSx}>{renderTaskStatus(t, x)}</Box>
                                             <Typography
                                                 className="antiLongWords"
                                                 sx={{flexGrow: 1, minWidth: 0, fontSize: "0.9375rem", lineHeight: 1.35}}

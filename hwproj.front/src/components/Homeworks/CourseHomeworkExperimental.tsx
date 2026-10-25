@@ -19,7 +19,7 @@ import {IFileInfo} from "components/Files/IFileInfo";
 import {FC, useState} from "react"
 import Utils from "services/Utils";
 import {
-    HomeworkViewModel, ActionOptions, GroupViewModel
+    HomeworkTaskViewModel, HomeworkViewModel, ActionOptions, GroupViewModel
 } from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import Tags from "../Common/Tags";
@@ -46,6 +46,19 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import ScheduleIcon from '@mui/icons-material/Schedule';
+
+export const taskDeadlineBeforePublicationMessage = (
+    task: HomeworkTaskViewModel,
+    homework: HomeworkViewModel,
+): string | undefined => {
+    const homeworkPublication = homework.publicationDateNotSet || !homework.publicationDate
+        ? undefined
+        : new Date(homework.publicationDate)
+    const publication = task.publicationDate ? new Date(task.publicationDate) : homeworkPublication
+    const deadline = !task.deadlineDateNotSet && task.deadlineDate ? new Date(task.deadlineDate) : undefined
+    if (!publication || !deadline || deadline >= publication) return undefined
+    return `Дедлайн задачи раньше ее публикации: ${Utils.renderDateWithoutSeconds(publication)}`
+}
 
 // Оформление согласовано с редизайном страницы курса: те же радиусы, границы и мягкие плашки
 const editorHeaderSx = {
@@ -277,7 +290,11 @@ const CourseHomeworkEditor: FC<{
         }
     }
 
-    const isDisabled = hasErrors || taskHasErrors
+    const taskDeadlineMessage = (loadedHomework.tasks || [])
+        .map(task => taskDeadlineBeforePublicationMessage(task, loadedHomework))
+        .find((message): message is string => !!message)
+
+    const isDisabled = hasErrors || taskHasErrors || !!taskDeadlineMessage
 
     return <Box>
         <Stack direction={"row"} alignItems={"center"} spacing={1.5} sx={editorHeaderSx}>
@@ -382,7 +399,8 @@ const CourseHomeworkEditor: FC<{
                             autoCalculatedDeadline={deadlineSuggestion}
                             disabledPublicationDate={!isNewHomework && isPublished}
                             onChange={(state) => {
-                                const conflictsWithTasks = changedTaskPublicationDates.some(d => publicationDate && d < publicationDate)
+                                const nextPublication = state.publicationDate
+                                const conflictsWithTasks = changedTaskPublicationDates.some(d => nextPublication && d < nextPublication)
                                 const currentPublicationDate = loadedHomework.publicationDate instanceof Date
                                     ? loadedHomework.publicationDate.toISOString()
                                     : loadedHomework.publicationDate
@@ -415,7 +433,11 @@ const CourseHomeworkEditor: FC<{
                             }}
                         />
                     </Box>
-                    {taskHasErrors &&
+                    {taskDeadlineMessage &&
+                        <Alert severity={"error"} sx={alertSx}>
+                            {taskDeadlineMessage}
+                        </Alert>}
+                    {taskHasErrors && !taskDeadlineMessage &&
                         <Alert severity={"error"} sx={alertSx}>
                             Одна или более вложенных задач содержат ошибки
                         </Alert>}
