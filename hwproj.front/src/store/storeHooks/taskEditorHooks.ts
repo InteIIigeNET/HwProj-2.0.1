@@ -182,7 +182,7 @@ export const useTaskEditing = () => {
     const discardTaskDraftByIds = useCallback((taskId: number, homeworkId: number) => {
         dispatch(removeDraftTask({ homeworkId, taskId }));
         const draftHw = draftHomeworks.find(dh => dh.id === homeworkId);
-        if (draftHw && (draftHw.tasks || []).filter(t => t.id !== taskId).length === 0) {
+        if (draftHw && homeworkId > 0 && (draftHw.tasks || []).filter(t => t.id !== taskId).length === 0) {
             dispatch(removeDraftHomework(homeworkId));
         }
     }, [dispatch, draftHomeworks]);
