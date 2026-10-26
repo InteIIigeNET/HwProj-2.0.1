@@ -14,7 +14,7 @@ import {HomeworkViewModel, HomeworkTaskViewModel, CriterionViewModel, PostTaskVi
 import ApiSingleton from '@/api/ApiSingleton';
 import {BonusTag, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
 import {useMergedHomeworks} from "@/store/storeHooks/courseEditingHooks";
-import {buildTaskPayload} from '../taskPayload';
+import {buildTaskPayload, isRegularCriterion} from '../taskPayload';
 
 export const useDraftTask = (taskId: number, homeworkId: number) => {
     const draftHw = useCourseState(state =>
@@ -42,7 +42,7 @@ const getTaskEditorState = (
     homework: HomeworkViewModel,
 ) => {
     const {criteria = [], maxRating, isBonusExplicit} = buildTaskPayload(task, homework);
-    const autoMaxFromCriteria = criteria.length > 0;
+    const autoMaxFromCriteria = criteria.some(isRegularCriterion);
     const publicationDate = task.publicationDate ?? homework.publicationDate;
     const taskHasErrors = task.hasErrors === true;
     const hasErrors = !task.title || maxRating <= 0 || maxRating > 100 || taskHasErrors;
@@ -56,7 +56,7 @@ const getTaskEditorState = (
         ? undefined
         : (task.deadlineDate ? new Date(task.deadlineDate) : undefined);
     const isPublicationDateDisabled = task.isDeferred || !homework.isDeferred;
-    const maxRatingLabel = criteria.length > 0
+    const maxRatingLabel = autoMaxFromCriteria
         ? "Критерии"
         : task.suggestedMaxRating === maxRating
             ? "Вычислено"
