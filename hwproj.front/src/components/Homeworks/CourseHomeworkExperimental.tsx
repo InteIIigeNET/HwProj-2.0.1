@@ -406,11 +406,13 @@ const CourseHomeworkEditor: FC<{
                                     if (current == null || next == null) return false
                                     return new Date(current).getTime() === next.getTime()
                                 }
+                                const nextPublicationDateNotSet = !state.publicationDate
                                 const nextDeadlineDateNotSet = state.hasDeadline && !state.deadlineDate
                                 const nextHasErrors = state.hasErrors || conflictsWithTasks
                                 if (
                                     sameInstant(loadedHomework.publicationDate, state.publicationDate)
                                     && sameInstant(loadedHomework.deadlineDate, state.deadlineDate)
+                                    && (loadedHomework.publicationDateNotSet ?? false) === nextPublicationDateNotSet
                                     && (loadedHomework.hasDeadline ?? false) === state.hasDeadline
                                     && (loadedHomework.isDeadlineStrict ?? false) === state.isDeadlineStrict
                                     && (loadedHomework.deadlineDateNotSet ?? false) === nextDeadlineDateNotSet
@@ -421,6 +423,7 @@ const CourseHomeworkEditor: FC<{
                                 patchHomeworkDraft({
                                     ...loadedHomework,
                                     publicationDate: state.publicationDate,
+                                    publicationDateNotSet: nextPublicationDateNotSet,
                                     hasDeadline: state.hasDeadline,
                                     deadlineDate: state.deadlineDate,
                                     isDeadlineStrict: state.isDeadlineStrict,

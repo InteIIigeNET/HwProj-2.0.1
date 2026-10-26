@@ -449,6 +449,7 @@ const CourseTaskEditor: FC<{
                                         hasDeadline: state.hasDeadline,
                                         isDeadlineStrict: state.isDeadlineStrict,
                                         publicationDate: state.publicationDate,
+                                        publicationDateNotSet: !state.publicationDate && (homework.publicationDateNotSet || !homework.publicationDate),
                                         deadlineDate: state.deadlineDate,
                                         deadlineDateNotSet: state.hasDeadline && !state.deadlineDate,
                                         hasErrors: state.hasErrors,
