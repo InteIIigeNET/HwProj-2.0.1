@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useMemo} from 'react';
 import {useCourseDispatch, useCourseState} from '../hooks';
-import {setSelectedItem, SelectedItem} from '../slices/courseEditingSlice';
+import {setSelectedItem, setSelectionRequest, SelectedItem} from '../slices/courseEditingSlice';
 import {HomeworkViewModel, HomeworkTaskViewModel} from '@/api';
 import {TestTag} from "@/components/Common/HomeworkTags";
 
@@ -123,8 +123,30 @@ export const useEnsureSelectedHomework = (
     resetKey: unknown
 ) => {
     const {selectedItem, select} = useEditingSelection();
+    const dispatch = useCourseDispatch();
+    const selectionRequest = useCourseState(state => state.editing.selectionRequest);
 
     useEffect(() => {
+        const requestChanged = !selectionRequest || !Object.is(selectionRequest.homeworkId, selectedHomeworkId)
+            || !Object.is(selectionRequest.taskId, selectedTaskId);
+        if (requestChanged || !selectionRequest?.applied) {
+            const requestedItem = selectedHomeworkId != null && homeworks.some(homework => homework.id === selectedHomeworkId)
+                ? {isHomework: true, id: selectedHomeworkId}
+                : selectedTaskId != null && homeworks.some(homework => homework.tasks?.some(task => task.id === selectedTaskId))
+                    ? {isHomework: false, id: selectedTaskId}
+                    : undefined;
+            const applied = !!requestedItem || (selectedHomeworkId == null && selectedTaskId == null);
+            if (requestChanged || applied !== selectionRequest?.applied) {
+                dispatch(setSelectionRequest({homeworkId: selectedHomeworkId, taskId: selectedTaskId, applied}));
+            }
+            if (requestedItem) {
+                if (selectedItem.id !== requestedItem.id || selectedItem.isHomework !== requestedItem.isHomework) {
+                    select(requestedItem);
+                }
+                return;
+            }
+        }
+
         const currentSelectionExists = selectedItem.isHomework
             ? homeworks.some(homework => homework.id === selectedItem.id)
             : homeworks.some(homework => homework.tasks?.some(task => task.id === selectedItem.id));
@@ -133,17 +155,9 @@ export const useEnsureSelectedHomework = (
             return;
         }
 
-        if (selectedHomeworkId != null && homeworks.some(homework => homework.id === selectedHomeworkId)) {
-            select({isHomework: true, id: selectedHomeworkId});
-            return;
-        }
-
-        if (selectedTaskId != null && homeworks.some(homework => homework.tasks?.some(task => task.id === selectedTaskId))) {
-            select({isHomework: false, id: selectedTaskId});
-            return;
-        }
-
         const defaultHomework = homeworks[0];
-        select({isHomework: true, id: defaultHomework?.id});
-    }, [homeworks, resetKey, select, selectedHomeworkId, selectedTaskId, selectedItem.id, selectedItem.isHomework]);
+        if (selectedItem.id !== defaultHomework?.id || !selectedItem.isHomework) {
+            select({isHomework: true, id: defaultHomework?.id});
+        }
+    }, [homeworks, resetKey, select, selectedHomeworkId, selectedTaskId, selectedItem.id, selectedItem.isHomework, dispatch, selectionRequest]);
 };

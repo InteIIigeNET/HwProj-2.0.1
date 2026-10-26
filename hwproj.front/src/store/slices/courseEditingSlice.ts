@@ -6,11 +6,18 @@ export interface SelectedItem {
     id: number | undefined;
 }
 
+interface SelectionRequest {
+    homeworkId: number | undefined;
+    taskId: number | undefined;
+    applied: boolean;
+}
+
 interface CourseEditingState {
     draftHomeworks: HomeworkViewModel[];
     homeworkEditingIds: number[];
     draftIdCounter: number;
     selectedItem: SelectedItem;
+    selectionRequest: SelectionRequest | null;
 }
 
 const initialState: CourseEditingState = {
@@ -18,6 +25,7 @@ const initialState: CourseEditingState = {
     homeworkEditingIds: [],
     draftIdCounter: -1,
     selectedItem: {isHomework: true, id: undefined,},
+    selectionRequest: null,
 };
 
 const courseEditingSlice = createSlice({
@@ -149,6 +157,10 @@ const courseEditingSlice = createSlice({
             state.selectedItem = action.payload;
         },
 
+        setSelectionRequest: (state, action: PayloadAction<SelectionRequest>) => {
+            state.selectionRequest = action.payload;
+        },
+
         resetEditingState: () => initialState,
     },
 });
@@ -164,6 +176,7 @@ export const {
     removeDraftTask,
     createNewDraftTask,
     setSelectedItem,
+    setSelectionRequest,
     resetEditingState,
 } = courseEditingSlice.actions;
 
