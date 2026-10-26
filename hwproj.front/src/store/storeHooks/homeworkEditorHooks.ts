@@ -9,7 +9,7 @@ import {
 } from '../slices/courseEditingSlice';
 import {store} from '../store';
 import {updateOrInsertHomework, deleteHomework} from '../slices/homeworkSlice';
-import {HomeworkViewModel, CreateHomeworkViewModel, ActionOptions, PostTaskViewModel} from '@/api';
+import {HomeworkViewModel, CreateHomeworkViewModel, ActionOptions} from '@/api';
 import ApiSingleton from '@/api/ApiSingleton';
 import {BonusTag, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
 import Lodash from "lodash";
@@ -17,6 +17,8 @@ import {IFileInfo} from "@/components/Files/IFileInfo";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
 import ProcessFilesUtils from "@/components/Utils/ProcessFilesUtils";
 import {buildTaskPayload} from '../taskPayload';
+import {getHomeworkValidation} from '../courseEditingValidation';
+import {mergeHomeworkDraft} from './courseEditingHooks';
 
 type HomeworkFileOptions = {
     initialFilesInfo: IFileInfo[];
@@ -35,8 +37,12 @@ type HomeworkDeleteFileOptions = {
     initialFilesInfo: IFileInfo[];
 };
 
-export const useDraftHomework = (homeworkId: number) =>
-    useCourseState(state => state.editing.draftHomeworks.find(dh => dh.id === homeworkId));
+export const useDraftHomework = (homeworkId: number) => {
+    const draft = useCourseState(state => state.editing.draftHomeworks.find(dh => dh.id === homeworkId));
+    const committed = useCourseState(state => state.homeworks.items.find(hw => hw.id === homeworkId));
+
+    return useMemo(() => draft ? mergeHomeworkDraft(committed, draft) : undefined, [committed, draft]);
+};
 
 const normalizeDraftDate = (value: unknown): Date | undefined => {
     if (value == null) return undefined;
@@ -57,7 +63,7 @@ const normalizeHomeworkDraft = (homework: HomeworkViewModel): HomeworkViewModel 
 
 export const useHomeworkEditorState = (homework: HomeworkViewModel) => {
     const committedHomeworks = useCourseState(state => state.homeworks.items);
-    type HomeworkTaskDraft = PostTaskViewModel & { id?: number; hasErrors?: boolean; publicationDate?: Date };
+    const mergedHomework = mergeHomeworkDraft(committedHomeworks.find(hw => hw.id === homework.id), homework);
     const isNewHomework = homework.id! < 0;
     const publicationTimestamp = homework.publicationDateNotSet || !homework.publicationDate
         ? undefined
@@ -70,11 +76,10 @@ export const useHomeworkEditorState = (homework: HomeworkViewModel) => {
         ? undefined
         : new Date(homework.deadlineDate);
     const isPublished = !homework.isDeferred;
-    const changedTaskPublicationDates = (homework.tasks || [])
-        .filter(task => task.publicationDate != null)
+    const changedTaskPublicationDates = (mergedHomework.tasks || [])
+        .filter(task => !task.publicationDateNotSet && task.publicationDate != null)
         .map(task => new Date(task.publicationDate!));
-    const taskHasErrors = (homework.tasks || []).some(task => (task as HomeworkTaskDraft).hasErrors === true);
-    const hasErrors = !homework.title || !!(homework as HomeworkViewModel & { hasErrors?: boolean }).hasErrors;
+    const {taskHasErrors, hasErrors} = getHomeworkValidation(mergedHomework);
 
     const deadlineSuggestion = useMemo(() => {
         if (!isNewHomework || !publicationDate) return undefined;
@@ -154,6 +159,7 @@ export const useHomeworkEditing = () => {
             ...hw,
             tasks: [],
         });
+        dispatch(updateOrInsertHomework(hw));
         dispatch(putHomeworkDraft(copy));
         dispatch(setSelectedItem({ isHomework: true, id: hw.id }));
     }, [dispatch]);
@@ -203,8 +209,9 @@ export const useHomeworkEditing = () => {
     }, []);
 
     const getCurrentHomework = useCallback((homeworkId: number) => {
-        return draftHomeworks.find(dh => dh.id === homeworkId)
-            ?? committedHomeworks.find(hw => hw.id === homeworkId);
+        const draft = draftHomeworks.find(dh => dh.id === homeworkId);
+        const committed = committedHomeworks.find(hw => hw.id === homeworkId);
+        return draft ? mergeHomeworkDraft(committed, draft) : committed;
     }, [draftHomeworks, committedHomeworks]);
 
     const buildHomeworkPayload = useCallback((homework: HomeworkViewModel, editOptions: ActionOptions): CreateHomeworkViewModel => ({
@@ -276,6 +283,8 @@ export const useHomeworkEditing = () => {
     ) => {
         const homework = getCurrentHomework(homeworkId);
         if (!homework) throw new Error(`Homework ${homeworkId} not found for saving`);
+        const {hasErrors, taskHasErrors} = getHomeworkValidation(homework);
+        if (hasErrors || taskHasErrors) throw new Error('Homework contains invalid fields or tasks');
         const courseId = homework.courseId!;
         const isNewHomework = homework.id! < 0;
         const body = buildHomeworkPayload(homework, editOptions);

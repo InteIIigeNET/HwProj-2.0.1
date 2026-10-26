@@ -15,6 +15,7 @@ import ApiSingleton from '@/api/ApiSingleton';
 import {BonusTag, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
 import {useMergedHomeworks} from "@/store/storeHooks/courseEditingHooks";
 import {buildTaskPayload, isRegularCriterion} from '../taskPayload';
+import {getTaskValidation} from '../courseEditingValidation'
 
 export const useDraftTask = (taskId: number, homeworkId: number) => {
     const draftHw = useCourseState(state =>
@@ -44,8 +45,7 @@ const getTaskEditorState = (
     const {criteria = [], maxRating, isBonusExplicit} = buildTaskPayload(task, homework);
     const autoMaxFromCriteria = criteria.some(isRegularCriterion);
     const publicationDate = task.publicationDate ?? homework.publicationDate;
-    const taskHasErrors = task.hasErrors === true;
-    const hasErrors = !task.title || maxRating <= 0 || maxRating > 100 || taskHasErrors;
+    const {hasErrors, datesHasErrors: taskHasErrors} = getTaskValidation(task, homework);
     const isNewTask = task.id! < 0;
     const isNewHomework = homework.id! < 0;
     const homeworkPublicationDateIsSet = !homework.publicationDateNotSet;
@@ -277,6 +277,7 @@ export const useTaskEditing = () => {
         const task = getCurrentTask(taskId, homeworkId);
         const homework = getCurrentHomework(homeworkId);
         if (!task || !homework) throw new Error(`Task ${taskId} or homework ${homeworkId} not found for saving`);
+        if (getTaskValidation(task, homework).hasErrors) throw new Error('Task contains invalid fields');
         const isNewTask = task.id! < 0;
         const body = buildTaskPayload(task, homework, editOptions);
         return persistTask(task, homework, isNewTask, body);
