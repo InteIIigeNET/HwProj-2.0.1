@@ -8,7 +8,7 @@ export type CurrentCourseMeta = Pick<
 >;
 
 export const toCurrentCourseMeta = (
-  course: CourseViewModel
+  course: CurrentCourseMeta
 ): CurrentCourseMeta => ({
   id: course.id,
   name: course.name,

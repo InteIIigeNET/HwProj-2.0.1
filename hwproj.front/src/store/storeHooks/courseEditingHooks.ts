@@ -3,6 +3,7 @@ import {useCourseDispatch, useCourseState} from '../hooks';
 import {setSelectedItem, setSelectionRequest, SelectedItem} from '../slices/courseEditingSlice';
 import {HomeworkViewModel, HomeworkTaskViewModel} from '@/api';
 import {TestTag} from "@/components/Common/HomeworkTags";
+import {selectDraftHomeworks, selectHomeworks} from '../courseSelectors';
 
 export const mergeHomeworkDraft = (committed: HomeworkViewModel | undefined, draft: HomeworkViewModel): HomeworkViewModel => {
     const tasks = new Map<number, HomeworkTaskViewModel>();
@@ -13,8 +14,8 @@ export const mergeHomeworkDraft = (committed: HomeworkViewModel | undefined, dra
 };
 
 export const useMergedHomeworks = () => {
-    const committedHomeworks = useCourseState(state => state.homeworks.items);
-    const draftHomeworks = useCourseState(state => state.editing.draftHomeworks);
+    const committedHomeworks = useCourseState(selectHomeworks);
+    const draftHomeworks = useCourseState(selectDraftHomeworks);
 
     return useMemo(() => {
         const newDrafts = draftHomeworks.filter(dh => dh.id! < 0);

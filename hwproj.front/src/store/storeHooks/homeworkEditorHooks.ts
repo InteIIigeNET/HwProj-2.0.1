@@ -19,6 +19,7 @@ import ProcessFilesUtils from "@/components/Utils/ProcessFilesUtils";
 import {buildTaskPayload} from '../taskPayload';
 import {getHomeworkValidation} from '../courseEditingValidation';
 import {mergeHomeworkDraft} from './courseEditingHooks';
+import {selectDraftHomeworks, selectHomeworks} from '../courseSelectors';
 
 type HomeworkFileOptions = {
     initialFilesInfo: IFileInfo[];
@@ -38,31 +39,14 @@ type HomeworkDeleteFileOptions = {
 };
 
 export const useDraftHomework = (homeworkId: number) => {
-    const draft = useCourseState(state => state.editing.draftHomeworks.find(dh => dh.id === homeworkId));
-    const committed = useCourseState(state => state.homeworks.items.find(hw => hw.id === homeworkId));
+    const draft = useCourseState(state => selectDraftHomeworks(state).find(dh => dh.id === homeworkId));
+    const committed = useCourseState(state => selectHomeworks(state).find(hw => hw.id === homeworkId));
 
     return useMemo(() => draft ? mergeHomeworkDraft(committed, draft) : undefined, [committed, draft]);
 };
 
-const normalizeDraftDate = (value: unknown): Date | undefined => {
-    if (value == null) return undefined;
-    if (value instanceof Date) return value;
-    return new Date(value as string);
-};
-
-const normalizeHomeworkDraft = (homework: HomeworkViewModel): HomeworkViewModel => ({
-    ...homework,
-    publicationDate: normalizeDraftDate(homework.publicationDate),
-    deadlineDate: normalizeDraftDate(homework.deadlineDate),
-    tasks: homework.tasks?.map(task => ({
-        ...task,
-        publicationDate: normalizeDraftDate(task.publicationDate),
-        deadlineDate: normalizeDraftDate(task.deadlineDate),
-    })) ?? [],
-});
-
 export const useHomeworkEditorState = (homework: HomeworkViewModel) => {
-    const committedHomeworks = useCourseState(state => state.homeworks.items);
+    const committedHomeworks = useCourseState(selectHomeworks);
     const mergedHomework = mergeHomeworkDraft(committedHomeworks.find(hw => hw.id === homework.id), homework);
     const isNewHomework = homework.id! < 0;
     const publicationTimestamp = homework.publicationDateNotSet || !homework.publicationDate
@@ -145,27 +129,29 @@ export const useHomeworkEditorState = (homework: HomeworkViewModel) => {
 
 export const useHomeworkEditing = () => {
     const dispatch = useCourseDispatch();
-    const draftHomeworks = useCourseState(state => state.editing.draftHomeworks);
-    const committedHomeworks = useCourseState(state => state.homeworks.items);
+    const draftHomeworks = useCourseState(selectDraftHomeworks);
+    const committedHomeworks = useCourseState(selectHomeworks);
 
     const createHomeworkDraft = useCallback((courseId: number) => {
         const newId = store.getState().editing.draftIdCounter;
-        dispatch(createNewHomeworkDraft(courseId));
+        const publicationDate = new Date();
+        publicationDate.setHours(0, 0, 0, 0);
+        dispatch(createNewHomeworkDraft({courseId, publicationDate: publicationDate.toISOString()}));
         return newId;
     }, [dispatch]);
 
     const setHomeworkDraftFromLoaded = useCallback((hw: HomeworkViewModel) => {
-        const copy: HomeworkViewModel = normalizeHomeworkDraft({
+        const copy: HomeworkViewModel = {
             ...hw,
             tasks: [],
-        });
+        };
         dispatch(updateOrInsertHomework(hw));
         dispatch(putHomeworkDraft(copy));
         dispatch(setSelectedItem({ isHomework: true, id: hw.id }));
     }, [dispatch]);
 
     const updateHomeworkDraftState = useCallback((hw: HomeworkViewModel) => {
-        dispatch(updateDraftHomeworkAction(normalizeHomeworkDraft(hw)));
+        dispatch(updateDraftHomeworkAction(hw));
     }, [dispatch]);
 
     const commitHomeworkSave = useCallback((draftId: number, savedHomework: HomeworkViewModel) => {

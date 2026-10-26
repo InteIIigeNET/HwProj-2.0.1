@@ -8,6 +8,7 @@ import {FileInfoDTO, ScopeDTO, StudentSolutionsTableTaskDto, StatisticsCourseMat
 import {CourseUnitType} from '@/components/Files/CourseUnitType';
 import {FileStatus} from '@/components/Files/FileStatus';
 import {enqueueSnackbar} from 'notistack';
+import {selectHomeworks, selectStudentSolutions} from '../courseSelectors';
 
 export type StartProcessingFn = (
     homeworkId: number,
@@ -24,7 +25,7 @@ export const useIsCourseMentor = () => {
 };
 
 export const useUnratedSolutionsCount = () => {
-    const studentSolutions = useCourseState(state => state.solutions.studentSolutions);
+    const studentSolutions = useCourseState(selectStudentSolutions);
     return studentSolutions
         .flatMap((x: StatisticsCourseMatesModel) => x.homeworks ?? [])
         .flatMap((x: StudentSolutionsTableHomeworkDto) => x.tasks ?? [])
@@ -44,8 +45,8 @@ export const useCoursePageData = () => {
     const acceptedStudents = useCourseState(state => state.course.acceptedStudents);
     const newStudents = useCourseState(state => state.course.newStudents);
     const groups = useCourseState(state => state.groups.items);
-    const courseHomeworks = useCourseState(state => state.homeworks.items);
-    const studentSolutions = useCourseState(state => state.solutions.studentSolutions);
+    const courseHomeworks = useCourseState(selectHomeworks);
+    const studentSolutions = useCourseState(selectStudentSolutions);
     const userId = useCourseState(selectUserId);
     const isLecturer = useCourseState(selectIsLecturer);
     const isExpert = useCourseState(selectIsExpert);

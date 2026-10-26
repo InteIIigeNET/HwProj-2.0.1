@@ -1,5 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {HomeworkTaskViewModel, HomeworkViewModel} from "@/api";
+import {serializeDates, type Serialized, type StoredHomework, type StoredTask} from '../courseModels';
 
 export interface SelectedItem {
     isHomework: boolean;
@@ -13,11 +14,24 @@ interface SelectionRequest {
 }
 
 interface CourseEditingState {
-    draftHomeworks: HomeworkViewModel[];
+    draftHomeworks: StoredHomework[];
     homeworkEditingIds: number[];
     draftIdCounter: number;
     selectedItem: SelectedItem;
     selectionRequest: SelectionRequest | null;
+}
+
+interface NewTaskDraft {
+    homeworkId: number;
+    title: string;
+    description: string;
+    maxRating: number;
+    suggestedMaxRating?: number;
+    isDeferred: boolean;
+    deadlineDateNotSet: boolean;
+    deadlineDate?: Date;
+    tags: string[];
+    selectAfterCreate?: boolean;
 }
 
 const initialState: CourseEditingState = {
@@ -32,17 +46,15 @@ const courseEditingSlice = createSlice({
     name: 'editing',
     initialState,
     reducers: {
-        createNewHomeworkDraft: (state, action: PayloadAction<number>) => {
-            const courseId = action.payload;
+        createNewHomeworkDraft: (state, action: PayloadAction<{courseId: number; publicationDate: string}>) => {
+            const {courseId, publicationDate} = action.payload;
             const newId = state.draftIdCounter;
-            const defaultPublicationDate = new Date(Date.now());
-            defaultPublicationDate.setHours(0, 0, 0, 0);
             state.draftHomeworks.push({
                 courseId,
                 id: newId,
                 title: 'Новое задание',
                 description: '',
-                publicationDate: defaultPublicationDate,
+                publicationDate,
                 publicationDateNotSet: false,
                 hasDeadline: false,
                 deadlineDate: undefined,
@@ -57,34 +69,43 @@ const courseEditingSlice = createSlice({
             state.selectedItem = {isHomework: true, id: newId};
         },
 
-        putHomeworkDraft: (state, action: PayloadAction<HomeworkViewModel>) => {
-            const idx = state.draftHomeworks.findIndex(dh => dh.id === action.payload.id);
-            if (idx === -1) {
-                state.draftHomeworks.push(action.payload);
-            } else {
-                const existingTasks = state.draftHomeworks[idx].tasks;
-                state.draftHomeworks[idx] = {...action.payload, tasks: existingTasks};
-            }
-            if (!state.homeworkEditingIds.includes(action.payload.id!)) {
-                state.homeworkEditingIds.push(action.payload.id!);
-            }
-        },
-
-        ensureHomeworkDraft: (state, action: PayloadAction<HomeworkViewModel>) => {
-            if (!state.draftHomeworks.some(dh => dh.id === action.payload.id)) {
-                state.draftHomeworks.push(action.payload);
-            }
-        },
-
-        updateDraftHomework: (state, action: PayloadAction<HomeworkViewModel>) => {
-            const id = state.draftHomeworks.findIndex(dh => dh.id === action.payload.id);
-            if (id !== -1) {
-                const existingTasks = state.draftHomeworks[id].tasks;
-                state.draftHomeworks[id] = {...action.payload, tasks: existingTasks};
+        putHomeworkDraft: {
+            prepare: (homework: HomeworkViewModel) => ({payload: serializeDates(homework)}),
+            reducer: (state, action: PayloadAction<StoredHomework>) => {
+                const idx = state.draftHomeworks.findIndex(dh => dh.id === action.payload.id);
+                if (idx === -1) {
+                    state.draftHomeworks.push(action.payload);
+                } else {
+                    const existingTasks = state.draftHomeworks[idx].tasks;
+                    state.draftHomeworks[idx] = {...action.payload, tasks: existingTasks};
+                }
                 if (!state.homeworkEditingIds.includes(action.payload.id!)) {
                     state.homeworkEditingIds.push(action.payload.id!);
                 }
-            }
+            },
+        },
+
+        ensureHomeworkDraft: {
+            prepare: (homework: HomeworkViewModel) => ({payload: serializeDates(homework)}),
+            reducer: (state, action: PayloadAction<StoredHomework>) => {
+                if (!state.draftHomeworks.some(dh => dh.id === action.payload.id)) {
+                    state.draftHomeworks.push(action.payload);
+                }
+            },
+        },
+
+        updateDraftHomework: {
+            prepare: (homework: HomeworkViewModel) => ({payload: serializeDates(homework)}),
+            reducer: (state, action: PayloadAction<StoredHomework>) => {
+                const id = state.draftHomeworks.findIndex(dh => dh.id === action.payload.id);
+                if (id !== -1) {
+                    const existingTasks = state.draftHomeworks[id].tasks;
+                    state.draftHomeworks[id] = {...action.payload, tasks: existingTasks};
+                    if (!state.homeworkEditingIds.includes(action.payload.id!)) {
+                        state.homeworkEditingIds.push(action.payload.id!);
+                    }
+                }
+            },
         },
 
         removeDraftHomework: (state, action: PayloadAction<number>) => {
@@ -92,26 +113,32 @@ const courseEditingSlice = createSlice({
             state.homeworkEditingIds = state.homeworkEditingIds.filter(id => id !== action.payload);
         },
 
-        addDraftTask: (state, action: PayloadAction<HomeworkTaskViewModel>) => {
-            const hw = state.draftHomeworks.find(dh => dh.id === action.payload.homeworkId);
-            if (!hw) return;
-            if (!hw.tasks) hw.tasks = [];
-            const ti = hw.tasks.findIndex(t => t.id === action.payload.id);
-            if (ti !== -1) {
-                hw.tasks[ti] = action.payload;
-            } else {
-                hw.tasks.push(action.payload);
-            }
+        addDraftTask: {
+            prepare: (task: HomeworkTaskViewModel) => ({payload: serializeDates(task)}),
+            reducer: (state, action: PayloadAction<StoredTask>) => {
+                const hw = state.draftHomeworks.find(dh => dh.id === action.payload.homeworkId);
+                if (!hw) return;
+                if (!hw.tasks) hw.tasks = [];
+                const ti = hw.tasks.findIndex(t => t.id === action.payload.id);
+                if (ti !== -1) {
+                    hw.tasks[ti] = action.payload;
+                } else {
+                    hw.tasks.push(action.payload);
+                }
+            },
         },
 
-        updateDraftTask: (state, action: PayloadAction<HomeworkTaskViewModel>) => {
-            const hw = state.draftHomeworks.find(dh => dh.id === action.payload.homeworkId);
-            if (hw && hw.tasks) {
-                const idx = hw.tasks.findIndex(t => t.id === action.payload.id);
-                if (idx !== -1) {
-                    hw.tasks[idx] = action.payload;
+        updateDraftTask: {
+            prepare: (task: HomeworkTaskViewModel) => ({payload: serializeDates(task)}),
+            reducer: (state, action: PayloadAction<StoredTask>) => {
+                const hw = state.draftHomeworks.find(dh => dh.id === action.payload.homeworkId);
+                if (hw && hw.tasks) {
+                    const idx = hw.tasks.findIndex(t => t.id === action.payload.id);
+                    if (idx !== -1) {
+                        hw.tasks[idx] = action.payload;
+                    }
                 }
-            }
+            },
         },
 
         removeDraftTask: (state, action: PayloadAction<{ homeworkId: number; taskId: number }>) => {
@@ -124,33 +151,25 @@ const courseEditingSlice = createSlice({
             }
         },
 
-        createNewDraftTask: (state, action: PayloadAction<{
-            homeworkId: number;
-            title: string;
-            description: string;
-            maxRating: number;
-            suggestedMaxRating?: number;
-            isDeferred: boolean;
-            deadlineDateNotSet: boolean;
-            deadlineDate?: Date;
-            tags: string[];
-            selectAfterCreate?: boolean;
-        }>) => {
-            const hw = state.draftHomeworks.find(dh => dh.id === action.payload.homeworkId);
-            if (!hw) return;
-            const newId = state.draftIdCounter;
-            if (!hw.tasks) hw.tasks = [];
-            const {homeworkId, selectAfterCreate = true, ...rest} = action.payload;
-            hw.tasks.push({
-                ...rest,
-                id: newId,
-                homeworkId,
-                criteria: [],
-            } as HomeworkTaskViewModel);
-            state.draftIdCounter -= 1;
-            if (selectAfterCreate) {
-                state.selectedItem = {isHomework: false, id: newId};
-            }
+        createNewDraftTask: {
+            prepare: (task: NewTaskDraft) => ({payload: serializeDates(task)}),
+            reducer: (state, action: PayloadAction<Serialized<NewTaskDraft>>) => {
+                const hw = state.draftHomeworks.find(dh => dh.id === action.payload.homeworkId);
+                if (!hw) return;
+                const newId = state.draftIdCounter;
+                if (!hw.tasks) hw.tasks = [];
+                const {homeworkId, selectAfterCreate = true, ...rest} = action.payload;
+                hw.tasks.push({
+                    ...rest,
+                    id: newId,
+                    homeworkId,
+                    criteria: [],
+                });
+                state.draftIdCounter -= 1;
+                if (selectAfterCreate) {
+                    state.selectedItem = {isHomework: false, id: newId};
+                }
+            },
         },
 
         setSelectedItem: (state, action: PayloadAction<SelectedItem>) => {

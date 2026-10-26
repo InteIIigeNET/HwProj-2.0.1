@@ -16,24 +16,13 @@ import {BonusTag, isBonusWork, isTestWork, TestTag} from "@/components/Common/Ho
 import {useMergedHomeworks} from "@/store/storeHooks/courseEditingHooks";
 import {buildTaskPayload, isRegularCriterion} from '../taskPayload';
 import {getTaskValidation} from '../courseEditingValidation'
+import {selectDraftHomeworks, selectHomeworks} from '../courseSelectors';
 
 export const useDraftTask = (taskId: number, homeworkId: number) => {
     const draftHw = useCourseState(state =>
-        state.editing.draftHomeworks.find(dh => dh.id === homeworkId));
+        selectDraftHomeworks(state).find(dh => dh.id === homeworkId));
     return draftHw?.tasks?.find(t => t.id === taskId);
 };
-
-const normalizeDraftDate = (value: unknown): Date | undefined => {
-    if (value == null) return undefined;
-    if (value instanceof Date) return value;
-    return new Date(value as string);
-};
-
-const normalizeTaskDraft = (task: HomeworkTaskViewModel): HomeworkTaskViewModel => ({
-    ...task,
-    publicationDate: normalizeDraftDate(task.publicationDate),
-    deadlineDate: normalizeDraftDate(task.deadlineDate),
-});
 
 const getTaskEditorState = (
     task: HomeworkTaskViewModel & {
@@ -91,8 +80,8 @@ export const useTaskEditorState = (
 
 export const useTaskEditing = () => {
     const dispatch = useCourseDispatch();
-    const draftHomeworks = useCourseState(state => state.editing.draftHomeworks);
-    const committedHomeworks = useCourseState(state => state.homeworks.items);
+    const draftHomeworks = useCourseState(selectDraftHomeworks);
+    const committedHomeworks = useCourseState(selectHomeworks);
     const mergedHomeworks = useMergedHomeworks();
 
     const ensureHomeworkInDrafts = useCallback((homework: HomeworkViewModel) => {
@@ -168,13 +157,12 @@ export const useTaskEditing = () => {
 
     const setTaskDraftFromLoaded = useCallback((task: HomeworkTaskViewModel, homework: HomeworkViewModel) => {
         ensureHomeworkInDrafts(homework);
-        const copy: HomeworkTaskViewModel = normalizeTaskDraft({ ...task });
-        dispatch(addDraftTask(copy));
+        dispatch(addDraftTask(task));
         dispatch(setSelectedItem({ isHomework: false, id: task.id }));
     }, [dispatch, ensureHomeworkInDrafts]);
 
     const updateTaskDraftState = useCallback((task: HomeworkTaskViewModel) => {
-        dispatch(updateDraftTaskAction(normalizeTaskDraft(task)));
+        dispatch(updateDraftTaskAction(task));
     }, [dispatch]);
 
     const discardTaskDraftByIds = useCallback((taskId: number, homeworkId: number) => {

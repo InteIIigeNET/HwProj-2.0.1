@@ -1,7 +1,8 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import type {CourseViewModel, FileInfoDTO, StatisticsCourseMatesModel} from '@/api';
+import type {FileInfoDTO, StatisticsCourseMatesModel} from '@/api';
 import ApiSingleton from '@/api/ApiSingleton';
 import {setUser, type UserRole} from './slices/userSlice';
+import {serializeDates, type StoredCourse, type StoredStudentSolutions} from './courseModels';
 
 interface CourseRequestState {
     course: {
@@ -18,8 +19,8 @@ interface LoadCourseArgs {
 }
 
 interface LoadedCourse {
-    course: CourseViewModel;
-    solutions?: StatisticsCourseMatesModel[];
+    course: StoredCourse;
+    solutions?: StoredStudentSolutions[];
     files?: FileInfoDTO[];
     warnings: string[];
 }
@@ -76,8 +77,8 @@ export const loadCoursePage = createAsyncThunk<LoadedCourse, LoadCourseArgs, {
             ensureCurrent();
 
             return {
-                course,
-                solutions: solutions.status === 'fulfilled' ? solutions.value : undefined,
+                course: serializeDates(course),
+                solutions: solutions.status === 'fulfilled' ? serializeDates(solutions.value) : undefined,
                 files: files.status === 'fulfilled' ? files.value : undefined,
                 warnings: [
                     ...(solutions.status === 'rejected' ? ['Не удалось загрузить решения студентов'] : []),
@@ -97,14 +98,14 @@ export const loadCoursePage = createAsyncThunk<LoadedCourse, LoadCourseArgs, {
     },
 );
 
-export const refreshCourseSolutions = createAsyncThunk<StatisticsCourseMatesModel[], {
+export const refreshCourseSolutions = createAsyncThunk<StoredStudentSolutions[], {
     courseId: number;
     scopeId: string;
 }, {state: CourseRequestState; rejectValue: string}>(
     'solution/refresh',
     async ({courseId}, {signal, rejectWithValue}) => {
         try {
-            return await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(courseId, {signal});
+            return serializeDates(await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(courseId, {signal}));
         } catch {
             return rejectWithValue('Не удалось обновить решения студентов');
         }

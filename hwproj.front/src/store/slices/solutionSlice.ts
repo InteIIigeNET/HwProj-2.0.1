@@ -1,11 +1,12 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {StatisticsCourseMatesModel} from '@/api';
 import {loadCoursePage, refreshCourseSolutions} from '../courseThunks';
+import {serializeDates, type StoredStudentSolutions} from '../courseModels';
 
 interface SolutionState {
     requestId: string | null;
     error: string | null;
-    studentSolutions: StatisticsCourseMatesModel[];
+    studentSolutions: StoredStudentSolutions[];
 }
 
 const initialState: SolutionState = {
@@ -18,8 +19,11 @@ const solutionSlice = createSlice({
     name: "solution",
     initialState,
     reducers: {
-        setStudentSolutions(state, action: PayloadAction<StatisticsCourseMatesModel[]>) {
-            state.studentSolutions = action.payload;
+        setStudentSolutions: {
+            prepare: (solutions: StatisticsCourseMatesModel[]) => ({payload: serializeDates(solutions)}),
+            reducer(state, action: PayloadAction<StoredStudentSolutions[]>) {
+                state.studentSolutions = action.payload;
+            },
         },
     },
     extraReducers: builder => {
