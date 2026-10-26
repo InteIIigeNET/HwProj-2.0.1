@@ -59,9 +59,13 @@ export const useHomeworkEditorState = (homework: HomeworkViewModel) => {
     const committedHomeworks = useCourseState(state => state.homeworks.items);
     type HomeworkTaskDraft = PostTaskViewModel & { id?: number; hasErrors?: boolean; publicationDate?: Date };
     const isNewHomework = homework.id! < 0;
-    const publicationDate = homework.publicationDateNotSet || !homework.publicationDate
+    const publicationTimestamp = homework.publicationDateNotSet || !homework.publicationDate
         ? undefined
-        : new Date(homework.publicationDate);
+        : new Date(homework.publicationDate).getTime();
+    const publicationDate = useMemo(
+        () => publicationTimestamp === undefined ? undefined : new Date(publicationTimestamp),
+        [publicationTimestamp],
+    );
     const deadlineDate = homework.deadlineDateNotSet || !homework.deadlineDate
         ? undefined
         : new Date(homework.deadlineDate);

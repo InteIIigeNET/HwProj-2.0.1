@@ -52,8 +52,12 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
         }
     });
 
+    const [isDeadlineManual, setIsDeadlineManual] = useState(props.deadlineDate != null);
+    const autoCalculatedDeadlineTimestamp = props.autoCalculatedDeadline?.getTime();
+
     const deadlineChosenAutomatically =
-        props.autoCalculatedDeadline && state.deadlineDate === props.autoCalculatedDeadline
+        !isDeadlineManual && autoCalculatedDeadlineTimestamp !== undefined
+        && state.deadlineDate?.getTime() === autoCalculatedDeadlineTimestamp
 
     const isDeadlineSoonerThanPublication = (publicationDate: Date, deadlineDate: Date | undefined) =>
         deadlineDate != null && deadlineDate < publicationDate;
@@ -68,13 +72,20 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     }, [state])
 
     useEffect(() => {
-        setState(prevState => ({
-            ...prevState,
-            deadlineDate: state.hasDeadline
-                ? props.autoCalculatedDeadline || state.deadlineDate || getInitialDeadlineDate(prevState.publicationDate)
-                : undefined,
-        }))
-    }, [props.autoCalculatedDeadline])
+        if (isDeadlineManual) return
+
+        setState(prevState => {
+            if (!prevState.hasDeadline) return prevState
+
+            const deadlineDate = autoCalculatedDeadlineTimestamp === undefined
+                ? prevState.deadlineDate || getInitialDeadlineDate(prevState.publicationDate)
+                : new Date(autoCalculatedDeadlineTimestamp)
+
+            if (prevState.deadlineDate?.getTime() === deadlineDate.getTime()) return prevState
+
+            return {...prevState, deadlineDate}
+        })
+    }, [autoCalculatedDeadlineTimestamp, isDeadlineManual])
 
     return <div>
         <Grid container direction="column" style={{marginTop: "10px"}}>
@@ -126,6 +137,7 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                                         ? props.isDeadlineStrict
                                         : false
 
+                                    setIsDeadlineManual(e.target.checked && props.deadlineDate != null)
                                     setState(prevState => ({
                                         ...prevState,
                                         hasDeadline: e.target.checked,
@@ -161,6 +173,7 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                             variant='standard'
                             value={Utils.toISOString(state.deadlineDate) ?? ''}
                             onChange={(e) => {
+                                setIsDeadlineManual(true)
                                 setState(prevState => ({
                                     ...prevState,
                                     deadlineDate: e.target.value === ''
