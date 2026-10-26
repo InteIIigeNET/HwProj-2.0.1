@@ -54,8 +54,7 @@ import {
 } from "@/store/storeHooks/courseEditingHooks";
 import {useCourseActions} from "@/store/courseActions";
 import {
-    useCourseFiles,
-    useCourseFilePolling,
+    StartProcessingFn,
     useCourseLoader,
     useCoursePageData,
     useIsCourseMentor
@@ -216,6 +215,7 @@ const emptyTaskDotSx = {
 
 interface ICourseExperimentalProps {
     courseId: number
+    onStartProcessing: StartProcessingFn
     selectedHomeworkId: number | undefined
     selectedTaskId: number | undefined
 }
@@ -241,13 +241,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const {isHomeworkEditing, isTaskEditing} = useEditingStatus()
     const homeworks = useVisibleCourseHomeworks(mergedHomeworks, hideDeferred, showOnlyGroupedTest)
 
-    const {selectedHomeworkId, selectedTaskId} = props
+    const {selectedHomeworkId, selectedTaskId, onStartProcessing: startProcessing} = props
     const {userId, studentSolutions, isAcceptedStudent, acceptedStudents, groups} = useCoursePageData()
     const courseFilesInfo = useCourseState(state => state.courseFiles.items)
     const isMentor = useIsCourseMentor()
     const isStudentAccepted = isAcceptedStudent
-    const {updateFiles, setFileLoading} = useCourseFiles(props.courseId, isMentor)
-    const {startProcessing} = useCourseFilePolling(props.courseId, updateFiles, setFileLoading)
     const {loadStudentSolutions} = useCourseLoader(props.courseId)
 
     const {

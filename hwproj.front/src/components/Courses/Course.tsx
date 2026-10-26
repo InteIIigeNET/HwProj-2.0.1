@@ -41,7 +41,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import {MoreVert} from "@mui/icons-material";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
-import {useCourseLoader, useCourseFiles, useIsCourseMentor, useCoursePageData, useUnratedSolutionsCount} from "@/store/storeHooks/courseHooks";
+import {useCourseLoader, useCourseFiles, useCourseFilePolling, useRefreshCourse, useIsCourseMentor, useCoursePageData, useUnratedSolutionsCount} from "@/store/storeHooks/courseHooks";
 import Utils from "@/services/Utils";
 
 type TabValue = "homeworks" | "stats" | "applications"
@@ -155,6 +155,11 @@ const Course: React.FC = () => {
 
     const {
         course,
+        courseId: loadedCourseId,
+        status,
+        error,
+        warnings,
+        solutionsError,
         isFound,
         mentors,
         newStudents,
@@ -171,14 +176,15 @@ const Course: React.FC = () => {
     } = useCoursePageData();
     const isCourseMentor = useIsCourseMentor();
     const unratedSolutionsCount = useUnratedSolutionsCount();
-    const {initUser, loadCourse, loadStudentSolutions, resetEditing} = useCourseLoader(+courseId!);
+    const {loadCourse} = useCourseLoader(+courseId!);
+    const refreshCourse = useRefreshCourse();
     const [showQrCode, setShowQrCode] = useState(false);
-    const [shouldLoadFilesAfterCourseReload, setShouldLoadFilesAfterCourseReload] = useState(false);
     const [pageState, setPageState] = useState<IPageState>({
         tabValue: "homeworks"
     })
 
-    const {loadCourseFiles} = useCourseFiles(+courseId!);
+    const {updateFiles, setFileLoading} = useCourseFiles(+courseId!);
+    const {startProcessing} = useCourseFilePolling(+courseId!, updateFiles, setFileLoading);
 
     const showStatsTab = isCourseMentor || isAcceptedStudent
     const showApplicationsTab = isCourseMentor
@@ -196,29 +202,10 @@ const Course: React.FC = () => {
             });
     }, [showApplicationsTab, showStatsTab])
 
-    const reloadCoursePage = useCallback(async () => {
-        initUser();
-        resetEditing();
-        setShouldLoadFilesAfterCourseReload(false);
-        const loadedCourse = await loadCourse();
-        if (loadedCourse == null) return;
-        setShouldLoadFilesAfterCourseReload(true);
-    }, [initUser, loadCourse, resetEditing])
-
     useEffect(() => {
-        reloadCoursePage()
-    }, [courseId, reloadCoursePage])
-
-    useEffect(() => {
-        if (!shouldLoadFilesAfterCourseReload || userId == null || !isFound) return;
-
-        loadCourseFiles(isCourseMentor);
-        setShouldLoadFilesAfterCourseReload(false);
-    }, [shouldLoadFilesAfterCourseReload, userId, isFound, isCourseMentor, loadCourseFiles])
-
-    useEffect(() => {
-        loadStudentSolutions()
-    }, [loadStudentSolutions])
+        const request = loadCourse();
+        return () => request.abort();
+    }, [loadCourse])
 
     useEffect(() => {
         changeTab(tab || "homeworks")
@@ -226,7 +213,7 @@ const Course: React.FC = () => {
 
     const joinCourse = async () => {
         await ApiSingleton.coursesApi.coursesSignInCourse(+courseId!);
-        await reloadCoursePage();
+        await refreshCourse(+courseId!);
     }
 
     const {tabValue} = pageState
@@ -309,7 +296,7 @@ const Course: React.FC = () => {
         );
     }
 
-    if (isFound && course) {
+    if (loadedCourseId === +courseId! && isFound && course?.id === +courseId!) {
         const courseName = course.name ?? ""
 
         return (
@@ -342,6 +329,12 @@ const Course: React.FC = () => {
                     </DialogContent>
                 </Dialog>
                 <Stack spacing={2} sx={{mt: 2, mb: 2}}>
+                    {(error || solutionsError || warnings.length > 0) &&
+                        <Alert severity={error ? "error" : "warning"}
+                               action={<Button color="inherit" disabled={status === "loading"}
+                                               onClick={() => void refreshCourse(+courseId!)}>Повторить</Button>}>
+                            {[error, solutionsError, ...warnings].filter(Boolean).join('. ')}
+                        </Alert>}
                     <Paper variant={"outlined"} sx={{...panelSx, overflow: "hidden"}}>
                         {course.isCompleted &&
                             <Alert severity="warning" sx={completedAlertSx}>
@@ -477,6 +470,7 @@ const Course: React.FC = () => {
                     </Box>
                     {tabValue === "homeworks" && <CourseExperimental
                         courseId={+courseId!}
+                        onStartProcessing={startProcessing}
                         selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
                         selectedTaskId={searchedHomeworkId == null && searchedTaskId != null ? +searchedTaskId : undefined}
                     />
@@ -500,6 +494,14 @@ const Course: React.FC = () => {
                 </Stack>
             </div>
         );
+    }
+    if (loadedCourseId === +courseId! && status === "failed") {
+        return <div className="container">
+            <Alert severity="error" sx={{mt: 2}}
+                   action={<Button color="inherit" onClick={() => void loadCourse()}>Повторить</Button>}>
+                {error}
+            </Alert>
+        </div>
     }
     return <div className="container">
         <DotLottieReact

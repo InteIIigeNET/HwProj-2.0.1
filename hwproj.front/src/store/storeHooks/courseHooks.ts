@@ -1,31 +1,13 @@
-import {useCallback, useEffect, useRef} from 'react';
-import {useCourseDispatch, useCourseState} from '../hooks';
-import {
-    setCourse,
-    setMentors,
-    setAcceptedStudents,
-    setNewStudents,
-    toCurrentCourseMeta
-} from '../slices/courseSlice';
-import {setHomeworks} from '../slices/homeworkSlice';
-import {setStudentSolutions} from '../slices/solutionSlice';
-import {setCourseFiles, updateCourseFiles, setProcessingLoading} from '../slices/courseFileSlice';
-import {
-    selectIsExpert,
-    selectIsLecturer,
-    selectIsLecturerOrExpert,
-    selectUserId,
-    setUser,
-    UserRole,
-} from '../slices/userSlice';
-import {resetEditingState} from '../slices/courseEditingSlice';
-import {setGroups} from '../slices/groupSlice';
+import {useCallback, useEffect, useMemo} from 'react';
+import {useCourseDispatch, useCourseState, useCourseStore} from '../hooks';
+import {loadCoursePage, refreshCourseSolutions} from '../courseThunks';
+import {updateCourseFiles, setProcessingLoading} from '../slices/courseFileSlice';
+import {selectIsExpert, selectIsLecturer, selectUserId} from '../slices/userSlice';
 import ApiSingleton from '@/api/ApiSingleton';
 import {FileInfoDTO, ScopeDTO, StudentSolutionsTableTaskDto, StatisticsCourseMatesModel, StudentSolutionsTableHomeworkDto} from '@/api';
 import {CourseUnitType} from '@/components/Files/CourseUnitType';
 import {FileStatus} from '@/components/Files/FileStatus';
 import {enqueueSnackbar} from 'notistack';
-import ErrorsHandler from '@/components/Utils/ErrorsHandler';
 
 export type StartProcessingFn = (
     homeworkId: number,
@@ -52,6 +34,11 @@ export const useUnratedSolutionsCount = () => {
 
 export const useCoursePageData = () => {
     const course = useCourseState(state => state.course.currentCourseMeta);
+    const courseId = useCourseState(state => state.course.courseId);
+    const status = useCourseState(state => state.course.status);
+    const error = useCourseState(state => state.course.error);
+    const warnings = useCourseState(state => state.course.warnings);
+    const solutionsError = useCourseState(state => state.solutions.error);
     const isFound = useCourseState(state => state.course.isFound);
     const mentors = useCourseState(state => state.course.mentors);
     const acceptedStudents = useCourseState(state => state.course.acceptedStudents);
@@ -65,6 +52,11 @@ export const useCoursePageData = () => {
 
     return {
         course,
+        courseId,
+        status,
+        error,
+        warnings,
+        solutionsError,
         isFound,
         mentors,
         acceptedStudents,
@@ -83,172 +75,120 @@ export const useCoursePageData = () => {
 
 export const useCourseLoader = (courseId: number) => {
     const dispatch = useCourseDispatch();
-    const userId = useCourseState(selectUserId);
-    const isLecturerOrExpertOnSite = useCourseState(selectIsLecturerOrExpert);
+    const scopeId = useCourseState(state => state.course.scopeId);
 
-    const initUser = useCallback(() => {
-        const id = ApiSingleton.authService.getUserId();
-        const role = ApiSingleton.authService.getRole() as UserRole | null;
-        dispatch(setUser(id && role ? {userId: id, role} : null));
-    }, [dispatch]);
+    const loadCourse = useCallback(() => dispatch(loadCoursePage({courseId})), [dispatch, courseId]);
 
-    const loadCourse = useCallback(async () => {
-        const course = await ApiSingleton.coursesApi.coursesGetCourseData(courseId);
+    const loadStudentSolutions = useCallback(() => {
+        if (scopeId) return dispatch(refreshCourseSolutions({courseId, scopeId}));
+    }, [dispatch, courseId, scopeId]);
 
-        const shouldRefreshToken = !isLecturerOrExpertOnSite && course && course.mentors!.some(t => t.userId === userId);
-        if (shouldRefreshToken) {
-            const newToken = await ApiSingleton.accountApi.accountRefreshToken();
-            newToken.value && ApiSingleton.authService.refreshToken(newToken.value.accessToken!);
-            return null;
-        }
-
-        dispatch(setCourse(toCurrentCourseMeta(course)));
-        dispatch(setMentors(course.mentors!));
-        dispatch(setAcceptedStudents(course.acceptedStudents!));
-        dispatch(setNewStudents(course.newStudents!));
-        dispatch(setGroups(course.groups ?? []));
-        dispatch(setHomeworks(course.homeworks!));
-        return course;
-    }, [dispatch, courseId, userId, isLecturerOrExpertOnSite]);
-
-    const loadStudentSolutions = useCallback(async () => {
-        const res = await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(courseId);
-        dispatch(setStudentSolutions(res));
-    }, [dispatch, courseId]);
-
-    const resetEditing = useCallback(() => {
-        dispatch(resetEditingState());
-    }, [dispatch]);
-
-    return {initUser, loadCourse, loadStudentSolutions, resetEditing};
+    return {loadCourse, loadStudentSolutions};
 };
 
 export const useRefreshCourse = () => {
     const dispatch = useCourseDispatch();
-    return useCallback(async (courseId: number) => {
-        const course = await ApiSingleton.coursesApi.coursesGetCourseData(courseId);
-        dispatch(setCourse(toCurrentCourseMeta(course)));
-        dispatch(setMentors(course.mentors ?? []));
-        dispatch(setAcceptedStudents(course.acceptedStudents ?? []));
-        dispatch(setNewStudents(course.newStudents ?? []));
-        dispatch(setGroups(course.groups ?? []));
-        dispatch(setHomeworks(course.homeworks ?? []));
-    }, [dispatch]);
+    const scopeId = useCourseState(state => state.course.scopeId);
+    return useCallback((courseId: number) => {
+        return dispatch(loadCoursePage({courseId, refresh: true, scopeId}));
+    }, [dispatch, scopeId]);
 };
 
-export const useCourseFiles = (courseId: number, defaultIsCourseMentor?: boolean) => {
+export const useCourseFiles = (courseId: number) => {
     const dispatch = useCourseDispatch();
-
-    const loadCourseFiles = useCallback(async (isCourseMentor = defaultIsCourseMentor ?? false) => {
-        let files = [] as FileInfoDTO[];
-        try {
-            files = await ApiSingleton.filesApi.filesGetFilesInfo(courseId, !isCourseMentor);
-        } catch (e) {
-            const errors = await ErrorsHandler.getErrorMessages(e as Response);
-            enqueueSnackbar(errors[0], {variant: 'warning', autoHideDuration: 1990});
-        }
-        dispatch(setCourseFiles(files));
-    }, [dispatch, courseId, defaultIsCourseMentor]);
+    const store = useCourseStore();
+    const scopeId = useCourseState(state => state.course.scopeId);
+    const isCurrent = useCallback(() => {
+        const course = store.getState().course;
+        return scopeId != null && course.courseId === courseId && course.scopeId === scopeId;
+    }, [store, courseId, scopeId]);
 
     const updateFiles = useCallback((files: FileInfoDTO[], unitType: CourseUnitType, unitId: number) => {
-        dispatch(updateCourseFiles({files, unitType, unitId}));
-    }, [dispatch]);
+        if (isCurrent()) dispatch(updateCourseFiles({files, unitType, unitId}));
+    }, [dispatch, isCurrent]);
 
     const setFileLoading = useCallback((homeworkId: number, isLoading: boolean) => {
-        dispatch(setProcessingLoading({homeworkId, isLoading}));
-    }, [dispatch]);
+        if (isCurrent()) dispatch(setProcessingLoading({homeworkId, isLoading}));
+    }, [dispatch, isCurrent]);
 
-    return {loadCourseFiles, updateFiles, setFileLoading};
+    return {updateFiles, setFileLoading};
 };
+
+interface FileProcessingOperation {
+    unitId: number;
+    controller: AbortController;
+    timer?: ReturnType<typeof setTimeout>;
+    timeout?: ReturnType<typeof setTimeout>;
+}
 
 export const useCourseFilePolling = (
     courseId: number,
     updateFiles: (files: FileInfoDTO[], unitType: CourseUnitType, unitId: number) => void,
     setFileLoading: (homeworkId: number, isLoading: boolean) => void
 ) => {
-    const intervalsRef = useRef<Record<number, { interval: NodeJS.Timeout; timeout: NodeJS.Timeout }>>({});
+    const processing = useMemo(() => ({
+        active: false,
+        operations: new Map<string, FileProcessingOperation>(),
+    }), [courseId, updateFiles, setFileLoading]);
 
-    const stopProcessing = useCallback((homeworkId: number) => {
-        if (intervalsRef.current[homeworkId]) {
-            const {interval, timeout} = intervalsRef.current[homeworkId];
-            clearInterval(interval);
-            clearTimeout(timeout);
-            delete intervalsRef.current[homeworkId];
-        }
-    }, []);
+    const stopProcessing = useCallback((key: string) => {
+        const operation = processing.operations.get(key);
+        if (!operation) return;
+        processing.operations.delete(key);
+        clearTimeout(operation.timer);
+        clearTimeout(operation.timeout);
+        operation.controller.abort();
+        setFileLoading(operation.unitId, false);
+    }, [processing, setFileLoading]);
 
     const startProcessing = useCallback<StartProcessingFn>(
         (homeworkId, courseUnitType, previouslyExistingFilesCount, waitingNewFilesCount, deletingFilesIds) => {
-            stopProcessing(homeworkId);
-            let attempt = 0;
-            const maxAttempts = 10;
-            const delay = 1000;
-            const scopeDto: ScopeDTO = {
-                courseId,
-                courseUnitType,
-                courseUnitId: homeworkId,
-            };
+            if (!processing.active) return;
+            const key = `${courseUnitType}:${homeworkId}`;
+            stopProcessing(key);
+            const operation: FileProcessingOperation = {unitId: homeworkId, controller: new AbortController()};
+            processing.operations.set(key, operation);
+            const expectedCount = previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount;
+            const scopeDto: ScopeDTO = {courseId, courseUnitType, courseUnitId: homeworkId};
+            const isCurrent = () => processing.active && processing.operations.get(key) === operation;
 
             const fetchFiles = async () => {
-                if (attempt >= maxAttempts) {
-                    stopProcessing(homeworkId);
-                    enqueueSnackbar('Превышено допустимое количество попыток получения информации о файлах', {
-                        variant: 'warning',
-                        autoHideDuration: 2000,
-                    });
-                    return;
-                }
-                attempt++;
                 try {
-                    const files = await ApiSingleton.filesApi.filesGetStatuses(scopeDto);
-                    if (
-                        waitingNewFilesCount === 0 &&
-                        files.filter(f => f.status === FileStatus.ReadyToUse).length ===
-                            previouslyExistingFilesCount - deletingFilesIds.length
-                    ) {
-                        updateFiles(files, courseUnitType, homeworkId);
-                        setFileLoading(homeworkId, false);
+                    const files = await ApiSingleton.filesApi.filesGetStatuses(scopeDto, {signal: operation.controller.signal});
+                    if (!isCurrent()) return;
+                    updateFiles(files, courseUnitType, homeworkId);
+                    if (files.length === expectedCount
+                        && files.every(file => file.status !== FileStatus.Uploading && file.status !== FileStatus.Deleting)) {
+                        stopProcessing(key);
+                        return;
                     }
-                    if (
-                        waitingNewFilesCount > 0 &&
-                        files.filter(f => !deletingFilesIds.some(dfi => dfi === f.id)).length ===
-                            previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount
-                    ) {
-                        updateFiles(files, courseUnitType, homeworkId);
-                        setFileLoading(homeworkId, false);
-                    }
-                    if (
-                        files.length === previouslyExistingFilesCount - deletingFilesIds.length + waitingNewFilesCount &&
-                        files.every(f => f.status !== FileStatus.Uploading && f.status !== FileStatus.Deleting)
-                    ) {
-                        stopProcessing(homeworkId);
-                        setFileLoading(homeworkId, false);
-                    }
-                } catch (error) {
-                    console.error(`Ошибка (попытка ${attempt}):`, error);
+                } catch {
+                    if (!isCurrent()) return;
                 }
+                operation.timer = setTimeout(fetchFiles, 1000);
             };
 
-            const interval = setInterval(fetchFiles, delay);
-            const timeout = setTimeout(() => {
-                stopProcessing(homeworkId);
-                setFileLoading(homeworkId, false);
+            operation.timer = setTimeout(fetchFiles, 1000);
+            operation.timeout = setTimeout(() => {
+                if (!isCurrent()) return;
+                stopProcessing(key);
+                enqueueSnackbar('Не удалось дождаться завершения обработки файлов. Обновите страницу, чтобы проверить их состояние.', {
+                    variant: 'warning',
+                    autoHideDuration: 4000,
+                });
             }, 10000);
-            intervalsRef.current[homeworkId] = {interval, timeout};
             setFileLoading(homeworkId, true);
         },
-        [courseId, updateFiles, setFileLoading, stopProcessing]
+        [courseId, updateFiles, setFileLoading, stopProcessing, processing]
     );
 
     useEffect(() => {
+        processing.active = true;
         return () => {
-            Object.values(intervalsRef.current).forEach(({interval, timeout}) => {
-                clearInterval(interval);
-                clearTimeout(timeout);
-            });
-            intervalsRef.current = {};
+            processing.active = false;
+            for (const key of processing.operations.keys()) stopProcessing(key);
         };
-    }, []);
+    }, [processing, stopProcessing]);
 
     return {startProcessing};
 };

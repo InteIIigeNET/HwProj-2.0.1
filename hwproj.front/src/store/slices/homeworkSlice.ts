@@ -1,5 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {HomeworkViewModel, HomeworkTaskViewModel} from '@/api';
+import {loadCoursePage} from '../courseThunks';
 
 interface HomeworkState {
     items: HomeworkViewModel[];
@@ -50,6 +51,11 @@ const homeworkSlice = createSlice({
                 homework.tasks = homework.tasks.filter(t => t.id !== action.payload.taskId);
             }
         },
+    },
+    extraReducers: builder => {
+        builder.addCase(loadCoursePage.fulfilled, (state, action) => {
+            state.items = action.payload.course.homeworks ?? [];
+        });
     },
 });
 

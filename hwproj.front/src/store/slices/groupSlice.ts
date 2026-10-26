@@ -1,5 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {GroupViewModel} from '@/api';
+import {loadCoursePage} from '../courseThunks';
 
 interface GroupState {
     items: GroupViewModel[];
@@ -32,6 +33,11 @@ const groupSlice = createSlice({
         resetGroups(state) {
             state.items = [];
         },
+    },
+    extraReducers: builder => {
+        builder.addCase(loadCoursePage.fulfilled, (state, action) => {
+            state.items = action.payload.course.groups ?? [];
+        });
     },
 });
 
