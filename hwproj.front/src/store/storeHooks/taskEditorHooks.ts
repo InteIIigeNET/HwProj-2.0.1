@@ -6,7 +6,6 @@ import {
     createNewDraftTask,
     updateDraftTask as updateDraftTaskAction,
     removeDraftTask,
-    removeDraftHomework,
     setSelectedItem,
 } from '../slices/courseEditingSlice';
 import {store} from '../store';
@@ -182,20 +181,12 @@ export const useTaskEditing = () => {
 
     const discardTaskDraftByIds = useCallback((taskId: number, homeworkId: number) => {
         dispatch(removeDraftTask({ homeworkId, taskId }));
-        const draftHw = draftHomeworks.find(dh => dh.id === homeworkId);
-        if (draftHw && homeworkId > 0 && (draftHw.tasks || []).filter(t => t.id !== taskId).length === 0) {
-            dispatch(removeDraftHomework(homeworkId));
-        }
-    }, [dispatch, draftHomeworks]);
+    }, [dispatch]);
 
     const commitTaskSave = useCallback((draftId: number, homeworkId: number, savedTask: HomeworkTaskViewModel) => {
         dispatch(updateTask(savedTask));
         dispatch(removeDraftTask({ homeworkId, taskId: draftId }));
-        const draftHw = draftHomeworks.find(dh => dh.id === homeworkId);
-        if (draftHw && (draftHw.tasks || []).filter(t => t.id !== draftId).length === 0) {
-            dispatch(removeDraftHomework(homeworkId));
-        }
-    }, [dispatch, draftHomeworks]);
+    }, [dispatch]);
 
     const commitTaskRemoval = useCallback((taskId: number, homeworkId: number) => {
         dispatch(deleteTaskAction({ homeworkId, taskId }));
@@ -256,7 +247,7 @@ export const useTaskEditing = () => {
         } else {
             dispatch(setSelectedItem({ isHomework: false, id: task.id }));
         }
-    }, [discardTaskDraftByIds, dispatch]);
+    }, [discardTaskDraftByIds, dispatch, draftHomeworks]);
 
     const loadTaskForEditing = useCallback((taskId: number) => {
         return ApiSingleton.tasksApi.tasksGetForEditingTask(taskId);

@@ -8,12 +8,14 @@ export interface SelectedItem {
 
 interface CourseEditingState {
     draftHomeworks: HomeworkViewModel[];
+    homeworkEditingIds: number[];
     draftIdCounter: number;
     selectedItem: SelectedItem;
 }
 
 const initialState: CourseEditingState = {
     draftHomeworks: [],
+    homeworkEditingIds: [],
     draftIdCounter: -1,
     selectedItem: {isHomework: true, id: undefined,},
 };
@@ -42,6 +44,7 @@ const courseEditingSlice = createSlice({
                 tasks: [],
                 tags: [],
             });
+            state.homeworkEditingIds.push(newId);
             state.draftIdCounter -= 1;
             state.selectedItem = {isHomework: true, id: newId};
         },
@@ -51,7 +54,11 @@ const courseEditingSlice = createSlice({
             if (idx === -1) {
                 state.draftHomeworks.push(action.payload);
             } else {
-                state.draftHomeworks[idx] = action.payload;
+                const existingTasks = state.draftHomeworks[idx].tasks;
+                state.draftHomeworks[idx] = {...action.payload, tasks: existingTasks};
+            }
+            if (!state.homeworkEditingIds.includes(action.payload.id!)) {
+                state.homeworkEditingIds.push(action.payload.id!);
             }
         },
 
@@ -66,11 +73,15 @@ const courseEditingSlice = createSlice({
             if (id !== -1) {
                 const existingTasks = state.draftHomeworks[id].tasks;
                 state.draftHomeworks[id] = {...action.payload, tasks: existingTasks};
+                if (!state.homeworkEditingIds.includes(action.payload.id!)) {
+                    state.homeworkEditingIds.push(action.payload.id!);
+                }
             }
         },
 
         removeDraftHomework: (state, action: PayloadAction<number>) => {
             state.draftHomeworks = state.draftHomeworks.filter(dh => dh.id !== action.payload);
+            state.homeworkEditingIds = state.homeworkEditingIds.filter(id => id !== action.payload);
         },
 
         addDraftTask: (state, action: PayloadAction<HomeworkTaskViewModel>) => {
@@ -96,9 +107,12 @@ const courseEditingSlice = createSlice({
         },
 
         removeDraftTask: (state, action: PayloadAction<{ homeworkId: number; taskId: number }>) => {
-            const hw = state.draftHomeworks.find(dh => dh.id === action.payload.homeworkId);
-            if (hw && hw.tasks) {
-                hw.tasks = hw.tasks.filter(t => t.id !== action.payload.taskId);
+            const {homeworkId, taskId} = action.payload;
+            const hw = state.draftHomeworks.find(dh => dh.id === homeworkId);
+            if (!hw) return;
+            hw.tasks = (hw.tasks ?? []).filter(t => t.id !== taskId);
+            if (homeworkId > 0 && hw.tasks.length === 0 && !state.homeworkEditingIds.includes(homeworkId)) {
+                state.draftHomeworks = state.draftHomeworks.filter(dh => dh.id !== homeworkId);
             }
         },
 
