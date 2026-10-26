@@ -326,9 +326,9 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         if (isMentor || !isStudentAccepted) return map
         studentSolutions
             .filter(t => t.id === userId)
-            .flatMap(t => t.homeworks!)
-            .flatMap(t => t.tasks!)
-            .forEach(x => map.set(x.id!, x.solutions!))
+            .flatMap(t => t.homeworks ?? [])
+            .flatMap(t => t.tasks ?? [])
+            .forEach(x => map.set(x.id!, x.solutions ?? []))
         return map
     }, [studentSolutions, userId, isMentor, isStudentAccepted])
 
@@ -646,6 +646,14 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return solutions[solutions.length - 1]?.state === SolutionState.NUMBER_0
     }
 
+    const getTaskRating = (task: HomeworkTaskViewModel): number | '?' => {
+        const {lastSolution, lastRatedSolution} = StudentStatsUtils.calculateLastRatedSolutionInfo(
+            taskSolutionsMap.get(task.id!) ?? [], task.maxRating!
+        )
+        if (!lastSolution) return 0
+        return lastRatedSolution ? lastRatedSolution.rating ?? 0 : '?'
+    }
+
     const renderTask = (task: HomeworkTaskViewModel & { isModified?: boolean }, homework: HomeworkViewModel) => {
         const taskEditMode = task && (task.id! < 0 || isTaskEditing(task.id!))
         if (!task) return task
@@ -658,6 +666,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 key={task.id}
                 task={task}
                 homework={homework!}
+                isStudentAccepted={isStudentAccepted}
+                rating={getTaskRating(task)}
                 toEditHomework={() => toEditHomework(homework!)}
             />
             {isStudent && task.canSendSolution && <Box sx={detailFooterSx}>

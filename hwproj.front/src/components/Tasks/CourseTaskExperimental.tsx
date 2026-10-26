@@ -786,6 +786,8 @@ const CourseTaskExperimental: FC<{
     task: TaskEditData,
     homework: HomeworkViewModel,
     toEditHomework: () => void,
+    isStudentAccepted?: boolean,
+    rating?: number | '?',
 }> = (props) => {
     const isCourseMentor = useIsCourseMentor()
     const draftTask = useDraftTask(props.task.id!, props.task.homeworkId!)
@@ -815,11 +817,11 @@ const CourseTaskExperimental: FC<{
                             {task.title}
                         </Typography>
                         <Stack direction={"row"} spacing={0.75} useFlexGap flexWrap={"wrap"} sx={{ mt: 1 }}>
-                            <Tooltip arrow title={"Максимальный балл"}>
+                            <Tooltip arrow title={!isCourseMentor && props.isStudentAccepted ? "Ваш балл за задачу" : "Максимальный балл"}>
                                 <Chip
                                     size={"small"}
                                     icon={<StarRoundedIcon />}
-                                    label={task.maxRating}
+                                    label={!isCourseMentor && props.isStudentAccepted ? `${props.rating ?? 0} / ${task.maxRating}` : task.maxRating}
                                     sx={accentChipSx} />
                             </Tooltip>
 
