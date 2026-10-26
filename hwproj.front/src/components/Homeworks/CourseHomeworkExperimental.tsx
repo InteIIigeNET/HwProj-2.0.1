@@ -590,10 +590,18 @@ const CourseHomeworkExperimental: FC<{
                         <Tooltip placement={"left"} arrow title={"Редактировать задание"}>
                             <IconButton
                                 size={"small"}
-                                onClick={() => {
+                                onClick={async () => {
                                     setShowEditMode(false)
                                     if (homework.id! < 0) return
-                                    startHomeworkEdit(homework.id!).catch(() => {})
+                                    try {
+                                        await startHomeworkEdit(homework.id!)
+                                    } catch (error) {
+                                        const errors = await ErrorsHandler.getErrorMessages(error as Response, "errors")
+                                        enqueueSnackbar(errors[0] || "Не удалось открыть редактор задания", {
+                                            variant: "error",
+                                            autoHideDuration: 4000,
+                                        })
+                                    }
                                 }}>
                                 <EditIcon color={"primary"} sx={{fontSize: 18}}/>
                             </IconButton>

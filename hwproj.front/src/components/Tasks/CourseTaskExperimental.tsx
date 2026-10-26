@@ -851,10 +851,18 @@ const CourseTaskExperimental: FC<{
                             <IconButton
                                 size={"small"}
                                 sx={{...hoverActionSx, opacity: showEditMode ? 1 : 0}}
-                                onClick={() => {
+                                onClick={async () => {
                                     setShowEditMode(false)
                                     if (task.id! < 0) return
-                                    startTaskEdit(task.id!).catch(() => {})
+                                    try {
+                                        await startTaskEdit(task.id!)
+                                    } catch (error) {
+                                        const errors = await ErrorsHandler.getErrorMessages(error as Response, "errors")
+                                        enqueueSnackbar(errors[0] || "Не удалось открыть редактор задачи", {
+                                            variant: "error",
+                                            autoHideDuration: 4000,
+                                        })
+                                    }
                                 }}
                             >
                                 <EditIcon color={"primary"} sx={{fontSize: 18}}/>
