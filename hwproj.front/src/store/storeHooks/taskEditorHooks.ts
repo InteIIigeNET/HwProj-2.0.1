@@ -14,6 +14,7 @@ import {HomeworkViewModel, HomeworkTaskViewModel, CriterionViewModel, PostTaskVi
 import ApiSingleton from '@/api/ApiSingleton';
 import {BonusTag, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
 import {useMergedHomeworks} from "@/store/storeHooks/courseEditingHooks";
+import {buildTaskPayload} from '../taskPayload';
 
 export const useDraftTask = (taskId: number, homeworkId: number) => {
     const draftHw = useCourseState(state =>
@@ -40,12 +41,8 @@ const getTaskEditorState = (
     },
     homework: HomeworkViewModel,
 ) => {
-    const criteria = task.criteria || [];
+    const {criteria = [], maxRating, isBonusExplicit} = buildTaskPayload(task, homework);
     const autoMaxFromCriteria = criteria.length > 0;
-    const maxRating = autoMaxFromCriteria
-        ? criteria.reduce((sum, c) => sum + (c.maxPoints || 0), 0)
-        : (task.maxRating ?? 0);
-    const isBonusExplicit = (task.tags || []).includes(BonusTag) && !(homework.tags || []).includes(BonusTag);
     const publicationDate = task.publicationDate ?? homework.publicationDate;
     const taskHasErrors = task.hasErrors === true;
     const hasErrors = !task.title || maxRating <= 0 || maxRating > 100 || taskHasErrors;
@@ -267,23 +264,6 @@ export const useTaskEditing = () => {
                 ?.tasks?.find(t => t.id === taskId);
     }, [draftHomeworks, committedHomeworks]);
 
-    const buildTaskPayload = useCallback((task: HomeworkTaskViewModel, homework: HomeworkViewModel, editOptions: ActionOptions): PostTaskViewModel => {
-        const {criteria, maxRating, isBonusExplicit, publicationDate} = getTaskEditorState(task, homework);
-
-        return {
-            title: task.title!,
-            description: task.description || '',
-            isBonusExplicit,
-            maxRating,
-            actionOptions: editOptions,
-            criteria,
-            hasDeadline: task.hasDeadline,
-            isDeadlineStrict: task.isDeadlineStrict,
-            publicationDate: task.publicationDateNotSet ? undefined : publicationDate,
-            deadlineDate: task.deadlineDateNotSet ? undefined : task.deadlineDate,
-        };
-    }, []);
-
     const startTaskEdit = useCallback(async (taskId: number) => {
         const loaded = await loadTaskForEditing(taskId);
         setTaskDraftFromLoaded(loaded.task!, loaded.homework!);
@@ -300,7 +280,7 @@ export const useTaskEditing = () => {
         const isNewTask = task.id! < 0;
         const body = buildTaskPayload(task, homework, editOptions);
         return persistTask(task, homework, isNewTask, body);
-    }, [getCurrentTask, getCurrentHomework, buildTaskPayload, persistTask]);
+    }, [getCurrentTask, getCurrentHomework, persistTask]);
 
     const deleteTask = useCallback(async (
         taskId: number,

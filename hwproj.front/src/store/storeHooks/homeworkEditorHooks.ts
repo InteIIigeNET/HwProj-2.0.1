@@ -16,6 +16,7 @@ import Lodash from "lodash";
 import {IFileInfo} from "@/components/Files/IFileInfo";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
 import ProcessFilesUtils from "@/components/Utils/ProcessFilesUtils";
+import {buildTaskPayload} from '../taskPayload';
 
 type HomeworkFileOptions = {
     initialFilesInfo: IFileInfo[];
@@ -212,16 +213,7 @@ export const useHomeworkEditing = () => {
         isDeadlineStrict: homework.isDeadlineStrict,
         publicationDate: homework.publicationDateNotSet || !homework.publicationDate ? undefined : new Date(homework.publicationDate),
         actionOptions: editOptions,
-        tasks: homework.id! < 0 ? (homework.tasks || []).map(t => ({
-            title: t.title!,
-            description: t.description,
-            hasDeadline: t.hasDeadline,
-            deadlineDate: t.deadlineDate,
-            isDeadlineStrict: t.isDeadlineStrict,
-            publicationDate: t.publicationDate ?? homework.publicationDate,
-            maxRating: t.maxRating!,
-            criteria: t.criteria || [],
-        } as PostTaskViewModel)) : [],
+        tasks: homework.id! < 0 ? (homework.tasks || []).map(task => buildTaskPayload(task, homework)) : [],
     }), []);
 
     const processHomeworkFiles = useCallback(async (
