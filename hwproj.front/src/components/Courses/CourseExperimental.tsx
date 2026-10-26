@@ -26,7 +26,7 @@ import CourseTaskSolutions from "../Solutions/CourseTaskSolutions";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import {DefaultTags, getTip, TestTag} from "../Common/HomeworkTags";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
-import CourseHomeworkExperimental, {taskDeadlineBeforePublicationMessage} from "components/Homeworks/CourseHomeworkExperimental";
+import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExperimental";
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
 import {DotLottieReact} from "@lottiefiles/dotlottie-react";
 import EditIcon from "@mui/icons-material/Edit";
@@ -60,6 +60,7 @@ import {
     useIsCourseMentor
 } from "@/store/storeHooks/courseHooks";
 import {useCourseState} from "@/store/hooks";
+import {getHomeworkValidation, getTaskValidation} from "@/store/courseEditingValidation";
 
 // Оформление списка заданий согласовано с редизайном страницы курса и списка курсов
 const listPanelSx = {
@@ -379,18 +380,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             <WarningAmberRoundedIcon fontSize="small" sx={{flexShrink: 0, color: "#ed6c02"}}/>
         </Tooltip>
 
-    const hasInvalidTaskMaxRating = (t: HomeworkTaskViewModel & { hasErrors?: boolean }) => {
-        const mr = t.maxRating ?? 0;
-        return !!t.hasErrors || mr <= 0 || mr > 100;
-    };
-
     const renderHomeworkStatus = (homework: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
-        const dateError = homework.tasks
-            ?.map(task => taskDeadlineBeforePublicationMessage(task, homework))
-            .find((message): message is string => !!message)
-        const hasErrors = !!dateError || (homework.id! < 0 && (homework.hasErrors || homework.tasks!.some(hasInvalidTaskMaxRating)))
-        if (hasErrors)
-            return <Tooltip arrow title={dateError || "Заполнены не все обязательные поля"}>
+        const {hasErrors, taskHasErrors} = getHomeworkValidation(homework)
+        if (homework.id! < 0 && (hasErrors || taskHasErrors))
+            return <Tooltip arrow title={"Заполнены не все обязательные поля"}>
                 <ErrorIcon fontSize="small" color={"error"} sx={{flexShrink: 0}}/>
             </Tooltip>
         if (isHomeworkEditing(homework.id!) || homework.isModified)
@@ -401,10 +394,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     const renderTaskStatus = (task: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean }, homework: HomeworkViewModel) => {
-        const dateError = taskDeadlineBeforePublicationMessage(task, homework)
-        if (dateError) return <Tooltip arrow title={dateError}>
-            <ErrorIcon fontSize="small" color={"error"}/>
-        </Tooltip>
         if (taskSolutionsMap.has(task.id!)) {
             const solutions = taskSolutionsMap.get(task.id!)
             const {
@@ -428,7 +417,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 </Tooltip>
             )
         }
-        if (hasInvalidTaskMaxRating(task)) return <Tooltip arrow title={"Заполнены не все обязательные поля"}>
+        if (getTaskValidation(task, homework).hasErrors) return <Tooltip arrow title={"Заполнены не все обязательные поля"}>
             <ErrorIcon fontSize="small" color={"error"}/>
         </Tooltip>
         if (isTaskEditing(task.id!) || task.isModified) return <Tooltip arrow title={"Есть несохранённые изменения"}>

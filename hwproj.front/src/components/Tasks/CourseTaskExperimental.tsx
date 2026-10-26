@@ -248,6 +248,7 @@ const CourseTaskEditor: FC<{
         taskDeadlineDate,
         isPublicationDateDisabled,
         maxRatingLabel,
+        maxRatingError,
     } = useTaskEditorState(task, homework)
 
     const patchTask = useCallback((patch: Partial<TaskEditData>) => {
@@ -380,19 +381,30 @@ const CourseTaskEditor: FC<{
                         <TextField
                             size="small"
                             required
-                            error={maxRating <= 0}
-                            helperText={maxRatingLabel}
+                            error={!!maxRatingError}
+                            helperText={maxRatingError || maxRatingLabel}
                             label="Баллы"
                             variant="outlined"
                             type="number"
-                            sx={{...inputSx, width: {xs: "100%", sm: 120}, flexShrink: 0}}
-                            value={maxRating}
+                            sx={{...inputSx, width: {xs: "100%", sm: 220}, flexShrink: 0}}
+                            value={Number.isFinite(maxRating) ? maxRating : ""}
                             InputProps={{readOnly: autoMaxFromCriteria}}
+                            inputProps={{
+                                min: 0,
+                                step: "any",
+                                onWheel: (event: React.WheelEvent<HTMLInputElement>) => event.currentTarget.blur(),
+                            }}
                             onChange={(e) => {
                                 if (autoMaxFromCriteria) return
-                                const raw = +e.target.value || 0
-                                const clamped = raw < 1 ? 1 : raw > 100 ? 100 : Math.round(raw)
-                                patchTask({maxRating: clamped})
+                                const value = +e.target.value
+                                if (Number.isFinite(value) && /^-?0\d/.test(e.target.value)) {
+                                    e.target.value = String(value)
+                                }
+                                patchTask({maxRating: value})
+                            }}
+                            onBlur={(e) => {
+                                const value = +e.target.value
+                                if (e.target.value && Number.isFinite(value)) e.target.value = String(value)
                             }}
                         />
                     </Stack>

@@ -36,14 +36,17 @@ export const getTaskValidation = (
         || isInvalidDate(deadline)
         || isBefore(taskPublication, homeworkPublication)
         || isBefore(deadline, publication);
+    const maxRatingError = !Number.isFinite(maxRating)
+        ? 'Введите корректное число баллов'
+        : maxRating <= 0
+            ? 'Количество баллов должно быть больше нуля'
+            : undefined;
     const hasErrors = !task.title
-        || !Number.isFinite(maxRating)
-        || maxRating <= 0
-        || maxRating > 100
+        || !!maxRatingError
         || criteriaHasErrors
         || datesHasErrors;
 
-    return {hasErrors, criteriaHasErrors, datesHasErrors};
+    return {hasErrors, criteriaHasErrors, datesHasErrors, maxRatingError};
 };
 
 export const getHomeworkValidation = (homework: HomeworkViewModel) => {

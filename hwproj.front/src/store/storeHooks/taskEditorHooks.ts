@@ -45,7 +45,7 @@ const getTaskEditorState = (
     const {criteria = [], maxRating, isBonusExplicit} = buildTaskPayload(task, homework);
     const autoMaxFromCriteria = criteria.some(isRegularCriterion);
     const publicationDate = task.publicationDate ?? homework.publicationDate;
-    const {hasErrors, datesHasErrors: taskHasErrors} = getTaskValidation(task, homework);
+    const {hasErrors, maxRatingError, datesHasErrors: taskHasErrors} = getTaskValidation(task, homework);
     const isNewTask = task.id! < 0;
     const isNewHomework = homework.id! < 0;
     const homeworkPublicationDateIsSet = !homework.publicationDateNotSet;
@@ -77,6 +77,7 @@ const getTaskEditorState = (
         taskDeadlineDate,
         isPublicationDateDisabled,
         maxRatingLabel,
+        maxRatingError,
     };
 };
 

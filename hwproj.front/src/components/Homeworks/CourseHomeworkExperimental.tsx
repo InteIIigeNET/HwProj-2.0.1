@@ -19,7 +19,7 @@ import {IFileInfo} from "components/Files/IFileInfo";
 import {FC, useState} from "react"
 import Utils from "services/Utils";
 import {
-    HomeworkTaskViewModel, HomeworkViewModel, ActionOptions, GroupViewModel
+    HomeworkViewModel, ActionOptions, GroupViewModel
 } from "@/api";
 import ApiSingleton from "../../api/ApiSingleton";
 import Tags from "../Common/Tags";
@@ -46,19 +46,8 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import ScheduleIcon from '@mui/icons-material/Schedule';
-
-export const taskDeadlineBeforePublicationMessage = (
-    task: HomeworkTaskViewModel,
-    homework: HomeworkViewModel,
-): string | undefined => {
-    const homeworkPublication = homework.publicationDateNotSet || !homework.publicationDate
-        ? undefined
-        : new Date(homework.publicationDate)
-    const publication = task.publicationDate ? new Date(task.publicationDate) : homeworkPublication
-    const deadline = !task.deadlineDateNotSet && task.deadlineDate ? new Date(task.deadlineDate) : undefined
-    if (!publication || !deadline || deadline >= publication) return undefined
-    return `Дедлайн задачи раньше ее публикации: ${Utils.renderDateWithoutSeconds(publication)}`
-}
+import {enqueueSnackbar} from 'notistack';
+import ErrorsHandler from '@/components/Utils/ErrorsHandler';
 
 // Оформление согласовано с редизайном страницы курса: те же радиусы, границы и мягкие плашки
 const editorHeaderSx = {
@@ -284,17 +273,19 @@ const CourseHomeworkEditor: FC<{
         e.preventDefault()
         setHandleSubmitLoading(true)
         try {
-            await saveHomework(homeworkId, editOptions, homeworkSaveFileOptions) // remove fake homework
+            await saveHomework(homeworkId, editOptions, homeworkSaveFileOptions)
+        } catch (error) {
+            const errors = await ErrorsHandler.getErrorMessages(error as Response, "errors")
+            enqueueSnackbar(errors[0] || "Не удалось сохранить задание", {
+                variant: "error",
+                autoHideDuration: 4000,
+            })
         } finally {
             setHandleSubmitLoading(false)
         }
     }
 
-    const taskDeadlineMessage = (loadedHomework.tasks || [])
-        .map(task => taskDeadlineBeforePublicationMessage(task, loadedHomework))
-        .find((message): message is string => !!message)
-
-    const isDisabled = hasErrors || taskHasErrors || !!taskDeadlineMessage
+    const isDisabled = hasErrors || taskHasErrors
 
     return <Box>
         <Stack direction={"row"} alignItems={"center"} spacing={1.5} sx={editorHeaderSx}>
@@ -433,11 +424,7 @@ const CourseHomeworkEditor: FC<{
                             }}
                         />
                     </Box>
-                    {taskDeadlineMessage &&
-                        <Alert severity={"error"} sx={alertSx}>
-                            {taskDeadlineMessage}
-                        </Alert>}
-                    {taskHasErrors && !taskDeadlineMessage &&
+                    {taskHasErrors &&
                         <Alert severity={"error"} sx={alertSx}>
                             Одна или более вложенных задач содержат ошибки
                         </Alert>}
