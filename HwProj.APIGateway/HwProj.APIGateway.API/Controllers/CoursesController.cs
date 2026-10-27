@@ -208,6 +208,16 @@ public class CoursesController : AggregationController
             : BadRequest(result.Errors);
     }
 
+    [HttpPost("removeLecturer/{courseId}/{lecturerId}")]
+    [Authorize(Roles = Roles.LecturerRole)]
+    public async Task<IActionResult> RemoveLecturer(long courseId, string lecturerId)
+    {
+        var result = await _coursesClient.RemoveLecturer(courseId, lecturerId);
+        return result.Succeeded
+            ? Ok()
+            : BadRequest(result.Errors[0]);
+    }
+
     [HttpGet("getLecturersAvailableForCourse/{courseId}")]
     [Authorize(Roles = Roles.LecturerRole)]
     [ProducesResponseType(typeof(AccountDataDto[]), (int)HttpStatusCode.OK)]
@@ -242,6 +252,10 @@ public class CoursesController : AggregationController
         if (!Roles.LecturerOrExpertRole.Contains(mentor.Role))
             return BadRequest("Пользователь с такой почтой не является преподавателем или экспертом");
 
+        var courseMentors = await _coursesClient.GetCourseLecturersIds(courseId);
+        if (!courseMentors.Contains(mentorId))
+            return BadRequest("Пользователь не является преподавателем курса");
+
         var courseFilterModel = _mapper.Map<CreateCourseFilterDTO>(editMentorWorkspaceDto);
         courseFilterModel.Id = mentorId;
 
@@ -264,6 +278,10 @@ public class CoursesController : AggregationController
 
         if (!Roles.LecturerOrExpertRole.Contains(mentor.Role))
             return BadRequest("Пользователь с такой почтой не является преподавателем или экспертом");
+
+        var courseMentors = await _coursesClient.GetCourseLecturersIds(courseId);
+        if (!courseMentors.Contains(mentorId))
+            return BadRequest("Пользователь не является преподавателем курса");
 
         var mentorCourseView = await _coursesClient.GetCourseByIdForMentor(courseId, mentorId);
         if (!mentorCourseView.Succeeded)

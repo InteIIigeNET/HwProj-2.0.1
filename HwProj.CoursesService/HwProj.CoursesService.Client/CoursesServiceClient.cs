@@ -523,6 +523,22 @@ namespace HwProj.CoursesService.Client
                 : Result.Failed(response.ReasonPhrase);
         }
 
+        public async Task<Result> RemoveLecturer(long courseId, string lecturerId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                _coursesServiceUri + $"api/Courses/removeLecturer/{courseId}?lecturerId={lecturerId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return response.StatusCode switch
+            {
+                HttpStatusCode.OK => Result.Success(),
+                HttpStatusCode.BadRequest => Result.Failed(await response.Content.ReadAsStringAsync()),
+                _ => Result.Failed(response.ReasonPhrase),
+            };
+        }
+
         public async Task<string[]> GetCourseLecturersIds(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(

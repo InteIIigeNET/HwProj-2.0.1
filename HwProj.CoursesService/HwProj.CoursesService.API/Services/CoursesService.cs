@@ -13,6 +13,7 @@ using HwProj.Models.CoursesService.ViewModels;
 using HwProj.CoursesService.API.Domains;
 using HwProj.Exceptions;
 using HwProj.Models.CoursesService.DTO;
+using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using HwProj.NotificationService.Events.CoursesService;
 using Microsoft.EntityFrameworkCore;
@@ -331,6 +332,31 @@ namespace HwProj.CoursesService.API.Services
             }
 
             return true;
+        }
+
+        public async Task<Result> RemoveLecturerAsync(long courseId, string lecturerId)
+        {
+            var course = await _coursesRepository.GetAsync(courseId);
+            if (course == null) return Result.Failed("Курс не найден");
+
+            var mentorIds = course.MentorIds.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            if (!mentorIds.Contains(lecturerId))
+                return Result.Failed("Пользователь не является преподавателем курса");
+            if (mentorIds.Length == 1)
+                return Result.Failed("Нельзя удалить единственного преподавателя курса");
+
+            var newMentors = string.Join("/", mentorIds.Where(id => id != lecturerId));
+
+            using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            await _coursesRepository.UpdateAsync(courseId, c => new Course
+            {
+                MentorIds = newMentors,
+            });
+            await _courseFilterService.DeleteCourseFilter(courseId, lecturerId);
+
+            transactionScope.Complete();
+            return Result.Success();
         }
 
         public async Task<string[]> GetCourseLecturers(long courseId)

@@ -3,10 +3,16 @@ import {Box, Chip, Divider, IconButton, Link, Paper, Stack, Tooltip, Typography}
 import {AccountDataDto} from "../../api";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import PersonRemoveOutlinedIcon from '@mui/icons-material/PersonRemoveOutlined';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
+import {useNavigate} from "react-router-dom";
+import {useSnackbar} from "notistack";
 import AddLecturerInCourse from "./AddLecturerInCourse";
 import MentorWorkspaceModal from "./MentorWorkspaceModal";
 import {UserInitialsAvatar} from "../Common/UserInitialsAvatar";
+import DeletionConfirmation from "../DeletionConfirmation";
+import ApiSingleton from "../../api/ApiSingleton";
+import ErrorsHandler from "../Utils/ErrorsHandler";
 
 interface LecturersProps {
     mentors: AccountDataDto[];
@@ -88,6 +94,31 @@ const Lecturers: FC<LecturersProps> = (props) => {
         })
     }
 
+    const navigate = useNavigate()
+    const {enqueueSnackbar} = useSnackbar()
+    const [mentorToRemove, setMentorToRemove] = useState<AccountDataDto | undefined>(undefined)
+
+    const removeMentor = async () => {
+        const mentor = mentorToRemove!
+        setMentorToRemove(undefined)
+        try {
+            await ApiSingleton.coursesApi.coursesRemoveLecturer(+props.courseId, mentor.userId!)
+        } catch (e) {
+            const errors = e instanceof Response
+                ? await ErrorsHandler.getErrorMessages(e)
+                : [ErrorsHandler.defaultErrorMessage]
+            enqueueSnackbar(errors[0], {variant: "error", autoHideDuration: 4000})
+            return
+        }
+
+        // Удалив себя, преподаватель теряет доступ к редактированию курса
+        if (mentor.userId === ApiSingleton.authService.getUserId()) {
+            navigate(`/courses/${props.courseId}`)
+            return
+        }
+        props.update()
+    }
+
     const {mentors} = props
 
     return (
@@ -147,6 +178,16 @@ const Lecturers: FC<LecturersProps> = (props) => {
                                         <ManageAccountsIcon fontSize={"small"}/>
                                     </IconButton>
                                 </Tooltip>
+                                {props.isEditCourse && mentors.length > 1 &&
+                                    <Tooltip arrow title={"Удалить из курса"}>
+                                        <IconButton
+                                            size={"small"}
+                                            onClick={() => setMentorToRemove(mentor)}
+                                            sx={{flexShrink: 0, color: "text.secondary", "&:hover": {color: "error.main"}}}
+                                        >
+                                            <PersonRemoveOutlinedIcon fontSize={"small"}/>
+                                        </IconButton>
+                                    </Tooltip>}
                             </Stack>
                         )}
                     </Stack>}
@@ -164,6 +205,17 @@ const Lecturers: FC<LecturersProps> = (props) => {
                     courseId={+props.courseId}
                     mentor={mentorWorkspaceState.mentor}
                 />)}
+            <DeletionConfirmation
+                onCancel={() => setMentorToRemove(undefined)}
+                onSubmit={removeMentor}
+                isOpen={mentorToRemove !== undefined}
+                dialogTitle={"Удаление преподавателя из курса"}
+                dialogContentText={mentorToRemove?.userId === ApiSingleton.authService.getUserId()
+                    ? "Вы уверены, что хотите покинуть курс? Вы потеряете к нему доступ как преподаватель."
+                    : `Вы уверены, что хотите удалить ${mentorToRemove?.name ?? ""} ${mentorToRemove?.surname ?? ""} из преподавателей курса? Настройки области работы преподавателя будут сброшены, выставленные оценки сохранятся.`}
+                confirmationWord={""}
+                confirmationText={""}
+            />
         </>
     )
 }

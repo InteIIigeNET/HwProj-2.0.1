@@ -215,6 +215,21 @@ public class SolutionsController : AggregationController
                 (id, solutions) => (id, statistic: solutions.Result.ToDictionary(t => t.StudentId)))
             .ToDictionary(tuple => tuple.id, tuple => tuple.statistic);
 
+        // Решения могли быть оценены преподавателями, которых уже удалили из курса
+        var formerLecturerIds = statistics.Values
+            .SelectMany(s => s.Values)
+            .SelectMany(s => s.Solutions)
+            .Select(s => s.LecturerId)
+            .Where(id => id != null && !usersData.ContainsKey(id))
+            .Distinct()
+            .ToArray();
+        if (formerLecturerIds.Length > 0)
+        {
+            var formerLecturers = await AuthServiceClient.GetAccountsData(formerLecturerIds!);
+            foreach (var lecturer in formerLecturers.Where(t => t != null))
+                usersData[lecturer.UserId] = lecturer;
+        }
+
         var statsForTasks = getStatsForTasks.Result.ToDictionary(t => t.TaskId);
         var groups = course.Groups.ToDictionary(
             t => t.Id,
@@ -234,7 +249,7 @@ public class SolutionsController : AggregationController
                             Solutions = statistic!.TryGetValue(studentId, out var studentSolutions)
                                 ? studentSolutions.Solutions.Select(t => new GetSolutionModel(t,
                                     t.GroupId is { } groupId ? groups[groupId] : null,
-                                    t.LecturerId == null ? null : usersData[t.LecturerId])).ToArray()
+                                    t.LecturerId == null ? null : usersData.GetValueOrDefault(t.LecturerId))).ToArray()
                                 : Array.Empty<GetSolutionModel>(),
                             Student = new StudentDataDto(usersData[studentId])
                             {

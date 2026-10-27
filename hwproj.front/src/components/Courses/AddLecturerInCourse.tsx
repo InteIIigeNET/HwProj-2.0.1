@@ -91,8 +91,7 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
     }
 
     const closeDialogIcon = () => {
-        // Диалог смонтирован всегда, а список преподавателей загружается один раз при монтировании,
-        // поэтому очищаем только ввод: иначе при повторном открытии подсказок не останется
+        // Диалог смонтирован всегда, список преподавателей перезагружается при открытии — очищаем только ввод
         setLecturerState((prevState) => ({
             ...prevState,
             info: [],
@@ -112,9 +111,10 @@ const AddLecturerInCourse: FC<AddLecturerInCourseProps> = (props) => {
         })
     }
 
+    // Состав преподавателей курса мог измениться (например, кого-то удалили), поэтому обновляем подсказки
     useEffect(() => {
-        setCurrentState()
-    }, [])
+        if (props.isOpen) setCurrentState()
+    }, [props.isOpen])
 
     return (
         <Dialog

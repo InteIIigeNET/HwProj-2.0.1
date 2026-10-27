@@ -234,5 +234,12 @@ namespace HwProj.CoursesService.API.Services
                     await AddCourseFilter(newFilter, courseId, filterId);
             }
         }
+
+        public async Task DeleteCourseFilter(long courseId, string userId)
+        {
+            var courseFilter = await _courseFilterRepository.GetAsync(userId, courseId);
+            // Связь UserToCourseFilter удаляется каскадно
+            if (courseFilter != null) await _courseFilterRepository.DeleteAsync(courseFilter.Id);
+        }
     }
 }

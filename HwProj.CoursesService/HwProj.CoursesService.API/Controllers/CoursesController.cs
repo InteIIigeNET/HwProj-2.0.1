@@ -183,6 +183,16 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok();
         }
 
+        [HttpPost("removeLecturer/{courseId}")]
+        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        public async Task<IActionResult> RemoveLecturer(long courseId, [FromQuery] string lecturerId)
+        {
+            var result = await _coursesService.RemoveLecturerAsync(courseId, lecturerId);
+            return result.Succeeded
+                ? Ok() as IActionResult
+                : BadRequest(result.Errors[0]);
+        }
+
         [HttpGet("getCourseLecturers/{courseId}")]
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseLecturersIds(long courseId)
