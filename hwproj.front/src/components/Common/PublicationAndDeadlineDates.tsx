@@ -58,6 +58,12 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     const isDeadlineSoonerThanPublication = (publicationDate: Date, deadlineDate: Date | undefined) =>
         deadlineDate != null && deadlineDate < publicationDate;
 
+    const [isPublicationDateFocused, setIsPublicationDateFocused] = useState(false)
+    // Прошедшая дата означает публикацию сразу после сохранения
+    const showPublishNow = !props.disabledPublicationDate
+        && !isPublicationDateFocused
+        && state.publicationDate.getTime() <= Date.now()
+
     const deadlineDateNotSet = state.hasDeadline && !state.deadlineDate
     const deadlineSoonerThanHomework = isDeadlineSoonerThanPublication(state.publicationDate, state.deadlineDate)
 
@@ -90,11 +96,14 @@ const PublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                         size="small"
                         id="datetime-local"
                         label="Дата публикации"
-                        type="datetime-local"
+                        type={showPublishNow ? "text" : "datetime-local"}
                         variant='standard'
                         disabled={props.disabledPublicationDate}
-                        value={Utils.toISOString(state.publicationDate)}
+                        value={showPublishNow ? "Прямо сейчас" : Utils.toISOString(state.publicationDate)}
+                        onFocus={() => setIsPublicationDateFocused(true)}
+                        onBlur={() => setIsPublicationDateFocused(false)}
                         onChange={(e) => {
+                            if (showPublishNow) return
                             const date = e.target.value !== ''
                                 ? new Date(e.target.value)
                                 : getInitialPublicationDate();
