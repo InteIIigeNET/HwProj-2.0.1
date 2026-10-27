@@ -40,7 +40,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var studentName = NotificationHtml.FullName(user.Name, user.Surname);
 
             var message = new NotificationMessage(CategoryState.Courses, "Новая заявка на курс")
-                .WithSubject($"Новая заявка на курс «{@event.CourseName}»")
+                .WithSubject($"{studentName}: заявка на курс «{@event.CourseName}»")
                 .WithText($"Студент {NotificationHtml.Link($"{url}/profile/{@event.StudentId}", studentName)}" +
                           $" подал заявку на вступление в курс {NotificationHtml.Link(courseUrl, @event.CourseName)}.")
                 .WithAction("Рассмотреть заявку", $"{courseUrl}/applications");

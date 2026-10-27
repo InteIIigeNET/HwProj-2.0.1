@@ -36,7 +36,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             var studentName = NotificationHtml.FullName(@event.Student.Name, @event.Student.Surname);
 
             var message = new NotificationMessage(CategoryState.Homeworks, "Новое решение на проверку")
-                .WithSubject($"Новое решение задачи «{@event.Task.Title}»")
+                .WithSubject($"{studentName}: решение задачи «{@event.Task.Title}»")
                 .WithText($"{NotificationHtml.Encode(studentName)} отправил(а) решение задачи " +
                           $"{NotificationHtml.Link(solutionsUrl, @event.Task.Title)}.")
                 .WithDetail("Курс", NotificationHtml.Link(courseUrl, @event.Course.Name));
