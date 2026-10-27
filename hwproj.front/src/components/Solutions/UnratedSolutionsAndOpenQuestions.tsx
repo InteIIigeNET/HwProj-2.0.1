@@ -8,7 +8,9 @@ import {
     Typography,
     Chip, Autocomplete, Stack,
     ListItemButton,
-    Paper
+    Paper,
+    Collapse,
+    LinearProgress
 } from "@mui/material";
 import {EditOutlined, FactCheckOutlined, HelpOutline} from "@mui/icons-material";
 import {UserInitialsAvatar} from "@/components/Common/UserInitialsAvatar";
@@ -45,6 +47,19 @@ const sectionBorderColor = "#a8b0d8"
 const sectionHeaderColor = "#3f51b5"
 const sectionHeaderBackground = "#f3f4fb"
 const emptyStateBorderColor = "#d7dbe0"
+const questionsCollapseTimeout = 220
+
+// Индикатор загрузки лежит поверх нижнего края шапки и не занимает места:
+// когда данные придут, он просто исчезнет, а не сдвинет содержимое
+const headerProgressSx = {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 2,
+    backgroundColor: "transparent",
+    "& .MuiLinearProgress-bar": {backgroundColor: sectionHeaderColor},
+}
 
 // Фильтры стоят в шапке карточки и должны читаться как её продолжение, а не как поля ввода поверх неё:
 // рамок нет вообще, подчёркивание проступает под курсором, а у выбранного фильтра остаётся видимым —
@@ -84,19 +99,29 @@ const rowSx = {
  * Карточка раздела: заголовок с иконкой, справа необязательное действие, ниже содержимое.
  * `toolbar` — продолжение заголовка на той же подложке (например, фильтры). Когда он есть,
  * границей содержимого работает край подложки, и разделитель уже не нужен.
+ * `loading` — содержимое ещё грузится: по нижнему краю шапки бежит тонкая полоска, а разделителя нет,
+ * чтобы у карточки без содержимого не было двойной линии снизу.
  */
-const SectionPanel: FC<{ icon: ReactNode, title: string, action?: ReactNode, toolbar?: ReactNode, children: ReactNode }> =
-    ({icon, title, action, toolbar, children}) => (
+const SectionPanel: FC<{
+    icon: ReactNode,
+    title: string,
+    action?: ReactNode,
+    toolbar?: ReactNode,
+    loading?: boolean,
+    children: ReactNode
+}> =
+    ({icon, title, action, toolbar, loading, children}) => (
         <Paper variant={"outlined"} sx={{...panelSx, borderColor: sectionBorderColor}}>
-            <Box sx={{color: sectionHeaderColor, backgroundColor: sectionHeaderBackground}}>
+            <Box sx={{position: "relative", color: sectionHeaderColor, backgroundColor: sectionHeaderBackground}}>
                 <Stack direction={"row"} alignItems={"center"} spacing={1} sx={{px: 2, py: 1.25}}>
                     {icon}
                     <Typography variant={"body2"} sx={{fontWeight: 500, flexGrow: 1, minWidth: 0}}>{title}</Typography>
                     {action}
                 </Stack>
                 {toolbar}
+                {loading && <LinearProgress sx={headerProgressSx}/>}
             </Box>
-            {toolbar ? null : <Divider/>}
+            {toolbar || loading ? null : <Divider/>}
             {children}
         </Paper>
     )
@@ -169,9 +194,12 @@ const EmptyState: FC<{ text: string, inset?: boolean }> = ({text, inset}) => (
 )
 
 const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => {
-    const [openQuestions, setOpenQuestions] = useState<QuestionsSummary[]>([])
+    // undefined — вопросы ещё грузятся; при ошибке считаем, что вопросов нет, и просто убираем карточку
+    const [openQuestions, setOpenQuestions] = useState<QuestionsSummary[] | undefined>(undefined)
     useEffect(() => {
-        ApiSingleton.tasksApi.tasksGetOpenQuestions().then(res => setOpenQuestions(res))
+        ApiSingleton.tasksApi.tasksGetOpenQuestions()
+            .then(res => setOpenQuestions(res))
+            .catch(() => setOpenQuestions([]))
     }, []);
 
     const unratedSolutions = props.unratedSolutionsPreviews.unratedSolutions!
@@ -329,32 +357,6 @@ const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => 
     // поэтому карточки соединяем перемычками; зазор между ними задаёт сама перемычка
     const panels: { key: string, color: string, node: ReactNode }[] = []
 
-    if (openQuestions.length > 0) panels.push({
-        key: "questions",
-        color: sectionBorderColor,
-        node: <SectionPanel
-            icon={<HelpOutline fontSize={"small"}/>}
-            title={`${openQuestions.length} ${Utils.pluralizeHelper(taskPlurals, openQuestions.length)} вопросы от студентов`}
-        >
-            <Stack divider={<Divider/>}>
-                {openQuestions.sort((a, b) => b.count! - a.count!).map((taskQuestions, i) => (
-                    <ListItemButton
-                        key={"question" + i}
-                        component={NavLink}
-                        to={`/task/${taskQuestions.taskId}/undefined`}
-                        sx={{...rowSx, alignItems: "center"}}
-                    >
-                        <Typography sx={{flexGrow: 1, minWidth: 0}}>
-                            {taskQuestions.taskTitle}
-                        </Typography>
-                        <Chip label={taskQuestions.count} size={"small"} color={"primary"}
-                              sx={{flexShrink: 0}}/>
-                    </ListItemButton>
-                ))}
-            </Stack>
-        </SectionPanel>
-    })
-
     if (semiRatedSolutions.length > 0) panels.push({
         key: "semiRated",
         color: sectionBorderColor,
@@ -382,8 +384,51 @@ const UnratedSolutionsAndOpenQuestions: FC<IUnratedSolutionsProps> = (props) => 
             </SectionPanel>
         })
 
+    // Вопросы грузятся отдельно от решений. Пока ответа нет, карточка уже стоит на своём месте
+    // с одной шапкой — так список решений не прыгает вниз, когда вопросы придут. Есть вопросы —
+    // список плавно раскрывается под той же шапкой; вопросов нет — карточка вместе с перемычкой
+    // плавно схлопывается
+    const questionsLoading = openQuestions === undefined
+    const questions = [...(openQuestions ?? [])].sort((a, b) => b.count! - a.count!)
+    const questionsTitle = questionsLoading
+        ? "Вопросы от студентов"
+        : `${questions.length} ${Utils.pluralizeHelper(taskPlurals, questions.length)} вопросы от студентов`
+
+    const questionsPanel = (
+        <Collapse in={questionsLoading || questions.length > 0} timeout={questionsCollapseTimeout} unmountOnExit>
+            <Stack>
+                <SectionPanel
+                    icon={<HelpOutline fontSize={"small"}/>}
+                    title={questionsTitle}
+                    loading={questionsLoading}
+                >
+                    <Collapse in={questions.length > 0} timeout={questionsCollapseTimeout}>
+                        <Stack divider={<Divider/>}>
+                            {questions.map((taskQuestions, i) => (
+                                <ListItemButton
+                                    key={"question" + i}
+                                    component={NavLink}
+                                    to={`/task/${taskQuestions.taskId}/undefined`}
+                                    sx={{...rowSx, alignItems: "center"}}
+                                >
+                                    <Typography sx={{flexGrow: 1, minWidth: 0}}>
+                                        {taskQuestions.taskTitle}
+                                    </Typography>
+                                    <Chip label={taskQuestions.count} size={"small"} color={"primary"}
+                                          sx={{flexShrink: 0}}/>
+                                </ListItemButton>
+                            ))}
+                        </Stack>
+                    </Collapse>
+                </SectionPanel>
+                <PanelConnector from={sectionBorderColor} to={panels[0].color}/>
+            </Stack>
+        </Collapse>
+    )
+
     return (
         <Stack>
+            {questionsPanel}
             {panels.map(({key, color, node}, i) => (
                 <Fragment key={key}>
                     {i > 0 && <PanelConnector from={panels[i - 1].color} to={color}/>}
