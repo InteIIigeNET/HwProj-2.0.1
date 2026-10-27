@@ -22,4 +22,8 @@
     <ProjectReference Include="..\HwProj.NotificationService.Events\HwProj.NotificationService.Events.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\hw-cat.png" />
+  </ItemGroup>
+
 </Project>

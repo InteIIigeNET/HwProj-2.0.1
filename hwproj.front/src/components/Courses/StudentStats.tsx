@@ -216,6 +216,15 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
         ? props.solutions?.filter(cm => (cm.surname + " " + cm.name).toLowerCase().includes(searched.toLowerCase()))
         : props.solutions
 
+    // Задание с указанной группой показываем, только если в этой группе есть хотя бы один из отображаемых студентов,
+    // иначе при поиске по подгруппе будут видны задания параллельного потока. Задания без группы показываем всегда
+    const shownStudentsIds = (solutions ?? []).map(s => s.id!)
+    const shownHomeworks = homeworks.filter(h => {
+        if (h.groupId == undefined) return true
+        const groupStudentsIds = props.groups.find(g => g.id === h.groupId)?.studentsIds ?? []
+        return shownStudentsIds.some(id => groupStudentsIds.includes(id))
+    })
+
     const testHomeworkStyle = {
         backgroundColor: "#3f51b5",
         borderLeftColor: "#3f51b5",
@@ -399,8 +408,8 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                             >
                                 Итоговые баллы
                             </TableCell>}
-                            {homeworks.map((homework, idx) => {
-                                const styles = homeworkStyles(homeworks, idx)
+                            {shownHomeworks.map((homework, idx) => {
+                                const styles = homeworkStyles(shownHomeworks, idx)
                                 return <TableCell
                                     key={homework.id}
                                     align="center"
@@ -443,12 +452,12 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                     <Box component={"span"}>🥇</Box>
                                 </Tooltip>
                             </TableCell>}
-                            {homeworks.map((homework, idx) =>
+                            {shownHomeworks.map((homework, idx) =>
                                 homework.tasks!.map((task, i) => (
                                     <TableCell
                                         key={task.id}
                                         align="center"
-                                        sx={headTaskCellSx(homeworks, idx, i === 0)}>
+                                        sx={headTaskCellSx(shownHomeworks, idx, i === 0)}>
                                         <Tooltip arrow disableInteractive
                                                  title={task.isDeferred
                                                      ? `${task.title ?? ""} — ещё не опубликована`
@@ -574,9 +583,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                             {bestSolutionsCount}
                                         </Typography>}
                                     </TableCell>}
-                                    {homeworks.map((homework, idx) =>
+                                    {shownHomeworks.map((homework, idx) =>
                                         homework.tasks!.map((task, i) => {
-                                            const styles = homeworkStyles(homeworks, idx)
+                                            const styles = homeworkStyles(shownHomeworks, idx)
                                             const isDisabled = homework.groupId
                                                 ? !props.groups.find(g => g.id === homework.groupId)?.studentsIds?.includes(cm.id!)
                                                 : false

@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
@@ -6,6 +5,7 @@ using HwProj.NotificationService.Events.CoursesService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
+using HwProj.NotificationsService.API.Services.Messages;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
@@ -31,26 +31,23 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(NewHomeworkTaskEvent @event)
         {
+            var courseUrl = $"{_configuration["Url"]}/courses/{@event.CourseId}";
+            var taskUrl = $"{courseUrl}/homeworks?taskId={@event.TaskId}";
+
+            var message = new NotificationMessage(CategoryState.Homeworks, "Новая задача")
+                .WithSubject($"Новая задача «{@event.TaskTitle}»")
+                .WithText($"В курсе {NotificationHtml.Link(courseUrl, @event.CourseName)}" +
+                          $" опубликована задача {NotificationHtml.Link(taskUrl, @event.TaskTitle)}.")
+                .WithAction("Открыть задачу", taskUrl);
+            if (@event.DeadlineDate is { } deadline) message.WithDetail("Дедлайн", NotificationHtml.Date(deadline));
+
             var accountsData = await _authServiceClient.GetAccountsData(@event.StudentIds);
-            var url = _configuration["Url"];
 
             foreach (var student in accountsData)
             {
-                var notification = new Notification
-                {
-                    Sender = "CourseService",
-                    Body =
-                        $"В курсе <a href='{url}/courses/{@event.CourseId}'>{@event.CourseName}</a>" +
-                        $" опубликована новая задача <a href='{url}/courses/{@event.CourseId}/homeworks?taskId={@event.TaskId}'>{@event.TaskTitle}</a>." +
-                        (@event.DeadlineDate is { } deadline ? $"\n\nДедлайн: {deadline:U}" : ""),
-
-                    Category = CategoryState.Homeworks,
-                    Date = DateTime.UtcNow,
-                    Owner = student!.UserId
-                };
-
-                var addNotificationTask = _notificationRepository.AddAsync(notification);
-                var sendEmailTask = _emailService.SendEmailAsync(notification, student.Email, "Новая задача");
+                var addNotificationTask =
+                    _notificationRepository.AddAsync(message.ToNotification(student!.UserId, "CourseService"));
+                var sendEmailTask = _emailService.SendEmailAsync(message, student.Email, student.Name);
 
                 await Task.WhenAll(addNotificationTask, sendEmailTask);
             }

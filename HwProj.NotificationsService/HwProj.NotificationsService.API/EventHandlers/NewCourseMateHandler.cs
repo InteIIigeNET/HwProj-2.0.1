@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
@@ -6,6 +5,7 @@ using HwProj.NotificationService.Events.CoursesService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
+using HwProj.NotificationsService.API.Services.Messages;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
@@ -36,6 +36,14 @@ namespace HwProj.NotificationsService.API.EventHandlers
         {
             var user = await _authServiceClient.GetAccountData(@event.StudentId);
             var url = _configuration["Url"];
+            var courseUrl = $"{url}/courses/{@event.CourseId}";
+            var studentName = NotificationHtml.FullName(user.Name, user.Surname);
+
+            var message = new NotificationMessage(CategoryState.Courses, "Новая заявка на курс")
+                .WithSubject($"{studentName}: заявка на курс «{@event.CourseName}»")
+                .WithText($"Студент {NotificationHtml.Link($"{url}/profile/{@event.StudentId}", studentName)}" +
+                          $" подал заявку на вступление в курс {NotificationHtml.Link(courseUrl, @event.CourseName)}.")
+                .WithAction("Рассмотреть заявку", $"{courseUrl}/applications");
 
             var mentorIds = @event.MentorIds.Split('/');
             var mentors = await _authServiceClient.GetAccountsData(mentorIds);
@@ -47,22 +55,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     NotificationsSettingCategory.NewCourseMateCategory);
                 if (!setting.IsEnabled) continue;
 
-                var notification = new Notification
-                {
-                    Sender = "CourseService",
-                    Body =
-                        $"Студент <a href='{url}/profile/{@event.StudentId}'>{user.Name} {user.Surname}</a>" +
-                        $" подал заявку на вступление в курс <a href='{url}/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
-                    Category = CategoryState.Courses,
-                    Date = DateTime.UtcNow,
-                    HasSeen = false,
-                    Owner = mentor.UserId
-                };
-
-                var subject = $"Новая заявка в курс {@event.CourseName}";
-
-                var addNotificationTask = _notificationRepository.AddAsync(notification);
-                var sendEmailTask = _emailService.SendEmailAsync(notification, mentor.Email, subject);
+                var addNotificationTask =
+                    _notificationRepository.AddAsync(message.ToNotification(mentor.UserId, "CourseService"));
+                var sendEmailTask = _emailService.SendEmailAsync(message, mentor.Email, mentor.Name);
 
                 await Task.WhenAll(addNotificationTask, sendEmailTask);
             }

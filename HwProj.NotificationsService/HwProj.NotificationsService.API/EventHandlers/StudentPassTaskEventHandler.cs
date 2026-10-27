@@ -4,6 +4,7 @@ using HwProj.EventBus.Client.Interfaces;
 using HwProj.NotificationService.Events.SolutionsService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Services;
+using HwProj.NotificationsService.API.Services.Messages;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
@@ -29,10 +30,21 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(StudentPassTaskEvent @event)
         {
-            var body = $"{@event.Student.Name} {@event.Student.Surname} добавил новое " +
-                       $"<a href='{@event.Solution.GithubUrl}' target='_blank'>решение</a>" +
-                       $" задачи <a href='{_configuration["Url"]}/task/{@event.Task.Id}/{@event.Student.UserId}'>{@event.Task.Title}</a>" +
-                       $" из курса <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>.";
+            var url = _configuration["Url"];
+            var solutionsUrl = $"{url}/task/{@event.Task.Id}/{@event.Student.UserId}";
+            var courseUrl = $"{url}/courses/{@event.Course.Id}";
+            var studentName = NotificationHtml.FullName(@event.Student.Name, @event.Student.Surname);
+
+            var message = new NotificationMessage(CategoryState.Homeworks, "Новое решение на проверку")
+                .WithSubject($"{studentName}: решение задачи «{@event.Task.Title}»")
+                .WithText($"{NotificationHtml.Encode(studentName)} отправил(а) решение задачи " +
+                          $"{NotificationHtml.Link(solutionsUrl, @event.Task.Title)}.")
+                .WithDetail("Курс", NotificationHtml.Link(courseUrl, @event.Course.Name));
+            if (NotificationHtml.IsWebUrl(@event.Solution.GithubUrl))
+                message.WithDetail("Решение", NotificationHtml.ExternalLink(@event.Solution.GithubUrl, "Открыть ссылку"));
+            message
+                .WithQuote("Комментарий студента", @event.Solution.Comment)
+                .WithAction("Проверить решение", solutionsUrl);
 
             foreach (var mentorId in @event.Course.MentorIds)
             {
@@ -40,20 +52,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     NotificationsSettingCategory.NewSolutionsCategory);
                 if (!setting.IsEnabled) continue;
 
-                var notification = new Notification
-                {
-                    Sender = "SolutionService",
-                    Body = body,
-                    Category = CategoryState.Homeworks,
-                    Date = @event.CreationData,
-                    HasSeen = false,
-                    Owner = mentorId
-                };
+                var mentor = await _authServiceClient.GetAccountData(mentorId);
 
-                var subject = $"Новое решение задачи {@event.Task.Title}";
-                var mentor = await _authServiceClient.GetAccountData(notification.Owner);
-
-                await _emailService.SendEmailAsync(notification, mentor.Email, subject);
+                await _emailService.SendEmailAsync(message, mentor.Email, mentor.Name);
             }
         }
     }

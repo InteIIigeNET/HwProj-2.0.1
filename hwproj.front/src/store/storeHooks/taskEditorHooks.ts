@@ -45,7 +45,7 @@ const getTaskEditorState = (
     const taskDeadlineDate = task.deadlineDateNotSet
         ? undefined
         : (task.deadlineDate ? new Date(task.deadlineDate) : undefined);
-    const isPublicationDateDisabled = task.isDeferred || !homework.isDeferred;
+    const isPublicationDateDisabled = !isNewTask && !task.isDeferred;
     const maxRatingLabel = autoMaxFromCriteria
         ? "Критерии"
         : task.suggestedMaxRating === maxRating
