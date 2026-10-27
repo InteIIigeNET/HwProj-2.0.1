@@ -1,5 +1,5 @@
 import {useCallback, useMemo} from 'react';
-import {useCourseDispatch, useCourseState} from '../hooks';
+import {useCourseDispatch, useCourseState, useCourseStore} from '../hooks';
 import {
     createNewHomeworkDraft,
     putHomeworkDraft,
@@ -7,7 +7,6 @@ import {
     removeDraftHomework,
     setSelectedItem,
 } from '../slices/courseEditingSlice';
-import {store} from '../store';
 import {updateOrInsertHomework, deleteHomework} from '../slices/homeworkSlice';
 import {HomeworkViewModel, CreateHomeworkViewModel, ActionOptions} from '@/api';
 import ApiSingleton from '@/api/ApiSingleton';
@@ -18,8 +17,13 @@ import {CourseUnitType} from "@/components/Files/CourseUnitType";
 import ProcessFilesUtils from "@/components/Utils/ProcessFilesUtils";
 import {buildTaskPayload} from '../taskPayload';
 import {getHomeworkValidation} from '../courseEditingValidation';
-import {mergeHomeworkDraft} from './courseEditingHooks';
-import {selectDraftHomeworks, selectHomeworks} from '../courseSelectors';
+import {
+    mergeHomeworkDraft,
+    selectDraftHomeworkById,
+    selectHomeworkById,
+    selectHomeworks,
+    selectMergedHomeworkById,
+} from '../courseSelectors';
 
 type HomeworkFileOptions = {
     initialFilesInfo: IFileInfo[];
@@ -38,17 +42,15 @@ type HomeworkDeleteFileOptions = {
     initialFilesInfo: IFileInfo[];
 };
 
-export const useDraftHomework = (homeworkId: number) => {
-    const draft = useCourseState(state => selectDraftHomeworks(state).find(dh => dh.id === homeworkId));
-    const committed = useCourseState(state => selectHomeworks(state).find(hw => hw.id === homeworkId));
-
-    return useMemo(() => draft ? mergeHomeworkDraft(committed, draft) : undefined, [committed, draft]);
-};
+export const useDraftHomework = (homeworkId: number) => useCourseState(state =>
+    selectDraftHomeworkById(state, homeworkId) ? selectMergedHomeworkById(state, homeworkId) : undefined,
+);
 
 export const useHomeworkEditorState = (homework: HomeworkViewModel) => {
-    const committedHomeworks = useCourseState(selectHomeworks);
-    const mergedHomework = mergeHomeworkDraft(committedHomeworks.find(hw => hw.id === homework.id), homework);
     const isNewHomework = homework.id! < 0;
+    const committedHomework = useCourseState(state => selectHomeworkById(state, homework.id!));
+    const committedHomeworks = useCourseState(state => isNewHomework ? selectHomeworks(state) : undefined);
+    const mergedHomework = mergeHomeworkDraft(committedHomework, homework);
     const publicationTimestamp = homework.publicationDateNotSet || !homework.publicationDate
         ? undefined
         : new Date(homework.publicationDate).getTime();
@@ -72,7 +74,7 @@ export const useHomeworkEditorState = (homework: HomeworkViewModel) => {
         const isBonus = (homework.tags || []).includes(BonusTag);
         type DateCandidate = { deadlineDate: Date; daysDiff: number };
 
-        const mapped: DateCandidate[] = committedHomeworks
+        const mapped: DateCandidate[] = (committedHomeworks ?? [])
             .filter(candidate => {
                 const candidateIsTest = isTestWork(candidate);
                 const candidateIsBonus = isBonusWork(candidate);
@@ -129,8 +131,7 @@ export const useHomeworkEditorState = (homework: HomeworkViewModel) => {
 
 export const useHomeworkEditing = () => {
     const dispatch = useCourseDispatch();
-    const draftHomeworks = useCourseState(selectDraftHomeworks);
-    const committedHomeworks = useCourseState(selectHomeworks);
+    const store = useCourseStore();
 
     const createHomeworkDraft = useCallback((courseId: number) => {
         const newId = store.getState().editing.draftIdCounter;
@@ -138,7 +139,7 @@ export const useHomeworkEditing = () => {
         publicationDate.setHours(0, 0, 0, 0);
         dispatch(createNewHomeworkDraft({courseId, publicationDate: publicationDate.toISOString()}));
         return newId;
-    }, [dispatch]);
+    }, [dispatch, store]);
 
     const setHomeworkDraftFromLoaded = useCallback((hw: HomeworkViewModel) => {
         const copy: HomeworkViewModel = {
@@ -195,10 +196,8 @@ export const useHomeworkEditing = () => {
     }, []);
 
     const getCurrentHomework = useCallback((homeworkId: number) => {
-        const draft = draftHomeworks.find(dh => dh.id === homeworkId);
-        const committed = committedHomeworks.find(hw => hw.id === homeworkId);
-        return draft ? mergeHomeworkDraft(committed, draft) : committed;
-    }, [draftHomeworks, committedHomeworks]);
+        return selectMergedHomeworkById(store.getState(), homeworkId);
+    }, [store]);
 
     const buildHomeworkPayload = useCallback((homework: HomeworkViewModel, editOptions: ActionOptions): CreateHomeworkViewModel => ({
         title: homework.title!,

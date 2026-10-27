@@ -1,5 +1,5 @@
 import {useCallback, useMemo} from 'react';
-import {useCourseDispatch, useCourseState } from '../hooks';
+import {useCourseDispatch, useCourseState, useCourseStore} from '../hooks';
 import {
     ensureHomeworkDraft,
     addDraftTask,
@@ -8,21 +8,22 @@ import {
     removeDraftTask,
     setSelectedItem,
 } from '../slices/courseEditingSlice';
-import {store} from '../store';
 import {updateTask, deleteTask as deleteTaskAction } from '../slices/homeworkSlice';
 import {HomeworkViewModel, HomeworkTaskViewModel, CriterionViewModel, PostTaskViewModel, ActionOptions} from '@/api';
 import ApiSingleton from '@/api/ApiSingleton';
 import {BonusTag, isBonusWork, isTestWork, TestTag} from "@/components/Common/HomeworkTags";
-import {useMergedHomeworks} from "@/store/storeHooks/courseEditingHooks";
 import {buildTaskPayload, isRegularCriterion} from '../taskPayload';
 import {getTaskValidation} from '../courseEditingValidation'
-import {selectDraftHomeworks, selectHomeworks} from '../courseSelectors';
+import {
+    selectDraftHomeworkById,
+    selectDraftTaskById,
+    selectHomeworkById,
+    selectMergedHomeworkById,
+    selectMergedHomeworks,
+} from '../courseSelectors';
 
-export const useDraftTask = (taskId: number, homeworkId: number) => {
-    const draftHw = useCourseState(state =>
-        selectDraftHomeworks(state).find(dh => dh.id === homeworkId));
-    return draftHw?.tasks?.find(t => t.id === taskId);
-};
+export const useDraftTask = (taskId: number, homeworkId: number) =>
+    useCourseState(state => selectDraftTaskById(state, homeworkId, taskId));
 
 const getTaskEditorState = (
     task: HomeworkTaskViewModel & {
@@ -80,9 +81,7 @@ export const useTaskEditorState = (
 
 export const useTaskEditing = () => {
     const dispatch = useCourseDispatch();
-    const draftHomeworks = useCourseState(selectDraftHomeworks);
-    const committedHomeworks = useCourseState(selectHomeworks);
-    const mergedHomeworks = useMergedHomeworks();
+    const store = useCourseStore();
 
     const ensureHomeworkInDrafts = useCallback((homework: HomeworkViewModel) => {
         const copy: HomeworkViewModel = {
@@ -98,7 +97,7 @@ export const useTaskEditing = () => {
         const isBonus = tags.includes(BonusTag);
         const counts = new Map<number, number>();
 
-        for (const candidateHomework of mergedHomeworks) {
+        for (const candidateHomework of selectMergedHomeworks(store.getState())) {
             const firstTask = candidateHomework.tasks?.[0];
             if (!firstTask || firstTask.id! <= 0) continue;
 
@@ -125,7 +124,7 @@ export const useTaskEditing = () => {
         }
 
         return suggestedRating;
-    }, [mergedHomeworks]);
+    }, [store]);
 
     const createTaskDraft = useCallback((
         homework: HomeworkViewModel,
@@ -153,7 +152,7 @@ export const useTaskEditing = () => {
             selectAfterCreate: options?.selectAfterCreate,
         }));
         return newId;
-    }, [dispatch, ensureHomeworkInDrafts, getSuggestedTaskRating]);
+    }, [dispatch, ensureHomeworkInDrafts, getSuggestedTaskRating, store]);
 
     const setTaskDraftFromLoaded = useCallback((task: HomeworkTaskViewModel, homework: HomeworkViewModel) => {
         ensureHomeworkInDrafts(homework);
@@ -221,7 +220,7 @@ export const useTaskEditing = () => {
     }, [commitTaskRemoval, dispatch]);
 
     const discardTaskDraft = useCallback((task: HomeworkTaskViewModel, homework: HomeworkViewModel, isNewTask: boolean) => {
-        const draftHomework = draftHomeworks.find(dh => dh.id === task.homeworkId)
+        const draftHomework = selectDraftHomeworkById(store.getState(), task.homeworkId!);
         const remainingTasks = (draftHomework?.tasks || []).filter(t => t.id !== task.id);
         discardTaskDraftByIds(task.id!, task.homeworkId!);
         if (isNewTask) {
@@ -233,25 +232,21 @@ export const useTaskEditing = () => {
         } else {
             dispatch(setSelectedItem({ isHomework: false, id: task.id }));
         }
-    }, [discardTaskDraftByIds, dispatch, draftHomeworks]);
+    }, [discardTaskDraftByIds, dispatch, store]);
 
     const loadTaskForEditing = useCallback((taskId: number) => {
         return ApiSingleton.tasksApi.tasksGetForEditingTask(taskId);
     }, []);
 
     const getCurrentHomework = useCallback((homeworkId: number) => {
-        return draftHomeworks.find(dh => dh.id === homeworkId)
-            ?? committedHomeworks.find(hw => hw.id === homeworkId);
-    }, [draftHomeworks, committedHomeworks]);
+        return selectMergedHomeworkById(store.getState(), homeworkId);
+    }, [store]);
 
     const getCurrentTask = useCallback((taskId: number, homeworkId: number) => {
-        return draftHomeworks
-            .find(dh => dh.id === homeworkId)
-            ?.tasks?.find(t => t.id === taskId)
-            ?? committedHomeworks
-                .find(hw => hw.id === homeworkId)
-                ?.tasks?.find(t => t.id === taskId);
-    }, [draftHomeworks, committedHomeworks]);
+        const state = store.getState();
+        return selectDraftTaskById(state, homeworkId, taskId)
+            ?? selectHomeworkById(state, homeworkId)?.tasks?.find(task => task.id === taskId);
+    }, [store]);
 
     const startTaskEdit = useCallback(async (taskId: number) => {
         const loaded = await loadTaskForEditing(taskId);

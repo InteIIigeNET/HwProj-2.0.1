@@ -1,40 +1,11 @@
 import {useCallback, useEffect, useMemo} from 'react';
 import {useCourseDispatch, useCourseState} from '../hooks';
 import {setSelectedItem, setSelectionRequest, SelectedItem} from '../slices/courseEditingSlice';
-import {HomeworkViewModel, HomeworkTaskViewModel} from '@/api';
+import {HomeworkViewModel} from '@/api';
 import {TestTag} from "@/components/Common/HomeworkTags";
-import {selectDraftHomeworks, selectHomeworks} from '../courseSelectors';
+import {selectMergedHomeworks} from '../courseSelectors';
 
-export const mergeHomeworkDraft = (committed: HomeworkViewModel | undefined, draft: HomeworkViewModel): HomeworkViewModel => {
-    const tasks = new Map<number, HomeworkTaskViewModel>();
-    for (const task of committed?.tasks ?? []) tasks.set(task.id!, task);
-    for (const task of draft.tasks ?? []) tasks.set(task.id!, task);
-
-    return {...committed, ...draft, tasks: Array.from(tasks.values())};
-};
-
-export const useMergedHomeworks = () => {
-    const committedHomeworks = useCourseState(selectHomeworks);
-    const draftHomeworks = useCourseState(selectDraftHomeworks);
-
-    return useMemo(() => {
-        const newDrafts = draftHomeworks.filter(dh => dh.id! < 0);
-        const result: HomeworkViewModel[] = [];
-
-        for (const committed of committedHomeworks) {
-            const draft = draftHomeworks.find(dh => dh.id === committed.id);
-            if (!draft) {
-                result.push(committed);
-                continue;
-            }
-
-            result.push(mergeHomeworkDraft(committed, draft));
-        }
-
-        result.push(...newDrafts);
-        return result;
-    }, [committedHomeworks, draftHomeworks]);
-};
+export const useMergedHomeworks = () => useCourseState(selectMergedHomeworks);
 
 export const useEditingSelection = () => {
     const dispatch = useCourseDispatch();
