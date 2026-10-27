@@ -15,7 +15,6 @@ export const buildTaskPayload = (
         ? regularCriteria.reduce((sum, criterion) => sum + (criterion.maxPoints || 0), 0)
         : (task.maxRating ?? 0);
     const isBonusExplicit = (task.tags || []).includes(BonusTag) && !(homework.tags || []).includes(BonusTag);
-    const publicationDate = task.publicationDate ?? homework.publicationDate;
 
     return {
         title: task.title!,
@@ -26,7 +25,7 @@ export const buildTaskPayload = (
         criteria,
         hasDeadline: task.hasDeadline,
         isDeadlineStrict: task.isDeadlineStrict,
-        publicationDate: task.publicationDateNotSet ? undefined : publicationDate,
+        publicationDate: task.publicationDateNotSet ? undefined : task.publicationDate,
         deadlineDate: task.deadlineDateNotSet ? undefined : task.deadlineDate,
     };
 };
