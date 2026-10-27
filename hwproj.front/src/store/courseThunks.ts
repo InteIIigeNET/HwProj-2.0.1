@@ -1,5 +1,5 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import type {FileInfoDTO, StatisticsCourseMatesModel} from '@/api';
+import type {FileInfoDTO, GroupViewModel, StatisticsCourseMatesModel} from '@/api';
 import ApiSingleton from '@/api/ApiSingleton';
 import {setUser, type UserRole} from './slices/userSlice';
 import {serializeDates, type StoredCourse, type StoredStudentSolutions} from './courseModels';
@@ -108,6 +108,24 @@ export const refreshCourseSolutions = createAsyncThunk<StoredStudentSolutions[],
             return serializeDates(await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(courseId, {signal}));
         } catch {
             return rejectWithValue('Не удалось обновить решения студентов');
+        }
+    },
+    {
+        condition: ({courseId, scopeId}, {getState}) => getState().course.courseId === courseId
+            && getState().course.scopeId === scopeId,
+    },
+);
+
+export const refreshCourseGroups = createAsyncThunk<GroupViewModel[], {
+    courseId: number;
+    scopeId: string;
+}, {state: CourseRequestState; rejectValue: string}>(
+    'groups/refresh',
+    async ({courseId}, {signal, rejectWithValue}) => {
+        try {
+            return await ApiSingleton.courseGroupsApi.courseGroupsGetAllCourseGroups(courseId, {signal});
+        } catch {
+            return rejectWithValue('Не удалось обновить группы курса');
         }
     },
     {

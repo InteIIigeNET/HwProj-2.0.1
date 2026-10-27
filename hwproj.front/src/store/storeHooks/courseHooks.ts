@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useMemo} from 'react';
 import {useCourseDispatch, useCourseState, useCourseStore} from '../hooks';
-import {loadCoursePage, refreshCourseSolutions} from '../courseThunks';
+import {loadCoursePage, refreshCourseGroups, refreshCourseSolutions} from '../courseThunks';
 import {updateCourseFiles, setProcessingLoading} from '../slices/courseFileSlice';
 import {selectIsExpert, selectIsLecturer, selectUserId} from '../slices/userSlice';
 import ApiSingleton from '@/api/ApiSingleton';
@@ -76,6 +76,7 @@ export const useCoursePageData = () => {
 
 export const useCourseLoader = (courseId: number) => {
     const dispatch = useCourseDispatch();
+    const store = useCourseStore();
     const scopeId = useCourseState(state => state.course.scopeId);
 
     const loadCourse = useCallback(() => dispatch(loadCoursePage({courseId})), [dispatch, courseId]);
@@ -84,7 +85,21 @@ export const useCourseLoader = (courseId: number) => {
         if (scopeId) return dispatch(refreshCourseSolutions({courseId, scopeId}));
     }, [dispatch, courseId, scopeId]);
 
-    return {loadCourse, loadStudentSolutions};
+    const loadGroups = useCallback(async () => {
+        if (!scopeId) return;
+        const result = await dispatch(refreshCourseGroups({courseId, scopeId}));
+        const current = store.getState();
+        if (refreshCourseGroups.rejected.match(result) && !result.meta.aborted && !result.meta.condition
+            && current.course.courseId === courseId && current.course.scopeId === scopeId
+            && current.groups.requestId === result.meta.requestId) {
+            enqueueSnackbar(result.payload ?? 'Не удалось обновить группы курса', {
+                variant: 'error',
+                autoHideDuration: 4000,
+            });
+        }
+    }, [dispatch, store, courseId, scopeId]);
+
+    return {loadCourse, loadStudentSolutions, loadGroups};
 };
 
 export const useRefreshCourse = () => {

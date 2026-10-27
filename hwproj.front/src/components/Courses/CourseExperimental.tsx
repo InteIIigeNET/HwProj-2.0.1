@@ -247,7 +247,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const courseFilesInfo = useCourseState(state => state.courseFiles.items)
     const isMentor = useIsCourseMentor()
     const isStudentAccepted = isAcceptedStudent
-    const {loadStudentSolutions} = useCourseLoader(props.courseId)
+    const {loadStudentSolutions, loadGroups} = useCourseLoader(props.courseId)
 
     const {
         selectedItem: selectedNavItem,
@@ -621,7 +621,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 homeworkAndFilesInfo={{homework, filesInfo}}
                 onAddTask={addNewTask}
                 onStartProcessing={startProcessing}
-                onGroupsUpdate={() => {}}
+                onGroupsUpdate={loadGroups}
                 groups={groups}
             />
         </Paper>

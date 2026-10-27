@@ -6,7 +6,7 @@ import courseFilesReducer from './slices/courseFileSlice';
 import userReducer from './slices/userSlice';
 import courseEditingReducer from './slices/courseEditingSlice';
 import groupReducer from './slices/groupSlice';
-import {loadCoursePage, refreshCourseSolutions} from './courseThunks';
+import {loadCoursePage, refreshCourseGroups, refreshCourseSolutions} from './courseThunks';
 
 const combinedReducer = combineReducers({
     course: courseReducer,
@@ -35,7 +35,8 @@ export const rootReducer = (state: RootState | undefined, action: UnknownAction)
   }
 
   if (refreshCourseSolutions.pending.match(action) || refreshCourseSolutions.fulfilled.match(action)
-    || refreshCourseSolutions.rejected.match(action)) {
+    || refreshCourseSolutions.rejected.match(action) || refreshCourseGroups.pending.match(action)
+    || refreshCourseGroups.fulfilled.match(action) || refreshCourseGroups.rejected.match(action)) {
     if (!state || state.course.courseId !== action.meta.arg.courseId
       || state.course.scopeId !== action.meta.arg.scopeId) {
       return state ?? combinedReducer(undefined, {type: '@@course/init'});
