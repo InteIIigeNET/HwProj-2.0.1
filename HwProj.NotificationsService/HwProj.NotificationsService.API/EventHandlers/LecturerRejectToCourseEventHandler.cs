@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
@@ -6,6 +5,7 @@ using HwProj.NotificationService.Events.CoursesService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
+using HwProj.NotificationsService.API.Services.Messages;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
@@ -31,20 +31,19 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(LecturerRejectToCourseEvent @event)
         {
-            var notification = new Notification
-            {
-                Sender = "CourseService",
-                Body =
-                    $"Вас не приняли на курс <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
-                Category = CategoryState.Courses,
-                Date = DateTime.UtcNow,
-                Owner = @event.StudentId
-            };
+            var courseUrl = $"{_configuration["Url"]}/courses/{@event.CourseId}";
 
-            var student = await _authServiceClient.GetAccountData(notification.Owner);
+            var message = new NotificationMessage(CategoryState.Courses, "Заявка на курс отклонена")
+                .WithSubject($"Заявка на курс «{@event.CourseName}» отклонена")
+                .WithText($"К сожалению, вас не приняли на курс {NotificationHtml.Link(courseUrl, @event.CourseName)}. " +
+                          "Если это ошибка, свяжитесь с преподавателем курса.")
+                .WithAction("Перейти к курсу", courseUrl);
 
-            var addNotificationTask = _notificationRepository.AddAsync(notification);
-            var sendEmailTask = _emailService.SendEmailAsync(notification, student.Email, "HwProj");
+            var student = await _authServiceClient.GetAccountData(@event.StudentId);
+
+            var addNotificationTask =
+                _notificationRepository.AddAsync(message.ToNotification(@event.StudentId, "CourseService"));
+            var sendEmailTask = _emailService.SendEmailAsync(message, student.Email, student.Name);
 
             await Task.WhenAll(addNotificationTask, sendEmailTask);
         }

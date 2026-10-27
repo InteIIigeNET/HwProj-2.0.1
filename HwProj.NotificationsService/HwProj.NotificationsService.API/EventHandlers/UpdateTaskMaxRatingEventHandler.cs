@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.AuthService.Client;
@@ -8,6 +7,7 @@ using HwProj.Models.AuthService.DTO;
 using HwProj.NotificationService.Events.CoursesService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Services;
+using HwProj.NotificationsService.API.Services.Messages;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
@@ -36,23 +36,22 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(UpdateTaskMaxRatingEvent @event)
         {
+            var courseUrl = $"{_configuration["Url"]}/courses/{@event.CourseId}";
+            var taskUrl = $"{courseUrl}/homeworks?taskId={@event.TaskId}";
+
+            var message = new NotificationMessage(CategoryState.Homeworks, "Задача обновлена")
+                .WithSubject($"Задача «{@event.TaskTitle}» обновлена")
+                .WithText($"В курсе {NotificationHtml.Link(courseUrl, @event.CourseName)} обновлена задача " +
+                          $"{NotificationHtml.Link(taskUrl, @event.TaskTitle)}. Загляните, чтобы не пропустить изменения.")
+                .WithAction("Открыть задачу", taskUrl);
+
             foreach (var student in @event.StudentIds)
             {
                 var studentAccount = await _authServiceClient.GetAccountData(student);
                 var studentModel = _mapper.Map<AccountDataDto>(studentAccount);
-                var notification = new Notification
-                {
-                    Sender = "CourseService",
-                    Body = $"Задача <a href='{_configuration["Url"]}/courses/{@event.CourseId}/homeworks?taskId={@event.TaskId}'>{@event.TaskTitle}</a>" +
-                           $" из курса <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a> обновлена.",
-                    Category = CategoryState.Courses,
-                    Date = DateTime.UtcNow,
-                    HasSeen = false,
-                    Owner = student
-                };
 
-                var addNotificationTask = _notificationRepository.AddAsync(notification);
-                var sendEmailTask = _emailService.SendEmailAsync(notification, studentModel.Email, "Домашняя работа");
+                var addNotificationTask = _notificationRepository.AddAsync(message.ToNotification(student, "CourseService"));
+                var sendEmailTask = _emailService.SendEmailAsync(message, studentModel.Email, studentModel.Name);
 
                 await Task.WhenAll(addNotificationTask, sendEmailTask);
             }

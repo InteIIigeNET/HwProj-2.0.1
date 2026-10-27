@@ -6,6 +6,7 @@ using HwProj.NotificationService.Events.SolutionsService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
+using HwProj.NotificationsService.API.Services.Messages;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
@@ -31,28 +32,23 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(RateEvent @event)
         {
-            var commentBody = string.IsNullOrWhiteSpace(@event.Solution.LecturerComment)
-                ? ""
-                : "<br><br><b>Комментарий преподавателя:</b>" +
-                  $"<br><i>{@event.Solution.LecturerComment}</i>";
+            var taskUrl = $"{_configuration["Url"]}/courses/{@event.CourseId}/homeworks?taskId={@event.Task.Id}";
+            var comment = LecturerComment.Parse(@event.Solution.LecturerComment);
 
-            var notification = new Notification
-            {
-                Sender = "SolutionService",
-                Body =
-                    $"Задача <a href='{_configuration["Url"]}/courses/{@event.CourseId}/homeworks?taskId={@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> оценена на " +
-                    $"<b>{@event.Solution.Rating}/{@event.Task.MaxRating}</b>." +
-                    $"{commentBody}",
-                Category = CategoryState.Homeworks,
-                Date = @event.Solution.RatingDate ?? DateTime.UtcNow,
-                HasSeen = false,
-                Owner = @event.Solution.StudentId
-            };
+            var message = new NotificationMessage(CategoryState.Homeworks, "Решение проверено")
+                .WithSubject($"Оценка за задачу «{@event.Task.Title}»")
+                .WithText($"Преподаватель проверил ваше решение задачи {NotificationHtml.Link(taskUrl, @event.Task.Title)}.")
+                .WithDetail("Оценка", NotificationHtml.Bold($"{@event.Solution.Rating ?? 0} / {@event.Task.MaxRating}"))
+                .WithBreakdown("Критерии оценивания", comment.Criteria)
+                .WithQuote("Комментарий преподавателя", comment.Text)
+                .WithAction("Открыть задачу", taskUrl);
 
-            var student = await _authServiceClient.GetAccountData(notification.Owner);
+            var student = await _authServiceClient.GetAccountData(@event.Solution.StudentId);
 
+            var notification = message.ToNotification(@event.Solution.StudentId, "SolutionService",
+                @event.Solution.RatingDate ?? DateTime.UtcNow);
             var addNotificationTask = _notificationRepository.AddAsync(notification);
-            var sendEmailTask = _emailService.SendEmailAsync(notification, student.Email, "Оценка");
+            var sendEmailTask = _emailService.SendEmailAsync(message, student.Email, student.Name);
 
             await Task.WhenAll(addNotificationTask, sendEmailTask);
         }
