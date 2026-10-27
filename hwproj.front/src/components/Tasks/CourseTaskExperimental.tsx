@@ -322,7 +322,7 @@ const CourseTaskEditor: FC<{
             hasDeadline: taskData.task.hasDeadline,
             deadlineDate: taskData.task.deadlineDate,
             isDeadlineStrict: taskData.task.isDeadlineStrict,
-            isPublished: taskData.task.isDeferred || !taskData.homework.isDeferred,
+            isPublished: !isNewTask && !taskData.task.isDeferred,
             hasErrors: false,
         } : undefined)
 
