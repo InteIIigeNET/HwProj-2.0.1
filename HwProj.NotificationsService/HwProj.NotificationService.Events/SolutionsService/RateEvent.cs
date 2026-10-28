@@ -9,12 +9,14 @@ namespace HwProj.NotificationService.Events.SolutionsService
         public HomeworkTaskViewModel Task { get; set; }
         public SolutionViewModel Solution { get; set; }
         public long CourseId { get; set; }
+        public string CourseName { get; set; }
 
-        public RateEvent(HomeworkTaskViewModel task, SolutionViewModel solution, long courseId)
+        public RateEvent(HomeworkTaskViewModel task, SolutionViewModel solution, long courseId, string courseName)
         {
             Task = task;
             Solution = solution;
             CourseId = courseId;
+            CourseName = courseName;
         }
     }
 }

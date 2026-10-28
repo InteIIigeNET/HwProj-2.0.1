@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
@@ -5,6 +6,7 @@ using HwProj.NotificationService.Events.CoursesService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
+using HwProj.NotificationsService.API.Services.Digest;
 using HwProj.NotificationsService.API.Services.Messages;
 using Microsoft.Extensions.Configuration;
 
@@ -16,18 +18,15 @@ namespace HwProj.NotificationsService.API.EventHandlers
         private readonly INotificationSettingsService _settingsService;
         private readonly IAuthServiceClient _authServiceClient;
         private readonly IConfigurationSection _configuration;
-        private readonly IEmailService _emailService;
 
         public NewCourseMateHandler(
             INotificationsRepository notificationRepository,
             INotificationSettingsService settingsService,
             IAuthServiceClient authServiceClient,
-            IConfiguration configuration,
-            IEmailService emailService)
+            IConfiguration configuration)
         {
             _notificationRepository = notificationRepository;
             _authServiceClient = authServiceClient;
-            _emailService = emailService;
             _settingsService = settingsService;
             _configuration = configuration.GetSection("Notification");
         }
@@ -43,23 +42,26 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 .WithSubject($"{studentName}: заявка на курс «{@event.CourseName}»")
                 .WithText($"Студент {NotificationHtml.Link($"{url}/profile/{@event.StudentId}", studentName)}" +
                           $" подал заявку на вступление в курс {NotificationHtml.Link(courseUrl, @event.CourseName)}.")
-                .WithAction("Рассмотреть заявку", $"{courseUrl}/applications");
+                .WithAction("Рассмотреть заявку", $"{courseUrl}/applications")
+                .WithDigest(new DigestItem
+                {
+                    Kind = DigestItemKind.NewCourseMate,
+                    CourseId = @event.CourseId,
+                    CourseName = @event.CourseName,
+                    StudentId = @event.StudentId,
+                    StudentName = studentName
+                });
 
-            var mentorIds = @event.MentorIds.Split('/');
-            var mentors = await _authServiceClient.GetAccountsData(mentorIds);
+            var mentorIds = @event.MentorIds.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
             //TODO: fix
-            foreach (var mentor in mentors)
+            foreach (var mentorId in mentorIds)
             {
-                var setting = await _settingsService.GetAsync(mentor.UserId,
+                var setting = await _settingsService.GetAsync(mentorId,
                     NotificationsSettingCategory.NewCourseMateCategory);
                 if (!setting.IsEnabled) continue;
 
-                var addNotificationTask =
-                    _notificationRepository.AddAsync(message.ToNotification(mentor.UserId, "CourseService"));
-                var sendEmailTask = _emailService.SendEmailAsync(message, mentor.Email, mentor.Name);
-
-                await Task.WhenAll(addNotificationTask, sendEmailTask);
+                await _notificationRepository.AddAsync(message.ToNotification(mentorId, "CourseService"));
             }
         }
     }

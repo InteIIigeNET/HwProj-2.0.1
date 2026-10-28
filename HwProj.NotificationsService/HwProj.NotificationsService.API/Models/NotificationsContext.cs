@@ -16,6 +16,13 @@ namespace HwProj.NotificationsService.API.Models
         {
             modelBuilder.Entity<NotificationsSetting>().HasIndex(n => n.UserId);
             modelBuilder.Entity<NotificationsSetting>().HasKey(n => new { n.UserId, n.Category });
+
+            // Дайжест выбирает уведомления за последние сутки. Старые уведомления без данных для дайжеста
+            // в индекс не попадают, а получатель включён в него, чтобы список получателей строился по одному индексу
+            modelBuilder.Entity<Notification>()
+                .HasIndex(n => n.Date)
+                .HasFilter("[DigestKind] IS NOT NULL")
+                .IncludeProperties(n => n.Owner);
         }
     }
 }

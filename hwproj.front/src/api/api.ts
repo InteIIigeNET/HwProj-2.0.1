@@ -7488,6 +7488,36 @@ export const NotificationsApiFetchParamCreator = function (configuration?: Confi
                 options: localVarRequestOptions,
             };
         },
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        notificationsSendDigest(options: any = {}): FetchArgs {
+            const localVarPath = `/api/Notifications/digest`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication Bearer required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+                    ? configuration.apiKey("Authorization")
+                    : configuration.apiKey;
+                localVarHeaderParameter["Authorization"] = localVarApiKeyValue;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            localVarUrlObj.search = null;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -7584,6 +7614,23 @@ export const NotificationsApiFp = function(configuration?: Configuration) {
                 });
             };
         },
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        notificationsSendDigest(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Result> {
+            const localVarFetchArgs = NotificationsApiFetchParamCreator(configuration).notificationsSendDigest(options);
+            return (fetch: FetchAPI = isomorphicFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
     }
 };
 
@@ -7634,6 +7681,14 @@ export const NotificationsApiFactory = function (configuration?: Configuration, 
          */
         notificationsMarkAsSeen(body?: Array<number>, options?: any) {
             return NotificationsApiFp(configuration).notificationsMarkAsSeen(body, options)(fetch, basePath);
+        },
+        /**
+         *
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        notificationsSendDigest(options?: any) {
+            return NotificationsApiFp(configuration).notificationsSendDigest(options)(fetch, basePath);
         },
     };
 };
@@ -7695,6 +7750,16 @@ export class NotificationsApi extends BaseAPI {
      */
     public notificationsMarkAsSeen(body?: Array<number>, options?: any) {
         return NotificationsApiFp(this.configuration).notificationsMarkAsSeen(body, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof NotificationsApi
+     */
+    public notificationsSendDigest(options?: any) {
+        return NotificationsApiFp(this.configuration).notificationsSendDigest(options)(this.fetch, this.basePath);
     }
 
 }

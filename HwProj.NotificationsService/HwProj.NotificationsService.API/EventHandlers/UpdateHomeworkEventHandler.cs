@@ -1,10 +1,10 @@
+using System.Linq;
 using System.Threading.Tasks;
-using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.NotificationService.Events.CoursesService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
-using HwProj.NotificationsService.API.Services;
+using HwProj.NotificationsService.API.Services.Digest;
 using HwProj.NotificationsService.API.Services.Messages;
 using Microsoft.Extensions.Configuration;
 
@@ -13,19 +13,13 @@ namespace HwProj.NotificationsService.API.EventHandlers
     public class UpdateHomeworkEventHandler : EventHandlerBase<UpdateHomeworkEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
-        private readonly IAuthServiceClient _authServiceClient;
         private readonly IConfigurationSection _configuration;
-        private readonly IEmailService _emailService;
 
         public UpdateHomeworkEventHandler(
             INotificationsRepository notificationRepository,
-            IAuthServiceClient authServiceClient,
-            IConfiguration configuration,
-            IEmailService emailService)
+            IConfiguration configuration)
         {
             _notificationRepository = notificationRepository;
-            _authServiceClient = authServiceClient;
-            _emailService = emailService;
             _configuration = configuration.GetSection("Notification");
         }
 
@@ -38,18 +32,18 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 .WithSubject($"Домашняя работа «{@event.HomeworkTitle}» обновлена")
                 .WithText($"В курсе {NotificationHtml.Link(courseUrl, @event.CourseName)} обновлена домашняя работа " +
                           $"{NotificationHtml.Link(homeworkUrl, @event.HomeworkTitle)}. Загляните, чтобы не пропустить изменения.")
-                .WithAction("Открыть домашнюю работу", homeworkUrl);
+                .WithAction("Открыть домашнюю работу", homeworkUrl)
+                .WithDigest(new DigestItem
+                {
+                    Kind = DigestItemKind.HomeworkUpdated,
+                    CourseId = @event.CourseId,
+                    CourseName = @event.CourseName,
+                    HomeworkId = @event.HomeworkId,
+                    HomeworkTitle = @event.HomeworkTitle
+                });
 
-            var accountsData = await _authServiceClient.GetAccountsData(@event.StudentIds);
-
-            foreach (var student in accountsData)
-            {
-                var addNotificationTask =
-                    _notificationRepository.AddAsync(message.ToNotification(student.UserId, "CourseService"));
-                var sendEmailTask = _emailService.SendEmailAsync(message, student.Email, student.Name);
-
-                await Task.WhenAll(addNotificationTask, sendEmailTask);
-            }
+            await _notificationRepository.AddRangeAsync(@event.StudentIds
+                .Select(studentId => message.ToNotification(studentId, "CourseService")));
         }
     }
 }

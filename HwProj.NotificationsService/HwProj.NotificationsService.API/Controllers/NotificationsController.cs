@@ -2,10 +2,11 @@
 using System.Threading.Tasks;
 using AutoMapper;
 using HwProj.Models.NotificationsService;
+using HwProj.Models.Result;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
+using HwProj.NotificationsService.API.Services.Digest;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.NotificationsService.API.Controllers
 {
@@ -14,11 +15,14 @@ namespace HwProj.NotificationsService.API.Controllers
     public class NotificationsController : ControllerBase
     {
         private readonly INotificationsRepository _repository;
+        private readonly IDigestService _digestService;
         private readonly IMapper _mapper;
 
-        public NotificationsController(INotificationsRepository repository, IMapper mapper)
+        public NotificationsController(INotificationsRepository repository, IDigestService digestService,
+            IMapper mapper)
         {
             _repository = repository;
+            _digestService = digestService;
             _mapper = mapper;
         }
 
@@ -42,8 +46,13 @@ namespace HwProj.NotificationsService.API.Controllers
         [HttpGet("new/{userId}")]
         public async Task<int> GetNewNotificationsCount(string userId)
         {
-            var count = await _repository.FindAll(t => t.Owner == userId && !t.HasSeen).CountAsync();
+            var count = await _repository.GetNewCountAsync(userId);
             return count;
         }
+
+        [HttpPost("digest/{userId}")]
+        [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+        public async Task<Result> SendDigest(string userId) =>
+            await _digestService.SendRequestedDigestAsync(userId);
     }
 }

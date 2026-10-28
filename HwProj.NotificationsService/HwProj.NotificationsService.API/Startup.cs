@@ -6,6 +6,7 @@ using HwProj.NotificationsService.API.EventHandlers;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
+using HwProj.NotificationsService.API.Services.Digest;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -49,6 +50,11 @@ namespace HwProj.NotificationsService.API
             services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
             services.AddTransient<IEventHandler<PasswordRecoveryEvent>, PasswordRecoveryEventHandler>();
             services.AddSingleton<IEmailService, EmailService>();
+
+            services.Configure<DigestOptions>(Configuration.GetSection("Digest"));
+            services.AddMemoryCache();
+            services.AddScoped<IDigestService, DigestService>();
+            services.AddHostedService<DigestBackgroundService>();
 
             services.AddHttpClient();
             services.AddAuthServiceClient();

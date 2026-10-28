@@ -177,7 +177,7 @@ namespace HwProj.SolutionsService.API.Services
                 var solutionModel = _mapper.Map<SolutionViewModel>(solution);
                 solutionModel.LecturerComment = lecturerComment;
                 solutionModel.Rating = newRating;
-                _eventBus.Publish(new RateEvent(task, solutionModel, course?.Id ?? 0));
+                _eventBus.Publish(new RateEvent(task, solutionModel, course?.Id ?? 0, course?.Name));
             }
         }
 

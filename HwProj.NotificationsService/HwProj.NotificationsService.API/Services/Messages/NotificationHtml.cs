@@ -35,11 +35,28 @@ namespace HwProj.NotificationsService.API.Services.Messages
             Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
             (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
 
+        /// <summary> В Москве нет перехода на летнее время, так что смещение от UTC постоянное </summary>
+        public static readonly TimeSpan MoscowOffset = TimeSpan.FromHours(3);
+
         /// <summary>
         /// Даты в сервисах хранятся в UTC, а студентам и преподавателям привычнее московское время
         /// </summary>
         public static string Date(DateTime utcDate) =>
-            utcDate.AddHours(3).ToString("d MMMM yyyy, HH:mm", RussianCulture) + " (МСК)";
+            (utcDate + MoscowOffset).ToString("d MMMM yyyy, HH:mm", RussianCulture) + " (МСК)";
+
+        /// <summary> «28 октября» по московскому времени </summary>
+        public static string Day(DateTime utcDate) =>
+            (utcDate + MoscowOffset).ToString("d MMMM", RussianCulture);
+
+        /// <summary> Форма слова для числа: Plural(5, "решение", "решения", "решений") — «решений» </summary>
+        public static string Plural(int count, string one, string few, string many)
+        {
+            var lastTwoDigits = Math.Abs(count) % 100;
+            var lastDigit = lastTwoDigits % 10;
+            if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return many;
+            if (lastDigit == 1) return one;
+            return lastDigit >= 2 && lastDigit <= 4 ? few : many;
+        }
 
         public static string FullName(string name, string surname) =>
             string.Join(" ", new[] { name, surname }).Trim();
