@@ -20,11 +20,7 @@ export const useEditingSelection = () => {
 
 export const useEditingStatus = () => {
     const draftHomeworks = useCourseState(state => state.editing.draftHomeworks);
-
-    const homeworkEditingIds = useMemo(
-        () => new Set(draftHomeworks.map(homework => homework.id!)),
-        [draftHomeworks]
-    );
+    const homeworkEditingIds = useCourseState(state => state.editing.homeworkEditingIds);
 
     const taskEditingIds = useMemo(
         () => new Set(
@@ -36,7 +32,7 @@ export const useEditingStatus = () => {
     );
 
     const isHomeworkEditing = useCallback((homeworkId: number) => {
-        return homeworkEditingIds.has(homeworkId);
+        return homeworkEditingIds.includes(homeworkId);
     }, [homeworkEditingIds]);
 
     const isTaskEditing = useCallback((taskId: number) => {

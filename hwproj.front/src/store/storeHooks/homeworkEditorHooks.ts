@@ -19,7 +19,6 @@ import {buildTaskPayload} from '../taskPayload';
 import {getHomeworkValidation} from '../courseEditingValidation';
 import {
     mergeHomeworkDraft,
-    selectDraftHomeworkById,
     selectHomeworkById,
     selectHomeworks,
     selectMergedHomeworkById,
@@ -43,7 +42,7 @@ type HomeworkDeleteFileOptions = {
 };
 
 export const useDraftHomework = (homeworkId: number) => useCourseState(state =>
-    selectDraftHomeworkById(state, homeworkId) ? selectMergedHomeworkById(state, homeworkId) : undefined,
+    state.editing.homeworkEditingIds.includes(homeworkId) ? selectMergedHomeworkById(state, homeworkId) : undefined,
 );
 
 export const useHomeworkEditorState = (homework: HomeworkViewModel) => {
