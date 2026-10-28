@@ -728,9 +728,11 @@ const day = 24 * 60 * 60 * 1000
 
 // Главный вопрос студента к задаче — сколько осталось времени, поэтому в шапке не только дата,
 // но и остаток срока, а строгость дедлайна видна по иконке: у закрытого срока замок
-const TaskDeadline: FC<{task: HomeworkTaskViewModel, isMentor: boolean}> = ({task, isMentor}) => {
-    const hasDeadline = task.hasDeadline ?? false
-    const isDeadlineSet = hasDeadline && !task.deadlineDateNotSet && task.deadlineDate != null
+const TaskDeadline: FC<{task: HomeworkTaskViewModel, homework: HomeworkViewModel, isMentor: boolean}> = ({task, homework, isMentor}) => {
+    const hasDeadline = task.hasDeadline ?? homework.hasDeadline ?? false
+    const deadlineDate = (task.deadlineDateNotSet ? undefined : task.deadlineDate)
+        ?? (homework.deadlineDateNotSet ? undefined : homework.deadlineDate)
+    const isDeadlineSet = hasDeadline && deadlineDate != null
 
     // Незаполненный срок — забота преподавателя: студенту такая пилюля ничего не даёт
     if (hasDeadline && !isDeadlineSet) return isMentor
@@ -753,8 +755,8 @@ const TaskDeadline: FC<{task: HomeworkTaskViewModel, isMentor: boolean}> = ({tas
         </Tooltip>
     )
 
-    const deadline = new Date(task.deadlineDate!)
-    const isStrict = task.isDeadlineStrict ?? false
+    const deadline = new Date(deadlineDate!)
+    const isStrict = task.isDeadlineStrict ?? homework.isDeadlineStrict ?? false
     const remaining = deadline.getTime() - Date.now()
     const isPassed = remaining <= 0
     const isSoon = !isPassed && remaining <= 3 * day
@@ -837,7 +839,7 @@ const CourseTaskExperimental: FC<{
                                     sx={accentChipSx} />
                             </Tooltip>
 
-                            <TaskDeadline task={task} isMentor={isCourseMentor} />
+                            <TaskDeadline task={task} homework={homework} isMentor={isCourseMentor} />
                             {task.isGroupWork &&
                                 <Chip
                                     size={"small"}

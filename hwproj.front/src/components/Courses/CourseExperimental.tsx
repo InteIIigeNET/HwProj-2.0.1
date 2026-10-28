@@ -354,29 +354,25 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const isTaskVisible = (task: HomeworkTaskViewModel) =>
         !showOnlyNotSolved || task.id! < 0 || isTaskNotSolved(task)
 
-    const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
-        if (!isMentor) return false
-        if (entity.publicationDateNotSet || entity.hasDeadline && entity.deadlineDateNotSet) return true
-
-        if (!isHomework) return false
-        const result = validateTestGrouping(entity)
-        return result !== true && result.hasErrors
-    }
-
     // Расшифровываем предупреждение в подсказке, чтобы преподаватель сразу понимал, что именно не заполнено
-    const getWarningTitle = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomeworkEntity: boolean) => {
-        if (entity.publicationDateNotSet) return "Не выставлена дата публикации"
-        if (entity.hasDeadline && entity.deadlineDateNotSet) return "Не выставлена дата дедлайна"
+    const getWarningTitle = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomeworkEntity: boolean, homework?: HomeworkViewModel) => {
+        if (!isMentor) return undefined
+        const publicationDate = (entity.publicationDateNotSet ? undefined : entity.publicationDate)
+            ?? (homework?.publicationDateNotSet ? undefined : homework?.publicationDate)
+        const deadlineDate = (entity.deadlineDateNotSet ? undefined : entity.deadlineDate)
+            ?? (homework?.deadlineDateNotSet ? undefined : homework?.deadlineDate)
+        if (!publicationDate) return "Не выставлена дата публикации"
+        if ((entity.hasDeadline ?? homework?.hasDeadline) && !deadlineDate) return "Не выставлена дата дедлайна"
         if (isHomeworkEntity) {
             const result = validateTestGrouping(entity)
             if (result !== true && result.hasErrors)
                 return `Контрольные работы с ключом «${result.groupingTag}» отличаются по количеству задач или баллам`
         }
-        return "Проверьте настройки"
+        return undefined
     }
 
-    const renderWarningIcon = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomeworkEntity: boolean) =>
-        <Tooltip arrow title={getWarningTitle(entity, isHomeworkEntity)}>
+    const renderWarningIcon = (title: string) =>
+        <Tooltip arrow title={title}>
             <WarningAmberRoundedIcon fontSize="small" sx={{flexShrink: 0, color: "#ed6c02"}}/>
         </Tooltip>
 
@@ -390,7 +386,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             return <Tooltip arrow title={"Есть несохранённые изменения"}>
                 <EditIcon fontSize="small" color={"primary"} sx={{flexShrink: 0}}/>
             </Tooltip>
-        return showWarningsForEntity(homework, true) ? renderWarningIcon(homework, true) : null
+        const warningTitle = getWarningTitle(homework, true)
+        return warningTitle ? renderWarningIcon(warningTitle) : null
     }
 
     const renderTaskStatus = (task: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean }, homework: HomeworkViewModel) => {
@@ -423,7 +420,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         if (isTaskEditing(task.id!) || task.isModified) return <Tooltip arrow title={"Есть несохранённые изменения"}>
             <EditIcon fontSize="small" color={"primary"}/>
         </Tooltip>
-        if (showWarningsForEntity(task, false)) return renderWarningIcon(task, false)
+        const warningTitle = getWarningTitle(task, false, homework)
+        if (warningTitle) return renderWarningIcon(warningTitle)
         return <Box sx={{...taskDotSx, borderColor: task.isDeferred ? "#dcdfe6" : "#a8b0d8"}}/>
     }
 
@@ -435,9 +433,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     // Дедлайн задачи в списке: близкий срок подсвечивается только тому студенту, который ещё ничего не сдал
-    const renderTaskDeadline = (task: HomeworkTaskViewModel) => {
-        if (task.deadlineDateNotSet || !task.deadlineDate) return null
-        const deadline = new Date(task.deadlineDate).getTime()
+    const renderTaskDeadline = (task: HomeworkTaskViewModel, homework: HomeworkViewModel) => {
+        const deadlineDate = (task.deadlineDateNotSet ? undefined : task.deadlineDate)
+            ?? (homework.deadlineDateNotSet ? undefined : homework.deadlineDate)
+        if (!(task.hasDeadline ?? homework.hasDeadline) || !deadlineDate) return null
+        const deadline = new Date(deadlineDate).getTime()
         const now = Date.now()
         const hasSolution = (taskSolutionsMap.get(task.id!)?.length ?? 0) > 0
         const isSoon = !isMentor && !hasSolution && deadline > now && deadline - now <= 3 * 24 * 60 * 60 * 1000
@@ -446,7 +446,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                    sx={{flexShrink: 0, color: isSoon ? "warning.main" : "text.secondary"}}>
                 {isSoon && <ScheduleIcon sx={{fontSize: 14}}/>}
                 <Typography variant={"caption"} sx={{whiteSpace: "nowrap", fontWeight: isSoon ? 500 : 400}}>
-                    {renderShortDate(task.deadlineDate) + ", " + renderTime(task.deadlineDate)}
+                    {renderShortDate(deadlineDate) + ", " + renderTime(deadlineDate)}
                 </Typography>
             </Stack>
         )
@@ -496,20 +496,15 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return {groupingTag: groupingTag, hasErrors: keys.size !== 1}
     }
 
-    const getDatesAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
-        if (entity.publicationDateNotSet) {
+    const getDatesAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean, homework?: HomeworkViewModel) => {
+        const warningTitle = getWarningTitle(entity, false, homework)
+        if (warningTitle) {
             return (
                 <Alert severity="warning">
-                    {"Не выставлена дата публикации"}
+                    {warningTitle}
                 </Alert>
             )
         }
-
-        if (isMentor && entity.hasDeadline && entity.deadlineDateNotSet) return (
-            <Alert severity="warning">
-                {"Не выставлена дата дедлайна"}
-            </Alert>
-        )
 
         if (entity.id! < 0) {
             if (isHomework)
@@ -530,7 +525,9 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             return <Alert severity="info">Новая задача будет добавлена после нажатия на 'Добавить задачу'</Alert>
         }
 
-        if (entity.isDeferred) return (
+        const publicationDate = (entity.publicationDateNotSet ? undefined : entity.publicationDate)
+            ?? (homework?.publicationDateNotSet ? undefined : homework?.publicationDate)
+        if (entity.isDeferred && publicationDate) return (
             <Alert severity="info"
                    action={
                        <Button
@@ -541,7 +538,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                            Скрыть неопубликованное
                        </Button>}>
                 {isHomework ? "Задание будет опубликовано " : "Задача будет опубликована "}
-                {renderDate(entity.publicationDate!) + " " + renderTime(entity.publicationDate!)}
+                {renderDate(publicationDate) + " " + renderTime(publicationDate)}
             </Alert>
         )
     }
@@ -648,7 +645,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         const isStudent = !isMentor && isStudentAccepted && task.id! > 0
 
         const taskPanel = <Paper variant={"outlined"} sx={detailPanelSx(!!taskEditMode)}>
-            {isMentor && <Box sx={topAlertsSx}>{getDatesAlert(task, false)}</Box>}
+            {isMentor && <Box sx={topAlertsSx}>{getDatesAlert(task, false, homework)}</Box>}
             <CourseTaskExperimental
                 key={task.id}
                 task={task}
@@ -881,7 +878,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                                 color={t.isDeferred ? "textSecondary" : "textPrimary"}>
                                                 {t.title}{getTip(t)}
                                             </Typography>
-                                            {renderTaskDeadline(t)}
+                                            {renderTaskDeadline(t, x)}
                                         </ListItemButton>)}
                                     </Box>
                                     : x.id! > 0 &&
