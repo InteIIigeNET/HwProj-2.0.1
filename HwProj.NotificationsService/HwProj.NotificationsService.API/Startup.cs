@@ -71,6 +71,8 @@ namespace HwProj.NotificationsService.API
         public void Configure(IApplicationBuilder app, IHostEnvironment env, IEventBus eventBus,
             NotificationsContext context)
         {
+            app.UseDatabase(env, context);
+
             using (var eventBustSubscriber = eventBus.CreateSubscriber())
             {
                 eventBustSubscriber.Subscribe<StudentRegisterEvent, RegisterEventHandler>();
@@ -99,8 +101,6 @@ namespace HwProj.NotificationsService.API
                 .AllowCredentials());
 
             app.UseEndpoints(x => x.MapControllers());
-
-            app.UseDatabase(env, context);
         }
     }
 }
