@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class NewHomeworkEventHandler : EventHandlerBase<NewHomeworkEvent>
+    public class NewHomeworkEventHandler : IEventHandler<NewHomeworkEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly IConfigurationSection _configuration;
@@ -23,7 +23,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _configuration = configuration.GetSection("Notification");
         }
 
-        public override async Task HandleAsync(NewHomeworkEvent @event)
+        public async Task HandleAsync(NewHomeworkEvent @event)
         {
             var courseUrl = $"{_configuration["Url"]}/courses/{@event.CourseId}";
             var homeworkUrl = $"{courseUrl}/homeworks?homeworkId={@event.HomeworkId}";

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class InviteLecturerEventHandler : EventHandlerBase<InviteLecturerEvent>
+    public class InviteLecturerEventHandler : IEventHandler<InviteLecturerEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly INotificationSettingsService _settingsService;
@@ -26,7 +26,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _configuration = configuration.GetSection("Notification");
         }
 
-        public override async Task HandleAsync(InviteLecturerEvent @event)
+        public async Task HandleAsync(InviteLecturerEvent @event)
         {
             var mentorId = @event.UserId;
 

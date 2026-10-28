@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class NewCourseMateHandler : EventHandlerBase<NewCourseMateEvent>
+    public class NewCourseMateHandler : IEventHandler<NewCourseMateEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly INotificationSettingsService _settingsService;
@@ -31,7 +31,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _configuration = configuration.GetSection("Notification");
         }
 
-        public override async Task HandleAsync(NewCourseMateEvent @event)
+        public async Task HandleAsync(NewCourseMateEvent @event)
         {
             var user = await _authServiceClient.GetAccountData(@event.StudentId);
             var url = _configuration["Url"];

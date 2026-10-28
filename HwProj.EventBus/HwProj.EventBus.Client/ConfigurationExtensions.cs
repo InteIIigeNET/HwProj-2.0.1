@@ -1,13 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Reflection;
 using HwProj.EventBus.Client.Implementations;
 using HwProj.EventBus.Client.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
@@ -16,7 +12,12 @@ namespace HwProj.EventBus.Client
 {
     public static class ConfigurationExtensions
     {
-        public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
+        /// <param name="configureHandlers">
+        /// Подписки сервиса на события. Если не задано, сервис только публикует события
+        /// и не создаёт свою очередь.
+        /// </param>
+        public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration,
+            Action<EventBusBuilder>? configureHandlers = null)
         {
             var eventBusSection = configuration.GetSection("EventBus");
 
@@ -43,28 +44,16 @@ namespace HwProj.EventBus.Client
             services.AddSingleton<IDefaultConnection, DefaultConnection>();
             services.AddSingleton<IEventBus, EventBusRabbitMq>();
 
-            var handlerTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(GetLoadableTypes)
-                .Where(x => typeof(IEventHandler<Event>).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+            var subscriptions = new EventSubscriptions();
+            configureHandlers?.Invoke(new EventBusBuilder(services, subscriptions));
 
-            foreach (var handlerType in handlerTypes)
+            if (!subscriptions.IsEmpty)
             {
-                services.TryAddTransient(handlerType);
+                services.AddSingleton(subscriptions);
+                services.AddHostedService<EventBusConsumer>();
             }
 
             return services;
-        }
-
-        private static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
-        {
-            try
-            {
-                return assembly.GetTypes();
-            }
-            catch (ReflectionTypeLoadException e)
-            {
-                return e.Types.Where(x => x != null);
-            }
         }
     }
 }

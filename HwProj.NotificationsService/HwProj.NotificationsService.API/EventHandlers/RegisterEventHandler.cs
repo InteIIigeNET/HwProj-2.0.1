@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class RegisterEventHandler : EventHandlerBase<StudentRegisterEvent>
+    public class RegisterEventHandler : IEventHandler<StudentRegisterEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly IEmailService _emailService;
@@ -31,7 +31,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _isDevelopmentEnv = env.IsDevelopment();
         }
 
-        public override async Task HandleAsync(StudentRegisterEvent @event)
+        public async Task HandleAsync(StudentRegisterEvent @event)
         {
             var frontendUrl = _configuration.GetSection("Notification")["Url"];
             var recoveryLink =

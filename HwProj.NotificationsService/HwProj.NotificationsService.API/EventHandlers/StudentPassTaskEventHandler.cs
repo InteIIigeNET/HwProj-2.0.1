@@ -10,7 +10,7 @@ using HwProj.NotificationsService.API.Services.Messages;
 namespace HwProj.NotificationsService.API.EventHandlers
 {
     /// <summary> Новые решения не попадают в ленту уведомлений: преподаватели узнают о них из дайжеста </summary>
-    public class StudentPassTaskEventHandler : EventHandlerBase<StudentPassTaskEvent>
+    public class StudentPassTaskEventHandler : IEventHandler<StudentPassTaskEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly INotificationSettingsService _settingsService;
@@ -23,7 +23,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _settingsService = settingsService;
         }
 
-        public override async Task HandleAsync(StudentPassTaskEvent @event)
+        public async Task HandleAsync(StudentPassTaskEvent @event)
         {
             var digest = new DigestItem
             {

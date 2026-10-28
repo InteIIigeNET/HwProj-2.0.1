@@ -1,7 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using HwProj.AuthService.Client;
 using HwProj.Common.Net8;
-using HwProj.EventBus.Client.Interfaces;
 using HwProj.NotificationsService.API.EventHandlers;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
@@ -35,20 +34,20 @@ namespace HwProj.NotificationsService.API
             services.AddDbContext<NotificationsContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<INotificationsRepository, NotificationsRepository>();
             services.AddScoped<INotificationSettingsService, NotificationSettingsService>();
-            services.AddEventBus(Configuration);
-            services.AddTransient<IEventHandler<StudentRegisterEvent>, RegisterEventHandler>();
-            services.AddTransient<IEventHandler<RateEvent>, RateEventHandler>();
-            services.AddTransient<IEventHandler<StudentPassTaskEvent>, StudentPassTaskEventHandler>();
-            services.AddTransient<IEventHandler<UpdateHomeworkEvent>, UpdateHomeworkEventHandler>();
-            services.AddTransient<IEventHandler<UpdateTaskMaxRatingEvent>, UpdateTaskMaxRatingEventHandler>();
-            services.AddTransient<IEventHandler<LecturerAcceptToCourseEvent>, LecturerAcceptToCourseEventHandler>();
-            services.AddTransient<IEventHandler<LecturerRejectToCourseEvent>, LecturerRejectToCourseEventHandler>();
-            services.AddTransient<IEventHandler<LecturerInvitedToCourseEvent>, LecturerInvitedToCourseEventHandler>();
-            services.AddTransient<IEventHandler<NewHomeworkEvent>, NewHomeworkEventHandler>();
-            services.AddTransient<IEventHandler<NewHomeworkTaskEvent>, NewHomeworkTaskEventHandler>();
-            services.AddTransient<IEventHandler<InviteLecturerEvent>, InviteLecturerEventHandler>();
-            services.AddTransient<IEventHandler<NewCourseMateEvent>, NewCourseMateHandler>();
-            services.AddTransient<IEventHandler<PasswordRecoveryEvent>, PasswordRecoveryEventHandler>();
+            services.AddEventBus(Configuration, eventBus => eventBus
+                .AddHandler<StudentRegisterEvent, RegisterEventHandler>()
+                .AddHandler<RateEvent, RateEventHandler>()
+                .AddHandler<StudentPassTaskEvent, StudentPassTaskEventHandler>()
+                .AddHandler<UpdateHomeworkEvent, UpdateHomeworkEventHandler>()
+                .AddHandler<UpdateTaskMaxRatingEvent, UpdateTaskMaxRatingEventHandler>()
+                .AddHandler<LecturerAcceptToCourseEvent, LecturerAcceptToCourseEventHandler>()
+                .AddHandler<LecturerRejectToCourseEvent, LecturerRejectToCourseEventHandler>()
+                .AddHandler<LecturerInvitedToCourseEvent, LecturerInvitedToCourseEventHandler>()
+                .AddHandler<NewHomeworkEvent, NewHomeworkEventHandler>()
+                .AddHandler<NewHomeworkTaskEvent, NewHomeworkTaskEventHandler>()
+                .AddHandler<InviteLecturerEvent, InviteLecturerEventHandler>()
+                .AddHandler<NewCourseMateEvent, NewCourseMateHandler>()
+                .AddHandler<PasswordRecoveryEvent, PasswordRecoveryEventHandler>());
             services.AddSingleton<IEmailService, EmailService>();
 
             services.Configure<DigestOptions>(Configuration.GetSection("Digest"));
@@ -68,27 +67,9 @@ namespace HwProj.NotificationsService.API
             services.AddAutoMapper(x => x.AddProfile<AutomapperProfile>());
         }
 
-        public void Configure(IApplicationBuilder app, IHostEnvironment env, IEventBus eventBus,
-            NotificationsContext context)
+        public void Configure(IApplicationBuilder app, IHostEnvironment env, NotificationsContext context)
         {
             app.UseDatabase(env, context);
-
-            using (var eventBustSubscriber = eventBus.CreateSubscriber())
-            {
-                eventBustSubscriber.Subscribe<StudentRegisterEvent, RegisterEventHandler>();
-                eventBustSubscriber.Subscribe<RateEvent, RateEventHandler>();
-                eventBustSubscriber.Subscribe<StudentPassTaskEvent, StudentPassTaskEventHandler>();
-                eventBustSubscriber.Subscribe<UpdateHomeworkEvent, UpdateHomeworkEventHandler>();
-                eventBustSubscriber.Subscribe<UpdateTaskMaxRatingEvent, UpdateTaskMaxRatingEventHandler>();
-                eventBustSubscriber.Subscribe<LecturerAcceptToCourseEvent, LecturerAcceptToCourseEventHandler>();
-                eventBustSubscriber.Subscribe<LecturerRejectToCourseEvent, LecturerRejectToCourseEventHandler>();
-                eventBustSubscriber.Subscribe<LecturerInvitedToCourseEvent, LecturerInvitedToCourseEventHandler>();
-                eventBustSubscriber.Subscribe<NewHomeworkEvent, NewHomeworkEventHandler>();
-                eventBustSubscriber.Subscribe<NewHomeworkTaskEvent, NewHomeworkTaskEventHandler>();
-                eventBustSubscriber.Subscribe<InviteLecturerEvent, InviteLecturerEventHandler>();
-                eventBustSubscriber.Subscribe<NewCourseMateEvent, NewCourseMateHandler>();
-                eventBustSubscriber.Subscribe<PasswordRecoveryEvent, PasswordRecoveryEventHandler>();
-            }
 
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
             else app.UseHsts();

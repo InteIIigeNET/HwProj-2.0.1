@@ -3,7 +3,7 @@ using HwProj.EventBus.Client.Interfaces;
 
 namespace HwProj.EventBus.Tests
 {
-    public class TestHandler : EventHandlerBase<TestEvent>
+    public class TestHandler : IEventHandler<TestEvent>
     {
         public bool IsHandled { get; set; }
 
@@ -12,7 +12,7 @@ namespace HwProj.EventBus.Tests
             IsHandled = false;
         }
 
-        public override Task HandleAsync(TestEvent @event)
+        public Task HandleAsync(TestEvent @event)
         {
             throw new System.NotImplementedException();
         }

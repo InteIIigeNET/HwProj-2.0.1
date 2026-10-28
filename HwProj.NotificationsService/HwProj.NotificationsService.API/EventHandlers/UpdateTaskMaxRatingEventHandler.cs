@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class UpdateTaskMaxRatingEventHandler : EventHandlerBase<UpdateTaskMaxRatingEvent>
+    public class UpdateTaskMaxRatingEventHandler : IEventHandler<UpdateTaskMaxRatingEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly IConfigurationSection _configuration;
@@ -23,7 +23,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _configuration = configuration.GetSection("Notification");
         }
 
-        public override async Task HandleAsync(UpdateTaskMaxRatingEvent @event)
+        public async Task HandleAsync(UpdateTaskMaxRatingEvent @event)
         {
             var courseUrl = $"{_configuration["Url"]}/courses/{@event.CourseId}";
             var taskUrl = $"{courseUrl}/homeworks?taskId={@event.TaskId}";
