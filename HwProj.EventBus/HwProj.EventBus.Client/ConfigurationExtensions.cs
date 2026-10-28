@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Reflection;
 using HwProj.EventBus.Client.Implementations;
 using HwProj.EventBus.Client.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Polly;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
@@ -32,28 +35,36 @@ namespace HwProj.EventBus.Client
                 HostName = eventBusSection["EventBusHostName"],
                 UserName = eventBusSection["EventBusUserName"],
                 Password = eventBusSection["EventBusPassword"],
-                VirtualHost = eventBusSection["EventBusVirtualHost"]
+                VirtualHost = eventBusSection["EventBusVirtualHost"],
+                AutomaticRecoveryEnabled = true,
+                DispatchConsumersAsync = true
             });
 
             services.AddSingleton<IDefaultConnection, DefaultConnection>();
             services.AddSingleton<IEventBus, EventBusRabbitMq>();
 
-            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).ToList();
-            var eventTypes = types.Where(x => typeof(Event).IsAssignableFrom(x));
-            foreach (var eventType in eventTypes)
-            {
-                var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
-                var handlersTypes = types.Where(x =>
-                    fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+            var handlerTypes = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(GetLoadableTypes)
+                .Where(x => typeof(IEventHandler<Event>).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
 
-                foreach (var handlerType in handlersTypes)
-                {
-                    services.AddTransient(handlerType);
-                }
+            foreach (var handlerType in handlerTypes)
+            {
+                services.TryAddTransient(handlerType);
             }
 
             return services;
         }
 
+        private static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                return e.Types.Where(x => x != null);
+            }
+        }
     }
 }

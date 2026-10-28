@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using HwProj.EventBus.Client.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Polly.Retry;
 using RabbitMQ.Client;
@@ -15,27 +16,32 @@ namespace HwProj.EventBus.Client.Implementations
     public class EventBusRabbitMq : IEventBus, IDisposable
     {
         private const string BrokerName = "hwproj_event_bus";
+        private const ushort PrefetchCount = 10;
 
         private readonly IDefaultConnection _connection;
         private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ILogger<EventBusRabbitMq> _logger;
 
         private readonly string _queueName;
         private readonly RetryPolicy _policy;
 
-        private IModel _consumerChannel;
+        private readonly object _lock = new object();
+        private IModel? _consumerChannel;
+        private bool _isConsuming;
 
         private readonly Dictionary<string, Type> _eventTypes = new Dictionary<string, Type>();
 
         private readonly Dictionary<string, List<Type>> _handlers =
             new Dictionary<string, List<Type>>();
 
-        public EventBusRabbitMq(IDefaultConnection connection, IConfiguration configuration, IConnectionFactory connectionFactory, IServiceScopeFactory scopeFactory, RetryPolicy policy)
+        public EventBusRabbitMq(IDefaultConnection connection, IConfiguration configuration,
+            IServiceScopeFactory scopeFactory, RetryPolicy policy, ILogger<EventBusRabbitMq> logger)
         {
             _connection = connection;
             _scopeFactory = scopeFactory;
+            _logger = logger;
             _queueName = configuration.GetSection("EventBus")["EventBusQueueName"];
             _policy = policy;
-            _consumerChannel = CreateConsumerChannel();
         }
 
         public void Publish(Event @event)
@@ -68,21 +74,30 @@ namespace HwProj.EventBus.Client.Implementations
             where TEvent : Event
             where THandler : EventHandlerBase<TEvent>
         {
-            using var channel = _connection.CreateModel();
             var eventName = GetEventName<TEvent>();
-            if (!_handlers.TryGetValue(eventName, out var handlers))
+            lock (_lock)
             {
-                handlers = new List<Type>();
-                _handlers.Add(eventName, handlers);
-            }
+                var channel = GetOrCreateConsumerChannel();
+                if (!_handlers.TryGetValue(eventName, out var handlers))
+                {
+                    handlers = new List<Type>();
+                    _handlers.Add(eventName, handlers);
+                }
 
-            handlers.Add(typeof(THandler));
-            _eventTypes[eventName] = typeof(TEvent);
-            channel.QueueBind(queue: _queueName, exchange: BrokerName, routingKey: eventName);
+                if (handlers.Contains(typeof(THandler))) return;
+
+                handlers.Add(typeof(THandler));
+                _eventTypes[eventName] = typeof(TEvent);
+                channel.QueueBind(queue: _queueName, exchange: BrokerName, routingKey: eventName);
+            }
         }
 
-        private IModel CreateConsumerChannel()
+        // Канал консьюмера создаётся лениво: сервисам, которые только публикуют события,
+        // не нужно держать открытый канал и объявлять свою очередь
+        private IModel GetOrCreateConsumerChannel()
         {
+            if (_consumerChannel != null) return _consumerChannel;
+
             var channel = _connection.CreateModel();
 
             channel.ExchangeDeclare(exchange: BrokerName, type: ExchangeType.Direct, durable: true);
@@ -91,53 +106,79 @@ namespace HwProj.EventBus.Client.Implementations
                 exclusive: false,
                 autoDelete: false,
                 arguments: null);
+            channel.BasicQos(prefetchSize: 0, prefetchCount: PrefetchCount, global: false);
 
-            channel.CallbackException += (sender, ea) =>
-            {
-                _consumerChannel.Close();
-                _consumerChannel = CreateConsumerChannel();
-                StartBasicConsume();
-            };
-
-            return channel;
+            return _consumerChannel = channel;
         }
 
         internal void StartBasicConsume()
         {
-            var consumer = new EventingBasicConsumer(_consumerChannel);
-            consumer.Received += Consumer_Received;
-            _consumerChannel.BasicConsume(queue: _queueName, autoAck: false, consumer: consumer);
+            lock (_lock)
+            {
+                if (_isConsuming) return;
+
+                var channel = GetOrCreateConsumerChannel();
+                var consumer = new AsyncEventingBasicConsumer(channel);
+                consumer.Received += (_, eventArgs) => Consumer_Received(channel, eventArgs);
+                channel.BasicConsume(queue: _queueName, autoAck: false, consumer: consumer);
+                _isConsuming = true;
+            }
         }
 
-        private async void Consumer_Received(object sender, BasicDeliverEventArgs eventArgs)
+        private async Task Consumer_Received(IModel channel, BasicDeliverEventArgs eventArgs)
         {
             var eventName = eventArgs.RoutingKey;
-            var message = Encoding.UTF8.GetString(eventArgs.Body);
+            try
+            {
+                var message = Encoding.UTF8.GetString(eventArgs.Body);
+                await ProcessEvent(eventName, message);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Не удалось обработать событие {EventName}", eventName);
+            }
 
-            await ProcessEvent(eventName, message);
-
-            _consumerChannel.BasicAck(deliveryTag: eventArgs.DeliveryTag, multiple: false);
+            // Подтверждаем сообщение в любом случае: ошибки обработчиков уже залогированы,
+            // а повторная доставка привела бы к повторному запуску успешно отработавших обработчиков
+            channel.BasicAck(deliveryTag: eventArgs.DeliveryTag, multiple: false);
         }
 
         private async Task ProcessEvent(string eventName, string message)
         {
-            if (!_handlers.TryGetValue(eventName, out var handlers) ||
-                !_eventTypes.TryGetValue(eventName, out var eventType) ||
-                !(JsonConvert.DeserializeObject(message, eventType) is Event @event)) return;
+            Type[] handlers;
+            Type eventType;
+            lock (_lock)
+            {
+                if (!_handlers.TryGetValue(eventName, out var eventHandlers) ||
+                    !_eventTypes.TryGetValue(eventName, out eventType)) return;
+                handlers = eventHandlers.ToArray();
+            }
 
-            //TODO: log
+            if (!(JsonConvert.DeserializeObject(message, eventType) is Event @event)) return;
+
             using var scope = _scopeFactory.CreateScope();
             foreach (var handler in handlers)
             {
-                var eventHandler = scope.ServiceProvider.GetRequiredService(handler) as IEventHandler<Event>;
-                await eventHandler?.HandleAsync(@event);
+                try
+                {
+                    var eventHandler = (IEventHandler<Event>)scope.ServiceProvider.GetRequiredService(handler);
+                    await eventHandler.HandleAsync(@event);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Обработчик {Handler} упал при обработке события {EventName} ({EventId})",
+                        handler.Name, eventName, @event.Id);
+                }
             }
         }
 
         public void Dispose()
         {
-            _consumerChannel.Close();
-            _connection.Dispose();
+            lock (_lock)
+            {
+                _consumerChannel?.Dispose();
+                _consumerChannel = null;
+            }
         }
 
         private static string GetEventName<TEvent>()
