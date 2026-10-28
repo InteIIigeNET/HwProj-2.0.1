@@ -53,6 +53,7 @@ public class StatisticsController : AggregationController
     }
 
     [HttpGet("{courseId}")]
+    [Authorize]
     [ProducesResponseType(typeof(StatisticsCourseMatesModel[]), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetCourseStatistics(long courseId)
     {
@@ -85,6 +86,7 @@ public class StatisticsController : AggregationController
     }
 
     [HttpGet("{courseId}/charts")]
+    [Authorize]
     [ProducesResponseType(typeof(AdvancedCourseStatisticsViewModel), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetChartStatistics(long courseId)
     {
