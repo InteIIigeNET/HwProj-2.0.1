@@ -15,6 +15,7 @@ namespace HwProj.CoursesService.API.Repositories
 
         public Task<Course?> GetWithCourseMates(long id) =>
             Context.Set<Course>()
+                .Include(c => c.Mentors)
                 .Include(c => c.CourseMates)
                 .ThenInclude(c => c.Characteristics)
                 .AsNoTracking()
@@ -22,6 +23,7 @@ namespace HwProj.CoursesService.API.Repositories
 
         public async Task<Course?> GetWithHomeworksAsync(long id)
             => await Context.Set<Course>()
+                .Include(c => c.Mentors)
                 .Include(c => c.Homeworks)
                 .ThenInclude(h => h.Tasks)
                 .AsNoTracking()
@@ -31,6 +33,7 @@ namespace HwProj.CoursesService.API.Repositories
         {
             var query = Context.Set<Course>()
                 .AsNoTracking()
+                .Include(c => c.Mentors)
                 .Include(c => c.CourseMates)
                 .ThenInclude(c => c.Characteristics)
                 .Include(c => c.Homeworks)
@@ -48,6 +51,7 @@ namespace HwProj.CoursesService.API.Repositories
         public IQueryable<Course> GetAllWithCourseMatesAndHomeworks()
         {
             return Context.Set<Course>()
+                .Include(c => c.Mentors)
                 .Include(c => c.CourseMates)
                 .ThenInclude(c => c.Characteristics)
                 .Include(c => c.Homeworks)
