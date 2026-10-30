@@ -1,9 +1,7 @@
 import * as React from "react";
 import {
-    AccountDataDto,
-    FileInfoDTO, GroupViewModel,
     HomeworkTaskViewModel,
-    HomeworkViewModel, SolutionDto, SolutionState, StatisticsCourseMatesModel,
+    HomeworkViewModel, SolutionDto, SolutionState,
 } from "@/api";
 import {
     AlertTitle,
@@ -22,11 +20,11 @@ import {
     useTheme,
     Zoom
 } from "@mui/material";
-import {FC, useEffect, useState} from "react";
+import {FC, useEffect, useMemo, useState} from "react";
 import {Alert, Chip, Paper, Stack, Tooltip} from "@mui/material";
 import CourseTaskSolutions from "../Solutions/CourseTaskSolutions";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
-import {BonusTag, DefaultTags, getTip, isBonusWork, isTestWork, TestTag} from "../Common/HomeworkTags";
+import {DefaultTags, getTip, TestTag} from "../Common/HomeworkTags";
 import FileInfoConverter from "components/Utils/FileInfoConverter";
 import CourseHomeworkExperimental from "components/Homeworks/CourseHomeworkExperimental";
 import CourseTaskExperimental from "../Tasks/CourseTaskExperimental";
@@ -44,9 +42,25 @@ import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
-import Lodash from "lodash";
 import {CourseUnitType} from "@/components/Files/CourseUnitType";
 import GroupIcon from '@mui/icons-material/Group';
+import {
+    useEditingStatus,
+    useEditingSelection,
+    useEnsureSelectedHomework,
+    useMergedHomeworks,
+    useSelectedCourseItemData,
+    useVisibleCourseHomeworks
+} from "@/store/storeHooks/courseEditingHooks";
+import {useCourseActions} from "@/store/courseActions";
+import {
+    StartProcessingFn,
+    useCourseLoader,
+    useCoursePageData,
+    useIsCourseMentor
+} from "@/store/storeHooks/courseHooks";
+import {useCourseState} from "@/store/hooks";
+import {getHomeworkValidation, getTaskValidation} from "@/store/courseEditingValidation";
 
 // Оформление списка заданий согласовано с редизайном страницы курса и списка курсов
 const listPanelSx = {
@@ -201,39 +215,10 @@ const emptyTaskDotSx = {
 }
 
 interface ICourseExperimentalProps {
-    homeworks: HomeworkViewModel[]
-    courseFilesInfo: FileInfoDTO[]
-    studentSolutions: StatisticsCourseMatesModel[]
     courseId: number
-    isMentor: boolean
-    courseMates: AccountDataDto[]
-    onStudentSolutionsUpdate: () => void
-    userId: string
-    searchedItem: { isHomework: boolean | undefined, id: number | undefined }
-    onHomeworkUpdate: (update: { homework: HomeworkViewModel } & {
-        isDeleted?: boolean
-    }) => void
-    onTaskUpdate: (update: { task: HomeworkTaskViewModel, isDeleted?: boolean }) => void,
-    processingFiles: {
-        [homeworkId: number]: {
-            isLoading: boolean;
-        };
-    };
-    onStartProcessing: (homeworkId: number,
-                        courseUnitType: CourseUnitType,
-                        previouslyExistingFilesCount: number,
-                        waitingNewFilesCount: number,
-                        deletingFilesIds: number[]) => void;
-    onGroupsUpdate: () => void;
-    groups: GroupViewModel[];
-}
-
-interface ICourseExperimentalState {
-    initialEditMode: boolean,
-    selectedItem: {
-        isHomework: boolean,
-        id: number | undefined,
-    }
+    onStartProcessing: StartProcessingFn
+    selectedHomeworkId: number | undefined
+    selectedTaskId: number | undefined
 }
 
 export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
@@ -251,44 +236,31 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     // Состояние для кнопки "Наверх"
     const [showScrollButton, setShowScrollButton] = useState(false);
 
-    const homeworks = props.homeworks.slice().reverse().filter(x => {
-        if (hideDeferred) return !x.isDeferred
-        if (showOnlyGroupedTest !== undefined) return x.tags!.includes(TestTag) && x.tags!.includes(showOnlyGroupedTest)
-        return true
-    })
+    const mergedHomeworks = useMergedHomeworks()
+    const {createHomework, createTask} = useCourseActions()
+    const {select: selectItem} = useEditingSelection()
+    const {isHomeworkEditing, isTaskEditing} = useEditingStatus()
+    const homeworks = useVisibleCourseHomeworks(mergedHomeworks, hideDeferred, showOnlyGroupedTest)
 
-    const {isMentor, studentSolutions, userId, searchedItem, courseFilesInfo} = props
-    const isStudentAccepted = props.courseMates.some(x => x.userId === userId)
+    const {selectedHomeworkId, selectedTaskId, onStartProcessing: startProcessing} = props
+    const {userId, studentSolutions, isAcceptedStudent, acceptedStudents, groups} = useCoursePageData()
+    const courseFilesInfo = useCourseState(state => state.courseFiles.items)
+    const isMentor = useIsCourseMentor()
+    const isStudentAccepted = isAcceptedStudent
+    const {loadStudentSolutions, loadGroups} = useCourseLoader(props.courseId)
 
-    const [state, setState] = useState<ICourseExperimentalState>({
-        initialEditMode: false,
-        selectedItem: {id: undefined, isHomework: true},
-    })
+    const {
+        selectedItem: selectedNavItem,
+        selectedHomework: selectedItemHomework,
+        selectedItemData,
+    } = useSelectedCourseItemData(homeworks)
+    const {id, isHomework} = selectedNavItem
+
+    useEnsureSelectedHomework(homeworks, selectedHomeworkId, selectedTaskId, hideDeferred)
 
     // Диалог отправки/редактирования решения открывается кнопкой в подвале карточки задачи,
     // а сам диалог и блок решений живут в CourseTaskSolutions под карточкой — состояние общее.
     const [addSolutionOpen, setAddSolutionOpen] = useState(false)
-
-    useEffect(() => {
-        // Диплинк на конкретную задачу (useSearchParams): открываем её сразу, не дожидаясь клика по ленте
-        const homeworkWithTask = searchedItem.isHomework === false
-            ? homeworks?.find(x => x.tasks?.some(t => t.id === searchedItem.id))
-            : undefined
-        if (homeworkWithTask) {
-            setState((prevState) => ({
-                ...prevState,
-                selectedItem: {isHomework: false, id: searchedItem.id},
-            }))
-            return
-        }
-
-        const defaultHomeworkIndex = Math.max(searchedItem.isHomework ? homeworks?.findIndex(x => x.id === searchedItem.id) : 0, 0)
-        const defaultHomework = homeworks?.[defaultHomeworkIndex]
-        setState((prevState) => ({
-            ...prevState,
-            selectedItem: {isHomework: true, id: defaultHomework?.id},
-        }))
-    }, [hideDeferred, searchedItem.isHomework, searchedItem.id])
 
     // Обработчик прокрутки страницы
     useEffect(() => {
@@ -311,9 +283,6 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             behavior: 'instant'
         });
     };
-
-    const initialEditMode = state.initialEditMode
-    const {id, isHomework} = state.selectedItem
 
     // Смена выбранного элемента ленты закрывает форму отправки решения
     useEffect(() => {
@@ -351,15 +320,16 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const isRowSelected = (itemIsHomework: boolean, itemId: number) =>
         itemIsHomework === isHomework && itemId === id
 
-    const taskSolutionsMap = new Map<number, SolutionDto[]>()
-
-    if (!isMentor && isStudentAccepted) {
+    const taskSolutionsMap = useMemo(() => {
+        const map = new Map<number, SolutionDto[]>()
+        if (isMentor || !isStudentAccepted) return map
         studentSolutions
             .filter(t => t.id === userId)
-            .flatMap(t => t.homeworks!)
-            .flatMap(t => t.tasks!)
-            .forEach(x => taskSolutionsMap.set(x.id!, x.solutions!))
-    }
+            .flatMap(t => t.homeworks ?? [])
+            .flatMap(t => t.tasks ?? [])
+            .forEach(x => map.set(x.id!, x.solutions ?? []))
+        return map
+    }, [studentSolutions, userId, isMentor, isStudentAccepted])
 
     // Фильтр "Только нерешенные" для студента: показываем задачи, по которым ещё нет ни одного решения.
     type Filter = "Только нерешенные"
@@ -384,48 +354,43 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     const isTaskVisible = (task: HomeworkTaskViewModel) =>
         !showOnlyNotSolved || task.id! < 0 || isTaskNotSolved(task)
 
-    const showWarningsForEntity = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
-        if (!isMentor) return false
-        if (entity.publicationDateNotSet || entity.hasDeadline && entity.deadlineDateNotSet) return true
-
-        if (!isHomework) return false
-        const result = validateTestGrouping(entity)
-        return result !== true && result.hasErrors
-    }
-
     // Расшифровываем предупреждение в подсказке, чтобы преподаватель сразу понимал, что именно не заполнено
-    const getWarningTitle = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomeworkEntity: boolean) => {
-        if (entity.publicationDateNotSet) return "Не выставлена дата публикации"
-        if (entity.hasDeadline && entity.deadlineDateNotSet) return "Не выставлена дата дедлайна"
+    const getWarningTitle = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomeworkEntity: boolean, homework?: HomeworkViewModel) => {
+        if (!isMentor) return undefined
+        const publicationDate = (entity.publicationDateNotSet ? undefined : entity.publicationDate)
+            ?? (homework?.publicationDateNotSet ? undefined : homework?.publicationDate)
+        const deadlineDate = (entity.deadlineDateNotSet ? undefined : entity.deadlineDate)
+            ?? (homework?.deadlineDateNotSet ? undefined : homework?.deadlineDate)
+        if (!publicationDate) return "Не выставлена дата публикации"
+        if ((entity.hasDeadline ?? homework?.hasDeadline) && !deadlineDate) return "Не выставлена дата дедлайна"
         if (isHomeworkEntity) {
             const result = validateTestGrouping(entity)
             if (result !== true && result.hasErrors)
                 return `Контрольные работы с ключом «${result.groupingTag}» отличаются по количеству задач или баллам`
         }
-        return "Проверьте настройки"
+        return undefined
     }
 
-    const renderWarningIcon = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomeworkEntity: boolean) =>
-        <Tooltip arrow title={getWarningTitle(entity, isHomeworkEntity)}>
+    const renderWarningIcon = (title: string) =>
+        <Tooltip arrow title={title}>
             <WarningAmberRoundedIcon fontSize="small" sx={{flexShrink: 0, color: "#ed6c02"}}/>
         </Tooltip>
 
     const renderHomeworkStatus = (homework: HomeworkViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
-        const hasErrors = homework.id! < 0 && (homework.hasErrors || homework.tasks!.some((t: HomeworkTaskViewModel & {
-            hasErrors?: boolean
-        }) => t.hasErrors))
-        if (hasErrors)
+        const {hasErrors, taskHasErrors} = getHomeworkValidation(homework)
+        if (homework.id! < 0 && (hasErrors || taskHasErrors))
             return <Tooltip arrow title={"Заполнены не все обязательные поля"}>
                 <ErrorIcon fontSize="small" color={"error"} sx={{flexShrink: 0}}/>
             </Tooltip>
-        if (homework.isModified)
+        if (isHomeworkEditing(homework.id!) || homework.isModified)
             return <Tooltip arrow title={"Есть несохранённые изменения"}>
                 <EditIcon fontSize="small" color={"primary"} sx={{flexShrink: 0}}/>
             </Tooltip>
-        return showWarningsForEntity(homework, true) ? renderWarningIcon(homework, true) : null
+        const warningTitle = getWarningTitle(homework, true)
+        return warningTitle ? renderWarningIcon(warningTitle) : null
     }
 
-    const renderTaskStatus = (task: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean }) => {
+    const renderTaskStatus = (task: HomeworkTaskViewModel & { isModified?: boolean, hasErrors?: boolean }, homework: HomeworkViewModel) => {
         if (taskSolutionsMap.has(task.id!)) {
             const solutions = taskSolutionsMap.get(task.id!)
             const {
@@ -449,13 +414,14 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 </Tooltip>
             )
         }
-        if (task.hasErrors) return <Tooltip arrow title={"Заполнены не все обязательные поля"}>
+        if (getTaskValidation(task, homework).hasErrors) return <Tooltip arrow title={"Заполнены не все обязательные поля"}>
             <ErrorIcon fontSize="small" color={"error"}/>
         </Tooltip>
-        if (task.isModified) return <Tooltip arrow title={"Есть несохранённые изменения"}>
+        if (isTaskEditing(task.id!) || task.isModified) return <Tooltip arrow title={"Есть несохранённые изменения"}>
             <EditIcon fontSize="small" color={"primary"}/>
         </Tooltip>
-        if (showWarningsForEntity(task, false)) return renderWarningIcon(task, false)
+        const warningTitle = getWarningTitle(task, false, homework)
+        if (warningTitle) return renderWarningIcon(warningTitle)
         return <Box sx={{...taskDotSx, borderColor: task.isDeferred ? "#dcdfe6" : "#a8b0d8"}}/>
     }
 
@@ -467,9 +433,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     // Дедлайн задачи в списке: близкий срок подсвечивается только тому студенту, который ещё ничего не сдал
-    const renderTaskDeadline = (task: HomeworkTaskViewModel) => {
-        if (task.deadlineDateNotSet || !task.deadlineDate) return null
-        const deadline = new Date(task.deadlineDate).getTime()
+    const renderTaskDeadline = (task: HomeworkTaskViewModel, homework: HomeworkViewModel) => {
+        const deadlineDate = (task.deadlineDateNotSet ? undefined : task.deadlineDate)
+            ?? (homework.deadlineDateNotSet ? undefined : homework.deadlineDate)
+        if (!(task.hasDeadline ?? homework.hasDeadline) || !deadlineDate) return null
+        const deadline = new Date(deadlineDate).getTime()
         const now = Date.now()
         const hasSolution = (taskSolutionsMap.get(task.id!)?.length ?? 0) > 0
         const isSoon = !isMentor && !hasSolution && deadline > now && deadline - now <= 3 * 24 * 60 * 60 * 1000
@@ -478,7 +446,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                    sx={{flexShrink: 0, color: isSoon ? "warning.main" : "text.secondary"}}>
                 {isSoon && <ScheduleIcon sx={{fontSize: 14}}/>}
                 <Typography variant={"caption"} sx={{whiteSpace: "nowrap", fontWeight: isSoon ? 500 : 400}}>
-                    {renderShortDate(task.deadlineDate) + ", " + renderTime(task.deadlineDate)}
+                    {renderShortDate(deadlineDate) + ", " + renderTime(deadlineDate)}
                 </Typography>
             </Stack>
         )
@@ -511,17 +479,9 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         </Tooltip>
     }
 
-    const onSelectedItemMount = () =>
-        setState((prevState) => ({
-            ...prevState,
-            initialEditMode: false,
-        }))
-
-    const toEditHomework = (homework: HomeworkViewModel) =>
-        setState({
-            initialEditMode: true,
-            selectedItem: {id: homework.id!, isHomework: true},
-        })
+    const toEditHomework = (homework: HomeworkViewModel) => {
+        selectItem({isHomework: true, id: homework.id!})
+    }
 
     const validateTestGrouping = (homework: HomeworkViewModel) => {
         if (!homework.tags!.includes(TestTag)) return true
@@ -529,27 +489,22 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         const groupingTag = homework.tags!.find(x => !DefaultTags.includes(x))
         if (groupingTag === undefined) return true
 
-        const groupedHomeworks = homeworks.filter(x => x.tags!.includes(TestTag) && x.tags!.includes(groupingTag))
+        const groupedHomeworks = mergedHomeworks.filter(x => x.tags!.includes(TestTag) && x.tags!.includes(groupingTag))
         if (groupedHomeworks.length === 1) return true
 
         const keys = new Set(groupedHomeworks.map(h => h.tasks!.map(t => t.maxRating).join(";")))
         return {groupingTag: groupingTag, hasErrors: keys.size !== 1}
     }
 
-    const getDatesAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean) => {
-        if (entity.publicationDateNotSet) {
+    const getDatesAlert = (entity: HomeworkViewModel | HomeworkTaskViewModel, isHomework: boolean, homework?: HomeworkViewModel) => {
+        const warningTitle = getWarningTitle(entity, false, homework)
+        if (warningTitle) {
             return (
                 <Alert severity="warning">
-                    {"Не выставлена дата публикации"}
+                    {warningTitle}
                 </Alert>
             )
         }
-
-        if (isMentor && entity.hasDeadline && entity.deadlineDateNotSet) return (
-            <Alert severity="warning">
-                {"Не выставлена дата дедлайна"}
-            </Alert>
-        )
 
         if (entity.id! < 0) {
             if (isHomework)
@@ -560,20 +515,19 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                   <Button
                                       color="inherit"
                                       size="small"
-                                      onClick={() => setState((prevState) => ({
-                                          ...prevState,
-                                          selectedItem: {
-                                              isHomework: true,
-                                              id: (entity as HomeworkTaskViewModel).homeworkId!
-                                          }
-                                      }))}
+                                      onClick={() => selectItem({
+                                          isHomework: true,
+                                          id: (entity as HomeworkTaskViewModel).homeworkId!
+                                      })}
                                   >
                                       Перейти к заданию
                                   </Button>}>Часть добавления нового задания</Alert>
             return <Alert severity="info">Новая задача будет добавлена после нажатия на 'Добавить задачу'</Alert>
         }
 
-        if (entity.isDeferred) return (
+        const publicationDate = (entity.publicationDateNotSet ? undefined : entity.publicationDate)
+            ?? (homework?.publicationDateNotSet ? undefined : homework?.publicationDate)
+        if (entity.isDeferred && publicationDate) return (
             <Alert severity="info"
                    action={
                        <Button
@@ -584,7 +538,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                            Скрыть неопубликованное
                        </Button>}>
                 {isHomework ? "Задание будет опубликовано " : "Задача будет опубликована "}
-                {renderDate(entity.publicationDate!) + " " + renderTime(entity.publicationDate!)}
+                {renderDate(publicationDate) + " " + renderTime(publicationDate)}
             </Alert>
         )
     }
@@ -639,125 +593,35 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return true
     })
 
-    const selectedItemHomework = isHomework
-        ? homeworks.find(x => x.id === id)!
-        : homeworks.find(x => x.tasks!.some(t => t.id === id))!
-
-    const selectedItem = isHomework
-        ? selectedItemHomework
-        : selectedItemHomework?.tasks!.find(x => x.id === id) as HomeworkTaskViewModel
-
-    const [newTaskCounter, setNewTaskCounter] = useState<number>(-1)
+    const selectedItem = selectedItemData
 
     const addNewHomework = () => {
-        props.onHomeworkUpdate({
-            homework: {
-                courseId: props.courseId,
-                title: "Новое задание",
-                publicationDateNotSet: false,
-                publicationDate: undefined,
-                hasDeadline: false,
-                id: -1,
-                isGroupWork: false,
-                deadlineDateNotSet: false,
-                deadlineDate: undefined,
-                isDeadlineStrict: false,
-                description: "",
-                tasks: [],
-                tags: []
-            }
-        })
-        setState((prevState) => ({
-            ...prevState,
-            selectedItem: {
-                isHomework: true,
-                id: -1
-            }
-        }))
+        createHomework(props.courseId)
     }
 
     const addNewTask = (homework: HomeworkViewModel) => {
-        const id = newTaskCounter
-        const tags = homework.tags!
-        const isTest = tags.includes(TestTag)
-        const isBonus = tags.includes(BonusTag)
-
-        const ratingCandidate = Lodash(homeworks
-            .map(h => h.tasks![0])
-            .filter(x => {
-                if (x === undefined) return false
-                const xIsTest = isTestWork(x)
-                const xIsBonus = isBonusWork(x)
-                return x.id! > 0 && (isTest && xIsTest || isBonus && xIsBonus || !isTest && !isBonus && !xIsTest && !xIsBonus)
-            }))
-            .map(x => x.maxRating!)
-            .groupBy(x => [x])
-            .entries()
-            .sortBy(x => x[1].length).last()?.[1][0]
-
-        const task = {
-            homeworkId: homework.id,
-            maxRating: ratingCandidate || 10,
-            suggestedMaxRating: ratingCandidate,
-            title: `Новая задача`,
-            tags: homework.tags,
-            isDeferred: homework.isDeferred,
-            description: "",
-            id
-        }
-
-        props.onTaskUpdate({task})
-        setState((prevState) => ({
-            ...prevState,
-            selectedItem: {
-                isHomework: false,
-                id: id
-            }
-        }))
-        setNewTaskCounter(id - 1)
+        createTask(homework)
     }
 
     const renderHomework = (homework: HomeworkViewModel & { isModified?: boolean }) => {
-        const filesInfo = id ? FileInfoConverter.getCourseUnitFilesInfo(courseFilesInfo, CourseUnitType.Homework, id) : []
-        const homeworkEditMode = homework && (homework.id! < 0 || homework.isModified === true)
-        return homework && <Paper variant={"outlined"} sx={detailPanelSx(homeworkEditMode)}>
+        const filesInfo = homework.id
+            ? FileInfoConverter.getCourseUnitFilesInfo(courseFilesInfo, CourseUnitType.Homework, homework.id)
+            : []
+        const homeworkEditMode = homework && (homework.id! < 0 || isHomeworkEditing(homework.id!))
+        return homework && <Paper variant={"outlined"} sx={detailPanelSx(!!homeworkEditMode)}>
             {isMentor && <Box sx={topAlertsSx}>
                 {getGroupingAlert(homework)}
                 {getDatesAlert(homework, true)}
             </Box>}
             <CourseHomeworkExperimental
                 key={homework.id}
-                getAllHomeworks={() => homeworks}
                 homeworkAndFilesInfo={{homework, filesInfo}}
-                isMentor={isMentor}
-                initialEditMode={initialEditMode || homeworkEditMode}
-                onMount={onSelectedItemMount}
                 onAddTask={addNewTask}
-                onUpdate={update => {
-                    props.onHomeworkUpdate(update)
-                    setState((prevState) => ({
-                        ...prevState,
-                        selectedItem: {
-                            isHomework: true,
-                            id: update.isDeleted ? undefined : update.homework.id!
-                        }
-                    }))
-                }}
-                isProcessing={props.processingFiles[homework.id!]?.isLoading || false}
-                onStartProcessing={props.onStartProcessing}
-                onGroupsUpdate={props.onGroupsUpdate}
-                groups={props.groups}
+                onStartProcessing={startProcessing}
+                onGroupsUpdate={loadGroups}
+                groups={groups}
             />
         </Paper>
-    }
-
-    // Балл студента за задачу для шапки: "?" — если решение первое и не имеет оценки, иначе оценка последней проверки
-    const getTaskRating = (task: HomeworkTaskViewModel): number | "?" => {
-        if (isMentor || !isStudentAccepted) return 0
-        const {lastSolution, lastRatedSolution} =
-            StudentStatsUtils.calculateLastRatedSolutionInfo(taskSolutionsMap.get(task.id!) ?? [], task.maxRating!)
-        if (lastSolution == null) return 0
-        return lastRatedSolution == null ? "?" : lastRatedSolution.rating ?? 0
     }
 
     // Последнее решение студента без оценки — кнопка предлагает «Изменить решение», а не «Добавить»
@@ -766,35 +630,30 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
         return solutions[solutions.length - 1]?.state === SolutionState.NUMBER_0
     }
 
+    const getTaskRating = (task: HomeworkTaskViewModel): number | '?' => {
+        const {lastSolution, lastRatedSolution} = StudentStatsUtils.calculateLastRatedSolutionInfo(
+            taskSolutionsMap.get(task.id!) ?? [], task.maxRating!
+        )
+        if (!lastSolution) return 0
+        return lastRatedSolution ? lastRatedSolution.rating ?? 0 : '?'
+    }
+
     const renderTask = (task: HomeworkTaskViewModel & { isModified?: boolean }, homework: HomeworkViewModel) => {
-        const taskEditMode = task && (task.id! < 0 || task.isModified === true)
+        const taskEditMode = task && (task.id! < 0 || isTaskEditing(task.id!))
         if (!task) return task
 
         const isStudent = !isMentor && isStudentAccepted && task.id! > 0
 
-        const taskPanel = <Paper variant={"outlined"} sx={detailPanelSx(taskEditMode)}>
-            {isMentor && <Box sx={topAlertsSx}>{getDatesAlert(task, false)}</Box>}
+        const taskPanel = <Paper variant={"outlined"} sx={detailPanelSx(!!taskEditMode)}>
+            {isMentor && <Box sx={topAlertsSx}>{getDatesAlert(task, false, homework)}</Box>}
             <CourseTaskExperimental
                 key={task.id}
                 task={task}
                 homework={homework!}
-                isMentor={isMentor}
                 isStudentAccepted={isStudentAccepted}
                 rating={getTaskRating(task)}
-                initialEditMode={initialEditMode || taskEditMode}
-                onMount={onSelectedItemMount}
-                onUpdate={update => {
-                    props.onTaskUpdate(update)
-                    if (update.isDeleted)
-                        setState((prevState) => ({
-                            ...prevState,
-                            selectedItem: {
-                                isHomework: true,
-                                id: homework!.id
-                            }
-                        }))
-                }}
-                toEditHomework={() => toEditHomework(homework!)} getAllHomeworks={() => homeworks}/>
+                toEditHomework={() => toEditHomework(homework!)}
+            />
             {isStudent && task.canSendSolution && <Box sx={detailFooterSx}>
                 <Button
                     variant={"contained"}
@@ -809,7 +668,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Box>}
         </Paper>
 
-        if (isStudent)
+        if (isStudent && userId)
             return <>
                 {taskPanel}
                 <CourseTaskSolutions
@@ -817,10 +676,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                     task={task}
                     courseId={props.courseId}
                     userId={userId}
-                    courseMates={props.courseMates}
+                    courseMates={acceptedStudents}
                     addSolutionOpen={addSolutionOpen}
                     onCloseAddSolution={() => setAddSolutionOpen(false)}
-                    onSolutionsChanged={props.onStudentSolutionsUpdate}
+                    onSolutionsChanged={() => { void loadStudentSolutions() }}
                 />
             </>
 
@@ -971,10 +830,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                 <Box sx={railSx(index === 0, index === visibleHomeworks.length - 1, hasTasks || x.id! > 0)}/>
                                 <ListItemButton
                                     selected={isRowSelected(true, x.id!)}
-                                    onClick={() => setState(prevState => ({
-                                        ...prevState,
-                                        selectedItem: {isHomework: true, id: x.id},
-                                    }))}
+                                    onClick={() => selectItem({isHomework: true, id: x.id})}
                                     sx={{...rowSx, py: 1.25}}
                                 >
                                     <Box sx={taskMarkerSx}>{renderHomeworkNode(x)}</Box>
@@ -1012,20 +868,17 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         {visibleTasks.map(t => <ListItemButton
                                             key={t.id}
                                             selected={isRowSelected(false, t.id!)}
-                                            onClick={() => setState(prevState => ({
-                                                ...prevState,
-                                                selectedItem: {isHomework: false, id: t.id},
-                                            }))}
+                                            onClick={() => selectItem({isHomework: false, id: t.id})}
                                             sx={{...rowSx, py: 0.875}}
                                         >
-                                            <Box sx={taskMarkerSx}>{renderTaskStatus(t)}</Box>
+                                            <Box sx={taskMarkerSx}>{renderTaskStatus(t, x)}</Box>
                                             <Typography
                                                 className="antiLongWords"
                                                 sx={{flexGrow: 1, minWidth: 0, fontSize: "0.9375rem", lineHeight: 1.35}}
                                                 color={t.isDeferred ? "textSecondary" : "textPrimary"}>
                                                 {t.title}{getTip(t)}
                                             </Typography>
-                                            {renderTaskDeadline(t)}
+                                            {renderTaskDeadline(t, x)}
                                         </ListItemButton>)}
                                     </Box>
                                     : x.id! > 0 &&
@@ -1047,13 +900,15 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                                         </Typography>
                                     </Stack>}
                                 {x.id! < 0 &&
-                                    <Button fullWidth
-                                            onClick={() => addNewTask(x)}
-                                            size={"small"}
-                                            startIcon={<AddIcon/>}
-                                            sx={{textTransform: "none", borderRadius: "10px", mt: 0.5}}>
-                                        Добавить задачу
-                                    </Button>}
+                                    <Stack direction={"column"} spacing={0.5} sx={{mt: 0.5}}>
+                                        <Button fullWidth
+                                                onClick={() => addNewTask(x)}
+                                                size={"small"}
+                                                startIcon={<AddIcon/>}
+                                                sx={{textTransform: "none", borderRadius: "10px"}}>
+                                            Добавить задачу
+                                        </Button>
+                                    </Stack>}
                             </Box>;
                         })}
                     </Stack>
@@ -1061,9 +916,11 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
             </Paper>
         </Box>
         <Box sx={{...columnSx(8), order: {xs: 1, md: 2}}}>
-            {isHomework
-                ? renderHomework(selectedItem as HomeworkViewModel)
-                : renderTask(selectedItem as HomeworkTaskViewModel, selectedItemHomework!)}
+            {selectedItem && selectedItemHomework
+                ? isHomework
+                    ? renderHomework(selectedItem as HomeworkViewModel)
+                    : renderTask(selectedItem as HomeworkTaskViewModel, selectedItemHomework)
+                : null}
             {/* Декоративная гифка — везде, кроме случая «принятый студент + выбрана задача»,
                 где под задачей идёт блок решений. */}
             {showBottomGif && <Box sx={{display: {xs: 'none', md: 'flex'}}}>
