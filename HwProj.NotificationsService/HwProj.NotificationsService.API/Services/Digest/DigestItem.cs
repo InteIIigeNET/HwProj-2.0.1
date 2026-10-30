@@ -32,13 +32,19 @@ namespace HwProj.NotificationsService.API.Services.Digest
         public long? TaskId { get; set; }
         public string TaskTitle { get; set; }
 
-        /// <summary> Студент, который отправил решение или подал заявку на курс </summary>
+        /// <summary> Студент, который отправил решение, подал заявку на курс или задал вопрос </summary>
         public string StudentId { get; set; }
 
         public string StudentName { get; set; }
 
         public int? Rating { get; set; }
         public int? MaxRating { get; set; }
+
+        /// <summary> Оценка до исправления; null, если решение проверено впервые </summary>
+        public int? PreviousRating { get; set; }
+
+        public string Question { get; set; }
+        public string Answer { get; set; }
 
         /// <summary> Комментарий преподавателя к оценке как есть, вместе с таблицей критериев </summary>
         public string Comment { get; set; }

@@ -27,11 +27,23 @@ namespace HwProj.NotificationsService.API.EventHandlers
         {
             var taskUrl = $"{_configuration["Url"]}/courses/{@event.CourseId}/homeworks?taskId={@event.Task.Id}";
             var comment = LecturerComment.Parse(@event.Solution.LecturerComment);
+            var rating = @event.Solution.Rating ?? 0;
+            var isUpdate = @event.PreviousRating != null;
+            var taskLink = NotificationHtml.Link(taskUrl, @event.Task.Title);
 
-            var message = new NotificationMessage(CategoryState.Homeworks, "Решение проверено")
-                .WithSubject($"Оценка за задачу «{@event.Task.Title}»")
-                .WithText($"Преподаватель проверил ваше решение задачи {NotificationHtml.Link(taskUrl, @event.Task.Title)}.")
-                .WithDetail("Оценка", NotificationHtml.Bold($"{@event.Solution.Rating ?? 0} / {@event.Task.MaxRating}"))
+            var message = new NotificationMessage(CategoryState.Homeworks,
+                    isUpdate ? "Оценка обновлена" : "Решение проверено")
+                .WithSubject(isUpdate
+                    ? $"Обновлена оценка за задачу «{@event.Task.Title}»"
+                    : $"Оценка за задачу «{@event.Task.Title}»")
+                .WithText(isUpdate
+                    ? $"Преподаватель обновил проверку вашего решения задачи {taskLink}."
+                    : $"Преподаватель проверил ваше решение задачи {taskLink}.")
+                .WithDetail("Оценка", NotificationHtml.Bold($"{rating} / {@event.Task.MaxRating}"));
+            if (isUpdate && @event.PreviousRating != rating)
+                message.WithDetail("Было", NotificationHtml.Encode($"{@event.PreviousRating} / {@event.Task.MaxRating}"));
+
+            message
                 .WithBreakdown("Критерии оценивания", comment.Criteria)
                 .WithQuote("Комментарий преподавателя", comment.Text)
                 .WithAction("Открыть задачу", taskUrl)
@@ -42,8 +54,9 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     CourseName = @event.CourseName,
                     TaskId = @event.Task.Id,
                     TaskTitle = @event.Task.Title,
-                    Rating = @event.Solution.Rating ?? 0,
+                    Rating = rating,
                     MaxRating = @event.Task.MaxRating,
+                    PreviousRating = @event.PreviousRating,
                     Comment = @event.Solution.LecturerComment
                 });
 

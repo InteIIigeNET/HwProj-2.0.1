@@ -11,12 +11,17 @@ namespace HwProj.NotificationService.Events.SolutionsService
         public long CourseId { get; set; }
         public string CourseName { get; set; }
 
-        public RateEvent(HomeworkTaskViewModel task, SolutionViewModel solution, long courseId, string courseName)
+        /// <summary> Оценка до изменения; null, если решение проверяется впервые </summary>
+        public int? PreviousRating { get; set; }
+
+        public RateEvent(HomeworkTaskViewModel task, SolutionViewModel solution, long courseId, string courseName,
+            int? previousRating = null)
         {
             Task = task;
             Solution = solution;
             CourseId = courseId;
             CourseName = courseName;
+            PreviousRating = previousRating;
         }
     }
 }

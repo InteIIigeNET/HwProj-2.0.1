@@ -110,13 +110,16 @@ namespace HwProj.CoursesService.API.Controllers
             if (!await _coursesService.HasStudent(task.Homework.CourseId, studentId))
                 return Forbid();
 
+            var course = await _coursesService.GetAsync(task.Homework.CourseId, studentId);
+            if (course == null) return NotFound();
+
             await _taskQuestionsService.AddQuestionAsync(new TaskQuestion
             {
                 TaskId = task.Id,
                 StudentId = studentId,
                 Text = question.Text,
                 IsPrivate = question.IsPrivate,
-            });
+            }, task, course);
             return Ok();
         }
 
@@ -200,7 +203,7 @@ namespace HwProj.CoursesService.API.Controllers
             var isLecturer = (await _coursesService.GetCourseLecturers(courseId)).Contains(lecturerId);
             if (!isLecturer) return Forbid();
 
-            await _taskQuestionsService.AddAnswerAsync(question.Id, lecturerId, answer.Answer);
+            await _taskQuestionsService.AddAnswerAsync(question, task, lecturerId, answer.Answer);
             return Ok();
         }
     }

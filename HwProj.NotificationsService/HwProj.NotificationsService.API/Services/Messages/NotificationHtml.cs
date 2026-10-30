@@ -61,6 +61,13 @@ namespace HwProj.NotificationsService.API.Services.Messages
         public static string FullName(string name, string surname) =>
             string.Join(" ", new[] { name, surname }).Trim();
 
+        /// <summary> Обрезает длинный текст до maxLength символов с многоточием </summary>
+        public static string Truncate(string text, int maxLength)
+        {
+            text = (text ?? "").Trim();
+            return text.Length <= maxLength ? text : text.Substring(0, maxLength).TrimEnd() + "…";
+        }
+
         public static string ToPlainText(string html)
         {
             var text = (html ?? "")

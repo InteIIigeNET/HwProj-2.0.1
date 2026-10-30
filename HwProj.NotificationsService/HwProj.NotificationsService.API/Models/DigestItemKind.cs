@@ -13,6 +13,8 @@ namespace HwProj.NotificationsService.API.Models
         AcceptedToCourse,
         RejectedFromCourse,
         InvitedToCourse,
-        BecameLecturer
+        BecameLecturer,
+        NewTaskQuestion,
+        TaskQuestionAnswered
     }
 }

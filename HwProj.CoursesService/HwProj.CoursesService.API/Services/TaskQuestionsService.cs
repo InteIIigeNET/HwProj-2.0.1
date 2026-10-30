@@ -3,6 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
+using HwProj.EventBus.Client.Interfaces;
+using HwProj.Models.CoursesService.ViewModels;
+using HwProj.NotificationService.Events.CoursesService;
 using Microsoft.EntityFrameworkCore;
 
 namespace HwProj.CoursesService.API.Services
@@ -10,14 +13,36 @@ namespace HwProj.CoursesService.API.Services
     public class TaskQuestionsService : ITaskQuestionsService
     {
         private readonly ITaskQuestionsRepository _taskQuestionsRepository;
+        private readonly ICoursesRepository _coursesRepository;
+        private readonly IEventBus _eventBus;
 
-        public TaskQuestionsService(ITaskQuestionsRepository taskQuestionsRepository)
+        public TaskQuestionsService(ITaskQuestionsRepository taskQuestionsRepository,
+            ICoursesRepository coursesRepository, IEventBus eventBus)
         {
             _taskQuestionsRepository = taskQuestionsRepository;
+            _coursesRepository = coursesRepository;
+            _eventBus = eventBus;
         }
 
-        public async Task<long> AddQuestionAsync(TaskQuestion taskQuestion)
-            => await _taskQuestionsRepository.AddAsync(taskQuestion);
+        /// <param name="studentCourse">Курс глазами автора вопроса: в MentorIds только преподаватели, которым он виден</param>
+        public async Task<long> AddQuestionAsync(TaskQuestion taskQuestion, HomeworkTask task, CoursePreview studentCourse)
+        {
+            var questionId = await _taskQuestionsRepository.AddAsync(taskQuestion);
+
+            _eventBus.Publish(new NewTaskQuestionEvent
+            {
+                CourseId = studentCourse.Id,
+                CourseName = studentCourse.Name,
+                TaskId = task.Id,
+                TaskTitle = task.Title,
+                StudentId = taskQuestion.StudentId,
+                Text = taskQuestion.Text,
+                IsPrivate = taskQuestion.IsPrivate,
+                MentorIds = studentCourse.MentorIds
+            });
+
+            return questionId;
+        }
 
         public async Task<TaskQuestion> GetQuestionAsync(long taskQuestionId)
             => await _taskQuestionsRepository.FindAsync(x => x.Id == taskQuestionId);
@@ -34,12 +59,27 @@ namespace HwProj.CoursesService.API.Services
             return allQuestions.Where(x => !x.IsPrivate || x.StudentId == studentId).ToListAsync();
         }
 
-        public async Task AddAnswerAsync(long questionId, string lecturerId, string answer) 
-            => await _taskQuestionsRepository.UpdateAsync(questionId, x => new TaskQuestion
+        public async Task AddAnswerAsync(TaskQuestion question, HomeworkTask task, string lecturerId, string answer)
+        {
+            await _taskQuestionsRepository.UpdateAsync(question.Id, x => new TaskQuestion
             {
                 LecturerId = lecturerId,
                 Answer = answer
             });
+
+            var course = await _coursesRepository.GetAsync(task.Homework.CourseId);
+            _eventBus.Publish(new TaskQuestionAnsweredEvent
+            {
+                CourseId = course.Id,
+                CourseName = course.Name,
+                TaskId = task.Id,
+                TaskTitle = task.Title,
+                StudentId = question.StudentId,
+                LecturerId = lecturerId,
+                Question = question.Text,
+                Answer = answer
+            });
+        }
 
         private IQueryable<TaskQuestion> GetALlTaskQuestions(long taskId)
             => _taskQuestionsRepository.FindAll(x => x.TaskId == taskId);

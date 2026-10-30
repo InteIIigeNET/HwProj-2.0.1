@@ -47,6 +47,8 @@ namespace HwProj.NotificationsService.API
                 .AddHandler<NewHomeworkTaskEvent, NewHomeworkTaskEventHandler>()
                 .AddHandler<InviteLecturerEvent, InviteLecturerEventHandler>()
                 .AddHandler<NewCourseMateEvent, NewCourseMateHandler>()
+                .AddHandler<NewTaskQuestionEvent, NewTaskQuestionEventHandler>()
+                .AddHandler<TaskQuestionAnsweredEvent, TaskQuestionAnsweredEventHandler>()
                 .AddHandler<PasswordRecoveryEvent, PasswordRecoveryEventHandler>());
             services.AddSingleton<IEmailService, EmailService>();
 

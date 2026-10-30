@@ -15,6 +15,7 @@ namespace HwProj.NotificationsService.API.Services.Digest
     {
         private const int MaxEntriesInGroup = 10;
         private const int MaxNamesInHint = 3;
+        private const int MaxQuestionLength = 200;
 
         /// <param name="items">События за сутки в порядке появления</param>
         public static DigestMessage Build(IReadOnlyCollection<DigestItem> items, DateTime until, string siteUrl)
@@ -27,7 +28,9 @@ namespace HwProj.NotificationsService.API.Services.Digest
 
             AddSection(digest, BuildNewSolutions(newSolutions, links));
             AddSection(digest, BuildCourseApplications(Of(items, DigestItemKind.NewCourseMate), links));
+            AddSection(digest, BuildNewQuestions(Of(items, DigestItemKind.NewTaskQuestion), links));
             AddSection(digest, BuildRatedSolutions(Of(items, DigestItemKind.SolutionRated), links));
+            AddSection(digest, BuildAnsweredQuestions(Of(items, DigestItemKind.TaskQuestionAnswered), links));
 
             var newAssignments = Of(items, DigestItemKind.NewHomework, DigestItemKind.NewTask);
             AddSection(digest, BuildNewAssignments(newAssignments, links));
@@ -106,6 +109,9 @@ namespace HwProj.NotificationsService.API.Services.Digest
                         {
                             Badge = item.MaxRating > 0 ? $"{item.Rating} / {item.MaxRating}" : $"{item.Rating}",
                             BadgeTone = RatingTone(item.Rating ?? 0, item.MaxRating ?? 0),
+                            Hint = item.PreviousRating is { } previous && previous != item.Rating
+                                ? $"Оценка исправлена, было {previous}"
+                                : null,
                             QuoteLabel = "Комментарий преподавателя",
                             Quote = string.IsNullOrWhiteSpace(comment.Text) ? null : comment.Text
                         };
@@ -113,6 +119,50 @@ namespace HwProj.NotificationsService.API.Services.Digest
                         return entry;
                     });
                 section.Groups.Add(Group(course, links, entries, ("задача", "задачи", "задач")));
+            }
+
+            return section;
+        }
+
+        private static DigestSection BuildNewQuestions(DigestItem[] items, Links links)
+        {
+            var section = new DigestSection("Новые вопросы по задачам",
+                ("новый вопрос", "новых вопроса", "новых вопросов")) { ExplicitCount = items.Length };
+
+            foreach (var course in ByCourse(items))
+            {
+                var entries = course
+                    .GroupBy(i => i.TaskId)
+                    .OrderByDescending(task => task.Count())
+                    .ThenBy(task => task.First().TaskTitle)
+                    .Select(task =>
+                    {
+                        var count = task.Count();
+                        return new DigestEntry(task.First().TaskTitle, links.Task(course.Key, task.Key))
+                        {
+                            Badge = $"{count} {NotificationHtml.Plural(count, "вопрос", "вопроса", "вопросов")}",
+                            Hint = Names(task)
+                        };
+                    });
+                section.Groups.Add(Group(course, links, entries, ("задача", "задачи", "задач")));
+            }
+
+            return section;
+        }
+
+        private static DigestSection BuildAnsweredQuestions(DigestItem[] items, Links links)
+        {
+            var section = new DigestSection("Ответы на ваши вопросы", ("ответ на вопрос", "ответа на вопросы", "ответов на вопросы"));
+
+            foreach (var course in ByCourse(items))
+            {
+                var entries = course.Select(item => new DigestEntry(item.TaskTitle, links.Task(item.CourseId, item.TaskId))
+                {
+                    Hint = NotificationHtml.Truncate(item.Question, MaxQuestionLength),
+                    QuoteLabel = "Ответ преподавателя",
+                    Quote = item.Answer
+                });
+                section.Groups.Add(Group(course, links, entries, ("ответ", "ответа", "ответов")));
             }
 
             return section;
