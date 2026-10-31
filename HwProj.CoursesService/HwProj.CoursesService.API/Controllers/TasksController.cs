@@ -40,8 +40,7 @@ namespace HwProj.CoursesService.API.Controllers
             if (task.PublicationDate > DateTime.UtcNow)
             {
                 var userId = Request.GetUserIdFromHeader();
-                var homework = await _homeworksService.GetHomeworkAsync(task.HomeworkId);
-                var lecturers = await _coursesService.GetCourseLecturers(homework.CourseId);
+                var lecturers = await _coursesService.GetCourseLecturers(task.Homework.CourseId);
                 if (!lecturers.Contains(userId)) return BadRequest();
             }
             return Ok(task.ToHomeworkTaskViewModel());

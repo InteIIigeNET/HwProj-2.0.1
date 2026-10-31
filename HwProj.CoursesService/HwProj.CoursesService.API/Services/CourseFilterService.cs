@@ -67,33 +67,58 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<CourseDTO[]> ApplyFiltersToCourses(string userId, CourseDTO[] courses)
         {
-            var result = new List<CourseDTO>();
-            foreach (var course in courses)
-            {
-                result.Add(await ApplyFilter(course, userId));
-            }
+            if (courses.Length == 0) return courses;
 
-            return result.ToArray();
+            var findFiltersFor = courses.Select(course => GetFilterIdsToFind(course, userId)).ToArray();
+
+            // Загружаем фильтры для всех курсов одним запросом
+            var filtersByCourse = (await _courseFilterRepository.GetAsync(
+                    findFiltersFor.SelectMany(ids => ids).Distinct().ToArray(),
+                    courses.Select(c => c.Id).Distinct().ToArray()))
+                .ToLookup(x => x.CourseId);
+
+            return courses
+                .Select((course, i) =>
+                {
+                    var courseFilters = filtersByCourse[course.Id]
+                        .Where(x => findFiltersFor[i].Contains(x.Id))
+                        .ToDictionary(x => x.Id, x => x.CourseFilter);
+                    return ApplyFilter(course, userId, courseFilters);
+                })
+                .ToArray();
         }
 
         public async Task<CourseDTO> ApplyFilter(CourseDTO course, string userId)
         {
+            var courseFilters =
+                (await _courseFilterRepository.GetAsync(GetFilterIdsToFind(course, userId), course.Id))
+                .ToDictionary(x => x.Id, x => x.CourseFilter);
+
+            return ApplyFilter(course, userId, courseFilters);
+        }
+
+        private static string[] GetFilterIdsToFind(CourseDTO course, string userId)
+        {
             var isMentor = course.MentorIds.Contains(userId);
             var isCourseStudent = course.AcceptedStudents.Any(t => t.StudentId == userId);
 
-            // Получаем группы пользователя из course
-            var studentGroups = course.Groups
+            if (isMentor || !isCourseStudent)
+                return new[] { userId, GlobalFilterId };
+
+            var groupIds = GetStudentGroups(course, userId).Select(g => g.Id.ToString());
+            return course.MentorIds.Concat(new[] { userId, GlobalFilterId }).Concat(groupIds).ToArray();
+        }
+
+        // Получаем группы пользователя из course
+        private static GroupViewModel[] GetStudentGroups(CourseDTO course, string userId) =>
+            course.Groups
                 .Where(g => g.StudentsIds.Contains(userId))
                 .ToArray();
-            var groupIds = studentGroups.Select(g => g.Id.ToString()).ToArray();
 
-            var findFiltersFor = isMentor || !isCourseStudent
-                ? new[] { userId, GlobalFilterId }
-                : course.MentorIds.Concat(new[] { userId, GlobalFilterId }).Concat(groupIds).ToArray();
-
-            var courseFilters =
-                (await _courseFilterRepository.GetAsync(findFiltersFor, course.Id))
-                .ToDictionary(x => x.Id, x => x.CourseFilter);
+        private CourseDTO ApplyFilter(CourseDTO course, string userId, Dictionary<string, CourseFilter> courseFilters)
+        {
+            var isMentor = course.MentorIds.Contains(userId);
+            var studentGroups = GetStudentGroups(course, userId);
 
             if (!isMentor)
             {

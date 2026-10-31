@@ -16,7 +16,6 @@ namespace HwProj.CoursesService.API.Repositories
         public Task<Course?> GetWithCourseMates(long id) =>
             Context.Set<Course>()
                 .Include(c => c.CourseMates)
-                .ThenInclude(c => c.Characteristics)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -29,30 +28,24 @@ namespace HwProj.CoursesService.API.Repositories
 
         public async Task<Course?> GetWithCourseMatesAndHomeworksAsync(long id, bool withCriteria)
         {
+            // Раздельные запросы вместо одного JOIN, иначе строки студентов перемножаются со строками задач
             var query = Context.Set<Course>()
                 .AsNoTracking()
+                .AsSplitQuery()
                 .Include(c => c.CourseMates)
                 .ThenInclude(c => c.Characteristics)
-                .Include(c => c.Homeworks)
-                .ThenInclude(c => c.Tasks);
+                .Include(c => c.Homeworks.OrderBy(h => h.PublicationDate).ThenBy(h => h.Id))
+                .ThenInclude(h => h.Tasks.OrderBy(t => t.Id));
 
-            var course = withCriteria
+            return withCriteria
                 ? await query.ThenInclude(x => x.Criteria).FirstOrDefaultAsync(c => c.Id == id)
                 : await query.FirstOrDefaultAsync(c => c.Id == id);
-
-            // todo: перенести OrderBy в Include после обновления до EF Core 5.x
-            course.Homeworks = course.Homeworks.OrderBy(h => h.PublicationDate).ToList();
-            return course;
         }
 
-        public IQueryable<Course> GetAllWithCourseMatesAndHomeworks()
-        {
-            return Context.Set<Course>()
-                .Include(c => c.CourseMates)
-                .ThenInclude(c => c.Characteristics)
-                .Include(c => c.Homeworks)
-                .ThenInclude(c => c.Tasks)
-                .AsNoTracking();
-        }
+        public Task<string> GetMentorIdsAsync(long id) =>
+            Context.Set<Course>()
+                .Where(c => c.Id == id)
+                .Select(c => c.MentorIds)
+                .SingleAsync();
     }
 }

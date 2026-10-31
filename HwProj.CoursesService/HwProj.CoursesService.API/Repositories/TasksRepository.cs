@@ -54,6 +54,14 @@ namespace HwProj.CoursesService.API.Repositories
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public Task<long?> GetCourseIdAsync(long id)
+        {
+            return Context.Set<HomeworkTask>()
+                .Where(x => x.Id == id)
+                .Select(x => (long?)x.Homework.CourseId)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task UpdateAsync(long id, Expression<Func<HomeworkTask, HomeworkTask>> updateFunc,
             List<Criterion> criteria)
         {

@@ -34,5 +34,13 @@ namespace HwProj.CoursesService.API.Repositories
                 ? await query.ThenInclude(x => x.Criteria).FirstOrDefaultAsync(h => h.Id == id)
                 : await query.FirstOrDefaultAsync(h => h.Id == id);
         }
+
+        public Task<long?> GetCourseIdAsync(long id)
+        {
+            return Context.Set<Homework>()
+                .Where(h => h.Id == id)
+                .Select(h => (long?)h.CourseId)
+                .FirstOrDefaultAsync();
+        }
     }
 }

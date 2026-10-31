@@ -9,5 +9,6 @@ namespace HwProj.CoursesService.API.Repositories
         Task<Homework[]> GetAllWithTasksAsync();
         Task<Homework[]> GetAllWithTasksByCourseAsync(long courseId);
         Task<Homework> GetWithTasksAsync(long id, bool withCriteria = false);
+        Task<long?> GetCourseIdAsync(long id);
     }
 }
