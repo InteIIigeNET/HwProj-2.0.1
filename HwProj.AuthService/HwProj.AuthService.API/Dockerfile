@@ -2,6 +2,8 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY ["Directory.Build.props", "Directory.Build.props"]
+COPY ["Net8.props", "Net8.props"]
+COPY ["Net8.Service.props", "Net8.Service.props"]
 
 COPY ["HwProj.AuthService/HwProj.AuthService.API/", "HwProj.AuthService/HwProj.AuthService.API/"]
 COPY ["HwProj.Common/HwProj.Common.Net8/", "HwProj.Common/HwProj.Common.Net8/"]

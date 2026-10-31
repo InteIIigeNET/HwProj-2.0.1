@@ -1,6 +1,6 @@
 ﻿using System;
 using HwProj.Models.SolutionsService;
-using HwProj.Repositories;
+using HwProj.Repositories.Net8;
 
 namespace HwProj.SolutionsService.API.Models
 {

@@ -7,7 +7,6 @@ COPY ["HwProj.APIGateway/HwProj.APIGateway.API/", "HwProj.APIGateway/HwProj.APIG
 COPY ["HwProj.NotificationsService/HwProj.NotificationsService.Client/", "HwProj.NotificationsService/HwProj.NotificationsService.Client/"]
 COPY ["HwProj.Common/HwProj.Models/", "HwProj.Common/HwProj.Models/"]
 COPY ["HwProj.Common/HwProj.HttpUtils/", "HwProj.Common/HwProj.HttpUtils/"]
-COPY ["HwProj.Common/HwProj.Utils/", "HwProj.Common/HwProj.Utils/"]
 COPY ["HwProj.EventBus/HwProj.EventBus.Client/", "HwProj.EventBus/HwProj.EventBus.Client/"]
 COPY ["HwProj.CoursesService/HwProj.CoursesService.Client/", "HwProj.CoursesService/HwProj.CoursesService.Client/"]
 COPY ["HwProj.AuthService/HwProj.AuthService.Client/", "HwProj.AuthService/HwProj.AuthService.Client/"]
