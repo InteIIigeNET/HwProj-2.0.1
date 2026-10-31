@@ -1,7 +1,8 @@
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
-using HwProj.CoursesService.API.Filters;
+using HwProj.CoursesService.API.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService;
 using HwProj.Models.CoursesService.DTO;
@@ -25,7 +26,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("{courseId}/create")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         [ProducesResponseType(typeof(long), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Create(long courseId, [FromBody] CreateCourseFilterDTO courseFilterDto)
         {

@@ -63,17 +63,51 @@ namespace HwProj.CoursesService.API.Services
             var courseId = await _tasksRepository.GetCourseIdAsync(taskId);
             if (courseId == null) return null;
 
-            return await GetAsync(courseId.Value, userId);
+            return await GetForUserAsync(courseId.Value, userId);
         }
 
-        public async Task<CourseDTO?> GetAsync(long id, string userId = "", bool asView = false)
+        public Task<CourseDTO?> GetAsync(long id, string userId = "", bool asView = false) =>
+            GetAsync(id, userId, CourseLoadFilter.Empty.WithCriteria(asView));
+
+        public async Task<CourseDTO?> GetForUserAsync(long id, string userId, bool asView = false)
         {
-            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(id, withCriteria: asView);
+            var access = await GetCourseAccessAsync(id, userId);
+            if (access == null) return null;
+
+            var now = DateTime.UtcNow;
+            var loadFilter = CourseVisibility.GetLoadFilter(access.Value, userId, now).WithCriteria(asView);
+
+            var course = await GetAsync(id, userId, loadFilter);
+            return course == null ? null : CourseVisibility.HideInaccessibleData(course, userId, access.Value, now);
+        }
+
+        public async Task<CourseAccess?> GetCourseAccessAsync(long courseId, string userId)
+        {
+            var membership = await _coursesRepository.FindAll(c => c.Id == courseId)
+                .Select(c => new
+                {
+                    c.MentorIds,
+                    IsAcceptedStudent = c.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId)
+                })
+                .FirstOrDefaultAsync();
+
+            return membership == null
+                ? (CourseAccess?)null
+                : CourseVisibility.GetAccess(userId, CourseMentors.Parse(membership.MentorIds),
+                    membership.IsAcceptedStudent);
+        }
+
+        private async Task<CourseDTO?> GetAsync(long id, string userId, CourseLoadFilter loadFilter)
+        {
+            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(id, loadFilter);
             if (course == null) return null;
 
             CourseDomain.FillTasksInCourses(course);
 
-            var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id).ToListAsync();
+            var groupMateId = loadFilter.GroupMateId;
+            var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(course.Id)
+                .Where(g => groupMateId == null || g.GroupMates.Any(gm => gm.StudentId == groupMateId))
+                .ToListAsync();
             var courseDto = course.ToCourseDto();
             courseDto.Groups = groups.Select(g =>
                 new GroupViewModel
@@ -102,7 +136,7 @@ namespace HwProj.CoursesService.API.Services
             {
                 baseCourse = await _coursesRepository.GetWithHomeworksAsync(courseViewModel.BaseCourseId.Value);
                 if (baseCourse == null) throw new InvalidOperationException("Базовый курс не найден");
-                if (!baseCourse.MentorIds.Contains(mentorId))
+                if (!baseCourse.HasMentor(mentorId))
                     throw new ForbiddenException(
                         $"Пользователь с id{mentorId} не является ментором указанного базового курса");
             }
@@ -279,20 +313,29 @@ namespace HwProj.CoursesService.API.Services
         {
             var isMentor = role == Roles.LecturerRole || role == Roles.ExpertRole;
 
-            var courses = isMentor
-                ? _coursesRepository.FindAll(c => c.MentorIds.Contains(userId))
-                : _coursesRepository.FindAll(c => c.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId));
+            var now = DateTime.UtcNow;
+            var loadFilter = CourseVisibility
+                .GetLoadFilter(isMentor ? CourseAccess.Mentor : CourseAccess.Student, userId, now)
+                .WithoutCharacteristics();
 
-            var coursesWithValues = await courses
-                .AsSplitQuery()
-                .Include(c => c.CourseMates)
-                .Include(c => c.Homeworks.OrderBy(h => h.Id)).ThenInclude(t => t.Tasks.OrderBy(x => x.Id))
-                .ToArrayAsync();
+            var coursesWithValues = isMentor
+                ? await _coursesRepository.GetAllWithCourseMatesAndHomeworksAsync(
+                    CourseMentors.IsMentor(userId), loadFilter)
+                : await _coursesRepository.GetAllWithCourseMatesAndHomeworksAsync(
+                    c => c.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId), loadFilter);
 
             CourseDomain.FillTasksInCourses(coursesWithValues);
 
-            var result = await _courseFilterService.ApplyFiltersToCourses(
-                userId, coursesWithValues.Select(c => c.ToCourseDto()).ToArray());
+            // Уровень доступа определяется по исходным данным курса, до применения фильтров курса
+            var accesses = coursesWithValues
+                .Select(c => CourseVisibility.GetAccess(userId, c.GetMentorIds(),
+                    c.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId)))
+                .ToArray();
+
+            var result = (await _courseFilterService.ApplyFiltersToCourses(
+                    userId, coursesWithValues.Select(c => c.ToCourseDto()).ToArray()))
+                .Select((courseDto, i) => CourseVisibility.HideInaccessibleData(courseDto, userId, accesses[i], now))
+                .ToArray();
 
             if (role == Roles.ExpertRole)
             {
@@ -311,9 +354,9 @@ namespace HwProj.CoursesService.API.Services
         {
             var course = await _coursesRepository.GetAsync(courseId);
             if (course == null) return false;
-            if (!course.MentorIds.Contains(lecturerId))
+            if (!course.HasMentor(lecturerId))
             {
-                var newMentors = course.MentorIds + "/" + lecturerId;
+                var newMentors = course.WithMentor(lecturerId);
                 await _coursesRepository.UpdateAsync(courseId, с => new Course
                 {
                     MentorIds = newMentors,
@@ -336,7 +379,7 @@ namespace HwProj.CoursesService.API.Services
         public async Task<string[]> GetCourseLecturers(long courseId)
         {
             var mentorIds = await _coursesRepository.GetMentorIdsAsync(courseId);
-            return mentorIds.Split('/');
+            return CourseMentors.Parse(mentorIds);
         }
 
         public async Task<bool> HasStudent(long courseId, string studentId)

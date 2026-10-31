@@ -1,7 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using HwProj.CoursesService.API.Filters;
+using HwProj.CoursesService.API.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
@@ -51,7 +52,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpDelete("{courseId}/delete/{groupId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         public async Task<IActionResult> DeleteGroup(long groupId)
         {
             await _groupsService.DeleteGroupAsync(groupId).ConfigureAwait(false);
@@ -59,7 +60,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("{courseId}/update/{groupId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         public async Task<IActionResult> UpdateGroup(long groupId, [FromBody] UpdateGroupViewModel groupViewModel)
         {
             await _groupsService.UpdateAsync(groupId, _mapper.Map<Group>(groupViewModel));
@@ -74,7 +75,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("{courseId}/addStudentInGroup/{groupId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         public async Task<IActionResult> AddStudentInGroup(long groupId, [FromQuery] string userId)
         {
             await _groupsService.AddGroupMateAsync(groupId, userId);

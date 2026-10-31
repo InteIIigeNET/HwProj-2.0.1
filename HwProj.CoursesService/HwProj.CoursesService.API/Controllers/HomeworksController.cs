@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using HwProj.CoursesService.API.Domains;
-using HwProj.CoursesService.API.Filters;
+using HwProj.CoursesService.API.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("{courseId}/add")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         public async Task<IActionResult> AddHomework(long courseId,
             [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {
@@ -40,7 +41,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("getForEditing/{homeworkId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         public async Task<HomeworkViewModel> GetForEditingHomework(long homeworkId)
         {
             var homeworkFromDb = await _homeworksService.GetForEditingHomeworkAsync(homeworkId);
@@ -49,14 +50,14 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpDelete("delete/{homeworkId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         public async Task DeleteHomework(long homeworkId)
         {
             await _homeworksService.DeleteHomeworkAsync(homeworkId);
         }
 
         [HttpPut("update/{homeworkId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         public async Task<IActionResult> UpdateHomework(long homeworkId,
             [FromBody] CreateHomeworkViewModel homeworkViewModel)
         {

@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using HwProj.CoursesService.API.Filters;
+using HwProj.CoursesService.API.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Services;
 using HwProj.Models.CoursesService.ViewModels;
@@ -42,30 +43,30 @@ namespace HwProj.CoursesService.API.Controllers
             return courses;
         }
 
-        [CourseDataFilter]
+        [Authorize]
         [HttpGet("view/{courseId}")]
         public async Task<IActionResult> GetView(long courseId)
         {
-            var userId = Request.GetUserIdFromHeader();
-            var course = await _coursesService.GetAsync(courseId, userId, true);
+            var userId = User.GetUserId();
+            var course = await _coursesService.GetForUserAsync(courseId, userId, true);
             if (course == null) return NotFound();
 
             return Ok(course);
         }
         
-        [CourseDataFilter]
+        [Authorize]
         [HttpGet("{courseId}")]
         public async Task<IActionResult> Get(long courseId)
         {
-            var userId = Request.GetUserIdFromHeader();
-            var course = await _coursesService.GetAsync(courseId, userId);
+            var userId = User.GetUserId();
+            var course = await _coursesService.GetForUserAsync(courseId, userId);
             if (course == null) return NotFound();
 
             return Ok(course);
         }
 
         [HttpGet("getForMentor/{courseId}/{mentorId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         public async Task<IActionResult> GetForMentor(long courseId, string mentorId)
         {
             var course = await _coursesService.GetAsync(courseId, mentorId);
@@ -75,7 +76,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpGet("getAllData/{courseId}/")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         public async Task<IActionResult> GetAllData(long courseId)
         {
             var course = await _coursesService.GetAsync(courseId);
@@ -84,28 +85,29 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(course);
         }
 
-        [CourseDataFilter]
+        [Authorize]
         [HttpGet("getByTask/{taskId}")]
         public async Task<IActionResult> GetByTask(long taskId)
         {
-            var userId = Request.GetUserIdFromHeader();
+            var userId = User.GetUserId();
             var course = await _coursesService.GetByTaskAsync(taskId, userId);
             if (course == null) return NotFound();
 
             return Ok(course);
         }
 
+        [Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel)
         {
-            var mentorId = Request.GetUserIdFromHeader();
+            var mentorId = User.GetUserId();
             var courseId = await _coursesService.AddAsync(courseViewModel, mentorId);
 
             return Ok(courseId);
         }
 
         [HttpDelete("{courseId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         public async Task<IActionResult> DeleteCourse(long courseId)
         {
             await _coursesService.DeleteAsync(courseId);
@@ -113,7 +115,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("update/{courseId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         public async Task<IActionResult> UpdateCourse(long courseId, [FromBody] UpdateCourseViewModel courseViewModel)
         {
             await _coursesService.UpdateAsync(courseId, new Course
@@ -136,7 +138,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("acceptStudent/{courseId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         public async Task<IActionResult> AcceptStudent(long courseId, [FromQuery] string studentId)
         {
             return await _coursesService.AcceptCourseMateAsync(courseId, studentId)
@@ -145,7 +147,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("updateCharacteristics")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         public async Task<IActionResult> UpdateStudentCharacteristics([FromQuery] long courseId,
             [FromQuery] string studentId,
             [FromBody] StudentCharacteristicsDto characteristics)
@@ -156,7 +158,7 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         [HttpPost("rejectStudent/{courseId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         public async Task<IActionResult> RejectStudent(long courseId, [FromQuery] string studentId)
         {
             return await _coursesService.RejectCourseMateAsync(courseId, studentId)
@@ -164,18 +166,18 @@ namespace HwProj.CoursesService.API.Controllers
                 : NotFound();
         }
 
-        [CourseDataFilter]
+        [Authorize]
         [HttpGet("userCourses")]
         public async Task<CourseDTO[]> GetUserCourses(string role)
         {
-            var userId = Request.GetUserIdFromHeader();
+            var userId = User.GetUserId();
             var courses = await _coursesService.GetUserCoursesAsync(userId, role);
 
             return courses;
         }
 
         [HttpGet("acceptLecturer/{courseId}")]
-        [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
+        [Authorize(Policy = Policies.CourseMentor)]
         public async Task<IActionResult> AcceptLecturer(long courseId, [FromQuery] string lecturerEmail,
             [FromQuery] string lecturerId)
         {
@@ -192,10 +194,11 @@ namespace HwProj.CoursesService.API.Controllers
         }
 
         //TODO: optimize
+        [Authorize]
         [HttpGet("taskDeadlines")]
         public async Task<TaskDeadlineDto[]> GetUserDeadlines()
         {
-            var userId = Request.GetUserIdFromHeader();
+            var userId = User.GetUserId();
 
             var courses = await _coursesService.GetUserCoursesAsync(userId, Roles.StudentRole);
 

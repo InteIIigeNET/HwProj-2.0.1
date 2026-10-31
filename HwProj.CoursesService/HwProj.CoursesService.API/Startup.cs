@@ -2,12 +2,14 @@
 using HwProj.AuthService.Client;
 using HwProj.Common.Net8;
 using HwProj.ContentService.Client;
-using HwProj.CoursesService.API.Filters;
+using HwProj.CoursesService.API.Authorization;
 using HwProj.CoursesService.API.Models;
 using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.CoursesService.API.Services;
 using HwProj.EventBus.Client;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -43,7 +45,13 @@ namespace HwProj.CoursesService.API
             services.AddScoped<ITaskQuestionsRepository, TaskQuestionsRepository>();
             services.AddScoped<ITaskQuestionsService, TaskQuestionsService>();
             services.AddScoped<ICourseFilterService, CourseFilterService>();
-            services.AddScoped<CourseMentorOnlyAttribute>();
+
+            services.AddUserIdAuthentication();
+            services.AddAuthorization(options => options.AddPolicy(Policies.CourseMentor, policy => policy
+                .RequireAuthenticatedUser()
+                .AddRequirements(new CourseMentorRequirement())));
+            services.AddScoped<IAuthorizationHandler, CourseMentorAuthorizationHandler>();
+            services.AddSingleton<IAuthorizationMiddlewareResultHandler, CourseMentorAuthorizationResultHandler>();
 
             services.AddEventBus(Configuration);
 
@@ -72,6 +80,9 @@ namespace HwProj.CoursesService.API
                 .AllowAnyHeader()
                 .SetIsOriginAllowed(_ => true)
                 .AllowCredentials());
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(x => x.MapControllers());
 
