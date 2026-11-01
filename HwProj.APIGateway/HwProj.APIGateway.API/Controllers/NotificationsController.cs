@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.Models.NotificationsService;
+using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using HwProj.NotificationsService.Client;
 using Microsoft.AspNetCore.Authorization;
@@ -61,5 +62,13 @@ public class NotificationsController : AggregationController
     {
         await _notificationsClient.ChangeSetting(UserId, newSetting);
         return Ok();
+    }
+
+    [HttpPost("digest")]
+    [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> SendDigest()
+    {
+        var result = await _notificationsClient.SendDigest(UserId);
+        return Ok(result);
     }
 }

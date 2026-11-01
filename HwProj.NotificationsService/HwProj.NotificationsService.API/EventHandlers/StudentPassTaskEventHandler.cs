@@ -1,38 +1,40 @@
 using System.Threading.Tasks;
-using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.NotificationService.Events.SolutionsService;
 using HwProj.NotificationsService.API.Models;
+using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
-using Microsoft.Extensions.Configuration;
+using HwProj.NotificationsService.API.Services.Digest;
+using HwProj.NotificationsService.API.Services.Messages;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class StudentPassTaskEventHandler : EventHandlerBase<StudentPassTaskEvent>
+    /// <summary> Новые решения не попадают в ленту уведомлений: преподаватели узнают о них из дайжеста </summary>
+    public class StudentPassTaskEventHandler : IEventHandler<StudentPassTaskEvent>
     {
-        private readonly IAuthServiceClient _authServiceClient;
-        private readonly IConfigurationSection _configuration;
-        private readonly IEmailService _emailService;
+        private readonly INotificationsRepository _notificationRepository;
         private readonly INotificationSettingsService _settingsService;
 
         public StudentPassTaskEventHandler(
-            IAuthServiceClient authServiceClient,
-            IConfiguration configuration,
-            IEmailService emailService,
+            INotificationsRepository notificationRepository,
             INotificationSettingsService settingsService)
         {
-            _authServiceClient = authServiceClient;
-            _emailService = emailService;
+            _notificationRepository = notificationRepository;
             _settingsService = settingsService;
-            _configuration = configuration.GetSection("Notification");
         }
 
-        public override async Task HandleAsync(StudentPassTaskEvent @event)
+        public async Task HandleAsync(StudentPassTaskEvent @event)
         {
-            var body = $"{@event.Student.Name} {@event.Student.Surname} добавил новое " +
-                       $"<a href='{@event.Solution.GithubUrl}' target='_blank'>решение</a>" +
-                       $" задачи <a href='{_configuration["Url"]}/task/{@event.Task.Id}/{@event.Student.UserId}'>{@event.Task.Title}</a>" +
-                       $" из курса <a href='{_configuration["Url"]}/courses/{@event.Course.Id}'>{@event.Course.Name}</a>.";
+            var digest = new DigestItem
+            {
+                Kind = DigestItemKind.NewSolution,
+                CourseId = @event.Course.Id,
+                CourseName = @event.Course.Name,
+                TaskId = @event.Task.Id,
+                TaskTitle = @event.Task.Title,
+                StudentId = @event.Solution.StudentId,
+                StudentName = NotificationHtml.FullName(@event.Student.Name, @event.Student.Surname)
+            };
 
             foreach (var mentorId in @event.Course.MentorIds)
             {
@@ -40,20 +42,8 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     NotificationsSettingCategory.NewSolutionsCategory);
                 if (!setting.IsEnabled) continue;
 
-                var notification = new Notification
-                {
-                    Sender = "SolutionService",
-                    Body = body,
-                    Category = CategoryState.Homeworks,
-                    Date = @event.CreationData,
-                    HasSeen = false,
-                    Owner = mentorId
-                };
-
-                var subject = $"Новое решение задачи {@event.Task.Title}";
-                var mentor = await _authServiceClient.GetAccountData(notification.Owner);
-
-                await _emailService.SendEmailAsync(notification, mentor.Email, subject);
+                await _notificationRepository.AddAsync(
+                    digest.ToDigestOnlyNotification(mentorId, "SolutionService", CategoryState.Homeworks));
             }
         }
     }

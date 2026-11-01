@@ -10,6 +10,7 @@ namespace HwProj.CoursesService.API.Repositories
     public interface ITasksRepository : ICrudRepository<HomeworkTask, long>
     {
         Task<HomeworkTask> GetWithHomeworkAsync(long id);
+        Task<long?> GetCourseIdAsync(long id);
         Task UpdateAsync(long id, Expression<Func<HomeworkTask, HomeworkTask>> updateFunc, List<Criterion> criteria);
         Task<HomeworkTask> GetWithHomeworkAndCriteriaAsync(long id);
     }

@@ -264,9 +264,12 @@ const Course: React.FC = () => {
         setCurrentState()
     }, [])
 
-    useEffect(() => {
+    const refreshStudentSolutions = () =>
         ApiSingleton.statisticsApi.statisticsGetCourseStatistics(+courseId!)
             .then(res => setStudentSolutions(res))
+
+    useEffect(() => {
+        refreshStudentSolutions()
     }, [courseId])
 
     useEffect(() => changeTab(tab || "homeworks"), [tab, courseId, isFound])
@@ -278,6 +281,7 @@ const Course: React.FC = () => {
 
     const {tabValue} = pageState
     const searchedHomeworkId = searchParams.get("homeworkId")
+    const searchedTaskId = searchParams.get("taskId")
 
     const unratedSolutionsCount = (studentSolutions || [])
         .flatMap(x => x.homeworks)
@@ -536,8 +540,12 @@ const Course: React.FC = () => {
                         courseFilesInfo={courseFilesState.courseFiles}
                         isMentor={isCourseMentor}
                         studentSolutions={studentSolutions || []}
-                        isStudentAccepted={isAcceptedStudent}
-                        selectedHomeworkId={searchedHomeworkId == null ? undefined : +searchedHomeworkId}
+                        courseMates={acceptedStudents}
+                        onStudentSolutionsUpdate={refreshStudentSolutions}
+                        searchedItem={{
+                            isHomework: searchedHomeworkId == null ? searchedTaskId == null ? undefined : false : true,
+                            id: searchedHomeworkId == null ? searchedTaskId == null ? undefined : +searchedTaskId : +searchedHomeworkId,
+                        }}
                         userId={userId!}
                         processingFiles={courseFilesState.processingFilesState}
                         onStartProcessing={updateCourseUnitFiles}

@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Net.Sockets;
 using HwProj.EventBus.Client.Implementations;
 using HwProj.EventBus.Client.Interfaces;
@@ -13,7 +12,12 @@ namespace HwProj.EventBus.Client
 {
     public static class ConfigurationExtensions
     {
-        public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
+        /// <param name="configureHandlers">
+        /// Подписки сервиса на события. Если не задано, сервис только публикует события
+        /// и не создаёт свою очередь.
+        /// </param>
+        public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration,
+            Action<EventBusBuilder>? configureHandlers = null)
         {
             var eventBusSection = configuration.GetSection("EventBus");
 
@@ -32,28 +36,24 @@ namespace HwProj.EventBus.Client
                 HostName = eventBusSection["EventBusHostName"],
                 UserName = eventBusSection["EventBusUserName"],
                 Password = eventBusSection["EventBusPassword"],
-                VirtualHost = eventBusSection["EventBusVirtualHost"]
+                VirtualHost = eventBusSection["EventBusVirtualHost"],
+                AutomaticRecoveryEnabled = true,
+                DispatchConsumersAsync = true
             });
 
             services.AddSingleton<IDefaultConnection, DefaultConnection>();
             services.AddSingleton<IEventBus, EventBusRabbitMq>();
 
-            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).ToList();
-            var eventTypes = types.Where(x => typeof(Event).IsAssignableFrom(x));
-            foreach (var eventType in eventTypes)
-            {
-                var fullTypeInterface = typeof(IEventHandler<>).MakeGenericType(eventType);
-                var handlersTypes = types.Where(x =>
-                    fullTypeInterface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+            var subscriptions = new EventSubscriptions();
+            configureHandlers?.Invoke(new EventBusBuilder(services, subscriptions));
 
-                foreach (var handlerType in handlersTypes)
-                {
-                    services.AddTransient(handlerType);
-                }
+            if (!subscriptions.IsEmpty)
+            {
+                services.AddSingleton(subscriptions);
+                services.AddHostedService<EventBusConsumer>();
             }
 
             return services;
         }
-
     }
 }

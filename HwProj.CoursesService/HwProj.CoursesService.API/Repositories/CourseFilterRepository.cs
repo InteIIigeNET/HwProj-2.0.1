@@ -41,6 +41,15 @@ namespace HwProj.CoursesService.API.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<UserToCourseFilter>> GetAsync(string[] userIds, long[] courseIds)
+        {
+            return await Context.Set<UserToCourseFilter>()
+                .AsNoTracking()
+                .Where(u => userIds.Contains(u.Id) && courseIds.Contains(u.CourseId))
+                .Include(ucf => ucf.CourseFilter)
+                .ToListAsync();
+        }
+
         public async Task<long> AddAsync(CourseFilter courseFilter, string userId, long courseId)
         {
             using var transaction = await Context.Database.BeginTransactionAsync();

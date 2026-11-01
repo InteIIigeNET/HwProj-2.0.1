@@ -54,17 +54,16 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<Course[]> GetAllAsync()
         {
-            var courses = await _coursesRepository.GetAllWithCourseMatesAndHomeworks().ToArrayAsync();
-            CourseDomain.FillTasksInCourses(courses);
-            return courses;
+            // Для списка курсов достаточно полей самого курса, связанные сущности не нужны
+            return await _coursesRepository.GetAll().ToArrayAsync();
         }
 
         public async Task<CourseDTO?> GetByTaskAsync(long taskId, string userId)
         {
-            var task = await _tasksRepository.GetWithHomeworkAsync(taskId);
-            if (task == null) return null;
+            var courseId = await _tasksRepository.GetCourseIdAsync(taskId);
+            if (courseId == null) return null;
 
-            return await GetAsync(task.Homework.CourseId, userId);
+            return await GetAsync(courseId.Value, userId);
         }
 
         public async Task<CourseDTO?> GetAsync(long id, string userId = "", bool asView = false)
@@ -302,8 +301,9 @@ namespace HwProj.CoursesService.API.Services
 
             var coursesWithValues = await courses
                 .Include(c => c.Mentors)
+                .AsSplitQuery()
                 .Include(c => c.CourseMates)
-                .Include(c => c.Homeworks).ThenInclude(t => t.Tasks)
+                .Include(c => c.Homeworks.OrderBy(h => h.Id)).ThenInclude(t => t.Tasks.OrderBy(x => x.Id))
                 .ToArrayAsync();
 
             CourseDomain.FillTasksInCourses(coursesWithValues);

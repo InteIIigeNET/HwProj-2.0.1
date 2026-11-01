@@ -132,7 +132,7 @@ const DeadlineRow: FC<{
             secondaryAction={canGiveUp ? giveUpAction : undefined}
             sx={{"&:hover .giveUpAction, &:focus-within .giveUpAction": {opacity: 1, pointerEvents: "auto"}}}
         >
-            <ListItemButton component={NavLink} to={`/task/${deadline.taskId}`} sx={rowSx}>
+            <ListItemButton component={NavLink} to={`/courses/${deadline.courseId}/homeworks?taskId=${deadline.taskId}`} sx={rowSx}>
                 <CourseTile name={deadline.courseTitle ?? ""}/>
                 <Box sx={{flexGrow: 1, minWidth: 0}}>
                     <Stack direction={"row"} alignItems={"center"} spacing={1} flexWrap={"wrap"} sx={{rowGap: 0.5}}>

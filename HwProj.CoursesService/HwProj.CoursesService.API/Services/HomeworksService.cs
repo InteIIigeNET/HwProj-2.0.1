@@ -36,7 +36,7 @@ namespace HwProj.CoursesService.API.Services
             var homework = homeworkViewModel.ToHomework();
             homework.CourseId = courseId;
 
-            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(courseId);
+            var course = await _coursesRepository.GetWithCourseMates(courseId);
             var notifyStudentIds =
                 course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 
@@ -53,7 +53,7 @@ namespace HwProj.CoursesService.API.Services
 
             if (DateTime.UtcNow >= homework.PublicationDate)
             {
-                _eventBus.Publish(new NewHomeworkEvent(homework.Title, course.Name, course.Id, notifyStudentIds,
+                _eventBus.Publish(new NewHomeworkEvent(homework.Title, homework.Id, course.Name, course.Id, notifyStudentIds,
                     homework.DeadlineDate));
             }
 
@@ -100,7 +100,7 @@ namespace HwProj.CoursesService.API.Services
             }
 
             if (options.SendNotification && update.PublicationDate <= DateTime.UtcNow)
-                _eventBus.Publish(new UpdateHomeworkEvent(update.Title, course.Id, course.Name, notifyStudentIds));
+                _eventBus.Publish(new UpdateHomeworkEvent(update.Title, homeworkId, course.Id, course.Name, notifyStudentIds));
 
             await _homeworksRepository.UpdateAsync(homeworkId, hw => new Homework()
             {

@@ -17,7 +17,6 @@ namespace HwProj.CoursesService.API.Repositories
             Context.Set<Course>()
                 .Include(c => c.Mentors)
                 .Include(c => c.CourseMates)
-                .ThenInclude(c => c.Characteristics)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -34,18 +33,15 @@ namespace HwProj.CoursesService.API.Repositories
             var query = Context.Set<Course>()
                 .AsNoTracking()
                 .Include(c => c.Mentors)
+                .AsSplitQuery()
                 .Include(c => c.CourseMates)
                 .ThenInclude(c => c.Characteristics)
-                .Include(c => c.Homeworks)
-                .ThenInclude(c => c.Tasks);
+                .Include(c => c.Homeworks.OrderBy(h => h.PublicationDate).ThenBy(h => h.Id))
+                .ThenInclude(h => h.Tasks.OrderBy(t => t.Id));
 
-            var course = withCriteria
+            return withCriteria
                 ? await query.ThenInclude(x => x.Criteria).FirstOrDefaultAsync(c => c.Id == id)
                 : await query.FirstOrDefaultAsync(c => c.Id == id);
-
-            // todo: перенести OrderBy в Include после обновления до EF Core 5.x
-            course.Homeworks = course.Homeworks.OrderBy(h => h.PublicationDate).ToList();
-            return course;
         }
 
         public IQueryable<Course> GetAllWithCourseMatesAndHomeworks()

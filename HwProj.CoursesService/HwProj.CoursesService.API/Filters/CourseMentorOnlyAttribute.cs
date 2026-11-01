@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
+using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,15 +13,15 @@ namespace HwProj.CoursesService.API.Filters
     public class CourseMentorOnlyAttribute : ActionFilterAttribute
     {
         private readonly ICoursesService _coursesService;
-        private readonly IHomeworksService _homeworksService;
-        private readonly ITasksService _taskService;
+        private readonly IHomeworksRepository _homeworksRepository;
+        private readonly ITasksRepository _tasksRepository;
 
-        public CourseMentorOnlyAttribute(ICoursesService coursesService, IHomeworksService homeworksService,
-            ITasksService taskService)
+        public CourseMentorOnlyAttribute(ICoursesService coursesService, IHomeworksRepository homeworksRepository,
+            ITasksRepository tasksRepository)
         {
             _coursesService = coursesService;
-            _homeworksService = homeworksService;
-            _taskService = taskService;
+            _homeworksRepository = homeworksRepository;
+            _tasksRepository = tasksRepository;
         }
 
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -37,14 +39,16 @@ namespace HwProj.CoursesService.API.Filters
 
             else if (routeData.Values.TryGetValue("homeworkId", out var homeworkId))
             {
-                var homework = await _homeworksService.GetHomeworkAsync(long.Parse(homeworkId.ToString()));
-                mentorIds = await _coursesService.GetCourseLecturers(homework.CourseId);
+                var homeworkCourseId = await _homeworksRepository.GetCourseIdAsync(long.Parse(homeworkId.ToString()))
+                                       ?? throw new InvalidOperationException("Домашнее задание не найдено");
+                mentorIds = await _coursesService.GetCourseLecturers(homeworkCourseId);
             }
 
             else if (routeData.Values.TryGetValue("taskId", out var taskId))
             {
-                var task = await _taskService.GetTaskAsync(long.Parse(taskId.ToString()));
-                mentorIds = await _coursesService.GetCourseLecturers(task.Homework.CourseId);
+                var taskCourseId = await _tasksRepository.GetCourseIdAsync(long.Parse(taskId.ToString()))
+                                   ?? throw new InvalidOperationException("Задача не найдена");
+                mentorIds = await _coursesService.GetCourseLecturers(taskCourseId);
             }
 
             if (mentorIds != null && !mentorIds.Contains(userId.ToString()))

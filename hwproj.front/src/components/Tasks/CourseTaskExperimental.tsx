@@ -322,7 +322,7 @@ const CourseTaskEditor: FC<{
             hasDeadline: taskData.task.hasDeadline,
             deadlineDate: taskData.task.deadlineDate,
             isDeadlineStrict: taskData.task.isDeadlineStrict,
-            isPublished: taskData.task.isDeferred || !taskData.homework.isDeferred,
+            isPublished: !isNewTask && !taskData.task.isDeferred,
             hasErrors: false,
         } : undefined)
 
@@ -889,6 +889,8 @@ const CourseTaskExperimental: FC<{
     task: TaskEditData,
     homework: HomeworkViewModel,
     isMentor: boolean,
+    isStudentAccepted?: boolean,
+    rating?: number | "?",
     initialEditMode: boolean,
     onMount: () => void,
     onUpdate: (x: { task: TaskEditData, isDeleted?: boolean }) => void
@@ -936,21 +938,22 @@ const CourseTaskExperimental: FC<{
                         <Typography component={"h2"} className={"antiLongWords"} sx={detailTitleSx}>
                             {task.title}
                         </Typography>
-                        <Stack direction={"row"} spacing={0.75} useFlexGap flexWrap={"wrap"} sx={{mt: 1}}>
-                            <Tooltip arrow title={"Максимальный балл"}>
+                        <Stack direction={"row"} spacing={0.75} useFlexGap flexWrap={"wrap"} sx={{ mt: 1 }}>
+                            <Tooltip arrow title={!props.isMentor && props.isStudentAccepted ? "Ваш балл за задачу" : "Максимальный балл"}>
                                 <Chip
                                     size={"small"}
-                                    icon={<StarRoundedIcon/>}
-                                    label={task.maxRating}
-                                    sx={accentChipSx}/>
+                                    icon={<StarRoundedIcon />}
+                                    label={!props.isMentor && props.isStudentAccepted ? (props.rating ?? 0) + " / " + task.maxRating : task.maxRating}
+                                    sx={accentChipSx} />
                             </Tooltip>
-                            <TaskDeadline task={task} isMentor={props.isMentor}/>
+
+                            <TaskDeadline task={task} isMentor={props.isMentor} />
                             {task.isGroupWork &&
                                 <Chip
                                     size={"small"}
-                                    icon={<GroupIcon/>}
+                                    icon={<GroupIcon />}
                                     label={"Командное"}
-                                    sx={metaChipSx}/>}
+                                    sx={metaChipSx} />}
                         </Stack>
                     </Box>
                     {props.isMentor &&
