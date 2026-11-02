@@ -256,27 +256,39 @@ export const useHomeworkEditing = () => {
     }, []);
 
     const startHomeworkEdit = useCallback(async (homeworkId: number) => {
+        const {courseId, scopeId} = store.getState().course;
         const loaded = await loadHomeworkForEditing(homeworkId);
+        const current = store.getState().course;
+        if (
+            courseId == null || scopeId == null
+            || current.courseId !== courseId || current.scopeId !== scopeId
+        ) return;
         setHomeworkDraftFromLoaded(loaded);
-    }, [loadHomeworkForEditing, setHomeworkDraftFromLoaded]);
+    }, [loadHomeworkForEditing, setHomeworkDraftFromLoaded, store]);
 
     const saveHomework = useCallback(async (
         homeworkId: number,
         editOptions: ActionOptions,
         fileOptions?: HomeworkFileOptions,
     ) => {
+        const {courseId, scopeId} = store.getState().course;
         const homework = getCurrentHomework(homeworkId);
         if (!homework) throw new Error(`Homework ${homeworkId} not found for saving`);
         const {hasErrors, taskHasErrors} = getHomeworkValidation(homework);
         if (hasErrors || taskHasErrors) throw new Error('Homework contains invalid fields or tasks');
-        const courseId = homework.courseId!;
         const isNewHomework = homework.id! < 0;
         const body = buildHomeworkPayload(homework, editOptions);
-        const updatedHomework = await submitHomeworkApi(courseId, homeworkId, isNewHomework, body);
+        const updatedHomework = await submitHomeworkApi(homework.courseId!, homeworkId, isNewHomework, body);
         const savedHomework = updatedHomework.value!;
         const finalize = () => {
+            const current = store.getState().course;
+            if (
+                courseId == null || scopeId == null
+                || current.courseId !== courseId || current.scopeId !== scopeId
+            ) return;
             commitHomeworkSave(homeworkId, savedHomework);
             dispatch(setSelectedItem({isHomework: true, id: savedHomework.id}));
+            fileOptions?.onDone?.();
         };
 
         if (fileOptions) {
@@ -285,27 +297,37 @@ export const useHomeworkEditing = () => {
                 savedHomework.id!,
                 fileOptions.initialFilesInfo,
                 fileOptions.selectedFilesInfo,
-                fileOptions.onStartProcessing,
-                () => {
-                    finalize();
-                    fileOptions.onDone?.();
+                (...args) => {
+                    const current = store.getState().course;
+                    if (
+                        courseId == null || scopeId == null
+                        || current.courseId !== courseId || current.scopeId !== scopeId
+                    ) return;
+                    fileOptions.onStartProcessing(...args);
                 },
+                finalize,
             );
         } else {
             finalize();
         }
         return savedHomework;
-    }, [getCurrentHomework, buildHomeworkPayload, submitHomeworkApi, commitHomeworkSave, dispatch, processHomeworkFiles]);
+    }, [getCurrentHomework, buildHomeworkPayload, submitHomeworkApi, commitHomeworkSave, dispatch, processHomeworkFiles, store]);
 
     const deleteHomeworkWithFiles = useCallback(async (
         homeworkId: number,
         fileOptions?: HomeworkDeleteFileOptions,
     ) => {
+        const {courseId, scopeId} = store.getState().course;
         const homework = getCurrentHomework(homeworkId);
         if (!homework) throw new Error(`Homework ${homeworkId} not found for deletion`);
         const isNewHomework = homework.id! < 0;
         await deleteHomeworkApi(homeworkId, isNewHomework);
         const finalize = () => {
+            const current = store.getState().course;
+            if (
+                courseId == null || scopeId == null
+                || current.courseId !== courseId || current.scopeId !== scopeId
+            ) return;
             commitHomeworkRemoval(homeworkId);
             dispatch(setSelectedItem({isHomework: true, id: undefined}));
         };
@@ -322,7 +344,7 @@ export const useHomeworkEditing = () => {
         } else {
             finalize();
         }
-    }, [getCurrentHomework, deleteHomeworkApi, commitHomeworkRemoval, dispatch]);
+    }, [getCurrentHomework, deleteHomeworkApi, commitHomeworkRemoval, dispatch, store]);
 
     return {
         createHomework: createHomeworkDraft,

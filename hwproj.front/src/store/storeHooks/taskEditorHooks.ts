@@ -201,23 +201,35 @@ export const useTaskEditing = () => {
         isNewTask: boolean,
         updatePayload: PostTaskViewModel
     ) => {
+        const {courseId, scopeId} = store.getState().course;
         const updatedTask = isNewTask
             ? await ApiSingleton.tasksApi.tasksAddTask(homework.id!, updatePayload)
             : await ApiSingleton.tasksApi.tasksUpdateTask(+task.id!, updatePayload);
+        const current = store.getState().course;
+        if (
+            courseId == null || scopeId == null
+            || current.courseId !== courseId || current.scopeId !== scopeId
+        ) return updatedTask;
         commitTaskSave(task.id!, task.homeworkId!, updatedTask.value!);
         dispatch(setSelectedItem({ isHomework: false, id: updatedTask.value!.id }));
         return updatedTask;
-    }, [commitTaskSave, dispatch]);
+    }, [commitTaskSave, dispatch, store]);
 
     const removeTask = useCallback(async (
         task: HomeworkTaskViewModel,
         homework: HomeworkViewModel,
         isNewTask: boolean
     ) => {
+        const {courseId, scopeId} = store.getState().course;
         if (!isNewTask) await ApiSingleton.tasksApi.tasksDeleteTask(task.id!);
+        const current = store.getState().course;
+        if (
+            courseId == null || scopeId == null
+            || current.courseId !== courseId || current.scopeId !== scopeId
+        ) return;
         commitTaskRemoval(task.id!, task.homeworkId!);
         dispatch(setSelectedItem({ isHomework: true, id: homework.id }));
-    }, [commitTaskRemoval, dispatch]);
+    }, [commitTaskRemoval, dispatch, store]);
 
     const discardTaskDraft = useCallback((task: HomeworkTaskViewModel, homework: HomeworkViewModel, isNewTask: boolean) => {
         const draftHomework = selectDraftHomeworkById(store.getState(), task.homeworkId!);
@@ -249,9 +261,15 @@ export const useTaskEditing = () => {
     }, [store]);
 
     const startTaskEdit = useCallback(async (taskId: number) => {
+        const {courseId, scopeId} = store.getState().course;
         const loaded = await loadTaskForEditing(taskId);
+        const current = store.getState().course;
+        if (
+            courseId == null || scopeId == null
+            || current.courseId !== courseId || current.scopeId !== scopeId
+        ) return;
         setTaskDraftFromLoaded(loaded.task!, loaded.homework!);
-    }, [loadTaskForEditing, setTaskDraftFromLoaded]);
+    }, [loadTaskForEditing, setTaskDraftFromLoaded, store]);
 
     const saveTask = useCallback(async (
         taskId: number,
