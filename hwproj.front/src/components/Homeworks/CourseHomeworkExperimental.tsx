@@ -339,11 +339,11 @@ const CourseHomeworkEditor: FC<{
                             sx={{...inputSx, maxWidth: {sm: 320}}}
                             error={!loadedHomework.title}
                             value={loadedHomework.title || ''}
-                            onChange={(e) => patchHomeworkDraft({...loadedHomework, title: e.target.value})}
+                            onChange={(e) => patchHomeworkDraft({id: homeworkId, title: e.target.value})}
                         />
                         <Box sx={{width: "100%", minWidth: 0}}>
                             <Tags tags={loadedHomework.tags || []}
-                                  onTagsChange={(tags) => patchHomeworkDraft({...loadedHomework, tags})}
+                                  onTagsChange={(tags) => patchHomeworkDraft({id: homeworkId, tags})}
                                   isElementSmall={true}
                                   suggestion={tagSuggestion}
                                   requestTags={() => ApiSingleton.coursesApi.coursesGetAllTagsForCourse(courseId)}/>
@@ -362,7 +362,7 @@ const CourseHomeworkEditor: FC<{
                                 height={240}
                                 maxHeight={400}
                                 value={loadedHomework.description || ''}
-                                onChange={(value) => patchHomeworkDraft({...loadedHomework, description: value})}
+                                onChange={(value) => patchHomeworkDraft({id: homeworkId, description: value})}
                             />
                         </Box>
                     </Box>
@@ -411,8 +411,8 @@ const CourseHomeworkEditor: FC<{
                                 ) {
                                     return
                                 }
-                                patchHomeworkDraft({
-                                    ...loadedHomework,
+                                const update = {
+                                    id: homeworkId,
                                     publicationDate: state.publicationDate,
                                     publicationDateNotSet: nextPublicationDateNotSet,
                                     hasDeadline: state.hasDeadline,
@@ -420,7 +420,8 @@ const CourseHomeworkEditor: FC<{
                                     isDeadlineStrict: state.isDeadlineStrict,
                                     deadlineDateNotSet: nextDeadlineDateNotSet,
                                     hasErrors: nextHasErrors,
-                                } as unknown as HomeworkViewModel)
+                                }
+                                patchHomeworkDraft(update)
                             }}
                         />
                     </Box>
@@ -480,7 +481,7 @@ const CourseHomeworkEditor: FC<{
                     courseStudents={courseStudents}
                     onGroupIdChange={(groupId?: number) => {
                         setSelectedGroupId(groupId)
-                        patchHomeworkDraft({...loadedHomework, groupId})
+                        patchHomeworkDraft({id: homeworkId, groupId})
                     }}
                     selectedGroupId={selectedGroupId}
                     choiceDisabled={!isNewHomework}

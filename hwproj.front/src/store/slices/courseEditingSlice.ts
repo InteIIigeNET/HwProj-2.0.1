@@ -99,8 +99,8 @@ const courseEditingSlice = createSlice({
             reducer: (state, action: PayloadAction<StoredHomework>) => {
                 const id = state.draftHomeworks.findIndex(dh => dh.id === action.payload.id);
                 if (id !== -1) {
-                    const existingTasks = state.draftHomeworks[id].tasks;
-                    state.draftHomeworks[id] = {...action.payload, tasks: existingTasks};
+                    const currentHomework = state.draftHomeworks[id];
+                    state.draftHomeworks[id] = {...currentHomework, ...action.payload, tasks: currentHomework.tasks};
                     if (!state.homeworkEditingIds.includes(action.payload.id!)) {
                         state.homeworkEditingIds.push(action.payload.id!);
                     }
