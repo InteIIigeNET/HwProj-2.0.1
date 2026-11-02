@@ -50,7 +50,7 @@ export const useHomeworkEditorState = (homework: HomeworkViewModel) => {
     const isNewHomework = homework.id! < 0;
     const committedHomework = useCourseState(state => selectHomeworkById(state, homework.id!));
     const committedHomeworks = useCourseState(state => isNewHomework ? selectHomeworks(state) : undefined);
-    const mergedHomework = mergeHomeworkDraft(committedHomework, homework);
+    const mergedHomework = mergeHomeworkDraft(committedHomework, homework, true);
     const publicationTimestamp = homework.publicationDateNotSet || !homework.publicationDate
         ? undefined
         : new Date(homework.publicationDate).getTime();

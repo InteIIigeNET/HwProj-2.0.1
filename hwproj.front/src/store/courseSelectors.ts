@@ -33,27 +33,33 @@ export const mergeHomeworkDraft = createSelector(
     [
         (committed: HomeworkViewModel | undefined) => committed,
         (_committed: HomeworkViewModel | undefined, draft: HomeworkViewModel) => draft,
+        (_committed: HomeworkViewModel | undefined, _draft: HomeworkViewModel, isHomeworkEditing: boolean) => isHomeworkEditing,
     ],
-    (committed, draft): HomeworkViewModel => {
+    (committed, draft, isHomeworkEditing): HomeworkViewModel => {
         const tasks = new Map<number, HomeworkTaskViewModel>();
         for (const task of committed?.tasks ?? []) tasks.set(task.id!, task);
         for (const task of draft.tasks ?? []) tasks.set(task.id!, task);
 
-        return {...committed, ...draft, tasks: Array.from(tasks.values())};
+        const homework = isHomeworkEditing || !committed ? {...committed, ...draft} : committed;
+        return {...homework, tasks: Array.from(tasks.values())};
     },
 );
 
 export const selectMergedHomeworkById = createSelector(
-    [selectHomeworkById, selectDraftHomeworkById],
-    (committed, draft) => draft ? mergeHomeworkDraft(committed, draft) : committed,
+    [
+        selectHomeworkById,
+        selectDraftHomeworkById,
+        (state: RootState, homeworkId: number) => state.editing.homeworkEditingIds.includes(homeworkId),
+    ],
+    (committed, draft, isHomeworkEditing) => draft ? mergeHomeworkDraft(committed, draft, isHomeworkEditing) : committed,
 );
 
 export const selectMergedHomeworks = createSelector(
-    [selectHomeworks, selectDraftHomeworks],
-    (committedHomeworks, draftHomeworks) => {
+    [selectHomeworks, selectDraftHomeworks, (state: RootState) => state.editing.homeworkEditingIds],
+    (committedHomeworks, draftHomeworks, homeworkEditingIds) => {
         const result = committedHomeworks.map(homework => {
             const draft = draftHomeworks.find(candidate => candidate.id === homework.id);
-            return draft ? mergeHomeworkDraft(homework, draft) : homework;
+            return draft ? mergeHomeworkDraft(homework, draft, homeworkEditingIds.includes(homework.id!)) : homework;
         });
 
         return [...result, ...draftHomeworks.filter(homework => homework.id! < 0)];
