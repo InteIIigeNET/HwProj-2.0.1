@@ -4,6 +4,7 @@ import {
     createNewHomeworkDraft,
     putHomeworkDraft,
     updateDraftHomework as updateDraftHomeworkAction,
+    resetHomeworkFieldChanges,
     removeDraftHomework,
     setSelectedItem,
 } from '../slices/courseEditingSlice';
@@ -156,7 +157,11 @@ export const useHomeworkEditing = () => {
 
     const commitHomeworkSave = useCallback((draftId: number, savedHomework: HomeworkViewModel) => {
         dispatch(updateOrInsertHomework(savedHomework));
-        dispatch(removeDraftHomework(draftId));
+        if (draftId < 0) {
+            dispatch(removeDraftHomework(draftId));
+        } else {
+            dispatch(resetHomeworkFieldChanges(savedHomework));
+        }
     }, [dispatch]);
 
     const commitHomeworkRemoval = useCallback((homeworkId: number) => {
@@ -169,10 +174,15 @@ export const useHomeworkEditing = () => {
             dispatch(removeDraftHomework(homeworkId));
             dispatch(setSelectedItem({ isHomework: true, id: undefined }));
         } else {
-            dispatch(removeDraftHomework(homeworkId));
+            const homework = selectHomeworkById(store.getState(), homeworkId);
+            if (homework) {
+                dispatch(resetHomeworkFieldChanges(homework));
+            } else {
+                dispatch(removeDraftHomework(homeworkId));
+            }
             dispatch(setSelectedItem({ isHomework: true, id: homeworkId }));
         }
-    }, [dispatch]);
+    }, [dispatch, store]);
 
     const loadHomeworkForEditing = useCallback((homeworkId: number) => {
         return ApiSingleton.homeworksApi.homeworksGetForEditingHomework(homeworkId);

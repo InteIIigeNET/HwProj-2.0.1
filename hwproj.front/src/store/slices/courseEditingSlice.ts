@@ -108,6 +108,22 @@ const courseEditingSlice = createSlice({
             },
         },
 
+        resetHomeworkFieldChanges: {
+            prepare: (homework: HomeworkViewModel) => ({payload: serializeDates(homework)}),
+            reducer: (state, action: PayloadAction<StoredHomework>) => {
+                const idx = state.draftHomeworks.findIndex(dh => dh.id === action.payload.id);
+                if (idx !== -1) {
+                    const tasks = state.draftHomeworks[idx].tasks;
+                    if (tasks?.length) {
+                        state.draftHomeworks[idx] = {...action.payload, tasks};
+                    } else {
+                        state.draftHomeworks.splice(idx, 1);
+                    }
+                }
+                state.homeworkEditingIds = state.homeworkEditingIds.filter(id => id !== action.payload.id);
+            },
+        },
+
         removeDraftHomework: (state, action: PayloadAction<number>) => {
             state.draftHomeworks = state.draftHomeworks.filter(dh => dh.id !== action.payload);
             state.homeworkEditingIds = state.homeworkEditingIds.filter(id => id !== action.payload);
@@ -189,6 +205,7 @@ export const {
     putHomeworkDraft,
     ensureHomeworkDraft,
     updateDraftHomework,
+    resetHomeworkFieldChanges,
     removeDraftHomework,
     addDraftTask,
     updateDraftTask,
