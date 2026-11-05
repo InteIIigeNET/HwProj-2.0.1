@@ -1201,21 +1201,27 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     const sentAfterDeadline = solution && task.hasDeadline && getDatesDiff(solution.publicationDate!, task.deadlineDate!)
 
-    const showRatingPanel = props.forMentor || isRated
+    const showRatingPanel = props.forMentor || !!solution
     // Цвет рамки панели оценки — он же цвет перемычки к решению, чтобы связка читалась как одно целое
     const ratingPanelColor = isRated || state.clickedForRate ? scoreColor : "#c4cad2"
 
     const renderRatingPanel = () => {
+        // Студент видит статус сохранённой попытки, а не черновика преподавателя.
+        const studentReviewStatus = !isRated
+            ? {label: "На проверке", color: "warning" as const}
+            : solution?.requiresRevision
+                ? {label: "Требуется отправить исправленное решение", color: "warning" as const}
+                : {label: "Проверено", color: "success" as const};
         const percent = maxRating > 0 ? points * 100 / maxRating : 0
         const isEditing = props.forMentor && state.clickedForRate
-        const showRateControlInBody = (!hasCriteria || !state.clickedForRate) && (!isRated || isEditing)
+        const showRateControlInBody = (props.forMentor || isRated) && (!hasCriteria || !state.clickedForRate) && (!isRated || isEditing)
         const showRateControlInHeader = (!hasCriteria || !state.clickedForRate) && isRated && !isEditing
         // Тон и цвет рамки берём и во время оценивания — оценка сразу видна по цвету панели
         const isScored = isRated || state.clickedForRate
         const tone = isScored ? gradeTone(percent) : undefined
         const hasLecturerComment = !!lecturerComment?.trim()
         const showCriteriaBlock = props.forMentor && hasCriteria && state.addBonusPoints && state.clickedForRate
-        const showQuickRateHint = !isRated && !state.clickedForRate && maxRating <= 10 && !addBonusPoints
+        const showQuickRateHint = props.forMentor && !isRated && !state.clickedForRate && maxRating <= 10 && !addBonusPoints
         const showLastRatingHint = lastRating !== undefined && state.clickedForRate
         const showLecturerInfo = !!(lecturerName && isRated)
         const showLecturerComment = (state.clickedForRate && props.forMentor) || (isRated && hasLecturerComment)
@@ -1241,13 +1247,31 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         </Typography>
                         <Box sx={{flexGrow: 1}}/>
                         {!isScored
-                            ? solution && <Chip size={"small"} label={"Ожидает проверки"} sx={pendingChipSx}/>
+                            ? props.forMentor && solution && <Chip size={"small"} label={"Ожидает проверки"} sx={pendingChipSx}/>
                             : showRateControlInHeader && renderRateInput(false)}
                     </Stack>
                 </Stack>
                 <Divider/>
                 <Box sx={sectionSx}>
                     <Stack spacing={1.75}>
+                        {!props.forMentor && solution &&
+                            <Chip
+                                label={studentReviewStatus.label}
+                                color={studentReviewStatus.color}
+                                variant="outlined"
+                                size="small"
+                                sx={{
+                                    alignSelf: "flex-start",
+                                    maxWidth: "100%",
+                                    height: "auto",
+                                    ...(!isRated && {
+                                        backgroundColor: "#fff8e1",
+                                        borderColor: "#f0cf65",
+                                        color: "#795500",
+                                    }),
+                                    "& .MuiChip-label": {whiteSpace: "normal", py: 0.5},
+                                }}
+                            />}
                         {showRateControlInBody && renderRateInput(false)}
 
                         {showCriteriaBlock && renderCriteriaBlock()}
@@ -1266,7 +1290,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                         }))}
                                     />
                                 }
-                                label="Требуется исправление решения"
+                                label="Запросить исправленное решение"
                             />}
 
                         {showQuickRateHint &&
