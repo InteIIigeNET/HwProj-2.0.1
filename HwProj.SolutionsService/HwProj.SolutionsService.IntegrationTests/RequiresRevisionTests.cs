@@ -14,6 +14,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using NUnit.Framework;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using SolutionRatingService = HwProj.SolutionsService.API.Services.SolutionsService;
 
 namespace HwProj.SolutionsService.IntegrationTests
@@ -21,6 +24,35 @@ namespace HwProj.SolutionsService.IntegrationTests
     [TestFixture]
     public class RequiresRevisionTests
     {
+        [TestCase(true)]
+        [TestCase(false)]
+        public void RevisionFlagSurvivesDtoAndGatewayResponse(bool requiresRevision)
+        {
+            var mapper = new MapperConfiguration(c => c.AddProfile<AutomapperProfile>()).CreateMapper();
+            var entity = new Solution
+            {
+                Id = 42, Rating = 7, State = SolutionState.Rated, RequiresRevision = requiresRevision
+            };
+
+            // Solutions Service использует AutoMapper для списков и статистики.
+            var dto = mapper.Map<SolutionDto>(entity);
+            Assert.That(dto.RequiresRevision, Is.EqualTo(requiresRevision));
+
+            // Отдельное решение возвращается как Solution, а клиент Gateway читает SolutionDto.
+            var received = JsonConvert.DeserializeObject<SolutionDto>(JsonConvert.SerializeObject(entity))
+                ?? throw new InvalidOperationException("Solution response was not deserialized");
+            Assert.That(received.RequiresRevision, Is.EqualTo(requiresRevision));
+            var response = new GetSolutionModel(received, null, null);
+            var json = JObject.Parse(JsonConvert.SerializeObject(response, new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            }));
+            Assert.That(json["requiresRevision"], Is.Not.Null);
+            Assert.That(json.Value<bool>("requiresRevision"), Is.EqualTo(requiresRevision));
+            Assert.That(json.Value<int>("rating"), Is.EqualTo(7));
+            Assert.That(response.State, Is.EqualTo(SolutionState.Rated));
+        }
+
         [TestCase(true, false, 7, SolutionState.Rated)]
         [TestCase(false, true, 10, SolutionState.Final)]
         [TestCase(true, false, 0, SolutionState.Rated)]

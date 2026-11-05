@@ -21,6 +21,7 @@ namespace HwProj.Models.SolutionsService
             PublicationDate = model.PublicationDate;
             IsModified = model.IsModified;
             Rating = model.Rating;
+            RequiresRevision = model.RequiresRevision;
             StudentId = model.StudentId;
             TaskId = model.TaskId;
             State = model.State;
@@ -39,6 +40,8 @@ namespace HwProj.Models.SolutionsService
         public SolutionState State { get; set; }
 
         public int Rating { get; set; }
+
+        public bool RequiresRevision { get; set; }
 
         public string StudentId { get; set; }
 
