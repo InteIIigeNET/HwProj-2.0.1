@@ -1210,7 +1210,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         const studentReviewStatus = !isRated
             ? {label: "На проверке", color: "warning" as const}
             : solution?.requiresRevision
-                ? {label: "Требуется отправить исправленное решение", color: "warning" as const}
+                ? {label: "Требуется отправить исправленное решение", color: "error" as const}
                 : {label: "Проверено", color: "success" as const};
         const percent = maxRating > 0 ? points * 100 / maxRating : 0
         const isEditing = props.forMentor && state.clickedForRate
@@ -1264,10 +1264,18 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     alignSelf: "flex-start",
                                     maxWidth: "100%",
                                     height: "auto",
-                                    ...(!isRated && {
+                                    ...(!isRated ? {
                                         backgroundColor: "#fff8e1",
                                         borderColor: "#f0cf65",
                                         color: "#795500",
+                                    } : solution.requiresRevision ? {
+                                        backgroundColor: "#ffebee",
+                                        borderColor: "#e57373",
+                                        color: "#b71c1c",
+                                    } : {
+                                        backgroundColor: "#edf7ed",
+                                        borderColor: "#b7d9b9",
+                                        color: "#255d2a",
                                     }),
                                     "& .MuiChip-label": {whiteSpace: "normal", py: 0.5},
                                 }}
