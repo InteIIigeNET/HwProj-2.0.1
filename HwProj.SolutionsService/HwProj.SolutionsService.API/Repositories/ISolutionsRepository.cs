@@ -9,7 +9,7 @@ namespace HwProj.SolutionsService.API.Repositories
     public interface ISolutionsRepository : ICrudRepository<Solution, long>
     {
         Task RateSolutionAsync(long solutionId, SolutionState newState, string lecturerId, int newRating, 
-            DateTime ratingDate, string lecturerComment);
+            DateTime ratingDate, string lecturerComment, bool requiresRevision);
 
         Task ChangeTaskSolutionsMaxRatingAsync(long solutionId, int newMaxRating);
 

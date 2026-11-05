@@ -16,12 +16,13 @@ namespace HwProj.SolutionsService.API.Repositories
         }
 
         public async Task RateSolutionAsync(long solutionId, SolutionState newState, string lecturerId, int newRating, 
-            DateTime ratingDate, string lecturerComment)
+            DateTime ratingDate, string lecturerComment, bool requiresRevision)
         {
             await UpdateAsync(solutionId, solution => new Solution
             {
                 State = newState,
                 Rating = newRating,
+                RequiresRevision = requiresRevision,
                 RatingDate = ratingDate,
                 LecturerId = lecturerId,
                 LecturerComment = lecturerComment

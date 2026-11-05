@@ -91,7 +91,8 @@ namespace HwProj.SolutionsService.API.Controllers
             var lecturerId = Request.GetUserIdFromHeader();
             if (course != null && lecturerId != null && course.MentorIds.Contains(lecturerId))
             {
-                await _solutionsService.RateSolutionAsync(solutionId, lecturerId, rateSolutionModel.Rating, rateSolutionModel.LecturerComment);
+                await _solutionsService.RateSolutionAsync(solutionId, lecturerId, rateSolutionModel.Rating,
+                    rateSolutionModel.LecturerComment, rateSolutionModel.RequiresRevision);
                 return Ok();
             }
 
