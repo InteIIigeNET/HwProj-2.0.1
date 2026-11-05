@@ -4,5 +4,6 @@ namespace HwProj.Models.SolutionsService
     {
         public int Rating { get; set; }
         public string? LecturerComment { get; set; }
+        public bool RequiresRevision { get; set; }
     }
 }

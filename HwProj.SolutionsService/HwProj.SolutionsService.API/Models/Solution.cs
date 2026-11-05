@@ -16,6 +16,8 @@ namespace HwProj.SolutionsService.API.Models
 
         public int Rating { get; set; }
 
+        public bool RequiresRevision { get; set; }
+
         public string StudentId { get; set; }
 
         public string? LecturerId { get; set; }

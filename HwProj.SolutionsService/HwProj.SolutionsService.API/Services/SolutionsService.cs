@@ -104,6 +104,8 @@ namespace HwProj.SolutionsService.API.Services
 
         public async Task<long> PostOrUpdateAsync(long taskId, Solution solution)
         {
+            // Новая попытка ещё не проверена: студент не задаёт требование исправления.
+            solution.RequiresRevision = false;
             solution.PublicationDate = DateTime.UtcNow;
             solution.TaskId = taskId;
 
@@ -127,6 +129,7 @@ namespace HwProj.SolutionsService.API.Services
                     GroupId = solution.GroupId,
                     IsModified = isModified,
                     State = SolutionState.Posted,
+                    RequiresRevision = false,
                 });
                 solutionId = lastSolution.Id;
             }
@@ -159,10 +162,12 @@ namespace HwProj.SolutionsService.API.Services
             solution.RatingDate = currentTime;
             solution.TaskId = taskId;
             var id = await _solutionsRepository.AddAsync(solution);
-            await RateSolutionAsync(id, solution.LecturerId!, solution.Rating, solution.LecturerComment);
+            await RateSolutionAsync(id, solution.LecturerId!, solution.Rating, solution.LecturerComment,
+                solution.RequiresRevision);
         }
 
-        public async Task RateSolutionAsync(long solutionId, string lecturerId, int newRating, string lecturerComment)
+        public async Task RateSolutionAsync(long solutionId, string lecturerId, int newRating, string lecturerComment,
+            bool requiresRevision)
         {
             if (0 <= newRating)
             {
@@ -172,11 +177,13 @@ namespace HwProj.SolutionsService.API.Services
                 var course = await _coursesServiceClient.GetCourseByTask(solution.TaskId);
                 var state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
                 await _solutionsRepository
-                    .RateSolutionAsync(solutionId, state, lecturerId, newRating, ratingDate, lecturerComment);
+                    .RateSolutionAsync(solutionId, state, lecturerId, newRating, ratingDate, lecturerComment,
+                        requiresRevision);
 
                 var solutionModel = _mapper.Map<SolutionViewModel>(solution);
                 solutionModel.LecturerComment = lecturerComment;
                 solutionModel.Rating = newRating;
+                solutionModel.RequiresRevision = requiresRevision;
                 _eventBus.Publish(new RateEvent(task, solutionModel, course?.Id ?? 0));
             }
         }
