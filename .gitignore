@@ -363,3 +363,4 @@ swagger-codegen
 hwproj.front/static_dist/
 hwproj.front/dist/
 .DS_Store
+Docs/revision-status-progress.md

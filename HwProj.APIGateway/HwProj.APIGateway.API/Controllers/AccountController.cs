@@ -78,6 +78,7 @@ namespace HwProj.APIGateway.API.Controllers
                     SolutionState = t.solution?.State,
                     MaxRating = t.deadline.MaxRating,
                     Rating = t.solution?.Rating,
+                    RequiresRevision = t.solution?.RequiresRevision ?? false,
                     DeadlinePast = currentTime > t.deadline.DeadlineDate
                 }).ToArray();
 
