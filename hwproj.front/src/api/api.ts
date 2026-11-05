@@ -942,6 +942,12 @@ export interface GetSolutionModel {
     rating?: number;
     /**
      *
+     * @type {boolean}
+     * @memberof GetSolutionModel
+     */
+    requiresRevision?: boolean;
+    /**
+     *
      * @type {string}
      * @memberof GetSolutionModel
      */
@@ -1735,6 +1741,15 @@ export interface PostTaskViewModel {
 /**
  *
  * @export
+ * @interface ProblemDetails
+ */
+export interface ProblemDetails {
+    [key: string]: any;
+
+}
+/**
+ *
+ * @export
  * @interface ProgramModel
  */
 export interface ProgramModel {
@@ -1788,6 +1803,12 @@ export interface RateSolutionModel {
      * @memberof RateSolutionModel
      */
     lecturerComment?: string;
+    /**
+     *
+     * @type {boolean}
+     * @memberof RateSolutionModel
+     */
+    requiresRevision?: boolean;
 }
 /**
  *
@@ -2039,6 +2060,12 @@ export interface SolutionDto {
     rating?: number;
     /**
      *
+     * @type {boolean}
+     * @memberof SolutionDto
+     */
+    requiresRevision?: boolean;
+    /**
+     *
      * @type {string}
      * @memberof SolutionDto
      */
@@ -2229,6 +2256,12 @@ export interface SolutionViewModel {
      * @memberof SolutionViewModel
      */
     rating?: number;
+    /**
+     *
+     * @type {boolean}
+     * @memberof SolutionViewModel
+     */
+    requiresRevision?: boolean;
     /**
      *
      * @type {Date}
@@ -2567,6 +2600,12 @@ export interface TaskDeadlineView {
      * @memberof TaskDeadlineView
      */
     rating?: number;
+    /**
+     *
+     * @type {boolean}
+     * @memberof TaskDeadlineView
+     */
+    requiresRevision?: boolean;
     /**
      *
      * @type {number}
