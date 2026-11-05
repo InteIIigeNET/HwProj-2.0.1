@@ -6,8 +6,10 @@ import {
     Box,
     Button,
     Chip,
+    Checkbox,
     CircularProgress,
     Divider,
+    FormControlLabel,
     IconButton,
     LinearProgress,
     Paper,
@@ -266,6 +268,7 @@ interface ISolutionProps {
 interface ISolutionState {
     points: number,
     lecturerComment: string,
+    requiresRevision: boolean,
     clickedForRate: boolean,
     addBonusPoints: boolean
 }
@@ -384,6 +387,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         return {
             points: storageValue?.points || props.solution?.rating || 0,
             lecturerComment: storageValue?.comment || props.solution?.lecturerComment || "",
+            requiresRevision: storageValue?.requiresRevision ?? props.solution?.requiresRevision ?? false,
             clickedForRate,
             addBonusPoints: hasCriteria,
         };
@@ -472,7 +476,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         setRateInProgressState(false);
         getActuality();
         setShowOriginalCommentText(false);
-    }, [props.student.userId, props.task.id, props.solution?.id, props.solution?.rating, props.solution?.lecturerComment]);
+    }, [props.student.userId, props.task.id, props.solution?.id, props.solution?.rating, props.solution?.lecturerComment, props.solution?.requiresRevision]);
 
     useEffect(() => {
         if (!hasCriteria || !state.addBonusPoints || !state.clickedForRate || !criteriaModified) return;
@@ -536,7 +540,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
         RatingStorage.set(storageKey, {
             points: state.points,
-            comment: state.lecturerComment
+            comment: state.lecturerComment,
+            requiresRevision: state.requiresRevision,
         });
 
         const draft: CriteriaDraft = {
@@ -551,6 +556,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     }, [
         state.points,
         state.lecturerComment,
+        state.requiresRevision,
         criterionRatings,
         extraScore,
         state.clickedForRate,
@@ -646,6 +652,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     {
                         rating: points,
                         lecturerComment: finalComment,
+                        requiresRevision: state.requiresRevision,
                     }
                 );
             } else {
@@ -658,6 +665,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         publicationDate: undefined,
                         rating: points,
                         studentId: props.student.userId,
+                        requiresRevision: state.requiresRevision,
                     }
                 );
             }
@@ -1244,6 +1252,23 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
                         {showCriteriaBlock && renderCriteriaBlock()}
 
+                        {props.forMentor &&
+                            <FormControlLabel
+                                sx={{m: 0, alignSelf: "flex-start"}}
+                                control={
+                                    <Checkbox
+                                        checked={state.requiresRevision}
+                                        disabled={rateInProgress || (isRated && !state.clickedForRate)}
+                                        onChange={(_, checked) => setState(prev => ({
+                                            ...prev,
+                                            requiresRevision: checked,
+                                            clickedForRate: true,
+                                        }))}
+                                    />
+                                }
+                                label="Требуется исправление решения"
+                            />}
+
                         {showQuickRateHint &&
                             <Typography sx={hintSx}>
                                 Нажмите{" "}
@@ -1358,6 +1383,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                             ...prevState,
                                             points: props.solution?.rating || 0,
                                             lecturerComment: storedCriteria.commentWithoutCriteria,
+                                            requiresRevision: props.solution?.requiresRevision ?? false,
                                             addBonusPoints: hasCriteria,
                                             clickedForRate: false,
                                         }));
