@@ -8,7 +8,8 @@ namespace HwProj.Models.SolutionsService
         public string GithubUrl { get; set; }
         public string Comment { get; set; }
         public SolutionState State { get; set; }
-        public int Rating { get; set; }
+        public int? Rating { get; set; }
+        public bool IsRatingHidden { get; set; }
         public bool RequiresRevision { get; set; }
         public string StudentId { get; set; }
         public string? LecturerId { get; set; }

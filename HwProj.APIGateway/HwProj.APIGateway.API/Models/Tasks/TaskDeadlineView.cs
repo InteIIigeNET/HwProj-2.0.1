@@ -8,6 +8,7 @@ public class TaskDeadlineView
     public TaskDeadlineDto Deadline { get; set; }
     public SolutionState? SolutionState { get; set; }
     public long? Rating { get; set; }
+    public bool IsRatingHidden { get; set; }
     public bool RequiresRevision { get; set; }
     public long MaxRating { get; set; }
     public bool DeadlinePast { get; set; }

@@ -8,6 +8,8 @@ namespace HwProj.CoursesService.API.Models
 
         public string Description { get; set; }
 
+        public bool HideRatings { get; set; }
+
         public bool HasDeadline { get; set; }
 
         public bool IsDeadlineStrict { get; set; }

@@ -377,7 +377,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     };
 
     const getDefaultState = (): ISolutionState => {
-        const storageValue = RatingStorage.tryGet(storageKey);
+        const storageValue = props.forMentor ? RatingStorage.tryGet(storageKey) : null;
         const storedCriteria = parseStoredCriteria(props.solution?.lecturerComment);
 
         const clickedForRate = props.forMentor
@@ -576,7 +576,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         props.solution.githubUrl &&
         props.solution.githubUrl.startsWith("https://github.com/")
 
-    const checkAchievement = props.solution && props.isLastSolution && props.solution.state !== SolutionState.NUMBER_0
+    const checkAchievement = props.solution && !props.solution.isRatingHidden && props.isLastSolution && props.solution.state !== SolutionState.NUMBER_0
 
     const getAchievementState = async () => {
         setAchievementState(undefined)
@@ -1203,7 +1203,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     const showRatingPanel = props.forMentor || !!solution
     // Цвет рамки панели оценки — он же цвет перемычки к решению, чтобы связка читалась как одно целое
-    const ratingPanelColor = isRated || state.clickedForRate ? scoreColor : "#c4cad2"
+    const ratingIsHidden = !props.forMentor && !!solution?.isRatingHidden
+    const ratingPanelColor = !ratingIsHidden && (isRated || state.clickedForRate) ? scoreColor : "#c4cad2"
 
     const renderRatingPanel = () => {
         // Студент видит статус сохранённой попытки, а не черновика преподавателя.
@@ -1214,11 +1215,11 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 : {label: "Проверено", color: "success" as const};
         const percent = maxRating > 0 ? points * 100 / maxRating : 0
         const isEditing = props.forMentor && state.clickedForRate
-        const showRateControlInBody = (props.forMentor || isRated) && (!hasCriteria || !state.clickedForRate) && (!isRated || isEditing)
-        const showRateControlInHeader = (!hasCriteria || !state.clickedForRate) && isRated && !isEditing
+        const showRateControlInBody = !ratingIsHidden && (props.forMentor || isRated) && (!hasCriteria || !state.clickedForRate) && (!isRated || isEditing)
+        const showRateControlInHeader = !ratingIsHidden && (!hasCriteria || !state.clickedForRate) && isRated && !isEditing
         // Тон и цвет рамки берём и во время оценивания — оценка сразу видна по цвету панели
         const isScored = isRated || state.clickedForRate
-        const tone = isScored ? gradeTone(percent) : undefined
+        const tone = isScored && !ratingIsHidden ? gradeTone(percent) : undefined
         const hasLecturerComment = !!lecturerComment?.trim()
         const showCriteriaBlock = props.forMentor && hasCriteria && state.addBonusPoints && state.clickedForRate
         const showQuickRateHint = props.forMentor && !isRated && !state.clickedForRate && maxRating <= 10 && !addBonusPoints

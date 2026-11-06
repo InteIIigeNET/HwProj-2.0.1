@@ -835,7 +835,7 @@ const CourseTaskExperimental: FC<{
                                 <Chip
                                     size={"small"}
                                     icon={<StarRoundedIcon />}
-                                    label={!isCourseMentor && props.isStudentAccepted ? `${props.rating ?? 0} / ${task.maxRating}` : task.maxRating}
+                                    label={!isCourseMentor && task.hideRatings ? "Баллы скрыты" : !isCourseMentor && props.isStudentAccepted ? (props.rating ?? 0) + " / " + task.maxRating : task.maxRating}
                                     sx={accentChipSx} />
                             </Tooltip>
 

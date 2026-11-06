@@ -36,7 +36,9 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
         + (props.isBestSolution ? "\n Первое решение с лучшей оценкой" : "")
         + `\n\n${Utils.pluralizeHelper(["Проверена", "Проверены", "Проверено"], ratedSolutionsCount)} ${ratedSolutionsCount} ${Utils.pluralizeHelper(["попытка", "попытки", "попыток"], ratedSolutionsCount)}`;
 
-    const result = cellState.lastRatedSolution === undefined
+    const result = cellState.lastSolution?.isRatingHidden
+        ? StudentStatsUtils.reviewSymbol(cellState.lastSolution)
+        : cellState.lastRatedSolution === undefined
         ? ""
         : <Stack direction="row" spacing={0.3} justifyContent={"center"} alignItems={"center"}>
             <Box component={"span"} sx={{fontVariantNumeric: "tabular-nums"}}>

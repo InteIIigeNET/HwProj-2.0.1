@@ -5,6 +5,13 @@ import {grey} from "@mui/material/colors";
 
 export default class StudentStatsUtils {
 
+    static reviewLabel = (solution: Pick<SolutionDto, "state" | "requiresRevision">) =>
+        solution.state === SolutionState.NUMBER_0 ? "На проверке"
+            : solution.requiresRevision ? "Требуется отправить исправленное решение" : "Проверено"
+
+    static reviewSymbol = (solution: Pick<SolutionDto, "state" | "requiresRevision">) =>
+        solution.state === SolutionState.NUMBER_0 ? "…" : solution.requiresRevision ? "↻" : "✓"
+
     static getRatingColor = (rating: number, maxRating: number) =>
         colorBetween(0xff0000, 0x2cba00, Math.min(rating, maxRating) / maxRating * 100)
 
@@ -29,6 +36,15 @@ export default class StudentStatsUtils {
         const isFirstUnratedTry = ratedSolutionsCount === 0
         const lastSolution = solutions!.slice(-1)[0]
         const lastRatedSolution = ratedSolutions.slice(-1)[0]
+
+        if (lastSolution?.isRatingHidden && !disabled && !isDeferred) {
+            return {
+                lastRatedSolution, lastSolution, ratedSolutionsCount,
+                solutionsDescription: StudentStatsUtils.reviewLabel(lastSolution),
+                color: lastSolution.state === SolutionState.NUMBER_0 ? "#fff8e1"
+                    : lastSolution.requiresRevision ? "#ffebee" : "#edf7ed",
+            }
+        }
 
         let solutionsDescription: string
         if (disabled)
