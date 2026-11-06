@@ -3,6 +3,8 @@
     Badge,
     Box,
     Chip,
+    Checkbox,
+    FormControlLabel,
     CircularProgress,
     Divider,
     IconButton,
@@ -277,6 +279,7 @@ const CourseHomeworkEditor: FC<{
     const [title, setTitle] = useState<string>(loadedHomework.title!)
     const [tags, setTags] = useState<string[]>(loadedHomework.tags!)
     const [description, setDescription] = useState<string>(loadedHomework.description!)
+    const [hideRatings, setHideRatings] = useState<boolean>(loadedHomework.hideRatings ?? false)
     const [selectedGroupId, setSelectedGroupId] = useState(loadedHomework.groupId)
     const [courseStudents, setCourseStudents] = useState<AccountDataDto[]>([])
     const [page, setPage] = useState<"homework" | "group">("homework")
@@ -343,13 +346,14 @@ const CourseHomeworkEditor: FC<{
             description: description,
             tags: tags,
             groupId: selectedGroupId,
+            hideRatings,
             hasErrors: hasErrors,
             deadlineDateNotSet: metadata.hasDeadline && !metadata.deadlineDate,
             isModified: true,
         }
 
         props.onUpdate({homework: update})
-    }, [title, description, tags, metadata, hasErrors, filesState.selectedFilesInfo, selectedGroupId])
+    }, [title, description, tags, metadata, hasErrors, filesState.selectedFilesInfo, selectedGroupId, hideRatings])
 
     useEffect(() => {
         setHasErrors(!title || metadata.hasErrors)
@@ -401,6 +405,7 @@ const CourseHomeworkEditor: FC<{
         try {
             const update = {
                 homeworkId: homeworkId,
+                hideRatings,
                 title: title!,
                 description: description,
                 tags: tags,
@@ -510,6 +515,10 @@ const CourseHomeworkEditor: FC<{
                             Вы можете сгруппировать контрольные работы и переписывания с помощью
                             дополнительного тега. Например, 'КР 1'
                         </Alert>}
+                    <FormControlLabel
+                        control={<Checkbox checked={hideRatings} onChange={(_, checked) => setHideRatings(checked)}/>}
+                        label="Скрывать баллы от студентов во всех задачах задания"
+                    />
                     <Box>
                         <Typography sx={sectionLabelSx}>Общее описание задания</Typography>
                         <Box sx={markdownEditorSx}>

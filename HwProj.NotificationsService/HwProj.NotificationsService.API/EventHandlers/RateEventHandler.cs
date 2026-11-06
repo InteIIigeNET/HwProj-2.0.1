@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.NotificationService.Events.SolutionsService;
+using HwProj.Models.SolutionsService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
@@ -31,17 +32,22 @@ namespace HwProj.NotificationsService.API.EventHandlers
 
         public override async Task HandleAsync(RateEvent @event)
         {
-            var commentBody = string.IsNullOrWhiteSpace(@event.Solution.LecturerComment)
+            var comment = @event.Task.HideRatings
+                ? SolutionCommentUtils.WithoutCriterionScores(@event.Solution.LecturerComment)
+                : @event.Solution.LecturerComment;
+            var outcome = @event.Task.HideRatings
+                ? (@event.Solution.RequiresRevision ? "требует отправки исправленного решения." : "проверена.")
+                : $"оценена на <b>{@event.Solution.Rating}/{@event.Task.MaxRating}</b>.";
+            var commentBody = string.IsNullOrWhiteSpace(comment)
                 ? ""
                 : "<br><br><b>Комментарий преподавателя:</b>" +
-                  $"<br><i>{@event.Solution.LecturerComment}</i>";
+                  $"<br><i>{comment}</i>";
 
             var notification = new Notification
             {
                 Sender = "SolutionService",
                 Body =
-                    $"Задача <a href='{_configuration["Url"]}/courses/{@event.CourseId}/homeworks?taskId={@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> оценена на " +
-                    $"<b>{@event.Solution.Rating}/{@event.Task.MaxRating}</b>." +
+                    $"Задача <a href='{_configuration["Url"]}/courses/{@event.CourseId}/homeworks?taskId={@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> {outcome}" +
                     $"{commentBody}",
                 Category = CategoryState.Homeworks,
                 Date = @event.Solution.RatingDate ?? DateTime.UtcNow,

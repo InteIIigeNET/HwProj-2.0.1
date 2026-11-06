@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Models;
 using HwProj.APIGateway.API.Models.Tasks;
+using HwProj.APIGateway.API.Services;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
@@ -69,6 +70,21 @@ namespace HwProj.APIGateway.API.Controllers
             var taskDeadlines = await coursesClient.GetTaskDeadlines();
             var taskIds = taskDeadlines.Select(t => t.TaskId).ToArray();
             var solutions = await solutionsServiceClient.GetLastTaskSolutions(taskIds, UserId);
+            // Группируем по курсу, чтобы не запрашивать его заново для каждой задачи.
+            var processedTasks = new System.Collections.Generic.HashSet<long>();
+            foreach (var solution in solutions.Where(s => s != null))
+            {
+                if (processedTasks.Contains(solution.TaskId)) continue;
+                var course = await coursesClient.GetCourseByTask(solution.TaskId);
+                if (course == null) return Forbid();
+                var hiddenTasks = GradeVisibility.HiddenTaskIds(course, UserId);
+                foreach (var item in solutions.Where(s => s != null &&
+                             course.Homeworks.Any(h => h.Tasks.Any(t => t.Id == s.TaskId))))
+                {
+                    GradeVisibility.Apply(item, hiddenTasks);
+                    processedTasks.Add(item.TaskId);
+                }
+            }
             var taskDeadlinesInfo = taskDeadlines
                 .Zip(solutions, (deadline, solution) => (deadline, solution))
                 .Where(t => currentTime <= t.deadline.DeadlineDate || t.solution == null)
@@ -78,6 +94,7 @@ namespace HwProj.APIGateway.API.Controllers
                     SolutionState = t.solution?.State,
                     MaxRating = t.deadline.MaxRating,
                     Rating = t.solution?.Rating,
+                    IsRatingHidden = t.solution?.IsRatingHidden ?? false,
                     RequiresRevision = t.solution?.RequiresRevision ?? false,
                     DeadlinePast = currentTime > t.deadline.DeadlineDate
                 }).ToArray();

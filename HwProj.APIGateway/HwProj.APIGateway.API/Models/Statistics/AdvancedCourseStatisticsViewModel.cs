@@ -5,6 +5,7 @@ namespace HwProj.APIGateway.API.Models.Statistics;
 
 public class AdvancedCourseStatisticsViewModel
 {
+    public long[] HiddenTaskIds { get; set; } = System.Array.Empty<long>();
     public CoursePreview Course { get; set; }
     public HomeworkViewModel[] Homeworks { get; set; }
     public StatisticsCourseMatesModel[] StudentStatistics { get; set; }

@@ -211,6 +211,9 @@ namespace HwProj.CoursesService.API.Migrations
                     b.Property<bool>("HasDeadline")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("HideRatings")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeadlineStrict")
                         .HasColumnType("bit");
 

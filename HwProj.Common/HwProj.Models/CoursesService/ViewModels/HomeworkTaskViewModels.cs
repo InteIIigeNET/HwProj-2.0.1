@@ -7,6 +7,8 @@ namespace HwProj.Models.CoursesService.ViewModels
 {
     public class HomeworkTaskViewModel
     {
+        public bool HideRatings { get; set; }
+
         public long Id { get; set; }
 
         public string Title { get; set; }

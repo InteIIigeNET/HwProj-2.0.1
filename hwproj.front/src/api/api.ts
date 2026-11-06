@@ -209,6 +209,12 @@ export interface AddTaskQuestionDto {
 export interface AdvancedCourseStatisticsViewModel {
     /**
      *
+     * @type {Array<number>}
+     * @memberof AdvancedCourseStatisticsViewModel
+     */
+    hiddenTaskIds?: Array<number>;
+    /**
+     *
      * @type {CoursePreview}
      * @memberof AdvancedCourseStatisticsViewModel
      */
@@ -584,6 +590,12 @@ export interface CreateGroupViewModel {
 export interface CreateHomeworkViewModel {
     /**
      *
+     * @type {boolean}
+     * @memberof CreateHomeworkViewModel
+     */
+    hideRatings?: boolean;
+    /**
+     *
      * @type {string}
      * @memberof CreateHomeworkViewModel
      */
@@ -945,6 +957,12 @@ export interface GetSolutionModel {
      * @type {boolean}
      * @memberof GetSolutionModel
      */
+    isRatingHidden?: boolean;
+    /**
+     *
+     * @type {boolean}
+     * @memberof GetSolutionModel
+     */
     requiresRevision?: boolean;
     /**
      *
@@ -1142,6 +1160,12 @@ export interface HomeworkTaskForEditingViewModel {
 export interface HomeworkTaskViewModel {
     /**
      *
+     * @type {boolean}
+     * @memberof HomeworkTaskViewModel
+     */
+    hideRatings?: boolean;
+    /**
+     *
      * @type {number}
      * @memberof HomeworkTaskViewModel
      */
@@ -1287,6 +1311,12 @@ export interface HomeworkUserTaskSolutions {
  * @interface HomeworkViewModel
  */
 export interface HomeworkViewModel {
+    /**
+     *
+     * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    hideRatings?: boolean;
     /**
      *
      * @type {number}
@@ -2063,6 +2093,12 @@ export interface SolutionDto {
      * @type {boolean}
      * @memberof SolutionDto
      */
+    isRatingHidden?: boolean;
+    /**
+     *
+     * @type {boolean}
+     * @memberof SolutionDto
+     */
     requiresRevision?: boolean;
     /**
      *
@@ -2600,6 +2636,12 @@ export interface TaskDeadlineView {
      * @memberof TaskDeadlineView
      */
     rating?: number;
+    /**
+     *
+     * @type {boolean}
+     * @memberof TaskDeadlineView
+     */
+    isRatingHidden?: boolean;
     /**
      *
      * @type {boolean}
