@@ -17,9 +17,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\HwProj.AuthService\HwProj.AuthService.Client\HwProj.AuthService.Client.csproj" />
+    <ProjectReference Include="..\..\HwProj.CoursesService\HwProj.CoursesService.Client\HwProj.CoursesService.Client.csproj" />
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Common.Net8\HwProj.Common.Net8.csproj" />
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Repositories.Net8\HwProj.Repositories.Net8.csproj" />
     <ProjectReference Include="..\HwProj.NotificationService.Events\HwProj.NotificationService.Events.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\hw-cat.png" />
   </ItemGroup>
 
 </Project>

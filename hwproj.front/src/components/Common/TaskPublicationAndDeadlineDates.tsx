@@ -171,7 +171,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
                         <TextField
                             size="small"
                             id="datetime-local"
-                            label="Дедлайн задания"
+                            label="Дедлайн задачи"
                             type="datetime-local"
                             variant="standard"
                             error={deadlineSoonerThanPublication}

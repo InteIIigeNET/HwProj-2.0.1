@@ -174,13 +174,18 @@ public class GradeVisibilityTests
 
     [TestCase("student", true)]
     [TestCase("mentor", false)]
-    public async Task ExistingNotificationCannotRevealPreviouslyStoredScore(string viewer, bool hidden)
+    [TestCase("student", true, true)]
+    [TestCase("mentor", false, true)]
+    public async Task ExistingNotificationCannotRevealPreviouslyStoredScore(string viewer, bool hidden, bool redesigned = false)
     {
         var courses = new Mock<ICoursesServiceClient>();
         courses.Setup(c => c.GetCourseByTask(3)).ReturnsAsync(Course(true));
         var note = new NotificationViewModel
         {
-            Body = "Задача <a href='/courses/1/homeworks?taskId=3'>Задача</a> оценена на <b>7/10</b>.\n| Критерий оценивания | Баллы |\n| Код | 7 |"
+            Sender = "SolutionService",
+            Body = redesigned
+                ? "<b>Оценка обновлена</b><br/>Задача <a href='/courses/1/homeworks?taskId=3'>Задача</a><br/>Оценка: 7/10\n| Код | 7 |"
+                : "Задача <a href='/courses/1/homeworks?taskId=3'>Задача</a> оценена на <b>7/10</b>.\n| Критерий оценивания | Баллы |\n| Код | 7 |"
         };
         var notifications = new Mock<INotificationsServiceClient>();
         notifications.Setup(n => n.Get(viewer)).ReturnsAsync(new[] { new CategorizedNotifications

@@ -1,66 +1,79 @@
 using System;
 using System.Threading.Tasks;
-using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.NotificationService.Events.SolutionsService;
 using HwProj.Models.SolutionsService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
-using HwProj.NotificationsService.API.Services;
+using HwProj.NotificationsService.API.Services.Digest;
+using HwProj.NotificationsService.API.Services.Messages;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class RateEventHandler : EventHandlerBase<RateEvent>
+    public class RateEventHandler : IEventHandler<RateEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
-        private readonly IAuthServiceClient _authServiceClient;
         private readonly IConfigurationSection _configuration;
-        private readonly IEmailService _emailService;
 
         public RateEventHandler(
             INotificationsRepository notificationRepository,
-            IAuthServiceClient authServiceClient,
-            IConfiguration configuration,
-            IEmailService emailService)
+            IConfiguration configuration)
         {
             _notificationRepository = notificationRepository;
-            _authServiceClient = authServiceClient;
-            _emailService = emailService;
             _configuration = configuration.GetSection("Notification");
         }
 
-        public override async Task HandleAsync(RateEvent @event)
+        public async Task HandleAsync(RateEvent @event)
         {
-            var comment = @event.Task.HideRatings
+            var taskUrl = $"{_configuration["Url"]}/courses/{@event.CourseId}/homeworks?taskId={@event.Task.Id}";
+            var hidden = @event.Task.HideRatings;
+            var commentText = hidden
                 ? SolutionCommentUtils.WithoutCriterionScores(@event.Solution.LecturerComment)
                 : @event.Solution.LecturerComment;
-            var outcome = @event.Task.HideRatings
-                ? (@event.Solution.RequiresRevision ? "требует отправки исправленного решения." : "проверена.")
-                : $"оценена на <b>{@event.Solution.Rating}/{@event.Task.MaxRating}</b>.";
-            var commentBody = string.IsNullOrWhiteSpace(comment)
-                ? ""
-                : "<br><br><b>Комментарий преподавателя:</b>" +
-                  $"<br><i>{comment}</i>";
+            var comment = LecturerComment.Parse(commentText);
+            var rating = @event.Solution.Rating ?? 0;
+            var isUpdate = @event.PreviousRating != null;
+            var taskLink = NotificationHtml.Link(taskUrl, @event.Task.Title);
 
-            var notification = new Notification
-            {
-                Sender = "SolutionService",
-                Body =
-                    $"Задача <a href='{_configuration["Url"]}/courses/{@event.CourseId}/homeworks?taskId={@event.Task.Id}' target='_blank'>{@event.Task.Title}</a> {outcome}" +
-                    $"{commentBody}",
-                Category = CategoryState.Homeworks,
-                Date = @event.Solution.RatingDate ?? DateTime.UtcNow,
-                HasSeen = false,
-                Owner = @event.Solution.StudentId
-            };
+            var message = new NotificationMessage(CategoryState.Homeworks,
+                    isUpdate ? "Оценка обновлена" : "Решение проверено")
+                .WithSubject(isUpdate
+                    ? $"Обновлена оценка за задачу «{@event.Task.Title}»"
+                    : $"Оценка за задачу «{@event.Task.Title}»")
+                .WithText(isUpdate
+                    ? $"Преподаватель обновил проверку вашего решения задачи {taskLink}."
+                    : $"Преподаватель проверил ваше решение задачи {taskLink}.");
+            if (hidden)
+                message.WithDetail("Статус", @event.Solution.RequiresRevision
+                    ? "Требуется отправить исправленное решение" : "Проверено");
+            else
+                message.WithDetail("Оценка", NotificationHtml.Bold($"{rating} / {@event.Task.MaxRating}"));
+            if (!hidden && isUpdate && @event.PreviousRating != rating)
+                message.WithDetail("Было", NotificationHtml.Encode($"{@event.PreviousRating} / {@event.Task.MaxRating}"));
 
-            var student = await _authServiceClient.GetAccountData(notification.Owner);
+            message
+                .WithBreakdown("Критерии оценивания", comment.Criteria)
+                .WithQuote("Комментарий преподавателя", comment.Text)
+                .WithAction("Открыть задачу", taskUrl)
+                .WithDigest(new DigestItem
+                {
+                    Kind = DigestItemKind.SolutionRated,
+                    CourseId = @event.CourseId,
+                    CourseName = @event.CourseName,
+                    TaskId = @event.Task.Id,
+                    TaskTitle = @event.Task.Title,
+                    Rating = hidden ? (int?)null : rating,
+                    MaxRating = hidden ? (int?)null : @event.Task.MaxRating,
+                    PreviousRating = hidden ? null : @event.PreviousRating,
+                    IsRatingHidden = hidden,
+                    RequiresRevision = @event.Solution.RequiresRevision,
+                    Comment = commentText
+                });
 
-            var addNotificationTask = _notificationRepository.AddAsync(notification);
-            var sendEmailTask = _emailService.SendEmailAsync(notification, student.Email, "Оценка");
-
-            await Task.WhenAll(addNotificationTask, sendEmailTask);
+            var notification = message.ToNotification(@event.Solution.StudentId, "SolutionService",
+                @event.Solution.RatingDate ?? DateTime.UtcNow);
+            await _notificationRepository.AddAsync(notification);
         }
     }
 }

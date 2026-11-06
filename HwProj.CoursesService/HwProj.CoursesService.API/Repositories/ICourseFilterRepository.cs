@@ -10,6 +10,7 @@ namespace HwProj.CoursesService.API.Repositories
         Task<CourseFilter?> GetAsync(string userId, long courseId);
         Task<List<UserToCourseFilter>> GetAsync(string[] userIds, long courseId);
         Task<List<UserToCourseFilter>> GetAsync(string userId, long[] courseIds);
+        Task<List<UserToCourseFilter>> GetAsync(string[] userIds, long[] courseIds);
         Task<long> AddAsync(CourseFilter courseFilter, string userId, long courseId);
     }
 }

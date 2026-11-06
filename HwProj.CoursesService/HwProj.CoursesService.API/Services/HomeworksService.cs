@@ -36,7 +36,7 @@ namespace HwProj.CoursesService.API.Services
             var homework = homeworkViewModel.ToHomework();
             homework.CourseId = courseId;
 
-            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(courseId);
+            var course = await _coursesRepository.GetWithCourseMates(courseId);
             var notifyStudentIds =
                 course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 

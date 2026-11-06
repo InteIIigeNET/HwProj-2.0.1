@@ -1,52 +1,44 @@
-using System;
 using System.Threading.Tasks;
-using HwProj.AuthService.Client;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.NotificationService.Events.CoursesService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
-using HwProj.NotificationsService.API.Services;
+using HwProj.NotificationsService.API.Services.Digest;
+using HwProj.NotificationsService.API.Services.Messages;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class LecturerAcceptToCourseEventHandler : EventHandlerBase<LecturerAcceptToCourseEvent>
+    public class LecturerAcceptToCourseEventHandler : IEventHandler<LecturerAcceptToCourseEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
-        private readonly IAuthServiceClient _authServiceClient;
         private readonly IConfigurationSection _configuration;
-        private readonly IEmailService _emailService;
 
         public LecturerAcceptToCourseEventHandler(
             INotificationsRepository notificationRepository,
-            IAuthServiceClient authServiceClient,
-            IConfiguration configuration,
-            IEmailService emailService)
+            IConfiguration configuration)
         {
             _notificationRepository = notificationRepository;
-            _authServiceClient = authServiceClient;
-            _emailService = emailService;
             _configuration = configuration.GetSection("Notification");
         }
 
-        public override async Task HandleAsync(LecturerAcceptToCourseEvent @event)
+        public async Task HandleAsync(LecturerAcceptToCourseEvent @event)
         {
-            var notification = new Notification
-            {
-                Sender = "CourseService",
-                Body =
-                    $"Вас приняли на курс <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
-                Category = CategoryState.Courses,
-                Date = DateTime.UtcNow,
-                Owner = @event.StudentId
-            };
+            var courseUrl = $"{_configuration["Url"]}/courses/{@event.CourseId}";
 
-            var student = await _authServiceClient.GetAccountData(notification.Owner);
+            var message = new NotificationMessage(CategoryState.Courses, "Заявка на курс принята")
+                .WithSubject($"Вас приняли на курс «{@event.CourseName}»")
+                .WithText($"Вас приняли на курс {NotificationHtml.Link(courseUrl, @event.CourseName)}. " +
+                          "Теперь вам доступны его домашние работы и сдача решений.")
+                .WithAction("Перейти к курсу", courseUrl)
+                .WithDigest(new DigestItem
+                {
+                    Kind = DigestItemKind.AcceptedToCourse,
+                    CourseId = @event.CourseId,
+                    CourseName = @event.CourseName
+                });
 
-            var addNotificationTask = _notificationRepository.AddAsync(notification);
-            var sendEmailTask = _emailService.SendEmailAsync(notification, student.Email, "HwProj");
-
-            await Task.WhenAll(addNotificationTask, sendEmailTask);
+            await _notificationRepository.AddAsync(message.ToNotification(@event.StudentId, "CourseService"));
         }
     }
 }

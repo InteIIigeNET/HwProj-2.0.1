@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using HwProj.CoursesService.Client;
 using HwProj.APIGateway.API.Services;
 using HwProj.Models.NotificationsService;
+using HwProj.Models.Result;
 using HwProj.Models.Roles;
 using HwProj.NotificationsService.Client;
 using Microsoft.AspNetCore.Authorization;
@@ -45,7 +46,9 @@ public class NotificationsController : AggregationController
         {
             var body = notification.Body ?? "";
             // Старые уведомления могли сохранить оценку до включения скрытия.
-            if (!body.Contains("оценена на")) continue;
+            if (!body.Contains("оценена на") &&
+                !(notification.Sender == "SolutionService" &&
+                  (body.Contains("Решение проверено") || body.Contains("Оценка обновлена")))) continue;
             var match = Regex.Match(body, @"taskId=(\d+)");
             if (!match.Success || !long.TryParse(match.Groups[1].Value, out var taskId)) continue;
             if (!hiddenTasks.TryGetValue(taskId, out var hidden))
@@ -90,5 +93,13 @@ public class NotificationsController : AggregationController
     {
         await _notificationsClient.ChangeSetting(UserId, newSetting);
         return Ok();
+    }
+
+    [HttpPost("digest")]
+    [ProducesResponseType(typeof(Result), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> SendDigest()
+    {
+        var result = await _notificationsClient.SendDigest(UserId);
+        return Ok(result);
     }
 }

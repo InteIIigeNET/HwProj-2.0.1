@@ -1,5 +1,6 @@
 ﻿using HwProj.HttpUtils;
 using HwProj.Models.NotificationsService;
+using HwProj.Models.Result;
 using Newtonsoft.Json;
 using System;
 using System.Net.Http;
@@ -66,6 +67,13 @@ namespace HwProj.NotificationsService.Client
             };
 
             await _httpClient.SendAsync(httpRequest);
+        }
+
+        public async Task<Result> SendDigest(string userId)
+        {
+            using var response =
+                await _httpClient.PostAsync(_notificationServiceUri + $"api/notifications/digest/{userId}", null);
+            return await response.DeserializeAsync<Result>();
         }
 
         public async Task<bool> Ping()

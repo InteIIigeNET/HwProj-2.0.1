@@ -161,9 +161,10 @@ namespace HwProj.SolutionsService.API.Services
             solution.PublicationDate = currentTime;
             solution.RatingDate = currentTime;
             solution.TaskId = taskId;
-            var id = await _solutionsRepository.AddAsync(solution);
-            await RateSolutionAsync(id, solution.LecturerId!, solution.Rating, solution.LecturerComment,
-                solution.RequiresRevision);
+            solution.Id = await _solutionsRepository.AddAsync(solution);
+            if (0 <= solution.Rating)
+                await RateSolutionAsync(solution, solution.LecturerId!, solution.Rating, solution.LecturerComment, null,
+                    solution.RequiresRevision);
         }
 
         public async Task RateSolutionAsync(long solutionId, string lecturerId, int newRating, string lecturerComment,
@@ -171,21 +172,29 @@ namespace HwProj.SolutionsService.API.Services
         {
             if (0 <= newRating)
             {
-                var ratingDate = DateTime.UtcNow;
                 var solution = await _solutionsRepository.GetAsync(solutionId);
-                var task = await _coursesServiceClient.GetTask(solution.TaskId);
-                var course = await _coursesServiceClient.GetCourseByTask(solution.TaskId);
-                var state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
-                await _solutionsRepository
-                    .RateSolutionAsync(solutionId, state, lecturerId, newRating, ratingDate, lecturerComment,
-                        requiresRevision);
-
-                var solutionModel = _mapper.Map<SolutionViewModel>(solution);
-                solutionModel.LecturerComment = lecturerComment;
-                solutionModel.Rating = newRating;
-                solutionModel.RequiresRevision = requiresRevision;
-                _eventBus.Publish(new RateEvent(task, solutionModel, course?.Id ?? 0));
+                var previousRating = solution.State == SolutionState.Posted ? (int?)null : solution.Rating;
+                await RateSolutionAsync(solution, lecturerId, newRating, lecturerComment, previousRating, requiresRevision);
             }
+        }
+
+        private async Task RateSolutionAsync(Solution solution, string lecturerId, int newRating,
+            string lecturerComment, int? previousRating, bool requiresRevision)
+        {
+            var ratingDate = DateTime.UtcNow;
+            var task = await _coursesServiceClient.GetTask(solution.TaskId);
+            var course = await _coursesServiceClient.GetCourseByTask(solution.TaskId);
+            var state = newRating >= task.MaxRating ? SolutionState.Final : SolutionState.Rated;
+            await _solutionsRepository
+                .RateSolutionAsync(solution.Id, state, lecturerId, newRating, ratingDate, lecturerComment,
+                    requiresRevision);
+
+            var solutionModel = _mapper.Map<SolutionViewModel>(solution);
+            solutionModel.LecturerComment = lecturerComment;
+            solutionModel.Rating = newRating;
+            solutionModel.RatingDate = ratingDate;
+            solutionModel.RequiresRevision = requiresRevision;
+            _eventBus.Publish(new RateEvent(task, solutionModel, course?.Id ?? 0, course?.Name, previousRating));
         }
 
         public async Task DeleteSolutionAsync(long solutionId)

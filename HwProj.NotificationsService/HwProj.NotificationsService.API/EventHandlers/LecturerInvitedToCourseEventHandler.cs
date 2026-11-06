@@ -1,34 +1,32 @@
-using System;
 using System.Threading.Tasks;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.NotificationService.Events.CoursesService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
+using HwProj.NotificationsService.API.Services.Digest;
+using HwProj.NotificationsService.API.Services.Messages;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class LecturerInvitedToCourseEventHandler : EventHandlerBase<LecturerInvitedToCourseEvent>
+    public class LecturerInvitedToCourseEventHandler : IEventHandler<LecturerInvitedToCourseEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly INotificationSettingsService _settingsService;
         private readonly IConfigurationSection _configuration;
-        private readonly IEmailService _emailService;
 
         public LecturerInvitedToCourseEventHandler(
             INotificationsRepository notificationRepository,
             INotificationSettingsService settingsService,
-            IConfiguration configuration,
-            IEmailService emailService)
+            IConfiguration configuration)
         {
             _notificationRepository = notificationRepository;
             _settingsService = settingsService;
-            _emailService = emailService;
             _configuration = configuration.GetSection("Notification");
         }
 
-        public override async Task HandleAsync(LecturerInvitedToCourseEvent @event)
+        public async Task HandleAsync(LecturerInvitedToCourseEvent @event)
         {
             var mentorId = @event.MentorId;
 
@@ -36,20 +34,21 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 NotificationsSettingCategory.LecturerInvitedToCourseCategory);
             if (!setting.IsEnabled) return;
 
-            var notification = new Notification
-            {
-                Sender = "CourseService",
-                Body =
-                    $"Вас пригласили в качестве преподавателя на курс <a href='{_configuration["Url"]}/courses/{@event.CourseId}'>{@event.CourseName}</a>.",
-                Category = CategoryState.Courses,
-                Date = DateTime.UtcNow,
-                Owner = mentorId
-            };
+            var courseUrl = $"{_configuration["Url"]}/courses/{@event.CourseId}";
 
-            var addNotificationTask = _notificationRepository.AddAsync(notification);
-            var sendEmailTask = _emailService.SendEmailAsync(notification, @event.MentorEmail, "HwProj");
+            var message = new NotificationMessage(CategoryState.Courses, "Приглашение в курс")
+                .WithSubject($"Вас пригласили преподавать на курсе «{@event.CourseName}»")
+                .WithText("Вас пригласили в качестве преподавателя на курс " +
+                          $"{NotificationHtml.Link(courseUrl, @event.CourseName)}.")
+                .WithAction("Перейти к курсу", courseUrl)
+                .WithDigest(new DigestItem
+                {
+                    Kind = DigestItemKind.InvitedToCourse,
+                    CourseId = @event.CourseId,
+                    CourseName = @event.CourseName
+                });
 
-            await Task.WhenAll(addNotificationTask, sendEmailTask);
+            await _notificationRepository.AddAsync(message.ToNotification(mentorId, "CourseService"));
         }
     }
 }
