@@ -156,13 +156,17 @@ export const useTaskEditing = () => {
 
     const setTaskDraftFromLoaded = useCallback((task: HomeworkTaskViewModel, homework: HomeworkViewModel) => {
         ensureHomeworkInDrafts(homework);
-        dispatch(addDraftTask(task));
+        const {maxRating} = buildTaskPayload(task, homework);
+        dispatch(addDraftTask({...task, maxRating}));
         dispatch(setSelectedItem({ isHomework: false, id: task.id }));
     }, [dispatch, ensureHomeworkInDrafts]);
 
     const updateTaskDraftState = useCallback((task: HomeworkTaskViewModel) => {
-        dispatch(updateDraftTaskAction(task));
-    }, [dispatch]);
+        const homework = selectMergedHomeworkById(store.getState(), task.homeworkId!);
+        if (!homework) return;
+        const {maxRating} = buildTaskPayload(task, homework);
+        dispatch(updateDraftTaskAction({...task, maxRating}));
+    }, [dispatch, store]);
 
     const discardTaskDraftByIds = useCallback((taskId: number, homeworkId: number) => {
         dispatch(removeDraftTask({ homeworkId, taskId }));
@@ -180,20 +184,20 @@ export const useTaskEditing = () => {
 
     const addCriterion = useCallback((task: HomeworkTaskViewModel, criterion: CriterionViewModel) => {
         const next = [...(task.criteria || []), criterion];
-        dispatch(updateDraftTaskAction({ ...task, criteria: next }));
-    }, [dispatch]);
+        updateTaskDraftState({ ...task, criteria: next });
+    }, [updateTaskDraftState]);
 
     const updateCriterion = useCallback((task: HomeworkTaskViewModel, index: number, patch: Partial<CriterionViewModel>) => {
         const criteria = task.criteria || [];
         const next = criteria.map((c, i) => (i === index ? { ...c, ...patch } : c));
-        dispatch(updateDraftTaskAction({ ...task, criteria: next }));
-    }, [dispatch]);
+        updateTaskDraftState({ ...task, criteria: next });
+    }, [updateTaskDraftState]);
 
     const removeCriterion = useCallback((task: HomeworkTaskViewModel, index: number) => {
         const criteria = task.criteria || [];
         const next = criteria.filter((_, i) => i !== index);
-        dispatch(updateDraftTaskAction({ ...task, criteria: next }));
-    }, [dispatch]);
+        updateTaskDraftState({ ...task, criteria: next });
+    }, [updateTaskDraftState]);
 
     const persistTask = useCallback(async (
         task: HomeworkTaskViewModel,
