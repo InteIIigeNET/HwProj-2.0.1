@@ -5,12 +5,14 @@ import {serializeDates, type StoredStudentSolutions} from '../courseModels';
 
 interface SolutionState {
     requestId: string | null;
+    status: 'idle' | 'loading' | 'succeeded' | 'failed';
     error: string | null;
     studentSolutions: StoredStudentSolutions[];
 }
 
 const initialState: SolutionState = {
     requestId: null,
+    status: 'idle',
     error: null,
     studentSolutions: [],
 };
@@ -27,31 +29,33 @@ const solutionSlice = createSlice({
         },
     },
     extraReducers: builder => {
-        builder.addCase(loadCoursePage.pending, (state, action) => {
-            state.requestId = action.meta.requestId;
+        builder.addCase(loadCoursePage.pending, state => {
+            state.requestId = null;
+            state.status = 'idle';
             state.error = null;
         });
         builder.addCase(loadCoursePage.fulfilled, (state, action) => {
-            if (state.requestId !== action.meta.requestId) return;
-            if (action.payload.solutions) state.studentSolutions = action.payload.solutions;
+            if (!action.payload.solutions) return;
+            state.studentSolutions = action.payload.solutions;
             state.requestId = null;
+            state.status = 'succeeded';
             state.error = null;
-        });
-        builder.addCase(loadCoursePage.rejected, (state, action) => {
-            if (state.requestId === action.meta.requestId) state.requestId = null;
         });
         builder.addCase(refreshCourseSolutions.pending, (state, action) => {
             state.requestId = action.meta.requestId;
+            state.status = 'loading';
             state.error = null;
         });
         builder.addCase(refreshCourseSolutions.fulfilled, (state, action) => {
             if (state.requestId !== action.meta.requestId) return;
             state.studentSolutions = action.payload;
             state.requestId = null;
+            state.status = 'succeeded';
         });
         builder.addCase(refreshCourseSolutions.rejected, (state, action) => {
             if (state.requestId !== action.meta.requestId) return;
             state.requestId = null;
+            state.status = action.meta.aborted ? 'idle' : 'failed';
             state.error = action.meta.aborted ? null : action.payload ?? 'Не удалось обновить решения студентов';
         });
     },

@@ -1,5 +1,5 @@
 import {createAsyncThunk} from '@reduxjs/toolkit';
-import type {FileInfoDTO, GroupViewModel, StatisticsCourseMatesModel} from '@/api';
+import type {FileInfoDTO, GroupViewModel} from '@/api';
 import ApiSingleton from '@/api/ApiSingleton';
 import {setUser, type UserRole} from './slices/userSlice';
 import {serializeDates, type StoredCourse, type StoredStudentSolutions} from './courseModels';
@@ -66,24 +66,17 @@ export const loadCoursePage = createAsyncThunk<LoadedCourse, LoadCourseArgs, {
             const isMentor = !!user && !!course.mentors?.some(mentor => mentor.userId === user.userId);
             const canViewSolutions = isMentor
                 || (!!user && !!course.acceptedStudents?.some(student => student.userId === user.userId));
-            const [solutions, files] = await Promise.allSettled([
-                canViewSolutions
-                    ? ApiSingleton.statisticsApi.statisticsGetCourseStatistics(courseId, {signal})
-                    : Promise.resolve([] as StatisticsCourseMatesModel[]),
-                user
-                    ? ApiSingleton.filesApi.filesGetFilesInfo(courseId, !isMentor, undefined, {signal})
-                    : Promise.resolve([] as FileInfoDTO[]),
-            ]);
-            ensureCurrent();
+            const scopeId = getState().course.scopeId;
+            if (scopeId) {
+                if (canViewSolutions) dispatch(refreshCourseSolutions({courseId, scopeId}, {signal}));
+                if (user) dispatch(refreshCourseFiles({courseId, scopeId, uploadedOnly: !isMentor}, {signal}));
+            }
 
             return {
                 course: serializeDates(course),
-                solutions: solutions.status === 'fulfilled' ? serializeDates(solutions.value) : undefined,
-                files: files.status === 'fulfilled' ? files.value : undefined,
-                warnings: [
-                    ...(solutions.status === 'rejected' ? ['Не удалось загрузить решения студентов'] : []),
-                    ...(files.status === 'rejected' ? ['Не удалось загрузить файлы курса'] : []),
-                ],
+                solutions: canViewSolutions ? undefined : [],
+                files: user ? undefined : [],
+                warnings: [],
             };
         } catch (error) {
             ensureCurrent();
@@ -108,6 +101,25 @@ export const refreshCourseSolutions = createAsyncThunk<StoredStudentSolutions[],
             return serializeDates(await ApiSingleton.statisticsApi.statisticsGetCourseStatistics(courseId, {signal}));
         } catch {
             return rejectWithValue('Не удалось обновить решения студентов');
+        }
+    },
+    {
+        condition: ({courseId, scopeId}, {getState}) => getState().course.courseId === courseId
+            && getState().course.scopeId === scopeId,
+    },
+);
+
+export const refreshCourseFiles = createAsyncThunk<FileInfoDTO[], {
+    courseId: number;
+    scopeId: string;
+    uploadedOnly: boolean;
+}, {state: CourseRequestState; rejectValue: string}>(
+    'courseFiles/refresh',
+    async ({courseId, uploadedOnly}, {signal, rejectWithValue}) => {
+        try {
+            return await ApiSingleton.filesApi.filesGetFilesInfo(courseId, uploadedOnly, undefined, {signal});
+        } catch {
+            return rejectWithValue('Не удалось загрузить файлы курса');
         }
     },
     {

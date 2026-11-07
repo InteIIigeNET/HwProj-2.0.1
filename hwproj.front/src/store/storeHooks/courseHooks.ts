@@ -40,6 +40,8 @@ export const useCoursePageData = () => {
     const error = useCourseState(state => state.course.error);
     const warnings = useCourseState(state => state.course.warnings);
     const solutionsError = useCourseState(state => state.solutions.error);
+    const solutionsStatus = useCourseState(state => state.solutions.status);
+    const filesError = useCourseState(state => state.courseFiles.error);
     const isFound = useCourseState(state => state.course.isFound);
     const mentors = useCourseState(state => state.course.mentors);
     const acceptedStudents = useCourseState(state => state.course.acceptedStudents);
@@ -58,6 +60,8 @@ export const useCoursePageData = () => {
         error,
         warnings,
         solutionsError,
+        solutionsStatus,
+        filesError,
         isFound,
         mentors,
         acceptedStudents,

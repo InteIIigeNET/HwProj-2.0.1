@@ -160,6 +160,8 @@ const Course: React.FC = () => {
         error,
         warnings,
         solutionsError,
+        solutionsStatus,
+        filesError,
         isFound,
         mentors,
         newStudents,
@@ -329,11 +331,11 @@ const Course: React.FC = () => {
                     </DialogContent>
                 </Dialog>
                 <Stack spacing={2} sx={{mt: 2, mb: 2}}>
-                    {(error || solutionsError || warnings.length > 0) &&
+                    {(error || solutionsError || filesError || warnings.length > 0) &&
                         <Alert severity={error ? "error" : "warning"}
                                action={<Button color="inherit" disabled={status === "loading"}
                                                onClick={() => void refreshCourse(+courseId!)}>Повторить</Button>}>
-                            {[error, solutionsError, ...warnings].filter(Boolean).join('. ')}
+                            {[error, solutionsError, filesError, ...warnings].filter(Boolean).join('. ')}
                         </Alert>}
                     <Paper variant={"outlined"} sx={{...panelSx, overflow: "hidden"}}>
                         {course.isCompleted &&
@@ -483,7 +485,9 @@ const Course: React.FC = () => {
                                     homeworks={courseHomeworks}
                                     isMentor={isCourseMentor}
                                     userId={userId ?? ""}
-                                    solutions={studentSolutions}
+                                    solutions={solutionsStatus === 'loading' && studentSolutions.length === 0
+                                        ? undefined
+                                        : studentSolutions}
                                     groups={groups}
                                 />
                             </Grid>
