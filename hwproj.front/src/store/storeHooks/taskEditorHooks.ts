@@ -1,4 +1,5 @@
 import {useCallback, useMemo} from 'react';
+import Lodash from 'lodash';
 import {useCourseDispatch, useCourseState, useCourseStore} from '../hooks';
 import {
     ensureHomeworkDraft,
@@ -19,7 +20,6 @@ import {
     selectDraftTaskById,
     selectHomeworkById,
     selectMergedHomeworkById,
-    selectMergedHomeworks,
 } from '../courseSelectors';
 
 export const useDraftTask = (taskId: number, homeworkId: number) =>
@@ -91,43 +91,33 @@ export const useTaskEditing = () => {
         dispatch(ensureHomeworkDraft(copy));
     }, [dispatch]);
 
-    const getSuggestedTaskRating = useCallback((homework: HomeworkViewModel) => {
+    const getSuggestedTaskRating = useCallback((homework: HomeworkViewModel, homeworks: HomeworkViewModel[]) => {
         const tags = homework.tags || [];
         const isTest = tags.includes(TestTag);
         const isBonus = tags.includes(BonusTag);
-        const counts = new Map<number, number>();
 
-        for (const candidateHomework of selectMergedHomeworks(store.getState())) {
-            const firstTask = candidateHomework.tasks?.[0];
-            if (!firstTask || firstTask.id! <= 0) continue;
-
-            const candidateIsTest = isTestWork(firstTask);
-            const candidateIsBonus = isBonusWork(firstTask);
-            const matchesKind =
-                (isTest && candidateIsTest)
-                || (isBonus && candidateIsBonus)
-                || (!isTest && !isBonus && !candidateIsTest && !candidateIsBonus);
-
-            if (!matchesKind) continue;
-
-            const rating = firstTask.maxRating!;
-            counts.set(rating, (counts.get(rating) ?? 0) + 1);
-        }
-
-        let suggestedRating: number | undefined = undefined;
-        let bestCount = -1;
-        for (const [rating, count] of counts.entries()) {
-            if (count >= bestCount) {
-                suggestedRating = rating;
-                bestCount = count;
-            }
-        }
-
-        return suggestedRating;
-    }, [store]);
+        return Lodash(homeworks
+            .map(candidateHomework => candidateHomework.tasks?.[0])
+            .filter(task => {
+                if (task === undefined) return false;
+                const candidateIsTest = isTestWork(task);
+                const candidateIsBonus = isBonusWork(task);
+                return task.id! > 0 && (
+                    (isTest && candidateIsTest)
+                    || (isBonus && candidateIsBonus)
+                    || (!isTest && !isBonus && !candidateIsTest && !candidateIsBonus)
+                );
+            }))
+            .map(task => task!.maxRating!)
+            .groupBy(rating => [rating])
+            .entries()
+            .sortBy(entry => entry[1].length)
+            .last()?.[1][0];
+    }, []);
 
     const createTaskDraft = useCallback((
         homework: HomeworkViewModel,
+        homeworks: HomeworkViewModel[],
         options?: {
             title?: string;
             description?: string;
@@ -138,12 +128,12 @@ export const useTaskEditing = () => {
     ) => {
         ensureHomeworkInDrafts(homework);
         const newId = store.getState().editing.draftIdCounter;
-        const suggestedMaxRating = options?.suggestedMaxRating ?? getSuggestedTaskRating(homework);
+        const suggestedMaxRating = options?.suggestedMaxRating ?? getSuggestedTaskRating(homework, homeworks);
         dispatch(createNewDraftTask({
             homeworkId: homework.id!,
             title: options?.title ?? 'Новая задача',
             description: options?.description ?? '',
-            maxRating: options?.maxRating ?? suggestedMaxRating ?? 10,
+            maxRating: options?.maxRating ?? (suggestedMaxRating || 10),
             suggestedMaxRating,
             isDeferred: homework.isDeferred || false,
             deadlineDateNotSet: true,

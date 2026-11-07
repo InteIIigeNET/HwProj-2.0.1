@@ -600,7 +600,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
     }
 
     const addNewTask = (homework: HomeworkViewModel) => {
-        createTask(homework)
+        createTask(homework, homeworks)
     }
 
     const renderHomework = (homework: HomeworkViewModel & { isModified?: boolean }) => {
