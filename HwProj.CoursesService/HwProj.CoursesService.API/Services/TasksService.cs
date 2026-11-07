@@ -49,7 +49,7 @@ namespace HwProj.CoursesService.API.Services
             task.HomeworkId = homeworkId;
 
             var homework = await _homeworksRepository.GetAsync(task.HomeworkId);
-            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(homework.CourseId);
+            var course = await _coursesRepository.GetWithCourseMates(homework.CourseId);
 
             var taskId = await _tasksRepository.AddAsync(task);
             var deadlineDate = task.DeadlineDate ?? homework.DeadlineDate;
@@ -74,7 +74,7 @@ namespace HwProj.CoursesService.API.Services
             var task = await _tasksRepository.GetWithHomeworkAsync(taskId);
             if (task == null) throw new InvalidOperationException("Task not found");
 
-            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(task.Homework.CourseId);
+            var course = await _coursesRepository.GetWithCourseMates(task.Homework.CourseId);
 
             var studentIds = course.CourseMates.Where(cm => cm.IsAccepted).Select(cm => cm.StudentId).ToArray();
 

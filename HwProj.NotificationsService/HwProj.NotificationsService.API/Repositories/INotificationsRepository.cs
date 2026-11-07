@@ -10,7 +10,14 @@ namespace HwProj.NotificationsService.API.Repositories
     {
         Task UpdateBatchAsync(string userId, long[] ids, Expression<Func<Notification, Notification>> updateFactory);
         Task<Notification[]> GetAllByUserAsync(string userId);
+        Task<int> GetNewCountAsync(string userId);
         Task MarkAsSeenAsync(string userId, long[] notificationIds);
         Task<long> AddNotificationAsync(Notification notification);
+
+        /// <summary> Получатели, у которых за период [since, until) есть события для дайжеста </summary>
+        Task<string[]> GetDigestRecipientIdsAsync(DateTime since, DateTime until);
+
+        /// <summary> События для дайжеста за период [since, until), без вёрстки для ленты </summary>
+        Task<Notification[]> GetDigestNotificationsAsync(string[] ownerIds, DateTime since, DateTime until);
     }
 }

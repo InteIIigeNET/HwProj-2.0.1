@@ -4,31 +4,29 @@ using HwProj.NotificationService.Events.CoursesService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services;
+using HwProj.NotificationsService.API.Services.Digest;
 using HwProj.NotificationsService.API.Services.Messages;
 using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class LecturerInvitedToCourseEventHandler : EventHandlerBase<LecturerInvitedToCourseEvent>
+    public class LecturerInvitedToCourseEventHandler : IEventHandler<LecturerInvitedToCourseEvent>
     {
         private readonly INotificationsRepository _notificationRepository;
         private readonly INotificationSettingsService _settingsService;
         private readonly IConfigurationSection _configuration;
-        private readonly IEmailService _emailService;
 
         public LecturerInvitedToCourseEventHandler(
             INotificationsRepository notificationRepository,
             INotificationSettingsService settingsService,
-            IConfiguration configuration,
-            IEmailService emailService)
+            IConfiguration configuration)
         {
             _notificationRepository = notificationRepository;
             _settingsService = settingsService;
-            _emailService = emailService;
             _configuration = configuration.GetSection("Notification");
         }
 
-        public override async Task HandleAsync(LecturerInvitedToCourseEvent @event)
+        public async Task HandleAsync(LecturerInvitedToCourseEvent @event)
         {
             var mentorId = @event.MentorId;
 
@@ -42,12 +40,15 @@ namespace HwProj.NotificationsService.API.EventHandlers
                 .WithSubject($"Вас пригласили преподавать на курсе «{@event.CourseName}»")
                 .WithText("Вас пригласили в качестве преподавателя на курс " +
                           $"{NotificationHtml.Link(courseUrl, @event.CourseName)}.")
-                .WithAction("Перейти к курсу", courseUrl);
+                .WithAction("Перейти к курсу", courseUrl)
+                .WithDigest(new DigestItem
+                {
+                    Kind = DigestItemKind.InvitedToCourse,
+                    CourseId = @event.CourseId,
+                    CourseName = @event.CourseName
+                });
 
-            var addNotificationTask = _notificationRepository.AddAsync(message.ToNotification(mentorId, "CourseService"));
-            var sendEmailTask = _emailService.SendEmailAsync(message, @event.MentorEmail);
-
-            await Task.WhenAll(addNotificationTask, sendEmailTask);
+            await _notificationRepository.AddAsync(message.ToNotification(mentorId, "CourseService"));
         }
     }
 }

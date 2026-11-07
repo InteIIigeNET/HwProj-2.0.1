@@ -1535,6 +1535,10 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     <FilesPreviewList
                                         showOkStatus={!props.forMentor}
                                         filesInfo={filesInfo}
+                                        downloadAllArchiveName={[
+                                            task.title,
+                                            students.map(t => `${t.surname} ${t.name}`).join(", ")
+                                        ].filter(Boolean).join(" — ")}
                                         onClickFileInfo={async (fileInfo: IFileInfo) => {
                                             const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!)
                                             window.open(url, '_blank');

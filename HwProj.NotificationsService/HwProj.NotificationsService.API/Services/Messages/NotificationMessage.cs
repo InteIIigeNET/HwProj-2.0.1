@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using HwProj.NotificationsService.API.Models;
+using HwProj.NotificationsService.API.Services.Digest;
 
 namespace HwProj.NotificationsService.API.Services.Messages
 {
@@ -52,6 +53,11 @@ namespace HwProj.NotificationsService.API.Services.Messages
 
         /// <summary> Приписка мелким текстом в конце письма </summary>
         public string Note { get; private set; }
+
+        /// <summary> Данные события для письма-дайжеста; без них уведомление в дайжест не попадает </summary>
+        public DigestItem Digest { get; private set; }
+
+        private string _digestData;
 
         public bool HasAction => !string.IsNullOrEmpty(ActionUrl);
 
@@ -103,6 +109,14 @@ namespace HwProj.NotificationsService.API.Services.Messages
             return this;
         }
 
+        public NotificationMessage WithDigest(DigestItem digest)
+        {
+            Digest = digest;
+            // Сериализуем один раз: уведомление о новом задании создаётся для каждого студента курса
+            _digestData = digest.Serialize();
+            return this;
+        }
+
         public Notification ToNotification(string owner, string sender, DateTime? date = null) =>
             new Notification
             {
@@ -111,7 +125,9 @@ namespace HwProj.NotificationsService.API.Services.Messages
                 Category = Category,
                 Date = date ?? DateTime.UtcNow,
                 HasSeen = false,
-                Owner = owner
+                Owner = owner,
+                DigestKind = Digest?.Kind,
+                DigestData = _digestData
             };
 
         /// <summary>

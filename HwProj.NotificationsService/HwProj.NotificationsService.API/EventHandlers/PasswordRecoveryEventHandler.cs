@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace HwProj.NotificationsService.API.EventHandlers
 {
-    public class PasswordRecoveryEventHandler : EventHandlerBase<PasswordRecoveryEvent>
+    public class PasswordRecoveryEventHandler : IEventHandler<PasswordRecoveryEvent>
     {
         private readonly IConfiguration _configuration;
         private readonly INotificationsRepository _notificationRepository;
@@ -31,7 +31,7 @@ namespace HwProj.NotificationsService.API.EventHandlers
             _isDevelopmentEnv = env.IsDevelopment();
         }
 
-        public override async Task HandleAsync(PasswordRecoveryEvent @event)
+        public async Task HandleAsync(PasswordRecoveryEvent @event)
         {
             var frontendUrl = _configuration.GetSection("Notification")["Url"];
             var recoveryLink =

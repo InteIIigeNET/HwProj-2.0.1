@@ -637,6 +637,7 @@ const CourseHomeworkExperimental: FC<{
                             flat
                             showOkStatus={isCourseMentor}
                             filesInfo={filesInfo}
+                            downloadAllArchiveName={homework.title || "Материалы"}
                             onClickFileInfo={async (fileInfo: IFileInfo) => {
                                 const url = await ApiSingleton.customFilesApi.getDownloadFileLink(fileInfo.id!);
                                 window.open(url, '_blank');

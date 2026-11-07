@@ -1,6 +1,7 @@
 import * as React from "react";
 import {FC, ReactElement, useEffect, useMemo, useState} from "react";
-import {Box, Button, Chip, Divider, IconButton, Paper, Stack, Tooltip, Typography} from "@mui/material";
+import {Box, Button, Chip, CircularProgress, Divider, IconButton, Paper, Stack, Tooltip, Typography} from "@mui/material";
+import {useSnackbar} from "notistack";
 import ApiSingleton from "api/ApiSingleton";
 import {CategorizedNotifications, CategoryState, NotificationViewModel} from "../api/";
 import "./Styles/Profile.css";
@@ -12,6 +13,7 @@ import NotificationsNoneRoundedIcon from "@mui/icons-material/NotificationsNoneR
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import DoneRoundedIcon from "@mui/icons-material/DoneRounded";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import ForwardToInboxOutlinedIcon from "@mui/icons-material/ForwardToInboxOutlined";
 import PersonOutlineRoundedIcon from "@mui/icons-material/PersonOutlineRounded";
 import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
 import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
@@ -313,9 +315,11 @@ const Notifications: FC<{
     const [onlyUnread, setOnlyUnread] = useState(true)
     const [selectedCategories, setSelectedCategories] = useState<CategoryState[]>(categories.map(c => c.value))
     const [isMarking, setIsMarking] = useState(false)
+    const [isSendingDigest, setIsSendingDigest] = useState(false)
     const [showSettings, setShowSettings] = useState(false)
 
     const isLecturer = ApiSingleton.authService.isLecturer()
+    const {enqueueSnackbar} = useSnackbar()
 
     const loadNotifications = async () => {
         const data = await ApiSingleton.notificationsApi.notificationsGet()
@@ -361,6 +365,21 @@ const Notifications: FC<{
             await loadNotifications()
         } finally {
             setIsMarking(false)
+        }
+    }
+
+    // Сводка — то же письмо, что приходит вечером, но за последние сутки и сразу. Вечерний дайжест она не отменяет
+    const sendDigest = async () => {
+        setIsSendingDigest(true)
+        try {
+            const result = await ApiSingleton.notificationsApi.notificationsSendDigest()
+            if (result.succeeded) enqueueSnackbar("Сводка за последние сутки отправлена на вашу почту", {variant: "success"})
+            else enqueueSnackbar(result.errors?.[0] ?? "Не удалось отправить сводку", {variant: "info"})
+        } catch (e) {
+            console.error("Ошибка при отправке сводки:", e)
+            enqueueSnackbar("Не удалось отправить сводку, попробуйте позже", {variant: "error"})
+        } finally {
+            setIsSendingDigest(false)
         }
     }
 
@@ -508,6 +527,24 @@ const Notifications: FC<{
                                     Прочитать все
                                 </Box>
                             </Button>}
+                        <Tooltip arrow title={"Отправить на почту сводку того, что произошло за последние сутки"}>
+                            {/* Обёртка нужна, чтобы подсказка работала и у заблокированной во время отправки кнопки */}
+                            <Box component={"span"} sx={{display: "inline-flex", flexShrink: 0}}>
+                                <Button
+                                    size={"small"}
+                                    startIcon={isSendingDigest
+                                        ? <CircularProgress size={16} color={"inherit"}/>
+                                        : <ForwardToInboxOutlinedIcon fontSize={"small"}/>}
+                                    disabled={isSendingDigest}
+                                    onClick={sendDigest}
+                                    sx={headerButtonSx}
+                                >
+                                    <Box component={"span"} sx={{display: {xs: "none", sm: "inline"}}}>
+                                        Сводка на почту
+                                    </Box>
+                                </Button>
+                            </Box>
+                        </Tooltip>
                         {isLecturer &&
                             <Tooltip arrow title={"Настройки уведомлений"}>
                                 <IconButton size={"small"} onClick={() => setShowSettings(true)} sx={headerIconButtonSx}>

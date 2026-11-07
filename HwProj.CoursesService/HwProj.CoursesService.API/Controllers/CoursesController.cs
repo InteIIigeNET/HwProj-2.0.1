@@ -233,12 +233,13 @@ namespace HwProj.CoursesService.API.Controllers
         [ProducesResponseType(typeof(string[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAllTagsForCourse(long courseId)
         {
-            var homeworks = await _homeworksRepository
+            var homeworksTags = await _homeworksRepository
                 .FindAll(t => t.CourseId == courseId)
+                .Select(t => t.Tags)
                 .ToListAsync();
 
-            var result = homeworks
-                .SelectMany(hw => hw.Tags?.Split(';') ?? Array.Empty<string>())
+            var result = homeworksTags
+                .SelectMany(tags => tags?.Split(';') ?? Array.Empty<string>())
                 .Where(t => !string.IsNullOrEmpty(t))
                 .ToArray();
 

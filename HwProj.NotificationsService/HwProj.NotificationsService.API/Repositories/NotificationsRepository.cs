@@ -36,7 +36,7 @@ namespace HwProj.NotificationsService.API.Repositories
         {
             var notifications = Context.Set<Notification>()
                 .AsNoTracking()
-                .Where(t => t.Owner == userId);
+                .Where(t => t.Owner == userId && !t.IsDigestOnly);
 
             var newNotifications = await notifications
                 .Where(t => t.HasSeen == false)
@@ -49,5 +49,32 @@ namespace HwProj.NotificationsService.API.Repositories
 
             return newNotifications.Concat(readNotifications).ToArray();
         }
+
+        public async Task<int> GetNewCountAsync(string userId) =>
+            await Context.Set<Notification>()
+                .Where(t => t.Owner == userId && !t.HasSeen && !t.IsDigestOnly)
+                .CountAsync();
+
+        public async Task<string[]> GetDigestRecipientIdsAsync(DateTime since, DateTime until) =>
+            await Context.Set<Notification>()
+                .Where(t => t.DigestKind != null && t.Date >= since && t.Date < until)
+                .Select(t => t.Owner)
+                .Distinct()
+                .ToArrayAsync();
+
+        public async Task<Notification[]> GetDigestNotificationsAsync(string[] ownerIds, DateTime since,
+            DateTime until) =>
+            await Context.Set<Notification>()
+                .Where(t => t.DigestKind != null && t.Date >= since && t.Date < until && ownerIds.Contains(t.Owner))
+                .OrderBy(t => t.Id)
+                .Select(t => new Notification
+                {
+                    Id = t.Id,
+                    Owner = t.Owner,
+                    Date = t.Date,
+                    DigestKind = t.DigestKind,
+                    DigestData = t.DigestData
+                })
+                .ToArrayAsync();
     }
 }
