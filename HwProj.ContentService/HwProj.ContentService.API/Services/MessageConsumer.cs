@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Threading.Channels;
 using HwProj.ContentService.API.Models.Database;
 using HwProj.ContentService.API.Models.DTO;
@@ -12,7 +13,7 @@ public class MessageConsumer : BackgroundService
 {
     private readonly ChannelReader<IProcessFileMessage> _channelReader;
     private readonly ILogger<MessageConsumer> _logger;
-    private readonly HashSet<long> _filesInProcessing = new();
+    private readonly ConcurrentDictionary<Task, long> _backgroundTasks = new();
 
     private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly IMessageProducer _messageProducer;
@@ -66,21 +67,33 @@ public class MessageConsumer : BackgroundService
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Приступаем к завершению работы обработчика сообщений MessageConsumer");
+
+        await base.StopAsync(cancellationToken);
+
         using var scope = _serviceScopeFactory.CreateScope();
         var fileRecordRepository = scope.ServiceProvider.GetRequiredService<IFileRecordRepository>();
 
-        // Обрабатываем оставшиеся сообщений в канале
+        // Обрабатываем оставшиеся сообщения в канале (при этом могут запуститься новые фоновые задачи)
         while (_channelReader.TryRead(out var message))
         {
             await ProcessMessage(message, fileRecordRepository);
         }
 
-        // Ждем завершения всех дополнительных задач
-        while (_filesInProcessing.Count > 0)
+        // Ждем завершения всех фоновых задач
+        try
         {
+            await Task.WhenAll(_backgroundTasks.Keys).WaitAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning(
+                "Истекло время ожидания остановки обработчика MessageConsumer. Не завершена обработка файлов: {fileIds}. " +
+                "Файлы будут обработаны повторно при следующем запуске сервиса",
+                string.Join(", ", _backgroundTasks.Values));
+            return;
         }
 
-        // Ещё раз обрабатываем оставшиеся сообщения в канале, поскольку некоторые задачи содержат отправку сообщения
+        // Ещё раз обрабатываем оставшиеся сообщения в канале, поскольку фоновые задачи завершаются отправкой сообщения.
         while (_channelReader.TryRead(out var message))
         {
             await ProcessMessage(message, fileRecordRepository);
@@ -126,11 +139,7 @@ public class MessageConsumer : BackgroundService
             ExternalKey: s3Key,
             UploaderId: message.SenderId
         );
-        
-        // А также сигнализируем, что для fileRecordId есть задача, завершения которой нужно дождаться при остановке сервиса
-        _filesInProcessing.Add(fileRecordId);
-        
-        UploadFileTask(uploadFileTaskDto);
+        RunInBackground(fileRecordId, () => UploadFileTask(uploadFileTaskDto));
     }
     
     private async Task HandleReUploadFileMessage(ReUploadFileMessage message, IFileRecordRepository fileRecordRepository)
@@ -144,11 +153,8 @@ public class MessageConsumer : BackgroundService
             return;
         }
 
-        // Сигнализируем, что для fileRecord.Id есть задача, завершения которой нужно дождаться при остановке сервиса
-        _filesInProcessing.Add(fileRecord.Id);
-
         // Не блокируя Consumer, начинаем взаимодействие с удаленным S3 по вопросу этого файла
-        Task.Run(async () =>
+        RunInBackground(fileRecord.Id, async () =>
         {
             // Если файл уже есть в s3, осталось просто обновить статус
             var isInS3 = await _s3FilesService.CheckFileExistence(fileRecord.ExternalKey!);
@@ -164,10 +170,10 @@ public class MessageConsumer : BackgroundService
                 return;
             }
 
-            // Иначе формируем модель и отправляем стандартную задачу на загрузку
+            // Иначе формируем модель и выполняем стандартную задачу на загрузку
             var uploadFileTaskDto = new UploadFileTaskDto(
                 FileRecordId: fileRecord.Id,
-                LocalFilePath: fileRecord.LocalPath,
+                LocalFilePath: fileRecord.LocalPath!,
                 ContentType: fileRecord.ContentType,
                 ExternalKey: fileRecord.ExternalKey!,
                 UploaderId: message.SenderId
@@ -232,10 +238,8 @@ public class MessageConsumer : BackgroundService
             "Статус файла {fileId} успешно обновлён на {status} по запросу пользователя {senderId}",
             message.FileId, fileRecord.Status.ToString(), message.SenderId);
 
-        // Сигнализируем, что для message.FileId есть задача, завершения которой нужно дождаться при остановке сервиса
-        _filesInProcessing.Add(message.FileId);
-
-        DeleteFileTask(message.FileId, fileRecord.ExternalKey!, message.SenderId);
+        // Не блокируя Consumer, отправляем задачу на удаление файла
+        RunInBackground(message.FileId, () => DeleteFileTask(message.FileId, fileRecord.ExternalKey!, message.SenderId));
     }
 
     private async Task HandleReDeleteFileMessage(ReDeleteFileMessage message, IFileRecordRepository fileRecordRepository)
@@ -248,12 +252,9 @@ public class MessageConsumer : BackgroundService
                 message.SenderId, message.FileId);
             return;
         }
-        
-        // Сигнализируем, что для fileRecord.Id есть задача, завершения которой нужно дождаться при остановке сервиса
-        _filesInProcessing.Add(fileRecord.Id);
 
         // Не блокируя Consumer, начинаем взаимодействие с удаленным S3 по вопросу этого файла
-        Task.Run(async () =>
+        RunInBackground(fileRecord.Id, async () =>
         {
             // Если файла уже нет в s3, осталось просто отправить сообщение для удаления записи файла из БД
             var isInS3 = await _s3FilesService.CheckFileExistence(fileRecord.ExternalKey!);
@@ -267,7 +268,7 @@ public class MessageConsumer : BackgroundService
                 return;
             }
 
-            // Иначе отправляем стандартную задачу на удаление
+            // Иначе выполняем стандартную задачу на удаление
             await DeleteFileTask(fileRecord.Id, fileRecord.ExternalKey!, message.SenderId);
         });
     }
@@ -280,10 +281,30 @@ public class MessageConsumer : BackgroundService
             message.FileId, message.SenderId);
     }
 
+    // Запускает задачу вне потока Consumer и запоминает её, чтобы дождаться её завершения при остановке сервиса.
+    // Задача удаляется из коллекции при любом исходе, в том числе при исключении
+    private void RunInBackground(long fileId, Func<Task> action)
+    {
+        var task = Task.Run(async () =>
+        {
+            try
+            {
+                await action();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Ошибка при фоновой обработке файла {fileId}", fileId);
+            }
+        });
+
+        _backgroundTasks.TryAdd(task, fileId);
+        task.ContinueWith(completedTask => _backgroundTasks.TryRemove(completedTask, out _), TaskScheduler.Default);
+    }
+
     private async Task UploadFileTask(UploadFileTaskDto uploadFileTaskDto)
     {
         // Загружаем в S3
-        var fileReadStream = _localFilesService.GetFileStream(uploadFileTaskDto.LocalFilePath);
+        await using var fileReadStream = _localFilesService.GetFileStream(uploadFileTaskDto.LocalFilePath);
         var uploadFileToS3Dto = new UploadFileToS3Dto(
             FileStream: fileReadStream,
             ContentType: uploadFileTaskDto.ContentType,
@@ -291,7 +312,6 @@ public class MessageConsumer : BackgroundService
             UploaderId: uploadFileTaskDto.UploaderId
         );
         var s3UploadingResult = await _s3FilesService.UploadFileAsync(uploadFileToS3Dto);
-        await fileReadStream.DisposeAsync();
 
         if (!s3UploadingResult.Succeeded)
             _logger.LogError("Не удалось загрузить файл {fileId} во внешнее хранилище. Ошибка: {error}",
@@ -305,9 +325,6 @@ public class MessageConsumer : BackgroundService
             SenderId: uploadFileToS3Dto.UploaderId
         );
         await _messageProducer.PushUpdateFileStatusMessage(updateStatusMessage);
-
-        // Задача для fileId завершена, новое сообщение отправлено в канал
-        _filesInProcessing.Remove(uploadFileTaskDto.FileRecordId);
     }
 
     private async Task DeleteFileTask(long fileId, string s3Key, string senderId)
@@ -317,9 +334,6 @@ public class MessageConsumer : BackgroundService
         {
             var fileDeletedMessage = new FileDeletedMessage(fileId, senderId);
             await _messageProducer.PushFileDeletedMessage(fileDeletedMessage);
-
-            // Задача для message.FileId завершена, новое сообщение отправлено в канал
-            _filesInProcessing.Remove(fileId);
             return;
         }
 
@@ -332,8 +346,5 @@ public class MessageConsumer : BackgroundService
             SenderId: senderId
         );
         await _messageProducer.PushUpdateFileStatusMessage(updateStatusMessage);
-
-        // Задача для message.FileId завершена, новое сообщение отправлено в канал
-        _filesInProcessing.Remove(fileId);
     }
 }
