@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using System;
 using System.Net.Http;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
@@ -81,8 +80,7 @@ namespace HwProj.NotificationsService.Client
         {
             try
             {
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-                using var response = await _httpClient.GetAsync(_notificationServiceUri + "api/system/ping", cts.Token);
+                using var response = await _httpClient.GetAsync(_notificationServiceUri + "api/system/ping");
                 return response.IsSuccessStatusCode;
             }
             catch

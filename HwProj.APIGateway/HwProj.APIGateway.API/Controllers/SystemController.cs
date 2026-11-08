@@ -74,13 +74,11 @@ public class SystemController : AggregationController
         };
     }
 
-    // Ручки для внешнего мониторинга: 200, если API Gateway (или указанный сервис) доступен, иначе 503
-    [HttpHead("ping")]
-    public IActionResult Ping() => Ok();
-
-    [HttpHead("ping/{service}")]
-    public async Task<IActionResult> PingService(string service)
+    [HttpHead("ping/{service?}")]
+    public async Task<IActionResult> Ping(string? service)
     {
+        if (service == null) return Ok();
+
         Func<Task<bool>>? ping = service.ToLowerInvariant() switch
         {
             "auth" => AuthServiceClient.Ping,

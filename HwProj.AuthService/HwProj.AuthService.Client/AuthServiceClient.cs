@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using HwProj.HttpUtils;
 using HwProj.Models.AuthService.ViewModels;
@@ -192,8 +191,7 @@ namespace HwProj.AuthService.Client
         {
             try
             {
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-                using var response = await _httpClient.GetAsync(_authServiceUri + "api/system/ping", cts.Token);
+                using var response = await _httpClient.GetAsync(_authServiceUri + "api/system/ping");
                 return response.IsSuccessStatusCode;
             }
             catch
