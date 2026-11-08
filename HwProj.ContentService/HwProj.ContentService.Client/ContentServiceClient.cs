@@ -157,8 +157,8 @@ namespace HwProj.ContentService.Client
         {
             try
             {
-                await _httpClient.GetAsync(_contentServiceUri + "api/system/ping");
-                return true;
+                using var response = await _httpClient.GetAsync(_contentServiceUri + "api/system/ping");
+                return response.IsSuccessStatusCode;
             }
             catch
             {

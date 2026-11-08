@@ -6,7 +6,7 @@ namespace HwProj.AuthService.API.Controllers
     [ApiController]
     public class SystemController : ControllerBase
     {
-        [HttpGet("status")]
-        public IActionResult Status() => Ok();
+        [HttpGet("ping")]
+        public IActionResult Ping() => Ok();
     }
 }

@@ -633,8 +633,8 @@ namespace HwProj.CoursesService.Client
         {
             try
             {
-                await _httpClient.GetAsync(_coursesServiceUri + "api/system/ping");
-                return true;
+                using var response = await _httpClient.GetAsync(_coursesServiceUri + "api/system/ping");
+                return response.IsSuccessStatusCode;
             }
             catch
             {

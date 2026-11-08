@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Models;
 using HwProj.AuthService.Client;
@@ -5,6 +6,7 @@ using HwProj.ContentService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.NotificationsService.Client;
 using HwProj.SolutionsService.Client;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HwProj.APIGateway.API.Controllers;
@@ -40,7 +42,7 @@ public class SystemController : AggregationController
         var solutionsPing = _solutionsServiceClient.Ping();
         var filesPing = _contentServiceClient.Ping();
 
-        await Task.WhenAll(authPing, coursesPing, notificationsPing, solutionsPing);
+        await Task.WhenAll(authPing, coursesPing, notificationsPing, solutionsPing, filesPing);
 
         return new[]
         {
@@ -70,5 +72,25 @@ public class SystemController : AggregationController
                 IsAvailable = filesPing.Result
             }
         };
+    }
+
+    [HttpHead("ping/{service?}")]
+    public async Task<IActionResult> Ping(string? service)
+    {
+        if (service == null) return Ok();
+
+        Func<Task<bool>>? ping = service.ToLowerInvariant() switch
+        {
+            "auth" => AuthServiceClient.Ping,
+            "courses" => _coursesServiceClient.Ping,
+            "notifications" => _notificationsServiceClient.Ping,
+            "solutions" => _solutionsServiceClient.Ping,
+            "content" => _contentServiceClient.Ping,
+            _ => null
+        };
+
+        if (ping == null) return NotFound();
+
+        return await ping() ? Ok() : StatusCode(StatusCodes.Status503ServiceUnavailable);
     }
 }
