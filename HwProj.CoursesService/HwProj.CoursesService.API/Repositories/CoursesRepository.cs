@@ -15,12 +15,14 @@ namespace HwProj.CoursesService.API.Repositories
 
         public Task<Course?> GetWithCourseMates(long id) =>
             Context.Set<Course>()
+                .Include(c => c.Mentors)
                 .Include(c => c.CourseMates)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
 
         public async Task<Course?> GetWithHomeworksAsync(long id)
             => await Context.Set<Course>()
+                .Include(c => c.Mentors)
                 .Include(c => c.Homeworks)
                 .ThenInclude(h => h.Tasks)
                 .AsNoTracking()
@@ -28,9 +30,9 @@ namespace HwProj.CoursesService.API.Repositories
 
         public async Task<Course?> GetWithCourseMatesAndHomeworksAsync(long id, bool withCriteria)
         {
-            // Раздельные запросы вместо одного JOIN, иначе строки студентов перемножаются со строками задач
             var query = Context.Set<Course>()
                 .AsNoTracking()
+                .Include(c => c.Mentors)
                 .AsSplitQuery()
                 .Include(c => c.CourseMates)
                 .ThenInclude(c => c.Characteristics)
@@ -42,10 +44,15 @@ namespace HwProj.CoursesService.API.Repositories
                 : await query.FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public Task<string> GetMentorIdsAsync(long id) =>
-            Context.Set<Course>()
-                .Where(c => c.Id == id)
-                .Select(c => c.MentorIds)
-                .SingleAsync();
+        public IQueryable<Course> GetAllWithCourseMatesAndHomeworks()
+        {
+            return Context.Set<Course>()
+                .Include(c => c.Mentors)
+                .Include(c => c.CourseMates)
+                .ThenInclude(c => c.Characteristics)
+                .Include(c => c.Homeworks)
+                .ThenInclude(c => c.Tasks)
+                .AsNoTracking();
+        }
     }
 }

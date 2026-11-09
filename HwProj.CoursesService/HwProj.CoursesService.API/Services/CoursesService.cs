@@ -102,7 +102,7 @@ namespace HwProj.CoursesService.API.Services
             {
                 baseCourse = await _coursesRepository.GetWithHomeworksAsync(courseViewModel.BaseCourseId.Value);
                 if (baseCourse == null) throw new InvalidOperationException("Базовый курс не найден");
-                if (!baseCourse.MentorIds.Contains(mentorId))
+                if (!baseCourse.Mentors.Any(m => m.UserId == mentorId))
                     throw new ForbiddenException(
                         $"Пользователь с id{mentorId} не является ментором указанного базового курса");
             }
@@ -150,7 +150,7 @@ namespace HwProj.CoursesService.API.Services
             using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var course = courseTemplate.ToCourse();
-            course.MentorIds = mentorId;
+            course.Mentors = new List<CourseMentor> { new CourseMentor { UserId = mentorId } };
             course.InviteCode = Guid.NewGuid().ToString();
             var courseId = await _coursesRepository.AddAsync(course);
 
@@ -178,7 +178,7 @@ namespace HwProj.CoursesService.API.Services
                     {
                         CourseId = courseId,
                         CourseName = course.Name,
-                        MentorIds = course.MentorIds,
+                        MentorIds = string.Join("/", course.Mentors.Select(m => m.UserId)),
                         StudentId = student.StudentId
                     });
                 }
@@ -222,11 +222,17 @@ namespace HwProj.CoursesService.API.Services
             };
 
             await _courseMatesRepository.AddAsync(courseMate);
+
+            var mentorIds = await _context.CourseMentors
+                .Where(m => m.CourseId == courseId)
+                .Select(m => m.UserId)
+                .ToArrayAsync();
+
             _eventBus.Publish(new NewCourseMateEvent
             {
                 CourseId = courseId,
                 CourseName = course.Name,
-                MentorIds = course.MentorIds,
+                MentorIds = string.Join("/", mentorIds),
                 StudentId = studentId,
                 IsAccepted = false
             });
@@ -244,11 +250,16 @@ namespace HwProj.CoursesService.API.Services
 
             await _courseMatesRepository.UpdateAsync(cm.Id, cm => new CourseMate { IsAccepted = true });
 
+            var mentorIds = await _context.CourseMentors
+                .Where(m => m.CourseId == courseId)
+                .Select(m => m.UserId)
+                .ToArrayAsync();
+
             _eventBus.Publish(new LecturerAcceptToCourseEvent
             {
                 CourseId = courseId,
                 CourseName = course.Name,
-                MentorIds = course.MentorIds,
+                MentorIds = string.Join("/", mentorIds),
                 StudentId = studentId
             });
 
@@ -265,11 +276,16 @@ namespace HwProj.CoursesService.API.Services
 
             await _courseMatesRepository.DeleteAsync(cm.Id);
 
+            var mentorIds = await _context.CourseMentors
+                .Where(m => m.CourseId == courseId)
+                .Select(m => m.UserId)
+                .ToArrayAsync();
+
             _eventBus.Publish(new LecturerRejectToCourseEvent
             {
                 CourseId = courseId,
                 CourseName = course.Name,
-                MentorIds = course.MentorIds,
+                MentorIds = string.Join("/", mentorIds),
                 StudentId = studentId
             });
             return true;
@@ -280,10 +296,11 @@ namespace HwProj.CoursesService.API.Services
             var isMentor = role == Roles.LecturerRole || role == Roles.ExpertRole;
 
             var courses = isMentor
-                ? _coursesRepository.FindAll(c => c.MentorIds.Contains(userId))
+                ? _coursesRepository.FindAll(c => c.Mentors.Any(m => m.UserId == userId))
                 : _coursesRepository.FindAll(c => c.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId));
 
             var coursesWithValues = await courses
+                .Include(c => c.Mentors)
                 .AsSplitQuery()
                 .Include(c => c.CourseMates)
                 .Include(c => c.Homeworks.OrderBy(h => h.Id)).ThenInclude(t => t.Tasks.OrderBy(x => x.Id))
@@ -311,13 +328,18 @@ namespace HwProj.CoursesService.API.Services
         {
             var course = await _coursesRepository.GetAsync(courseId);
             if (course == null) return false;
-            if (!course.MentorIds.Contains(lecturerId))
+
+            var alreadyMentor = await _context.CourseMentors
+                .AnyAsync(m => m.CourseId == courseId && m.UserId == lecturerId);
+
+            if (!alreadyMentor)
             {
-                var newMentors = course.MentorIds + "/" + lecturerId;
-                await _coursesRepository.UpdateAsync(courseId, с => new Course
+                await _context.CourseMentors.AddAsync(new CourseMentor
                 {
-                    MentorIds = newMentors,
+                    CourseId = courseId,
+                    UserId = lecturerId
                 });
+                await _context.SaveChangesAsync();
 
                 _eventBus.Publish(new LecturerInvitedToCourseEvent
                 {
@@ -335,8 +357,10 @@ namespace HwProj.CoursesService.API.Services
 
         public async Task<string[]> GetCourseLecturers(long courseId)
         {
-            var mentorIds = await _coursesRepository.GetMentorIdsAsync(courseId);
-            return mentorIds.Split('/');
+            return await _context.CourseMentors
+                .Where(m => m.CourseId == courseId)
+                .Select(m => m.UserId)
+                .ToArrayAsync();
         }
 
         public async Task<bool> HasStudent(long courseId, string studentId)
