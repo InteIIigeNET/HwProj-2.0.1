@@ -289,8 +289,8 @@ namespace HwProj.SolutionsService.Client
         {
             try
             {
-                await _httpClient.GetAsync(_solutionServiceUri + "api/system/ping");
-                return true;
+                using var response = await _httpClient.GetAsync(_solutionServiceUri + "api/system/ping");
+                return response.IsSuccessStatusCode;
             }
             catch
             {
