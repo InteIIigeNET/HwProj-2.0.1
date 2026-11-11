@@ -82,12 +82,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.NotificationService.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.Repositories.Net8", "HwProj.Common\HwProj.Repositories.Net8\HwProj.Repositories.Net8.csproj", "{9E3A99DA-6975-46A7-90DB-69B708C8FF2C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HwProj.APIGateway.GradeVisibilityTests", "HwProj.APIGateway\HwProj.APIGateway.GradeVisibilityTests\HwProj.APIGateway.GradeVisibilityTests.csproj", "{FDD2B7EB-3112-4576-A9FF-CE008DBBDC1D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FDD2B7EB-3112-4576-A9FF-CE008DBBDC1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDD2B7EB-3112-4576-A9FF-CE008DBBDC1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDD2B7EB-3112-4576-A9FF-CE008DBBDC1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDD2B7EB-3112-4576-A9FF-CE008DBBDC1D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4E5191DC-EC8B-44C8-BD85-198D2C0C16F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4E5191DC-EC8B-44C8-BD85-198D2C0C16F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E5191DC-EC8B-44C8-BD85-198D2C0C16F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -205,6 +211,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{FDD2B7EB-3112-4576-A9FF-CE008DBBDC1D} = {DC0D1EE7-D2F8-4D15-8CC6-69A0A0A938D9}
 		{4E5191DC-EC8B-44C8-BD85-198D2C0C16F7} = {77D857A8-45C6-4432-B4BF-A2F2C9ECA7FE}
 		{D59EB6F0-8220-417A-AB3E-6960E9A15459} = {A85A3030-2878-4923-B450-9683832CDAC1}
 		{EB85EEF8-5860-43A3-AE0D-654DC1325F0F} = {CB37F9AC-88CB-425C-8200-1B40F372F38D}

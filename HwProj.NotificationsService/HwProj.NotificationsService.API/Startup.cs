@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using HwProj.AuthService.Client;
+using HwProj.CoursesService.Client;
 using HwProj.Common.Net8;
 using HwProj.NotificationsService.API.EventHandlers;
 using HwProj.NotificationsService.API.Models;
@@ -58,7 +59,9 @@ namespace HwProj.NotificationsService.API
             services.AddHostedService<DigestBackgroundService>();
 
             services.AddHttpClient();
+            services.AddHttpContextAccessor();
             services.AddAuthServiceClient();
+            services.AddCoursesServiceClient();
 
             services
                 .AddCors()

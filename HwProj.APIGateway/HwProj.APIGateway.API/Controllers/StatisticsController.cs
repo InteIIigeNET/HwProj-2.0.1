@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.Models.Statistics;
+using HwProj.APIGateway.API.Services;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.AuthService.DTO;
@@ -53,11 +54,16 @@ public class StatisticsController : AggregationController
     }
 
     [HttpGet("{courseId}")]
+    [Authorize]
     [ProducesResponseType(typeof(StatisticsCourseMatesModel[]), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetCourseStatistics(long courseId)
     {
+        var course = await _coursesClient.GetCourseById(courseId);
+        if (course == null) return Forbid();
+        if (!course.MentorIds.Contains(UserId) && !course.AcceptedStudents.Any(s => s.StudentId == UserId)) return Forbid();
         var statistics = await _solutionClient.GetCourseStatistics(courseId, UserId);
         if (statistics == null) return Forbid();
+        GradeVisibility.Apply(statistics, GradeVisibility.HiddenTaskIds(course, UserId));
 
         var studentIds = statistics.Select(t => t.StudentId).ToArray();
         var getStudentsTask = AuthServiceClient.GetAccountsData(studentIds);
@@ -85,14 +91,18 @@ public class StatisticsController : AggregationController
     }
 
     [HttpGet("{courseId}/charts")]
+    [Authorize]
     [ProducesResponseType(typeof(AdvancedCourseStatisticsViewModel), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetChartStatistics(long courseId)
     {
         var course = await _coursesClient.GetCourseById(courseId);
         if (course == null)
             return Forbid();
+        if (!course.MentorIds.Contains(UserId) && !course.AcceptedStudents.Any(s => s.StudentId == UserId)) return Forbid();
 
         var statistics = await _solutionClient.GetCourseStatistics(courseId, UserId);
+        var hiddenTasks = GradeVisibility.HiddenTaskIds(course, UserId);
+        GradeVisibility.Apply(statistics, hiddenTasks);
         var studentIds = statistics.Select(t => t.StudentId).ToArray();
         var studentsData = await AuthServiceClient.GetAccountsData(studentIds);
 
@@ -109,6 +119,7 @@ public class StatisticsController : AggregationController
 
         var result = new AdvancedCourseStatisticsViewModel
         {
+            HiddenTaskIds = hiddenTasks.ToArray(),
             Course = new CoursePreview
             {
                 Id = course.Id,
@@ -117,8 +128,8 @@ public class StatisticsController : AggregationController
             },
             StudentStatistics = students.ToArray(),
             Homeworks = course.Homeworks,
-            AverageStudentSolutions = statisticsMeasure.AverageStudentSolutions,
-            BestStudentSolutions = statisticsMeasure.BestStudentSolutions
+            AverageStudentSolutions = statisticsMeasure.AverageStudentSolutions.Where(s => !hiddenTasks.Contains(s.TaskId)).ToArray(),
+            BestStudentSolutions = statisticsMeasure.BestStudentSolutions.Where(s => !hiddenTasks.Contains(s.TaskId)).ToArray()
         };
 
         return Ok(result);

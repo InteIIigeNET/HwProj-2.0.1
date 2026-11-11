@@ -474,6 +474,8 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                     </TableHead>
                     <TableBody>
                         {solutions && solutions.map((cm, index) => {
+                            const hasHiddenRatings = cm.homeworks?.some(h => h.tasks?.some(t =>
+                                t.solutions?.some(s => s.isRatingHidden))) ?? false
                             const homeworksSum = notTests
                                 .flatMap(homework =>
                                     solutions
@@ -559,9 +561,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                             size={"small"}
                                             sx={{
                                                 ...sumChipSx,
-                                                backgroundColor: StudentStatsUtils.getRatingColor(homeworksSum, studentHomeworksMaxSum),
+                                                backgroundColor: hasHiddenRatings ? "#eeeeee" : StudentStatsUtils.getRatingColor(homeworksSum, studentHomeworksMaxSum),
                                             }}
-                                            label={homeworksWithGroups.length > 0
+                                            label={hasHiddenRatings ? "Баллы скрыты" : homeworksWithGroups.length > 0
                                                 ? `${homeworksSum} / ${studentHomeworksMaxSum}`
                                                 : homeworksSum}/>}
                                     </TableCell>}
@@ -570,9 +572,9 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
                                             size={"small"}
                                             sx={{
                                                 ...sumChipSx,
-                                                backgroundColor: StudentStatsUtils.getRatingColor(testsSum, studentTestsMaxSum),
+                                                backgroundColor: hasHiddenRatings ? "#eeeeee" : StudentStatsUtils.getRatingColor(testsSum, studentTestsMaxSum),
                                             }}
-                                            label={testsWithGroups.length > 0
+                                            label={hasHiddenRatings ? "Баллы скрыты" : testsWithGroups.length > 0
                                                 ? `${testsSum} / ${studentTestsMaxSum}`
                                                 : testsSum}/>}
                                     </TableCell>}

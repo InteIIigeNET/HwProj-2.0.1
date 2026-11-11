@@ -6,6 +6,8 @@ namespace HwProj.Models.CoursesService.ViewModels
 {
     public class CreateHomeworkViewModel
     {
+        public bool HideRatings { get; set; }
+
         [Required]
         [RegularExpression(@"^\S+.*", ErrorMessage = "Name shouldn't start with white spaces.")]
         public string Title { get; set; }
@@ -33,6 +35,8 @@ namespace HwProj.Models.CoursesService.ViewModels
 
     public class HomeworkViewModel
     {
+        public bool HideRatings { get; set; }
+
         public long Id { get; set; }
 
         public string Title { get; set; }

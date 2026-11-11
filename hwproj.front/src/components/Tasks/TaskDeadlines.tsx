@@ -59,12 +59,15 @@ const getPercent = (startDate: Date, endDate: Date) => {
     return clamp((currentDateNumber - startDateNumber) * 100 / (endDateNumber - startDateNumber), 0, 100)
 }
 
-const renderBadge = (solutionState: TaskDeadlineView["solutionState"], rating: number, maxRating: number) => {
+const renderBadge = (solutionState: TaskDeadlineView["solutionState"], rating: number, maxRating: number, isRatingHidden?: boolean, requiresRevision?: boolean) => {
     if (solutionState === null)
         return <Chip color="error" size={"small"} label={"Не решено"}/>
 
     if (solutionState === 0) //POSTED
         return <Chip color="info" size={"small"} label={"Ожидает проверки"}/>
+
+    if (isRatingHidden) return <Chip size="small" color={requiresRevision ? "error" : "success"}
+        label={requiresRevision ? "Требуется отправить исправленное решение" : "Проверено"}/>
 
     const color = colorBetween(0xff0000, 0x2cba00, Math.min(rating, maxRating) / maxRating * 100)
     return <Chip
@@ -139,7 +142,7 @@ const DeadlineRow: FC<{
                         <Typography component={"span"} sx={{fontSize: "1rem", fontWeight: 600}}>
                             {deadline.taskTitle}{getTip(deadline)}
                         </Typography>
-                        {!deadlinePast && renderBadge(solutionState, rating!, deadline.maxRating!)}
+                        {!deadlinePast && renderBadge(solutionState, rating!, deadline.maxRating!, view.isRatingHidden, view.requiresRevision)}
                     </Stack>
                     <Typography variant={"caption"} sx={{color: "text.secondary"}}>
                         {deadline.courseTitle}

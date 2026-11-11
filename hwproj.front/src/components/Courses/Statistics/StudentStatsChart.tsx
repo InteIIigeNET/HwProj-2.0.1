@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {Link, useParams} from 'react-router-dom';
-import {Grid, Box, Typography, Paper} from "@mui/material";
+import {Grid, Box, Typography, Paper, Alert} from "@mui/material";
 import {
     CourseViewModel, HomeworkTaskViewModel,
     HomeworkViewModel, StudentSolutionsTableHomeworkDto,
@@ -20,6 +20,7 @@ import {appBarStateManager} from "@/components/AppBar";
 interface IStudentStatsChartState {
     isFound: boolean;
     isSelectionMode: boolean;
+    hiddenTasksCount: number;
     course: CourseViewModel;
     homeworks: HomeworkViewModel[];
     tasksWithDeadline: HomeworkTaskViewModel[];
@@ -35,6 +36,7 @@ const StudentStatsChart: React.FC = () => {
     const [state, setState] = useState<IStudentStatsChartState>({
         isFound: false,
         isSelectionMode: false,
+        hiddenTasksCount: 0,
         course: {},
         homeworks: [],
         tasksWithDeadline: [],
@@ -67,7 +69,9 @@ const StudentStatsChart: React.FC = () => {
         const params =
             await ApiSingleton.statisticsApi.statisticsGetChartStatistics(+courseId!);
 
-        const homeworks = params.homeworks!.filter(hw => hw.tasks && hw.tasks.length > 0)
+        const hiddenTaskIds = new Set(params.hiddenTaskIds ?? [])
+        const homeworks = params.homeworks!.map(hw => ({...hw, tasks: hw.tasks?.filter(t => !hiddenTaskIds.has(t.id!))}))
+            .filter(hw => hw.tasks && hw.tasks.length > 0)
         const tasksWithDeadline = [...new Set(homeworks.map(hw => hw.tasks!).flat())]
             .filter(t => t.hasDeadline && new Date(t.publicationDate!).getTime() < Date.now())
 
@@ -77,10 +81,15 @@ const StudentStatsChart: React.FC = () => {
         setState({
             isFound: true,
             isSelectionMode: params.studentStatistics!.length > 1,
+            hiddenTasksCount: hiddenTaskIds.size,
             course: params.course!,
             homeworks: homeworks,
             tasksWithDeadline: tasksWithDeadline,
-            solutions: params.studentStatistics!,
+            solutions: params.studentStatistics!.map(student => ({...student,
+                homeworks: student.homeworks?.map(hw => ({...hw,
+                    tasks: hw.tasks?.filter(t => !hiddenTaskIds.has(t.id!)),
+                })),
+            })),
             bestStudent: params.bestStudentSolutions!,
             averageStudent: params.averageStudentSolutions!
         })
@@ -110,6 +119,9 @@ const StudentStatsChart: React.FC = () => {
     if (state.isFound && tasksAmount) {
         return (
             <div className="container">
+                {state.hiddenTasksCount > 0 && <Alert severity="info" sx={{mb: 2}}>
+                    Графики учитывают только задачи с открытыми баллами.
+                </Alert>}
                 <Grid container spacing={1} style={{marginBottom: 10, marginTop: 20}}>
                     <Grid item container direction='row' spacing={1}
                           justifyContent={"space-between"}
@@ -199,7 +211,7 @@ const StudentStatsChart: React.FC = () => {
         )
     } else if (state.isFound && !tasksAmount) {
         return <div className="container">
-            <p>На курсе нет задач</p>
+            <p>{state.hiddenTasksCount > 0 ? "Баллы задач скрыты. Числовые графики недоступны." : "На курсе нет задач"}</p>
         </div>
     }
 

@@ -19,7 +19,7 @@ namespace HwProj.SolutionsService.API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("HwProj.Models.SolutionsService.Solution", b =>
+            modelBuilder.Entity("HwProj.SolutionsService.API.Models.Solution", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -42,6 +42,8 @@ namespace HwProj.SolutionsService.API.Migrations
                     b.Property<int>("Rating");
 
                     b.Property<DateTime?>("RatingDate");
+
+                    b.Property<bool>("RequiresRevision");
 
                     b.Property<int>("State");
 

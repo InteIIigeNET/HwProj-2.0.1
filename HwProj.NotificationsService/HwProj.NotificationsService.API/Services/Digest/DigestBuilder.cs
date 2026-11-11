@@ -107,15 +107,19 @@ namespace HwProj.NotificationsService.API.Services.Digest
                         var comment = LecturerComment.Parse(item.Comment);
                         var entry = new DigestEntry(item.TaskTitle, links.Task(item.CourseId, item.TaskId))
                         {
-                            Badge = item.MaxRating > 0 ? $"{item.Rating} / {item.MaxRating}" : $"{item.Rating}",
-                            BadgeTone = RatingTone(item.Rating ?? 0, item.MaxRating ?? 0),
-                            Hint = item.PreviousRating is { } previous && previous != item.Rating
+                            Badge = item.IsRatingHidden
+                                ? (item.RequiresRevision ? "Требуется отправить исправленное решение" : "Проверено")
+                                : item.MaxRating > 0 ? $"{item.Rating} / {item.MaxRating}" : $"{item.Rating}",
+                            BadgeTone = item.IsRatingHidden
+                                ? (item.RequiresRevision ? DigestTone.Danger : DigestTone.Success)
+                                : RatingTone(item.Rating ?? 0, item.MaxRating ?? 0),
+                            Hint = !item.IsRatingHidden && item.PreviousRating is { } previous && previous != item.Rating
                                 ? $"Оценка исправлена, было {previous}"
                                 : null,
                             QuoteLabel = "Комментарий преподавателя",
                             Quote = string.IsNullOrWhiteSpace(comment.Text) ? null : comment.Text
                         };
-                        entry.Criteria.AddRange(comment.Criteria);
+                        if (!item.IsRatingHidden) entry.Criteria.AddRange(comment.Criteria);
                         return entry;
                     });
                 section.Groups.Add(Group(course, links, entries, ("задача", "задачи", "задач")));

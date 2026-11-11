@@ -438,7 +438,8 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 <Tooltip arrow disableInteractive enterDelay={1000}
                          title={<span style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
                     <Chip size={"small"}
-                          label={lastRatedSolution == null ? "?" : lastRatedSolution.rating}
+                          label={lastSolution.isRatingHidden ? StudentStatsUtils.reviewSymbol(lastSolution) : lastRatedSolution == null ? "?" : lastRatedSolution.rating}
+                          aria-label={lastSolution.isRatingHidden ? solutionsDescription : undefined}
                           sx={{
                               backgroundColor: color,
                               height: 22,
@@ -486,6 +487,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
 
     // Студенту показываем набранные за задание баллы, преподавателю — количество задач
     const renderHomeworkCounter = (homework: HomeworkViewModel) => {
+        if (!isMentor && homework.hideRatings) return null
         const tasksCount = homework.tasks!.length
         if (isMentor) return tasksCount > 0
             ? <Tooltip arrow title={"Задач в задании"}>
