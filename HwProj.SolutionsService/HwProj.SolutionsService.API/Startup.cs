@@ -1,16 +1,16 @@
+using System.Text.Json.Serialization;
 using HwProj.AuthService.Client;
+using HwProj.Common.Net8;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client;
-using HwProj.EventBus.Client.Interfaces;
 using HwProj.SolutionsService.API.Models;
 using HwProj.SolutionsService.API.Repositories;
 using HwProj.SolutionsService.API.Services;
-using HwProj.Utils.Configuration;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace HwProj.SolutionsService.API
 {
@@ -21,7 +21,7 @@ namespace HwProj.SolutionsService.API
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -38,13 +38,37 @@ namespace HwProj.SolutionsService.API
             services.AddCoursesServiceClient();
 
             services.AddEventBus(Configuration);
-            services.ConfigureHwProjServices("Solutions API");
+
+            services
+                .AddCors()
+                .AddControllers(options =>
+                    // Модели из HwProj.Models собраны с nullable, без этого их string-свойства
+                    // без '?' стали бы обязательными, и запросы с null отклонялись бы с 400
+                    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true)
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+            services.AddAutoMapper(x => x.AddProfile<AutomapperProfile>());
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IEventBus eventBus,
-            SolutionContext context)
+        public void Configure(IApplicationBuilder app, IHostEnvironment env, SolutionContext context)
         {
-            app.ConfigureHwProj(env, "Solutions API", context);
+            app.UseDatabase(env, context);
+
+            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+            else app.UseHsts();
+
+            app.UseRouting();
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(_ => true)
+                .AllowCredentials());
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(x => x.MapControllers());
         }
     }
 }

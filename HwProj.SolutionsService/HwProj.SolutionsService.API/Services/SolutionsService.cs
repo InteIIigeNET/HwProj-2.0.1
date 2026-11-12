@@ -5,7 +5,6 @@ using AutoMapper;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.EventBus.Client.Interfaces;
-using HwProj.Models.AuthService.DTO;
 using HwProj.Models.CoursesService;
 using HwProj.Models.SolutionsService;
 using HwProj.Models.StatisticsService;
@@ -137,8 +136,7 @@ namespace HwProj.SolutionsService.API.Services
                 var solutionModel = _mapper.Map<SolutionViewModel>(solution);
                 var course = await _coursesServiceClient.GetCourseByTask(solution.TaskId);
                 var student = await _authServiceClient.GetAccountData(solutionModel.StudentId);
-                var studentModel = _mapper.Map<AccountDataDto>(student);
-                _eventBus.Publish(new StudentPassTaskEvent(course, solutionModel, studentModel, task));
+                _eventBus.Publish(new StudentPassTaskEvent(course, solutionModel, student, task));
             }
 
             if (task.Tags.Contains(HomeworkTags.Test))
@@ -242,25 +240,27 @@ namespace HwProj.SolutionsService.API.Services
                     .ToArray();
             }
 
-            return await getSolutionsQuery.GroupBy(t => new { t.TaskId, t.StudentId })
-                .Select(t => t.OrderByDescending(x => x.PublicationDate))
-                .Select(t => new
-                {
-                    LastSolution = t.FirstOrDefault(),
-                    IsFirstTry = t.Skip(1).All(s => s.State == SolutionState.Posted)
-                })
-                .Where(t => t.LastSolution != null && t.LastSolution.State == SolutionState.Posted)
-                .OrderBy(t => t.LastSolution!.PublicationDate)
+            // EF Core не транслирует в SQL выборку последнего решения из группы,
+            // поэтому достаем из БД только нужные столбцы и группируем в памяти
+            var solutions = await getSolutionsQuery
+                .Select(s => new { s.Id, s.TaskId, s.StudentId, s.GroupId, s.State, s.PublicationDate })
+                .ToArrayAsync();
+
+            return solutions
+                .GroupBy(t => new { t.TaskId, t.StudentId })
+                .Select(t => t.OrderByDescending(x => x.PublicationDate).ToArray())
+                .Where(t => t[0].State == SolutionState.Posted)
+                .OrderBy(t => t[0].PublicationDate)
                 .Select(t => new SolutionPreviewDto
                 {
-                    StudentId = t.LastSolution!.StudentId,
-                    SolutionId = t.LastSolution.Id,
-                    GroupId = t.LastSolution.GroupId,
-                    TaskId = t.LastSolution.TaskId,
-                    PublicationDate = t.LastSolution.PublicationDate,
-                    IsFirstTry = t.IsFirstTry
+                    StudentId = t[0].StudentId,
+                    SolutionId = t[0].Id,
+                    GroupId = t[0].GroupId,
+                    TaskId = t[0].TaskId,
+                    PublicationDate = t[0].PublicationDate,
+                    IsFirstTry = t.Skip(1).All(s => s.State == SolutionState.Posted)
                 })
-                .ToArrayAsync();
+                .ToArray();
         }
 
         public async Task<TaskSolutionsStats[]> GetTaskSolutionsStats(GetTasksSolutionsModel tasksSolutionsModel)

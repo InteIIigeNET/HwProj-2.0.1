@@ -1,0 +1,24 @@
+<Project>
+    <!-- Общие настройки и зависимости API микросервисов на .NET 8 -->
+    <Import Project="$(MSBuildThisFileDirectory)Net8.props" />
+
+    <PropertyGroup>
+        <LangVersion>$(CSharpLanguageVersion)</LangVersion>
+        <!-- С включенным nullable EF Core считает свойства string без '?' обязательными колонками -->
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AutoMapper" Version="$(AutoMapperVersion)" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EntityFrameworkCoreVersion)" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="$(EntityFrameworkCoreVersion)">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="$(MSBuildThisFileDirectory)HwProj.Common\HwProj.Common.Net8\HwProj.Common.Net8.csproj" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)HwProj.Common\HwProj.Repositories.Net8\HwProj.Repositories.Net8.csproj" />
+    </ItemGroup>
+</Project>

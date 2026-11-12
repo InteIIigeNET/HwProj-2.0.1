@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
+#nullable disable
+
 namespace HwProj.SolutionsService.API.Migrations
 {
     [DbContext(typeof(SolutionContext))]
@@ -15,56 +17,73 @@ namespace HwProj.SolutionsService.API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            modelBuilder.Entity("HwProj.Models.SolutionsService.Solution", b =>
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("HwProj.SolutionsService.API.Models.GithubSolutionCommit", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CommitHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LastGithubSolutionCommits");
+                });
+
+            modelBuilder.Entity("HwProj.SolutionsService.API.Models.Solution", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("Comment");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("GithubUrl");
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("GroupId");
+                    b.Property<string>("GithubUrl")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsModified");
+                    b.Property<long?>("GroupId")
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("LecturerComment");
+                    b.Property<bool>("IsModified")
+                        .HasColumnType("bit");
 
-                    b.Property<string>("LecturerId");
+                    b.Property<string>("LecturerComment")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("PublicationDate");
+                    b.Property<string>("LecturerId")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Rating");
+                    b.Property<DateTime>("PublicationDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("RatingDate");
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
 
-                    b.Property<int>("State");
+                    b.Property<DateTime?>("RatingDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("StudentId");
+                    b.Property<int>("State")
+                        .HasColumnType("int");
 
-                    b.Property<long>("TaskId");
+                    b.Property<string>("StudentId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("TaskId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
                     b.HasIndex("TaskId");
 
                     b.ToTable("Solutions");
-                });
-
-            modelBuilder.Entity("HwProj.SolutionsService.API.Models.GithubSolutionCommit", b =>
-                {
-                    b.Property<long>("Id");
-
-                    b.Property<string>("CommitHash");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("LastGithubSolutionCommits");
                 });
 #pragma warning restore 612, 618
         }

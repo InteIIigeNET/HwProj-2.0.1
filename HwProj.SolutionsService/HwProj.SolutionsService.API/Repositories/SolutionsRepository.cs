@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using HwProj.Models.SolutionsService;
-using HwProj.Repositories;
+using HwProj.Repositories.Net8;
 using HwProj.SolutionsService.API.Models;
 using Microsoft.EntityFrameworkCore;
 
