@@ -71,6 +71,34 @@ namespace HwProj.CoursesService.API.Services
             return await _tasksRepository.GetCourseSummaryByTaskAsync(taskId);
         }
 
+        public async Task<CourseTableContextDTO?> GetCourseTableContextAsync(long courseId)
+        {
+            var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(courseId, withCriteria: false);
+            if (course == null) return null;
+
+            var groups = await _groupsRepository.GetGroupsWithGroupMatesByCourse(courseId).ToListAsync();
+
+            return new CourseTableContextDTO
+            {
+                Id = course.Id,
+                MentorIds = course.Mentors.Select(x => x.UserId).ToArray(),
+                CourseMates = course.CourseMates.Select(cm => cm.ToCourseMateViewModel()).ToArray(),
+                Groups = groups.Select(g => new GroupViewModel
+                {
+                    Id = g.Id,
+                    Name = g.Name,
+                    StudentsIds = g.GroupMates.Select(t => t.StudentId).ToArray()
+                }).ToArray(),
+                Homeworks = course.Homeworks.Select(h => h.ToHomeworkViewModel()).ToArray()
+            };
+        }
+
+        public async Task<CourseTableContextDTO?> GetCourseTableContextByTaskAsync(long taskId)
+        {
+            var courseId = await _tasksRepository.GetCourseIdAsync(taskId);
+            return courseId == null ? null : await GetCourseTableContextAsync(courseId.Value);
+        }
+
         public async Task<CourseDTO?> GetAsync(long id, string userId = "", bool asView = false)
         {
             var course = await _coursesRepository.GetWithCourseMatesAndHomeworksAsync(id, withCriteria: asView);

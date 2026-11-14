@@ -195,7 +195,7 @@ namespace HwProj.SolutionsService.API.Controllers
         [ProducesResponseType(typeof(StudentSolutionsTableDto[]), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCourseStat(long courseId)
         {
-            var course = await _coursesClient.GetCourseById(courseId);
+            var course = await _coursesClient.GetCourseTableContext(courseId);
             if (course == null) return NotFound();
 
             var taskIds = course.Homeworks
@@ -206,7 +206,7 @@ namespace HwProj.SolutionsService.API.Controllers
             var userId = Request.GetUserIdFromHeader();
             var solutions = await _solutionsRepository.FindAll(t => taskIds.Contains(t.TaskId)).ToListAsync();
             var courseMates = course.MentorIds.Contains(userId)
-                ? course.AcceptedStudents
+                ? course.CourseMates.Where(t => t.IsAccepted)
                 : course.CourseMates.Where(t => t.StudentId == userId);
             var courseGroups = course.Groups;
 

@@ -104,6 +104,24 @@ namespace HwProj.CoursesService.API.Controllers
             return Ok(course);
         }
 
+        [HttpGet("getTableContext/{courseId}")]
+        public async Task<IActionResult> GetTableContext(long courseId)
+        {
+            var context = await _coursesService.GetCourseTableContextAsync(courseId);
+            if (context == null) return NotFound();
+
+            return Ok(context);
+        }
+
+        [HttpGet("getTableContextByTask/{taskId}")]
+        public async Task<IActionResult> GetTableContextByTask(long taskId)
+        {
+            var context = await _coursesService.GetCourseTableContextByTaskAsync(taskId);
+            if (context == null) return NotFound();
+
+            return Ok(context);
+        }
+
         [HttpPost("create")]
         public async Task<IActionResult> AddCourse([FromBody] CreateCourseViewModel courseViewModel)
         {

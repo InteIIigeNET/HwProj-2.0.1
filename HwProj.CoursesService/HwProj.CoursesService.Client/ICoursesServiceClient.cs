@@ -15,6 +15,7 @@ namespace HwProj.CoursesService.Client
         Task<Result<CourseDTO>> GetCourseDataRaw(long courseId);
         Task<CourseDTO?> GetCourseByTask(long taskId);
         Task<CourseSummaryDTO?> GetCourseSummaryByTask(long taskId);
+        Task<CourseTableContextDTO?> GetCourseTableContext(long courseId);
         Task<Result> DeleteCourse(long courseId);
         Task<Result<long>> CreateCourse(CreateCourseViewModel model);
         Task<Result> UpdateCourse(UpdateCourseViewModel model, long courseId);
