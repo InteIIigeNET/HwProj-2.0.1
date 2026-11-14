@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using AutoMapper;
 using HwProj.CoursesService.API.Models;
+using HwProj.CoursesService.API.Repositories;
 using HwProj.CoursesService.API.Repositories.Groups;
 using HwProj.Models.CoursesService.DTO;
 using Microsoft.EntityFrameworkCore;
@@ -13,14 +15,17 @@ namespace HwProj.CoursesService.API.Services
     {
         private readonly IGroupsRepository _groupsRepository;
         private readonly IGroupMatesRepository _groupMatesRepository;
+        private readonly ITasksRepository _tasksRepository;
         private readonly IMapper _mapper;
 
         public GroupsService(IGroupsRepository groupsRepository,
             IGroupMatesRepository groupMatesRepository,
+            ITasksRepository tasksRepository,
             IMapper mapper)
         {
             _groupsRepository = groupsRepository;
             _groupMatesRepository = groupMatesRepository;
+            _tasksRepository = tasksRepository;
             _mapper = mapper;
         }
 
@@ -30,6 +35,14 @@ namespace HwProj.CoursesService.API.Services
                 .AsNoTracking()
                 .ToArrayAsync()
                 .ConfigureAwait(false);
+        }
+
+        public async Task<Group[]> GetByTaskAsync(long taskId)
+        {
+            var courseId = await _tasksRepository.GetCourseIdAsync(taskId).ConfigureAwait(false);
+            return courseId == null
+                ? Array.Empty<Group>()
+                : await GetAllAsync(courseId.Value).ConfigureAwait(false);
         }
 
         public async Task<Group[]> GetGroupsAsync(params long[] groupIds)

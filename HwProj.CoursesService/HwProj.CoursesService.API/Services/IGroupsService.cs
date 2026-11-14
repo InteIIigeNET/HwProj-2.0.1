@@ -7,6 +7,7 @@ namespace HwProj.CoursesService.API.Services
     public interface IGroupsService
     {
         Task<Group[]> GetAllAsync(long courseId);
+        Task<Group[]> GetByTaskAsync(long taskId);
         
         Task<Group[]> GetGroupsAsync(params long[] groupIds);
         

@@ -60,10 +60,9 @@ namespace HwProj.SolutionsService.API.Services
 
         public async Task<Solution[]> GetTaskSolutionsFromStudentAsync(long taskId, string studentId)
         {
-            var course = await _coursesServiceClient.GetCourseByTask(taskId);
-            if (course == null) return Array.Empty<Solution>();
+            var groups = await _coursesServiceClient.GetGroupsByTask(taskId);
 
-            var studentGroupsIds = course.Groups
+            var studentGroupsIds = groups
                 .Where(g => g.StudentsIds.Contains(studentId))
                 .Select(g => g.Id);
 

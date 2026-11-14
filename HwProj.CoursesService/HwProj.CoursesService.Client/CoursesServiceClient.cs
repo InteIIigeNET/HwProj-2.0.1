@@ -492,6 +492,19 @@ namespace HwProj.CoursesService.Client
             await _httpClient.SendAsync(httpRequest);
         }
 
+        public async Task<GroupViewModel[]> GetGroupsByTask(long taskId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/CourseGroups/byTask/{taskId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return response.IsSuccessStatusCode
+                ? await response.DeserializeAsync<GroupViewModel[]>() ?? Array.Empty<GroupViewModel>()
+                : Array.Empty<GroupViewModel>();
+        }
+
         public async Task<GroupViewModel[]> GetGroupsById(params long[] groupIds)
         {
             if (groupIds.Length == 0) return Array.Empty<GroupViewModel>();

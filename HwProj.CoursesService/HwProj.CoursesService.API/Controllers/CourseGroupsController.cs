@@ -37,6 +37,19 @@ namespace HwProj.CoursesService.API.Controllers
             return result;
         }
 
+        [HttpGet("byTask/{taskId}")]
+        public async Task<GroupViewModel[]> GetByTask(long taskId)
+        {
+            var groups = await _groupsService.GetByTaskAsync(taskId);
+
+            return groups.Select(t => new GroupViewModel
+            {
+                Id = t.Id,
+                Name = t.Name,
+                StudentsIds = t.GroupMates.Select(s => s.StudentId).ToArray()
+            }).ToArray();
+        }
+
         [HttpPost("{courseId}/create")]
         public async Task<IActionResult> CreateGroup([FromBody] CreateGroupViewModel groupViewModel)
         {
