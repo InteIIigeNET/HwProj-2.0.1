@@ -83,6 +83,17 @@ namespace HwProj.CoursesService.Client
             return response.IsSuccessStatusCode ? await response.DeserializeAsync<CourseTableContextDTO>() : null;
         }
 
+        public async Task<CourseTableContextDTO?> GetCourseTableContextByTask(long taskId)
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/getTableContextByTask/{taskId}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return response.IsSuccessStatusCode ? await response.DeserializeAsync<CourseTableContextDTO>() : null;
+        }
+
         public async Task<CourseDTO?> GetCourseById(long courseId)
         {
             using var httpRequest = new HttpRequestMessage(

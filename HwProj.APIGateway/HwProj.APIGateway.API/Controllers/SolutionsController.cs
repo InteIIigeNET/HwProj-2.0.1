@@ -51,10 +51,10 @@ public class SolutionsController : AggregationController
     [ProducesResponseType(typeof(UserTaskSolutionsPageData), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetStudentSolution(long taskId, string studentId)
     {
-        var course = await _coursesServiceClient.GetCourseByTask(taskId);
+        var course = await _coursesServiceClient.GetCourseTableContextByTask(taskId);
         if (course == null) return NotFound();
 
-        var courseMate = course.AcceptedStudents.FirstOrDefault(t => t.StudentId == studentId);
+        var courseMate = course.CourseMates.FirstOrDefault(t => t.IsAccepted && t.StudentId == studentId);
         if (courseMate == null) return NotFound();
 
         var studentSolutions = (await _solutionsClient.GetCourseStatistics(course.Id, UserId))
@@ -71,7 +71,8 @@ public class SolutionsController : AggregationController
             .ToDictionary(t => t.Id);
 
         // Получаем группы только для выбранной задачи
-        var studentsOnCourse = course.AcceptedStudents
+        var studentsOnCourse = course.CourseMates
+            .Where(t => t.IsAccepted)
             .Select(t => t.StudentId)
             .ToArray();
 
@@ -149,11 +150,13 @@ public class SolutionsController : AggregationController
     [ProducesResponseType(typeof(TaskSolutionStatisticsPageData), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetTaskSolutionsPageData(long taskId, string? secondMentorId = null)
     {
-        var course = await _coursesServiceClient.GetCourseByTask(taskId);
+        var course = await _coursesServiceClient.GetCourseTableContextByTask(taskId);
         //TODO: CourseMentorOnlyAttribute
         if (course == null || !course.MentorIds.Contains(UserId)) return Forbid();
 
-        var students = course.AcceptedStudents.ToDictionary(x => x.StudentId);
+        var students = course.CourseMates
+            .Where(t => t.IsAccepted)
+            .ToDictionary(x => x.StudentId);
         var secondMentorStudentIds = new HashSet<string>();
         if (secondMentorId != null && course.MentorIds.Contains(secondMentorId))
         {
