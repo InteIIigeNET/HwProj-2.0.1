@@ -1,6 +1,5 @@
 import * as React from 'react';
 import {FC, useLayoutEffect, useMemo, useRef, useState} from "react";
-import {AccountDataDto, CourseViewModel} from '../../api/';
 import ApiSingleton from "../../api/ApiSingleton";
 import {
     Alert,
@@ -28,13 +27,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import {UserInitialsAvatar} from "../Common/UserInitialsAvatar";
 import Utils from "../../services/Utils";
-
-interface INewCourseStudentsProps {
-    course: CourseViewModel,
-    students: AccountDataDto[],
-    onUpdate: () => void,
-    courseId: string,
-}
+import {useCourseState} from "@/store/hooks";
+import {useRefreshCourse} from "@/store/storeHooks/courseHooks";
 
 const applicationPlurals = ["заявку", "заявки", "заявок"]
 const studentPlurals = ["студент", "студента", "студентов"]
@@ -150,8 +144,10 @@ type PendingAction = "accept" | "reject"
 // Поиск нужен, только когда заявок много: на двух-трёх строках он лишний
 const searchThreshold = 5
 
-const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
-    const {students} = props
+const NewCourseStudents: FC = () => {
+    const course = useCourseState(state => state.course.currentCourseMeta)
+    const students = useCourseState(state => state.course.newStudents)
+    const refreshCourse = useRefreshCourse()
 
     const [pendingActions, setPendingActions] = useState<Record<string, PendingAction>>({})
     const [searchQuery, setSearchQuery] = useState("")
@@ -198,7 +194,7 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
         try {
             for (const studentId of studentIds)
                 await request(studentId)
-            props.onUpdate()
+            if (course?.id != null) await refreshCourse(course.id)
         } finally {
             setPendingActions(prevState =>
                 Object.fromEntries(Object.entries(prevState).filter(([id]) => !studentIds.includes(id))))
@@ -207,11 +203,11 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
 
     const acceptStudents = (studentIds: string[]) =>
         withPending(studentIds, "accept",
-            studentId => ApiSingleton.coursesApi.coursesAcceptStudent(props.course.id!, studentId))
+            studentId => ApiSingleton.coursesApi.coursesAcceptStudent(course?.id!, studentId))
 
     const rejectStudent = (studentId: string) =>
         withPending([studentId], "reject",
-            id => ApiSingleton.coursesApi.coursesRejectStudent(props.course.id!, id))
+            id => ApiSingleton.coursesApi.coursesRejectStudent(course?.id!, id))
 
     const acceptAll = async () => {
         setIsAcceptAllOpen(false)
@@ -358,7 +354,7 @@ const NewCourseStudents: FC<INewCourseStudentsProps> = (props) => {
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        {`${filteredStudents.length} ${Utils.pluralizeHelper(studentPlurals, filteredStudents.length)} будут добавлены на курс «${props.course.name}».`}
+                        {`${filteredStudents.length} ${Utils.pluralizeHelper(studentPlurals, filteredStudents.length)} будут добавлены на курс «${course?.name ?? ""}».`}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

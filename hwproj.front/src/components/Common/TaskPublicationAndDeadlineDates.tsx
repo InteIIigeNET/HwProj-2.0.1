@@ -27,6 +27,8 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
     const {homework} = props
     const homeworkPublicationDate = new Date(homework.publicationDate!)
     const homeworkDeadlineDate = homework.deadlineDate == null ? undefined : new Date(homework.deadlineDate)
+    const homeworkPublicationTimestamp = homeworkPublicationDate.getTime()
+    const homeworkDeadlineTimestamp = homeworkDeadlineDate?.getTime()
 
     const [state, setState] = useState<IDateFieldsState>({
         hasDeadline: props.hasDeadline,
@@ -75,7 +77,7 @@ const TaskPublicationAndDeadlineDates: React.FC<IDateFieldsProps> = (props) => {
             deadlineDate: homework.deadlineDate === prevState.deadlineDate ? undefined : prevState.deadlineDate,
             isDeadlineStrict: homework.isDeadlineStrict === prevState.isDeadlineStrict ? undefined : prevState.isDeadlineStrict
         }));
-    }, [homework.publicationDate, homework.deadlineDate, homework.hasDeadline, homework.isDeadlineStrict])
+    }, [homeworkPublicationTimestamp, homeworkDeadlineTimestamp, homework.hasDeadline, homework.isDeadlineStrict])
 
 
     return <div>

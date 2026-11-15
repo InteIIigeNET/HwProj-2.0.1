@@ -7,6 +7,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import {BrowserRouter} from "react-router-dom";
 import {createTheme, ThemeProvider} from "@mui/material/styles";
 import {SnackbarProvider} from "notistack";
+import { Provider } from "react-redux";
+import { store } from "./store/store";
 
 const theme = createTheme({
     palette: {
@@ -28,13 +30,15 @@ const theme = createTheme({
 });
 
 ReactDOM.render(
-    <ThemeProvider theme={theme}>
-        <SnackbarProvider maxSnack={3}>
-            <BrowserRouter>
-                <App/>
-            </BrowserRouter>
-        </SnackbarProvider>
-    </ThemeProvider>,
+    <Provider store={store}>
+        <ThemeProvider theme={theme}>
+            <SnackbarProvider maxSnack={3}>
+                <BrowserRouter>
+                    <App/>
+                </BrowserRouter>
+            </SnackbarProvider>
+        </ThemeProvider>
+    </Provider>,
     document.getElementById("root")
 );
 

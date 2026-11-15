@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {CourseViewModel, GroupViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
+import {GroupViewModel, HomeworkViewModel, StatisticsCourseMatesModel} from "@/api";
 import {useNavigate, useParams} from 'react-router-dom';
 import {
     Alert,
@@ -27,6 +27,7 @@ import Utils from "../../services/Utils";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
+import {CurrentCourseMeta} from "@/store/slices/courseSlice";
 import GroupIcon from '@mui/icons-material/Group';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -34,10 +35,9 @@ import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import {BonusTag, BonusTip, DefaultTags, TestTag} from "../Common/HomeworkTags";
 import {UserInitialsAvatar} from "../Common/UserInitialsAvatar";
 import Lodash from "lodash"
-import ApiSingleton from "@/api/ApiSingleton";
 
 interface IStudentStatsProps {
-    course: CourseViewModel;
+    course: CurrentCourseMeta;
     homeworks: HomeworkViewModel[];
     isMentor: boolean;
     userId: string;
@@ -185,7 +185,7 @@ const StudentStats: React.FC<IStudentStatsProps> = (props) => {
     }, [])
 
     const {searched} = state
-    const isMentor = ApiSingleton.authService.isMentor()
+    const isMentor = props.isMentor
 
     // Поиск студента можно начать, просто начав печатать в любом месте страницы
     useEffect(() => {
