@@ -1255,7 +1255,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 <Divider/>
                 <Box sx={sectionSx}>
                     <Stack spacing={1.75}>
-                        {!props.forMentor && solution &&
+                        {ratingIsHidden && solution &&
                             <Chip
                                 label={studentReviewStatus.label}
                                 color={studentReviewStatus.color}
