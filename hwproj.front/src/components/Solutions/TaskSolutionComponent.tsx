@@ -1268,9 +1268,9 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                         borderColor: "#e57373",
                                         color: "#b71c1c",
                                     } : {
-                                        backgroundColor: "#e5f5df",
-                                        borderColor: "#78b861",
-                                        color: "#256b12",
+                                        backgroundColor: "#cce9bf",
+                                        borderColor: "#69ad4b",
+                                        color: "#245c10",
                                     }),
                                     "& .MuiChip-label": {whiteSpace: "normal", py: 0.5},
                                 }}
