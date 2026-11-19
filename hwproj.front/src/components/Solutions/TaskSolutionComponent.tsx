@@ -1260,17 +1260,17 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     maxWidth: "100%",
                                     height: "auto",
                                     ...(!isRated ? {
-                                        backgroundColor: "#fff8e1",
-                                        borderColor: "#f0cf65",
-                                        color: "#795500",
+                                        backgroundColor: "#f1fbed",
+                                        borderColor: "#b8dfa9",
+                                        color: "#4c6b3c",
                                     } : solution.requiresRevision ? {
                                         backgroundColor: "#ffebee",
                                         borderColor: "#e57373",
                                         color: "#b71c1c",
                                     } : {
-                                        backgroundColor: "#edf7ed",
-                                        borderColor: "#b7d9b9",
-                                        color: "#255d2a",
+                                        backgroundColor: "#e5f5df",
+                                        borderColor: "#78b861",
+                                        color: "#256b12",
                                     }),
                                     "& .MuiChip-label": {whiteSpace: "normal", py: 0.5},
                                 }}

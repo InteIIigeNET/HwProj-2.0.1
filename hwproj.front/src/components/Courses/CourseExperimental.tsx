@@ -399,6 +399,9 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                 color,
                 solutionsDescription
             } = StudentStatsUtils.calculateLastRatedSolutionInfo(solutions!, task.maxRating!)
+            const hiddenStatusColor = lastSolution?.state === SolutionState.NUMBER_0
+                ? "#d0fcc7"
+                : lastSolution?.requiresRevision ? "#ff0000" : "#2cba00"
             if (lastSolution != null) return (
                 <Tooltip arrow disableInteractive enterDelay={1000}
                          title={<span style={{whiteSpace: 'pre-line'}}>{solutionsDescription}</span>}>
@@ -406,7 +409,7 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                           label={lastSolution.isRatingHidden ? StudentStatsUtils.reviewSymbol(lastSolution) : lastRatedSolution == null ? "?" : lastRatedSolution.rating}
                           aria-label={lastSolution.isRatingHidden ? solutionsDescription : undefined}
                           sx={{
-                              backgroundColor: color,
+                              backgroundColor: lastSolution.isRatingHidden ? hiddenStatusColor : color,
                               height: 22,
                               minWidth: 30,
                               fontWeight: 500,

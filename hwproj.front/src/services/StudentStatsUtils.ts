@@ -10,7 +10,7 @@ export default class StudentStatsUtils {
             : solution.requiresRevision ? "Требуется отправить исправленное решение" : "Проверено"
 
     static reviewSymbol = (solution: Pick<SolutionDto, "state" | "requiresRevision">) =>
-        solution.state === SolutionState.NUMBER_0 ? "…" : solution.requiresRevision ? "↻" : "✓"
+        solution.state === SolutionState.NUMBER_0 ? "?" : solution.requiresRevision ? "↻" : "✓"
 
     static getRatingColor = (rating: number, maxRating: number) =>
         colorBetween(0xff0000, 0x2cba00, Math.min(rating, maxRating) / maxRating * 100)
