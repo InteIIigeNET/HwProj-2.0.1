@@ -1226,6 +1226,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         const showLastRatingHint = lastRating !== undefined && state.clickedForRate
         const showLecturerInfo = !!(lecturerName && isRated)
         const showLecturerComment = (state.clickedForRate && props.forMentor) || (isRated && hasLecturerComment)
+        const showRatingBody = !ratingIsHidden || showLecturerInfo || showLecturerComment
 
         return (
             <Paper
@@ -1239,7 +1240,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 <Stack sx={{...panelHeaderSx, ...(tone && {backgroundColor: tone.bg, color: tone.fg})}}>
                     <Stack direction={"row"} alignItems={"center"} spacing={1}>
                         <StarBorderRoundedIcon fontSize={"small"}/>
-                        <Typography variant={"body2"} sx={{fontWeight: 500}}>
+                        <Typography variant={"body2"} sx={{fontWeight: 500, flexShrink: 0}}>
                             {!solution
                                 ? "Оценка без решения"
                                 : isEditing
@@ -1247,14 +1248,6 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     : "Оценка"}
                         </Typography>
                         <Box sx={{flexGrow: 1}}/>
-                        {!isScored
-                            ? props.forMentor && solution && <Chip size={"small"} label={"Ожидает проверки"} sx={pendingChipSx}/>
-                            : showRateControlInHeader && renderRateInput(false)}
-                    </Stack>
-                </Stack>
-                <Divider/>
-                <Box sx={sectionSx}>
-                    <Stack spacing={1.75}>
                         {ratingIsHidden && solution &&
                             <Chip
                                 label={studentReviewStatus.label}
@@ -1262,7 +1255,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                 variant="outlined"
                                 size="small"
                                 sx={{
-                                    alignSelf: "flex-start",
+                                    minWidth: 0,
+                                    flexShrink: 1,
                                     maxWidth: "100%",
                                     height: "auto",
                                     ...(!isRated ? {
@@ -1281,6 +1275,14 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     "& .MuiChip-label": {whiteSpace: "normal", py: 0.5},
                                 }}
                             />}
+                        {!isScored
+                            ? props.forMentor && solution && <Chip size={"small"} label={"Ожидает проверки"} sx={pendingChipSx}/>
+                            : showRateControlInHeader && renderRateInput(false)}
+                    </Stack>
+                </Stack>
+                {showRatingBody && <Divider/>}
+                <Box sx={sectionSx} hidden={!showRatingBody}>
+                    <Stack spacing={1.75}>
                         {showRateControlInBody && renderRateInput(false)}
 
                         {showCriteriaBlock && renderCriteriaBlock()}
