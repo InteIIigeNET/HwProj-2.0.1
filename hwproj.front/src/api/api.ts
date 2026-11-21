@@ -209,6 +209,12 @@ export interface AddTaskQuestionDto {
 export interface AdvancedCourseStatisticsViewModel {
     /**
      *
+     * @type {Array<number>}
+     * @memberof AdvancedCourseStatisticsViewModel
+     */
+    hiddenTaskIds?: Array<number>;
+    /**
+     *
      * @type {CoursePreview}
      * @memberof AdvancedCourseStatisticsViewModel
      */
@@ -584,6 +590,12 @@ export interface CreateGroupViewModel {
 export interface CreateHomeworkViewModel {
     /**
      *
+     * @type {boolean}
+     * @memberof CreateHomeworkViewModel
+     */
+    hideRatings?: boolean;
+    /**
+     *
      * @type {string}
      * @memberof CreateHomeworkViewModel
      */
@@ -942,6 +954,18 @@ export interface GetSolutionModel {
     rating?: number;
     /**
      *
+     * @type {boolean}
+     * @memberof GetSolutionModel
+     */
+    isRatingHidden?: boolean;
+    /**
+     *
+     * @type {boolean}
+     * @memberof GetSolutionModel
+     */
+    requiresRevision?: boolean;
+    /**
+     *
      * @type {string}
      * @memberof GetSolutionModel
      */
@@ -1136,6 +1160,12 @@ export interface HomeworkTaskForEditingViewModel {
 export interface HomeworkTaskViewModel {
     /**
      *
+     * @type {boolean}
+     * @memberof HomeworkTaskViewModel
+     */
+    hideRatings?: boolean;
+    /**
+     *
      * @type {number}
      * @memberof HomeworkTaskViewModel
      */
@@ -1281,6 +1311,12 @@ export interface HomeworkUserTaskSolutions {
  * @interface HomeworkViewModel
  */
 export interface HomeworkViewModel {
+    /**
+     *
+     * @type {boolean}
+     * @memberof HomeworkViewModel
+     */
+    hideRatings?: boolean;
     /**
      *
      * @type {number}
@@ -1735,6 +1771,15 @@ export interface PostTaskViewModel {
 /**
  *
  * @export
+ * @interface ProblemDetails
+ */
+export interface ProblemDetails {
+    [key: string]: any;
+
+}
+/**
+ *
+ * @export
  * @interface ProgramModel
  */
 export interface ProgramModel {
@@ -1788,6 +1833,12 @@ export interface RateSolutionModel {
      * @memberof RateSolutionModel
      */
     lecturerComment?: string;
+    /**
+     *
+     * @type {boolean}
+     * @memberof RateSolutionModel
+     */
+    requiresRevision?: boolean;
 }
 /**
  *
@@ -2039,6 +2090,18 @@ export interface SolutionDto {
     rating?: number;
     /**
      *
+     * @type {boolean}
+     * @memberof SolutionDto
+     */
+    isRatingHidden?: boolean;
+    /**
+     *
+     * @type {boolean}
+     * @memberof SolutionDto
+     */
+    requiresRevision?: boolean;
+    /**
+     *
      * @type {string}
      * @memberof SolutionDto
      */
@@ -2229,6 +2292,12 @@ export interface SolutionViewModel {
      * @memberof SolutionViewModel
      */
     rating?: number;
+    /**
+     *
+     * @type {boolean}
+     * @memberof SolutionViewModel
+     */
+    requiresRevision?: boolean;
     /**
      *
      * @type {Date}
@@ -2567,6 +2636,18 @@ export interface TaskDeadlineView {
      * @memberof TaskDeadlineView
      */
     rating?: number;
+    /**
+     *
+     * @type {boolean}
+     * @memberof TaskDeadlineView
+     */
+    isRatingHidden?: boolean;
+    /**
+     *
+     * @type {boolean}
+     * @memberof TaskDeadlineView
+     */
+    requiresRevision?: boolean;
     /**
      *
      * @type {number}

@@ -19,6 +19,7 @@ namespace HwProj.CoursesService.API.Domains
             return new HomeworkViewModel()
             {
                 Id = homework.Id,
+                HideRatings = homework.HideRatings,
                 Title = homework.Title,
                 Description = homework.Description,
                 HasDeadline = homework.HasDeadline,
@@ -46,6 +47,7 @@ namespace HwProj.CoursesService.API.Domains
             return new HomeworkTaskViewModel()
             {
                 Id = task.Id,
+                HideRatings = task.Homework.HideRatings,
                 Title = task.Title,
                 Description = task.Description,
                 MaxRating = task.MaxRating,
@@ -142,6 +144,7 @@ namespace HwProj.CoursesService.API.Domains
         public static Homework ToHomework(this CreateHomeworkViewModel homework)
             => new Homework()
             {
+                HideRatings = homework.HideRatings,
                 Title = homework.Title,
                 Description = homework.Description,
                 HasDeadline = homework.HasDeadline,
@@ -173,6 +176,7 @@ namespace HwProj.CoursesService.API.Domains
         public static HomeworkTemplate ToHomeworkTemplate(this Homework homework)
             => new HomeworkTemplate()
             {
+                HideRatings = homework.HideRatings,
                 Title = homework.Title,
                 Description = homework.Description,
                 HasDeadline = homework.HasDeadline,
@@ -205,6 +209,7 @@ namespace HwProj.CoursesService.API.Domains
         public static Homework ToHomework(this HomeworkTemplate homeworkTemplate, long courseId)
             => new Homework()
             {
+                HideRatings = homeworkTemplate.HideRatings,
                 Title = homeworkTemplate.Title,
                 Description = homeworkTemplate.Description,
                 HasDeadline = homeworkTemplate.HasDeadline,

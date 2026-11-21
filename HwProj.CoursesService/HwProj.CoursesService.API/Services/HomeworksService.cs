@@ -105,6 +105,7 @@ namespace HwProj.CoursesService.API.Services
             await _homeworksRepository.UpdateAsync(homeworkId, hw => new Homework()
             {
                 Title = update.Title,
+                HideRatings = update.HideRatings,
                 Description = update.Description,
                 HasDeadline = update.HasDeadline,
                 DeadlineDate = update.DeadlineDate,

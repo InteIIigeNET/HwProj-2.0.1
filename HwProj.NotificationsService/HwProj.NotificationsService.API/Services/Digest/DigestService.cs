@@ -4,6 +4,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HwProj.AuthService.Client;
+using HwProj.CoursesService.Client;
+using HwProj.Models.SolutionsService;
+using HwProj.NotificationsService.API.Models;
 using HwProj.Models.Result;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services.Messages;
@@ -38,6 +41,7 @@ namespace HwProj.NotificationsService.API.Services.Digest
 
         private readonly INotificationsRepository _notificationsRepository;
         private readonly IAuthServiceClient _authServiceClient;
+        private readonly ICoursesServiceClient _coursesServiceClient;
         private readonly IEmailService _emailService;
         private readonly IMemoryCache _cache;
         private readonly DigestOptions _options;
@@ -47,6 +51,7 @@ namespace HwProj.NotificationsService.API.Services.Digest
         public DigestService(
             INotificationsRepository notificationsRepository,
             IAuthServiceClient authServiceClient,
+            ICoursesServiceClient coursesServiceClient,
             IEmailService emailService,
             IMemoryCache cache,
             IOptions<DigestOptions> options,
@@ -55,6 +60,7 @@ namespace HwProj.NotificationsService.API.Services.Digest
         {
             _notificationsRepository = notificationsRepository;
             _authServiceClient = authServiceClient;
+            _coursesServiceClient = coursesServiceClient;
             _emailService = emailService;
             _cache = cache;
             _options = options.Value;
@@ -117,8 +123,9 @@ namespace HwProj.NotificationsService.API.Services.Digest
             var account = await _authServiceClient.GetAccountData(userId);
             if (string.IsNullOrEmpty(account?.Email)) return Result.Failed("В профиле не указана почта");
 
-            var message = DigestBuilder.Build(notifications.Select(DigestItem.FromNotification).ToArray(), until,
-                _siteUrl);
+            var items = notifications.Select(DigestItem.FromNotification).ToArray();
+            await ApplyGradeVisibilityAsync(items, userId);
+            var message = DigestBuilder.Build(items, until, _siteUrl);
             message.IsRequested = true;
 
             var digest = new DigestEmail(account.Email, account.Name, message);
@@ -148,10 +155,32 @@ namespace HwProj.NotificationsService.API.Services.Digest
                 if (!accounts.TryGetValue(recipientId, out var account) || string.IsNullOrEmpty(account.Email))
                     continue;
 
+                await ApplyGradeVisibilityAsync(items, recipientId);
                 digests.Add(new DigestEmail(account.Email, account.Name, DigestBuilder.Build(items, until, _siteUrl)));
             }
 
             await _emailService.SendDigestsAsync(digests, cancellationToken);
+        }
+
+        private async Task ApplyGradeVisibilityAsync(DigestItem[] items, string recipientId)
+        {
+            // Настройка могла измениться после создания уведомления, но до отправки письма.
+            foreach (var taskItems in items.Where(i => i.Kind == DigestItemKind.SolutionRated && i.TaskId.HasValue)
+                         .GroupBy(i => i.TaskId.Value))
+            {
+                var course = await _coursesServiceClient.GetCourseByTask(taskItems.Key);
+                var hidden = course == null || (!course.MentorIds.Contains(recipientId) &&
+                    course.Homeworks.Any(h => h.HideRatings && h.Tasks.Any(t => t.Id == taskItems.Key)));
+                if (!hidden) continue;
+                foreach (var item in taskItems)
+                {
+                    item.IsRatingHidden = true;
+                    item.Rating = null;
+                    item.MaxRating = null;
+                    item.PreviousRating = null;
+                    item.Comment = SolutionCommentUtils.WithoutCriterionScores(item.Comment);
+                }
+            }
         }
     }
 }

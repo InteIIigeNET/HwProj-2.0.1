@@ -6,8 +6,10 @@ import {
     Box,
     Button,
     Chip,
+    Checkbox,
     CircularProgress,
     Divider,
+    FormControlLabel,
     IconButton,
     LinearProgress,
     Paper,
@@ -266,6 +268,7 @@ interface ISolutionProps {
 interface ISolutionState {
     points: number,
     lecturerComment: string,
+    requiresRevision: boolean,
     clickedForRate: boolean,
     addBonusPoints: boolean
 }
@@ -374,7 +377,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     };
 
     const getDefaultState = (): ISolutionState => {
-        const storageValue = RatingStorage.tryGet(storageKey);
+        const storageValue = props.forMentor ? RatingStorage.tryGet(storageKey) : null;
         const storedCriteria = parseStoredCriteria(props.solution?.lecturerComment);
 
         const clickedForRate = props.forMentor
@@ -384,6 +387,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         return {
             points: storageValue?.points || props.solution?.rating || 0,
             lecturerComment: storageValue?.comment || props.solution?.lecturerComment || "",
+            requiresRevision: storageValue?.requiresRevision ?? props.solution?.requiresRevision ?? false,
             clickedForRate,
             addBonusPoints: hasCriteria,
         };
@@ -472,7 +476,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         setRateInProgressState(false);
         getActuality();
         setShowOriginalCommentText(false);
-    }, [props.student.userId, props.task.id, props.solution?.id, props.solution?.rating, props.solution?.lecturerComment]);
+    }, [props.student.userId, props.task.id, props.solution?.id, props.solution?.rating, props.solution?.lecturerComment, props.solution?.requiresRevision]);
 
     useEffect(() => {
         if (!hasCriteria || !state.addBonusPoints || !state.clickedForRate || !criteriaModified) return;
@@ -536,7 +540,8 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
         RatingStorage.set(storageKey, {
             points: state.points,
-            comment: state.lecturerComment
+            comment: state.lecturerComment,
+            requiresRevision: state.requiresRevision,
         });
 
         const draft: CriteriaDraft = {
@@ -551,6 +556,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
     }, [
         state.points,
         state.lecturerComment,
+        state.requiresRevision,
         criterionRatings,
         extraScore,
         state.clickedForRate,
@@ -570,7 +576,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         props.solution.githubUrl &&
         props.solution.githubUrl.startsWith("https://github.com/")
 
-    const checkAchievement = props.solution && props.isLastSolution && props.solution.state !== SolutionState.NUMBER_0
+    const checkAchievement = props.solution && !props.solution.isRatingHidden && props.isLastSolution && props.solution.state !== SolutionState.NUMBER_0
 
     const getAchievementState = async () => {
         setAchievementState(undefined)
@@ -646,6 +652,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     {
                         rating: points,
                         lecturerComment: finalComment,
+                        requiresRevision: !!props.task.hideRatings && state.requiresRevision,
                     }
                 );
             } else {
@@ -658,6 +665,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         publicationDate: undefined,
                         rating: points,
                         studentId: props.student.userId,
+                        requiresRevision: !!props.task.hideRatings && state.requiresRevision,
                     }
                 );
             }
@@ -1193,24 +1201,32 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
     const sentAfterDeadline = solution && task.hasDeadline && getDatesDiff(solution.publicationDate!, task.deadlineDate!)
 
-    const showRatingPanel = props.forMentor || isRated
+    const showRatingPanel = props.forMentor || !!solution
     // Цвет рамки панели оценки — он же цвет перемычки к решению, чтобы связка читалась как одно целое
-    const ratingPanelColor = isRated || state.clickedForRate ? scoreColor : "#c4cad2"
+    const ratingIsHidden = !props.forMentor && !!solution?.isRatingHidden
+    const ratingPanelColor = !ratingIsHidden && (isRated || state.clickedForRate) ? scoreColor : "#c4cad2"
 
     const renderRatingPanel = () => {
+        // Студент видит статус сохранённой попытки, а не черновика преподавателя.
+        const studentReviewStatus = !isRated
+            ? {label: "На проверке", color: "warning" as const}
+            : solution?.requiresRevision
+                ? {label: "Требуется отправить исправленное решение", color: "error" as const}
+                : {label: "Проверено", color: "success" as const};
         const percent = maxRating > 0 ? points * 100 / maxRating : 0
         const isEditing = props.forMentor && state.clickedForRate
-        const showRateControlInBody = (!hasCriteria || !state.clickedForRate) && (!isRated || isEditing)
-        const showRateControlInHeader = (!hasCriteria || !state.clickedForRate) && isRated && !isEditing
+        const showRateControlInBody = !ratingIsHidden && (props.forMentor || isRated) && (!hasCriteria || !state.clickedForRate) && (!isRated || isEditing)
+        const showRateControlInHeader = !ratingIsHidden && (!hasCriteria || !state.clickedForRate) && isRated && !isEditing
         // Тон и цвет рамки берём и во время оценивания — оценка сразу видна по цвету панели
         const isScored = isRated || state.clickedForRate
-        const tone = isScored ? gradeTone(percent) : undefined
+        const tone = isScored && !ratingIsHidden ? gradeTone(percent) : undefined
         const hasLecturerComment = !!lecturerComment?.trim()
         const showCriteriaBlock = props.forMentor && hasCriteria && state.addBonusPoints && state.clickedForRate
-        const showQuickRateHint = !isRated && !state.clickedForRate && maxRating <= 10 && !addBonusPoints
+        const showQuickRateHint = props.forMentor && !isRated && !state.clickedForRate && maxRating <= 10 && !addBonusPoints
         const showLastRatingHint = lastRating !== undefined && state.clickedForRate
         const showLecturerInfo = !!(lecturerName && isRated)
         const showLecturerComment = (state.clickedForRate && props.forMentor) || (isRated && hasLecturerComment)
+        const showRatingBody = !ratingIsHidden || showLecturerInfo || showLecturerComment
 
         return (
             <Paper
@@ -1224,7 +1240,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 <Stack sx={{...panelHeaderSx, ...(tone && {backgroundColor: tone.bg, color: tone.fg})}}>
                     <Stack direction={"row"} alignItems={"center"} spacing={1}>
                         <StarBorderRoundedIcon fontSize={"small"}/>
-                        <Typography variant={"body2"} sx={{fontWeight: 500}}>
+                        <Typography variant={"body2"} sx={{fontWeight: 500, flexShrink: 0}}>
                             {!solution
                                 ? "Оценка без решения"
                                 : isEditing
@@ -1232,17 +1248,61 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     : "Оценка"}
                         </Typography>
                         <Box sx={{flexGrow: 1}}/>
+                        {ratingIsHidden && solution &&
+                            <Chip
+                                label={studentReviewStatus.label}
+                                color={studentReviewStatus.color}
+                                variant="outlined"
+                                size="small"
+                                sx={{
+                                    minWidth: 0,
+                                    flexShrink: 1,
+                                    maxWidth: "100%",
+                                    height: "auto",
+                                    ...(!isRated ? {
+                                        backgroundColor: "#f1fbed",
+                                        borderColor: "#b8dfa9",
+                                        color: "#4c6b3c",
+                                    } : solution.requiresRevision ? {
+                                        backgroundColor: "#ffebee",
+                                        borderColor: "#e57373",
+                                        color: "#b71c1c",
+                                    } : {
+                                        backgroundColor: "#cce9bf",
+                                        borderColor: "#69ad4b",
+                                        color: "#245c10",
+                                    }),
+                                    "& .MuiChip-label": {whiteSpace: "normal", py: 0.5},
+                                }}
+                            />}
                         {!isScored
-                            ? solution && <Chip size={"small"} label={"Ожидает проверки"} sx={pendingChipSx}/>
+                            ? props.forMentor && solution && <Chip size={"small"} label={"Ожидает проверки"} sx={pendingChipSx}/>
                             : showRateControlInHeader && renderRateInput(false)}
                     </Stack>
                 </Stack>
-                <Divider/>
-                <Box sx={sectionSx}>
+                {showRatingBody && <Divider/>}
+                <Box sx={sectionSx} hidden={!showRatingBody}>
                     <Stack spacing={1.75}>
                         {showRateControlInBody && renderRateInput(false)}
 
                         {showCriteriaBlock && renderCriteriaBlock()}
+
+                        {props.forMentor && task.hideRatings &&
+                            <FormControlLabel
+                                sx={{m: 0, alignSelf: "flex-start"}}
+                                control={
+                                    <Checkbox
+                                        checked={state.requiresRevision}
+                                        disabled={rateInProgress || (isRated && !state.clickedForRate)}
+                                        onChange={(_, checked) => setState(prev => ({
+                                            ...prev,
+                                            requiresRevision: checked,
+                                            clickedForRate: true,
+                                        }))}
+                                    />
+                                }
+                                label="Запросить исправленное решение"
+                            />}
 
                         {showQuickRateHint &&
                             <Typography sx={hintSx}>
@@ -1358,6 +1418,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                             ...prevState,
                                             points: props.solution?.rating || 0,
                                             lecturerComment: storedCriteria.commentWithoutCriteria,
+                                            requiresRevision: props.solution?.requiresRevision ?? false,
                                             addBonusPoints: hasCriteria,
                                             clickedForRate: false,
                                         }));

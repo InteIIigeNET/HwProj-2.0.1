@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using HwProj.APIGateway.API.ExceptionFilters;
 using HwProj.APIGateway.API.Models.Solutions;
+using HwProj.APIGateway.API.Services;
 using HwProj.AuthService.Client;
 using HwProj.CoursesService.Client;
 using HwProj.Models.CoursesService;
@@ -37,13 +38,21 @@ public class SolutionsController : AggregationController
     }
 
     [HttpGet("{solutionId}")]
+    [Authorize]
     [ProducesResponseType(typeof(SolutionDto), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetSolutionById(long solutionId)
     {
         var result = await _solutionsClient.GetSolutionById(solutionId);
-        return result == null
-            ? NotFound()
-            : Ok(result);
+        if (result == null) return NotFound();
+        var course = await _coursesServiceClient.GetCourseByTask(result.TaskId);
+        if (course == null) return NotFound();
+        var mentor = course.MentorIds.Contains(UserId);
+        var groupMember = result.GroupId is { } groupId && course.Groups.Any(g =>
+            g.Id == groupId && g.StudentsIds.Contains(UserId));
+        if (!mentor && (!course.AcceptedStudents.Any(s => s.StudentId == UserId) ||
+                        (result.StudentId != UserId && !groupMember))) return Forbid();
+        GradeVisibility.Apply(result, GradeVisibility.HiddenTaskIds(course, UserId));
+        return Ok(result);
     }
 
     [HttpGet("taskSolution/{taskId}/{studentId}")]
@@ -56,9 +65,11 @@ public class SolutionsController : AggregationController
 
         var courseMate = course.AcceptedStudents.FirstOrDefault(t => t.StudentId == studentId);
         if (courseMate == null) return NotFound();
+        if (!course.MentorIds.Contains(UserId) && studentId != UserId) return Forbid();
 
-        var studentSolutions = (await _solutionsClient.GetCourseStatistics(course.Id, UserId))
-            .Single().Homeworks
+        var statistics = await _solutionsClient.GetCourseStatistics(course.Id, UserId);
+        GradeVisibility.Apply(statistics, GradeVisibility.HiddenTaskIds(course, UserId));
+        var studentSolutions = statistics.Single(s => s.StudentId == studentId).Homeworks
             .ToDictionary(x => x.Id);
 
         var homeworks = course.Homeworks
@@ -516,6 +527,8 @@ public class SolutionsController : AggregationController
             course.AcceptedStudents.FirstOrDefault(t => t.StudentId == UserId) == null)
             return BadRequest($"Студента или преподавателя с id {UserId} не существует");
 
+        if (GradeVisibility.HiddenTaskIds(course, UserId).Contains(taskId)) return Ok(null);
+
         var solutions = await _solutionsClient.GetTaskSolutionStatistics(course.Id, taskId);
         var lastRatedSolutions = solutions
             .Select(t => t.Solutions.LastOrDefault(x => x.State != SolutionState.Posted))
@@ -529,11 +542,11 @@ public class SolutionsController : AggregationController
         if (lastRatedSolutions.Any(x => x!.GroupId != null))
             lastRatedSolutions = lastRatedSolutions.DistinctBy(t => t!.Id).ToArray();
 
-        var score = solution.Rating;
+        var score = solution.Rating.GetValueOrDefault();
         var maxScore = course.Homeworks.SelectMany(x => x.Tasks).First(x => x.Id == taskId).MaxRating;
         var otherScores = lastRatedSolutions
             .Where(x => x!.Id != solutionId)
-            .Select(x => x!.Rating)
+            .Select(x => x!.Rating.GetValueOrDefault())
             .ToArray();
         
         var absolute = (double)score / maxScore;
