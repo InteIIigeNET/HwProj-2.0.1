@@ -652,7 +652,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                     {
                         rating: points,
                         lecturerComment: finalComment,
-                        requiresRevision: state.requiresRevision,
+                        requiresRevision: !!props.task.hideRatings && state.requiresRevision,
                     }
                 );
             } else {
@@ -665,7 +665,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                         publicationDate: undefined,
                         rating: points,
                         studentId: props.student.userId,
-                        requiresRevision: state.requiresRevision,
+                        requiresRevision: !!props.task.hideRatings && state.requiresRevision,
                     }
                 );
             }
@@ -1287,7 +1287,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
 
                         {showCriteriaBlock && renderCriteriaBlock()}
 
-                        {props.forMentor &&
+                        {props.forMentor && task.hideRatings &&
                             <FormControlLabel
                                 sx={{m: 0, alignSelf: "flex-start"}}
                                 control={
