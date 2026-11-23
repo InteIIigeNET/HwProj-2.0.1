@@ -1,0 +1,13 @@
+<Project>
+    <!-- Общие настройки всех проектов на .NET 8: целевой фреймворк и версии общих зависимостей -->
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <AutoMapperVersion>15.0.1</AutoMapperVersion>
+        <EntityFrameworkCoreVersion>9.0.9</EntityFrameworkCoreVersion>
+        <MicrosoftExtensionsVersion>9.0.9</MicrosoftExtensionsVersion>
+        <ZEntityFrameworkPlusVersion>9.104.0</ZEntityFrameworkPlusVersion>
+    </PropertyGroup>
+</Project>

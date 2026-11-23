@@ -2,9 +2,10 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY ["Directory.Build.props", "Directory.Build.props"]
+COPY ["Net8.props", "Net8.props"]
+COPY ["Net8.Service.props", "Net8.Service.props"]
 
 COPY ["HwProj.CoursesService/HwProj.CoursesService.API/", "HwProj.CoursesService/HwProj.CoursesService.API/"]
-COPY ["HwProj.Common/HwProj.Utils/", "HwProj.Common/HwProj.Utils/"]
 COPY ["HwProj.Common/HwProj.Models/", "HwProj.Common/HwProj.Models/"]
 COPY ["HwProj.Common/HwProj.Exceptions/", "HwProj.Common/HwProj.Exceptions/"]
 COPY ["HwProj.EventBus/HwProj.EventBus.Client/", "HwProj.EventBus/HwProj.EventBus.Client/"]

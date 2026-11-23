@@ -1,21 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <LangVersion>$(CSharpLanguageVersion)</LangVersion>
-    <Nullable>disable</Nullable>
-  </PropertyGroup>
+  <Import Project="..\..\Net8.Service.props" />
+
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="15.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\HwProj.Common\HwProj.Common.Net8\HwProj.Common.Net8.csproj" />
     <ProjectReference Include="..\..\HwProj.Common\HwProj.Exceptions\HwProj.Exceptions.csproj" />
-    <ProjectReference Include="..\..\HwProj.Common\HwProj.Repositories.Net8\HwProj.Repositories.Net8.csproj" />
     <ProjectReference Include="..\..\HwProj.NotificationsService\HwProj.NotificationService.Events\HwProj.NotificationService.Events.csproj" />
     <ProjectReference Include="..\..\HwProj.ContentService\HwProj.ContentService.Client\HwProj.ContentService.Client.csproj" />
     <ProjectReference Include="..\..\HwProj.AuthService\HwProj.AuthService.Client\HwProj.AuthService.Client.csproj" />
