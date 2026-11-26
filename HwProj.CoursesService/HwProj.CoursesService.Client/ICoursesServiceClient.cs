@@ -29,6 +29,7 @@ namespace HwProj.CoursesService.Client
             StudentCharacteristicsDto characteristics);
 
         Task<CourseDTO[]> GetAllUserCourses();
+        Task<CoursePreview[]> GetUserCoursesPreviews();
         Task<TaskDeadlineDto[]> GetTaskDeadlines();
         Task<Result<HomeworkViewModel>> AddHomeworkToCourse(CreateHomeworkViewModel model, long courseId);
         Task<HomeworkViewModel> GetHomework(long homeworkId);

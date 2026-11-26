@@ -357,6 +357,41 @@ namespace HwProj.CoursesService.API.Services
             return result;
         }
 
+        public async Task<CoursePreview[]> GetUserCoursesPreviewsAsync(string userId, string role)
+        {
+            var isMentor = role == Roles.LecturerRole || role == Roles.ExpertRole;
+
+            var courses = isMentor
+                ? _coursesRepository.FindAll(c => c.Mentors.Any(m => m.UserId == userId))
+                : _coursesRepository.FindAll(c => c.CourseMates.Any(cm => cm.IsAccepted && cm.StudentId == userId));
+
+            var previews = await courses
+                .Select(c => new CoursePreview
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    GroupName = c.GroupName,
+                    IsCompleted = c.IsCompleted,
+                    MentorIds = c.Mentors.Select(m => m.UserId).ToArray(),
+                    TaskId = c.Homeworks
+                        .SelectMany(h => h.Tasks)
+                        .OrderBy(t => t.Id)
+                        .Select(t => (long?)t.Id)
+                        .FirstOrDefault()
+                })
+                .ToArrayAsync();
+
+            if (role != Roles.ExpertRole)
+            {
+                foreach (var preview in previews)
+                {
+                    preview.TaskId = null;
+                }
+            }
+
+            return previews;
+        }
+
         public async Task<bool> AcceptLecturerAsync(long courseId, string lecturerEmail, string lecturerId)
         {
             var course = await _coursesRepository.GetAsync(courseId);

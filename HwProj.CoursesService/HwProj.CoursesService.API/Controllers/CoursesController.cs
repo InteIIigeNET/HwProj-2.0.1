@@ -201,6 +201,16 @@ namespace HwProj.CoursesService.API.Controllers
             return courses;
         }
 
+        [CourseDataFilter]
+        [HttpGet("userCoursesPreviews")]
+        public async Task<CoursePreview[]> GetUserCoursesPreviews(string role)
+        {
+            var userId = Request.GetUserIdFromHeader();
+            var courses = await _coursesService.GetUserCoursesPreviewsAsync(userId, role);
+
+            return courses;
+        }
+
         [HttpGet("acceptLecturer/{courseId}")]
         [ServiceFilter(typeof(CourseMentorOnlyAttribute))]
         public async Task<IActionResult> AcceptLecturer(long courseId, [FromQuery] string lecturerEmail,

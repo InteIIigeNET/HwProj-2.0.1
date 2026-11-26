@@ -251,6 +251,18 @@ namespace HwProj.CoursesService.Client
             return await response.DeserializeAsync<CourseDTO[]>();
         }
 
+        public async Task<CoursePreview[]> GetUserCoursesPreviews()
+        {
+            var role = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role).Value;
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                _coursesServiceUri + $"api/Courses/userCoursesPreviews?role={role}");
+
+            httpRequest.TryAddUserId(_httpContextAccessor);
+            var response = await _httpClient.SendAsync(httpRequest);
+            return await response.DeserializeAsync<CoursePreview[]>();
+        }
+
         public async Task<TaskDeadlineDto[]> GetTaskDeadlines()
         {
             using var httpRequest = new HttpRequestMessage(

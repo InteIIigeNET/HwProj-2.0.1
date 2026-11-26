@@ -188,7 +188,7 @@ public class CoursesController : AggregationController
     [Authorize]
     public async Task<CoursePreviewView[]> GetAllUserCourses()
     {
-        var userCourses = await _coursesClient.GetAllUserCourses();
+        var userCourses = await _coursesClient.GetUserCoursesPreviews();
         var result = await GetCoursePreviews(userCourses);
         return result;
     }
