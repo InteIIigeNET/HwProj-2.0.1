@@ -42,6 +42,7 @@ import {ThumbDown, ThumbUp} from "@mui/icons-material";
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
+import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 import AssignmentTurnedInOutlinedIcon from '@mui/icons-material/AssignmentTurnedInOutlined';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import {MarkdownEditor, MarkdownPreview} from "../Common/MarkdownEditor";
@@ -1227,6 +1228,19 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
         const showLecturerInfo = !!(lecturerName && isRated)
         const showLecturerComment = (state.clickedForRate && props.forMentor) || (isRated && hasLecturerComment)
         const showRatingBody = !ratingIsHidden || showLecturerInfo || showLecturerComment
+        const hiddenRatingNotice = props.forMentor && task.hideRatings && (
+            <Stack
+                direction="row"
+                alignItems="center"
+                spacing={0.5}
+                sx={{color: "text.secondary", minWidth: 0, maxWidth: "100%"}}
+            >
+                <VisibilityOffOutlinedIcon sx={{fontSize: 16}}/>
+                <Typography variant="caption" sx={{fontSize: "0.8125rem"}}>
+                    Балл скрыт от студента
+                </Typography>
+            </Stack>
+        )
 
         return (
             <Paper
@@ -1238,7 +1252,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                 }}
             >
                 <Stack sx={{...panelHeaderSx, ...(tone && {backgroundColor: tone.bg, color: tone.fg})}}>
-                    <Stack direction={"row"} alignItems={"center"} spacing={1}>
+                    <Stack direction={"row"} alignItems={"center"} spacing={1} useFlexGap flexWrap="wrap">
                         <StarBorderRoundedIcon fontSize={"small"}/>
                         <Typography variant={"body2"} sx={{fontWeight: 500, flexShrink: 0}}>
                             {!solution
@@ -1247,6 +1261,7 @@ const TaskSolutionComponent: FC<ISolutionProps> = (props) => {
                                     ? (isRated ? "Изменение оценки" : "Оценивание решения")
                                     : "Оценка"}
                         </Typography>
+                        {hiddenRatingNotice}
                         <Box sx={{flexGrow: 1}}/>
                         {ratingIsHidden && solution &&
                             <Chip
