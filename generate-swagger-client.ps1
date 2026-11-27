@@ -79,6 +79,10 @@ if (Test-Path -Path $apiFilePath) {
     # 2. Делаем конфигурацию опциональной
     $apiContent = $apiContent -replace 'configuration:\s*Configuration;', 'configuration: Configuration | undefined;'
 
+    # Swagger Codegen 3.0.68 некорректно описывает additionalProperties у ProblemDetails.
+    # Индексная сигнатура внутри интерфейса уже описывает словарь; наследование от null недопустимо.
+    $apiContent = $apiContent -replace 'export interface ProblemDetails extends null<String, any> \{', 'export interface ProblemDetails {'
+
     # 3. Форматируем пробелы
     $apiContent = $apiContent | ForEach {$_.TrimEnd()}
     $apiContent = $apiContent -replace '\t', (' ' * 4)

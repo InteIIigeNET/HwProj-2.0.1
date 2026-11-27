@@ -3,6 +3,8 @@ import {
     Badge,
     Box,
     Chip,
+    Checkbox,
+    FormControlLabel,
     CircularProgress,
     Divider,
     IconButton,
@@ -354,6 +356,10 @@ const CourseHomeworkEditor: FC<{
                             Вы можете сгруппировать контрольные работы и переписывания с помощью
                             дополнительного тега. Например, 'КР 1'
                         </Alert>}
+                    <FormControlLabel
+                        control={<Checkbox checked={loadedHomework.hideRatings ?? false} onChange={(_, checked) => patchHomeworkDraft({...loadedHomework, hideRatings: checked})}/>}
+                        label="Скрывать баллы от студентов во всех задачах задания"
+                    />
                     <Box>
                         <Typography sx={sectionLabelSx}>Общее описание задания</Typography>
                         <Box sx={markdownEditorSx}>

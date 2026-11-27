@@ -210,6 +210,7 @@ export const useHomeworkEditing = () => {
 
     const buildHomeworkPayload = useCallback((homework: HomeworkViewModel, editOptions: ActionOptions): CreateHomeworkViewModel => ({
         title: homework.title!,
+        hideRatings: homework.hideRatings ?? false,
         description: homework.description,
         tags: homework.tags || [],
         groupId: homework.groupId,

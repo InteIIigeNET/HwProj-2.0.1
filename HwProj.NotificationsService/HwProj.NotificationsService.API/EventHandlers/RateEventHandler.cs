@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using HwProj.EventBus.Client.Interfaces;
 using HwProj.NotificationService.Events.SolutionsService;
+using HwProj.Models.SolutionsService;
 using HwProj.NotificationsService.API.Models;
 using HwProj.NotificationsService.API.Repositories;
 using HwProj.NotificationsService.API.Services.Digest;
@@ -26,7 +27,11 @@ namespace HwProj.NotificationsService.API.EventHandlers
         public async Task HandleAsync(RateEvent @event)
         {
             var taskUrl = $"{_configuration["Url"]}/courses/{@event.CourseId}/homeworks?taskId={@event.Task.Id}";
-            var comment = LecturerComment.Parse(@event.Solution.LecturerComment);
+            var hidden = @event.Task.HideRatings;
+            var commentText = hidden
+                ? SolutionCommentUtils.WithoutCriterionScores(@event.Solution.LecturerComment)
+                : @event.Solution.LecturerComment;
+            var comment = LecturerComment.Parse(commentText);
             var rating = @event.Solution.Rating ?? 0;
             var isUpdate = @event.PreviousRating != null;
             var taskLink = NotificationHtml.Link(taskUrl, @event.Task.Title);
@@ -38,9 +43,13 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     : $"Оценка за задачу «{@event.Task.Title}»")
                 .WithText(isUpdate
                     ? $"Преподаватель обновил проверку вашего решения задачи {taskLink}."
-                    : $"Преподаватель проверил ваше решение задачи {taskLink}.")
-                .WithDetail("Оценка", NotificationHtml.Bold($"{rating} / {@event.Task.MaxRating}"));
-            if (isUpdate && @event.PreviousRating != rating)
+                    : $"Преподаватель проверил ваше решение задачи {taskLink}.");
+            if (hidden)
+                message.WithDetail("Статус", @event.Solution.RequiresRevision
+                    ? "Требуется отправить исправленное решение" : "Проверено");
+            else
+                message.WithDetail("Оценка", NotificationHtml.Bold($"{rating} / {@event.Task.MaxRating}"));
+            if (!hidden && isUpdate && @event.PreviousRating != rating)
                 message.WithDetail("Было", NotificationHtml.Encode($"{@event.PreviousRating} / {@event.Task.MaxRating}"));
 
             message
@@ -54,10 +63,12 @@ namespace HwProj.NotificationsService.API.EventHandlers
                     CourseName = @event.CourseName,
                     TaskId = @event.Task.Id,
                     TaskTitle = @event.Task.Title,
-                    Rating = rating,
-                    MaxRating = @event.Task.MaxRating,
-                    PreviousRating = @event.PreviousRating,
-                    Comment = @event.Solution.LecturerComment
+                    Rating = hidden ? (int?)null : rating,
+                    MaxRating = hidden ? (int?)null : @event.Task.MaxRating,
+                    PreviousRating = hidden ? null : @event.PreviousRating,
+                    IsRatingHidden = hidden,
+                    RequiresRevision = @event.Solution.RequiresRevision,
+                    Comment = commentText
                 });
 
             var notification = message.ToNotification(@event.Solution.StudentId, "SolutionService",

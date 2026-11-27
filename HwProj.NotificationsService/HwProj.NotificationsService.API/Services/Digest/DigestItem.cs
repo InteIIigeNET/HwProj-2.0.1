@@ -43,6 +43,9 @@ namespace HwProj.NotificationsService.API.Services.Digest
         /// <summary> Оценка до исправления; null, если решение проверено впервые </summary>
         public int? PreviousRating { get; set; }
 
+        public bool IsRatingHidden { get; set; }
+        public bool RequiresRevision { get; set; }
+
         public string Question { get; set; }
         public string Answer { get; set; }
 
