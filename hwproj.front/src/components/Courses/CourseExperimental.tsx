@@ -413,6 +413,10 @@ export const CourseExperimental: FC<ICourseExperimentalProps> = (props) => {
                               height: 22,
                               minWidth: 30,
                               fontWeight: 500,
+                              ...(lastSolution.isRatingHidden && lastSolution.state !== SolutionState.NUMBER_0 && {
+                                  color: "#ffffff",
+                                  fontWeight: 700,
+                              }),
                               "& .MuiChip-label": {px: 0.75},
                           }}/>
                 </Tooltip>
