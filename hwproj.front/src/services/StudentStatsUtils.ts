@@ -41,8 +41,8 @@ export default class StudentStatsUtils {
             return {
                 lastRatedSolution, lastSolution, ratedSolutionsCount,
                 solutionsDescription: StudentStatsUtils.reviewLabel(lastSolution),
-                color: lastSolution.state === SolutionState.NUMBER_0 ? "#fff8e1"
-                    : lastSolution.requiresRevision ? "#ffebee" : "#edf7ed",
+                color: lastSolution.state === SolutionState.NUMBER_0 ? "#d0fcc7"
+                    : lastSolution.requiresRevision ? "#ff0000" : "#2cba00",
             }
         }
 

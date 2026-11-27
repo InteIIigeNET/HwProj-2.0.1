@@ -1,7 +1,7 @@
 import * as React from "react";
 import {FC} from "react";
 import {useNavigate} from "react-router-dom";
-import {SolutionDto} from "api";
+import {SolutionDto, SolutionState} from "api";
 import {Box, Chip, Stack, TableCell, Tooltip} from "@mui/material";
 import StudentStatsUtils from "../../services/StudentStatsUtils";
 import Utils from "../../services/Utils";
@@ -87,6 +87,11 @@ const StudentStatsCell: FC<ITaskStudentCellProps & { borderLeftColor?: string }>
                     p: 0,
                     minWidth: 76,
                     backgroundColor: cellState.color,
+                    ...(isClickable && cellState.lastSolution?.isRatingHidden
+                        && cellState.lastSolution.state !== SolutionState.NUMBER_0 && {
+                            color: "#ffffff",
+                            fontWeight: 700,
+                        }),
                     borderLeft: `1px solid ${props.borderLeftColor || "#eceef3"}`,
                     borderBottom: "1px solid #eceef3",
                     cursor: isClickable ? "pointer" : "default",
